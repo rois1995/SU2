@@ -39,6 +39,7 @@ SU2_IGNORE_WARNING("-Wmaybe-uninitialized")
 SU2_RESTORE_WARNING
 
 #include <complex>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <type_traits>
@@ -56,6 +57,48 @@ constexpr T linSolEpsilon() {
 template <>
 constexpr float linSolEpsilon<float>() {
   return 1e-14;
+}
+
+/*--- [MIXEDPREC-DEBUG] Global statistics of a vector, accumulated in double and in the native
+ * type, to detect NaN/Inf, overflow/underflow of squares, and subnormal entries.
+ * Must be called by the master thread of every rank (it does an MPI reduction). ---*/
+template <class ScalarType>
+void DebugVecStats(const char* name, const CSysVector<ScalarType>& v) {
+  const passivedouble tiny = std::is_same_v<ScalarType, float> ? std::numeric_limits<float>::min()
+                                                                : std::numeric_limits<passivedouble>::min();
+  passivedouble loc[2] = {0.0, 0.0};  // sum sq (double acc), sum sq (native acc)
+  passivedouble locMax = 0.0, locMinNZ = std::numeric_limits<passivedouble>::max();
+  unsigned long cnt[5] = {0, 0, 0, 0, 0};  // nan, inf, subnormal, sq underflow, sq overflow (native type)
+  ScalarType sqNative = 0;
+  for (unsigned long k = 0; k < v.GetNElmDomain(); ++k) {
+    const ScalarType xs = v[k];
+    const passivedouble x = SU2_TYPE::GetValue(xs);
+    if (x != x) { cnt[0]++; continue; }
+    if (std::isinf(x)) { cnt[1]++; continue; }
+    const passivedouble ax = fabs(x);
+    if (ax > 0 && ax < tiny) cnt[2]++;
+    const ScalarType sq = xs * xs;
+    const passivedouble sqd = SU2_TYPE::GetValue(sq);
+    if (ax > 0 && sqd == 0) cnt[3]++;
+    if (std::isinf(sqd)) cnt[4]++;
+    loc[0] += x * x;
+    sqNative += sq;
+    locMax = fmax(locMax, ax);
+    if (ax > 0) locMinNZ = fmin(locMinNZ, ax);
+  }
+  loc[1] = SU2_TYPE::GetValue(sqNative);
+  passivedouble glb[2], glbMax, glbMinNZ;
+  unsigned long gcnt[5];
+  SU2_MPI::Allreduce(loc, glb, 2, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&locMax, &glbMax, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&locMinNZ, &glbMinNZ, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(cnt, gcnt, 5, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    cout << std::scientific << std::setprecision(6) << "[MIXEDPREC-DEBUG]   " << name
+         << ": norm(dbl acc)=" << sqrt(glb[0]) << " norm(native acc)=" << sqrt(glb[1]) << " max|x|=" << glbMax
+         << " min|x|>0=" << glbMinNZ << " nan=" << gcnt[0] << " inf=" << gcnt[1] << " subnormal=" << gcnt[2]
+         << " sq_underflow=" << gcnt[3] << " sq_overflow=" << gcnt[4] << endl;
+  }
 }
 
 /*--- Computes v = vs * ws or v += vs * ws with unrolling of up to 4 iterations. ---*/
@@ -564,6 +607,30 @@ unsigned long CSysSolve<ScalarType>::FGMRES_LinSolver(const CSysVector<ScalarTyp
         cout << "WARNING: FGMRES orthogonalization failed, linear solver diverged." << endl;
         END_SU2_OMP_MASTER
       }
+
+      /*--- [MIXEDPREC-DEBUG] Dump the state at the failure. ---*/
+      BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+        if (masterRank) {
+          cout << std::scientific << std::setprecision(6) << "[MIXEDPREC-DEBUG] FGMRES failure: sizeof(Scalar)="
+               << sizeof(ScalarType) << " i=" << i << " m=" << m << " tol=" << tol << " norm0=" << norm0
+               << " beta=" << beta << " beta/norm0=" << beta / norm0 << endl;
+          cout << "[MIXEDPREC-DEBUG]   H(0..i+1,i) =";
+          for (unsigned long k = 0; k <= i + 1; k++) cout << " " << H(k, i);
+          cout << endl;
+        }
+        DebugVecStats("b", b);
+        DebugVecStats("x (initial guess)", x);
+        DebugVecStats("V[i] (unit basis)", V[i]);
+        if (flexible) DebugVecStats("Z[i] = P*V[i]", Z[i]);
+        DebugVecStats("V[i+1] after orthog", V[i + 1]);
+      }
+      END_SU2_OMP_SAFE_GLOBAL_ACCESS
+
+      /*--- [MIXEDPREC-DEBUG] Recompute the product that entered the orthogonalization (all threads). ---*/
+      mat_vec(flexible ? Z[i] : V[i], V[i + 1]);
+
+      BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS { DebugVecStats("A*Z[i] before orthog", V[i + 1]); }
+      END_SU2_OMP_SAFE_GLOBAL_ACCESS
       break;
     }
 
