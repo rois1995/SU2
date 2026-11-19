@@ -1,43 +1,14 @@
-User order, 2026-11-18 (LATEST): N18 = step 8.5r2, corrected retry of the larger quality
-rounds with M28, follows N6 and precedes N7. Gate 8 uses the purpose rule in I8R2.
-This amendment leaves the running N6 work in place under R12.
+# Work order 3 (clean copy of the order in force)
 
-User order, 2026-11-18 (LATEST): phase C and N17 are complete. Section 4 item 3
-now calls for N16 = step 8.5r (larger quality rounds). The M27 measurement
-showed a small upper bound on the gain from step 8.4a, which is withdrawn.
-Resume at section 4 item 2 and continue through items 3, 4 and 5 in order.
-All section 1 rules and standing user instructions apply.
+Written 2026-11-19, 20:15, after N22 and FP0. Author: reviewer, for the main agent. The user sends it; it is a user order.
 
-# Work order 2 (clean copy of the order in force)
+This file replaces "Work order 2" and the "User order" lines above it in `AGENTS.md` as the order in force. Put it in
+`AGENTS.md` in their place, from the top of the file to the line before "# Standing user instructions (unchanged)". The
+standing user instructions below that line do not change. Work order 2 and its files (H, D, C, I, I8R, I8A, I8R2) stay in
+your evidence folders as history. Where this file and an old text differ, this file wins. If you find a rule of the old
+order that is still necessary and is not here: use the old rule and write it in the report (R4, "reading used").
 
-Written 2026-11-17, 19:40, after the planned stop at the end of phase B of the cut.
-Author: reviewer, for the main agent. The user sends it; it is a user order.
-
-The planned stop is over. This order starts the work again (section 4). The rule
-"never idle" is in force again.
-
-This file replaces `NIGHT_WORK_ORDER.md` (sections 1 to 6.12) as the order in force.
-It changes no gate, no rule, no limit and no result of a passed item. It removes the
-layers of corrections and the items that are done or withdrawn. The old file and its
-copies in your evidence folders stay as history. Where this file and an old text
-differ, this file wins. If you find a rule of the old file that is still necessary and
-is not here: use the old rule and write it in the report (R4, "reading used").
-
-Files (copy each with its SHA256 into your evidence folder, read them completely):
-
-- H = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/M6_FIX_HANDOFF.md`
-- D = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/ADAPTATION_ONE_ENGINE_DESIGN_V1.md`
-- C = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/CUT_PLAN_8_2.md`
-- I = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/IMPLEMENTATION_8_3_8_4.md`
-- I8R = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/IMPLEMENTATION_8_5R.md`
-  (section 4 item 3 only; SHA256 `32919ed2375b804ace0938974b78f142ae8ba2b03dafb2c003817f5fd199d704`. Copy and verify
-  the pinned bytes now and read them completely upon reaching item 3.)
-- I8A = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/MEASUREMENT_M27.md`
-  (for item 1a of section 4 only; same rule)
-
-- I8R2 = `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-NativeIntegrated/f3d988e5-f14f-4a96-b6fb-963ec11730e7/scratchpad/IMPLEMENTATION_8_5R2.md`
-  (section 4 item 4a only; SHA256 `9e84761816558da0a3aeb8dec4f17c80a9335882640635328863dd1abe266dce`.
-  The copy is verified before N18. Read it completely upon reaching N18.)
+Sections 1 and 2 are the text of work order 2, not changed. Section 2a has the references that changed since then.
 
 R = `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 
@@ -150,78 +121,66 @@ R13. Questions (user order, 2026-11-17). When you have a question about an
   the user for such an item: all standing gates pass, and two runs with the same binary
   give the same files. These files are then the new reference.
 
+## 2a. References in force (2026-11-19)
+
+- Accepted code: N22 part C, commit `e40d7e3795` (report `03323fa621`); FP0 test code `689ae4746e`.
+- G5 files: the six files of N21 part W. Record: `R/night_20261115/N21/accepted_reference.json` (it names the payload list
+  `N4/section6_3_after_N11/round_8_5t_W/G5/qualified_reference_payloads.json`). N22 parts M and C gave the same six files.
+  Where section 2 names the P6c and P7 files for G5, read these six files.
+- GQ: the capture of N22 (`R/night_20261115/N22/gq_reference.json`), with the rows that N22 part C lists as "report only"
+  (calls and seconds of `communication`, the collective and election counters, all seconds).
+- G1 (375 / 114 / 228), G2 and G3: the references of section 2, not changed. For G2 the `communication` calls of the
+  preparation phase are those of N22 part C.
+- Times (native maxima of the two events): N21 part W 2048.286 / 1278.700 s; N22 part M 1981.679 / 1348.621 s; N22 part C
+  2018.805 / 1083.551 s. The machine has time noise: a run during the day can be 3 to 6 % slower than at night, and more
+  when another program runs. A time rule compares two versions that ran one after the other; where that is not possible,
+  a miss of a time rule alone is "OPEN for the user", not a revert (as in the order for N22).
+- Timer coverage gate (95 % on each rank): the smallest value is now 95.23 % (N22 part C, event 2, rank 5). The gate does
+  not change. Do not start a step that removes more named time before the reviewer's text for it says how the unattributed
+  time gets names.
+
+
 ## 3. State (history; do not repeat a passed check)
+
+Items N1 to N18 and the cut (N4 phases A to D, N6): see the table of work order 2 in your evidence and the handbooks.
 
 | Item | Result | Commit |
 |---|---|---|
-| N1 (P7 / P8, new event-2 reference) | PASSED | `429c6c1a60` |
-| N2 (B7) | FAILED (modeled storage above 12 GiB), reverted; D 2.2 withdraws B7 | `9831c787e7` |
-| N3 (source check of the design) | DONE | `6941fcc41c` |
-| N5 (measurements of D section 9) | PASSED | `3d28237f03` |
-| N9 (wall counters) | PASSED | `9867041a2e` |
-| N8 A1, A2, A3, N12 (law, record view, switch table, M6b, M24) | PASSED as one group | `f8c7b01085` |
-| N11 (B2 alone) | FAILED its purpose rule, reverted | `0d9d627645` |
-| N10 (B1, old text) | WITHDRAWN | - |
-| N13 (M25) | PASSED | `8ab6da791e` |
-| N14 (B2 + required split by the lift) | PASSED: 1,113 and 1,099 splits in the two G3 runs (limit 689), full run and restart passed | `0c2cb5c460` |
-| N15 (M26) | PASSED in the same build and full run | `0c2cb5c460` |
-| N4, the cut: phase A | PASSED with the full run and the restart | `5ec465ca1a` |
-| N4, the cut: phase B (B1 to B8) | PASSED with G3, G4, GQ (build 558) | `97478b7aba` (B8 = `daf75b14e2`) |
-| Planned stop after phase B | DONE | `f818510af9` |
+| N19 (M29, dump of the stuck cell) | PASSED | `da20c9e9fe` |
+| N20 A (step 8.5s, fine move for stuck cells) | PASSED | `01d2bbd24f` |
+| N20 W (wide rounds, first retry) | FAILED its time rule, reverted | `1174e4c241` |
+| N21 P (step 8.5t, the ranks share the final surface proof) | PASSED | `08a8d7c7ff` |
+| N21 W (wide rounds with the time factor 0.95) | PASSED; its six files are the reference | `7ac99f096d`, `4fe083d460` |
+| N22 M (step 8.5u, ownership decision without the clock) | PASSED; the time flag "OPEN" is ACCEPTED by the user (2026-11-19) | `484f29315f` |
+| N22 C (step 8.5u, census without a vote for each chunk) | PASSED; the time flag "OPEN" is ACCEPTED by the user (2026-11-19) | `e40d7e3795` |
+| FP0 (fast path stage 0, measurement) | DONE | `689ae4746e` |
 
-## 4. The work from now, in order
+Both OPEN flags of N22 are closed. No action is necessary for them.
 
-1. The cut, phase C (C1 to C11) as C says, with the gates of each sub-step and, at the
-   end of the phase, G3, G4, GQ and G5. Your whole-item source check
-   (`R/night_20261115/N4/section6_3_after_N11/source_check.md`) stays valid; its
-   reference readings from before N14 are replaced by section 2 of this file.
-1a. N17 = measurement M27, print only (the reviewer needs its numbers for the text of
-   N16). When G3, G4 and GQ of the end of phase C have passed, and before the G5 run of
-   that phase: look for the file I8A. If it exists: copy it with its SHA256, read it
-   completely, and do it as ONE commit with the gates that the file names, so that this
-   G5 run gives its numbers. No extra full run. If this G5 run then fails and the one
-   diagnosis pass does not name another part: revert N17 first and repeat G5 one time.
-   If I8A does not exist at that time: no action, go on with the G5 run.
-2. The cut, phase D (D1, D2, D3) as C says, with its G5.
-3. N16 = design step 8.5r (larger quality rounds). Step 8.4a is withdrawn.
-   After phase D, read the pinned copy of I8R completely and implement its text.
-   Section 1 applies, including one whole-item source check before production edits.
-4. N6: more cuts with identical results, same method and gates as C sections 1, 2 and 5,
-   your own inventory first: `CNativeRemesher3D::Remesh`, then `MeshOptimizer`, then the
-   split of `Selection` into a census part and a queue part. Only when the cut is
-   complete with a passed G5. If N16 passed before, its reference files are the
-   references of N6.
-4a. N18 = step 8.5r2 (corrected retry of the larger quality rounds, with M28).
-    After N6, read the verified I8R2 copy completely and implement its text. The
-    user confirms the purpose rule of gate 8. All section 1 rules apply.
-5. N7: the report. Keep `Handbook/ADAPTATION_NIGHT_REPORT_20261116.md` and update it in
-   place: one row for each item of section 3 and of this section, including N18, with PASSED, FAILED or
-   NOT STARTED, the commit and the gate numbers; for each FAILED the first number that
-   differs, the cause, the reverted commit and the evidence path; each "reading used"
-   (R4) and each correction of your own test code (R3); the list "unit tests that fail
-   on the accepted base". Verify that no owned job runs. Update `HANDOFF_Codex.md` and
-   `HowToProceed.md` in place. Commit and push. Then stop and wait for the user.
+## 4. The work from now
 
-Rules of the cut that stay from the old file:
-- G5 runs after phase C and at the end (D3). If G5 fails: find the sub-step with GQ and
-  G2 on the commits of that phase (bisection, each a short run), revert that sub-step,
-  repeat G5 one time. If G5 still fails: keep the last commit whose G5 passed as the
-  accepted state, mark the later phases FAILED, go to the next item.
-- A sub-step whose identity fails: C section 5 has the rule (correct one time, else
-  revert the sub-step and continue with the next independent one).
-- The report at the end of each phase, as C section 5 says (the phase B report is
-  `Handbook/ADAPTATION_CUT_PHASE_B_20261117.md`).
+The user decided a new direction on 2026-11-19: a fast path for the adaptation (a new lean local remeshing core; the
+present engine stays as the checker and repairer). The design of the reviewer is `FAST_PATH_DESIGN_V1.md` (your copy:
+`R/night_20261115/FP0/inputs/`). It is context, not an order.
+
+1. Now: no item is open. Do not start work of your own. Wait for the next user order. It will name the text of fast path
+   stage 1 with its SHA256.
+2. When an order comes: copy its text with its SHA256 into your evidence folder, read it completely, make one whole-item
+   source check before the first production edit (R4), and do it.
+3. The report of each item, the progress file, `HANDOFF_Codex.md`, `HowToProceed.md` and `Handbook/ADAPTATION_TIMINGS.md`:
+   as in the items of 2026-11-19.
+
+The folder `reviewer_handoff/` in the repository root belongs to the reviewer: do not edit it and do not commit it.
 
 ## 5. Open items that have their own text
 
-None. Each item of section 4 has its text in C, in I8R, in I8A, in I8R2 or in section 4.
+None.
 
 ## 6. Not in this work order
 
-Design steps 8.5ab, 8.5c, 8.5d, 8.6 and 8.7; a quota from the job memory limit; any
-work on A5 / B5; any BL or RANS capability claim. The reviewer writes the text for
-8.5ab later (the M26 numbers of N15 are its input). Do not implement it before that
-text is there and the user orders it.
+Design steps 8.5ab, 8.5c, 8.5d, 8.6 and 8.7 of the old design D (the fast path replaces their purpose; do not implement
+them). A quota from the job memory limit. Any work on A5 / B5. Any BL or RANS capability claim. A change of the default of
+the serial MMG path.
 
 # Standing user instructions (unchanged)
 

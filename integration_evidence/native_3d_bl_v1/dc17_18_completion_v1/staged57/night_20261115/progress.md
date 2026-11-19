@@ -1,14 +1,18 @@
 # Night work — current progress
 
-Updated 2026-11-19. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
+Updated 2026-11-19. Read Work order 3 in AGENTS.md and this file at the start of each session.
+
+## Current state — Work order 3 in force
+
+Installed the verified Work order 3 (SHA256 `93f16431048dfd6013d79ddb7dba7d7ff114c40fa104f843973a76c7092092e9`). The user accepted and closed both N22 timing flags. No item is open. Wait for the user’s fast path stage 1 order.
 
 ## Current state — FP0 complete
 
 FP0 build596 completed the test-only measurements on the accepted N21 source. G1 matched 375 / 114 / 228 records and all recorded failed assertions. The six-rank frozen replay produced 695,524 cells and 138,878 points. Standalone Refine took 343.064097 s maximum, was valid on all ranks, and changed no local meshes. The terminal audit verified 44 process identities and 1,387 source pins. The build591 production solver hash remains verified. [FP0 report](FP0/reports/FP0_596.md). Stop and wait for the user.
 
-## Current state — N22, FP0 next
+## N22 — complete
 
-N22 standing result gates passed. Part M timing OPEN at `484f29315f`, Part C purpose timing OPEN and retained at `e40d7e3795`. Active build591. All six N21 W hashes matched in both parts. The audit verified 315 terminal identities and 1,790 source pins. [Step 8.5u report](N22/reports/STEP_8_5U_591.md). FP0 follows immediately.
+N22 standing result gates passed. The user accepted and closed the Part M timing flag at `484f29315f` and the Part C purpose timing flag at `e40d7e3795` on 2026-11-19. Active build591. All six N21 W hashes matched in both parts. The audit verified 315 terminal identities and 1,790 source pins. [Step 8.5u report](N22/reports/STEP_8_5U_591.md).
 
 ## Current state — N21
 
