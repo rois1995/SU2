@@ -1,3 +1,5 @@
+#include "../../../include/adaptation/CNativeLocalCore3D.hpp"
+
 
 // Remesh owns the timer and public transaction. These stages borrow its controls and live inputs.
 namespace {
@@ -689,7 +691,17 @@ struct RemeshRun {
       const auto begin = workers.seconds();
       std::vector<DonorCell> stage_source;
       WorkerTrial trial{workers, kernel, worker_seconds, worker_start, valid, detail, stage_source, begin};
-      valid = SnapshotSource(mesh, trial, *worker_source);
+      if (config.GetAdap_Native_Local_Core()) {
+        const bool applicable = !input.composition && !construction && kernel.wall_heights.empty() &&
+                                kernel.region_walls.empty() &&
+                                !workers.maximum(std::any_of(mesh.working.begin(), mesh.working.end(),
+                                                             [](const auto& row) { return !row.second.sensor_present; }));
+        if (applicable)
+          RunLocalCore(mesh, trial);
+        else if (control.timings)
+          std::cout << "NATIVE3D_LOCAL_CORE rank=" << workers.rank << " applicable=0" << std::endl;
+      }
+      if (valid) valid = SnapshotSource(mesh, trial, *worker_source);
       if (valid && construction) ConstructRows(preparation, input, mesh, trial);
       if (valid && construction) valid = SnapshotSource(mesh, trial, stage_source);
       if (valid && control.maximum_seconds) {
@@ -710,6 +722,89 @@ struct RemeshRun {
     stats.worker_transport_bytes += workers.bytes_sent;
     stats.worker_transport_calls += workers.collective_calls;
     stats.worker_transport_seconds += workers.collective_seconds;
+  }
+
+  void PrintLocalPass(int rank, unsigned pass, const SU2NativeLocal3D::PassStats& p, double seconds, size_t bytes) {
+    std::cout << "NATIVE3D_LOCAL_CORE rank=" << rank << " stage=" << stats.normalization_stages - 1
+              << " pass=" << pass << " applicable=1 cells_in=" << p.cells_in << " cells_out=" << p.cells_out
+              << " points_in=" << p.points_in << " points_out=" << p.points_out
+              << " surface_points=" << p.surface_points << " border_points=" << p.border_points
+              << " wall_near_points=" << p.wall_near_points << " collapses=" << p.collapses << " splits=" << p.splits
+              << " edge_removals=" << p.edge_removals << " face_swaps=" << p.face_swaps << " moves=" << p.moves
+              << " deferred=" << p.deferred << " refused_valid=" << p.refused_valid << " refused_size=" << p.refused_size
+              << " refused_topology=" << p.refused_topology << " refused_memory=" << p.refused_memory
+              << " long_left_surface=" << p.long_left_surface << " long_left_border=" << p.long_left_border
+              << " short_out=" << p.short_out << " edges_out=" << p.edges_out << " bad_in=" << p.bad_in
+              << " bad_out=" << p.bad_out << " bad_out_free=" << p.bad_out_free
+              << " sweeps_collapse=" << p.sweeps_collapse << " sweeps_split=" << p.sweeps_split
+              << " sweeps_quality=" << p.sweeps_quality << " rounds=" << p.rounds << " limit=" << p.limit
+              << " seconds=" << seconds << " bytes=" << bytes << std::endl;
+  }
+
+  static void PrintLocalShift(int rank, bool lower, const SU2NativeLocal3D::ShiftStats& shift, double seconds) {
+    std::cout << "NATIVE3D_LOCAL_SHIFT rank=" << rank << " direction=" << (lower ? "lower" : "higher")
+              << " cells_before=" << shift.cells_before << " cells_after=" << shift.cells_after << " sent=" << shift.sent
+              << " received=" << shift.received << " border_points=" << shift.border_points;
+    if (!lower) std::cout << " frozen_in_both=" << shift.frozen_in_both;
+    std::cout << " seconds=" << seconds << std::endl;
+  }
+
+  // Replace the working volume before the existing current-nodal snapshot.
+  void RunLocalCore(WorkerMesh& mesh, WorkerTrial& trial) {
+    namespace core = SU2NativeLocal3D;
+    SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::Construction);
+    SU2NativeTiming3D::Scope topology(SU2NativeTiming3D::Operation::Topology);
+    auto& workers = trial.workers;
+    auto& working = mesh.working;
+    const auto& kernel = trial.kernel;
+    Id point_base = 0, cell_base = 0;
+    const auto visit = [&](const Cell& cell) {
+      cell_base = std::max(cell_base, cell.id);
+      for (const auto& point : cell.v) point_base = std::max(point_base, point.id);
+    };
+    for (const auto& entry : working) visit(entry.second.cell);
+    for (const auto& donor : *mesh.worker_source) visit(donor.cell);
+    core::IdSequence point_ids(workers.reduce<uint64_t>(point_base, CPassiveComm::Op::MAX), workers.rank, workers.size);
+    core::IdSequence cell_ids(workers.reduce<uint64_t>(cell_base, CPassiveComm::Op::MAX), workers.rank, workers.size);
+
+    constexpr size_t owned_row_bytes = sizeof(Owned::value_type) + 4 * sizeof(void*);
+    core::MemoryBudget budget{kernel.memory_ceiling, kernel.caller_bytes, owned_row_bytes};
+    const unsigned passes = workers.size == 1 ? 1 : core::PassCount;
+    const bool report = control.timings;
+    core::BorderMeeting previous;
+    for (unsigned pass = 1; pass <= passes; ++pass) {
+      const double begin = report ? workers.seconds() : 0;
+      auto meeting = core::MeetBorderPoints(workers, working, budget, previous.Bytes(), report);
+      const auto bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working), previous.Bytes(),
+                                              meeting.Bytes(), core::Mesh::ArrayBytes(working.size()));
+      budget.Require(workers, bytes, "Native local core arrays exceed working-storage admission.");
+      stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
+      const auto cell_limit = (kernel.memory_ceiling - kernel.caller_bytes) / (owned_row_bytes + core::Mesh::BytesPerCell);
+      core::PassStats counts;
+      CLocalFailure local;
+      try {
+        core::Mesh pass_mesh(working, workers.size > 1);
+        pass_mesh.MarkBorderSurface(meeting);
+        counts = pass_mesh.RunPass(point_ids, cell_limit, report);
+        pass_mesh.WriteBack(working, cell_ids);
+      } catch (const std::exception& e) {
+        local.Set(2, 0, e.what());
+      }
+      const auto elected = workers.elect(local);
+      if (elected.any) throw elected;
+      if (report) PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
+
+      if (passes > 1) {
+        const bool lower = pass == 1;
+        const double shift_begin = report ? workers.seconds() : 0;
+        const auto direction = lower ? core::Direction::Lower : core::Direction::Higher;
+        const auto shift =
+            core::ShiftBorders(workers, working, meeting, direction, budget, lower ? nullptr : &previous, report);
+        stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
+        if (report) PrintLocalShift(workers.rank, lower, shift, workers.seconds() - shift_begin);
+        if (lower) previous.rendezvous = std::move(meeting.rendezvous);
+      }
+    }
   }
 
   // Replaces the private stage donor snapshot only after the existing vote.

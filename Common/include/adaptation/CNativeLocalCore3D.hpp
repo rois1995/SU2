@@ -32,6 +32,7 @@ constexpr int32_t Border = -2;
 constexpr double LongEdge = SU2Native3D::MaximumMetricEdge * (1 - 1e-12);
 constexpr double ShortEdge = SU2Native3D::CoarseningMetricEdge;
 constexpr double BadMargin = 1 + 1e-12;
+constexpr unsigned PassCount = 2;
 
 struct PointRow {
   Node node;

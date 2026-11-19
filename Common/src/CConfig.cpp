@@ -3307,6 +3307,7 @@ void CConfig::SetConfig_Options() {
   /*!\brief ADAP_NATIVE_SYMMETRY_REFERENCE \n DESCRIPTION: Explicit initial Cartesian symmetry planes: marker, X/Y/Z, coordinate, maximum original deviation. Existing states require already conforming coordinates. \ingroup Config */
   addStringOption("ADAP_NATIVE_SYMMETRY_REFERENCE", Adap_Native_Symmetry_Reference, "");
   addBoolOption("ADAP_NATIVE_REPARTITION", Adap_Native_Repartition, false);
+  addBoolOption("ADAP_NATIVE_LOCAL_CORE", Adap_Native_Local_Core, false);
   addUnsignedLongOption("ADAP_NATIVE_RANKS", Adap_Native_Ranks, 0);
   addUnsignedLongOption("ADAP_NATIVE_MEMORY_LIMIT", Adap_Native_MemoryLimit, 0);
   addUnsignedLongOption("ADAP_NATIVE_JOB_MEMORY_LIMIT", Adap_Native_Job_MemoryLimit, 0);
@@ -6445,6 +6446,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
   if ((Adap_Native_Repartition || Adap_Native_Ranks) && Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
     SU2_MPI::Error("ADAP_NATIVE_REPARTITION/ADAP_NATIVE_RANKS require ADAP_REMESHER= NATIVE_CAVITY.", CURRENT_FUNCTION);
+  if (Adap_Native_Local_Core && Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
+    SU2_MPI::Error("ADAP_NATIVE_LOCAL_CORE requires ADAP_REMESHER= NATIVE_CAVITY.", CURRENT_FUNCTION);
 
   if (Adap_Native_Ranks > static_cast<unsigned long>(size))
     SU2_MPI::Error("ADAP_NATIVE_RANKS cannot exceed the CFD communicator size.", CURRENT_FUNCTION);
