@@ -326,6 +326,42 @@ void Selection::Forget(Edge edge) {
   if (found->second.empty()) queues.blocked_edges.erase(found);
 }
 
+// Keeps the M28, M29 and fine-request seed predicates identical.
+const std::vector<RepairFeature>* Selection::BlockedShapeRepairs(Id cell, const CellState& row) const {
+  if (!row.debt.q_bad && !row.debt.j_bad) return nullptr;
+  const auto repairs = queues.cell_repairs.find(cell);
+  if (repairs == queues.cell_repairs.end() || repairs->second.empty()) return nullptr;
+  const bool blocked = std::all_of(repairs->second.begin(), repairs->second.end(), [&](const RepairFeature& feature) {
+    const auto demand = queues.repair_users.find(feature);
+    return demand != queues.repair_users.end() && demand->second.users && demand->second.blocked;
+  });
+  return blocked ? &repairs->second : nullptr;
+}
+
+// Marks stuck-cell vertices before any reopen can change another cell's stuck predicate.
+size_t Selection::RequestFineMoves(size_t* stuck) {
+  for (const auto& [cell, row] : census.cells) {
+    const auto* repairs = BlockedShapeRepairs(cell, row);
+    if (!repairs) continue;
+    if (stuck) ++*stuck;
+    for (const auto& key : *repairs) {
+      if (key.first != 1) continue;
+      auto& demand = queues.repair_users.at(key);
+      if (demand.fine == FineRepairState::None) demand.fine = FineRepairState::Requested;
+    }
+  }
+  size_t reopened = 0;
+  for (auto& [key, demand] : queues.repair_users) {
+    if (!demand.blocked || demand.fine != FineRepairState::Requested) continue;
+    demand.blocked = false;
+    demand.epoch = queues.repair_epoch;
+    queues.repair_queue.insert({demand.epoch, key});
+    queues.repair_severity_queue.insert({-queues.repair_severity.at(key), key});
+    ++reopened;
+  }
+  return reopened;
+}
+
 // Reopens a rejected feature when its complete support may have changed.
 void Selection::TouchRepairSupport(const std::array<Id, 4>& vertices) {
   // Only a tetrahedron containing the whole feature changes its complete imported star.
@@ -334,8 +370,10 @@ void Selection::TouchRepairSupport(const std::array<Id, 4>& vertices) {
     for (unsigned i = 0; i < 4; ++i)
       if (mask & (1u << i)) key.second[key.first++] = vertices[i];
     const auto found = queues.repair_users.find(key);
-    if (found == queues.repair_users.end() || !found->second.users || !found->second.blocked) continue;
+    if (found == queues.repair_users.end()) continue;
     auto& demand = found->second;
+    demand.fine = FineRepairState::None;
+    if (!demand.users || !demand.blocked) continue;
     demand.blocked = false;
     if (timings) demand.refusals = {};
     demand.epoch = queues.repair_epoch;
@@ -550,6 +588,7 @@ void Selection::Service(Feature feature, bool accepted) {
   queues.repair_severity_queue.erase({-queues.repair_severity.at(key), key});
   demand.epoch = queues.repair_epoch;
   demand.blocked = !accepted;
+  if (!accepted && demand.fine == FineRepairState::Requested) demand.fine = FineRepairState::Done;
   if (accepted && demand.users) {
     queues.repair_queue.insert({demand.epoch, key});
     queues.repair_severity_queue.insert({-queues.repair_severity.at(key), key});

@@ -1,0 +1,167 @@
+
+namespace {
+// Stores one original M29 vertex and its nodal metric in tensor field order.
+struct M29FixtureVertex {
+  Id id;
+  Point point;
+  Tensor metric;
+};
+
+// Stores one original M29 cell and its four vertices in volume orientation.
+struct M29FixtureCell {
+  Id id;
+  std::array<Id, 4> vertices;
+};
+
+@M29_CONSTANTS@
+
+// Builds a ten-cell star with coordinates A*x and metric A^-T*M*A^-1.
+std::vector<DonorCell> FineMoveStar(Id seed, double z_scale) {
+  std::vector<DonorCell> donors;
+  for (const auto& row : M29FixtureCells) {
+    if (std::find(row.vertices.begin(), row.vertices.end(), seed) == row.vertices.end()) continue;
+    DonorCell donor;
+    donor.cell.id = row.id;
+    for (size_t corner = 0; corner < row.vertices.size(); ++corner) {
+      const Id vertex = row.vertices[corner];
+      const auto original = std::find_if(M29FixtureVertices.begin(), M29FixtureVertices.end(),
+                                         [vertex](const M29FixtureVertex& candidate) { return candidate.id == vertex; });
+      REQUIRE(original != M29FixtureVertices.end());
+      auto point = original->point;
+      auto metric = original->metric;
+      point.z *= z_scale;
+      metric.xz /= z_scale;
+      metric.yz /= z_scale;
+      metric.zz /= z_scale * z_scale;
+      donor.cell.v[corner] = {vertex, point};
+      donor.sensor[corner] = metric;
+    }
+    donors.push_back(donor);
+  }
+  REQUIRE(donors.size() == 10);
+  return donors;
+}
+
+// Holds the original-field debt and minimum joint q/J score across the current cavity.
+struct FineFixtureShape {
+  long double debt = 0;
+  double minimum = INFINITY;
+};
+
+// Re-measures each cell in the same current-nodal field at its actual centroid.
+FineFixtureShape FineShape(const Owned& mesh, FrozenField& field) {
+  FineFixtureShape shape;
+  for (const auto& row : mesh) {
+    const auto& cell = row.second.cell;
+    const auto& vertices = cell.v;
+    const auto measures = Measure({vertices[0].p, vertices[1].p, vertices[2].p, vertices[3].p},
+                                  field.Query(Centroid(cell)).target);
+    shape.debt += NormalizedShapeHingeDebt(measures.mean_ratio, measures.minimum_scaled_jacobian);
+    shape.minimum =
+        std::min({shape.minimum, measures.mean_ratio / MinimumMeanRatio, measures.minimum_scaled_jacobian / MinimumScaledJacobian});
+  }
+  return shape;
+}
+
+// Reports before/after shape and the optimizer's search counters for one frozen cavity.
+struct FineFixtureResult {
+  bool changed = false;
+  FineFixtureShape before, after;
+  OptimizeReport report;
+};
+
+// Restricts movement to the star center and runs one smoothing search using the cavity P1 target.
+FineFixtureResult RunFineFixture(const char* fixture, std::vector<DonorCell> donors, Id seed, double z_scale,
+                                 bool fine) {
+  Owned mesh;
+  Id next_node = 1, next_cell = 1;
+  OptimizeOptions options;
+  options.fine_placement = fine;
+  options.maximum_sweeps = 1;
+  options.swaps = options.collapses = options.insertions = options.boundary = false;
+  for (const auto& donor : donors) {
+    const auto& cell = donor.cell;
+    OwnedCell row;
+    row.cell = cell;
+    mesh.emplace(cell.id, row);
+    next_cell = std::max(next_cell, cell.id + 1);
+    for (const auto& node : cell.v) {
+      next_node = std::max(next_node, node.id + 1);
+      if (node.id != seed) options.frozen_vertices.insert(node.id);
+    }
+  }
+  FrozenField field(std::move(donors), {}, false, {}, {}, {}, true, MaximumDonors, true);
+  const RegionMetric target(field);
+  // Keeps this fixture on the optimizer's production debt path and restores other tests' setting.
+  struct RestoreShapeMode {
+    ShapeAdmission saved = GetShapeAdmission();
+    ~RestoreShapeMode() { SetShapeAdmission(saved); }
+  } restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+
+  FineFixtureResult result;
+  result.before = FineShape(mesh, field);
+  result.changed = OptimizeMetricMesh(mesh, target, next_node, next_cell, options, result.report);
+  result.after = FineShape(mesh, field);
+  std::printf("NATIVE3D_FINE_FIXTURE fixture=%s vertex=%llu z_scale=%.17g fine=%d changed=%d cells=%zu "
+              "placements=%zu evaluations=%llu moves=%zu debt_before=%.17Lg debt_after=%.17Lg "
+              "minimum_before=%.17g minimum_after=%.17g\n",
+              fixture, static_cast<unsigned long long>(seed), z_scale, int(fine), int(result.changed), mesh.size(),
+              result.report.placements, static_cast<unsigned long long>(result.report.placement_evaluations),
+              result.report.interior_moves, result.before.debt, result.after.debt, result.before.minimum,
+              result.after.minimum);
+  return result;
+}
+}  // namespace
+
+TEST_CASE("N20 F1 exact fine placement in the two M29 ten-cell stars", "[NativeFinePlacement3D]") {
+  constexpr Id closes = 200812891, improves = 200812895;
+  RunFineFixture("F1", FineMoveStar(closes, 1), closes, 1, false);
+  RunFineFixture("F1", FineMoveStar(improves, 1), improves, 1, false);
+
+  const auto closed = RunFineFixture("F1", FineMoveStar(closes, 1), closes, 1, true);
+  REQUIRE(closed.before.debt > 0);
+  CHECK(closed.after.debt == 0);
+  CHECK(closed.after.minimum >= 1.003);
+  CHECK(closed.report.placement_evaluations <= 512);
+
+  const auto improved = RunFineFixture("F1", FineMoveStar(improves, 1), improves, 1, true);
+  REQUIRE(improved.before.debt > 0);
+  CHECK(improved.after.debt < 0.5L * improved.before.debt);
+  CHECK(improved.report.placement_evaluations <= 512);
+}
+
+TEST_CASE("N20 F2 exact fine placement in the anisotropically transformed M29 star", "[NativeFinePlacement3D]") {
+  constexpr Id seed = 200812891;
+  constexpr double scale = 1000;
+  RunFineFixture("F2", FineMoveStar(seed, scale), seed, scale, false);
+  const auto closed = RunFineFixture("F2", FineMoveStar(seed, scale), seed, scale, true);
+  REQUIRE(closed.before.debt > 0);
+  CHECK(closed.after.debt == 0);
+  CHECK(closed.after.minimum >= 1.003);
+  CHECK(closed.report.placement_evaluations <= 512);
+}
+
+TEST_CASE("N20 F3 exact fine placement leaves an already good movable star alone", "[NativeFinePlacement3D]") {
+  const std::array<Node, 4> skin{{{1, {0, 0, 0}}, {2, {1, 0, 0}}, {3, {0, 1, 0}}, {4, {0, 0, 1}}}};
+  const Node center{5, {0.25, 0.25, 0.25}};
+  std::vector<DonorCell> donors;
+  for (size_t omit = 0; omit < skin.size(); ++omit) {
+    DonorCell donor;
+    donor.cell = {omit + 1, {center}};
+    size_t corner = 1;
+    for (size_t i = 0; i < skin.size(); ++i)
+      if (i != omit) donor.cell.v[corner++] = skin[i];
+    auto& vertices = donor.cell.v;
+    if (Orientation(vertices[0].p, vertices[1].p, vertices[2].p, vertices[3].p) < 0)
+      std::swap(vertices[0], vertices[1]);
+    donor.sensor.fill(Tensor{});
+    donors.push_back(donor);
+  }
+  const auto result = RunFineFixture("F3", std::move(donors), center.id, 1, true);
+  REQUIRE(result.before.debt == 0);
+  REQUIRE(result.before.minimum >= 1);
+  CHECK_FALSE(result.changed);
+  CHECK(result.report.interior_moves == 0);
+  CHECK(result.report.placement_evaluations == 0);
+}

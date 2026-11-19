@@ -868,6 +868,7 @@ class RoundHead {
   RoundDecision CheckScheduledDeadline();
   RoundDecision StartMetricCleanup();
   RoundDecision AcceptCompleteMesh();
+  RoundDecision RequestFineRepair();
   RoundDecision CheckStagnationWindow();
   RoundDecision StopWithoutCandidate();
   RoundDecision CheckRoundLimit();
@@ -1507,6 +1508,40 @@ RoundDecision RoundHead::AcceptCompleteMesh() {
   return RoundDecision::Proceed;
 }
 
+// Reopens stuck vertices at the last quality head and repicks only when a rank reopened work.
+RoundDecision RoundHead::RequestFineRepair() {
+  auto& selection = *context.census.selection;
+  auto& any = *round_state.any;
+  const bool repairing = *context.control.repairing;
+  if (any || !repairing || *context.setup.control_prefix.phase != Phase::Improvement || context.surface_target ||
+      selection.geometry_repairs || selection.size_repairs || *context.setup.control_prefix.metric_cleanup)
+    return RoundDecision::Proceed;
+
+  const bool timings = context.options.timings;
+  size_t stuck = 0, reopened = 0;
+  CLocalFailure failure;
+  try {
+    reopened = selection.RequestFineMoves(timings ? &stuck : nullptr);
+  } catch (const std::exception& e) {
+    failure.Set(2, 0, e.what());
+  }
+  auto& world = context.world;
+  const int disposition =
+      CPassiveComm::Allreduce(failure.Failed() ? 2 : int(reopened != 0), CPassiveComm::Op::MAX, world.comm);
+  if (disposition == 2) {
+    context.exchange.Vote(context, failure);
+    return FinishRound();
+  }
+  if (!disposition) return RoundDecision::Proceed;
+  if (timings && reopened)
+    std::cout << "NATIVE3D_FINE_REQUEST rank=" << world.rank << " round=" << context.control.result->stats.rounds
+              << " stuck=" << stuck << " reopened=" << reopened << '\n';
+  auto& choice = *round_state.choice;
+  choice = selection.Best(repairing);
+  any = world.maximum(choice.active);
+  return RoundDecision::Proceed;
+}
+
 // Checks rank-wide progress and ownership under the original Scheduling timer.
 RoundDecision RoundHead::CheckStagnationWindow() {
   auto& world = context.world;
@@ -1609,6 +1644,7 @@ RoundDecision RoundHead::Decide(Pick& pick) {
   if (const auto decision = CheckScheduledDeadline(); decision != RoundDecision::Proceed) return decision;
   if (const auto decision = StartMetricCleanup(); decision != RoundDecision::Proceed) return decision;
   if (const auto decision = AcceptCompleteMesh(); decision != RoundDecision::Proceed) return decision;
+  if (const auto decision = RequestFineRepair(); decision != RoundDecision::Proceed) return decision;
   if (const auto decision = CheckStagnationWindow(); decision != RoundDecision::Proceed) return decision;
   if (const auto decision = StopWithoutCandidate(); decision != RoundDecision::Proceed) return decision;
   return CheckRoundLimit();

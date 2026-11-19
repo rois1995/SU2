@@ -797,7 +797,12 @@ class MeshOptimizer {
   void AddMetricMeanTarget(Point x0, const std::set<Id>& nbr, std::vector<Point>& targets);
   void AddHingeTarget(Id p, const std::vector<Id>& old, Point x0, long double shortest, std::vector<Point>& targets);
   bool PlaceInteriorTargets(Id p, const std::vector<Id>& old, Point x0, bool slides, const std::array<double, 3>& plane,
-                            bool debt, std::vector<Point>& targets);
+                            bool debt, std::vector<Point>& targets, Patch& constraints);
+  Patch InteriorConstraints(const std::vector<Id>& old, bool debt) const;
+  Point ConstrainInteriorPoint(const Patch& constraints, Id vertex, Point point) const;
+  std::pair<long double, double> FinePlacementKey(std::vector<Cell>& cells, Id vertex, Point point, bool debt);
+  Placement FinePlacement(Id vertex, const std::vector<Id>& old, Point origin, bool debt, const Patch& constraints,
+                          const std::function<Point(Point)>& in_plane);
   std::vector<SmoothTrial> CollectInteriorTrials(Id p, const std::vector<Id>& old, Point x0, bool debt,
                                                  long double oldMin, bool placed, const std::vector<Point>& targets,
                                                  Patch& constraints);
@@ -1776,9 +1781,121 @@ void MeshOptimizer::AddHingeTarget(Id p, const std::vector<Id>& old, Point x0, l
   } catch (const std::exception&) {
   }
 }
+// Uses the same metric-frame compass as PlaceCone without changing the original arithmetic.
+static std::array<Point, 14> FineDirections(const Factor3& factor) {
+  const auto frame = [&](double a, double b, double c) -> Point {
+    const double z = c / factor.r22;
+    const double y = (b - factor.r12 * z) / factor.r11;
+    const double x = (a - factor.r01 * y - factor.r02 * z) / factor.r00;
+    return {x, y, z};
+  };
+  std::array<Point, 14> directions{};
+  size_t slot = 0;
+  for (unsigned axis = 0; axis < 3; ++axis)
+    for (const int sign : {-1, 1}) {
+      double unit[3]{};
+      unit[axis] = sign;
+      directions[slot++] = frame(unit[0], unit[1], unit[2]);
+    }
+  const double diagonal = 1 / std::sqrt(3.);
+  for (const int sx : {-1, 1})
+    for (const int sy : {-1, 1})
+      for (const int sz : {-1, 1}) directions[slot++] = frame(sx * diagonal, sy * diagonal, sz * diagonal);
+  return directions;
+}
+
+// Builds the requested-height constraint patch once for the star.
+Patch MeshOptimizer::InteriorConstraints(const std::vector<Id>& old, bool debt) const {
+  if (debt && options.geometry && !options.wall_heights.empty()) {
+    std::vector<Cell> cells;
+    for (Id id : old) cells.push_back(mesh.at(id).cell);
+    return GeometryPatch(cells);
+  }
+  return {};
+}
+
+// Applies the same height projection to probes and to the existing trial points.
+Point MeshOptimizer::ConstrainInteriorPoint(const Patch& constraints, Id vertex, Point point) const {
+  if (constraints.cells.empty()) return point;
+  const auto& geometry = moved_geometry ? *moved_geometry : *options.geometry;
+  return ConstrainMovePoint(constraints, vertex, {next_node, point}, options.wall_heights, geometry).p;
+}
+
+// Measures a replacement at its actual centroids, ordering valid probes by debt and then score.
+std::pair<long double, double> MeshOptimizer::FinePlacementKey(std::vector<Cell>& cells, Id vertex, Point point,
+                                                               bool debt) {
+  long double sum = 0;
+  double minimum = INFINITY;
+  for (auto& cell : cells) {
+    for (auto& node : cell.v)
+      if (node.id == vertex || node.id == next_node) node = {next_node, point};
+    const auto shape = Quality(cell, false);
+    if (!shape.Valid()) return {-INFINITY, -INFINITY};
+    if (debt) sum += NormalizedShapeHingeDebt(shape.q, shape.J);
+    minimum = std::min(minimum, shape.Score());
+  }
+  if (!options.wall_heights.empty()) {
+    const double height = Height(GeometryPatch(cells));
+    if (debt && !(height >= 1)) return {-INFINITY, -INFINITY};
+    if (!debt) minimum = std::min(minimum, height);
+  }
+  return {-sum, minimum};
+}
+
+// Searches one admitted star with strict improvements in the metric frame at the original vertex.
+Placement MeshOptimizer::FinePlacement(Id vertex, const std::vector<Id>& old, Point origin, bool debt,
+                                       const Patch& constraints, const std::function<Point(Point)>& in_plane) {
+  Placement result;
+  Factor3 factor;
+  try {
+    factor = FactorOf(At(origin));
+  } catch (const std::exception&) {
+    return result;
+  }
+  if (!factor.ok) return result;
+  const auto directions = FineDirections(factor);
+  std::vector<Cell> cells;
+  for (Id id : old) cells.push_back(mesh.at(id).cell);
+  const auto measure = [&](Point raw, Point& projected) -> std::pair<long double, double> {
+    ++result.evaluations;
+    try {
+      projected = ConstrainInteriorPoint(constraints, vertex, in_plane(raw));
+      return FinePlacementKey(cells, vertex, projected, debt);
+    } catch (const std::exception&) {
+      return {-INFINITY, -INFINITY};
+    }
+  };
+  Point current = origin;
+  auto best = measure(origin, current);
+  const auto initial = best;
+  for (double step = 1. / 16; step >= 1. / 4096 && result.evaluations < 512;) {
+    auto next = best;
+    Point next_point = current;
+    for (const auto& direction : directions) {
+      const Point raw{current.x + step * direction.x, current.y + step * direction.y, current.z + step * direction.z};
+      Point projected;
+      const auto key = measure(raw, projected);
+      if (key > next) {
+        next = key;
+        next_point = projected;
+        result.x = raw;
+      }
+      if (result.evaluations == 512) break;
+    }
+    if (next > best) {
+      best = next;
+      current = next_point;
+    } else
+      step /= 2;
+  }
+  result.ok = best > initial;
+  return result;
+}
+
 // Projects proposals onto the existing diagnostic plane and runs the bounded link search.
 bool MeshOptimizer::PlaceInteriorTargets(Id p, const std::vector<Id>& old, Point x0, bool slides,
-                                         const std::array<double, 3>& plane, bool debt, std::vector<Point>& targets) {
+                                         const std::array<double, 3>& plane, bool debt, std::vector<Point>& targets,
+                                         Patch& constraints) {
   // DC-13 O4m: bounded placement over the star (approximate proposal, exact merit below), from p and each proposal
   bool placed = false;
   auto inPlane = [&](Point t) -> Point {
@@ -1788,7 +1905,12 @@ bool MeshOptimizer::PlaceInteriorTargets(Id p, const std::vector<Id>& old, Point
     return {t.x - d * n[0], t.y - d * n[1], t.z - d * n[2]};
   };
   for (auto& t : targets) t = inPlane(t);
-  {
+  Placement best;
+  if (options.fine_placement) {
+    constraints = InteriorConstraints(old, debt);
+    best = FinePlacement(p, old, x0, debt, constraints, inPlane);
+    report.placement_evaluations += best.evaluations;
+  } else {
     std::vector<Cell> cells;
     for (Id id : old) cells.push_back(mesh.at(id).cell);
     auto faces = CavityBoundary(cells);
@@ -1797,7 +1919,6 @@ bool MeshOptimizer::PlaceInteriorTargets(Id p, const std::vector<Id>& old, Point
         faces.end());  // the link of p
     std::vector<Point> starts{x0};
     for (const auto& t : targets) starts.push_back(t);
-    Placement best;
     for (const auto& st : starts) {
       const auto pl = PlaceCone(
           faces, [&](Id v) { return points.at(v); }, [&](Point q) { return At(q); }, st, nullptr,
@@ -1805,12 +1926,12 @@ bool MeshOptimizer::PlaceInteriorTargets(Id p, const std::vector<Id>& old, Point
       report.placement_evaluations += pl.evaluations;
       if (pl.ok && pl.score > best.score) best = pl;
     }
-    if (best.ok) best.x = inPlane(best.x);
-    ++report.placements;
-    if (best.ok && !(best.x.x == x0.x && best.x.y == x0.y && best.x.z == x0.z)) {
-      targets.insert(targets.begin(), best.x);
-      placed = true;
-    }
+  }
+  if (best.ok) best.x = inPlane(best.x);
+  ++report.placements;
+  if (best.ok && !(best.x.x == x0.x && best.x.y == x0.y && best.x.z == x0.z)) {
+    targets.insert(targets.begin(), best.x);
+    placed = true;
   }
   return placed;
 }
@@ -1819,11 +1940,7 @@ std::vector<MeshOptimizer::SmoothTrial> MeshOptimizer::CollectInteriorTrials(Id 
                                                                              bool debt, long double oldMin, bool placed,
                                                                              const std::vector<Point>& targets,
                                                                              Patch& constraints) {
-  if (debt && options.geometry && !options.wall_heights.empty()) {
-    std::vector<Cell> cells;
-    for (Id id : old) cells.push_back(mesh.at(id).cell);
-    constraints = GeometryPatch(cells);
-  }
+  if (!options.fine_placement) constraints = InteriorConstraints(old, debt);
   std::vector<SmoothTrial> trials;
   for (size_t ti = 0; ti < targets.size(); ++ti)
     for (long double w : {1.L, .5L, .25L}) {
@@ -1831,10 +1948,7 @@ std::vector<MeshOptimizer::SmoothTrial> MeshOptimizer::CollectInteriorTrials(Id 
       if (ti == 0 && placed && w != 1.L) continue;  // the placed point is tried as is
       Point x{double(x0.x + w * ((long double)t.x - x0.x)), double(x0.y + w * ((long double)t.y - x0.y)),
               double(x0.z + w * ((long double)t.z - x0.z))};
-      if (!constraints.cells.empty()) {
-        const auto& geometry = moved_geometry ? *moved_geometry : *options.geometry;
-        x = ConstrainMovePoint(constraints, p, {next_node, x}, options.wall_heights, geometry).p;
-      }
+      x = ConstrainInteriorPoint(constraints, p, x);
       if (x.x == x0.x && x.y == x0.y && x.z == x0.z) continue;
       ++report.interior_candidates;
       const Node P{next_node, x};
@@ -1955,8 +2069,8 @@ bool MeshOptimizer::SearchInteriorSmooth(Id p, const std::vector<Id>& old, const
   const bool slides = slideIt != sliding.end();
   const std::array<double, 3> plane = slides ? slideIt->second : std::array<double, 3>{0, 0, 0};
 
-  const bool placed = PlaceInteriorTargets(p, old, x0, slides, plane, debt, targets);
   Patch constraints;
+  const bool placed = PlaceInteriorTargets(p, old, x0, slides, plane, debt, targets, constraints);
   auto trials = CollectInteriorTrials(p, old, x0, debt, oldMin, placed, targets, constraints);
   if (trials.empty()) {
     RememberInteriorFailure(p, oldMin, baseline);

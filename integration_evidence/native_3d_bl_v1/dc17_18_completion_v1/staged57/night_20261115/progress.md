@@ -2,6 +2,10 @@
 
 Updated 2026-11-18. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
+## Current item — N20, step 8.5s
+
+User order 2026-11-19. Verified and read the pinned I8S copy in `N20/inputs` and the applicable I8R2. Whole-item source check complete. Implement Part A and the four focused fixtures, then qualify the default-width build. Part W uses the exact historical wide overlay and the confirmed gate 8.
+
 ## Current state — N19
 
 N19 passed. Part A build581 checkpoint `c6b42a748f`. Build582 printed level counts by rank [[0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 103, 417], [0, 0, 0], [0, 0, 0]]. All four N18 failure comparisons matched. Diagnostic reverted at `efdedbb6d9`. Default build583 restored. 1,790 verified source pins and 200 terminal owned identities. [M29 report](N19/reports/M29_582.md). Wait for the next user order.
@@ -286,3 +290,23 @@ N19 B. Build582 compiled and its pins passed. A launcher setup error stopped bef
 N19 B. Build582 reproduced all four N18 failure values on the single MPI run. M29 captured 1 / 103 / 417 cells at levels 0 / 1 / 2. All rank wrappers are terminal. Diagnostic reverted and pushed at `efdedbb6d9`. Restoring default build583, controller PID 2458758 / start 53338575.
 
 N19 passed. Part A build581 checkpoint `c6b42a748f`. Build582 printed level counts by rank [[0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 103, 417], [0, 0, 0], [0, 0, 0]]. All four N18 failure comparisons matched. Diagnostic reverted at `efdedbb6d9`. Default build583 restored. 1,790 verified source pins and 200 terminal owned identities.
+
+N20 A. Applied A1–A4 and the frozen fixtures. Controller PID 2586446 / start 53807406 builds 584 and runs F1–F4, then the ordered identity gates and safeguards.
+
+N20 A. Build584 compiled without warnings in 342.782 s. Running F1–F4.
+
+N20 A. F1–F4 passed on the pinned production sources. Starting G1.
+
+N20 A. G1 matched all 375 / 114 / 228 records. Starting G2.
+
+N20 A. G2 matched exact first-collapse work, rank counts and tracked rows. Starting G3.
+
+N20 A. G3's first wrapper stopped before fixture launch on a missing host receipt field. Verified the actual terminal handles, preserved the setup evidence, and resumed G3 without rebuilding or repeating passing gates. Recovery PID 2626510 / start 53983100.
+
+N20 A. G3 and G4 passed. Starting GQ.
+
+N20 A. G3 passed all physical gates with 1,542 splits, all 1,113 common edits exact and observer-adjusted entry work 5,113. G4 passed at 1 / 2 / 4 ranks. GQ is running. The two F1 fine searches each used 197 evaluations, and F2 retained the 1.0073165457827788 minimum under the pinned transform. F4 reopened four demands, refused all four to Done, reopened zero on repetition and reset all four.
+
+N20 A. GQ matched through the third quality window. Running the remaining standing safeguards.
+
+N20 A. Build584 passed F1–F4, G1 375/114/228, G2 90,809,869, G3 1,542 splits with 1,113 matching edits, G4 1/2/4 and GQ 1025.046 s. Fixed storage 4,120. All three standing geometry safeguards passed. Next is W.

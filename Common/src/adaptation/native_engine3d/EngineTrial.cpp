@@ -149,7 +149,7 @@ struct TrialChecks {
   void IncompatibleCrease(long double length);
   void ReserveOptimization(bool eligible);
   void ReleaseOptimization();
-  bool OptimizePatch(const Patch& candidate, const RegionMetric& target, bool preserve_vertices);
+  bool OptimizePatch(const Patch& candidate, const RegionMetric& target, bool preserve_vertices, bool fine_placement);
   size_t ReservedRelocations();
   bool MovableStar(const Imported& star, Id vertex);
   size_t AdmittedCells(const std::vector<Id>& movers, const std::vector<Id>& candidates, const ImportedBatch& payload);
@@ -434,7 +434,8 @@ static void AccumulateOptimization(EngineStats& stats, const OptimizationOperati
 }
 
 // Optimizes the patch within the original local work, ID and deadline bounds.
-bool TrialChecks::OptimizePatch(const Patch& candidate, const RegionMetric& target, bool preserve_vertices) {
+bool TrialChecks::OptimizePatch(const Patch& candidate, const RegionMetric& target, bool preserve_vertices,
+                                bool fine_placement) {
   auto& options = context.options;
   auto& geometry = context.geometry;
   auto& result = *context.control.result;
@@ -463,9 +464,9 @@ bool TrialChecks::OptimizePatch(const Patch& candidate, const RegionMetric& targ
   repair_work += reserved;
   ++stats.repair_proposals;
   ++stats.optimization_trials;
-  const bool changed = OptimizedRepairPatch(candidate, maximum_cell + 1 + offset, first_node, target, fresh,
-                                            result.reason, used, preserve_vertices, geometry, options.wall_heights,
-                                            options.surface_tolerance, repair_optimization, remaining);
+  const bool changed = OptimizedRepairPatch(
+      candidate, maximum_cell + 1 + offset, first_node, target, fresh, result.reason, used, preserve_vertices,
+      fine_placement, geometry, options.wall_heights, options.surface_tolerance, repair_optimization, remaining);
   repair_work -= reserved - used;
   AccumulateOptimization(stats, repair_optimization);
   return changed;
@@ -963,7 +964,9 @@ struct RepairLadders {
   bool MoveCentre(const std::map<Id, Node>& nodes, bool fallback, bool move, Id vertex, Point& moveCenter);
   bool SampleMoveMidpoints(const std::map<Id, Node>& nodes, const std::vector<Id>& query_ids, Point origin,
                            size_t count, std::map<Id, Tensor>& samples);
-  bool OptimizeRepair();
+  bool WantsFineRepair() const;
+  bool RunFineRepair(Id vertex);
+  bool OptimizeRepair(bool fine_placement, bool* proposed = nullptr);
   bool FallbackLadder(const std::map<Id, Node>& nodes, bool fallback, bool move, Id vertex, Point moveCenter);
   bool ProposeFallback(const std::map<Id, Node>& nodes, bool move, Id vertex, Point moveCenter, unsigned trial,
                        bool move_trial);
@@ -974,6 +977,36 @@ struct RepairLadders {
   bool RecloseGeometrySplit(bool& candidate, bool& valid, const std::pair<size_t, size_t>& old_counts,
                             FrozenField& target);
 };
+
+// Reads the requested state only on the rank whose selected vertex is being tried.
+template <class BoundaryReady, class Observe>
+bool RepairLadders<BoundaryReady, Observe>::WantsFineRepair() const {
+  const auto& feature = round_state.choice->feature;
+  if (!*context.control.repairing || !*slot_state.chosen || feature.count != 1) return false;
+  const auto& users = context.census.selection->queues.repair_users;
+  const auto demand = users.find({feature.count, feature.vertices});
+  return demand != users.end() && demand->second.fine == Selection::FineRepairState::Requested;
+}
+
+// Gives an admitted interior vertex only the fine optimizer rung and reports its local outcome.
+template <class BoundaryReady, class Observe>
+bool RepairLadders<BoundaryReady, Observe>::RunFineRepair(Id vertex) {
+  const auto& old = *slot_state.old;
+  const bool physical = std::any_of(old.surface.begin(), old.surface.end(), [vertex](const auto& face) {
+    return std::find(face.v.begin(), face.v.end(), vertex) != face.v.end();
+  });
+  bool proposed = false;
+  if (!physical && old.cells.size() <= MaximumCavityCells && !OptimizeRepair(true, &proposed)) return false;
+  if (context.options.timings) {
+    const auto& report = *slot_state.repair_optimization;
+    const auto& stats = context.control.result->stats;
+    std::cout << "NATIVE3D_FINE_MOVE rank=" << context.world.rank << " round=" << stats.rounds << " vertex=" << vertex
+              << " cells=" << old.cells.size() << " candidate=" << unsigned(proposed)
+              << " accepted=" << unsigned(*slot_state.optimization_approved) << " moves=" << report.interior_moves
+              << " debt_reduction=" << report.interior_debt << '\n';
+  }
+  return true;
+}
 
 // Prepares fallback nodes before the bounded move, topology and geometry ladders.
 template <class BoundaryReady, class Observe>
@@ -992,25 +1025,29 @@ bool RepairLadders<BoundaryReady, Observe>::Run(bool metric_needed, bool old_mea
   if (fallback && !repairing) ++stats.repair_fallbacks;
   const bool move = repairing ? choice.feature.count == 1 : coarsening;
   const Id vertex = repairing ? choice.feature.vertices[0] : choice.edge[1];
-  std::map<Id, Node> nodes;
-  {
-    Timer timer(stats.reconstruction_seconds, options.timings, SU2NativeTiming3D::Operation::Candidate);
-    try {
-      if (fallback)
-        for (const auto& cell : old.cells)
-          for (auto node : cell.v) nodes.emplace(node.id, node);
-    } catch (const std::exception& e) {
-      failure.Set(2, 0, e.what());
+  if (WantsFineRepair()) {
+    if (!RunFineRepair(vertex)) return false;
+  } else {
+    std::map<Id, Node> nodes;
+    {
+      Timer timer(stats.reconstruction_seconds, options.timings, SU2NativeTiming3D::Operation::Candidate);
+      try {
+        if (fallback)
+          for (const auto& cell : old.cells)
+            for (auto node : cell.v) nodes.emplace(node.id, node);
+      } catch (const std::exception& e) {
+        failure.Set(2, 0, e.what());
+      }
+      ready = context.exchange.Vote(context, failure);
     }
-    ready = context.exchange.Vote(context, failure);
+    if (!ready) return false;
+    Point moveCenter{};
+    if (!MoveCentre(nodes, fallback, move, vertex, moveCenter) ||
+        !FallbackLadder(nodes, fallback, move, vertex, moveCenter))
+      return false;
   }
-  if (!ready) return false;
-  Point moveCenter{};
-
-  if (!MoveCentre(nodes, fallback, move, vertex, moveCenter) ||
-      !FallbackLadder(nodes, fallback, move, vertex, moveCenter) || !GeometryRepairSplits())
-    return false;
-  if (selection.size_repairs && !OptimizeRepair()) return false;
+  if (!GeometryRepairSplits()) return false;
+  if (selection.size_repairs && !OptimizeRepair(false)) return false;
   if (repair_approved && !repairing) ++stats.fallback_accepted;
   return true;
 }
@@ -1118,7 +1155,7 @@ bool RepairLadders<BoundaryReady, Observe>::SampleMoveMidpoints(const std::map<I
 
 // Attempts the bounded coupled optimization with its original work and validation accounting.
 template <class BoundaryReady, class Observe>
-bool RepairLadders<BoundaryReady, Observe>::OptimizeRepair() {
+bool RepairLadders<BoundaryReady, Observe>::OptimizeRepair(bool fine_placement, bool* proposed) {
   auto& options = context.options;
   auto& geometry = context.geometry;
   auto& result = *context.control.result;
@@ -1172,13 +1209,14 @@ bool RepairLadders<BoundaryReady, Observe>::OptimizeRepair() {
       FieldAccounting accounting{stats, proposal_field};
       Timer timer(stats.reconstruction_seconds, options.timings, SU2NativeTiming3D::Operation::Candidate);
       CpuTimer cpu(stats.reconstruction_cpu_seconds, options.timings);
-      candidate = trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction,
-                                               trial_checks.OptimizePatch(old, RegionMetric(proposal_field), false),
-                                               "OptimizeMetricMesh");
+      candidate = trial_checks.GuardedGeometry(
+          boundary_replacement_ready, observe_transaction,
+          trial_checks.OptimizePatch(old, RegionMetric(proposal_field), false, fine_placement), "OptimizeMetricMesh");
     } catch (const std::exception& e) {
       failure.Set(2, 0, e.what());
     }
   if (!(ready = context.exchange.Vote(context, failure))) return false;
+  if (proposed) *proposed = candidate;
   trial_checks.ReleaseOptimization();
   if (trial_comm.Maximum(candidate || (selection.size_repairs && chosen))) {
     const bool placed = trial_checks.ValidatePrivate(boundary_replacement_ready, observe_transaction, before, candidate,
@@ -1214,7 +1252,7 @@ bool RepairLadders<BoundaryReady, Observe>::FallbackLadder(const std::map<Id, No
   auto& repair_approved = *slot_state.repair_approved;
   for (unsigned trial = 0; trial < 19; ++trial) {
     // Keep cheap coordinate trials first; one bounded coupled solve precedes serial topology guesses.
-    if (trial == 3 && !OptimizeRepair()) return false;
+    if (trial == 3 && !OptimizeRepair(false)) return false;
     if (!trial_comm.Maximum(fallback && !approved)) break;
     const bool move_trial = trial < 3;
     const bool participating =
@@ -1492,7 +1530,7 @@ bool RepairLadders<BoundaryReady, Observe>::RecloseGeometrySplit(bool& candidate
       Timer timer(stats.reconstruction_seconds, options.timings, SU2NativeTiming3D::Operation::Candidate);
       CpuTimer cpu(stats.reconstruction_cpu_seconds, options.timings);
       candidate = trial_checks.GuardedGeometry(boundary_replacement_ready, observe_transaction,
-                                               trial_checks.OptimizePatch(split, RegionMetric(target), false),
+                                               trial_checks.OptimizePatch(split, RegionMetric(target), false, false),
                                                "OptimizeGeometrySplit");
     }
     valid = trial_checks.ValidatePrivate(boundary_replacement_ready, observe_transaction, before, candidate,

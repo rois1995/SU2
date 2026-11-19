@@ -445,19 +445,6 @@ static void PrintStuckCell(const Selection& selection, int rank, uint64_t round,
 
 constexpr size_t MaximumPrintedStuckCells = 8;
 
-// Keeps the M28 and M29 seed predicates identical.
-static const std::vector<RepairFeature>* BlockedShapeRepairs(const Selection& selection, Id cell,
-                                                             const Selection::CellState& row) {
-  if (!row.debt.q_bad && !row.debt.j_bad) return nullptr;
-  const auto repairs = selection.queues.cell_repairs.find(cell);
-  if (repairs == selection.queues.cell_repairs.end() || repairs->second.empty()) return nullptr;
-  const bool blocked = std::all_of(repairs->second.begin(), repairs->second.end(), [&](const RepairFeature& feature) {
-    const auto demand = selection.queues.repair_users.find(feature);
-    return demand != selection.queues.repair_users.end() && demand->second.users && demand->second.blocked;
-  });
-  return blocked ? &repairs->second : nullptr;
-}
-
 // M28, print only: names each bad cell whose repair features are all blocked, with the refusal notes.
 void EngineReports::PrintStuckCells(EngineContext& context, const char* stage) {
   const auto& selection = *context.census.selection;
@@ -468,7 +455,7 @@ void EngineReports::PrintStuckCells(EngineContext& context, const char* stage) {
   std::cout << std::dec << std::defaultfloat << std::setprecision(17);
   size_t printed = 0, not_printed = 0;
   for (const auto& [cell, row] : selection.census.cells) {
-    const auto* repairs = BlockedShapeRepairs(selection, cell, row);
+    const auto* repairs = selection.BlockedShapeRepairs(cell, row);
     if (!repairs) continue;
     if (printed == MaximumPrintedStuckCells) {
       ++not_printed;
@@ -489,7 +476,7 @@ static std::set<Id> M29SeedVertices(const EngineContext& context, std::vector<Id
   const auto& selection = *context.census.selection;
   std::vector<Id> vertices;
   for (const auto& [id, row] : selection.census.cells) {
-    if (!BlockedShapeRepairs(selection, id, row)) continue;
+    if (!selection.BlockedShapeRepairs(id, row)) continue;
     seeds.push_back(id);
     vertices.insert(vertices.end(), row.vertices.begin(), row.vertices.end());
     if (seeds.size() == MaximumPrintedStuckCells) break;

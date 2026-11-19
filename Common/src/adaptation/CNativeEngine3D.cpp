@@ -468,10 +468,10 @@ struct OptimizationOperations {
   uint64_t interior_stars=0,interior_reused=0,interior_candidates=0,interior_validity=0,interior_shape=0,interior_edge=0,interior_geometry=0;
   uint64_t interior_guidance=0,interior_upper=0,interior_moves=0;long double interior_debt=0;double interior_seconds=0;
 };
-bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMetric& target,
-                          Patch& fresh,std::string& reason,size_t& work,bool preserve_vertices,
-                          const PlanarReference& geometry,const WallHeights& heights,double surface_tolerance,
-                          OptimizationOperations& operations,double maximum_seconds) {
+bool OptimizedRepairPatch(const Patch& old, Id first, Id first_node, const RegionMetric& target, Patch& fresh,
+                          std::string& reason, size_t& work, bool preserve_vertices, bool fine_placement,
+                          const PlanarReference& geometry, const WallHeights& heights, double surface_tolerance,
+                          OptimizationOperations& operations, double maximum_seconds) {
   operations={};
   Owned local;std::map<Face,Id> physical;for(const auto& f:old.surface)physical.emplace(Key(f.v),f.facet);
   for(auto c:old.cells){c.id=local.size();OwnedCell row;row.cell=c;const auto faces=Faces(c);
@@ -480,6 +480,7 @@ bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMe
   auto parameters=geometry.PrivateParameters(old);
   OptimizeOptions options;options.maximum_work=work;options.maximum_seconds=maximum_seconds;options.cache_entries=8*MaximumReplacementCells;
   options.boundary=false;options.smoothing=!preserve_vertices;options.collapses=!preserve_vertices;
+  options.fine_placement = fine_placement;
   options.geometry=parameters?parameters.get():&geometry;options.wall_heights=heights;options.surface_tolerance=surface_tolerance;
   OptimizeReport report;Id node=first_node,cell=local.size();
   const bool changed=OptimizeMetricMesh(local,target,node,cell,options,report);

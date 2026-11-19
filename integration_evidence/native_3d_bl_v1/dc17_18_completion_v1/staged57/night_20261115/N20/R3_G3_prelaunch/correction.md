@@ -1,0 +1,1 @@
+The first G3 wrapper stopped in build provenance validation before any BL fixture launched. The Part A adapter omitted the actual_host_proc field from the primary terminal receipt. All recorded host PID/start identities were verified again before adding that field. Build584 and its pins, F1–F4, G1 and G2 are unchanged. Continued with G3 only.

@@ -104,6 +104,9 @@ class Selection {
     }
   };
 
+  // Tracks the one fine retry allowed before this feature's support changes.
+  enum class FineRepairState : uint8_t { None, Requested, Done };
+
   // users: cells that ask for this repair. epoch: last service. blocked: last trial was refused.
   // refusals (print only, M28): each ladder's rejection bits since the support last changed.
   struct RepairDemand {
@@ -111,6 +114,7 @@ class Selection {
     uint64_t epoch = 0;
     bool blocked = false;
     std::array<uint8_t, 3> refusals{};  // Fits in the existing padding.
+    FineRepairState fine = FineRepairState::None;
   };
   static_assert(sizeof(RepairDemand) == 3 * sizeof(uint64_t), "M28 must not change the modeled repair bytes.");
 
@@ -176,6 +180,8 @@ class Selection {
   void Block(Edge edge, Feature feature, bool repairing);
   void NoteRepairRefusal(const Feature& feature, unsigned kind, unsigned index);
   void Forget(Edge edge);
+  const std::vector<RepairFeature>* BlockedShapeRepairs(Id cell, const CellState& row) const;
+  size_t RequestFineMoves(size_t* stuck = nullptr);
   void TouchRepairSupport(const std::array<Id, 4>& vertices);
   void Touch(Id vertex);
   bool FilterCollapse(const Choice& choice, const Owned& working);

@@ -21,6 +21,7 @@ struct OptimizeOptions {
   bool boundary = true;             // O5/O6 boundary flips/contractions (off on a mapped parameter reference).
   bool insertions = true;           // DC-13: O7 shell / O8 neighbourhood / O7L length-driven vertex insertion.
   size_t placement_budget = 160;    // Approximate cone evaluations of one placement search (proposal only).
+  bool fine_placement = false;      // Use the exact fine search for a requested interior repair.
   std::set<Id> frozen_cells;        // No operation may replace these cells (caller-certified first rows).
   std::set<Id> frozen_vertices;     // Never moved or removed (including physical boundary vertices).
   std::set<Id> keep_vertices;       // May move (new identity, relabel) but are never removed (no collapse).
@@ -47,7 +48,7 @@ struct OptimizeReport {
   size_t rejected_validity = 0;  // a fresh cell without exact positive orientation or finite measured shape
   size_t shell_insertions = 0, neighbourhood_insertions = 0, length_insertions = 0;  // O7 / O8 / O7L (DC-13)
   size_t placements = 0, placement_refusals = 0;   // placement searches; proposals refused by the exact checks
-  uint64_t placement_evaluations = 0;               // approximate cone evaluations (no field query)
+  uint64_t placement_evaluations = 0;              // Placement probes before candidate certification.
   size_t bad_before = 0, bad_after = 0;
   double minimum_before = 0, minimum_after = 0;  // Minimum metric/first-height score over unfrozen cells.
   uint64_t point_queries = 0, edge_integrations = 0, edge_surrogates = 0;
