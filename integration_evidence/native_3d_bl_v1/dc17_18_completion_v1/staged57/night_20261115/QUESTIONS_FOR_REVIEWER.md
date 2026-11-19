@@ -90,3 +90,5 @@ N19 A commit reference for its implementation questions: `c6b42a748f91dfcb7331a9
 - 2026-11-19T00:44:17+01:00, N20 A2, overlapping stuck-cell features. Reopen while scanning or mark all requested vertices first? Mark first, since reopening a common vertex would hide a later stuck cell from the shared M28 predicate. Commit reference: N20 A checkpoint (recorded in progress).
 - 2026-11-19T00:44:17+01:00, N20 A3, priority. Should the fine request override metric cleanup or the independent observation-window stop? Keep the written insertion point and both stop conditions. The N18 post-cleanup quality entry resets the window start at the known stall. Commit reference: N20 A checkpoint (recorded in progress).
 - 2026-11-19T00:44:17+01:00, N20 A4/W, fine acceptance receipt. Should accepted identify private validation or eventual publication? Use the existing private validation flag and report the publication evidence separately, because the requested print point precedes contact and commit. Commit reference: N20 A checkpoint (recorded in progress).
+
+N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`.

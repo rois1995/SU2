@@ -1,6 +1,8 @@
 # Native adaptation handoff
 
-N19 M29 passed. Default build583 is active. [Measurement and evidence](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N19/reports/M29_582.md)
+N20 Part A PASSED. Part W FAILED its purpose rule. Build586 is active. [Step 8.5s report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N20/reports/STEP_8_5S_585.md)
+
+N19 M29 passed. [Measurement and evidence](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N19/reports/M29_582.md)
 
 Work order 2 and both 2026-11-18 amendments are complete. D/E passed at `3524e11a75`. F failed. Its first difference was event one NATIVE3D complete=0 against the required 1, with rank 3 q_bad=1 against 0. The F enabling change was reverted at `12690f1d99`, with build579 restored at that checkpoint. [N18 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N18/reports/STEP_8_5R2_580.md)
 
@@ -10,4 +12,4 @@ N16 retained Parts A and B. Its first 64-wide production run failed event-one qu
 
 The final audit verified 129 N18 process identities terminal. [Terminal audit](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N18/restored579_terminal_audit.json) · [Timings](Handbook/ADAPTATION_TIMINGS.md) · [Night report](Handbook/ADAPTATION_NIGHT_REPORT_20261116.md)
 
-N19 ends with its measurement report. Resume on a new user order. At session start, read AGENTS.md and progress. [Progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) · [R13 ledger](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/QUESTIONS_FOR_REVIEWER.md)
+N20 ends with its report. Resume on a new user order. At session start, read AGENTS.md and progress. [Progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) · [R13 ledger](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/QUESTIONS_FOR_REVIEWER.md)

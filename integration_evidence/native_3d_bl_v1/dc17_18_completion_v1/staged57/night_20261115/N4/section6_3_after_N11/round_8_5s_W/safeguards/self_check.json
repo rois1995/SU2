@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "launched": false,
+  "build": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/build585",
+  "terminal_proof": {
+    "build_status_sha256": "57e7eae2ac7d2625480f89954feadbec88f599a0e843f0faaa7946652f256490",
+    "terminal_handles_sha256": "f5342df5f971b6c91bf5be1a44b4931d944661d28a9f0cee9d9b2893e5f82ece",
+    "build_sha256": "71b5e8facfa29a6a485f10afa4c06a013f7e13c95cdd09ac63c74dddad3d9ceb",
+    "terminal_pid_count": 46
+  },
+  "resources_observed": {
+    "hostname": "pc-rausa",
+    "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+    "procfs_pid1": true,
+    "loadavg": "1.55 1.82 2.43 1/3573 2722771",
+    "mem_available_kib": 43685604,
+    "mem_available_mib": 42661
+  },
+  "accepted_validator_sha256": "6a4bf3103b2406fb6faea6cca922378f634b19e8e180d04d3828e82012f615ac",
+  "section62_runner_sha256": "1569e519573959f63c99e465d5312eaa5176e61ce646f5b8fd8ac25e8ee04f8d",
+  "build585_alias_source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/build585_aliases.py",
+  "modes": {
+    "merit481": {
+      "source_sha256": "c745e6ddcf1277e35a49cd6cbd56c8694db586c5ecc67abe6fec6467617898ec",
+      "namespace_name": "n11_build585_safeguards"
+    },
+    "saved481": {
+      "source_sha256": "c745e6ddcf1277e35a49cd6cbd56c8694db586c5ecc67abe6fec6467617898ec",
+      "namespace_name": "n11_build585_safeguards"
+    },
+    "saved_current": {
+      "source_sha256": "c745e6ddcf1277e35a49cd6cbd56c8694db586c5ecc67abe6fec6467617898ec",
+      "namespace_name": "n11_build585_safeguards"
+    }
+  },
+  "preparations_stopped_at_stub": [
+    {
+      "mode": "merit481",
+      "stopped_at": "stubbed run_cases.main before Popen",
+      "root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5s_W/safeguards",
+      "repo": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/runtime_20261113_474/loaded_runtime_pins.json"
+    },
+    {
+      "mode": "saved481",
+      "stopped_at": "stubbed run_cases.main before Popen",
+      "root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5s_W/safeguards",
+      "repo": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/runtime_20261113_474/loaded_runtime_pins.json"
+    },
+    {
+      "mode": "saved_current",
+      "stopped_at": "stubbed run_cases.main before Popen",
+      "root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5s_W/safeguards",
+      "repo": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/runtime_20261113_474/loaded_runtime_pins.json"
+    }
+  ],
+  "alias_setup": "qualified N11 build585_aliases.py",
+  "target_binding": "accepted qualified checkpoint492/v3 for saved481 and saved_current"
+}

@@ -1,10 +1,10 @@
 # Night work — current progress
 
-Updated 2026-11-18. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
+Updated 2026-11-19. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
-## Current item — N20, step 8.5s
+## Current state — N20
 
-User order 2026-11-19. Verified and read the pinned I8S copy in `N20/inputs` and the applicable I8R2. Whole-item source check complete. Implement Part A and the four focused fixtures, then qualify the default-width build. Part W uses the exact historical wide overlay and the confirmed gate 8.
+N20 Part A PASSED. Part W FAILED its purpose rule. Build586 is active. [Step 8.5s report](N20/reports/STEP_8_5S_585.md) Wait for the next user order.
 
 ## Current state — N19
 
@@ -310,3 +310,35 @@ N20 A. G3 passed all physical gates with 1,542 splits, all 1,113 common edits ex
 N20 A. GQ matched through the third quality window. Running the remaining standing safeguards.
 
 N20 A. Build584 passed F1–F4, G1 375/114/228, G2 90,809,869, G3 1,542 splits with 1,113 matching edits, G4 1/2/4 and GQ 1025.046 s. Fixed storage 4,120. All three standing geometry safeguards passed. Next is W.
+
+N20 A. Pushed `01d2bbd24f`. Apply the exact historical overlay for W.
+
+- 2026-11-19T01:55:13+01:00 N20. Pushed W candidate `09d2117246`. Controller PID 2674505 / start 54201920.
+
+- 2026-11-19T01:55:14+01:00 N20. W build585: verified exact three-path overlay. Starting build and wide-repeat MPI fixtures.
+
+- 2026-11-19T02:01:27+01:00 N20. Build585 compiled without warnings. The exact wide-repeat fixture passed at 2 and 4 ranks.
+
+N20 W. Build585 compiled without warnings. The exact wide fixture passed at 2 / 4 ranks, and G1 matched all 375 / 114 / 228 baseline records with zero changes. The six-rank G2 check is running.
+
+- 2026-11-19T02:31:34+01:00 N20. W scoped gates passed G1 375/114/228, G2 90,809,869, G3 1,501 splits and 1,113 exact shared edits, and G4. Running the standing safeguards.
+
+- 2026-11-19T02:39:02+01:00 N20. W build585: the three standing geometry safeguards passed. Starting G5 run one.
+
+N20 W. G1 with distinct wide-repeat 2 / 4, G2 90,809,869, G3 1,501 splits and 1,113 identical common edits, G4 1 / 2 / 4 and all three safeguards passed. Candidate `09d2117246`, build585. The first six-rank G5 solver wrapper is PID 2732685 / start 54466043. Its ordered continuation is event-one prefix identity, isolated event-two restart, second G5, six payload comparisons and the confirmed purpose rule.
+
+N20 W G5 run1 provisional: rank 3 found the same stuck cell 152845591 at debt 9.4270376918515042e-05. At round 25,850 the request reopened four vertices. At round 25,851 the 78-cell star was refused at the unchanged cap. At round 25,852 vertex 200812891 locally passed the 10-cell fine trial with one move and the full debt reduction. Final event publication, physical validation and workflow gates are pending.
+
+N20 W G5 run1 event one reached `complete=1` on all six ranks after the fine move, with q_bad/j_bad zero at the final worker exit. Native maximum 1999.196781106 s. The two event-one gate receipts are present. Transfer, continued CFD and event two remain part of this run.
+
+N20 W G5 run1: both native events reached `complete=1` on all six ranks and both timer/connected event receipts passed. Native maxima 1999.196781106 / 1523.675678662 s. The first-run event-two maximum exceeds its purpose comparator, which is evaluated only after run2. The workflow terminal receipt, prefix identity and isolated restart are next.
+
+N20 W G5 run1 passed its standing workflow and exact T0 event-one construction prefix. The controller entered the isolated event-two restart. The second full run has not launched.
+
+N20 W. Isolated event-two restart passed. Run2 is active on the same build585 binary, solver PID 2820906 / start 54894118. Next are all six payload comparisons and the two-run purpose rule.
+
+N20 W run2: the same fine request/trials occurred at rounds 25,850–25,852. Event one closed on all ranks with native maximum 2000.498744994 s. Event-one payload comparisons [('adapted_mesh_adap_00001.su2', True), ('adapted_mesh_adap_00001.su2.native_ref', True), ('restart_flow_adap_00001.dat', True)]. Event two is active.
+
+N20 W FAILED its purpose rule. Both workflows, isolated restart, T0 prefix and six-file repeatability passed. Event minima 3520.726914 s combined against 3288.032 s, event two 1521.530132 s against 1416.499 s. Reverted only W at `1174e4c241` and pushed. Default-width restore build586 PID 2907370 / start 55299029.
+
+N20. Final audit verified 343 terminal owned identities and the active source and binaries.

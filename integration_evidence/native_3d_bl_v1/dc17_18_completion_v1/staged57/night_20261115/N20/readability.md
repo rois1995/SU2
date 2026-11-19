@@ -11,8 +11,8 @@ Repository `clang-format --dry-run --Werror` produced no diagnostics on the chan
 | RepairLadders::Run | 41 |
 | TrialChecks::OptimizePatch | 37 |
 | MeshOptimizer::CollectInteriorTrials | 36 |
-| RoundHead::Decide | 34 |
 | RoundHead::RequestFineRepair | 32 |
+| RoundHead::Decide | 26 |
 | EngineReports::PrintStuckCells | 24 |
 
 Counts include the signature and closing brace. Existing statements in the original optimizer wrapper retain their formatting.
