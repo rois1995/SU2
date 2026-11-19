@@ -1,6 +1,8 @@
 # Native adaptation handoff
 
-N21 Parts P and W passed. The active build is 589 with the qualified build588 CFD binary. The six wide payloads matched across two runs and are the new reference. [Step 8.5t report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21/reports/STEP_8_5T_588.md) · [Adopted payload and time references](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21/accepted_reference.json)
+N22 result gates passed. Part M timing is OPEN. Part C is retained with its purpose timing OPEN, and build591 is active. All six N21 W payload hashes matched both parts. [Step 8.5u report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N22/reports/STEP_8_5U_591.md) · [Part M timing reference](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5u_M/G5/acceptance_summary.json)
+
+N21 Parts P and W passed. Its build589 carried the qualified build588 CFD binary. The six wide payloads matched across two runs and became the payload reference. [Step 8.5t report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21/reports/STEP_8_5T_588.md) · [Adopted payload and time references](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N21/accepted_reference.json)
 
 N20 Part A PASSED. Part W FAILED its purpose rule. Build586 was restored at that checkpoint. [Step 8.5s report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N20/reports/STEP_8_5S_585.md)
 
@@ -14,4 +16,4 @@ N16 retained Parts A and B. Its first 64-wide production run failed event-one qu
 
 The final audit verified 129 N18 process identities terminal. [Terminal audit](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N18/restored579_terminal_audit.json) · [Timings](Handbook/ADAPTATION_TIMINGS.md) · [Night report](Handbook/ADAPTATION_NIGHT_REPORT_20261116.md)
 
-N21 ends with its report. Resume on a new user order. At session start, read AGENTS.md and progress. [Progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) · [R13 ledger](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/QUESTIONS_FOR_REVIEWER.md)
+FP0 follows the N22 report under the 2026-11-19 user order. At session start, read AGENTS.md and progress. [Progress](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/progress.md) · [R13 ledger](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/QUESTIONS_FOR_REVIEWER.md)

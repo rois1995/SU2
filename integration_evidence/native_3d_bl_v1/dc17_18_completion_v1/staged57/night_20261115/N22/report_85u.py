@@ -272,10 +272,13 @@ def main():
     output = render(build, results, states, commits, notes, args.audit)
     with target.open('x') as file:
         file.write(output)
-    if args.timings_draft and results['C'].get('passed'):
+    if args.timings_draft and results['C']:
         c = results['C']
+        disposition = ('The Part C clocks are the adopted time reference.' if c['new_timing_reference'] else
+                       'Part C is retained with the purpose timing OPEN. The qualified Part M clocks remain the time reference.')
         section = [f'## Step 8.5u, build{build}', '',
                    link('Step 8.5u report', target, HERE.parents[5] / 'Handbook'), '',
+                   disposition, '',
                    *timing_lines((('M reference', c['M_reference_events']), ('C', c['runs'][0]['events'])),
                                  include_coverage=False), '']
         with args.timings_draft.open('x') as file:

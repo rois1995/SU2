@@ -2,6 +2,10 @@
 
 Updated 2026-11-19. Read AGENTS.md and the copied WORK_ORDER_2.md at the start of the new session, then this file.
 
+## Current state — N22, FP0 next
+
+N22 standing result gates passed. Part M timing OPEN at `484f29315f`, Part C purpose timing OPEN and retained at `e40d7e3795`. Active build591. All six N21 W hashes matched in both parts. The audit verified 315 terminal identities and 1,790 source pins. [Step 8.5u report](N22/reports/STEP_8_5U_591.md). FP0 follows immediately.
+
 ## Current state — N21
 
 N21 Part P passed at `08a8d7c7ff`. Part W source `7ac99f096d` passed both workflows, the isolated restart, six repeat-identical payloads and the 0.95 timing rule. The selected sum was 3,326.986 s against 3,336.027 s. Build589 uses the qualified solver hash and verified all owned identities terminal. [Step 8.5t report](N21/reports/STEP_8_5T_588.md) · [Adopted reference](N21/accepted_reference.json). Wait for the next user order.
@@ -490,3 +494,5 @@ N22 C. Event one passed timer and connected gates at 95.2903% minimum coverage a
 N22 C. Event two passed its timer and connected receipts at 95.2306% minimum coverage and 16,842,575,872 B job/process-peak sum. Maximum native time 1,083.551455574 s. The two native maxima sum to 3,102.356801604 s, below the 3,163.785117319 s ceiling. Event one exceeds its individual purpose limit. The final workflow receipt and six-file comparison remain.
 
 N22 C. Build591 reached OPEN for the user with passing standing workflow gates. Preparing checkpoint.
+
+N22 C. Pushed `e40d7e3795`. N22 reporting follows.

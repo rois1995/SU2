@@ -1,5 +1,39 @@
 # Adaptation timings and computational work
 
+## Step 8.5u, build591
+
+[Step 8.5u report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N22/reports/STEP_8_5U_591.md)
+
+Part C is retained with the purpose timing OPEN. The qualified Part M clocks remain the time reference.
+
+| Run | Event | Maximum native time (s) |
+| --- | --- | --- |
+| M reference | 1 | 1,981.678851 |
+| M reference | 2 | 1,348.621272 |
+| C | 1 | 2,018.805346 |
+| C | 2 | 1,083.551456 |
+
+Each phase row is a mean over the six final remesh ledgers. The native clock has a wider scope.
+
+| Run | Event | Phase | Exclusive phase (s) | Communication calls | Exclusive communication (s) | Inclusive census (s) |
+| --- | --- | --- | --- | --- | --- | --- |
+| M reference | 1 | preparation | 134.840312 | 34,008.000000 | 78.242747 | 193.016460 |
+| M reference | 1 | construction | 467.296132 | 4,863,428.000000 | 273.045850 | 218.595881 |
+| M reference | 1 | quality | 1,270.450288 | 719,469.000000 | 378.061554 | 163.570729 |
+| M reference | 1 | final_proof | 64.326104 | 16.000000 | 29.442327 | 0.000000 |
+| M reference | 2 | preparation | 281.941315 | 76,905.000000 | 223.542345 | 538.204121 |
+| M reference | 2 | construction | 227.409014 | 1,803,980.000000 | 140.563290 | 51.518775 |
+| M reference | 2 | quality | 683.837923 | 132,206.000000 | 137.576668 | 85.406936 |
+| M reference | 2 | final_proof | 110.915879 | 16.000000 | 32.644446 | 0.000000 |
+| C | 1 | preparation | 62.659080 | 272.000000 | 7.242190 | 50.971052 |
+| C | 1 | construction | 464.642995 | 4,618,782.000000 | 268.160545 | 216.360631 |
+| C | 1 | quality | 1,382.236449 | 606,909.000000 | 365.435680 | 120.349887 |
+| C | 1 | final_proof | 65.697836 | 16.000000 | 29.585848 | 0.000000 |
+| C | 2 | preparation | 89.843659 | 269.000000 | 32.224620 | 152.706708 |
+| C | 2 | construction | 220.295926 | 1,642,210.000000 | 134.343384 | 43.587377 |
+| C | 2 | quality | 616.671926 | 54,372.000000 | 93.103384 | 49.247299 |
+| C | 2 | final_proof | 113.277466 | 16.000000 | 33.712187 | 0.000000 |
+
 ## Step 8.5t, Part P build587 and Part W build588
 
 Part P reduced the maximum rank-exclusive final certification from 90.407 / 91.040 s to 19.217 / 21.517 s across events 1 and 2. The six P6c/P7 payloads matched.
