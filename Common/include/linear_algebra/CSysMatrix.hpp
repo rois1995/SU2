@@ -3,7 +3,7 @@
  * \brief Declaration of the block-sparse matrix class.
  *        The implemtation is in <i>CSysMatrix.cpp</i>.
  * \author F. Palacios, A. Bueno, T. Economon, P. Gomes
- * \version 8.5.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -272,6 +272,9 @@ class CSysMatrix {
   enum : size_t { MAXNVAR = 20 };
   unsigned short prescribedVariables = 0;
   std::vector<unsigned char> prescribedRows; /*!< \brief Optional native strong-row metadata for matrix-free integration. */
+  static_assert(
+      MAXNVAR >= MAX_TRANSPORTED_SPECIES,
+      "CSysMatrix::MAXNVAR must hold the species equations: raise MAXNVAR together with MAX_TRANSPORTED_SPECIES.");
 
   enum { OMP_MAX_SIZE_L = 8192 }; /*!< \brief Max. chunk size used in light parallel for loops. */
   enum { OMP_MAX_SIZE_H = 512 };  /*!< \brief Max. chunk size used in heavy parallel for loops. */

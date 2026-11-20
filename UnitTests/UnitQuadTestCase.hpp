@@ -2,7 +2,7 @@
  * \file UnitQuadTestCase.hpp
  * \brief Simple unit quad test to be used in unit tests.
  * \author T. Albring
- * \version 8.5.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -99,7 +99,7 @@ struct UnitQuadTestCase {
       const auto rank = partition ? SU2_MPI::GetRank() : 0;
       const auto size = partition ? SU2_MPI::GetSize() : 1;
       auto aux_geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), rank, size));
-      aux_geometry->SetColorGrid_Parallel(config.get());
+      if (partition) aux_geometry->SetColorGrid_Parallel(config.get());
       geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(aux_geometry.get(), config.get()));
     }
     geometry->SetSendReceive(config.get());

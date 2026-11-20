@@ -2,7 +2,7 @@
  * \file CEulerSolver.cpp
  * \brief Main subroutines for solving Finite-Volume Euler flow problems.
  * \author F. Palacios, T. Economon
- * \version 8.5.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -2589,9 +2589,10 @@ void CEulerSolver::ComputeUnderRelaxationFactor(const CConfig* config) {
     su2double e_old = nodes->GetSolution(iPoint, nVar - 1);
     su2double e_new = e_old + LinSysSol(iPoint, nVar - 1);
     /*--- rho*e = rho*E - |rho*u|^2 / (2*rho), with the old and the proposed new density. ---*/
+    /*--- Materialize CoDi expressions: GetSolution returns temporary active scalars. ---*/
     const su2double rho_old = max(nodes->GetSolution(iPoint, 0), EPS);
     const su2double rho_new = max(rho_old + LinSysSol(iPoint, 0), EPS);
-    for (unsigned short jVar = 1; jVar <= nDim; jVar++) {
+    for (auto jVar = 1u; jVar <= nDim; jVar++) {
       e_old -= 0.5 * pow(nodes->GetSolution(iPoint, jVar), 2) / rho_old;
       e_new -= 0.5 * pow(nodes->GetSolution(iPoint, jVar) + LinSysSol(iPoint, jVar), 2) / rho_new;
     }
@@ -4393,7 +4394,7 @@ void CEulerSolver::SetActDisk_BEM_VLAD(CGeometry *geometry, CSolver **solver_con
    * Institution: Computational and Theoretical Fluid Dynamics (CTFD),
    *            CSIR - National Aerospace Laboratories, Bangalore
    *            Academy of Scientific and Innovative Research, Ghaziabad
-   * \version 8.5.0 "Harrier"
+   * \version 8.6.0 "Harrier"
    * First release date : September 26 2023
    * modified on:
    *
@@ -7892,6 +7893,8 @@ void CEulerSolver::BC_Supersonic_Outlet(CGeometry *geometry, CSolver **solver_co
         const su2double tke = solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint, 0);
         conv_numerics->SetTurbKineticEnergy(tke, tke);
       }
+      if (config->GetKind_FluidModel() != STANDARD_AIR && config->GetKind_FluidModel() != IDEAL_GAS)
+        conv_numerics->SetSecondary(nodes->GetSecondary(iPoint), nodes->GetSecondary(iPoint));
 
       if (dynamic_grid)
         conv_numerics->SetGridVel(geometry->nodes->GetGridVel(iPoint),
@@ -7929,6 +7932,8 @@ void CEulerSolver::BC_Supersonic_Outlet(CGeometry *geometry, CSolver **solver_co
        /*--- Primitive variables, and gradient ---*/
 
        visc_numerics->SetPrimitive(V_domain, V_domain);
+       if (config->GetKind_FluidModel() != STANDARD_AIR && config->GetKind_FluidModel() != IDEAL_GAS)
+         visc_numerics->SetSecondary(nodes->GetSecondary(iPoint), nodes->GetSecondary(iPoint));
        visc_numerics->SetPrimVarGradient(nodes->GetGradient_Primitive(iPoint), nodes->GetGradient_Primitive(iPoint));
 
        /*--- Turbulent kinetic energy ---*/

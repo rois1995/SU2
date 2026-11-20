@@ -2,7 +2,7 @@
  * \file CGeometry.cpp
  * \brief Implementation of the base geometry class.
  * \author F. Palacios, T. Economon
- * \version 8.5.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -4791,15 +4791,17 @@ void CGeometry::ComputeWallDistance(const CConfig* const* config_container, CGeo
       }
     }
 
-    /*--- If there are no viscous walls in the entire domain, set distances to zero ---*/
+    /*--- Without viscous walls every point is far from a wall. The distance is large but finite,
+     * so that its square does not overflow, and the turbulence models take their free-shear limit. ---*/
     if (allEmpty) {
       if (limiterNeedsWalls) {
         SU2_MPI::Error("The WALL_DISTANCE slope limiter needs viscous walls (it limits to first order near them).",
                        CURRENT_FUNCTION);
       }
+      constexpr passivedouble noWallDistance = 1e15;
       for (int iZone = 0; iZone < nZone; iZone++) {
         CGeometry* geometry = geometry_container[iZone][iInst][MESH_0];
-        geometry->SetWallDistance(0.0);
+        geometry->SetWallDistance(noWallDistance);
       }
       continue;
     }

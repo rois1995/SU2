@@ -2,7 +2,7 @@
  * \file under_relaxation_ad_tests.cpp
  * \brief Tests density ownership and derivatives in compressible under-relaxation.
  * \author SU2 Contributors
- * \version 8.5.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -28,7 +28,7 @@
 #include "catch.hpp"
 #include "../../UnitQuadTestCase.hpp"
 
-TEST_CASE("Compressible under-relaxation uses density in the static energy", "[UnderRelaxationAD]") {
+TEST_CASE("Compressible under-relaxation owns its AD density values", "[UnderRelaxationAD]") {
   UnitQuadTestCase test;
   test.config_options =
       "SOLVER= EULER\nMESH_FORMAT= RECTANGLE\nMESH_BOX_SIZE= 5,5,5\n"
@@ -47,7 +47,7 @@ TEST_CASE("Compressible under-relaxation uses density in the static energy", "[U
 #ifdef CODI_REVERSE_TYPE
     AD::StartRecording();
     AD::RegisterInput(rho);
-#elif defined(CODI_FORWARD_TYPE)
+#else
     SU2_TYPE::SetDerivative(rho, 1.0);
 #endif
     nodes->SetSolution(0, 0, rho);
@@ -65,13 +65,11 @@ TEST_CASE("Compressible under-relaxation uses density in the static energy", "[U
     SU2_TYPE::SetDerivative(factor, 1.0);
     AD::ComputeAdjoint();
     const auto derivative = SU2_TYPE::GetDerivative(rho);
-#elif defined(CODI_FORWARD_TYPE)
+#else
     const auto derivative = SU2_TYPE::GetDerivative(factor);
 #endif
     CHECK(SU2_TYPE::GetValue(factor) == Approx(densityLimited ? 0.2 : 0.019375));
-#if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
     CHECK(derivative == Approx(densityLimited ? 0.1 : 0.0028125));
-#endif
 #ifdef CODI_REVERSE_TYPE
     AD::Reset();
 #endif

@@ -13,16 +13,16 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'Common/vectorization.cpp',
                        'Common/toolboxes/ndflattener_tests.cpp',
                        'Common/containers/CLookupTable_tests.cpp',
+                       'SU2_CFD/fluid/CFluidCantera_tests.cpp',
                        'Common/toolboxes/multilayer_perceptron/CLookUp_ANN_tests.cpp',
                        'SU2_CFD/numerics/CNumerics_tests.cpp',
                        'SU2_CFD/numerics/flow_sources_tests.cpp',
-                       'SU2_CFD/numerics/hllc_jacobian_tests.cpp',
                        'SU2_CFD/numerics/roe_contact_tests.cpp',
+                       'SU2_CFD/numerics/hllc_jacobian_tests.cpp',
                        'SU2_CFD/numerics/roe_tke_tests.cpp',
                        'SU2_CFD/numerics/ausm_tke_tests.cpp',
                        'SU2_CFD/limiters.cpp',
                        'Common/linear_algebra/krylov_solver_tests.cpp',
-                       'SU2_CFD/solvers/under_relaxation_ad_tests.cpp',
                        'SU2_CFD/fluid/CFluidModel_tests.cpp',
                        'SU2_CFD/output/CNEMOCompOutput_tests.cpp',
                        'SU2_CFD/output/COutput_convergence_tests.cpp',
@@ -33,6 +33,7 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'SU2_CFD/nonlinear_globalization.cpp',
                        'SU2_CFD/scalar_limiter_eps.cpp',
                        'SU2_CFD/solvers/CNEMOEulerSolver_tests.cpp',
+                       'SU2_CFD/solvers/supersonic_outlet_tests.cpp',
                        'SU2_CFD/nemo_viscous_assembly.cpp',
                        'SU2_CFD/windowing.cpp',
                        'Common/toolboxes/random_toolbox_tests.cpp',
@@ -43,9 +44,9 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
 su2_cfd_tests_ad = files(['Common/simple_ad_test.cpp',
                           'SU2_CFD/scalar_limiter_eps.cpp',
                           'Common/linear_algebra/periodic_ad_tests.cpp',
+                          'SU2_CFD/solvers/under_relaxation_ad_tests.cpp',
                           'SU2_CFD/fluid/CFluidModel_tests_AD.cpp',
-                          'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp',
-                          'SU2_CFD/solvers/under_relaxation_ad_tests.cpp'])
+                          'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp'])
 
 # Forward-mode (direct differentiation) tests:
 su2_cfd_tests_dd = files(['Common/simple_directdiff_test.cpp',
@@ -56,15 +57,17 @@ su2_cfd_tests_dd = files(['Common/simple_directdiff_test.cpp',
 # End of unit test listings
 # -------------------------------------------------------------------------
 
+
 if get_option('enable-tests')
   if get_option('enable-normal')
     unit_test_files = su2_cfd_tests + files(['test_driver.cpp'])
+    dependencies_default = [su2_cfd_dep, common_dep, su2_deps, catch2_dep]
     test_driver = executable(
         'test_driver',
         unit_test_files,
         install : true,
         install_rpath : '$ORIGIN/../lib',
-        dependencies : [su2_cfd_dep, common_dep, su2_deps, catch2_dep],
+        dependencies : dependencies_default,
         cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
     )
     test('Catch2 test driver', test_driver)
@@ -78,6 +81,9 @@ if get_option('enable-tests')
     )
     test('Newton equation integration tests', newton_equation_tests)
 
+    test('Streamwise periodic support', python,
+         args: files('Common/check_periodic_support.py') + [test_driver.full_path(), '--streamwise'],
+         timeout: 150)
     test('NEMO convergence field migration', python,
          args: files('SU2_CFD/output/check_nemo_convergence_migration.py') + [test_driver.full_path()],
          timeout: 300)
