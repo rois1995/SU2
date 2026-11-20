@@ -551,6 +551,11 @@ unsigned long CSysSolve<ScalarType>::FGMRES_LinSolver(const CSysVector<ScalarTyp
 
   g[0] = beta;
 
+  /*--- Residual history for the optional rate stop (SetRateStop). ---*/
+
+  su2vector<ScalarType> history(rateWindow > 0 ? m + 1 : 0);
+  if (rateWindow > 0) history[0] = beta;
+
   /*--- Output header information including initial residual ---*/
 
   unsigned long i = 0;
@@ -632,6 +637,20 @@ unsigned long CSysSolve<ScalarType>::FGMRES_LinSolver(const CSysVector<ScalarTyp
       SU2_OMP_MASTER
       WriteHistory(i + 1, beta / norm0);
       END_SU2_OMP_MASTER
+    }
+
+    /*--- Optional rate stop: beyond the guaranteed iterations, stop when the rate of the last window cannot reach
+     *    the tolerance within the remaining subspace. beta is reduced over all threads and ranks, so all agree. ---*/
+
+    if (rateWindow > 0) {
+      history[i + 1] = beta;
+      if (i + 1 >= std::max(extendFrom, rateWindow) && beta >= tol * norm0) {
+        const ScalarType ratio = beta / history[i + 1 - rateWindow];
+        if (ratio >= 1 || rateWindow * log(tol * norm0 / beta) / log(ratio) > m - i - 1) {
+          ++i;
+          break;
+        }
+      }
     }
   }
 

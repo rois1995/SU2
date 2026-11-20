@@ -133,6 +133,8 @@ class CSysSolve {
   mutable bool xIsZero = false;   /*!< \brief If true assume the initial solution is always 0. */
   bool recomputeRes = false;      /*!< \brief Recompute the residual after inner iterations, if monitoring. */
   unsigned long monitorFreq = 10; /*!< \brief Monitoring frequency. */
+  unsigned long extendFrom = 0;   /*!< \brief FGMRES: iterations always allowed before the rate stop (0 = off). */
+  unsigned long rateWindow = 0;   /*!< \brief FGMRES: iterations over which the convergence rate is measured. */
 
   /*!< \brief Inner solver for nested preconditioning. */
   std::unique_ptr<CSysSolve<ScalarType>> inner_solver;
@@ -501,6 +503,15 @@ class CSysSolve {
    * \brief Assume the initial solution is 0 to save one product, or don't.
    */
   inline void SetxIsZero(bool isZero) { xIsZero = isZero; }
+
+  /*!
+   * \brief FGMRES only: after "minimum" iterations, stop as soon as the rate over the last "window" iterations
+   *        cannot reach the tolerance within the remaining subspace. Both 0 (default) disable the stop.
+   */
+  inline void SetRateStop(unsigned long minimum, unsigned long window) {
+    extendFrom = minimum;
+    rateWindow = window;
+  }
 
   /*!
    * \brief Set whether to recompute residuals at the end (while monitoring only).

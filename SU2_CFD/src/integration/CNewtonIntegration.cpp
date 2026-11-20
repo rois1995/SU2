@@ -488,6 +488,8 @@ void CNewtonIntegration::Precondition(const CSysVector<Scalar>& u, CSysVector<Sc
 
 void CNewtonIntegration::WeightBlocks(CSysVector<Scalar>& v, int power) const {
   const auto& blocks = equations->GetBlocks();
+  /*--- Callers fill v with nowait CSysVector loops partitioned by element; this loop is partitioned by point. ---*/
+  SU2_OMP_BARRIER
   SU2_OMP_FOR_STAT(1024)
   for (auto p = 0ul; p < v.GetNBlk(); ++p)
     for (auto b = 0u; b < blocks.size(); ++b) {
@@ -698,10 +700,19 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
     attempt.linearIterations = linearSolver.FGCRODR_LinSolver(systemRhs, correction, Product(*this),
                                                               Preconditioner(*this), target, iterations, residual,
                                                               false, config);
-  else
+  else {
+    /*--- Coupled budget: every block's own budget (LINEAR_SOLVER_ITER each), but beyond one block's budget only while
+     *    the observed rate can still reach the tolerance. Stalled solves stop early (they gain no fewer steps), solves
+     *    that converge reach the tolerance that the native CFL rule needs to grow the CFL. ---*/
+    const bool extend = coupledAssembly && nativeDirection;
+    const auto budget = extend ? std::min<unsigned long>(1000, iterations * equations->GetBlocks().size()) : iterations;
+    SU2_OMP_SAFE_GLOBAL_ACCESS(linearSolver.SetRateStop(extend ? iterations : 0,
+                                                        extend ? std::max<unsigned long>(5, iterations / 5) : 0);)
     attempt.linearIterations = linearSolver.FGMRES_LinSolver(systemRhs, correction, Product(*this),
-                                                             Preconditioner(*this), target, iterations, residual,
+                                                             Preconditioner(*this), target, budget, residual,
                                                              false, config);
+    SU2_OMP_SAFE_GLOBAL_ACCESS(linearSolver.SetRateStop(0, 0);)
+  }
   SU2_OMP_SAFE_GLOBAL_ACCESS(blockWeights.clear();)
   attempt.preconditionerIterations = preconditioner->GetWork();
   attempt.reportedLinearResidual = residual;
