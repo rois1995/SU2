@@ -1,0 +1,371 @@
+{
+  "passed": true,
+  "first_difference": null,
+  "initial_restart_sha256": "61ebd3b0cd3a00889784772378ce7897ec6245c517f2ee382492288c43dbafd4",
+  "retained_mobility_rows": true,
+  "expected_counts": [
+    [
+      7,
+      800,
+      14153877,
+      9853577
+    ],
+    [
+      8,
+      1478,
+      43004068,
+      30146553
+    ],
+    [
+      8,
+      1199,
+      41122066,
+      28821833
+    ]
+  ],
+  "actual_counts": [
+    [
+      7,
+      800,
+      14153877,
+      9853577
+    ],
+    [
+      8,
+      1478,
+      43004068,
+      30146553
+    ],
+    [
+      8,
+      1199,
+      41122066,
+      28821833
+    ]
+  ],
+  "authored_counts": [
+    [
+      7,
+      800,
+      14153877,
+      9853577
+    ],
+    [
+      8,
+      1478,
+      43004068,
+      30146553
+    ],
+    [
+      8,
+      1199,
+      41122066,
+      28821833
+    ]
+  ],
+  "count_reference_changed": false,
+  "reference_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume5/G5/OFF/full615_run1",
+  "before": {
+    "transfer": [
+      [
+        {
+          "rank": 0,
+          "seconds": 29.554595793,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.917856324000002,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.9759148671314992
+        },
+        {
+          "rank": 1,
+          "seconds": 29.556362319,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.886294162000002,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.9764356621616579
+        },
+        {
+          "rank": 2,
+          "seconds": 29.556508101000002,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.921285439000002,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.976185274395741
+        },
+        {
+          "rank": 3,
+          "seconds": 29.557419609,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.87657499,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.9755279318144205
+        },
+        {
+          "rank": 4,
+          "seconds": 29.557505339000002,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.891437896,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.974666266789791
+        },
+        {
+          "rank": 5,
+          "seconds": 29.555490488,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.936842640000002,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.974705458898086
+        }
+      ],
+      [
+        {
+          "rank": 0,
+          "seconds": 28.890346797000007,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.862188432,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9820147561341261
+        },
+        {
+          "rank": 1,
+          "seconds": 28.883503631000004,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.88634717,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9819765860003421
+        },
+        {
+          "rank": 2,
+          "seconds": 28.882954923000003,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.910575976,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9804472734479073
+        },
+        {
+          "rank": 3,
+          "seconds": 28.883671298000003,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.85494668,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9804908267519564
+        },
+        {
+          "rank": 4,
+          "seconds": 28.884104859,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.887633134,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9801933424510829
+        },
+        {
+          "rank": 5,
+          "seconds": 28.887783489000004,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.856327048,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9817823728673956
+        }
+      ]
+    ],
+    "reference_output_rank0": [
+      {
+        "seconds": 34.10562718,
+        "mobility_calls": 1,
+        "mobility_seconds": 17.853094563000003
+      },
+      {
+        "seconds": 33.409442513,
+        "mobility_calls": 1,
+        "mobility_seconds": 17.791600616
+      }
+    ],
+    "metric": [
+      {
+        "trials": 7,
+        "sweeps": 800,
+        "visits": 14153877,
+        "gradation_seconds": 38.1533,
+        "halo_seconds": 0.558568,
+        "sweep_reductions_seconds": 28.9253,
+        "updates": 9853577,
+        "sensor": "Native sensor gradation: 118 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+        "target_composition_max_seconds": 38.393910972
+      },
+      {
+        "trials": 8,
+        "sweeps": 1478,
+        "visits": 43004068,
+        "gradation_seconds": 145.609,
+        "halo_seconds": 2.37352,
+        "sweep_reductions_seconds": 117.321,
+        "updates": 30146553,
+        "sensor": "Native sensor gradation: 202 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+        "target_composition_max_seconds": 146.204823451
+      },
+      {
+        "trials": 8,
+        "sweeps": 1199,
+        "visits": 41122066,
+        "gradation_seconds": 126.723,
+        "halo_seconds": 2.20423,
+        "sweep_reductions_seconds": 97.6405,
+        "updates": 28821833,
+        "sensor": "Native sensor gradation: 145 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+        "target_composition_max_seconds": 127.416815665
+      }
+    ]
+  },
+  "actual": {
+    "transfer": [
+      [
+        {
+          "rank": 0,
+          "seconds": 29.383184374000006,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.728065433,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.9903614553541785
+        },
+        {
+          "rank": 1,
+          "seconds": 29.380170313,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.691846311000003,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.9907357190857321
+        },
+        {
+          "rank": 2,
+          "seconds": 29.377748191000002,
+          "mobility_calls": 1,
+          "mobility_seconds": 17.034457298,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.9910635813157181
+        },
+        {
+          "rank": 3,
+          "seconds": 29.382417883000002,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.707926835000002,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.9907666573045206
+        },
+        {
+          "rank": 4,
+          "seconds": 29.381619680999997,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.703713898,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.9900794289089149
+        },
+        {
+          "rank": 5,
+          "seconds": 29.380335498,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.719179715000003,
+          "preparation_mobility_calls": 3,
+          "coverage": 0.9909093346000302
+        }
+      ],
+      [
+        {
+          "rank": 0,
+          "seconds": 29.204156791000006,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.8163197,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9954887950679149
+        },
+        {
+          "rank": 1,
+          "seconds": 29.199915160000003,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.840877053,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9954790899491355
+        },
+        {
+          "rank": 2,
+          "seconds": 29.197319772,
+          "mobility_calls": 1,
+          "mobility_seconds": 17.159025981000003,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.995717507394049
+        },
+        {
+          "rank": 3,
+          "seconds": 29.199840041,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.913794629,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9956358345560882
+        },
+        {
+          "rank": 4,
+          "seconds": 29.197553677000002,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.836072393000002,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9952853035586428
+        },
+        {
+          "rank": 5,
+          "seconds": 29.207006561000004,
+          "mobility_calls": 1,
+          "mobility_seconds": 16.865561053,
+          "preparation_mobility_calls": 2,
+          "coverage": 0.9953548730745527
+        }
+      ]
+    ],
+    "reference_output_rank0": [
+      {
+        "seconds": 34.183993565,
+        "mobility_calls": 1,
+        "mobility_seconds": 17.809614841000002
+      },
+      {
+        "seconds": 34.515724712,
+        "mobility_calls": 1,
+        "mobility_seconds": 18.061589910000002
+      }
+    ],
+    "metric": [
+      {
+        "trials": 7,
+        "sweeps": 800,
+        "visits": 14153877,
+        "gradation_seconds": 33.3677,
+        "halo_seconds": 0.548406,
+        "sweep_reductions_seconds": 26.1121,
+        "updates": 9853577,
+        "sensor": "Native sensor gradation: 118 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+        "target_composition_max_seconds": 33.608392675000005
+      },
+      {
+        "trials": 8,
+        "sweeps": 1478,
+        "visits": 43004068,
+        "gradation_seconds": 129.457,
+        "halo_seconds": 2.5352,
+        "sweep_reductions_seconds": 103.074,
+        "updates": 30146553,
+        "sensor": "Native sensor gradation: 202 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+        "target_composition_max_seconds": 130.076269035
+      },
+      {
+        "trials": 8,
+        "sweeps": 1199,
+        "visits": 41122066,
+        "gradation_seconds": 113.006,
+        "halo_seconds": 2.23497,
+        "sweep_reductions_seconds": 87.0613,
+        "updates": 28821833,
+        "sensor": "Native sensor gradation: 145 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+        "target_composition_max_seconds": 113.71254836300001
+      }
+    ]
+  },
+  "mobility_differences": []
+}

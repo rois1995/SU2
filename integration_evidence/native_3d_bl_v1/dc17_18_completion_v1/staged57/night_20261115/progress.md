@@ -882,3 +882,15 @@ FX1 M. G4 passed at 1, 2 and 4 ranks.
 FX1 M. Saved-state safeguards passed. The Part M checkpoint is next, with G5 pending.
 
 FX1 M short gates passed on build617. Both initial metric hashes and all gradation rows match, and all eighteen adopted scheduling rows are exact. G5 pending. Next is the fresh OFF workflow.
+
+FX1 M short-gate checkpoint pushed at 15bafef314. Starting build617 G5 OFF.
+
+FX1 G5 OFF first metric published the required initial restart SHA256. The three count rows agree, with 33.368 s maximum nested gradation. Native event 1 continues.
+
+FX1 G5 OFF event 1 passed final timer and connected proof at 1783.323 s and 99.008% minimum coverage. Publication and continued CFD advance toward event 2.
+
+FX1 G5 OFF event 1 mesh, geometry sidecar and restart match the adopted payloads byte for byte.
+
+FX1 G5 OFF event 2 passed final timer and connected proof at 1051.580 s and 99.529% minimum coverage. Publication, continued CFD and isolated restart are next.
+
+FX1 G5 OFF passed at 1,783.323 / 1,051.580 s and 99.008% / 99.529% minimum named coverage. All six payloads, the initial restart and all gradation counts match. This completes the FP1 Part S OFF proof. Starting the same-binary ON check.
