@@ -38,3 +38,7 @@ The fresh build615 OFF workflow passed both events and the isolated disk restart
 | 2 | 3 | 96.173 | 98.049 | +1.876 |
 | 2 | 4 | 96.040 | 98.019 | +1.980 |
 | 2 | 5 | 95.333 | 98.178 | +2.845 |
+
+## G5 ON qualification
+
+ON1 passed both events and the isolated restart with native maxima 1,521.154 / 383.071 s and minimum named coverage 96.952% / 95.110%. The native clocks passed the comparisons against the fresh build615 OFF run. The six ON1 payloads are sealed for the repeat. [ON1 run receipt](../resume5/G5/ON1/run_receipt.json)

@@ -784,3 +784,11 @@ FP1 N G5 OFF event 1 native remesh completed on all six ranks in at most 1,778.6
 FP1 N G5 OFF event 1 published mesh, authority sidecar and restart all match the adopted reference hashes. Event 2 is executing in the same owned workflow.
 
 FP1 N G5 OFF PASSED. Both events and isolated restart passed all standing gates. All six files match the adopted reference. Native maxima 1,778.627 / 1,029.081 s, per-event minimum coverage 97.467% / 98.019%. Commit OFF, then start the two same-binary ON runs.
+
+FP1 N fresh OFF checkpoint pushed at d242c9421a. The same pinned build615 is running the ordered ON pair.
+
+FP1 N ON1 event 1 passed the final timer and connected gates. Native maximum 1521.154 s and minimum named coverage 96.952%. Publication and continued CFD proceed toward event 2.
+
+FP1 N ON1 event 2 passed final timer and connected proof gates. Native maximum 383.071 s and minimum coverage 95.110% on rank 0. Event 2 publication and full validation continue before the isolated restart and ON2.
+
+FP1 N G5 ON1 passed both events, continued CFD and isolated restart. Native maxima 1,521.154 / 383.071 s, coverage minima 96.952% / 95.110%. Both timing comparisons passed. The same binary is running ON2. Pair identity still pending.
