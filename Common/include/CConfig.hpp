@@ -96,6 +96,7 @@ private:
   bool Edge_Form_EC_Exact_Jacobian; /*!< \brief Exact Jacobian of the Ismail-Roe central parts of the ROE options. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   bool BC_Entropy_P1_Strong_Slip; /*!< \brief Strong u.n = 0 at the Euler walls and symmetry planes of closure C. */
+  bool BC_Entropy_P1_Standard_FarField; /*!< \brief Diagnostic: far field without closure C. */
   bool Euler_Wall_Crease_Normals; /*!< \brief Crease-group normals in BC_Euler_Wall and correctGradientsSymmetry. */
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
@@ -10176,6 +10177,11 @@ public:
    *        Euler walls and symmetry planes (projection of SU2's BC_Sym_Plane, one projector per point).
    */
   bool GetBC_Entropy_P1_Strong_Slip() const { return BC_Entropy_P1_Strong_Slip; }
+
+  /*!
+   * \brief Diagnostic: the far field keeps the weak nodal flux of BC_WEAK_P1 under BC_ENTROPY_P1.
+   */
+  bool GetBC_Entropy_P1_Standard_FarField() const { return BC_Entropy_P1_Standard_FarField; }
 
   /*!
    * \brief EULER_WALL_CREASE_NORMALS: at Euler-wall points with two or more crease groups the group normals replace the

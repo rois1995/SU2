@@ -4786,9 +4786,9 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
    * far field, inlets and outlets. CConfig makes sure that BC_WEAK_P1 is on, so the face weights below are (5,1)/12 and
    * (6,1,1)/24. In viscous runs the viscous flux of these markers is the natural one (zero) of VISC_P1_ENTROPY, and
    * symmetry planes get the SAT for u.n = 0 of WeakNoSlipWallResidual (P1_NOSLIP.md, 11). ---*/
-  const bool bcEntropyP1 = config->GetBC_Entropy_P1();
+  const bool closureCOn = config->GetBC_Entropy_P1();
   EsState esInf;
-  if (bcEntropyP1) {
+  if (closureCOn) {
     esInf.rho = GetDensity_Inf();
     esInf.p = GetPressure_Inf();
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) esInf.vel[iDim] = GetVelocity_Inf(iDim);
@@ -4804,7 +4804,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   const bool gravity = config->GetGravityForce();
   /*--- MARKER_CUSTOM with a verification solution: closure C against the Dirichlet ghost g_q = u_D(x_q) at each face
    * point (Lemma B7 holds for any admissible ghost), the conservative state of GetBCState as for BC_Custom. ---*/
-  if (bcEntropyP1 && VerificationSolution) {
+  if (closureCOn && VerificationSolution) {
     const su2double time = (config->GetTime_Marching() != TIME_MARCHING::STEADY) ? config->GetPhysicalTime() : 0.0;
     const su2double gm1 = config->GetGamma() - 1.0;
     const unsigned short nd = nDim;
@@ -4847,7 +4847,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   /*--- SST with the P1 options (matched k, P1_SST_COUPLED.md M2): closure C adds k_b m to the energy row of each face
    * node, k_b = k_a for m >= 0 and the boundary k otherwise (far field k_inf, inlet the k of the SST inlet, outlets, walls
    * and symmetry planes k_a), and stores M+ and KIn for the SST k row. Jacobian L(k_b) J T(k) (D4). ---*/
-  const bool matchedK = bcEntropyP1 && config->GetTke_Matched_P1();
+  const bool matchedK = closureCOn && config->GetTke_Matched_P1();
   const CVariable* turbNodesK = matchedK ? solver_container[TURB_SOL]->GetNodes() : nullptr;
   const su2double kInf = matchedK ? solver_container[TURB_SOL]->GetTke_Inf() : 0.0;
   /*--- Matched k at inlets without a profile: k_bc = 3/2 I^2 |v_g|^2 depends on the node state through the nodal inlet
@@ -4961,6 +4961,9 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   for (int iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
 
     const auto KindBC = config->GetMarker_All_KindBC(iMarker);
+    /*--- BC_ENTROPY_P1_STANDARD_FARFIELD (diagnostic): the far field keeps the weak nodal far-field flux of BC_WEAK_P1,
+     * closure C acts on the other markers. ---*/
+    const bool bcEntropyP1 = closureCOn && !(config->GetBC_Entropy_P1_Standard_FarField() && (KindBC == FAR_FIELD));
     if (!isImplemented(KindBC)) {
       /*--- The strong path is not called in this mode, the marker would have no condition at all. ---*/
       if (weakP1 && (KindBC != SEND_RECEIVE)) {

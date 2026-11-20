@@ -1855,6 +1855,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("BC_ENTROPY_P1", BC_Entropy_P1, false);
   /*!\brief BC_ENTROPY_P1_STRONG_SLIP \n DESCRIPTION: With BC_WEAK_P1 (closure C of BC_ENTROPY_P1, or the weak mirror-state wall flux, which is the pressure flux at a tangent state): after the boundary fluxes, at every point of the Euler walls and symmetry planes u.n = 0 is imposed strongly and the normal-momentum equations are removed (momentum of the old solution, residual, Jacobian rows and truncation error projected with P = I - Q Q^T, Q an orthonormal basis of the wall normals of the point as used by the symmetry plane), the static-grid projection of the standard symmetry plane. Keeps the weak wall flux. Entropy: the removed part carries no entropy at a tangent state (ROE_TECNO_PLAN.md 6.8). SOLVER= EULER, EULER_IMPLICIT, no LOW_MACH_PREC, no quantized matrices, static meshes. \ingroup Config \default false */
   addBoolOption("BC_ENTROPY_P1_STRONG_SLIP", BC_Entropy_P1_Strong_Slip, false);
+  /*!\brief BC_ENTROPY_P1_STANDARD_FARFIELD \n DESCRIPTION: Diagnostic. With BC_ENTROPY_P1 the far-field markers keep the weak nodal far-field flux of BC_WEAK_P1; closure C acts on the other markers (no entropy statement for the far field). \ingroup Config \default false */
+  addBoolOption("BC_ENTROPY_P1_STANDARD_FARFIELD", BC_Entropy_P1_Standard_FarField, false);
   /*!\brief EULER_WALL_CREASE_NORMALS \n DESCRIPTION: At Euler-wall points whose incident faces fold by 90 deg or more (a sharp trailing edge), the unit normals of the crease groups (adjacent faces merged only if every pair has N_f . N_g > 0) replace the vertex normal in the symmetry projection of BC_Euler_Wall (rank-2 projection with the normals of the other walls and symmetry planes of the point) and in the symmetry correction of the Green-Gauss / least-squares gradients (ROE_TECNO_PLAN.md 6.14). Static meshes, no multigrid. \ingroup Config \default false */
   addBoolOption("EULER_WALL_CREASE_NORMALS", Euler_Wall_Crease_Normals, false);
   /*!\brief VISC_P1_ENTROPY \n DESCRIPTION: Viscous residual of the flow equations from the P1 Galerkin operator in entropy variables: on each simplex F_T = K(wbar_T) grad(w_h), evaluated with the stress tensor and heat flux of the effective gradients grad(v) = (G_m - v* G_theta)/theta*, grad(T) = -G_theta/(R theta*^2), theta = rho/p, mean of the nodal entropy variables, mean mu + mu_t (mu_t >= 0) and conductivity. Replaces the edge viscous flux and its Jacobian (Picard element Jacobian, frozen K). Triangles and tetrahedra. Entropy dissipative for any state. \ingroup Config \default false */
@@ -6373,6 +6375,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_ES_Blend_CV) active.push_back("EDGE_FORM_ES_BLEND_CV");
   if (BC_Entropy_P1) active.push_back("BC_ENTROPY_P1");
   if (BC_Entropy_P1_Strong_Slip) active.push_back("BC_ENTROPY_P1_STRONG_SLIP");
+  if (BC_Entropy_P1_Standard_FarField) active.push_back("BC_ENTROPY_P1_STANDARD_FARFIELD");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Grid_Entropy_P1) active.push_back("GRID_ENTROPY_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
