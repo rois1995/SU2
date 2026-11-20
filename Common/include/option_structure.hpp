@@ -1147,6 +1147,18 @@ static const MapType<std::string, SST_OPTIONS> SST_Options_Map = {
 };
 
 /*!
+ * \brief Strategy of the classical EPM sensitivity extraction (SST_EPM_EXTRACTION).
+ */
+enum class EPM_EXTRACTION_MODE {
+  FIELD,         /*!< \brief Record every evaluation site once, in a single adjoint replay. */
+  SCALAR_REPLAY, /*!< \brief Scalar-amplitude replay of the extraction. */
+};
+static const MapType<std::string, EPM_EXTRACTION_MODE> EPM_Extraction_Mode_Map = {
+  MakePair("FIELD", EPM_EXTRACTION_MODE::FIELD)
+  MakePair("SCALAR_REPLAY", EPM_EXTRACTION_MODE::SCALAR_REPLAY)
+};
+
+/*!
  * \brief Structure containing parsed SST options.
  */
 struct SST_ParsedOptions {

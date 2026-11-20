@@ -27,11 +27,33 @@
 
 #pragma once
 
+#include <memory>
+
 #include "basic_types/datatype_structure.hpp"
+#include "option_structure.hpp"
+
+/*! \brief Field-sensitivity site storage, defined with the field replay. Held through a shared_ptr so that
+ *         CEPMExtraction (a member of CConfig) stays usable while the type is incomplete. */
+class CEPMFieldSites;
 
 /* Rank-local runtime state for post-convergence classical EPM parameter recordings. */
 struct CEPMExtraction {
+  /*! \brief Extraction strategy. FIELD records every site once; SCALAR_REPLAY keeps the scalar-amplitude replay. */
+  using Mode = EPM_EXTRACTION_MODE;
+  /*! \brief Kind of the site a recording belongs to. */
+  enum class SiteKind : int { EDGE = 0, BOUNDARY = 1, NODE = 2 };
+  /*! \brief Position of the evaluation currently being recorded. */
+  struct Cursor {
+    SiteKind kind = SiteKind::EDGE;
+    unsigned long a = 0, b = 0;
+    bool set = false;
+  };
+
   bool enabled = false;
+  Mode mode = Mode::FIELD;
+  bool extract_only = false;
+  Cursor cursor;
+  std::shared_ptr<CEPMFieldSites> field;
   bool active = false;
   su2double amplitude = 0.0;
   unsigned short component = 1;

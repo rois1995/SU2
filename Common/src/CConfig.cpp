@@ -3249,6 +3249,12 @@ void CConfig::SetConfig_Options() {
   /* DESCRIPTION: Experimental classical EPM sensitivities after coupled adjoint convergence. */
   addBoolOption("SST_EPM_POSTPROCESS", epmExtraction.enabled, false);
 
+  /* DESCRIPTION: EPM extraction strategy, FIELD (all sites, one replay) or SCALAR_REPLAY (scalar amplitude replay). */
+  addEnumOption("SST_EPM_EXTRACTION", epmExtraction.mode, EPM_Extraction_Mode_Map, CEPMExtraction::Mode::FIELD);
+
+  /* DESCRIPTION: Run only the EPM extraction from a converged restart and adjoint restart (no adjoint updates). */
+  addBoolOption("SST_EPM_EXTRACT_ONLY", epmExtraction.extract_only, false);
+
   /* DESCRIPTION: Number of calls to 'Build' that trigger re-factorization (0 means only once). */
   addUnsignedLongOption("PASTIX_FACTORIZATION_FREQUENCY", pastix_fact_freq, 1);
 
@@ -6165,6 +6171,24 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       SU2_MPI::Error("EPM supports only stationary smooth-wall ideal-gas SST without additional physics or fixed-lift control.", CURRENT_FUNCTION);
     if (GetnObj() != 1 || GetWeight_ObjFunc(0) != 1.0 || (GetKind_ObjFunc() != DRAG_COEFFICIENT && GetKind_ObjFunc() != LIFT_COEFFICIENT))
       SU2_MPI::Error("EPM requires a single DRAG or LIFT objective.", CURRENT_FUNCTION);
+  }
+
+  if (epmExtraction.extract_only) {
+    if (!epmExtraction.enabled)
+      SU2_MPI::Error("SST_EPM_EXTRACT_ONLY= YES requires SST_EPM_POSTPROCESS= YES.", CURRENT_FUNCTION);
+    /*--- Residual-type convergence fields are those of the RMS_, MAX_ families; the default adjoint field is RMS_ADJ_DENSITY. ---*/
+    bool residualCriterion = true;
+    for (unsigned short iField = 0; iField < nConvField; ++iField) {
+      const string field = GetConv_Field(iField);
+      if (field.rfind("RMS_", 0) != 0 && field.rfind("MAX_", 0) != 0) residualCriterion = false;
+    }
+    if (!Restart || nInnerIter != 1 || !residualCriterion)
+      SU2_MPI::Error("SST_EPM_EXTRACT_ONLY= YES requires RESTART_SOL= YES (loaded primal and adjoint restarts), "
+                     "ITER= 1 (a single adjoint evaluation, no adjoint updates) and a residual-type convergence "
+                     "criterion (CONV_FIELD must be an RMS_ or MAX_ residual field).", CURRENT_FUNCTION);
+    if (GetSolution_AdjFileName() == GetRestart_AdjFileName())
+      SU2_MPI::Error("SST_EPM_EXTRACT_ONLY= YES requires SOLUTION_ADJ_FILENAME to differ from RESTART_ADJ_FILENAME, "
+                     "otherwise the loaded adjoint restart would be overwritten.", CURRENT_FUNCTION);
   }
 
 
