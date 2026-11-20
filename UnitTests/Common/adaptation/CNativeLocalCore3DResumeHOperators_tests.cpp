@@ -259,6 +259,60 @@ TEST_CASE("Local split rejects a rounded midpoint that passes the float trial", 
   CHECK_NOTHROW(mesh.Check());
 }
 
+TEST_CASE("Local split bounds every new frontier edge by the split edge", "[.][NativeLocalCoreH6]") {
+  const std::array<Tensor, 5> tensors{{{4, 0, -1.75, .25, 0, .875}, {4, 0, 1.75, .25, 0, .875},
+                                      {.25, 0, 0, .25, 0, .25}, {.25, 0, 0, .25, 0, .25},
+                                      {.25, 0, 0, .25, 0, .25}}};
+  for (const double radius : {1.5, .75}) {
+    CAPTURE(radius);
+    auto rows = BoundMesh({{0, 0, -1}, {0, 0, 1}, {radius, 0, 0}, {-.375, .75, 0}, {-.375, -.75, 0}},
+                          {{0, 1, 2, 3}, {0, 1, 3, 4}, {0, 1, 4, 2}});
+    for (auto& entry : rows)
+      for (unsigned i = 0; i < 4; ++i) entry.second.sensor[i] = tensors[entry.second.cell.v[i].id];
+
+    local::Mesh mesh(rows);
+    REQUIRE(std::none_of(mesh.Points().begin(), mesh.Points().end(), [](const auto& p) { return p.unresolved; }));
+    const local::Edge edge{SlotOf(mesh, 0), SlotOf(mesh, 1)};
+    REQUIRE(mesh.ClosedRing(edge, 0));
+    const auto old_length = mesh.Length(edge);
+    REQUIRE(old_length > local::LongEdge);
+    // The midpoint and rim endpoint norms are 2r and r/2, so their integrated length is 7r/5.
+    const auto radial_length = 1.4 * radius;
+    const auto before = Snapshot(mesh);
+    local::IdSequence ids(4);
+    const auto next = ids.Peek();
+    local::PassStats stats;
+    if (radius > 1) {
+      REQUIRE(radial_length > old_length);
+      CHECK(mesh.Split(edge, 0, ids, 1, SIZE_MAX, stats) == local::Refusal::Size);
+      CHECK(stats.refused_size == 1);
+      CHECK(stats.splits == 0);
+      CHECK(ids.Peek() == next);
+      CHECK(Snapshot(mesh) == before);
+    } else {
+      REQUIRE(mesh.Split(edge, 0, ids, 1, SIZE_MAX, stats) == local::Refusal::None);
+      CHECK(stats.refused_size == 0);
+      CHECK(stats.splits == 1);
+      CHECK(ids.Peek() == next + 1);
+      const auto midpoint = SlotOf(mesh, next);
+      double longest = 0;
+      size_t new_edges = 0;
+      for (const auto& use : mesh.Edges()) {
+        if (use.edge[0] != midpoint && use.edge[1] != midpoint) continue;
+        longest = std::max(longest, mesh.Length(use.edge));
+        ++new_edges;
+      }
+      CHECK(new_edges == 5);
+      CHECK(longest == Approx(radial_length));
+      CHECK(longest < old_length * (1 - 1e-12));
+    }
+    CHECK_NOTHROW(mesh.Check());
+    std::cout << "FP1_FIXTURE h6_split radius=" << radius << " old_length=" << old_length
+              << " radial_length=" << radial_length << " refused_size=" << stats.refused_size
+              << " splits=" << stats.splits << '\n';
+  }
+}
+
 TEST_CASE("Float local box pass passes strict measures and permutation signs", "[.][NativeLocalCoreHOperators]") {
   auto rows = RegularBox();
   local::Mesh mesh(rows);

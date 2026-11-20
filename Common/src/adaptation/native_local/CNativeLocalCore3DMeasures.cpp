@@ -25,12 +25,14 @@ double NormSquared(Point a, Point b, const Tensor& m) {
          d.z * (m.xz * d.x + m.yz * d.y + m.zz * d.z);
 }
 
-double MetricLength(Point a, Point b, const Tensor& ma, const Tensor& mb) {
+double MetricLength(Point a, Point b, const Tensor& ma, const Tensor& mb, bool trial = false) {
   const double first = std::sqrt(NormSquared(a, b, ma));
   const double last = std::sqrt(NormSquared(a, b, mb));
   const double largest = std::max(first, last);
-  if (!std::isfinite(first) || !std::isfinite(last) || largest <= 0)
+  if (!std::isfinite(first) || !std::isfinite(last) || largest <= 0) {
+    if (trial) return first == 0 && last == 0 ? 0.0 : std::numeric_limits<double>::infinity();
     throw std::runtime_error("Native local core encountered an unrepresentable metric edge.");
+  }
   const double r = std::min(first, last) / largest;
   return largest * (2. / 3.) * (1 + r + r * r) / (1 + r);
 }
@@ -132,6 +134,10 @@ bool Mesh::TrialPositive(Vertices vertices) const {
 
 bool Mesh::ExactlyPositive(const Plan& plan) const {
   return std::all_of(plan.fresh.begin(), plan.fresh.end(), [this](const auto& row) { return Positive(row.vertices); });
+}
+
+bool Mesh::TrialEdgeShorter(const PointRow& a, const PointRow& b, double limit) {
+  return MetricLength(a.node.p, b.node.p, a.tensor, b.tensor, true) < limit;
 }
 
 double Mesh::Length(Edge edge) const {

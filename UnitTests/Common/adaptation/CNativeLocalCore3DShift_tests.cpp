@@ -322,7 +322,9 @@ std::set<Edge> CheckLengths(local::Mesh& mesh, const local::IdSequence& ids, con
         local::PassStats probe;
         const auto reason = trial.Split(edge, use.cell, point_ids, stamp, SIZE_MAX, probe);
         CHECK(((reason == local::Refusal::Validity && (stats.refused_valid || stats.limit)) ||
-               (reason == local::Refusal::None && stats.limit)));
+               (reason == local::Refusal::Size && probe.refused_size == 1) ||
+               (reason == local::Refusal::Memory && probe.refused_memory == 1) ||
+               (reason == local::Refusal::Blocked && probe.blocked == 1)));
       }
     }
     if (length < local::ShortEdge) {

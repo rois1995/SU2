@@ -706,3 +706,19 @@ FP1 H lab pair 5 of 6 completed the pass in 66.450 s and wrote 580,374 exactly p
 FP1 H lab pair 6 of 6 completed the pass in 162.988 s and wrote 566,975 exactly positive cells with a passing self-check. The strict MeasureMetricCells audit raised Degenerate metric donor at cell 729907. All six pair receipts and the wall guard are terminal.
 
 FP1 Resume 3 STOP at §9.1. LAB1 V2 1,072.121 s exceeds 600 s by 472.121 s. LAB2 V2 88.835 s. Both production-form outputs passed exact validity and self-check. H checkpoint 1391148436 stays recorded. Seal the six ordered results and hold the replay, G3, safeguards, and G5 ON until the next order. The accepted G5 OFF proof is build608.
+
+## FP1 resume 4
+
+Archived Resume 4 and verified its SHA256. All six Resume 3 lab receipts are terminal. The already-pushed lab archive at 0b4d3b2baf includes the two V2 receipts, so §0 requires no job interruption or duplicate archive. Recorded the whole-item R4 source check. Next is H6, its hand and parity fixtures, and fresh OFF gates.
+
+FP1 H6. Added the midpoint frontier check with the default split_progress switch and existing Size counter. The new hand ring uses all production defaults and isolates a spoke of length 2.1 against the old edge of length about 1.871. The inherited probes cover the new Size refusal and the G byte control disables H6. Starting build614 and the focused and inherited fixtures.
+
+FP1 H6. Build614 linked cleanly. The new hand fixture passed 50 assertions and the H5 parity suite passed on the two pinned boxes. Before / after H6, the second box's maximum collapse and split sweeps in one call were 38/23 and 7/16. Both exceed the five-sweep minimum. The H6-off G byte control still matches 1,102,400 bytes. Inherited cohorts continue.
+
+FP1 H6. All new and inherited serial/MPI fixture cohorts passed on build614. The unchanged Part A box had 72 residual closed long edges, all blocked, and zero admissible short collapses. Source scope against 1391148436 passed. Starting fresh G1 and then the two corrected OFF prefixes under one controller.
+
+FP1 H6 G1 matched exactly 375 / 114 / 228 adopted records in 767.842 / 10.282 / 11.300 s. G2 OFF started after G1.
+
+FP1 H6 G2 passed in 241.778 s to cutoff with 90,809,869 work units. Exact corrected comparison passed and fixedstorage 4120. GQ OFF started after G2.
+
+FP1 H6 GQ passed in 716.584 s to cutoff. All corrected exact rows and fixedstorage 4120 matched. Commit FP1 H6, then run LAB1 V2, LAB2 V2, LAB1 V5 and LAB2 V3 in that order.

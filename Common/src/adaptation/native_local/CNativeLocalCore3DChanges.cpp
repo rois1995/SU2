@@ -237,7 +237,9 @@ Refusal Mesh::Collapse(Edge edge, uint32_t stamp, PassStats& stats, bool apply) 
 Refusal Mesh::Split(Edge edge, Slot seed, IdSequence& point_ids, uint32_t stamp, size_t cell_limit, PassStats& stats) {
   edge = ById(edge);
   auto ring = EdgeRing(edge, seed);
-  if (!ring.Closed() || Length(edge) <= LongEdge) return Refusal::Ineligible;
+  if (!ring.Closed()) return Refusal::Ineligible;
+  const auto old_length = Length(edge);
+  if (old_length <= LongEdge) return Refusal::Ineligible;
   if (Blocked(ring.cells)) {
     stats.Count(Refusal::Blocked);
     return Refusal::Blocked;
@@ -246,12 +248,26 @@ Refusal Mesh::Split(Edge edge, Slot seed, IdSequence& point_ids, uint32_t stamp,
     stats.Count(Refusal::Memory);
     return Refusal::Memory;
   }
-  std::sort(ring.cells.begin(), ring.cells.end(),
-            [this](Slot a, Slot b) { return Key(cells_[a].vertices) < Key(cells_[b].vertices); });
   const auto& a = points_[edge[0]];
   const auto& b = points_[edge[1]];
   const Point p{0.5 * (a.node.p.x + b.node.p.x), 0.5 * (a.node.p.y + b.node.p.y), 0.5 * (a.node.p.z + b.node.p.z)};
   const PointRow middle{{point_ids.Peek(), p}, Midpoint(a.tensor, b.tensor)};
+  if (options_.split_progress) {
+    // The split removes only ab, so every added edge must be shorter to keep splits from feeding themselves.
+    const auto limit = old_length * (1 - 1e-12);
+    const auto long_spoke = [&](Slot cell) {
+      for (auto rim : cells_[cell].vertices)
+        if (rim != edge[0] && rim != edge[1] && !TrialEdgeShorter(middle, points_[rim], limit)) return true;
+      return false;
+    };
+    if (!TrialEdgeShorter(a, middle, limit) || !TrialEdgeShorter(middle, b, limit) ||
+        std::any_of(ring.cells.begin(), ring.cells.end(), long_spoke)) {
+      stats.Count(Refusal::Size);
+      return Refusal::Size;
+    }
+  }
+  std::sort(ring.cells.begin(), ring.cells.end(),
+            [this](Slot a, Slot b) { return Key(cells_[a].vertices) < Key(cells_[b].vertices); });
   if (free_points_.empty() && points_.size() == NoSlot) throw std::length_error("Too many native local core points.");
   const bool append = free_points_.empty();
   const auto slot = append ? static_cast<Slot>(points_.size()) : free_points_.back();

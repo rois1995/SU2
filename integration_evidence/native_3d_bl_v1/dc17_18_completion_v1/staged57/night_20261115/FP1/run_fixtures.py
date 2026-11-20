@@ -19,6 +19,7 @@ FIXTURES = {
     'HO': ((1, '[NativeLocalCoreHOperators]'),),
     'H': ((1, '[NativeLocalCoreH]'),),
     'HB': ((2, '[NativeLocalCoreHBorder]'),),
+    'H6': ((1, '[NativeLocalCoreH6]'),),
 }
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 PASS = re.compile(r'All tests passed \((\d+) assertions? in (\d+) test cases?\)')

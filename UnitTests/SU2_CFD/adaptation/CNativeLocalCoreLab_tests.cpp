@@ -112,7 +112,11 @@ local::CoreOptions Variant(const std::string& variant) {
   local::CoreOptions options;
   if (variant == "V0") {
     options.shape_test = options.float_trials = options.surface_first = options.work_list = false;
+    options.split_progress = false;
   } else if (variant == "V1") {
+    options.surface_first = false;
+    options.split_progress = false;
+  } else if (variant == "V5") {
     options.surface_first = false;
   } else if (variant == "V3") {
     options.short_edge = local::ShortEdge / std::sqrt(2.);

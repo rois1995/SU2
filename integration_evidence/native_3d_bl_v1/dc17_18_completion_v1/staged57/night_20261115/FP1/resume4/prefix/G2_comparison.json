@@ -1,0 +1,553 @@
+{
+  "part": "C",
+  "gate": "G2",
+  "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/cases/N14_G2_552",
+  "candidate": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume4/prefix/cases/G2",
+  "decisions_changed": false,
+  "same_decisions": true,
+  "decisions": {
+    "rank_output/1/rank.0/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.1/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.2/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.3/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.4/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.5/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    }
+  },
+  "fixedstorage": 4120,
+  "passed": true,
+  "integer_rows": {
+    "passed": true,
+    "first_difference": null,
+    "streams": [
+      "rank_output/1/rank.0/stdout",
+      "rank_output/1/rank.1/stdout",
+      "rank_output/1/rank.2/stdout",
+      "rank_output/1/rank.3/stdout",
+      "rank_output/1/rank.4/stdout",
+      "rank_output/1/rank.5/stdout"
+    ]
+  },
+  "timer_rows": {
+    "rank_output/1/rank.0/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "0"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "0"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "exclusive_seconds": "83.123574185999857",
+                "inclusive_call_seconds": "84.479565737999948"
+              },
+              "construction": {
+                "calls": 340843,
+                "exclusive_seconds": "102.04639048701479",
+                "inclusive_call_seconds": "104.38055290901509"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 250,
+                "exclusive_seconds": "1.8224727479999991",
+                "inclusive_call_seconds": "2.7097751159999994"
+              },
+              "construction": {
+                "calls": 333799,
+                "exclusive_seconds": "87.313057130013306",
+                "inclusive_call_seconds": "88.865498652014097"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.1/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "1"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "1"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "exclusive_seconds": "90.180569233000355",
+                "inclusive_call_seconds": "91.458426235000474"
+              },
+              "construction": {
+                "calls": 340843,
+                "exclusive_seconds": "110.56336595201562",
+                "inclusive_call_seconds": "113.1109780640154"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 250,
+                "exclusive_seconds": "8.1590812810000006",
+                "inclusive_call_seconds": "9.0154777999999993"
+              },
+              "construction": {
+                "calls": 333799,
+                "exclusive_seconds": "94.301951590014369",
+                "inclusive_call_seconds": "95.889662451015965"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.2/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "2"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "2"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "exclusive_seconds": "87.893588669000025",
+                "inclusive_call_seconds": "89.208508934000179"
+              },
+              "construction": {
+                "calls": 340843,
+                "exclusive_seconds": "108.1471766760248",
+                "inclusive_call_seconds": "110.96277733402495"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 250,
+                "exclusive_seconds": "6.4839560520000008",
+                "inclusive_call_seconds": "7.3194709590000002"
+              },
+              "construction": {
+                "calls": 333799,
+                "exclusive_seconds": "92.80035398202304",
+                "inclusive_call_seconds": "94.705606631023741"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.3/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "3"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "3"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "exclusive_seconds": "87.718582822000016",
+                "inclusive_call_seconds": "89.114503999000206"
+              },
+              "construction": {
+                "calls": 340843,
+                "exclusive_seconds": "113.36173525602548",
+                "inclusive_call_seconds": "116.3313390140258"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 250,
+                "exclusive_seconds": "5.9440258669999997",
+                "inclusive_call_seconds": "6.7915087159999983"
+              },
+              "construction": {
+                "calls": 333799,
+                "exclusive_seconds": "96.830210305022462",
+                "inclusive_call_seconds": "98.850857029024127"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.4/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "4"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "4"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "exclusive_seconds": "95.919472646999807",
+                "inclusive_call_seconds": "97.204547581999776"
+              },
+              "construction": {
+                "calls": 340843,
+                "exclusive_seconds": "103.09795566001661",
+                "inclusive_call_seconds": "105.47521702101763"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 250,
+                "exclusive_seconds": "13.544344779999999",
+                "inclusive_call_seconds": "14.369756494999999"
+              },
+              "construction": {
+                "calls": 333799,
+                "exclusive_seconds": "87.988332786017608",
+                "inclusive_call_seconds": "89.555964658019022"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.5/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "5"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "5"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "exclusive_seconds": "85.80797084599989",
+                "inclusive_call_seconds": "87.094583091999837"
+              },
+              "construction": {
+                "calls": 340843,
+                "exclusive_seconds": "97.88569284101645",
+                "inclusive_call_seconds": "100.3961856510162"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 250,
+                "exclusive_seconds": "4.2477880219999999",
+                "inclusive_call_seconds": "5.1332403109999998"
+              },
+              "construction": {
+                "calls": 333799,
+                "exclusive_seconds": "83.066748478010666",
+                "inclusive_call_seconds": "84.655603537010649"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "modeled_storage_equal": true,
+  "storage_differences": {},
+  "first_difference": null,
+  "report_only_integer_fields": {
+    "rank_output/1/rank.0/stdout": [
+      {
+        "row": 19,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.285883392004763",
+          "election_calls": "262459",
+          "election_seconds": "175.08978095400875"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "11.204300697000022",
+          "election_calls": "227393",
+          "election_seconds": "71.984137423003375"
+        }
+      }
+    ],
+    "rank_output/1/rank.1/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.4500770149983708",
+          "election_calls": "262459",
+          "election_seconds": "190.28086384099592"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "16.771965819998854",
+          "election_calls": "227393",
+          "election_seconds": "79.707168002992177"
+        }
+      }
+    ],
+    "rank_output/1/rank.2/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.2240883969906662",
+          "election_calls": "262459",
+          "election_seconds": "185.6630483149909"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "17.780073897996886",
+          "election_calls": "227393",
+          "election_seconds": "75.38077326599074"
+        }
+      }
+    ],
+    "rank_output/1/rank.3/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.4402479559914951",
+          "election_calls": "262459",
+          "election_seconds": "190.49679170699073"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "17.638072351995575",
+          "election_calls": "227393",
+          "election_seconds": "79.102489428002826"
+        }
+      }
+    ],
+    "rank_output/1/rank.4/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.4013921080001666",
+          "election_calls": "262459",
+          "election_seconds": "188.39623374298358"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "23.527091153999478",
+          "election_calls": "227393",
+          "election_seconds": "71.952196351999419"
+        }
+      }
+    ],
+    "rank_output/1/rank.5/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.2975122629969178",
+          "election_calls": "262459",
+          "election_seconds": "173.11326486599887"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "13.124510171996306",
+          "election_calls": "227393",
+          "election_seconds": "67.979121293997792"
+        }
+      }
+    ]
+  }
+}

@@ -45,6 +45,7 @@ struct CoreOptions {
   bool float_trials = true;
   bool surface_first = true;
   bool work_list = true;
+  bool split_progress = true;
   double short_edge = ShortEdge;
 };
 
@@ -237,6 +238,7 @@ class Mesh {
   bool FloatPositive(Vertices vertices) const;
   bool TrialPositive(Vertices vertices) const;
   bool ExactlyPositive(const Plan& plan) const;
+  static bool TrialEdgeShorter(const PointRow& a, const PointRow& b, double limit);
   bool Blocked(Vertices vertices) const;
   bool Blocked(const std::vector<Slot>& cells) const;
   Edge ById(Edge edge) const;

@@ -329,6 +329,7 @@ TEST_CASE("Local core with the four H switches disabled reproduces the G F4.1 Ow
 
   local::CoreOptions g;
   g.shape_test = g.float_trials = g.surface_first = g.work_list = false;
+  g.split_progress = false;
   const auto pass = Run(ResumeBox(), g);
   const std::array<size_t, 5> edits{74, 169, 380, 12, 317};
   CHECK(Edits(pass.stats) == edits);
