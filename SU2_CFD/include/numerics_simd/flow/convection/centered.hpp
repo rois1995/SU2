@@ -65,6 +65,7 @@ protected:
   const bool exactFormJac;
   const bool projDiss;  /*!< \brief EDGE_DISS_PROJECTED, declared before ecFlux, which depends on it. */
   const bool alignedDiss; /*!< \brief EDGE_FORM_P1_DISS_ALIGNED, true-edge JST on the edge projection of n_ik. */
+  const bool ledDiss;     /*!< \brief EDGE_FORM_P1_DISS_LED, the eps2 term of the aligned JST on n_ik. */
   const bool ecFlux;
   const bool esDiss;
   const bool esBlend;
@@ -92,6 +93,7 @@ protected:
     exactFormJac(edgeForm && (config.GetEdge_Form_Exact_Jacobian() || config.GetEdge_Form_P1())),
     projDiss(iMesh == MESH_0 && config.GetEdge_Diss_Projected()),
     alignedDiss(edgeForm && config.GetEdge_Form_P1_Diss_Aligned()),
+    ledDiss(alignedDiss && config.GetEdge_Form_P1_Diss_LED()),
     ecFlux((edgeForm || projDiss) && config.GetEdge_Form_EC_Flux()),
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
@@ -421,12 +423,12 @@ public:
      * JST_WEAK_WALL_DISSIPATION reads only the wall flags of the nodes and is unchanged. ---*/
 
     const bool projectedDiss = projDiss || alignedDiss;
-    VectorDbl<nDim> projNormal, projUnitNormal;
+    VectorDbl<nDim> projNormal, projUnitNormal, formNormal;
     Double projArea = 0.0;
     if (projectedDiss) {
       const auto vector_ij = distanceVector<nDim>(iPoint, jPoint, geometry.nodes->GetCoord());
       if (alignedDiss) {
-        const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
+        formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
         projectedNormal(formNormal, vector_ij, projNormal, projArea, projUnitNormal);
       } else {
         projectedNormal(normal, vector_ij, projNormal, projArea, projUnitNormal);
@@ -446,12 +448,21 @@ public:
     }
     const Double projVel = dot(avgV.velocity(), rNormal) - projGridDiss;
 
+    /*--- EDGE_FORM_P1_DISS_LED: the second-difference term of the JST on the full form normal n_ik of the central part
+     * (local extremum diminishing pairs, eps2 lambda >= |a.n_ik|/2 at eps2 = 1/2), the fourth-difference term on nu.
+     * Off, both terms get the same (area, projVel) and the JST below is unchanged. No grid motion (CConfig). ---*/
+    Double ledArea = rArea, ledProjVel = projVel;
+    if (ledDiss) {
+      ledArea = norm(formNormal);
+      ledProjVel = dot(avgV.velocity(), formNormal);
+    }
+
     /*--- Finalize in derived class (static polymorphism). ---*/
 
     const auto derived = static_cast<const Derived*>(this);
 
     derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, projVel, avgV, V,
-                          diffU, iPoint, jPoint, geometry, solution, rUnitNormal, iEdge, updateMask);
+                          diffU, iPoint, jPoint, geometry, solution, rUnitNormal, iEdge, updateMask, ledArea, ledProjVel);
 
     /*--- Matched k: mdot k_up with the final mass flux (stored below for the SST k convection), and the Jacobian
      * L(k_up) Jhat T(k) of the hat Jacobian (D1), before the viscous terms whose Jacobian is already w.r.t. U. ---*/
@@ -546,10 +557,20 @@ public:
                                 const VectorDbl<nDim>&,
                                 const Int& iEdge,
                                 const Double& updateMask,
+                                const Double& ledArea,
+                                const Double& ledProjVel,
                                 Ts&...) const {
 
     Double lambda = abs(projVel) + avgV.speedSound()*area;
     lambda = correctedSpectralRadius(iPoint, jPoint, lambda, stretchParam, solution);
+
+    /*--- lambda2 of the second-difference term: equal to lambda unless EDGE_FORM_P1_DISS_LED gives it the full form
+     * normal (CCenteredBase::ComputeFlux). ---*/
+    Double lambda2 = lambda;
+    if (Base::ledDiss) {
+      lambda2 = abs(ledProjVel) + avgV.speedSound()*ledArea;
+      lambda2 = correctedSpectralRadius(iPoint, jPoint, lambda2, stretchParam, solution);
+    }
 
     /*--- Compute dissipation coefficients. ---*/
 
@@ -588,13 +609,14 @@ public:
     }
 
     for (size_t iVar = 0; iVar < nVar; ++iVar) {
-      flux(iVar) += (eps2*diffU(iVar) - eps4*(lapl_i(iVar)-lapl_j(iVar))) * lambda;
+      if (Base::ledDiss) flux(iVar) += eps2*diffU(iVar)*lambda2 - eps4*(lapl_i(iVar)-lapl_j(iVar))*lambda;
+      else flux(iVar) += (eps2*diffU(iVar) - eps4*(lapl_i(iVar)-lapl_j(iVar))) * lambda;  // off: unchanged rounding
     }
 
     /*--- JST_ENTROPY_BUDGET: the coefficients of this edge for the node budget (P1_JST_ENTROPY.md, J4), unmasked lanes
      * (masked lanes repeat an edge). The flux above is unchanged here. ---*/
     if (entropyBudget) {
-      const Double c2 = eps2 * lambda, c4 = eps4 * lambda;
+      const Double c2 = eps2 * lambda2, c4 = eps4 * lambda;
       auto& coeff = solution.JSTEdgeCoeff;
       for (size_t k = 0; k < Double::Size; ++k) {
         if (updateMask[k] == 0.0) continue;
@@ -604,8 +626,10 @@ public:
     }
 
     if (implicit) {
-      const Double dissip_i = fixFactor * (eps2Jac + eps4 * (ni + 1)) * lambda;
-      const Double dissip_j = -fixFactor * (eps2Jac + eps4 * (nj + 1)) * lambda;
+      const Double dissip_i = Base::ledDiss ? fixFactor * (eps2Jac * lambda2 + eps4 * (ni + 1) * lambda)
+                                            : fixFactor * (eps2Jac + eps4 * (ni + 1)) * lambda;
+      const Double dissip_j = Base::ledDiss ? -fixFactor * (eps2Jac * lambda2 + eps4 * (nj + 1) * lambda)
+                                            : -fixFactor * (eps2Jac + eps4 * (nj + 1)) * lambda;
       scalarDissipationJacobian(V.i, gamma, dissip_i, jac_i, Base::getTke(iPoint));
       scalarDissipationJacobian(V.j, gamma, dissip_j, jac_j, Base::getTke(jPoint));
     }

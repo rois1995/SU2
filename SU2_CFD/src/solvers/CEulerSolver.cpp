@@ -2146,6 +2146,8 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
     const bool ecFlux = config->GetEdge_Form_EC_Flux();
     const bool pairDiss = config->GetEdge_Form_P1_Mixed_Diss();
     const bool alignedDiss = config->GetEdge_Form_P1_Mixed_Diss_Aligned();
+    /*--- EDGE_FORM_P1_DISS_LED: the eps2 term of an aligned pair on the full pair coefficient n_ik (as the true edges). ---*/
+    const bool ledDiss = alignedDiss && config->GetEdge_Form_P1_Diss_LED();
     /*--- Only with the split-pair pattern (not with the OpenMP reducer, which keeps the plain pattern). ---*/
     /*--- The current integration kind (explicit during matrix-free NEWTON_KRYLOV products), as the edge kernel. ---*/
     const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT) && Jacobian.HasSplitPairPattern();
@@ -2210,7 +2212,7 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
               P1PairJST::DissipationNormal(nDim, alignedDiss, splitNormal[iSplit], geometry->nodes->GetCoord(iPoint),
                                            geometry->nodes->GetCoord(kPoint), alignedNormal);
           P1PairJST::AddPairDissipation(nDim, jst, jstNode(iPoint), jstNode(kPoint), dissNormal, flux, implicit,
-                                        dissJac_i, dissJac_k);
+                                        dissJac_i, dissJac_k, ledDiss ? splitNormal[iSplit] : nullptr);
         }
         const su2double massFlux = flux[0];
         if (turbMatched) addPairKine(iPoint, kPoint, flux);

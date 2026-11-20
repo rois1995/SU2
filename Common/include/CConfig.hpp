@@ -111,6 +111,7 @@ private:
   bool Edge_Form_P1_Mixed_Diss; /*!< \brief EDGE_FORM_P1_MIXED_DISS: JST dissipation on the split pairs of EDGE_FORM_P1_MIXED. */
   bool Edge_Form_P1_Mixed_Diss_Aligned; /*!< \brief EDGE_FORM_P1_MIXED_DISS_ALIGNED: the pair dissipation on the edge projection of n_ik. */
   bool Edge_Form_P1_Diss_Aligned; /*!< \brief EDGE_FORM_P1_DISS_ALIGNED: the true-edge JST on the edge projection of the form normal n_ik. */
+  bool Edge_Form_P1_Diss_LED;     /*!< \brief EDGE_FORM_P1_DISS_LED: the eps2 part of the aligned JST on n_ik (LED), eps4 on nu_ik. */
   bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
@@ -10279,6 +10280,11 @@ public:
    *        dual normal. The central part, the stretching correction and the time step are unchanged.
    */
   bool GetEdge_Form_P1_Diss_Aligned() const { return Edge_Form_P1_Diss_Aligned; }
+
+  /*!
+   * \brief EDGE_FORM_P1_DISS_LED: the second-difference JST term on the full pair normal n_ik.
+   */
+  bool GetEdge_Form_P1_Diss_LED() const { return Edge_Form_P1_Diss_LED; }
 
   /*!
    * \brief POSITIVE_UPDATE_FLOW: the factor of the implicit flow update is reduced so that rho >= eps_r rho_old and
