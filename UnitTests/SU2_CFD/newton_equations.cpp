@@ -1992,7 +1992,13 @@ TEST_CASE("Assembled flow/turbulence cross Jacobians match finite differences of
                              3 * SU2_TYPE::GetValue(geometry->nodes->GetCoord(p, 1)) + 0.7 * v);
       /*--- Periodic copies of a consistent direction agree; the assembled product is P C P. ---*/
       equations->ProjectPeriodic(direction, &scale);
+      /*--- Central reference, the odd part of the +/- direction products. Without walls (wall distance 1e15) the SA
+       *    source stays active in a nearly uniform free stream, |omega| ~ 1e-8: a one-sided product there measures
+       *    the kink of |omega| at zero (an even response), not its derivative. ---*/
       REQUIRE(linearization.Apply(direction, fd, false));
+      for (auto i = 0ul; i < direction.GetLocSize(); ++i) physical[i] = -direction[i];
+      REQUIRE(linearization.Apply(physical, assembled, false));
+      for (auto i = 0ul; i < direction.GetLocSize(); ++i) fd[i] = 0.5 * (fd[i] - assembled[i]);
       for (auto i = 0ul; i < direction.GetLocSize(); ++i) physical[i] = direction[i] * scale[i];
       assembled = passivedouble(0);
       SU2_OMP_PARALLEL {
@@ -2009,7 +2015,7 @@ TEST_CASE("Assembled flow/turbulence cross Jacobians match finite differences of
           size += std::pow(fd(p, j), 2);
         }
       }
-      /*--- Without a response (no wall, no eddy viscosity) the product itself must vanish. ---*/
+      /*--- Without a response (e.g. no eddy viscosity) the product itself must vanish. ---*/
       return size < 1e-30 ? std::sqrt(error) : std::sqrt(error / size);
     };
     const bool isSA = physics.find("KIND_TURB_MODEL= SA") != std::string::npos;
