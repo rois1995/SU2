@@ -1,0 +1,145 @@
+{
+  "elapsed_seconds_origin": "watch monotonic clock immediately before spawning the pinned wrapper",
+  "core_start_basis": "latest first initial partition row observed across six rank stdout files",
+  "poll_interval_seconds": 1,
+  "first_partition_observed_seconds": {
+    "0": 44.47251163900364,
+    "1": 44.47262070700526,
+    "2": 44.47269372991286,
+    "3": 44.472748136962764,
+    "4": 44.472802834934555,
+    "5": 44.47285741195083
+  },
+  "stage0_core_start_proxy_seconds": 44.47285741195083,
+  "first_stage0_sweep_begin_estimate_seconds": {
+    "0": 45.274375191939484,
+    "1": 45.23595148496627,
+    "2": 45.18191170894868,
+    "3": 45.26679111495406,
+    "4": 45.245588633965966,
+    "5": 45.275729448008896
+  },
+  "stage0_higher_observed_seconds": {
+    "0": 62.08265083900187,
+    "1": 62.08274480397813,
+    "2": 62.08279879298061,
+    "3": 62.082849383936264,
+    "4": 62.08290273498278,
+    "5": 62.082948855008
+  },
+  "stop": null,
+  "stop_observed_seconds": null,
+  "owned_processes": [
+    {
+      "pid": 1711189,
+      "start_ticks": 67573486
+    },
+    {
+      "pid": 1711190,
+      "state": "S",
+      "ppid": 1711189,
+      "pgid": 1711190,
+      "sid": 1711189,
+      "start_ticks": 67573486,
+      "comm": "timeout"
+    },
+    {
+      "pid": 1711191,
+      "state": "S",
+      "ppid": 1711190,
+      "pgid": 1711190,
+      "sid": 1711189,
+      "start_ticks": 67573486,
+      "comm": "mpirun"
+    },
+    {
+      "pid": 1711194,
+      "state": "R",
+      "ppid": 1711191,
+      "pgid": 1711194,
+      "sid": 1711189,
+      "start_ticks": 67573490,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 1711195,
+      "state": "R",
+      "ppid": 1711191,
+      "pgid": 1711195,
+      "sid": 1711189,
+      "start_ticks": 67573490,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 1711196,
+      "state": "R",
+      "ppid": 1711191,
+      "pgid": 1711196,
+      "sid": 1711189,
+      "start_ticks": 67573490,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 1711197,
+      "state": "R",
+      "ppid": 1711191,
+      "pgid": 1711197,
+      "sid": 1711189,
+      "start_ticks": 67573490,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 1711198,
+      "state": "R",
+      "ppid": 1711191,
+      "pgid": 1711198,
+      "sid": 1711189,
+      "start_ticks": 67573490,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 1711199,
+      "state": "R",
+      "ppid": 1711191,
+      "pgid": 1711199,
+      "sid": 1711189,
+      "start_ticks": 67573490,
+      "comm": "test_driver"
+    }
+  ],
+  "sigkill_sent_to": [],
+  "all_owned_terminal": true,
+  "sampled_rank_peak_lower_bounds": [
+    {
+      "pid": 1711194,
+      "start_ticks": 67573490,
+      "peak_rss_bytes": 1960914944
+    },
+    {
+      "pid": 1711195,
+      "start_ticks": 67573490,
+      "peak_rss_bytes": 1871048704
+    },
+    {
+      "pid": 1711196,
+      "start_ticks": 67573490,
+      "peak_rss_bytes": 1979748352
+    },
+    {
+      "pid": 1711197,
+      "start_ticks": 67573490,
+      "peak_rss_bytes": 2124115968
+    },
+    {
+      "pid": 1711198,
+      "start_ticks": 67573490,
+      "peak_rss_bytes": 2074189824
+    },
+    {
+      "pid": 1711199,
+      "start_ticks": 67573490,
+      "peak_rss_bytes": 1773404160
+    }
+  ],
+  "sampled_job_peak_lower_bound_bytes": 11783421952
+}

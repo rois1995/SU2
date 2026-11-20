@@ -732,3 +732,9 @@ FP1 H6 lab pair 2 of 4 passed both audits. LAB2 V2 pass wall 51.102 s, down from
 FP1 H6 lab pair 3 of 4 passed both audits. LAB1 V5 with surface blocking off completed in 47.670 s, with a passing self-check and exact-positive output. LAB2 V3 is next.
 
 FP1 H6 lab pair 4 of 4 passed both audits. LAB2 V3 pass wall 26.658 s. All four owned lab receipts and observed processes are terminal. V2 on LAB1 and LAB2 passed its timing and exact-validity stop conditions. Seal the lab evidence and run the six-rank frozen event 1 replay under Resume 3 §9.2.
+
+FP1 H6 lab evidence pushed at 8f484c76d4. Starting one six-rank frozen event 1 replay with the same build614 test driver.
+
+FP1 H6 replay stage 0 completed both passes and both shifts on all six ranks. The sum of completed core and shift seconds per rank is 16.793–16.806 s. All higher shifts were visible under two minutes from process launch. The engine has 420,249 cells after the higher shift. Event acceptance is still live.
+
+FP1 H6 replay accepted event 1 in 1,568.109 s with 554,738 cells, job peak equal to rank sum, and 95.055% minimum timer coverage. The stage-0 inclusive core/shift max was 16.806 s, and all higher shifts arrived within 600 s. Replay and all owned descendants are terminal. Seal and run §9.3 scoped OFF safeguards on build614.

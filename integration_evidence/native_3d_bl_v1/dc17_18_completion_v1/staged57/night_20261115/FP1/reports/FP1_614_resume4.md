@@ -22,7 +22,7 @@ GQ passed at 716.584 s to cutoff. The corrected N22 comparison matched the exact
 
 ## Ordered lab results
 
-All four pairs passed self-check, exact orientation and the strict metric audit. Both V2 clocks are below the 600 s stop threshold. Pass wall covers array construction through write-back. Each linked receipt also has the input and audit clocks, raw sweep table, and resource observations. [Lab summary](../resume4/lab/lab_summary.json)
+All four pairs passed self-check and exact orientation, and completed the strict metric audit. Both V2 clocks are below the 600 s stop threshold. Pass wall covers array construction through write-back. Each linked receipt also has the input and audit clocks, raw sweep table, and resource observations. [Lab summary](../resume4/lab/lab_summary.json)
 
 | Pair | Pass wall (s) | Process wall (s) | Peak live cells in sweep rows | Nonpositive cells | Strict q-bad / J-bad / long cells |
 |---|---:|---:|---:|---:|---|
@@ -99,3 +99,18 @@ LAB1 V5 disabled surface blocking while retaining the progress rule. It finished
 | split | 3 | 1 | 0.534 | 0 / 0 / 0 / 0 / 0 | 642,093 |
 | quality | 0 | 20 | 2.445 | 0 / 0 / 11,184 / 554 / 4,424 | 644,771 |
 
+
+## Six-rank event 1 replay
+
+The frozen-input replay accepted event 1 in 1,568.109 s and produced 554,738 cells from 303,359. The job peak was 11,236.723 MiB and matched the sum of rank peaks. Minimum timer coverage was 95.055%. The replay uses frozen sensors and zero CFD steps. [Run receipt](../resume4/event1/replay_receipt.json)
+
+| Rank | Stage-0 inclusive core and shifts (s) | Engine-entry cells |
+|---:|---:|---:|
+| 0 | 16.798 | 50,044 |
+| 1 | 16.798 | 53,134 |
+| 2 | 16.804 | 89,880 |
+| 3 | 16.806 | 131,765 |
+| 4 | 16.794 | 51,829 |
+| 5 | 16.793 | 43,597 |
+
+All stage-0 higher shifts were observed within 17.610 s of the six initial partition rows. The watchdog uses a one-second polling interval and records first-sweep onset estimates. The comparison preserves all sweep rows and the Resume 2 comparison against the build608 and FP0 OFF baselines. [Watch receipt](../resume4/event1/core_watch.json) · [Replay comparison](../resume4/event1/replay_comparison.json)
