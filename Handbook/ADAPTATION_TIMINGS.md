@@ -2,6 +2,28 @@
 
 ## Fast path stage 1
 
+### Resume 5 Part N, build615
+
+| Mode | Event 1 native maximum (s) | Event 2 native maximum (s) | Named coverage minima |
+|---|---:|---:|---:|
+| Build608 OFF | 1,818.319 | 1,039.725 | 95.257% / 95.333% |
+| Build615 OFF | 1,778.627 | 1,029.081 | 97.467% / 98.019% |
+| Build615 ON1 | 1,521.154 | 383.071 | 96.952% / 95.110% |
+| Build615 ON2 | 1,519.720 | 393.250 | 96.978% / 94.842% (failed) |
+
+Part N assigned the specified ownership and partition work to Communication and private quality work to Candidate. Each OFF rank improved in both events. The build615 OFF maxima define the ON comparison limits. ON1 passed both events and the isolated restart. ON2 event 2 failed the 95% named coverage gate on rank 0 before publication. Rank 0 unattributed time rose from 18.734 to 20.287 s, mostly in construction. Resume 5 ended after read-only diagnosis. [Resume 5 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_615_resume5.md)
+
+Each phase, local core and shift clock is the maximum over ranks in seconds. Engine construction excludes the core and shift clocks within each rank. The maxima are nonadditive.
+
+| Event | Mode | Preparation | Engine construction | Core | Shift | Quality | Final proof |
+|---:|---|---:|---:|---:|---:|---:|---:|
+| 1 | OFF | 63.022 | 460.190 | 0.000 | 0.000 | 1,150.640 | 63.140 |
+| 1 | ON1 | 64.961 | 470.098 | 15.931 | 0.613 | 868.808 | 58.117 |
+| 1 | ON2 | 65.108 | 470.470 | 16.304 | 0.614 | 868.417 | 57.325 |
+| 2 | OFF | 83.436 | 202.218 | 0.000 | 0.000 | 602.798 | 105.126 |
+| 2 | ON1 | 55.866 | 161.225 | 10.276 | 0.753 | 90.986 | 28.655 |
+| 2 | ON2 | 55.121 | 163.652 | 10.085 | 0.751 | 96.553 | 30.405 |
+
 ### Resume 4 H6, build614
 
 | Check | Pass or native wall (s) | Evidence |

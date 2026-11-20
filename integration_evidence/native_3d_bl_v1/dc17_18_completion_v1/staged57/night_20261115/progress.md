@@ -792,3 +792,7 @@ FP1 N ON1 event 1 passed the final timer and connected gates. Native maximum 152
 FP1 N ON1 event 2 passed final timer and connected proof gates. Native maximum 383.071 s and minimum coverage 95.110% on rank 0. Event 2 publication and full validation continue before the isolated restart and ON2.
 
 FP1 N G5 ON1 passed both events, continued CFD and isolated restart. Native maxima 1,521.154 / 383.071 s, coverage minima 96.952% / 95.110%. Both timing comparisons passed. The same binary is running ON2. Pair identity still pending.
+
+FP1 N ON2 event 1 passed final timer and connected proof gates. Native max 1519.720 s and minimum coverage 96.978%. Continue publication and event 2.
+
+FP1 N ON: FAILED. Build615 ON1 passed both events and isolated restart. ON2 native maxima were 1,519.720 / 393.250 s. Event 2 rank 0 failed the first gate at 94.8416718673% named coverage against 95%, confirmed from the final exclusive rows. Event 1 files matched ON1. Event 2 publication, isolated restart and six-file repeat identity are unevaluated. The failed-run checkpoint retains the code and proven OFF default. Resume 5 ends here with no repeat.
