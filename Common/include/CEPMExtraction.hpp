@@ -94,6 +94,7 @@ inline void SetEPMCursor(const Config* config, CEPMExtraction::SiteKind kind, un
 /*!
  * \brief SetEPMCursor for a boundary vertex: global id of iPoint and config-file index of the marker, so that
  *        all ranks agree. The marker lookup is only done when the cursor is needed.
+ * \note Physical BC markers only: SEND_RECEIVE markers have no config-file index (the driver skips them too).
  */
 template <class Config, class Geometry>
 inline void SetEPMBoundaryCursor(const Config* config, const Geometry* geometry, unsigned short iMarker,

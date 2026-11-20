@@ -754,6 +754,10 @@ void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
     set_coord(field.Data(site).coord_b, jPoint);
   }
   for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); ++iMarker) {
+    /*--- MPI (SEND_RECEIVE) and periodic markers have no BC evaluation, hence no site, and SEND_RECEIVE is not a
+     *    config-file marker (GetMarker_CfgFile_TagBound would abort). ---*/
+    const auto kind_bc = config->GetMarker_All_KindBC(iMarker);
+    if (kind_bc == SEND_RECEIVE || kind_bc == PERIODIC_BOUNDARY) continue;
     const auto marker = config->GetMarker_CfgFile_TagBound(config->GetMarker_All_TagBound(iMarker));
     for (unsigned long iVertex = 0; iVertex < geometry->GetnVertex(iMarker); ++iVertex) {
       const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
