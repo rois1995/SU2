@@ -97,6 +97,7 @@ private:
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   bool BC_Entropy_P1_Strong_Slip; /*!< \brief Strong u.n = 0 at the Euler walls and symmetry planes of closure C. */
   bool BC_Entropy_P1_Standard_FarField; /*!< \brief Diagnostic: far field without closure C. */
+  bool BC_Entropy_P1_FarField_Characteristic; /*!< \brief Characteristic dissipation at the far-field points of closure C. */
   bool Euler_Wall_Crease_Normals; /*!< \brief Crease-group normals in BC_Euler_Wall and correctGradientsSymmetry. */
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
@@ -10182,6 +10183,12 @@ public:
    * \brief Diagnostic: the far field keeps the weak nodal flux of BC_WEAK_P1 under BC_ENTROPY_P1.
    */
   bool GetBC_Entropy_P1_Standard_FarField() const { return BC_Entropy_P1_Standard_FarField; }
+
+  /*!
+   * \brief BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC: the far-field points of closure C use the characteristic (matrix)
+   *        dissipation in entropy variables instead of the scalar Rusanov one (CLOSURE_C_FARFIELD_MEDIAN.md, 2).
+   */
+  bool GetBC_Entropy_P1_FarField_Characteristic() const { return BC_Entropy_P1_FarField_Characteristic; }
 
   /*!
    * \brief EULER_WALL_CREASE_NORMALS: at Euler-wall points with two or more crease groups the group normals replace the

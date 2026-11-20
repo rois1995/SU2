@@ -122,6 +122,104 @@ inline void EsConservative(unsigned short nDim, const su2double& gamma, const Es
   U[nDim+1] = S.p / (gamma - 1.0) + 0.5 * S.rho * vel2;
 }
 
+/*--- BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC (CLOSURE_C_FARFIELD_MEDIAN.md, 2). The waves of the projected flux Jacobian
+ * A_n = dF.n/dU at the state M and the unit normal n, ordered (acoustic u_n - c, entropy u_n, shear u_n, acoustic
+ * u_n + c), as the Barth-scaled wave matrices Q_k (sum_k Q_k = R R^T = dU/dw):
+ *   Q_-+ = r_-+ r_-+^T,  r_-+ = sqrt(rho/(2 gamma)) (1, u -+ c n, H -+ u_n c),
+ *   Q_s  = r_s r_s^T,    r_s  = sqrt((gamma-1) rho/gamma) (1, u, |u|^2/2),
+ *   Q_t  = p [0 0 0; 0 P P u; 0 (P u)^T u.P u],  P = I - n n^T  (the sum of r_t r_t^T, r_t = sqrt(p) (0, t, u.t), over
+ *          any orthonormal tangents t, so 2D and 3D need no tangent).
+ * EsWaveMatrix gives K(theta) = sum_k theta_k Q_k. theta = 1 gives dU/dw, theta = lambda gives A_n dU/dw, and
+ * theta = |lambda| the symmetric positive semi-definite matrix of the Roe dissipation in entropy variables,
+ * K(|lambda|) dw = |A_n| dU to first order. ---*/
+constexpr unsigned short ES_NWAVE = 4;
+
+/*--- Signed wave speeds (u_n - c, u_n, u_n, u_n + c) at M. ---*/
+inline void EsWaveSpeeds(unsigned short nDim, const su2double& gamma, const EsState& M, const su2double* unitNormal,
+                         su2double* lambda) {
+  su2double velN = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) velN += M.vel[iDim] * unitNormal[iDim];
+  const su2double c = sqrt(gamma * M.p / M.rho);
+  lambda[0] = velN - c;
+  lambda[1] = velN;
+  lambda[2] = velN;
+  lambda[3] = velN + c;
+}
+
+/*--- K = sum_k theta[k] Q_k (nDim+2 square, symmetric). ---*/
+inline void EsWaveMatrix(unsigned short nDim, const su2double& gamma, const EsState& M, const su2double* unitNormal,
+                         const su2double* theta, su2double (*K)[ES_NVAR]) {
+  const unsigned short nVar = nDim + 2;
+  su2double vel2 = 0.0, velN = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    vel2 += M.vel[iDim] * M.vel[iDim];
+    velN += M.vel[iDim] * unitNormal[iDim];
+  }
+  const su2double c = sqrt(gamma * M.p / M.rho);
+  const su2double enthalpy = gamma * M.p / ((gamma - 1.0) * M.rho) + 0.5 * vel2;
+
+  /*--- Scaled eigenvectors of the acoustic and entropy waves. ---*/
+  const su2double acousticScale = sqrt(M.rho / (2.0 * gamma));
+  const su2double entropyScale = sqrt((gamma - 1.0) * M.rho / gamma);
+  su2double rMinus[ES_NVAR] = {0.0}, rPlus[ES_NVAR] = {0.0}, rEntropy[ES_NVAR] = {0.0};
+  rMinus[0] = acousticScale;
+  rPlus[0] = acousticScale;
+  rEntropy[0] = entropyScale;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    rMinus[iDim+1] = acousticScale * (M.vel[iDim] - c * unitNormal[iDim]);
+    rPlus[iDim+1] = acousticScale * (M.vel[iDim] + c * unitNormal[iDim]);
+    rEntropy[iDim+1] = entropyScale * M.vel[iDim];
+  }
+  rMinus[nDim+1] = acousticScale * (enthalpy - velN * c);
+  rPlus[nDim+1] = acousticScale * (enthalpy + velN * c);
+  rEntropy[nDim+1] = entropyScale * 0.5 * vel2;
+
+  for (unsigned short a = 0; a < nVar; ++a)
+    for (unsigned short b = 0; b < nVar; ++b)
+      K[a][b] = theta[0] * rMinus[a] * rMinus[b] + theta[1] * rEntropy[a] * rEntropy[b] + theta[3] * rPlus[a] * rPlus[b];
+
+  /*--- Shear block theta_t p [0 0 0; 0 P P u; 0 (P u)^T u.P u] with the tangential velocity P u. ---*/
+  const su2double shear = theta[2] * M.p;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    const su2double velT = M.vel[iDim] - velN * unitNormal[iDim];
+    for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+      const su2double projector = ((iDim == jDim) ? 1.0 : 0.0) - unitNormal[iDim] * unitNormal[jDim];
+      K[iDim+1][jDim+1] += shear * projector;
+    }
+    K[iDim+1][nDim+1] += shear * velT;
+    K[nDim+1][iDim+1] += shear * velT;
+  }
+  K[nDim+1][nDim+1] += shear * (vel2 - velN * velN);
+}
+
+/*--- Characteristic dissipation of a far-field point, diss = 1/2 |N_q| K(|lambda|) (w(g_q) - w(u~_q)), with K and
+ * lambda at the arithmetic mean M of the primitive states of u~_q and g_q (any admissible M keeps K positive
+ * semi-definite, so F*_q = F_IR(u~_q, g_q; N_q) - diss is Tadmor entropy stable, Lemma B7). The matrix K is returned
+ * for the Jacobian, which keeps it frozen. pointArea = |N_q|. ---*/
+inline void EsCharacteristicDissipation(unsigned short nDim, const su2double& gamma, const EsState& sq, const EsState& gq,
+                                        const su2double* unitNormal, const su2double& pointArea, su2double* diss,
+                                        su2double (*K)[ES_NVAR]) {
+  const unsigned short nVar = nDim + 2;
+  EsState M;
+  M.rho = 0.5 * (sq.rho + gq.rho);
+  M.p = 0.5 * (sq.p + gq.p);
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) M.vel[iDim] = 0.5 * (sq.vel[iDim] + gq.vel[iDim]);
+
+  su2double lambda[ES_NWAVE], absLambda[ES_NWAVE];
+  EsWaveSpeeds(nDim, gamma, M, unitNormal, lambda);
+  for (unsigned short k = 0; k < ES_NWAVE; ++k) absLambda[k] = fabs(lambda[k]);
+  EsWaveMatrix(nDim, gamma, M, unitNormal, absLambda, K);
+
+  su2double wq[ES_NVAR] = {0.0}, wg[ES_NVAR] = {0.0};
+  EsEntropyVariables(nDim, gamma, sq, wq);
+  EsEntropyVariables(nDim, gamma, gq, wg);
+  for (unsigned short a = 0; a < nVar; ++a) {
+    su2double sum = 0.0;
+    for (unsigned short b = 0; b < nVar; ++b) sum += K[a][b] * (wg[b] - wq[b]);
+    diss[a] = 0.5 * pointArea * sum;
+  }
+}
+
 /*--- Characteristic far-field ghost of CEulerSolver::BC_Far_Field_Residual (Riemann invariants, no grid motion),
  * built from the state S at a face point instead of the nodal state (P1BoundaryGhost::FarField). ---*/
 inline void EsFarFieldGhost(unsigned short nDim, const su2double& gamma, const EsState& S, const EsState& Inf,
@@ -152,6 +250,9 @@ struct EsBoundaryData {
    * Dirichlet state at x_q, g_q = u_D(x_q), x_q = sum_k phi_k(x_q) x_k. It does not depend on the interior state. ---*/
   std::function<void(const su2double* x, EsState& state)> dirichlet; /*!< \brief Custom: Dirichlet state at a point. */
   su2double coord[3][3] = {{0.0}};                    /*!< \brief Custom: coordinates of the face nodes. */
+  /*--- BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC: the far-field points use the characteristic dissipation
+   * (EsCharacteristicDissipation) instead of the scalar Rusanov one. Other markers ignore it. ---*/
+  bool characteristicDiss = false;                    /*!< \brief Far field: characteristic point dissipation. */
 };
 
 /*--- Ghost g_q at a face point with phi_k(x_q) = phiq[k]. False for walls and symmetry planes (pressure flux). The
@@ -215,7 +316,9 @@ inline bool EsBoundaryGhost(unsigned short nDim, unsigned short nNodes, const su
  * F*_q = (0, p~_q N_q, 0) at walls and symmetry planes (entropy conservative, also for data = nullptr), and at the
  * far field, inlets, outlets and Dirichlet (custom) markers (EsBoundaryGhost)
  * F*_q = F_IR(u~_q, g_q; N_q) - lam/2 |N_q| (U(g_q) - U(u~_q)), lam = max(|u.nu| + c) over u~_q and the ghost g_q,
- * Tadmor entropy stable for any admissible ghost (Lemma B7). ---*/
+ * Tadmor entropy stable for any admissible ghost (Lemma B7). With data->characteristicDiss the far field uses
+ * F*_q = F_IR(u~_q, g_q; N_q) - 1/2 |N_q| K(|lambda|) (w(g_q) - w~_q) (EsCharacteristicDissipation), also Tadmor
+ * entropy stable, upwind (Roe) in the linear limit. ---*/
 inline void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2double& gamma, const EsBoundaryData* data,
                     const su2double* faceNormal, const EsState* nodeState, su2double (*res)[ES_NVAR]) {
   const unsigned short nVar = nDim + 2;
@@ -264,6 +367,13 @@ inline void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2
     const bool ghost = (data != nullptr) && EsBoundaryGhost(nDim, nNodes, gamma, *data, phi[q], sq, unitNormal, gq);
     if (!ghost) {
       for (unsigned short iDim = 0; iDim < nDim; ++iDim) Fstar[iDim+1] = sq.p * pointNormal[iDim];
+    } else if (data->characteristicDiss && (data->kind == FAR_FIELD)) {
+      /*--- BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC: each wave of g_q - u~_q is damped with its own speed, the shear and
+       * entropy waves with |u_n|, which vanishes at the tangency points of the far field. ---*/
+      EsIsmailRoeFlux(nDim, gamma, sq, gq, pointNormal, Fstar);
+      su2double diss[ES_NVAR] = {0.0}, K[ES_NVAR][ES_NVAR];
+      EsCharacteristicDissipation(nDim, gamma, sq, gq, unitNormal, weight * area, diss, K);
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) Fstar[iVar] -= diss[iVar];
     } else {
       EsIsmailRoeFlux(nDim, gamma, sq, gq, pointNormal, Fstar);
       su2double velNq = 0.0, velNg = 0.0;
@@ -292,7 +402,8 @@ inline void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2
  * Pressure flux: D_q = (0, N_q dp/dU, 0). Ghost flux: with Gam_q = dU(g_q)/dU~_q (P1BoundaryGhost::*Jacobian),
  *   D_q = A^g_q + B^g_q Gam_q - lam/2 |N_q| (Gam_q - I) - |N_q|/2 (U(g_q) - U~_q) (x) dlam/dU~_q,
  * lam differentiated on its active branch (u~_q when lam_Q >= lam_G, as fmax), |u.nu| with the sign of u.nu. All
- * derivatives are those of the residual code, exact where it is differentiable. ---*/
+ * derivatives are those of the residual code, exact where it is differentiable. Exception: the characteristic far
+ * field (BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC) keeps its matrix K frozen, exact only at the free stream. ---*/
 
 /*--- C = A B for nVar x nVar blocks. ---*/
 inline void EsMatMul(unsigned short nVar, const su2double (*A)[ES_NVAR], const su2double (*B)[ES_NVAR],
@@ -603,44 +714,63 @@ inline void EsFaceJacobian(unsigned short nDim, unsigned short nNodes, const su2
       EsIsmailRoeJacobian(nDim, gamma, sq, gq, pointNormal, Ag, Bg);
       EsMatMul(nVar, Bg, Gam, BgGam);
 
-      /*--- lam and its gradient, the expressions of EsFaceResidual. ---*/
-      su2double velNq = 0.0, velNg = 0.0;
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-        velNq += sq.vel[iDim] * unitNormal[iDim];
-        velNg += gq.vel[iDim] * unitNormal[iDim];
-      }
-      const su2double cQ = sqrt(gamma * sq.p / sq.rho);
-      const su2double cG = sqrt(gamma * gq.p / gq.rho);
-      const su2double lamQ = fabs(velNq) + cQ;
-      const su2double lamG = fabs(velNg) + cG;
-      const su2double lam = fmax(lamQ, lamG);
-      su2double dLamP[ES_NVAR] = {0.0}, dLam[ES_NVAR] = {0.0};
-      if (lamQ >= lamG) {
-        su2double sign = 1.0;
-        if (velNq < 0.0) sign = -1.0;
-        dLamP[0] = -0.5 * cQ / sq.rho;
-        dLamP[nDim+1] = 0.5 * cQ / sq.p;
-        for (unsigned short iDim = 0; iDim < nDim; ++iDim) dLamP[iDim+1] = sign * unitNormal[iDim];
-        for (unsigned short b = 0; b < nVar; ++b)
-          for (unsigned short a = 0; a < nVar; ++a) dLam[b] += dLamP[a] * dPdU[a][b];
+      if (data->characteristicDiss && (data->kind == FAR_FIELD)) {
+        /*--- BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC with K frozen (Picard in K):
+         *   D_q = A^g_q + B^g_q Gam_q - 1/2 |N_q| K (W(g_q) Gam_q - W(u~_q)),
+         * W = dw/dU at each state, since d w(g_q)/dU~_q = W(g_q) Gam_q and d w~_q/dU~_q = W(u~_q). The derivative of
+         * K (through the mean state) is left out; it multiplies w(g_q) - w~_q, which vanishes at the free stream. ---*/
+        su2double diss[ES_NVAR] = {0.0}, K[ES_NVAR][ES_NVAR], WgGam[ES_NVAR][ES_NVAR], dW[ES_NVAR][ES_NVAR];
+        su2double KdW[ES_NVAR][ES_NVAR];
+        EsCharacteristicDissipation(nDim, gamma, sq, gq, unitNormal, pointArea, diss, K);
+        TeCNOAdjoint::Block Wq, Wg;
+        TeCNOAdjoint::EntropyHessian(nDim, gamma, sq.rho, sq.vel, sq.p, Wq);
+        TeCNOAdjoint::EntropyHessian(nDim, gamma, gq.rho, gq.vel, gq.p, Wg);
+        EsMatMul(nVar, Wg.v, Gam, WgGam);
+        for (unsigned short a = 0; a < nVar; ++a)
+          for (unsigned short b = 0; b < nVar; ++b) dW[a][b] = WgGam[a][b] - Wq.v[a][b];
+        EsMatMul(nVar, K, dW, KdW);
+        for (unsigned short a = 0; a < nVar; ++a)
+          for (unsigned short b = 0; b < nVar; ++b) D[a][b] = Ag[a][b] + BgGam[a][b] - 0.5 * pointArea * KdW[a][b];
       } else {
-        su2double sign = 1.0;
-        if (velNg < 0.0) sign = -1.0;
-        dLamP[0] = -0.5 * cG / gq.rho;
-        dLamP[nDim+1] = 0.5 * cG / gq.p;
-        for (unsigned short iDim = 0; iDim < nDim; ++iDim) dLamP[iDim+1] = sign * unitNormal[iDim];
-        for (unsigned short b = 0; b < nVar; ++b)
-          for (unsigned short a = 0; a < nVar; ++a) dLam[b] += dLamP[a] * dGdU[a][b];
-      }
+        /*--- lam and its gradient, the expressions of EsFaceResidual. ---*/
+        su2double velNq = 0.0, velNg = 0.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+          velNq += sq.vel[iDim] * unitNormal[iDim];
+          velNg += gq.vel[iDim] * unitNormal[iDim];
+        }
+        const su2double cQ = sqrt(gamma * sq.p / sq.rho);
+        const su2double cG = sqrt(gamma * gq.p / gq.rho);
+        const su2double lamQ = fabs(velNq) + cQ;
+        const su2double lamG = fabs(velNg) + cG;
+        const su2double lam = fmax(lamQ, lamG);
+        su2double dLamP[ES_NVAR] = {0.0}, dLam[ES_NVAR] = {0.0};
+        if (lamQ >= lamG) {
+          su2double sign = 1.0;
+          if (velNq < 0.0) sign = -1.0;
+          dLamP[0] = -0.5 * cQ / sq.rho;
+          dLamP[nDim+1] = 0.5 * cQ / sq.p;
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) dLamP[iDim+1] = sign * unitNormal[iDim];
+          for (unsigned short b = 0; b < nVar; ++b)
+            for (unsigned short a = 0; a < nVar; ++a) dLam[b] += dLamP[a] * dPdU[a][b];
+        } else {
+          su2double sign = 1.0;
+          if (velNg < 0.0) sign = -1.0;
+          dLamP[0] = -0.5 * cG / gq.rho;
+          dLamP[nDim+1] = 0.5 * cG / gq.p;
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) dLamP[iDim+1] = sign * unitNormal[iDim];
+          for (unsigned short b = 0; b < nVar; ++b)
+            for (unsigned short a = 0; a < nVar; ++a) dLam[b] += dLamP[a] * dGdU[a][b];
+        }
 
-      su2double Uq[ES_NVAR] = {0.0}, Ug[ES_NVAR] = {0.0};
-      EsConservative(nDim, gamma, sq, Uq);
-      EsConservative(nDim, gamma, gq, Ug);
-      for (unsigned short a = 0; a < nVar; ++a) {
-        for (unsigned short b = 0; b < nVar; ++b) {
-          const su2double delta = (a == b) ? 1.0 : 0.0;
-          D[a][b] = Ag[a][b] + BgGam[a][b] - 0.5 * lam * pointArea * (Gam[a][b] - delta) -
-                    0.5 * pointArea * (Ug[a] - Uq[a]) * dLam[b];
+        su2double Uq[ES_NVAR] = {0.0}, Ug[ES_NVAR] = {0.0};
+        EsConservative(nDim, gamma, sq, Uq);
+        EsConservative(nDim, gamma, gq, Ug);
+        for (unsigned short a = 0; a < nVar; ++a) {
+          for (unsigned short b = 0; b < nVar; ++b) {
+            const su2double delta = (a == b) ? 1.0 : 0.0;
+            D[a][b] = Ag[a][b] + BgGam[a][b] - 0.5 * lam * pointArea * (Gam[a][b] - delta) -
+                      0.5 * pointArea * (Ug[a] - Uq[a]) * dLam[b];
+          }
         }
       }
     }

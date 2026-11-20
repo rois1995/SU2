@@ -7795,6 +7795,387 @@ TEST_CASE("BC_ENTROPY_P1 Jacobian: far field faces in the four characteristic re
   }
 }
 
+/*--- BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC (CLOSURE_C_FARFIELD_MEDIAN.md, 2): the wave matrices of EsWaveMatrix, the
+ * point flux F* = F_IR(u, g; N) - EsCharacteristicDissipation, and the far-field faces of EsFaceResidual and
+ * EsFaceJacobian with the option. ---*/
+
+namespace {
+
+/*--- Physical flux F(S).n. ---*/
+void CharPhysicalFlux(int nDim, const pbc::EsState& S, const su2double* n, su2double* F) {
+  su2double U[pbc::ES_NVAR] = {0.0}, velN = 0.0;
+  pbc::EsConservative(nDim, kGamma, S, U);
+  for (int i = 0; i < nDim; ++i) velN += S.vel[i] * n[i];
+  F[0] = S.rho * velN;
+  for (int i = 0; i < nDim; ++i) F[i + 1] = U[i + 1] * velN + S.p * n[i];
+  F[nDim + 1] = (U[nDim + 1] + S.p) * velN;
+}
+
+/*--- A_n = d(F.n)/dU at S by central differences in the conservative variables. ---*/
+void CharFluxJacobianFD(int nDim, const pbc::EsState& S, const su2double* n, su2double (*A)[pbc::ES_NVAR]) {
+  const int nVar = nDim + 2;
+  su2double U[pbc::ES_NVAR] = {0.0};
+  pbc::EsConservative(nDim, kGamma, S, U);
+  for (int c = 0; c < nVar; ++c) {
+    const su2double h = 1e-6 * std::max(su2double(1.0), su2double(fabs(U[c])));
+    su2double Up[pbc::ES_NVAR], Um[pbc::ES_NVAR], Fp[pbc::ES_NVAR], Fm[pbc::ES_NVAR];
+    for (int v = 0; v < nVar; ++v) Up[v] = Um[v] = U[v];
+    Up[c] += h;
+    Um[c] -= h;
+    CharPhysicalFlux(nDim, JacStateOf(nDim, Up), n, Fp);
+    CharPhysicalFlux(nDim, JacStateOf(nDim, Um), n, Fm);
+    for (int a = 0; a < nVar; ++a) A[a][c] = (Fp[a] - Fm[a]) / (2.0 * h);
+  }
+}
+
+/*--- dw/dU at S (TeCNOAdjoint::EntropyHessian, the Hessian of the entropy of closure C). ---*/
+void CharEntropyHessian(int nDim, const pbc::EsState& S, su2double (*W)[pbc::ES_NVAR]) {
+  TeCNOAdjoint::Block H;
+  TeCNOAdjoint::EntropyHessian(nDim, kGamma, S.rho, S.vel, S.p, H);
+  for (int a = 0; a < pbc::ES_NVAR; ++a)
+    for (int b = 0; b < pbc::ES_NVAR; ++b) W[a][b] = H.v[a][b];
+}
+
+/*--- Point flux of the option: F* = F_IR(S, G; N) - 1/2 |N| K(|lambda|) (w(G) - w(S)), N = area n. ---*/
+void CharPointFlux(int nDim, const pbc::EsState& S, const pbc::EsState& G, const su2double* n, su2double area,
+                   su2double* Fstar) {
+  su2double N[3] = {0.0, 0.0, 0.0}, diss[pbc::ES_NVAR] = {0.0}, K[pbc::ES_NVAR][pbc::ES_NVAR];
+  for (int i = 0; i < nDim; ++i) N[i] = area * n[i];
+  pbc::EsIsmailRoeFlux(nDim, kGamma, S, G, N, Fstar);
+  pbc::EsCharacteristicDissipation(nDim, kGamma, S, G, n, area, diss, K);
+  for (int v = 0; v < nDim + 2; ++v) Fstar[v] -= diss[v];
+}
+
+/*--- Closure C on one face with the Rusanov far field, written out from the pieces in the order of EsFaceResidual
+ * (degree 2 rule, entropy projection, Ismail-Roe coupling, F* = F_IR - lam/2 |N_q| (U(g) - U(u~))). ---*/
+void CharRusanovFace(int nDim, const pbc::EsBoundaryData& data, const su2double* faceNormal, const pbc::EsState* states,
+                     su2double (*res)[pbc::ES_NVAR]) {
+  const int nNodes = nDim, nVar = nDim + 2;
+  su2double phi[3][3] = {{0.0}}, weight = 0.0;
+  if (nNodes == 2) {
+    const su2double g = 0.5 / sqrt(3.0);
+    phi[0][0] = 0.5 + g; phi[0][1] = 0.5 - g;
+    phi[1][0] = 0.5 - g; phi[1][1] = 0.5 + g;
+    weight = 0.5;
+  } else {
+    for (int q = 0; q < 3; ++q)
+      for (int k = 0; k < 3; ++k) phi[q][k] = (q == k) ? 2.0 / 3.0 : 1.0 / 6.0;
+    weight = 1.0 / 3.0;
+  }
+  su2double area = 0.0, unit[3] = {0.0, 0.0, 0.0}, Nq[3] = {0.0, 0.0, 0.0};
+  for (int i = 0; i < nDim; ++i) area += faceNormal[i] * faceNormal[i];
+  area = sqrt(area);
+  for (int i = 0; i < nDim; ++i) {
+    unit[i] = faceNormal[i] / area;
+    Nq[i] = weight * faceNormal[i];
+  }
+  su2double w[3][pbc::ES_NVAR] = {{0.0}};
+  for (int k = 0; k < nNodes; ++k) pbc::EsEntropyVariables(nDim, kGamma, states[k], w[k]);
+  for (int i = 0; i < nNodes; ++i)
+    for (int v = 0; v < nVar; ++v) res[i][v] = 0.0;
+  for (int q = 0; q < nNodes; ++q) {
+    su2double wq[pbc::ES_NVAR] = {0.0};
+    for (int k = 0; k < nNodes; ++k)
+      for (int v = 0; v < nVar; ++v) wq[v] += phi[q][k] * w[k][v];
+    pbc::EsState sq, gq;
+    pbc::EsStateFromEntropyVariables(nDim, kGamma, wq, sq);
+    su2double G[3][pbc::ES_NVAR] = {{0.0}}, Gbar[pbc::ES_NVAR] = {0.0}, Fstar[pbc::ES_NVAR] = {0.0};
+    for (int k = 0; k < nNodes; ++k) {
+      pbc::EsIsmailRoeFlux(nDim, kGamma, sq, states[k], Nq, G[k]);
+      for (int v = 0; v < nVar; ++v) Gbar[v] += phi[q][k] * G[k][v];
+    }
+    pbc::EsFarFieldGhost(nDim, kGamma, sq, data.inf, unit, gq);
+    pbc::EsIsmailRoeFlux(nDim, kGamma, sq, gq, Nq, Fstar);
+    su2double velNq = 0.0, velNg = 0.0;
+    for (int i = 0; i < nDim; ++i) {
+      velNq += sq.vel[i] * unit[i];
+      velNg += gq.vel[i] * unit[i];
+    }
+    const su2double lam = std::max(su2double(fabs(velNq) + sqrt(kGamma * sq.p / sq.rho)),
+                                   su2double(fabs(velNg) + sqrt(kGamma * gq.p / gq.rho)));
+    su2double Uq[pbc::ES_NVAR] = {0.0}, Ug[pbc::ES_NVAR] = {0.0};
+    pbc::EsConservative(nDim, kGamma, sq, Uq);
+    pbc::EsConservative(nDim, kGamma, gq, Ug);
+    for (int v = 0; v < nVar; ++v) Fstar[v] -= 0.5 * lam * weight * area * (Ug[v] - Uq[v]);
+    for (int i = 0; i < nNodes; ++i)
+      for (int v = 0; v < nVar; ++v) res[i][v] += phi[q][i] * (G[i][v] - Gbar[v] + Fstar[v]);
+  }
+}
+
+}  // namespace
+
+TEST_CASE("BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC: wave matrices are the Barth-scaled eigen-structure of A_n", "[P1Flux]") {
+  /*--- With Q_k = K(e_k) (one wave) and W = dw/dU: sum_k Q_k = R R^T = W^-1, Q_k W Q_l = delta_kl Q_k (the Q_k W are
+   * the spectral projectors of A_n), K(lambda) W = A_n (central differences of the physical flux), K(|lambda|) is
+   * symmetric positive semi-definite. 2D and 3D, subsonic and supersonic normal velocities. ---*/
+  std::mt19937 gen(9311);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    su2double errInv = 0.0, errProj = 0.0, errA = 0.0, errSym = 0.0, minQuad = 0.0;
+    for (int trial = 0; trial < 200; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      const pbc::EsState S = JacRandomState(gen, nDim, 0.5, (trial % 2) ? 0.8 : 2.5);
+      su2double W[pbc::ES_NVAR][pbc::ES_NVAR], A[pbc::ES_NVAR][pbc::ES_NVAR];
+      CharEntropyHessian(nDim, S, W);
+      CharFluxJacobianFD(nDim, S, n, A);
+
+      su2double Q[pbc::ES_NWAVE][pbc::ES_NVAR][pbc::ES_NVAR];
+      for (int k = 0; k < pbc::ES_NWAVE; ++k) {
+        su2double theta[pbc::ES_NWAVE] = {0.0, 0.0, 0.0, 0.0};
+        theta[k] = 1.0;
+        pbc::EsWaveMatrix(nDim, kGamma, S, n, theta, Q[k]);
+      }
+      su2double lambda[pbc::ES_NWAVE], absLambda[pbc::ES_NWAVE], ones[pbc::ES_NWAVE] = {1.0, 1.0, 1.0, 1.0};
+      pbc::EsWaveSpeeds(nDim, kGamma, S, n, lambda);
+      for (int k = 0; k < pbc::ES_NWAVE; ++k) absLambda[k] = fabs(lambda[k]);
+      su2double K1[pbc::ES_NVAR][pbc::ES_NVAR], KL[pbc::ES_NVAR][pbc::ES_NVAR], KA[pbc::ES_NVAR][pbc::ES_NVAR];
+      pbc::EsWaveMatrix(nDim, kGamma, S, n, ones, K1);
+      pbc::EsWaveMatrix(nDim, kGamma, S, n, lambda, KL);
+      pbc::EsWaveMatrix(nDim, kGamma, S, n, absLambda, KA);
+
+      su2double K1W[pbc::ES_NVAR][pbc::ES_NVAR], KLW[pbc::ES_NVAR][pbc::ES_NVAR];
+      pbc::EsMatMul(nVar, K1, W, K1W);
+      pbc::EsMatMul(nVar, KL, W, KLW);
+      su2double scaleA = 0.0, scaleK = 0.0;
+      for (int a = 0; a < nVar; ++a) {
+        for (int b = 0; b < nVar; ++b) {
+          scaleA = std::max(scaleA, su2double(fabs(A[a][b])));
+          scaleK = std::max(scaleK, su2double(fabs(KA[a][b])));
+        }
+      }
+      for (int a = 0; a < nVar; ++a) {
+        for (int b = 0; b < nVar; ++b) {
+          errInv = std::max(errInv, su2double(fabs(K1W[a][b] - ((a == b) ? 1.0 : 0.0))));
+          errA = std::max(errA, su2double(fabs(KLW[a][b] - A[a][b]) / scaleA));
+          errSym = std::max(errSym, su2double(fabs(KA[a][b] - KA[b][a]) / scaleK));
+        }
+      }
+
+      /*--- Projector identities Q_k W Q_l = delta_kl Q_k. ---*/
+      for (int k = 0; k < pbc::ES_NWAVE; ++k) {
+        for (int l = 0; l < pbc::ES_NWAVE; ++l) {
+          su2double QW[pbc::ES_NVAR][pbc::ES_NVAR], QWQ[pbc::ES_NVAR][pbc::ES_NVAR], scale = 0.0;
+          pbc::EsMatMul(nVar, Q[k], W, QW);
+          pbc::EsMatMul(nVar, QW, Q[l], QWQ);
+          for (int a = 0; a < nVar; ++a)
+            for (int b = 0; b < nVar; ++b) scale = std::max(scale, su2double(fabs(Q[k][a][b]) + fabs(Q[l][a][b])));
+          for (int a = 0; a < nVar; ++a) {
+            for (int b = 0; b < nVar; ++b) {
+              const su2double expected = (k == l) ? Q[k][a][b] : 0.0;
+              errProj = std::max(errProj, su2double(fabs(QWQ[a][b] - expected) / scale));
+            }
+          }
+        }
+      }
+
+      /*--- x^T K(|lambda|) x >= 0 on random x. ---*/
+      for (int draw = 0; draw < 10; ++draw) {
+        su2double x[pbc::ES_NVAR] = {0.0}, quad = 0.0, norm = 0.0;
+        for (int a = 0; a < nVar; ++a) {
+          x[a] = u(gen);
+          norm += x[a] * x[a];
+        }
+        for (int a = 0; a < nVar; ++a)
+          for (int b = 0; b < nVar; ++b) quad += x[a] * KA[a][b] * x[b];
+        minQuad = std::min(minQuad, su2double(quad / (norm * scaleK)));
+      }
+    }
+    INFO("nDim " << nDim << " K(1) W - I " << errInv << " projectors " << errProj << " K(lambda) W - A_n " << errA
+                 << " asymmetry " << errSym << " min x^T K x " << minQuad);
+    CHECK(errInv < 1e-10);
+    CHECK(errProj < 1e-10);
+    CHECK(errA < 1e-6);
+    CHECK(errSym < 1e-14);
+    CHECK(minQuad > -1e-12);
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC: the point flux satisfies the Tadmor inequality of Lemma B7", "[P1Flux]") {
+  /*--- (w_g - w).F* <= (psi_g - psi).N, psi = rho u, for random admissible pairs (any ghost) and for the far-field ghost
+   * of the projected state, 2D and 3D, with strong jumps. Equality up to round-off when g = u. ---*/
+  std::mt19937 gen(9322);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    for (int trial = 0; trial < 600; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      su2double area = 0.0;
+      for (int i = 0; i < nDim; ++i) area += N[i] * N[i];
+      area = sqrt(area);
+      const pbc::EsState S = JacRandomState(gen, nDim, 0.5, 1.5);
+      pbc::EsState G;
+      if (trial % 2) {
+        G = JacRandomState(gen, nDim, 0.5, 1.5);
+      } else {
+        pbc::EsFarFieldGhost(nDim, kGamma, S, JacRandomState(gen, nDim, 0.3, 1.5), n, G);
+        if (!pbg::Admissible(G.rho, G.p)) continue;
+      }
+      su2double Fstar[pbc::ES_NVAR], w[pbc::ES_NVAR], wg[pbc::ES_NVAR];
+      CharPointFlux(nDim, S, G, n, area, Fstar);
+      pbc::EsEntropyVariables(nDim, kGamma, S, w);
+      pbc::EsEntropyVariables(nDim, kGamma, G, wg);
+      su2double lhs = 0.0, psiN = 0.0, psiGN = 0.0, scale = 0.0;
+      for (int v = 0; v < nVar; ++v) {
+        lhs += (wg[v] - w[v]) * Fstar[v];
+        scale += fabs(wg[v] * Fstar[v]) + fabs(w[v] * Fstar[v]);
+      }
+      for (int i = 0; i < nDim; ++i) {
+        psiN += S.rho * S.vel[i] * N[i];
+        psiGN += G.rho * G.vel[i] * N[i];
+      }
+      scale += fabs(psiN) + fabs(psiGN);
+      INFO("nDim " << nDim << " trial " << trial);
+      CHECK(lhs <= (psiGN - psiN) + 1e-12 * scale);
+    }
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC: linear limit is the Roe (upwind) flux F(u) + A^-(U_g - U)", "[P1Flux]") {
+  /*--- g = u + delta d: F* - [F(u) + A^-(u)(U_g - U)] = O(delta^2), A^- = (A_n - |A_n|)/2 with A_n from central
+   * differences and |A_n| = K(|lambda(u)|) W(u) (whose eigen-structure the first test checks). Halving delta divides
+   * the defect by about 4. Wave speeds kept away from zero so that |lambda| is smooth. ---*/
+  std::mt19937 gen(9333);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    su2double worstRatio = 0.0;
+    for (int trial = 0; trial < 100; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      su2double area = 0.0;
+      for (int i = 0; i < nDim; ++i) area += N[i] * N[i];
+      area = sqrt(area);
+      const double machN = (trial % 2 ? 1.0 : -1.0) * (0.3 + 0.4 * (0.5 + 0.5 * u(gen)));
+      const pbc::EsState S = JacStateWithMach(gen, nDim, n, t, machN, 0.5 * u(gen));
+      su2double dir[pbc::ES_NVAR] = {0.0};
+      for (int v = 0; v < nVar; ++v) dir[v] = u(gen);
+
+      su2double W[pbc::ES_NVAR][pbc::ES_NVAR], A[pbc::ES_NVAR][pbc::ES_NVAR], KA[pbc::ES_NVAR][pbc::ES_NVAR];
+      su2double absA[pbc::ES_NVAR][pbc::ES_NVAR], lambda[pbc::ES_NWAVE], absLambda[pbc::ES_NWAVE];
+      CharEntropyHessian(nDim, S, W);
+      CharFluxJacobianFD(nDim, S, n, A);
+      pbc::EsWaveSpeeds(nDim, kGamma, S, n, lambda);
+      for (int k = 0; k < pbc::ES_NWAVE; ++k) absLambda[k] = fabs(lambda[k]);
+      pbc::EsWaveMatrix(nDim, kGamma, S, n, absLambda, KA);
+      pbc::EsMatMul(nVar, KA, W, absA);
+
+      su2double U[pbc::ES_NVAR] = {0.0}, F[pbc::ES_NVAR] = {0.0}, defect[2] = {0.0, 0.0};
+      pbc::EsConservative(nDim, kGamma, S, U);
+      CharPhysicalFlux(nDim, S, n, F);
+      for (int level = 0; level < 2; ++level) {
+        const su2double delta = (level == 0) ? 1e-3 : 5e-4;
+        su2double Ug[pbc::ES_NVAR] = {0.0}, Fstar[pbc::ES_NVAR] = {0.0};
+        for (int v = 0; v < nVar; ++v) Ug[v] = U[v] + delta * dir[v] * U[nVar - 1];  /*--- scale of the energy ---*/
+        const pbc::EsState G = JacStateOf(nDim, Ug);
+        CharPointFlux(nDim, S, G, n, area, Fstar);
+        for (int a = 0; a < nVar; ++a) {
+          su2double upwind = 0.0;
+          for (int b = 0; b < nVar; ++b) upwind += 0.5 * (A[a][b] - absA[a][b]) * (Ug[b] - U[b]);
+          defect[level] = std::max(defect[level], su2double(fabs(Fstar[a] - area * (F[a] + upwind))));
+        }
+      }
+      worstRatio = std::max(worstRatio, su2double(defect[1] / defect[0]));
+    }
+    INFO("nDim " << nDim << " worst defect(delta/2)/defect(delta) " << worstRatio);
+    CHECK(worstRatio < 0.3);
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC: option off unchanged, other markers ignore it, Jacobian at the free stream", "[P1Flux]") {
+  /*--- (i) The option is off by default and the far-field face with it off is the Rusanov closure C written out from
+   * its pieces. (ii) Inlet, outlet and Euler-wall faces give the same residual and Jacobian bit for bit with the flag
+   * set. (iii) Far-field faces with the flag: free stream gives the physical flux shares (zero dissipation), and the
+   * frozen-K Jacobian equals central differences there (the dK term multiplies w(g) - w(u~) = 0), in the four
+   * characteristic regimes. ---*/
+  std::mt19937 gen(9344);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const double regimes[4] = {-1.6, -0.5, 0.5, 1.6};
+  pbc::EsBoundaryData defaults;
+  CHECK_FALSE(defaults.characteristicDiss);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim, nVar = nDim + 2;
+    su2double worstOff = 0.0, worstFree = 0.0, worstJac = 0.0;
+    for (int trial = 0; trial < 80; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      const pbc::EsState base = JacRandomState(gen, nDim, 0.5, 0.8);
+      pbc::EsState states[3];
+      for (int k = 0; k < nNodes; ++k) states[k] = JacPerturb(gen, nDim, base, (trial % 2) ? 0.2 : 0.02);
+
+      /*--- (i) far field, option off. ---*/
+      pbc::EsBoundaryData far;
+      far.kind = FAR_FIELD;
+      far.tag = "farfield";
+      far.inf = JacStateWithMach(gen, nDim, n, t, regimes[trial % 4] + 0.1 * u(gen), 0.5 * u(gen));
+      su2double res[3][pbc::ES_NVAR] = {{0.0}}, ref[3][pbc::ES_NVAR] = {{0.0}};
+      pbc::EsFaceResidual(nDim, nNodes, kGamma, &far, N, states, res);
+      CharRusanovFace(nDim, far, N, states, ref);
+      su2double scale = 0.0, diff = 0.0;
+      for (int i = 0; i < nNodes; ++i) {
+        for (int v = 0; v < nVar; ++v) {
+          scale = std::max(scale, su2double(fabs(ref[i][v])));
+          diff = std::max(diff, su2double(fabs(res[i][v] - ref[i][v])));
+        }
+      }
+      worstOff = std::max(worstOff, su2double(diff / scale));
+
+      /*--- (ii) other markers with the flag set: identical residual and Jacobian. ---*/
+      pbc::EsBoundaryData other;
+      other.tag = "other";
+      const unsigned short kinds[2] = {OUTLET_FLOW, EULER_WALL};
+      for (unsigned short kind : kinds) {
+        other.kind = kind;
+        for (int k = 0; k < nNodes; ++k) other.pExit[k] = base.p * exp(0.3 * u(gen));
+        su2double resOff[3][pbc::ES_NVAR], resOn[3][pbc::ES_NVAR];
+        su2double jacOff[3][3][pbc::ES_NVAR][pbc::ES_NVAR], jacOn[3][3][pbc::ES_NVAR][pbc::ES_NVAR];
+        other.characteristicDiss = false;
+        pbc::EsFaceResidual(nDim, nNodes, kGamma, &other, N, states, resOff);
+        pbc::EsFaceJacobian(nDim, nNodes, kGamma, &other, N, states, jacOff);
+        other.characteristicDiss = true;
+        pbc::EsFaceResidual(nDim, nNodes, kGamma, &other, N, states, resOn);
+        pbc::EsFaceJacobian(nDim, nNodes, kGamma, &other, N, states, jacOn);
+        bool same = true;
+        for (int i = 0; i < nNodes; ++i) {
+          for (int a = 0; a < nVar; ++a) {
+            same = same && (resOff[i][a] == resOn[i][a]);
+            for (int j = 0; j < nNodes; ++j)
+              for (int b = 0; b < nVar; ++b) same = same && (jacOff[i][j][a][b] == jacOn[i][j][a][b]);
+          }
+        }
+        INFO("nDim " << nDim << " kind " << kind << " trial " << trial);
+        CHECK(same);
+      }
+
+      /*--- (iii) far field with the flag at the free stream: all face states equal to the data. ---*/
+      far.characteristicDiss = true;
+      pbc::EsState freeStream[3];
+      for (int k = 0; k < nNodes; ++k) freeStream[k] = far.inf;
+      su2double resFree[3][pbc::ES_NVAR] = {{0.0}}, F[pbc::ES_NVAR] = {0.0}, area = 0.0;
+      for (int i = 0; i < nDim; ++i) area += N[i] * N[i];
+      area = sqrt(area);
+      CharPhysicalFlux(nDim, far.inf, n, F);
+      pbc::EsFaceResidual(nDim, nNodes, kGamma, &far, N, freeStream, resFree);
+      su2double fScale = 0.0, fDiff = 0.0;
+      for (int i = 0; i < nNodes; ++i) {
+        for (int v = 0; v < nVar; ++v) {
+          fScale = std::max(fScale, su2double(fabs(area * F[v] / nDim)));
+          fDiff = std::max(fDiff, su2double(fabs(resFree[i][v] - area * F[v] / nDim)));
+        }
+      }
+      worstFree = std::max(worstFree, su2double(fDiff / fScale));
+      worstJac = std::max(worstJac, FaceJacobianError(nDim, &far, N, freeStream));
+    }
+    INFO("nDim " << nDim << " option off vs written-out closure " << worstOff << " free stream " << worstFree
+                 << " Jacobian at the free stream " << worstJac);
+    CHECK(worstOff < 1e-13);
+    CHECK(worstFree < 1e-13);
+    CHECK(worstJac < 1e-5);
+  }
+}
+
 TEST_CASE("BC_ENTROPY_P1 Jacobian: inlet faces with total conditions and mass flow against finite differences", "[P1Flux]") {
   /*--- Subsonic inflow interior states (u.n about -0.4 c), nodal marker data as for the inlet ghost test: total
    * conditions above the static state, or density and velocity magnitude; flow direction or the face normal. ---*/

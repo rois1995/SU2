@@ -1857,6 +1857,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("BC_ENTROPY_P1_STRONG_SLIP", BC_Entropy_P1_Strong_Slip, false);
   /*!\brief BC_ENTROPY_P1_STANDARD_FARFIELD \n DESCRIPTION: Diagnostic. With BC_ENTROPY_P1 the far-field markers keep the weak nodal far-field flux of BC_WEAK_P1; closure C acts on the other markers (no entropy statement for the far field). \ingroup Config \default false */
   addBoolOption("BC_ENTROPY_P1_STANDARD_FARFIELD", BC_Entropy_P1_Standard_FarField, false);
+  /*!\brief BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC \n DESCRIPTION: With BC_ENTROPY_P1 the far-field points of closure C use F* = F_IR(u, g; N) - 1/2 |N| R|Lambda|R^T (w(g) - w(u)) with the Barth-scaled eigenvectors (R R^T = dU/dw) and the wave speeds (u_n - c, u_n, u_n, u_n + c) at the mean state, instead of the scalar Rusanov dissipation: each incoming wave is damped with its own speed (Roe in the linear limit), the shear and entropy waves with |u_n|, which vanishes at the tangency points. Tadmor entropy stable (Lemma B7). Jacobian with the matrix frozen. Static meshes. \ingroup Config \default false */
+  addBoolOption("BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC", BC_Entropy_P1_FarField_Characteristic, false);
   /*!\brief EULER_WALL_CREASE_NORMALS \n DESCRIPTION: At Euler-wall points whose incident faces fold by 90 deg or more (a sharp trailing edge), the unit normals of the crease groups (adjacent faces merged only if every pair has N_f . N_g > 0) replace the vertex normal in the symmetry projection of BC_Euler_Wall (rank-2 projection with the normals of the other walls and symmetry planes of the point) and in the symmetry correction of the Green-Gauss / least-squares gradients (ROE_TECNO_PLAN.md 6.14). Static meshes, no multigrid. \ingroup Config \default false */
   addBoolOption("EULER_WALL_CREASE_NORMALS", Euler_Wall_Crease_Normals, false);
   /*!\brief VISC_P1_ENTROPY \n DESCRIPTION: Viscous residual of the flow equations from the P1 Galerkin operator in entropy variables: on each simplex F_T = K(wbar_T) grad(w_h), evaluated with the stress tensor and heat flux of the effective gradients grad(v) = (G_m - v* G_theta)/theta*, grad(T) = -G_theta/(R theta*^2), theta = rho/p, mean of the nodal entropy variables, mean mu + mu_t (mu_t >= 0) and conductivity. Replaces the edge viscous flux and its Jacobian (Picard element Jacobian, frozen K). Triangles and tetrahedra. Entropy dissipative for any state. \ingroup Config \default false */
@@ -6376,6 +6378,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (BC_Entropy_P1) active.push_back("BC_ENTROPY_P1");
   if (BC_Entropy_P1_Strong_Slip) active.push_back("BC_ENTROPY_P1_STRONG_SLIP");
   if (BC_Entropy_P1_Standard_FarField) active.push_back("BC_ENTROPY_P1_STANDARD_FARFIELD");
+  if (BC_Entropy_P1_FarField_Characteristic) active.push_back("BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Grid_Entropy_P1) active.push_back("GRID_ENTROPY_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
@@ -6710,6 +6713,15 @@ void CConfig::CheckP1FluxOptions() const {
     if (viscousP1 && (nMarker_SymWall > 0) && (GetDynamic_Grid() || Grid_Entropy_P1)) {
       SU2_MPI::Error(name + "viscous symmetry planes only on static meshes (the moving SAT is not derived).", CURRENT_FUNCTION);
     }
+  }
+  if (BC_Entropy_P1_FarField_Characteristic) {
+    /*--- The characteristic far-field flux replaces the Rusanov dissipation inside closure C (EsFaceResidual); closure
+     * C-ALE (GRID_ENTROPY_P1) and the standard far field of the diagnostic switch do not read it. ---*/
+    const string name = "BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC: ";
+    if (!BC_Entropy_P1) SU2_MPI::Error(name + "needs BC_ENTROPY_P1= YES.", CURRENT_FUNCTION);
+    if (BC_Entropy_P1_Standard_FarField)
+      SU2_MPI::Error(name + "not with BC_ENTROPY_P1_STANDARD_FARFIELD (that far field has no closure C).", CURRENT_FUNCTION);
+    if (Grid_Entropy_P1 || GetDynamic_Grid()) SU2_MPI::Error(name + "static meshes only.", CURRENT_FUNCTION);
   }
   if (Visc_P1_Entropy || BC_Wall_Entropy_P1) {
     /*--- P1 Galerkin viscous operator in entropy variables (V-A) and the weak no-slip wall built on it. The quantized

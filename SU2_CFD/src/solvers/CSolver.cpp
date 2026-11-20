@@ -4801,6 +4801,9 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   esData.useNormal = config->GetInletUseNormal();
   esData.refT = esData.massFlow ? config->GetDensity_Ref() : config->GetTemperature_Ref();
   esData.refP = esData.massFlow ? config->GetVelocity_Ref() : config->GetPressure_Ref();
+  /*--- BC_ENTROPY_P1_FARFIELD_CHARACTERISTIC: characteristic dissipation at the far-field points of closure C
+   * (EsFaceResidual reads it only on FAR_FIELD markers). ---*/
+  esData.characteristicDiss = config->GetBC_Entropy_P1_FarField_Characteristic();
   const bool gravity = config->GetGravityForce();
   /*--- MARKER_CUSTOM with a verification solution: closure C against the Dirichlet ghost g_q = u_D(x_q) at each face
    * point (Lemma B7 holds for any admissible ghost), the conservative state of GetBCState as for BC_Custom. ---*/
