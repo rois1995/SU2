@@ -129,8 +129,11 @@ R13. Questions (user order, 2026-11-17). When you have a question about an
   Where section 2 names the P6c and P7 files for G5, read these six files.
 - GQ: the capture of N22 (`R/night_20261115/N22/gq_reference.json`), with the rows that N22 part C lists as "report only"
   (calls and seconds of `communication`, the collective and election counters, all seconds).
-- G1 (375 / 114 / 228), G2 and G3: the references of section 2, not changed. For G2 the `communication` calls of the
-  preparation phase are those of N22 part C.
+- G1 (375 / 114 / 228), G2 and G3: the references of section 2, not changed. G2 and GQ use the comparator of N22 part C
+  (`R/night_20261115/N22/compare_prefix.py` with part C). The calls and seconds of each `communication` timer row
+  (in each phase) and the collective, election and tracked-call counters of the integer rows (the fields `C_FIELDS`
+  of that comparator) are a report. All other rows are exact: integer rows, modeled bytes, decisions, the timer rows
+  of each other operation, `fixedstorage=4120`. Reference for the exact rows: N14 for G2, the N22 capture for GQ.
 - Times (native maxima of the two events): N21 part W 2048.286 / 1278.700 s; N22 part M 1981.679 / 1348.621 s; N22 part C
   2018.805 / 1083.551 s. The machine has time noise: a run during the day can be 3 to 6 % slower than at night, and more
   when another program runs. A time rule compares two versions that ran one after the other; where that is not possible,
