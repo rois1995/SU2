@@ -38,6 +38,14 @@ def read_config(path):
     return config
 
 
+def mpi_command(ranks):
+    """mpirun prefix. Under an SGE parallel environment (PE_HOSTFILE set) OpenMPI takes the allocated hosts itself,
+    so --host localhost must not be passed."""
+    if os.environ.get("PE_HOSTFILE"):
+        return ["mpirun", "--bind-to", "none", "-np", str(ranks)]
+    return ["mpirun", "--host", "localhost", "--bind-to", "none", "-np", str(ranks)]
+
+
 def check_field_files(directory, canonical, edges, source_minimum):
     """Check the EPM field files written in `directory` against the CSV rows `canonical` (probe_pair == 3).
 
@@ -88,10 +96,19 @@ def assert_no_field_files(directory):
     assert not found, f"{directory.name} must not write field files, found {found}"
 
 
-def compare_fields(reference, other):
+def compare_fields(reference, other, used_only=False):
     """Compare the merged S_* columns of two fields site by site; returns the largest |a-b| / max|S of the column|.
 
-    Tolerance per value: max(1e-10 * max(|a|, |b|), 1e-10 * max|S| over the column in both fields)."""
+    Tolerance per value: max(1e-10 * max(|a|, |b|), 1e-10 * max|S| over the column in both fields).
+    With used_only, only the sites with uses > 0 are kept in each field before comparing: different partitions
+    register different unused (halo) sites, so only the evaluated sites are comparable, and their key sets must
+    agree."""
+    if used_only:
+        def keep_used(fields):
+            mask = fields["uses"] > 0
+            return {name: values[mask] for name, values in fields.items()}
+        reference, other = keep_used(reference), keep_used(other)
+
     def order(fields):
         keys = [fields[name] for name in epm_field.KEY_COLUMNS]
         return np.lexsort(keys[::-1]), np.column_stack(keys)
@@ -99,7 +116,7 @@ def compare_fields(reference, other):
     first, first_keys = order(reference)
     second, second_keys = order(other)
     assert first_keys.shape == second_keys.shape and np.array_equal(first_keys[first], second_keys[second]), \
-        "The two fields do not hold the same set of sites"
+        "The two fields do not hold the same set of " + ("used " if used_only else "") + "sites"
     names = [n for n in reference if n.startswith("S_")]
     assert len([n for n in names if n.startswith("S_tau_")]) > 0 and "S_pk" in names and "S_pw" in names, names
     worst = 0.0
@@ -137,7 +154,7 @@ def main():
         config["CONV_FIELD"] = config["CONV_FIELD"].replace("RMS_ENERGY", "RMS_MOMENTUM-Z, RMS_ENERGY")
     command = [str(binary), "run.cfg"]
     if args.ranks > 1:
-        command = ["mpirun", "--host", "localhost", "--bind-to", "none", "-np", str(args.ranks)] + command
+        command = mpi_command(args.ranks) + command
     timings = {}
 
     def launch(name, overrides):
@@ -294,13 +311,64 @@ def main():
                                                         RESTART_ADJ_FILENAME="restart_adj.dat"),
                        "requires SOLUTION_ADJ_FILENAME to differ from RESTART_ADJ_FILENAME")
     assert hashlib.sha256(primal_restart.read_bytes()).hexdigest() == original_hash
+    mpi_errors = {}
     if args.reference:
-        reference = read_csv(args.reference / "enabled" / "sst_epm_sensitivities.csv")
+        serial = args.reference.resolve(strict=True)
+        reference = read_csv(serial / "enabled" / "sst_epm_sensitivities.csv")
         assert len(rows) == len(reference)
         for row, ref in zip(rows, reference):
             assert (row["case"], row["probe_pair"]) == (ref["case"], ref["probe_pair"])
             assert math.isclose(float(row["dJ_da_at_zero"]), float(ref["dJ_da_at_zero"]),
                                 rel_tol=1e-5, abs_tol=1e-9), (row, ref)
+    if args.reference and args.ranks > 1:
+        # Two ranks against serial, extract-only from the SERIAL primal and adjoint: any difference is then due to
+        # the partitioning of the extraction alone, so the tolerance is round-off.
+        serial_adjoint = serial / "enabled" / f"restart_adj{objective_suffix}.dat"
+        serial_adjoint_hash = hashlib.sha256(serial_adjoint.read_bytes()).hexdigest()
+        serial_canonical = {r["case"]: r for r in reference if r["probe_pair"] == "3"}
+        assert set(serial_canonical) == set(canonical), sorted(serial_canonical)
+        assert all(int(r["mpi_ranks"]) == 1 for r in reference), "The reference must be a serial run"
+        serial_field, _ = check_field_files(serial / "enabled", serial_canonical, edges, source_minimum)
+        serial_scalar = read_csv(serial / "scalar" / "sst_epm_sensitivities.csv")
+        mpi_options = dict(extract_only_options, SOLUTION_ADJ_FILENAME=str(serial / "enabled" / "restart_adj"),
+                           RESTART_ADJ_FILENAME="restart_adj_out")
+
+        def compare_rows(name, mpi_rows, serial_rows, extraction):
+            """Same (case, probe_pair) rows and dJ_da_at_zero to round-off; returns the largest relative error."""
+            assert len(mpi_rows) == len(serial_rows), (name, len(mpi_rows), len(serial_rows))
+            serial_by_key = {(r["case"], r["probe_pair"]): r for r in serial_rows}
+            assert len(serial_by_key) == len(serial_rows)
+            assert [(r["case"], r["probe_pair"]) for r in mpi_rows] == [(r["case"], r["probe_pair"]) for r in serial_rows], name
+            worst = 0.0
+            for row in mpi_rows:
+                ref = serial_by_key[(row["case"], row["probe_pair"])]
+                assert int(row["mpi_ranks"]) == args.ranks and row["extraction"] == extraction, (name, row)
+                a, b = float(row["dJ_da_at_zero"]), float(ref["dJ_da_at_zero"])
+                assert math.isclose(a, b, rel_tol=1e-10, abs_tol=1e-14), (name, row, ref)
+                if max(abs(a), abs(b)) > 0:
+                    worst = max(worst, abs(a - b) / max(abs(a), abs(b)))
+            return worst
+
+        mpi_field, mpi_field_history = run("mpi_extract_field", mpi_options)
+        assert len(mpi_field_history) == 1, len(mpi_field_history)
+        mpi_field_rows = read_csv(mpi_field / "sst_epm_sensitivities.csv")
+        mpi_errors["field"] = compare_rows("mpi_extract_field", mpi_field_rows, reference, "field")
+        mpi_canonical = {r["case"]: r for r in mpi_field_rows if r["probe_pair"] == "3"}
+        assert set(mpi_canonical) == set(canonical), sorted(mpi_canonical)
+        mpi_merged, mpi_info = check_field_files(mpi_field, mpi_canonical, edges, source_minimum)
+        mpi_errors["field_scaled"] = compare_fields(serial_field, mpi_merged, used_only=True)
+        mpi_scalar, mpi_scalar_history = run("mpi_extract_scalar", dict(mpi_options,
+                                                                        SST_EPM_EXTRACTION="SCALAR_REPLAY"))
+        assert len(mpi_scalar_history) == 1, len(mpi_scalar_history)
+        mpi_errors["scalar"] = compare_rows("mpi_extract_scalar", read_csv(mpi_scalar / "sst_epm_sensitivities.csv"),
+                                            serial_scalar, "scalar_replay")
+        assert_no_field_files(mpi_scalar)
+        for directory in (mpi_field, mpi_scalar):
+            log = (directory / "run.log").read_text()
+            assert "EPM extract-only: residual of one adjoint iteration" in log and "): passed" in log, directory
+        # The serial inputs were only read.
+        assert hashlib.sha256(serial_adjoint.read_bytes()).hexdigest() == serial_adjoint_hash
+        assert hashlib.sha256(primal_restart.read_bytes()).hexdigest() == original_hash
     summary = {"binary": str(binary), "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
                "dimension": args.dimension, "ranks": args.ranks,
                "primal_restart_sha256": original_hash,
@@ -323,6 +391,11 @@ def main():
                "field_sites": {"enabled": enabled_info["sites"], "extract_only": extracted_info["sites"]},
                "max_extract_only_field_scaled_error": max_extract_only_field_error,
                "rows": len(rows), "status": "passed_infrastructure_smoke_test"}
+    if mpi_errors:
+        summary.update(mpi_max_rel_error_field=mpi_errors["field"], mpi_max_rel_error_scalar=mpi_errors["scalar"],
+                       mpi_max_field_scaled_error=mpi_errors["field_scaled"])
+        summary["field_file_bytes"]["mpi_extract_field"] = mpi_info["bytes"]
+        summary["field_sites"]["mpi_extract_field"] = mpi_info["sites"]
     (root / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
 
