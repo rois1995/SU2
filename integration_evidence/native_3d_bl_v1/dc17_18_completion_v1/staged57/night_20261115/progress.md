@@ -754,3 +754,25 @@ FP1 H6 scoped safeguards pushed at 92d1247868. Start the paired G5 ON campaign w
 FP1 H6 G5 ON1 event 1 native remesh returned complete on all six ranks, max 1572.119 s. Mesh and authority sidecar published. The full workflow continues toward event 2 and the standing gate collector.
 
 FP1 H6 G5 ON1 ended at its event 2 F3b timer gate. Both native events returned complete=1 on all six ranks. Event maxima 1,572.119 / 383.244 s. Event 2 rank 0 named coverage 0.936883297417 versus 0.95, the first failed number. All six coverage values fail while join and the remaining timer ledger checks pass. The read-only diagnosis found that lower named time left a larger unattributed fraction, led by construction. There is no supported wiring or border-shift retry. FP1 ON FAILED under §12.5. ON2 and event 2 publication, workflow validation and restart are unevaluated. Retain H6 and build608 OFF. Seal the terminal evidence, update the handbooks and stop.
+
+## FP1 Resume 5
+
+Archived the order and verified its SHA256. Resume 4 ON1 and its owned descendants are terminal. The whole-item R4 source check identifies each exact lexical boundary for the four Part N timers. Next are the production edit, build615 and fresh fixtures and scope gates.
+
+FP1 N. Installed the four scoped timers. Scope diff against eb9500b5d6 has exactly four hunks in three native-engine files. Starting build615, the complete FP1 fixture cohort and G1.
+
+FP1 N. Build615 completed in 190.520 s with no new warnings. FP1 fixtures are running. The G5 adapter passed the no-launch checks against build608.
+
+FP1 N. All 12 FP1 fixture selectors passed at their prescribed rank counts and match the build614 assertion totals. G1 is running on the same pinned build.
+
+FP1 N. G1 matched all 375 / 114 / 228 adopted case records, at 761.093 / 9.872 / 9.572 s. The same build615 now runs the G2 and GQ prefixes, G3, G4 and saved-state safeguards.
+
+FP1 N. G2 passed the corrected comparator at 236.503 s.
+
+FP1 N. GQ passed the corrected comparator at 659.869 s.
+
+FP1 N. G3 passed with 1563 splits and 1113 identical shared edits.
+
+FP1 N. G4 passed at 1, 2 and 4 ranks.
+
+FP1 N. Saved-state safeguards passed. The Part N checkpoint and fresh OFF G5 are next.

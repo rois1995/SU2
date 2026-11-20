@@ -858,6 +858,7 @@ struct EngineRun {
     bool evaluated = false;
     private_repair = true;
     try {
+      SU2NativeTiming3D::Scope candidate_timer(SU2NativeTiming3D::Operation::Candidate);
       evaluated = candidate_trial.Run();
       if (evaluated) evaluated = AdmitPrivateCoverage(slot_state, boundary_replacement_ready);
     } catch (const std::exception& e) {

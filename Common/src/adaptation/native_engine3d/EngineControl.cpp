@@ -628,7 +628,14 @@ bool EngineControl::CompletePhaseEntry(EngineContext& context, EnginePhase next,
     if (!context.exchange.Vote(context, priority_failure)) return false;
   }
   if (!repairing) construction_entry_reported = true;
-  if (repairing && !context.ownership.PhaseOwnership(context, true, atlas_budget)) return false;
+  if (repairing) {
+    bool owned = false;
+    {
+      SU2NativeTiming3D::Scope ownership_timer(SU2NativeTiming3D::Operation::Communication);
+      owned = context.ownership.PhaseOwnership(context, true, atlas_budget);
+    }
+    if (!owned) return false;
+  }
   return EngineControl::ObserveProgress(context, working, atlas_budget,
                                         repairing ? "quality_entry" : "construction_entry");
 }
@@ -1350,9 +1357,12 @@ RoundDecision RoundHead::EndLengthGeneration() {
       // The major direction boundary is quiescent; no repartition is evaluated at lane/generation switches.
       context.queues.LengthDirection(context, false);
       directory->EndConstructionPass();
-      if (!context.ownership.PhaseOwnership(context, false, atlas_budget) ||
-          !context.control.BeginLengthGeneration(context, false))
-        return FinishRound();
+      bool owned = false;
+      {
+        SU2NativeTiming3D::Scope ownership_timer(SU2NativeTiming3D::Operation::Communication);
+        owned = context.ownership.PhaseOwnership(context, false, atlas_budget);
+      }
+      if (!owned || !context.control.BeginLengthGeneration(context, false)) return FinishRound();
     }
     return RoundDecision::Restart;
   }

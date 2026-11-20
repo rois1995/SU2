@@ -1,0 +1,44 @@
+diff --git a/Common/src/adaptation/native_engine3d/EngineAdapt.cpp b/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
+index 6b54154f9b..8e9e2bd5fc 100644
+--- a/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
+@@ -860,0 +861 @@ struct EngineRun {
++      SU2NativeTiming3D::Scope candidate_timer(SU2NativeTiming3D::Operation::Candidate);
+diff --git a/Common/src/adaptation/native_engine3d/EngineControl.cpp b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+index d86f8e7ea5..ac8539690a 100644
+--- a/Common/src/adaptation/native_engine3d/EngineControl.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+@@ -631 +631,8 @@ bool EngineControl::CompletePhaseEntry(EngineContext& context, EnginePhase next,
+-  if (repairing && !context.ownership.PhaseOwnership(context, true, atlas_budget)) return false;
++  if (repairing) {
++    bool owned = false;
++    {
++      SU2NativeTiming3D::Scope ownership_timer(SU2NativeTiming3D::Operation::Communication);
++      owned = context.ownership.PhaseOwnership(context, true, atlas_budget);
++    }
++    if (!owned) return false;
++  }
+@@ -1353,3 +1360,6 @@ RoundDecision RoundHead::EndLengthGeneration() {
+-      if (!context.ownership.PhaseOwnership(context, false, atlas_budget) ||
+-          !context.control.BeginLengthGeneration(context, false))
+-        return FinishRound();
++      bool owned = false;
++      {
++        SU2NativeTiming3D::Scope ownership_timer(SU2NativeTiming3D::Operation::Communication);
++        owned = context.ownership.PhaseOwnership(context, false, atlas_budget);
++      }
++      if (!owned || !context.control.BeginLengthGeneration(context, false)) return FinishRound();
+diff --git a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+index 8020b0e7d1..3512b2a491 100644
+--- a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
++++ b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+@@ -478,3 +478,6 @@ struct RemeshRun {
+-    PrepareWeights(preparation, input, mesh, source, weights, geometry_weights);
+-    Phase(4);
+-    RepartitionMesh(preparation, input, mesh, source, weights, geometry_weights);
++    {
++      SU2NativeTiming3D::Scope partition_timer(SU2NativeTiming3D::Operation::Communication);
++      PrepareWeights(preparation, input, mesh, source, weights, geometry_weights);
++      Phase(4);
++      RepartitionMesh(preparation, input, mesh, source, weights, geometry_weights);
++    }

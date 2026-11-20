@@ -475,9 +475,12 @@ struct RemeshRun {
                            transfer_memory::Add(Held(preparation), OwnedStorageBytes(working)));
     Phase(3);
     std::vector<uint32_t> weights, geometry_weights;
-    PrepareWeights(preparation, input, mesh, source, weights, geometry_weights);
-    Phase(4);
-    RepartitionMesh(preparation, input, mesh, source, weights, geometry_weights);
+    {
+      SU2NativeTiming3D::Scope partition_timer(SU2NativeTiming3D::Operation::Communication);
+      PrepareWeights(preparation, input, mesh, source, weights, geometry_weights);
+      Phase(4);
+      RepartitionMesh(preparation, input, mesh, source, weights, geometry_weights);
+    }
     Phase(5);
     if (ready && repartition) {
       const size_t baseline = transfer_memory::Add(
