@@ -95,7 +95,21 @@ protected:
    */
   void SecondaryRecording(void);
 
+  /*!
+   * \brief Classical EPM sensitivities after adjoint convergence; dispatches on SST_EPM_EXTRACTION.
+   */
   void ExtractEPMSensitivities();
+
+  /*!
+   * \brief One scalar-amplitude replay per EPM case and probe (SST_EPM_EXTRACTION= SCALAR_REPLAY).
+   */
+  void ExtractEPMScalarReplay();
+
+  /*!
+   * \brief One field replay: per-site sensitivities, then the classical cases and probes as passive dot
+   *        products over the stored sites (SST_EPM_EXTRACTION= FIELD).
+   */
+  void ExtractEPMFieldSensitivities();
 
   /*!
    * \brief gets Convergence on physical time scale, (deactivated in adjoint case)

@@ -97,13 +97,16 @@ def main():
         adjoint["CONV_FIELD"] = adjoint["CONV_FIELD"].replace("RMS_ADJ_ENERGY", "RMS_ADJ_MOMENTUM-Z, RMS_ADJ_ENERGY")
     off, off_history = run("disabled", adjoint)
     on, on_history = run("enabled", dict(adjoint, SST_EPM_POSTPROCESS="YES"))
+    scalar, scalar_history = run("scalar", dict(adjoint, SST_EPM_POSTPROCESS="YES",
+                                                SST_EPM_EXTRACTION="SCALAR_REPLAY"))
     assert not (off / "sst_epm_sensitivities.csv").exists()
-    assert len(off_history) == len(on_history)
-    # Enabling postprocessing must not change the coupled adjoint iteration.
-    for off_row, on_row in zip(off_history, on_history):
-        for key in off_row:
-            if key.startswith("rms["):
-                assert off_row[key] == on_row[key], (key, off_row[key], on_row[key])
+    # Enabling postprocessing (either extraction) must not change the coupled adjoint iteration.
+    for history in (on_history, scalar_history):
+        assert len(off_history) == len(history)
+        for off_row, on_row in zip(off_history, history):
+            for key in off_row:
+                if key.startswith("rms["):
+                    assert off_row[key] == on_row[key], (key, off_row[key], on_row[key])
 
     rows = read_csv(on / "sst_epm_sensitivities.csv")
     canonical = {r["case"]: r for r in rows if r["probe_pair"] == "3"}
@@ -123,11 +126,27 @@ def main():
         assert math.isclose(base, float(primal_history[-1]["CD"]), rel_tol=1e-8, abs_tol=1e-9)
         assert math.isclose(prediction, base + gradient, rel_tol=1e-12, abs_tol=1e-14)
         assert row["status"] == "frozen_forcing_unverified" and row["adjoint_converged"] == "true"
+        assert row["extraction"] == "field", row["extraction"]
     assert all(abs(float(r["dJ_da_at_zero"])) > 1e-12 for r in canonical.values())
+    # The field replay must reproduce the scalar-amplitude replay row by row.
+    scalar_rows = {(r["case"], r["probe_pair"]): r for r in read_csv(scalar / "sst_epm_sensitivities.csv")}
+    assert set(scalar_rows) == {(r["case"], r["probe_pair"]) for r in rows}, (sorted(scalar_rows), rows)
+    max_field_scalar_error = 0.0
+    for row in rows:
+        reference = scalar_rows[(row["case"], row["probe_pair"])]
+        assert reference["extraction"] == "scalar_replay", reference["extraction"]
+        for key in ("dJ_da_at_zero", "J_linear_at_one"):
+            assert math.isclose(float(row[key]), float(reference[key]), rel_tol=1e-10, abs_tol=1e-14), \
+                (key, row, reference)
+        for key in ("ambiguous_evaluations", "total_evaluations", "stress_evaluations", "source_evaluations"):
+            assert int(row[key]) == int(reference[key]), (key, row, reference)
+        max_field_scalar_error = max(max_field_scalar_error,
+                                     abs(float(row["dJ_da_at_zero"]) - float(reference["dJ_da_at_zero"])))
     restarted, _ = run("restarted", dict(adjoint, SST_EPM_POSTPROCESS="YES", RESTART_SOL="YES",
                                          SOLUTION_ADJ_FILENAME=str(on / "restart_adj")))
     resumed_rows = read_csv(restarted / "sst_epm_sensitivities.csv")
     assert len(rows) == len(resumed_rows)
+    assert all(r["extraction"] == "field" for r in resumed_rows)
     for first, resumed in zip(rows, resumed_rows):
         assert first["case"] == resumed["case"] and first["probe_pair"] == resumed["probe_pair"]
         assert math.isclose(float(first["dJ_da_at_zero"]), float(resumed["dJ_da_at_zero"]),
@@ -149,6 +168,7 @@ def main():
                "stress_evaluations": int(rows[0]["stress_evaluations"]),
                "source_evaluations": int(rows[0]["source_evaluations"]),
                "J_baseline": float(rows[0]["J_baseline"]),
+               "max_field_scalar_gradient_abs_error": max_field_scalar_error,
                "max_restart_gradient_abs_error": max(abs(float(a["dJ_da_at_zero"])-float(b["dJ_da_at_zero"]))
                                                      for a, b in zip(rows, resumed_rows)),
                "adjoint_final_residuals": {k: v for k, v in on_history[-1].items() if k.startswith("rms[")},

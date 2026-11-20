@@ -32,6 +32,8 @@
 #include "../../include/iteration/CIterationFactory.hpp"
 #include "../../include/iteration/CTurboIteration.hpp"
 #include "../../../Common/include/toolboxes/CQuasiNewtonInvLeastSquares.hpp"
+#include "../../../Common/include/CEPMFieldSites.hpp"
+#include "../../include/numerics/CNumerics.hpp"
 
 
 CDiscAdjSinglezoneDriver::CDiscAdjSinglezoneDriver(char* confFile,
@@ -295,8 +297,12 @@ void CDiscAdjSinglezoneDriver::SetRecording(RECORDING kind_recording){
     AD::StartRecording();
 
     iteration->RegisterInput(solver_container, geometry_container, config_container, ZONE_0, INST_0, kind_recording);
-    if (config->GetEPMExtraction().active) {
-      auto& amplitude = config->GetEPMExtraction().amplitude;
+    auto& epm = config->GetEPMExtraction();
+    if (epm.active && epm.mode == CEPMExtraction::Mode::FIELD) {
+      if (!epm.field) SU2_MPI::Error("EPM field recording without a field store.", CURRENT_FUNCTION);
+      epm.field->RegisterInputs();
+    } else if (epm.active) {
+      auto& amplitude = epm.amplitude;
       amplitude = 0.0;
       AD::ResetInput(amplitude);
       AD::RegisterInput(amplitude);
@@ -492,10 +498,15 @@ void CDiscAdjSinglezoneDriver::SecondaryRecording(){
 }
 
 void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
-  using PassiveMPI = SelectMPIWrapper<passivedouble>::W;
   if (!output_container[ZONE_0]->GetConvergence() || output_container[ZONE_0]->GetConvergenceInterrupted())
     SU2_MPI::Error("EPM extraction requires the native adjoint convergence criterion to pass.", CURRENT_FUNCTION);
 
+  if (config->GetEPMExtraction().mode == CEPMExtraction::Mode::FIELD) ExtractEPMFieldSensitivities();
+  else ExtractEPMScalarReplay();
+}
+
+void CDiscAdjSinglezoneDriver::ExtractEPMScalarReplay() {
+  using PassiveMPI = SelectMPIWrapper<passivedouble>::W;
   auto& epm = config->GetEPMExtraction();
   const auto saved_iter = config->GetInnerIter();
   const passivedouble baseline = SU2_TYPE::GetValue(ObjFunc);
@@ -515,7 +526,7 @@ void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
   rows << "case,objective,dimension,mpi_ranks,probe_pair,probe_angle,J_baseline,dJ_da_at_zero,J_linear_at_one,"
           "ambiguous_evaluations,total_evaluations,stress_evaluations,source_evaluations,"
           "gap_tolerance,delta_b,tensor_blend_factor,"
-          "primal_converged,adjoint_converged,status\n";
+          "primal_converged,adjoint_converged,status,extraction\n";
   passivedouble lower = baseline, upper = baseline;
 
   for (unsigned short mode = 0; mode < 5; ++mode) {
@@ -561,7 +572,7 @@ void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
            << epm.probe_pair << ',' << epm.angle << ',' << baseline << ',' << gradient << ',' << baseline + gradient << ','
            << global_counts[0] << ',' << global_counts[1] << ',' << global_counts[2] << ','
            << global_counts[1] - global_counts[2] << ',' << CEPMExtraction::gap_tolerance
-           << ",1,1,unverified,true,frozen_forcing_unverified\n";
+           << ",1,1,unverified,true,frozen_forcing_unverified,scalar_replay\n";
       lower = min(lower, baseline + gradient);
       upper = max(upper, baseline + gradient);
       AD::ClearAdjoints();
@@ -588,4 +599,206 @@ void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
     cout << "\nClassical EPM first-order frozen-forcing predictions: [" << lower << ", " << upper
          << "]. Includes baseline and sampled orientations; not verified nonlinear bounds.\n";
   }
+}
+
+void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
+  using PassiveMPI = SelectMPIWrapper<passivedouble>::W;
+  using Record = CEPMFieldSites::Record;
+  using SiteKind = CEPMExtraction::SiteKind;
+  auto& epm = config->GetEPMExtraction();
+  if (!epm.field) epm.field = std::make_shared<CEPMFieldSites>();
+  auto& field = *epm.field;
+  const auto saved_iter = config->GetInnerIter();
+  const passivedouble baseline = SU2_TYPE::GetValue(ObjFunc);
+  std::vector<passivedouble> baseline_outputs[2], adjoints[2];
+  const unsigned short direct_blocks[] = {FLOW_SOL, TURB_SOL};
+  const unsigned short adjoint_blocks[] = {ADJFLOW_SOL, ADJTURB_SOL};
+  for (unsigned short block = 0; block < 2; ++block) {
+    for (unsigned long point = 0; point < geometry->GetnPoint(); ++point)
+      for (unsigned short var = 0; var < solver[direct_blocks[block]]->GetnVar(); ++var) {
+        baseline_outputs[block].push_back(SU2_TYPE::GetValue(solver[direct_blocks[block]]->GetNodes()->GetSolution(point,var)));
+        adjoints[block].push_back(SU2_TYPE::GetValue(solver[adjoint_blocks[block]]->GetNodes()->GetSolution(point,var)));
+      }
+  }
+
+  /*--- Discovery pass: the passive CLEAR_INDICES iteration creates one site per hook key. ---*/
+  field.Clear();
+  epm.active = true;
+  config->SetInnerIter(saved_iter);
+  SetRecording(RECORDING::CLEAR_INDICES);
+
+  /*--- No new sites from here on. The hooks fill the state of a site on its first use, so drop the state of the
+   *    discovery pass, and its counts, so that records and counters describe the real recording only. ---*/
+  field.Freeze();
+  field.ResetRecords();
+  epm.evaluations = epm.ambiguous = epm.stress_evaluations = 0;
+
+  /*--- Real recording; SetRecording registers the zero-valued field inputs. ---*/
+  config->SetInnerIter(saved_iter);
+  SetRecording(MainVariables);
+  const auto recorded_objective = SU2_TYPE::GetValue(ObjFunc);
+  if (!std::isfinite(recorded_objective) || fabs(recorded_objective - baseline) > 1e-10 * max(1.0, fabs(baseline)))
+    SU2_MPI::Error("EPM zero-amplitude replay changed the baseline objective.", CURRENT_FUNCTION);
+  for (unsigned short block = 0; block < 2; ++block) {
+    size_t entry = 0;
+    for (unsigned long point = 0; point < geometry->GetnPoint(); ++point)
+      for (unsigned short var = 0; var < solver[direct_blocks[block]]->GetnVar(); ++var, ++entry) {
+        const auto value = SU2_TYPE::GetValue(solver[direct_blocks[block]]->GetNodes()->GetSolution(point,var));
+        if (!std::isfinite(value) || fabs(value - baseline_outputs[block][entry]) >
+            1e-12 * max(1.0, fabs(baseline_outputs[block][entry])))
+          SU2_MPI::Error("EPM replay changed the baseline iteration output.", CURRENT_FUNCTION);
+        if (SU2_TYPE::GetValue(solver[adjoint_blocks[block]]->GetNodes()->GetSolution(point,var)) != adjoints[block][entry])
+          SU2_MPI::Error("EPM replay changed the saved coupled adjoint.", CURRENT_FUNCTION);
+      }
+  }
+
+  /*--- One reverse sweep seeded with the saved coupled adjoint gives the sensitivity of every site. ---*/
+  iteration->InitializeAdjoint(solver_container, geometry_container, config_container, ZONE_0, INST_0);
+  SetAdjObjFunction();
+  AD::ComputeAdjoint();
+  field.ExtractAdjoints();
+  AD::ClearAdjoints();
+  epm.active = false;
+
+  /*--- Stress corrections are symmetric, so only sym(S_tau) is meaningful; the dot products are unchanged. ---*/
+  for (size_t site = 0; site < field.Size(); ++site) {
+    auto* S = field.Data(site).S_tau;
+    for (unsigned short i = 0; i < nDim; ++i)
+      for (unsigned short j = 0; j < i; ++j) S[i*3+j] = S[j*3+i] = 0.5 * (S[i*3+j] + S[j*3+i]);
+  }
+
+  /*--- Coordinates of the points of each site; keys as in the solver loops (Site() returns npos for no site). ---*/
+  const auto set_coord = [&](passivedouble (&coord)[3], unsigned long iPoint) {
+    for (unsigned short iDim = 0; iDim < 3; ++iDim)
+      coord[iDim] = iDim < nDim ? SU2_TYPE::GetValue(geometry->nodes->GetCoord(iPoint, iDim)) : 0.0;
+  };
+  for (unsigned long iEdge = 0; iEdge < geometry->GetnEdge(); ++iEdge) {
+    auto iPoint = geometry->edges->GetNode(iEdge, 0), jPoint = geometry->edges->GetNode(iEdge, 1);
+    if (geometry->nodes->GetGlobalIndex(jPoint) < geometry->nodes->GetGlobalIndex(iPoint)) std::swap(iPoint, jPoint);
+    const auto site = field.Site(SiteKind::EDGE, geometry->nodes->GetGlobalIndex(iPoint),
+                                 geometry->nodes->GetGlobalIndex(jPoint));
+    if (site == CEPMFieldSites::npos) continue;
+    set_coord(field.Data(site).coord_a, iPoint);  // key_a is the smaller global id
+    set_coord(field.Data(site).coord_b, jPoint);
+  }
+  for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); ++iMarker) {
+    const auto marker = config->GetMarker_CfgFile_TagBound(config->GetMarker_All_TagBound(iMarker));
+    for (unsigned long iVertex = 0; iVertex < geometry->GetnVertex(iMarker); ++iVertex) {
+      const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+      const auto site = field.Site(SiteKind::BOUNDARY, geometry->nodes->GetGlobalIndex(iPoint), marker);
+      if (site != CEPMFieldSites::npos) set_coord(field.Data(site).coord_a, iPoint);
+    }
+  }
+  for (unsigned long iPoint = 0; iPoint < geometry->GetnPoint(); ++iPoint) {
+    const auto site = field.Site(SiteKind::NODE, geometry->nodes->GetGlobalIndex(iPoint), 0);
+    if (site != CEPMFieldSites::npos) set_coord(field.Data(site).coord_a, iPoint);
+  }
+
+  /*--- Contribution S . delta of one site to dJ/da of one case and probe. The canonical case (probe 0) uses the
+   *    corrections stored by the hooks; the probes recompute them from the stored passive state. The case is
+   *    recomputed in both, for its ambiguity flag. ---*/
+  const auto site_gradient = [&](const Record& record, unsigned short mode, unsigned short probe, bool& ambiguous) {
+    const unsigned short component = mode / 2 + 1;
+    const bool permute = mode % 2;
+    const double angle = probe == 0 ? 0.0 : PI_NUMBER / 2;
+    const unsigned short probe_pair = probe == 0 ? 3 : probe - 1;
+    passivedouble grad[3][3];
+    for (unsigned short i = 0; i < 3; ++i)
+      for (unsigned short j = 0; j < 3; ++j) grad[i][j] = record.grad[i*3+j];
+    passivedouble gradient = 0.0;
+
+    if (static_cast<SiteKind>(static_cast<int>(record.kind)) != SiteKind::NODE) {
+      passivedouble correction[3][3] = {};
+      if (probe == 0) {
+        CNumerics::EPMCaseTarget(nDim, grad, record.rho, record.mu_t, record.k, component, permute, angle,
+                                 probe_pair, correction, ambiguous);
+        for (unsigned short i = 0; i < nDim; ++i)
+          for (unsigned short j = 0; j < nDim; ++j) correction[i][j] = record.dtau[mode][i*3+j];
+      } else {
+        CNumerics::EPMCaseStressCorrection(nDim, grad, record.rho, record.mu_t, record.k, component, permute,
+                                           angle, probe_pair, correction, ambiguous);
+      }
+      for (unsigned short i = 0; i < nDim; ++i)
+        for (unsigned short j = 0; j < nDim; ++j) gradient += record.S_tau[i*3+j] * correction[i][j];
+      return gradient;
+    }
+
+    passivedouble target[3][3];
+    CNumerics::EPMCaseTarget(nDim, grad, record.rho, record.mu_t, record.k, component, permute, angle,
+                             probe_pair, target, ambiguous);
+    passivedouble dpk = record.dpk[mode], dpw = record.dpw[mode];
+    if (probe != 0) {
+      /*--- Same clip and omega production as the scalar replay and the source hook. ---*/
+      const auto raw = CNumerics::ComputeReynoldsStressProduction(nDim, target, grad, record.rho);
+      const auto epm_pk = max(0.0, min(raw, record.prod_limit));
+      const auto epm_pw = record.mu_t > 0 ? record.alfa_blended * record.rho / record.mu_t * epm_pk : 0.0;
+      dpk = epm_pk - record.pk0;
+      dpw = epm_pw - record.pw0;
+    }
+    return record.S_pk * dpk + record.S_pw * dpw;
+  };
+
+  const char* names[] = {"1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C"};
+  std::ostringstream rows;
+  rows << std::setprecision(17);
+  rows << "case,objective,dimension,mpi_ranks,probe_pair,probe_angle,J_baseline,dJ_da_at_zero,J_linear_at_one,"
+          "ambiguous_evaluations,total_evaluations,stress_evaluations,source_evaluations,"
+          "gap_tolerance,delta_b,tensor_blend_factor,"
+          "primal_converged,adjoint_converged,status,extraction\n";
+  passivedouble lower = baseline, upper = baseline;
+
+  for (unsigned short mode = 0; mode < 5; ++mode) {
+    epm.component = mode / 2 + 1;
+    epm.permute = mode % 2;
+    for (unsigned short probe = 0; probe < 4; ++probe) {
+      epm.angle = probe == 0 ? 0.0 : PI_NUMBER / 2;
+      epm.probe_pair = probe == 0 ? 3 : probe - 1;
+      passivedouble local_gradient = 0.0;
+      unsigned long local_ambiguous = 0;
+      for (size_t site = 0; site < field.Size(); ++site) {
+        const auto& record = field.Data(site);
+        if (record.uses == 0) continue;  // not evaluated in the recording: no state and no sensitivity
+        bool ambiguous = false;
+        local_gradient += site_gradient(record, mode, probe, ambiguous);
+        /*--- The scalar replay counts every evaluation; a site stands for its uses at the same state. ---*/
+        if (ambiguous) local_ambiguous += static_cast<unsigned long>(record.uses);
+      }
+      passivedouble gradient = 0;
+      PassiveMPI::Allreduce(&local_gradient, &gradient, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      const unsigned long local_counts[] = {local_ambiguous, epm.evaluations, epm.stress_evaluations};
+      unsigned long global_counts[3] = {};
+      PassiveMPI::Allreduce(local_counts, global_counts, 3, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+      if (!std::isfinite(gradient)) SU2_MPI::Error("Nonfinite EPM sensitivity.", CURRENT_FUNCTION);
+      rows << names[mode] << ',' << (config->GetKind_ObjFunc() == DRAG_COEFFICIENT ? "DRAG" : "LIFT") << ','
+           << nDim << ',' << SU2_MPI::GetSize() << ','
+           << epm.probe_pair << ',' << epm.angle << ',' << baseline << ',' << gradient << ',' << baseline + gradient << ','
+           << global_counts[0] << ',' << global_counts[1] << ',' << global_counts[2] << ','
+           << global_counts[1] - global_counts[2] << ',' << CEPMExtraction::gap_tolerance
+           << ",1,1,unverified,true,frozen_forcing_unverified,field\n";
+      lower = min(lower, baseline + gradient);
+      upper = max(upper, baseline + gradient);
+      // Every rank must perform the same reductions in the same order.
+      if (global_counts[0] == 0) break;
+    }
+  }
+
+  // Clear tape indices, then restore all direct blocks and rebuild their dependencies.
+  SetRecording(RECORDING::CLEAR_INDICES);
+  for (unsigned short iSol = 0; iSol < MAX_SOLS; ++iSol)
+    if (solver[iSol] && solver[iSol]->GetAdjoint()) solver[iSol]->SetRecording(geometry, config);
+  config->SetInnerIter(saved_iter);
+  iteration->SetDependencies(solver_container, geometry_container, numerics_container, config_container,
+                             ZONE_0, INST_0, MainVariables);
+  if (rank == MASTER_NODE) {
+    std::ofstream output("sst_epm_sensitivities.csv");
+    output << rows.str();
+    output.close();
+    if (!output) SU2_MPI::Error("Could not write sst_epm_sensitivities.csv.", CURRENT_FUNCTION);
+    cout << "\nClassical EPM first-order frozen-forcing predictions: [" << lower << ", " << upper
+         << "]. Includes baseline and sampled orientations; not verified nonlinear bounds.\n";
+  }
+
+  /*--- TODO(Task 7): write the per-rank field files and the JSON layout here, e.g.
+   *    WriteEPMField(field, *config, *geometry, objective, extras_json); the records hold the recorded state,
+   *    the symmetrized sensitivities, the canonical corrections and the coordinates. ---*/
 }
