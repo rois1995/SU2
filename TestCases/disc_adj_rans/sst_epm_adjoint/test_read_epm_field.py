@@ -68,10 +68,12 @@ def write_case(directory, rank_rows, objective="DRAG", dtype="<f8", name_overrid
         array.tofile(os.path.join(directory, file_name))
         ranks.append({"file": file_name, "count": len(rows)})
     header = {
-        "columns": COLUMNS, "dtype": "float64", "record_bytes": 8 * len(COLUMNS), "ranks": ranks, "nDim": 2,
+        "columns": COLUMNS, "dtype": "float64", "byte_order": {"<f8": "little", ">f8": "big"}[dtype],
+        "record_bytes": 8 * len(COLUMNS), "ranks": ranks, "nDim": 2,
         "objective": objective, "delta_b": 1, "urlx": 1, "gap_tolerance": 1e-10, "mpi_ranks": len(rank_rows),
         "su2_version": "8.6.0 Harrier", "source_commit": "unknown", "ref_dimensionalization": "DIMENSIONAL",
         "case_names": CASES, "kinds": KINDS, "S_tau_note": "symmetrized over nDim block; only sym part meaningful",
+        "normal_note": "EDGE: unit normal from key_a to key_b; BOUNDARY: outward unit normal",
         "extract_only_residuals": None,
     }
     if name_override:
@@ -298,6 +300,57 @@ class ReaderTests(unittest.TestCase):
         path = write_case(self.dir, [rank0], name_override={"record_bytes": 808})
         with self.assertRaises(ValueError):
             rd.load(path)
+
+    def test_load_reads_the_byte_order_of_the_header(self):
+        rank0, rank1 = self._two_rank_case()
+        little = rd.load(write_case(tempfile.mkdtemp(dir=self.dir), [rank0, rank1], dtype="<f8"))
+        big = rd.load(write_case(tempfile.mkdtemp(dir=self.dir), [rank0, rank1], dtype=">f8"))
+        self.assertEqual(little.meta["byte_order"], "little")
+        self.assertEqual(big.meta["byte_order"], "big")
+        for name in COLUMNS:
+            np.testing.assert_array_equal(little[name], big[name])
+        self.assertEqual(rd.classical_gradients(little), rd.classical_gradients(big))
+
+    def test_load_without_byte_order_assumes_little_endian(self):
+        # Files written before the byte order was recorded (CFDHub, x86).
+        rank0, rank1 = self._two_rank_case()
+        path = write_case(self.dir, [rank0, rank1])
+        with open(path) as stream:
+            header = json.load(stream)
+        del header["byte_order"]
+        with open(path, "w") as stream:
+            json.dump(header, stream)
+        fields = rd.load(path)
+        self.assertEqual(list(fields["key_a"]), [3.0, 1.0, 3.0, 5.0])
+
+    def test_load_rejects_unknown_byte_order(self):
+        rank0, _ = self._two_rank_case()
+        path = write_case(self.dir, [rank0], name_override={"byte_order": "middle"})
+        with self.assertRaises(ValueError):
+            rd.load(path)
+
+    def test_edge_copies_with_opposite_normals_raise(self):
+        # Every rank stores an EDGE normal from key_a to key_b; a copy oriented by the local numbering is an error.
+        dtau, dpk, dpw = rng_arrays(1)
+        normal = dict(normal_0=0.6, normal_1=-0.8, normal_2=0.0)
+        flipped = {name: -value for name, value in normal.items()}
+        rows0 = [make_row("EDGE", 3, 7, S_tau=np.ones(9), dtau=dtau, dpk=dpk, dpw=dpw, **normal)]
+        rows1 = [make_row("EDGE", 3, 7, S_tau=np.ones(9), dtau=dtau, dpk=dpk, dpw=dpw, **flipped)]
+        with self.assertRaisesRegex(ValueError, "normal_0"):
+            rd.merge(rd.load(write_case(self.dir, [rows0, rows1])))
+
+    def test_edge_copies_with_round_off_normals_are_accepted(self):
+        dtau, dpk, dpw = rng_arrays(1)
+        rows0 = [make_row("EDGE", 3, 7, S_tau=np.ones(9), dtau=dtau, normal_0=0.6, normal_1=-0.8)]
+        rows1 = [make_row("EDGE", 3, 7, S_tau=np.ones(9), dtau=dtau, normal_0=0.6 * (1 + 1e-15), normal_1=-0.8)]
+        # NODE rows have NaN normals on every copy: consistent
+        nan = dict(normal_0=float("nan"), normal_1=float("nan"), normal_2=float("nan"))
+        rows0.append(make_row("NODE", 5, 0, S_pk=1.0, dpk=dpk, **nan))
+        rows1.append(make_row("NODE", 5, 0, S_pk=2.0, dpk=dpk, **nan))
+        merged = rd.merge(rd.load(write_case(self.dir, [rows0, rows1])))
+        self.assertEqual(len(merged["kind"]), 2)
+        self.assertEqual(merged["normal_0"][0], 0.6)  # kept from the first copy
+        self.assertEqual(merged["S_pk"][1], 3.0)
 
     def _csv(self, values, extra_rows=()):
         path = os.path.join(self.dir, "sst_epm_sensitivities.csv")

@@ -71,6 +71,7 @@ def check_field_files(directory, canonical, edges, source_minimum):
     assert kinds == FIELD_KINDS, kinds
     columns = header["columns"]
     assert header["dtype"] == "float64" and header["record_bytes"] == 8 * len(columns), header["record_bytes"]
+    assert header["byte_order"] == "little", header.get("byte_order")
     assert header["objective"] == objective, (header["objective"], objective)
     assert len(header["ranks"]) == header["mpi_ranks"], header["ranks"]
     total_bytes = 0
@@ -86,8 +87,11 @@ def check_field_files(directory, canonical, edges, source_minimum):
     fields = epm_field.load(header_path)
     kind = fields["kind"]
     uses = fields["uses"]
-    # A site stands for its repeated uses: unmerged (all ranks, halo copies included) the uses add up to the
-    # evaluations the CSV counts.
+    # Each site is evaluated at most once per recording in the supported configurations (a repeated use must have
+    # the state of the first one, the hooks stop otherwise).
+    assert set(np.unique(uses).tolist()) <= {0.0, 1.0} and uses.max(initial=0.0) == 1.0, np.unique(uses)
+    check_normal_orientation(fields, kinds)
+    # Unmerged (all ranks, halo copies included) the uses add up to the evaluations the CSV counts.
     stress_uses = math.fsum(uses[(kind == kinds["EDGE"]) | (kind == kinds["BOUNDARY"])].tolist())
     source_uses = math.fsum(uses[kind == kinds["NODE"]].tolist())
     for row in canonical.values():
@@ -99,6 +103,47 @@ def check_field_files(directory, canonical, edges, source_minimum):
     assert sites["EDGE"] >= edges, (sites, edges)
     assert sites["NODE"] >= source_minimum, (sites, source_minimum)
     return merged, {"bytes": total_bytes, "sites": sites}
+
+
+def check_normal_orientation(fields, kinds):
+    """Normal convention of the field files, on every evaluated copy (all ranks): an EDGE normal points from key_a
+    to key_b, a BOUNDARY normal points outward. On the smoke meshes (median-dual faces of a box) the EDGE normal has
+    a positive component along coord_b - coord_a, and the outward normal at a boundary point has a positive
+    component along the point minus the box centre (corner normals are sums of face normals)."""
+    used = fields["uses"] > 0
+    normal = np.column_stack([fields[f"normal_{i}"] for i in range(3)])
+    coord_a = np.column_stack([fields[f"coord_a_{i}"] for i in range(3)])
+    coord_b = np.column_stack([fields[f"coord_b_{i}"] for i in range(3)])
+    edge = used & (fields["kind"] == kinds["EDGE"])
+    along = np.sum(normal[edge] * (coord_b[edge] - coord_a[edge]), axis=1)
+    assert edge.any() and np.all(along > 0), \
+        f"{int(np.count_nonzero(~(along > 0)))} of {along.size} EDGE normals do not point from key_a to key_b"
+    centre = 0.5 * (coord_a[used].min(axis=0) + coord_a[used].max(axis=0))
+    boundary = used & (fields["kind"] == kinds["BOUNDARY"])
+    outward = np.sum(normal[boundary] * (coord_a[boundary] - centre), axis=1)
+    assert boundary.any() and np.all(outward > 0), \
+        f"{int(np.count_nonzero(~(outward > 0)))} of {outward.size} BOUNDARY normals do not point outward"
+
+
+def compare_normals(reference, other):
+    """Merged unit normals of the evaluated sites of two runs (e.g. serial and 2 ranks) agree to round-off: the stored
+    convention (EDGE from key_a to key_b, BOUNDARY outward) does not depend on the partition. Returns the largest
+    absolute difference."""
+    def used_sorted(fields):
+        mask = fields["uses"] > 0
+        keys = np.column_stack([fields[name][mask] for name in epm_field.KEY_COLUMNS])
+        order = np.lexsort(keys.T[::-1])
+        normals = np.column_stack([fields[f"normal_{i}"][mask] for i in range(3)])
+        return keys[order], normals[order], fields["kind"][mask][order]
+    keys_a, normals_a, kind = used_sorted(reference)
+    keys_b, normals_b, _ = used_sorted(other)
+    assert np.array_equal(keys_a, keys_b), "The two fields do not hold the same set of used sites"
+    faces = kind != FIELD_KINDS["NODE"]  # NODE sites have no normal (NaN)
+    a, b = normals_a[faces], normals_b[faces]
+    bad = ~epm_field.scaled_close(a, b, 1.0)
+    assert not bad.any(), ("normals differ", keys_a[faces][np.argwhere(bad)[0][0]].tolist(),
+                           a[np.argwhere(bad)[0][0]].tolist(), b[np.argwhere(bad)[0][0]].tolist())
+    return float(np.max(np.abs(a - b), initial=0.0))
 
 
 def assert_no_field_files(directory):
@@ -327,6 +372,15 @@ def main():
     objective_suffix = {"DRAG": "_cd", "LIFT": "_cl"}[config["OBJECTIVE_FUNCTION"]]
     adjoint_restart = on / f"restart_adj{objective_suffix}.dat"
     adjoint_hash = hashlib.sha256(adjoint_restart.read_bytes()).hexdigest()
+    # Anti-goal (design spec 5): the converged adjoint arrays are unchanged. The three runs differ only in
+    # SST_EPM_POSTPROCESS / SST_EPM_EXTRACTION, and the final adjoint restart is written after the extraction (driver
+    # Postprocess, then Output), so the restarts (adjoint and the geometric sensitivities computed after the
+    # extraction) must be bitwise equal.
+    for name, directory in (("disabled", off), ("scalar", scalar)):
+        other = directory / f"restart_adj{objective_suffix}.dat"
+        other_hash = hashlib.sha256(other.read_bytes()).hexdigest()
+        assert other_hash == adjoint_hash, \
+            f"{name}: {other} differs from {adjoint_restart} (sha256 {other_hash} vs {adjoint_hash})"
     rows = read_csv(on / "sst_epm_sensitivities.csv")
     canonical = {r["case"]: r for r in rows if r["probe_pair"] == "3"}
     assert set(canonical) == {"1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C"}
@@ -501,6 +555,7 @@ def main():
                                                            serial_scalar, "scalar_replay", tolerance)
         mpi_errors["converged_field_scaled"] = compare_fields(serial_field, enabled_field, used_only=True,
                                                               tolerance=tolerance)
+        mpi_errors["normals_vs_serial_abs"] = compare_normals(serial_field, enabled_field)
 
         # 4. Design check, decided by the guard (history_converged=False: the history residuals are the owned part,
         #    see EXTRACT_ONLY_MPI_NOTE).
@@ -573,6 +628,7 @@ def main():
         summary.update(mpi_max_rel_error_converged_rows=mpi_errors["converged_rows"],
                        mpi_max_rel_error_converged_scalar_rows=mpi_errors["converged_scalar_rows"],
                        mpi_max_converged_field_scaled_error=mpi_errors["converged_field_scaled"],
+                       mpi_max_normal_abs_error_vs_serial=mpi_errors["normals_vs_serial_abs"],
                        mpi_extract_from_serial_status=mpi_status,
                        mpi_extract_from_serial_guard=mpi_guard)
         if mpi_status == "passed":

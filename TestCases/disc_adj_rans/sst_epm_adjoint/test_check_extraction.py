@@ -96,6 +96,62 @@ class HelperTests(unittest.TestCase):
         self.assertLess(ce.compare_fields(reference, converged, tolerance=1e-6), 1e-8)
 
 
+def orientation_fields(edge_normal, boundary_normal):
+    """Unit square [0,1]^2: EDGE (0,0)-(1,0) as key_a-key_b, BOUNDARY at x = 1, NODE at the centre."""
+    nan = float("nan")
+    rows = [  # kind, coord_a, coord_b, normal
+        (0, (0.0, 0.0, 0.0), (1.0, 0.0, 0.0), edge_normal),
+        (1, (1.0, 0.5, 0.0), (nan, nan, nan), boundary_normal),
+        (2, (0.0, 1.0, 0.0), (nan, nan, nan), (nan, nan, nan)),
+    ]
+    fields = {"kind": np.array([float(r[0]) for r in rows]), "uses": np.ones(len(rows))}
+    for i in range(3):
+        fields[f"coord_a_{i}"] = np.array([r[1][i] for r in rows])
+        fields[f"coord_b_{i}"] = np.array([r[2][i] for r in rows])
+        fields[f"normal_{i}"] = np.array([r[3][i] for r in rows])
+    return fields
+
+
+class NormalOrientationTests(unittest.TestCase):
+    def test_convention_passes(self):
+        ce.check_normal_orientation(orientation_fields((1.0, 0.0, 0.0), (1.0, 0.0, 0.0)), ce.FIELD_KINDS)
+
+    def test_edge_from_key_b_to_key_a_fails(self):
+        with self.assertRaisesRegex(AssertionError, "EDGE"):
+            ce.check_normal_orientation(orientation_fields((-1.0, 0.0, 0.0), (1.0, 0.0, 0.0)), ce.FIELD_KINDS)
+
+    def test_inward_boundary_fails(self):
+        with self.assertRaisesRegex(AssertionError, "BOUNDARY"):
+            ce.check_normal_orientation(orientation_fields((1.0, 0.0, 0.0), (-1.0, 0.0, 0.0)), ce.FIELD_KINDS)
+
+    def test_unused_rows_are_ignored(self):
+        fields = orientation_fields((-1.0, 0.0, 0.0), (1.0, 0.0, 0.0))
+        fields["kind"] = np.append(fields["kind"], 0.0)
+        fields["uses"] = np.append(fields["uses"], 0.0)
+        for i in range(3):
+            for name in ("coord_a", "coord_b", "normal"):
+                fields[f"{name}_{i}"] = np.append(fields[f"{name}_{i}"], 0.0)
+        fields["normal_0"][0] = 1.0  # the used edge is fine, the unused zero row is skipped
+        ce.check_normal_orientation(fields, ce.FIELD_KINDS)
+
+
+class CompareNormalsTests(unittest.TestCase):
+    def _fields(self, edge_normal, keys=((0.0, 3.0, 7.0), (2.0, 5.0, 0.0))):
+        fields = orientation_fields(edge_normal, (1.0, 0.0, 0.0))
+        fields = {name: values[[0, 2]] for name, values in fields.items()}  # EDGE and NODE rows
+        for name, column in zip(("kind", "key_a", "key_b"), zip(*keys)):
+            fields[name] = np.array(column)
+        return fields
+
+    def test_same_convention_agrees(self):
+        self.assertLess(ce.compare_normals(self._fields((1.0, 0.0, 0.0)), self._fields((1.0 + 1e-16, 0.0, 0.0))),
+                        1e-15)
+
+    def test_flipped_edge_normal_fails(self):
+        with self.assertRaises(AssertionError):
+            ce.compare_normals(self._fields((1.0, 0.0, 0.0)), self._fields((-1.0, 0.0, 0.0)))
+
+
 class GuardDecisionTests(unittest.TestCase):
     STATUS = "rejected_by_guard_partition_dependent_adjoint"
 

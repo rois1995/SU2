@@ -2,8 +2,14 @@
 """Reader of the SU2 SST-EPM field files.
 
 SU2 (discrete adjoint, EPM extraction) writes, per objective <OBJ> (DRAG or LIFT):
-  sst_epm_field_<OBJ>_rank<r>.bin   raw little-endian float64 records, one per site, len(columns) columns each
-  sst_epm_field_<OBJ>.json          master header: column names, per-rank file names and record counts, case names, ...
+  sst_epm_field_<OBJ>_rank<r>.bin   raw float64 records in the byte order named in the JSON ("byte_order", little on
+                                    x86), one per site, len(columns) columns each
+  sst_epm_field_<OBJ>.json          master header: column names, byte order, per-rank file names and record counts,
+                                    case names, ...
+
+Normals: an EDGE normal (normal_0..2, unit) points from key_a to key_b (the smaller to the larger global id), whatever
+the local orientation of the edge on the rank; a BOUNDARY normal points outward of the domain. g_m and the S_* do not
+depend on these signs.
 
 This module loads the files, merges halo duplicates by the global key (kind, key_a, key_b), recomputes the five
 classical gradients g_m = sum over sites of S_tau.dtau[m] + S_pk*dpk[m] + S_pw*dpw[m], and compares them with the
@@ -24,6 +30,9 @@ import sys
 import numpy as np
 
 KEY_COLUMNS = ("kind", "key_a", "key_b")
+# Columns that every evaluated copy of a site must agree on (to round-off), besides the dtau_* corrections.
+CONSISTENT_COLUMNS = ("normal_0", "normal_1", "normal_2")
+BYTE_ORDERS = {"little": "<f8", "big": ">f8"}
 DEFAULT_CASE_NAMES = ("1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C")
 # Field consistency tolerance (design spec 9.3): 1e-10 relative, with an absolute floor scaled by the field's max norm
 # (the largest |value| of the column). Shared with check_extraction.py.
@@ -57,13 +66,17 @@ def load(json_path):
         raise ValueError("Unsupported dtype %r (expected float64)." % (header.get("dtype"),))
     if len(set(columns)) != len(columns):
         raise ValueError("Duplicate column names in %s." % json_path)
+    # Files written before the byte order was recorded came from little-endian hosts (CFDHub).
+    byte_order = header.get("byte_order", "little")
+    if byte_order not in BYTE_ORDERS:
+        raise ValueError("Unsupported byte_order %r (expected one of %s)." % (byte_order, sorted(BYTE_ORDERS)))
     if header.get("record_bytes", 8 * len(columns)) != 8 * len(columns):
         raise ValueError("record_bytes (%s) does not match %d float64 columns." % (header.get("record_bytes"), len(columns)))
     directory = os.path.dirname(os.path.abspath(json_path))
     blocks = []
     for entry in header["ranks"]:
         path = os.path.join(directory, entry["file"])
-        data = np.fromfile(path, dtype="<f8")  # JSON does not record the byte order; the writer is little-endian.
+        data = np.fromfile(path, dtype=BYTE_ORDERS[byte_order]).astype(np.float64)  # native order from here on
         if data.size != entry["count"] * len(columns):
             raise ValueError("%s holds %d values, expected %d records x %d columns."
                              % (path, data.size, entry["count"], len(columns)))
@@ -100,12 +113,13 @@ def merge(fields):
     * S_* columns (S_tau_*, S_pk, S_pw) are summed over the copies: each copy carries its own share.
     * All other columns (state, dtau_*, dpk_*, dpw_*, uses) are kept from the first copy.
     * Rows with uses == 0 were never evaluated on their rank (their S and d columns are 0): they add nothing to the
-      sums, they are excluded from the dtau consistency check, and they are never the 'first copy' when an evaluated
+      sums, they are excluded from the consistency check, and they are never the 'first copy' when an evaluated
       copy exists. A site with no evaluated copy is kept as its first (unused) row.
     * Evaluated copies of a site agree only to round-off: the ranks orient a shared edge by their local point
-      numbering, and SU2's gradient correction is not bitwise symmetric in (i, j). If an evaluated copy's dtau_*
-      differs from the first copy's beyond scaled_close (1e-10 relative, floor 1e-10 times the column's max norm over
-      evaluated rows), ValueError is raised.
+      numbering, and SU2's gradient correction is not bitwise symmetric in (i, j). If an evaluated copy's dtau_* or
+      normal_* (EDGE normals are stored from key_a to key_b on every rank) differs from the first copy's beyond
+      scaled_close (1e-10 relative, floor 1e-10 times the column's max norm over evaluated rows), ValueError is
+      raised.
     The output has one row per site, in order of first appearance; the input is not modified.
     """
     n = len(fields["kind"])
@@ -125,9 +139,9 @@ def merge(fields):
     np.minimum.at(first_used, inverse[used], rows[used])
     representative = np.where(first_used < n, first_used, first_any)
 
-    dtau = _dtau_names(fields)
-    if dtau:
-        mine = np.column_stack([fields[name] for name in dtau])
+    checked = _dtau_names(fields) + [name for name in CONSISTENT_COLUMNS if name in fields]
+    if checked:
+        mine = np.column_stack([fields[name] for name in checked])
         reference = mine[representative[inverse]]
         bad = used[:, None] & ~scaled_close(mine, reference, column_scale(mine, used))
         if bad.any():
@@ -135,7 +149,7 @@ def merge(fields):
             site = tuple(float(fields[name][row]) for name in KEY_COLUMNS)
             raise ValueError("Inconsistent halo copies of site (kind, key_a, key_b) = %r: %s is %.17g, first copy has "
                              "%.17g (difference above %g relative, with a floor scaled by the column max %.17g)."
-                             % (site, dtau[col], mine[row, col], reference[row, col], FIELD_RELATIVE_TOLERANCE,
+                             % (site, checked[col], mine[row, col], reference[row, col], FIELD_RELATIVE_TOLERANCE,
                                 column_scale(mine, used)[col]))
 
     order = np.argsort(first_any, kind="stable")  # groups in order of first appearance
