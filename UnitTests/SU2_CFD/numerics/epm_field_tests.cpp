@@ -32,7 +32,10 @@
 #include "../../../SU2_CFD/include/output/CEPMFieldWriter.hpp"
 #include "epm_test_setup.hpp"
 
+#include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -383,10 +386,10 @@ TEST_CASE("Solver loops set cursors only in a field recording", "[EPMField]") {
 namespace {
 /*--- Driver order: discovery (passive), Freeze, ResetRecords, RegisterInputs in the recording, evaluation,
  *    reverse sweep, ExtractAdjoints. Objective: sum((i+1)*residual[i]), as in the scalar replay. ---*/
-Record FieldAdjoint(bool flux, unsigned short nDim, double omega) {
+Record FieldAdjoint(bool flux, unsigned short nDim, double omega, bool degenerate = false) {
   FieldCase field;
   auto& sites = *field.epm.field;
-  PointState state(omega, nDim);
+  PointState state(omega, nDim, degenerate);
   const auto numerics = MakeNumerics(flux, nDim, field.config, state);
   SetCursor(field.epm, flux);
   numerics->ComputeResidual(&field.config);
@@ -547,7 +550,116 @@ TEST_CASE("Field dot product equals amplitude derivative", "[EPMField]") {
   CheckFusedDot<2>();
   CheckFusedDot<3>();
 }
+
+TEST_CASE("Field probes at a degenerate state equal the amplitude derivative", "[EPMField]") {
+  /*--- Tied baseline eigenvalues (PointState degenerate): the driver's per-site probe correction
+   *    (EPMFieldSiteGradient, probe 1..3: 90-degree swap of pair probe-1, recomputed from the stored state) must
+   *    give the scalar replay's amplitude derivative at the same probe, as the canonical rows do. ---*/
+  for (unsigned short nDim : {2, 3}) {
+    for (bool flux : {true, false}) {
+      const double omega = flux ? 100 : .01;
+      const auto record = FieldAdjoint(flux, nDim, omega, true);
+      CHECK(record.uses == 1);
+      bool any_ambiguous_probe = false, probe_differs = false, nonzero = false;
+      for (int m = 0; m < CEPMFieldSites::kCases; ++m) {
+        bool canonical_ambiguous = false;
+        const auto canonical = CNumerics::EPMFieldSiteGradient(nDim, record, m, 0, canonical_ambiguous);
+        for (unsigned short probe = 0; probe < 4; ++probe) {
+          const double angle = probe == 0 ? 0.0 : PI_NUMBER / 2;
+          const unsigned short pair = probe == 0 ? 3 : probe - 1;
+          const auto reference = Evaluate(flux, m, false, true, 0, omega, nDim, angle, pair, true);
+          bool ambiguous = false;
+          const auto gradient = CNumerics::EPMFieldSiteGradient(nDim, record, m, probe, ambiguous);
+          CHECK(gradient == Approx(reference.parameter).epsilon(1e-12).margin(1e-14));
+          CHECK(ambiguous == (reference.ambiguous > 0));
+          CHECK(ambiguous == canonical_ambiguous);
+          nonzero |= reference.parameter != 0;
+          if (probe != 0 && ambiguous) {
+            any_ambiguous_probe = true;
+            probe_differs |= std::fabs(gradient - canonical) > 1e-8 * (1 + std::fabs(canonical));
+          }
+        }
+      }
+      CHECK(nonzero);
+      CHECK(any_ambiguous_probe);
+      /*--- The swaps change the stress target; at these states they leave the production unchanged. ---*/
+      if (flux) CHECK(probe_differs);
+    }
+  }
+}
+
 #endif
+
+TEST_CASE("Repeated use of a site at the same state accumulates", "[EPMField]") {
+  /*--- A second use with a different state calls SU2_MPI::Error (an abort, not testable here). ---*/
+  FieldCase field;
+  PointState state(100, 2);
+  const auto numerics = MakeNumerics(true, 2, field.config, state);
+  SetCursor(field.epm, true);
+  numerics->ComputeResidual(&field.config);
+  const auto first = field.epm.field->Data(0);
+  SetCursor(field.epm, EPMSiteKind::EDGE, 3, 7);
+  numerics->ComputeResidual(&field.config);
+  const auto& record = field.epm.field->Data(0);
+  CHECK(field.epm.field->Size() == 1);
+  CHECK(record.uses == 2);
+  CHECK(record.rho == first.rho);
+  CHECK(record.area == first.area);
+  for (int i = 0; i < 9; ++i) CHECK(record.grad[i] == first.grad[i]);
+  for (int i = 0; i < 3; ++i) CHECK(record.normal[i] == first.normal[i]);
+  CHECK(field.epm.stress_evaluations == 2);
+}
+
+namespace {
+/*--- Stored normal of one scalar-flux evaluation of the edge site with the cursor (a, b). ---*/
+std::array<double, 3> StoredNormal(unsigned short nDim, unsigned long a, unsigned long b) {
+  FieldCase field;
+  PointState state(100, nDim);
+  const auto numerics = MakeNumerics(true, nDim, field.config, state);
+  SetCursor(field.epm, EPMSiteKind::EDGE, a, b);
+  numerics->ComputeResidual(&field.config);
+  const auto& record = field.epm.field->Data(0);
+  CHECK(record.key_a == std::min(a, b));
+  CHECK(record.key_b == std::max(a, b));
+  return {record.normal[0], record.normal[1], record.normal[2]};
+}
+
+template<size_t nDim>
+std::array<double, 3> FusedStoredNormal(unsigned long a, unsigned long b) {
+  FieldCase field;
+  const FusedState<nDim> s;
+  SetCursor(field.epm, EPMSiteKind::EDGE, a, b);
+  FusedFlux(s, field.config, false, true);
+  const auto& record = field.epm.field->Data(0);
+  return {record.normal[0], record.normal[1], record.normal[2]};
+}
+}  // namespace
+
+TEST_CASE("Field edge normal points from key_a to key_b", "[EPMField]") {
+  /*--- The solver loops set the cursor in the local edge order (i, j), along which the normal points. A rank
+   *    numbering the edge (7, 3) must store the same normal as one numbering it (3, 7). ---*/
+  for (unsigned short nDim : {2, 3}) {
+    const auto forward = StoredNormal(nDim, 3, 7);
+    const auto reversed = StoredNormal(nDim, 7, 3);
+    const PointState state(100, nDim);
+    double norm = 0;
+    for (unsigned short i = 0; i < nDim; ++i) norm += std::pow(SU2_TYPE::GetValue(state.normal[i]), 2);
+    norm = std::sqrt(norm);
+    for (unsigned short i = 0; i < 3; ++i) {
+      const double expected = i < nDim ? SU2_TYPE::GetValue(state.normal[i]) / norm : 0.0;
+      CHECK(forward[i] == Approx(expected).epsilon(1e-14));
+      CHECK(reversed[i] == -forward[i]);
+    }
+  }
+  if (Double::Size == 1) {
+    const auto forward = FusedStoredNormal<3>(3, 7);
+    const auto reversed = FusedStoredNormal<3>(7, 3);
+    for (int i = 0; i < 3; ++i) {
+      CHECK(forward[i] == Approx(1.0 / (i + 1)));
+      CHECK(reversed[i] == -forward[i]);
+    }
+  }
+}
 
 TEST_CASE("Reset inputs keeps sites and records", "[EPMField]") {
   CEPMFieldSites sites;
@@ -633,6 +745,10 @@ TEST_CASE("Writer layout", "[EPMField]") {
   CHECK(json.find("\"grad_0\"") != std::string::npos);
   CHECK(json.find("\"S_tau_8\"") != std::string::npos);
   CHECK(json.find("\"record_bytes\": 800") != std::string::npos);
+  const std::uint16_t one = 1;
+  const bool little = *reinterpret_cast<const unsigned char*>(&one) == 1;
+  CHECK(json.find(little ? "\"byte_order\": \"little\"" : "\"byte_order\": \"big\"") != std::string::npos);
+  CHECK(json.find("\"normal_note\": \"EDGE: unit normal from key_a to key_b") != std::string::npos);
   CHECK(json.find("\"file\": \"sst_epm_field_DRAG_rank0.bin\"") != std::string::npos);
   CHECK(json.find("\"nDim\": 3") != std::string::npos);
   CHECK(json.find("\"objective\": \"DRAG\"") != std::string::npos);

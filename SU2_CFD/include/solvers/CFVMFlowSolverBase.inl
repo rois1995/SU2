@@ -506,6 +506,7 @@ CNumerics::ResidualType<> CFVMFlowSolverBase<V, R>::Viscous_Residual_impl(unsign
 
   /*--- Compute and update residual ---*/
 
+  /*--- EPM field cursor in the local order (i, j) of the edge normal; the hook orients the stored normal. ---*/
   SetEPMCursor(config, CEPMExtraction::SiteKind::EDGE, geometry->nodes->GetGlobalIndex(iPoint),
                geometry->nodes->GetGlobalIndex(jPoint));
   auto residual = numerics->ComputeResidual(config);

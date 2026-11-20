@@ -28,6 +28,8 @@
 #include "../../include/output/CEPMFieldWriter.hpp"
 
 #include <cstddef>
+#include <cstdint>
+#include <cstdio>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -98,6 +100,30 @@ const char* NonDimName(unsigned short value) {
   }
 }
 
+/*! \brief Byte order of this host, as written in the JSON ("little" or "big"). */
+const char* HostByteOrder() {
+  const std::uint16_t one = 1;
+  return *reinterpret_cast<const unsigned char*>(&one) == 1 ? "little" : "big";
+}
+
+/*! \brief JSON string body of s (without the enclosing quotes): quotes, backslashes and control characters escaped. */
+std::string JsonEscaped(const std::string& s) {
+  std::string out;
+  for (const char c : s) {
+    if (c == '"' || c == '\\') {
+      out += '\\';
+      out += c;
+    } else if (static_cast<unsigned char>(c) < 0x20) {
+      char code[16];
+      std::snprintf(code, sizeof(code), "\\u%04x", static_cast<unsigned>(static_cast<unsigned char>(c)));
+      out += code;
+    } else {
+      out += c;
+    }
+  }
+  return out;
+}
+
 std::string Trimmed(const std::string& s) {
   const auto first = s.find_first_not_of(" \t\r\n");
   if (first == std::string::npos) return "";
@@ -128,10 +154,13 @@ void WriteEPMField(const CEPMFieldSites& field, const CConfig& config, const CGe
                      SU2_MPI::GetComm());
   if (rank != MASTER_NODE) return;
 
+  /*--- Build identity, e.g. -Dcpp_args=-DSU2_EPM_COMMIT=<sha> at meson setup. A value given as a string literal
+   *    (-DSU2_EPM_COMMIT='"<sha>"') loses its quotes; anything else is escaped, so the JSON stays valid. ---*/
 #ifdef SU2_EPM_COMMIT
-  const std::string commit = EPM_STRINGIZE(SU2_EPM_COMMIT);
+  std::string commit = EPM_STRINGIZE(SU2_EPM_COMMIT);
+  if (commit.size() >= 2 && commit.front() == '"' && commit.back() == '"') commit = commit.substr(1, commit.size() - 2);
 #else
-  const std::string commit = "unknown";
+  std::string commit = "unknown";
 #endif
 
   std::ostringstream json;
@@ -141,6 +170,7 @@ void WriteEPMField(const CEPMFieldSites& field, const CConfig& config, const CGe
   for (size_t i = 0; i < columns.size(); ++i) json << (i ? ", " : "") << '"' << columns[i] << '"';
   json << "],\n"
        << "  \"dtype\": \"float64\",\n"
+       << "  \"byte_order\": \"" << HostByteOrder() << "\",\n"
        << "  \"record_bytes\": " << sizeof(Record) << ",\n"
        << "  \"ranks\": [";
   for (int r = 0; r < size; ++r)
@@ -153,13 +183,14 @@ void WriteEPMField(const CEPMFieldSites& field, const CConfig& config, const CGe
        << "  \"gap_tolerance\": " << CEPMExtraction::gap_tolerance << ",\n"
        << "  \"mpi_ranks\": " << size << ",\n"
        << "  \"su2_version\": \"8.6.0 Harrier\",\n"
-       << "  \"source_commit\": \"" << commit << "\",\n"
+       << "  \"source_commit\": \"" << JsonEscaped(commit) << "\",\n"
        << "  \"ref_dimensionalization\": \"" << NonDimName(config.GetRef_NonDim()) << "\",\n"
        << "  \"case_names\": [\"1C_KEEP\", \"1C_SWAP\", \"2C_KEEP\", \"2C_SWAP\", \"3C\"],\n"
        << "  \"kinds\": {\"EDGE\": " << static_cast<int>(CEPMExtraction::SiteKind::EDGE)
        << ", \"BOUNDARY\": " << static_cast<int>(CEPMExtraction::SiteKind::BOUNDARY)
        << ", \"NODE\": " << static_cast<int>(CEPMExtraction::SiteKind::NODE) << "},\n"
        << "  \"S_tau_note\": \"symmetrized over nDim block; only sym part meaningful\",\n"
+       << "  \"normal_note\": \"EDGE: unit normal from key_a to key_b; BOUNDARY: outward unit normal\",\n"
        << "  \"extract_only_residuals\": " << (Trimmed(extras_json).empty() ? "null" : Trimmed(extras_json))
        << "\n}\n";
 

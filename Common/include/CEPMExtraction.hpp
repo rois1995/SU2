@@ -78,8 +78,10 @@ inline bool EPMFieldCursorOn(const Config* config) {
 
 /*!
  * \brief Point the EPM field hooks at the site of the next viscous-flux or source evaluation.
- * \note No-op unless EPMFieldCursorOn. Keys: EDGE (global ids of the two points), BOUNDARY (global id of the
- *       vertex point, index of the marker in the config file), NODE (global id, 0). The next hook call consumes it.
+ * \note No-op unless EPMFieldCursorOn. Keys: EDGE (global ids of the two points, in the local order of the edge,
+ *       i.e. along its normal; the site key is (min, max) and the hook orients the stored normal from min to max),
+ *       BOUNDARY (global id of the vertex point, index of the marker in the config file), NODE (global id, 0).
+ *       The next hook call consumes it.
  */
 template <class Config>
 inline void SetEPMCursor(const Config* config, CEPMExtraction::SiteKind kind, unsigned long a, unsigned long b) {

@@ -55,11 +55,22 @@ struct PointState {
   su2double grad[4][3] = {{.1, 0, .02}, {0, 2, .4}, {0, 0, 0}, {.3, 0, 0}};
   su2double sg[2][3] = {}, vort[3] = {0, .1, -2}, x[3] = {}, y[3] = {1, 0, 0}, normal[3] = {1, .4, .2};
 
-  PointState(double omega, unsigned short nDim) {
+  /*!
+   * \param[in] degenerate - Velocity gradient with tied baseline anisotropy eigenvalues, so that the EPM cases are
+   *            ambiguous and the orientation probes act: in 2D a pure rotation (zero strain, all three tied), in 3D
+   *            a rotation plus the axisymmetric strain diag(.5, .5, -1) (the two lowest tied).
+   */
+  PointState(double omega, unsigned short nDim, bool degenerate = false) {
     scalar[1] = omega;
     if (nDim == 3) {
       for (int i = 11; i > 3; --i) v[i] = v[i-1];
       v[3] = .1;
+    }
+    if (degenerate) {
+      const su2double rotation[3][3] = {{0, 2, 0}, {-2, 0, 0}, {0, 0, 0}};
+      const su2double axisymmetric[3][3] = {{.5, .3, 0}, {-.3, .5, 0}, {0, 0, -1}};
+      for (int i = 0; i < nDim; ++i)
+        for (int j = 0; j < 3; ++j) grad[i+1][j] = nDim == 2 ? rotation[i][j] : axisymmetric[i][j];
     }
   }
   PointState(const PointState&) = delete;
@@ -97,6 +108,7 @@ inline std::unique_ptr<CNumerics> MakeNumerics(bool flux, unsigned short nDim, c
 struct Result {
   std::array<double, 5> value{};
   double parameter = 0, state = 0;
+  unsigned long ambiguous = 0; /*!< \brief Ambiguous evaluations counted by the replay. */
 };
 
 /*!
@@ -105,7 +117,8 @@ struct Result {
  *         amplitude and to one state variable.
  */
 inline Result Evaluate(bool flux, int mode, bool legacy, bool active, double amplitude, double omega = 100,
-                       unsigned short nDim = 2) {
+                       unsigned short nDim = 2, double angle = 0.0, unsigned short probe_pair = 3,
+                       bool degenerate = false) {
   std::stringstream options(Options(mode, legacy));
   CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
   auto& epm = config.GetEPMExtraction();
@@ -113,8 +126,10 @@ inline Result Evaluate(bool flux, int mode, bool legacy, bool active, double amp
   epm.active = active;
   epm.component = mode / 2 + 1;
   epm.permute = mode % 2;
+  epm.angle = angle;
+  epm.probe_pair = probe_pair;
   epm.amplitude = amplitude;
-  PointState s(omega, nDim);
+  PointState s(omega, nDim, degenerate);
   const auto source = MakeNumerics(flux, nDim, config, s);
   AD::Reset();
 #ifdef CODI_REVERSE_TYPE
@@ -137,6 +152,7 @@ inline Result Evaluate(bool flux, int mode, bool legacy, bool active, double amp
   AD::ComputeAdjoint();
   result.parameter = SU2_TYPE::GetDerivative(epm.amplitude);
   result.state = SU2_TYPE::GetDerivative(state);
+  result.ambiguous = epm.ambiguous;
   AD::ClearAdjoints();
   return result;
 }

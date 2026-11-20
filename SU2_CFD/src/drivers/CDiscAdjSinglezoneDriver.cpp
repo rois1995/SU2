@@ -261,8 +261,11 @@ void CDiscAdjSinglezoneDriver::MeasureEPMTotalAdjointResidual(const su2passivema
    *    are used before the halo exchange (e.g. the eddy viscosity of the SetDependencies postprocessing), so a
    *    converged adjoint has nonzero halo values. The halo seeds are added to the owners' seeds in the reverse
    *    halo exchange, so the adjoint that the iteration (and the EPM replay) acts on is the TOTAL adjoint: owned
-   *    value plus all halo copies. The native residual compares the new owned part with the loaded total, so it
-   *    reports the halo share, not convergence. Measure the change of the total adjoint instead. ---*/
+   *    value plus all halo copies. The native residual compares the new owned part with the loaded owned value.
+   *    That loaded value is the total adjoint only if the loaded adjoint kept its halo share (e.g. a serial adjoint
+   *    loaded on several ranks); then the native residual reports the halo share, not convergence. A restart written
+   *    by a multi-rank run has lost the halo share, and its owned value is the owned part only. In both cases
+   *    measure the change of the total adjoint instead. ---*/
   const auto nPoint = geometry->GetnPoint();
   const auto nPointDomain = geometry->GetnPointDomain();
   const auto nVarTotal = GetTotalNumberOfVariables(ZONE_0, true);
@@ -764,7 +767,6 @@ void CDiscAdjSinglezoneDriver::ExtractEPMScalarReplay() {
 
 void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
   using PassiveMPI = SelectMPIWrapper<passivedouble>::W;
-  using Record = CEPMFieldSites::Record;
   using SiteKind = CEPMExtraction::SiteKind;
   auto& epm = config->GetEPMExtraction();
   if (!epm.field) epm.field = std::make_shared<CEPMFieldSites>();
@@ -859,50 +861,6 @@ void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
     if (site != CEPMFieldSites::npos) set_coord(field.Data(site).coord_a, iPoint);
   }
 
-  /*--- Contribution S . delta of one site to dJ/da of one case and probe. The canonical case (probe 0) uses the
-   *    corrections stored by the hooks; the probes recompute them from the stored passive state. The case is
-   *    recomputed in both, for its ambiguity flag. ---*/
-  const auto site_gradient = [&](const Record& record, unsigned short mode, unsigned short probe, bool& ambiguous) {
-    const unsigned short component = mode / 2 + 1;
-    const bool permute = mode % 2;
-    const double angle = probe == 0 ? 0.0 : PI_NUMBER / 2;
-    const unsigned short probe_pair = probe == 0 ? 3 : probe - 1;
-    passivedouble grad[3][3];
-    for (unsigned short i = 0; i < 3; ++i)
-      for (unsigned short j = 0; j < 3; ++j) grad[i][j] = record.grad[i*3+j];
-    passivedouble gradient = 0.0;
-
-    if (static_cast<SiteKind>(static_cast<int>(record.kind)) != SiteKind::NODE) {
-      passivedouble correction[3][3] = {};
-      if (probe == 0) {
-        CNumerics::EPMCaseTarget(nDim, grad, record.rho, record.mu_t, record.k, component, permute, angle,
-                                 probe_pair, correction, ambiguous);
-        for (unsigned short i = 0; i < nDim; ++i)
-          for (unsigned short j = 0; j < nDim; ++j) correction[i][j] = record.dtau[mode][i*3+j];
-      } else {
-        CNumerics::EPMCaseStressCorrection(nDim, grad, record.rho, record.mu_t, record.k, component, permute,
-                                           angle, probe_pair, correction, ambiguous);
-      }
-      for (unsigned short i = 0; i < nDim; ++i)
-        for (unsigned short j = 0; j < nDim; ++j) gradient += record.S_tau[i*3+j] * correction[i][j];
-      return gradient;
-    }
-
-    passivedouble target[3][3];
-    CNumerics::EPMCaseTarget(nDim, grad, record.rho, record.mu_t, record.k, component, permute, angle,
-                             probe_pair, target, ambiguous);
-    passivedouble dpk = record.dpk[mode], dpw = record.dpw[mode];
-    if (probe != 0) {
-      /*--- Same clip and omega production as the scalar replay and the source hook. ---*/
-      const auto raw = CNumerics::ComputeReynoldsStressProduction(nDim, target, grad, record.rho);
-      const auto epm_pk = max(0.0, min(raw, record.prod_limit));
-      const auto epm_pw = record.mu_t > 0 ? record.alfa_blended * record.rho / record.mu_t * epm_pk : 0.0;
-      dpk = epm_pk - record.pk0;
-      dpw = epm_pw - record.pw0;
-    }
-    return record.S_pk * dpk + record.S_pw * dpw;
-  };
-
   const char* names[] = {"1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C"};
   std::ostringstream rows;
   rows << std::setprecision(17);
@@ -924,7 +882,7 @@ void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
         const auto& record = field.Data(site);
         if (record.uses == 0) continue;  // not evaluated in the recording: no state and no sensitivity
         bool ambiguous = false;
-        local_gradient += site_gradient(record, mode, probe, ambiguous);
+        local_gradient += CNumerics::EPMFieldSiteGradient(nDim, record, mode, probe, ambiguous);
         /*--- The scalar replay counts every evaluation; a site stands for its uses at the same state. ---*/
         if (ambiguous) local_ambiguous += static_cast<unsigned long>(record.uses);
       }

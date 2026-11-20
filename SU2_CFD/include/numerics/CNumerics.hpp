@@ -777,20 +777,35 @@ public:
    * \return The index of the cursor site in the field store, or CEPMFieldSites::npos if the cursor is not set,
    *         there is no store, or the store is frozen and does not know the key.
    * \note Always clears the cursor, so a cursor serves a single hook call.
+   * \param[out] reversed - If not null: true when the cursor is an EDGE given as (a, b) with b < a, i.e. the local
+   *             edge (point a to point b, the direction of its normal) runs from key_b to key_a of the site.
    */
-  static size_t EPMFieldSiteIndex(const CConfig* config) {
+  static size_t EPMFieldSiteIndex(const CConfig* config, bool* reversed = nullptr) {
     auto& epm = config->GetEPMExtraction();
     const bool set = epm.cursor.set;
     epm.cursor.set = false;
+    if (reversed) *reversed = set && epm.cursor.kind == CEPMExtraction::SiteKind::EDGE && epm.cursor.b < epm.cursor.a;
     if (!set || !epm.field) return CEPMFieldSites::npos;
     return epm.field->Site(epm.cursor.kind, epm.cursor.a, epm.cursor.b);
   }
 
   /*!
+   * \brief Store a passive state value of a field site on its first use; on a later use, check that it is the same.
+   * \note A site stands for all its uses with the state of the first one, so a repeated use must have that state.
+   */
+  static void EPMFieldState(bool first, passivedouble& stored, passivedouble value, bool& same) {
+    if (first) stored = value;
+    else same = same && stored == value;
+  }
+
+  /*!
    * \brief EPM field mode: add the zero-valued stress inputs of the cursor site to tau.
    * \note The first use of a site in a recording stores the passive state and the stress corrections of the
-   *       five canonical cases (m: component m/2+1, permute m%2, angle 0, probe pair 3).
-   * \param[in] normal - Unit normal of the face.
+   *       five canonical cases (m: component m/2+1, permute m%2, angle 0, probe pair 3). A later use of the site
+   *       in the same recording must have the same state (error otherwise); its sensitivity adds up.
+   * \note The stored EDGE normal points from key_a to key_b (the smaller to the larger global id), whatever the
+   *       local orientation of the edge; a BOUNDARY normal is stored as given (outward, see the BC callers).
+   * \param[in] normal - Unit normal of the face, oriented from the cursor point a to point b for an edge.
    * \param[in] area - Area of the face.
    * \param[in,out] tau - Stress tensor, indexed tau[i][j].
    */
@@ -799,21 +814,28 @@ public:
                                  su2double k, const su2double* normal, su2double area, const CConfig* config,
                                  Tau& tau) {
     auto& epm = config->GetEPMExtraction();
-    const auto site = EPMFieldSiteIndex(config);
+    bool reversed = false;
+    const auto site = EPMFieldSiteIndex(config, &reversed);
     if (site == CEPMFieldSites::npos)
       SU2_MPI::Error("EPM field hook reached without a site cursor", CURRENT_FUNCTION);
     auto& sites = *epm.field;
     auto& record = sites.Data(site);
-    if (record.uses == 0) {
-      record.rho = SU2_TYPE::GetValue(density);
-      record.mu_t = SU2_TYPE::GetValue(viscosity);
-      record.k = SU2_TYPE::GetValue(k);
-      for (size_t i = 0; i < 3; ++i) {
-        for (size_t j = 0; j < 3; ++j)
-          record.grad[i*3+j] = i < nDim && j < nDim ? SU2_TYPE::GetValue(gradient[i][j]) : 0.0;
-        record.normal[i] = i < nDim ? SU2_TYPE::GetValue(normal[i]) : 0.0;
-      }
-      record.area = SU2_TYPE::GetValue(area);
+    const bool first = record.uses == 0;
+    const passivedouble orientation = reversed ? -1.0 : 1.0;
+    bool same = true;
+    EPMFieldState(first, record.rho, SU2_TYPE::GetValue(density), same);
+    EPMFieldState(first, record.mu_t, SU2_TYPE::GetValue(viscosity), same);
+    EPMFieldState(first, record.k, SU2_TYPE::GetValue(k), same);
+    for (size_t i = 0; i < 3; ++i) {
+      for (size_t j = 0; j < 3; ++j)
+        EPMFieldState(first, record.grad[i*3+j], i < nDim && j < nDim ? SU2_TYPE::GetValue(gradient[i][j]) : 0.0,
+                      same);
+      EPMFieldState(first, record.normal[i], i < nDim ? orientation * SU2_TYPE::GetValue(normal[i]) : 0.0, same);
+    }
+    EPMFieldState(first, record.area, SU2_TYPE::GetValue(area), same);
+    if (!same)
+      SU2_MPI::Error("EPM field site evaluated twice in one recording with a different state.", CURRENT_FUNCTION);
+    if (first) {
       for (int m = 0; m < CEPMFieldSites::kCases; ++m) {
         passivedouble correction[3][3];
         bool ambiguous = false;
@@ -839,6 +861,7 @@ public:
    * \brief EPM field mode: add the zero-valued k and omega production inputs of the cursor site.
    * \note The first use of a site in a recording stores the passive state, the clip flags of the raw baseline
    *       production and the production changes of the five canonical cases, clipped like the scalar replay.
+   *       A later use of the site in the same recording must have the same state (error otherwise).
    * \param[in,out] pk - k production after the clip, the input is added to it.
    * \param[in,out] pw - omega production, the input is added to it.
    * \param[in] raw_production - Baseline production before the clip.
@@ -854,30 +877,34 @@ public:
       SU2_MPI::Error("EPM field hook reached without a site cursor", CURRENT_FUNCTION);
     auto& sites = *epm.field;
     auto& record = sites.Data(site);
-    if (record.uses == 0) {
-      passivedouble grad[3][3] = {};
-      for (size_t i = 0; i < nDim; ++i)
-        for (size_t j = 0; j < nDim; ++j) grad[i][j] = SU2_TYPE::GetValue(gradient[i][j]);
-      const auto rho = SU2_TYPE::GetValue(density);
-      const auto mu = SU2_TYPE::GetValue(viscosity);
-      const auto limit = SU2_TYPE::GetValue(prod_limit);
-      const auto alfa = SU2_TYPE::GetValue(alfa_blended);
-      const auto raw0 = SU2_TYPE::GetValue(raw_production);
-      const auto pk0 = SU2_TYPE::GetValue(pk);
-      const auto pw0 = SU2_TYPE::GetValue(pw);
-      record.rho = rho;
-      record.mu_t = mu;
-      record.k = SU2_TYPE::GetValue(k);
-      for (size_t i = 0; i < 3; ++i)
-        for (size_t j = 0; j < 3; ++j) record.grad[i*3+j] = grad[i][j];
-      record.volume = SU2_TYPE::GetValue(volume);
-      record.prod_limit = limit;
-      record.pk0 = pk0;
-      record.pw0 = pw0;
-      record.p_raw0 = raw0;
-      record.alfa_blended = alfa;
-      record.floor_active = raw0 < 0;
-      record.cap_active = raw0 > limit;
+    const bool first = record.uses == 0;
+    passivedouble grad[3][3] = {};
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j) grad[i][j] = SU2_TYPE::GetValue(gradient[i][j]);
+    const auto rho = SU2_TYPE::GetValue(density);
+    const auto mu = SU2_TYPE::GetValue(viscosity);
+    const auto limit = SU2_TYPE::GetValue(prod_limit);
+    const auto alfa = SU2_TYPE::GetValue(alfa_blended);
+    const auto raw0 = SU2_TYPE::GetValue(raw_production);
+    const auto pk0 = SU2_TYPE::GetValue(pk);
+    const auto pw0 = SU2_TYPE::GetValue(pw);
+    bool same = true;
+    EPMFieldState(first, record.rho, rho, same);
+    EPMFieldState(first, record.mu_t, mu, same);
+    EPMFieldState(first, record.k, SU2_TYPE::GetValue(k), same);
+    for (size_t i = 0; i < 3; ++i)
+      for (size_t j = 0; j < 3; ++j) EPMFieldState(first, record.grad[i*3+j], grad[i][j], same);
+    EPMFieldState(first, record.volume, SU2_TYPE::GetValue(volume), same);
+    EPMFieldState(first, record.prod_limit, limit, same);
+    EPMFieldState(first, record.pk0, pk0, same);
+    EPMFieldState(first, record.pw0, pw0, same);
+    EPMFieldState(first, record.p_raw0, raw0, same);
+    EPMFieldState(first, record.alfa_blended, alfa, same);
+    EPMFieldState(first, record.floor_active, raw0 < 0, same);
+    EPMFieldState(first, record.cap_active, raw0 > limit, same);
+    if (!same)
+      SU2_MPI::Error("EPM field site evaluated twice in one recording with a different state.", CURRENT_FUNCTION);
+    if (first) {
       for (int m = 0; m < CEPMFieldSites::kCases; ++m) {
         passivedouble target[3][3];
         bool ambiguous = false;
@@ -897,6 +924,60 @@ public:
     AD::SetPreaccIn(input_pk, input_pw);
     pk += input_pk;
     pw += input_pw;
+  }
+
+  /*!
+   * \brief Contribution S . delta of one field site to dJ/da of one EPM case and orientation probe.
+   * \note The canonical case (probe 0: angle 0, probe pair 3) uses the corrections stored by the hooks. The probes
+   *       (probe 1..3: 90-degree swap of the eigenvector pair probe-1) recompute them from the stored passive state,
+   *       with the hook helpers and, for NODE sites, the same clip and omega production as the source hook. The
+   *       case is recomputed in both, for its ambiguity flag.
+   * \param[in] nDim - Dimension of the flow problem, 2 or 3.
+   * \param[in] record - Site record after the reverse sweep (S_* extracted, S_tau symmetrized).
+   * \param[in] mode - Case index m (component m/2+1, permute m%2).
+   * \param[in] probe - 0 for the canonical case, 1..3 for the probes.
+   * \param[out] ambiguous - Ambiguity flag of the case and probe at the stored state.
+   */
+  static passivedouble EPMFieldSiteGradient(size_t nDim, const CEPMFieldSites::Record& record, unsigned short mode,
+                                            unsigned short probe, bool& ambiguous) {
+    const unsigned short component = mode / 2 + 1;
+    const bool permute = mode % 2;
+    const double angle = probe == 0 ? 0.0 : PI_NUMBER / 2;
+    const unsigned short probe_pair = probe == 0 ? 3 : probe - 1;
+    passivedouble grad[3][3];
+    for (size_t i = 0; i < 3; ++i)
+      for (size_t j = 0; j < 3; ++j) grad[i][j] = record.grad[i*3+j];
+    passivedouble gradient = 0.0;
+
+    if (static_cast<CEPMExtraction::SiteKind>(static_cast<int>(record.kind)) != CEPMExtraction::SiteKind::NODE) {
+      passivedouble correction[3][3] = {};
+      if (probe == 0) {
+        EPMCaseTarget(nDim, grad, record.rho, record.mu_t, record.k, component, permute, angle, probe_pair,
+                      correction, ambiguous);
+        for (size_t i = 0; i < nDim; ++i)
+          for (size_t j = 0; j < nDim; ++j) correction[i][j] = record.dtau[mode][i*3+j];
+      } else {
+        EPMCaseStressCorrection(nDim, grad, record.rho, record.mu_t, record.k, component, permute, angle,
+                                probe_pair, correction, ambiguous);
+      }
+      for (size_t i = 0; i < nDim; ++i)
+        for (size_t j = 0; j < nDim; ++j) gradient += record.S_tau[i*3+j] * correction[i][j];
+      return gradient;
+    }
+
+    passivedouble target[3][3];
+    EPMCaseTarget(nDim, grad, record.rho, record.mu_t, record.k, component, permute, angle, probe_pair, target,
+                  ambiguous);
+    passivedouble dpk = record.dpk[mode], dpw = record.dpw[mode];
+    if (probe != 0) {
+      /*--- Same clip and omega production as the scalar replay and the source hook. ---*/
+      const auto raw = ComputeReynoldsStressProduction(nDim, target, grad, record.rho);
+      const auto epm_pk = std::max(0.0, std::min(raw, record.prod_limit));
+      const auto epm_pw = record.mu_t > 0 ? record.alfa_blended * record.rho / record.mu_t * epm_pk : 0.0;
+      dpk = epm_pk - record.pk0;
+      dpw = epm_pw - record.pw0;
+    }
+    return record.S_pk * dpk + record.S_pw * dpw;
   }
 
   /*!

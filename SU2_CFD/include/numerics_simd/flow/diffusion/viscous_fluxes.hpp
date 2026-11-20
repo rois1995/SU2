@@ -161,7 +161,9 @@ protected:
     if (config.GetEPMExtraction().active) {
       const Double turb_ke = 0.5*(gatherVariables(iPoint, turbVars->GetSolution()) +
                                   gatherVariables(jPoint, turbVars->GetSolution()));
-      /*--- Field mode records one lane per site (SIMD size 1, checked in addEPMExtractionStress). ---*/
+      /*--- Field mode records one lane per site (SIMD size 1, checked in addEPMExtractionStress). The cursor
+       *    keeps the local order (i, j) of the edge, along which unitNormal points; the hook stores the normal
+       *    oriented from the smaller to the larger global id. ---*/
       SetEPMCursor(&config, CEPMExtraction::SiteKind::EDGE, geometry.nodes->GetGlobalIndex(iPoint[0]),
                    geometry.nodes->GetGlobalIndex(jPoint[0]));
       addEPMExtractionStress(avgV, avgGrad, turb_ke, tau, config, unitNormal, area);
