@@ -1,6 +1,6 @@
 # Work order status
 
-FP1 resumed under Work order 3 correction 1. Part C was restored at `61ad198cda` after the G2 reference wording was corrected. Part F passed the fixture gates and all 375 / 114 / 228 G1 records on build608 and was pushed at `f36b66eadd`. Part C scoped OFF gates passed. The two-event G5 OFF workflow is running. The default remains NO. [FP1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_608.md)
+FP1 OFF passed on build608. Part F passed all fixtures and G1 at `f36b66eadd`. Part C passed the scoped gates, all six workflow payload hashes, and the isolated restart. FP1 ON failed in event 1 with `complete=0` and `Degenerate metric donor`. The first-pass point-move interpolation failed before either shift. Section 12.5 closes ON as failed and retains Parts A, B, C and F. The default stays NO. [FP1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_608.md)
 
 N22 result gates passed. The user accepted both purpose timing flags on 2026-11-19. Both parts matched all six N21 W payload hashes. [Step 8.5u report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N22/reports/STEP_8_5U_591.md)
 

@@ -1,0 +1,2122 @@
+{
+  "actual_host_proc": true,
+  "windows": [
+    {
+      "start_monotonic": 655659.504212134,
+      "end_monotonic": 655668.295066786,
+      "duration_seconds": 8.790854651946574,
+      "processes_compared": 461,
+      "unmatched_starts": 6,
+      "unmatched_exits": 3,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [
+        {
+          "pid": 1195444,
+          "start_ticks": 65565459,
+          "comm": "python3",
+          "percent_one_core": 77.23936145954225
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655668.295066786,
+      "end_monotonic": 655671.443965668,
+      "duration_seconds": 3.1488988819764927,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655671.443965668,
+      "end_monotonic": 655674.591475391,
+      "duration_seconds": 3.147509722970426,
+      "processes_compared": 461,
+      "unmatched_starts": 1,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655674.591475391,
+      "end_monotonic": 655677.735892208,
+      "duration_seconds": 3.144416816998273,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 1,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655677.735892208,
+      "end_monotonic": 655680.879422913,
+      "duration_seconds": 3.143530705012381,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655680.879422913,
+      "end_monotonic": 655684.021458464,
+      "duration_seconds": 3.1420355510199443,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 63.01647348825404
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 63.01647348825404
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655684.021458464,
+      "end_monotonic": 655687.167357632,
+      "duration_seconds": 3.1458991679828614,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 58.17096805341632
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 61.98545776183706
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 58.17096805341632
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 61.98545776183706
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655687.167357632,
+      "end_monotonic": 655690.314474429,
+      "duration_seconds": 3.1471167970448732,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.793438411010406
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.793438411010406
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655690.314474429,
+      "end_monotonic": 655693.458110608,
+      "duration_seconds": 3.143636179040186,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.53268087449667
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.53268087449667
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655693.458110608,
+      "end_monotonic": 655696.599439634,
+      "duration_seconds": 3.1413290259661153,
+      "processes_compared": 462,
+      "unmatched_starts": 1,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655696.599439634,
+      "end_monotonic": 655699.750043821,
+      "duration_seconds": 3.1506041870452464,
+      "processes_compared": 463,
+      "unmatched_starts": 2,
+      "unmatched_exits": 1,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655699.750043821,
+      "end_monotonic": 655702.894875721,
+      "duration_seconds": 3.1448318999027833,
+      "processes_compared": 463,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655702.894875721,
+      "end_monotonic": 655706.03860131,
+      "duration_seconds": 3.1437255890341476,
+      "processes_compared": 463,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.16740308761681
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.16740308761681
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655706.03860131,
+      "end_monotonic": 655709.181369468,
+      "duration_seconds": 3.142768157995306,
+      "processes_compared": 464,
+      "unmatched_starts": 1,
+      "unmatched_exits": 1,
+      "busy_processes": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.50148649375696
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.228723184817405
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.50148649375696
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.228723184817405
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655709.181369468,
+      "end_monotonic": 655712.327993445,
+      "duration_seconds": 3.146623976994306,
+      "processes_compared": 463,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.11935115191451
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 79.13242949284583
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.11935115191451
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 79.13242949284583
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655712.327993445,
+      "end_monotonic": 655715.474372636,
+      "duration_seconds": 3.1463791909627616,
+      "processes_compared": 463,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 50.53427776813753
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 89.309006621677
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 50.53427776813753
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 89.309006621677
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655715.474372636,
+      "end_monotonic": 655718.617521021,
+      "duration_seconds": 3.1431483851047233,
+      "processes_compared": 463,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 90.67341565883609
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 90.67341565883609
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655718.617521021,
+      "end_monotonic": 655721.760658243,
+      "duration_seconds": 3.143137221923098,
+      "processes_compared": 463,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 70.31191589681322
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 70.31191589681322
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655721.760658243,
+      "end_monotonic": 655724.908480421,
+      "duration_seconds": 3.1478221780853346,
+      "processes_compared": 463,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655724.908480421,
+      "end_monotonic": 655728.046952265,
+      "duration_seconds": 3.1384718439076096,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 1,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655728.046952265,
+      "end_monotonic": 655731.189667214,
+      "duration_seconds": 3.1427149490918964,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655731.189667214,
+      "end_monotonic": 655734.331968446,
+      "duration_seconds": 3.142301231971942,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655734.331968446,
+      "end_monotonic": 655737.472372507,
+      "duration_seconds": 3.14040406094864,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 68.46252769621427
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 68.46252769621427
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655737.472372507,
+      "end_monotonic": 655740.618426711,
+      "duration_seconds": 3.146054203971289,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 66.11456335921993
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 66.11456335921993
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655740.618426711,
+      "end_monotonic": 655743.759975431,
+      "duration_seconds": 3.1415487200720236,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655743.759975431,
+      "end_monotonic": 655746.906651019,
+      "duration_seconds": 3.146675587981008,
+      "processes_compared": 463,
+      "unmatched_starts": 1,
+      "unmatched_exits": 1,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 63.55914183334209
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 63.55914183334209
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655746.906651019,
+      "end_monotonic": 655750.053063085,
+      "duration_seconds": 3.1464120659511536,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 68.9674446485449
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 68.9674446485449
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655750.053063085,
+      "end_monotonic": 655753.199894708,
+      "duration_seconds": 3.1468316230457276,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 62.602650411059926
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 62.602650411059926
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655753.199894708,
+      "end_monotonic": 655756.343686677,
+      "duration_seconds": 3.1437919690506533,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 67.75257462863252
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 67.75257462863252
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655756.343686677,
+      "end_monotonic": 655759.488147646,
+      "duration_seconds": 3.14446096890606,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 70.6003356998998
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 70.6003356998998
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655759.488147646,
+      "end_monotonic": 655762.631447934,
+      "duration_seconds": 3.1433002880075946,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 73.80777486806868
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 73.80777486806868
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655762.631447934,
+      "end_monotonic": 655765.77466602,
+      "duration_seconds": 3.1432180859846994,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 74.44599566392895
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 74.44599566392895
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655765.77466602,
+      "end_monotonic": 655768.921198764,
+      "duration_seconds": 3.14653274405282,
+      "processes_compared": 463,
+      "unmatched_starts": 1,
+      "unmatched_exits": 1,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 77.86348337326798
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 77.86348337326798
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655768.921198764,
+      "end_monotonic": 655772.070882285,
+      "duration_seconds": 3.1496835210127756,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 70.80076411241937
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 70.80076411241937
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655772.070882285,
+      "end_monotonic": 655775.221273333,
+      "duration_seconds": 3.150391047936864,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655775.221273333,
+      "end_monotonic": 655778.36498621,
+      "duration_seconds": 3.1437128770630807,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 1,
+      "busy_processes": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 50.89523320255481
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 50.89523320255481
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655778.36498621,
+      "end_monotonic": 655781.513636786,
+      "duration_seconds": 3.1486505760112777,
+      "processes_compared": 462,
+      "unmatched_starts": 1,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 71.77678009806272
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 71.77678009806272
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655781.513636786,
+      "end_monotonic": 655784.655011206,
+      "duration_seconds": 3.141374420025386,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655784.655011206,
+      "end_monotonic": 655787.795696778,
+      "duration_seconds": 3.1406855719396845,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 95.20214397499775
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 95.20214397499775
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655787.795696778,
+      "end_monotonic": 655790.941714742,
+      "duration_seconds": 3.1460179639980197,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 50.857942272099734
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 76.28691340814959
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 50.857942272099734
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 76.28691340814959
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655790.941714742,
+      "end_monotonic": 655794.087641991,
+      "duration_seconds": 3.1459272489883006,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 1,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 73.11040014481127
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 73.11040014481127
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655794.087641991,
+      "end_monotonic": 655797.230104105,
+      "duration_seconds": 3.1424621139885858,
+      "processes_compared": 462,
+      "unmatched_starts": 1,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 81.14656302931206
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 81.14656302931206
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655797.230104105,
+      "end_monotonic": 655800.376800828,
+      "duration_seconds": 3.1466967230662704,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 81.99074226276062
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 81.99074226276062
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655800.376800828,
+      "end_monotonic": 655803.522021451,
+      "duration_seconds": 3.1452206230023876,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 82.98304993016761
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 82.98304993016761
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655803.522021451,
+      "end_monotonic": 655806.666593838,
+      "duration_seconds": 3.144572386983782,
+      "processes_compared": 462,
+      "unmatched_starts": 3,
+      "unmatched_exits": 3,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 84.90820599493391
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 84.90820599493391
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655806.666593838,
+      "end_monotonic": 655809.81788316,
+      "duration_seconds": 3.151289321947843,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655809.81788316,
+      "end_monotonic": 655812.96692815,
+      "duration_seconds": 3.1490449900738895,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655812.96692815,
+      "end_monotonic": 655816.120125289,
+      "duration_seconds": 3.153197138919495,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 58.03633326354868
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 58.03633326354868
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655816.120125289,
+      "end_monotonic": 655819.274389786,
+      "duration_seconds": 3.154264496988617,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.35904111867022
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.35904111867022
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655819.274389786,
+      "end_monotonic": 655822.422989935,
+      "duration_seconds": 3.148600149084814,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 77.49475590634209
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 77.49475590634209
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655822.422989935,
+      "end_monotonic": 655825.571021249,
+      "duration_seconds": 3.148031314020045,
+      "processes_compared": 462,
+      "unmatched_starts": 0,
+      "unmatched_exits": 1,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 57.49625144892936
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 53.36668642773553
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 57.49625144892936
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 53.36668642773553
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655825.571021249,
+      "end_monotonic": 655828.713984296,
+      "duration_seconds": 3.142963046906516,
+      "processes_compared": 462,
+      "unmatched_starts": 2,
+      "unmatched_exits": 2,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 75.08837885710578
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 75.08837885710578
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655828.713984296,
+      "end_monotonic": 655831.856197461,
+      "duration_seconds": 3.1422131650615484,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 90.38215585047271
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 90.38215585047271
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655831.856197461,
+      "end_monotonic": 655834.993447746,
+      "duration_seconds": 3.137250285013579,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 88.93138087603757
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 88.93138087603757
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655834.993447746,
+      "end_monotonic": 655838.133098145,
+      "duration_seconds": 3.1396503989817575,
+      "processes_compared": 464,
+      "unmatched_starts": 3,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 85.99683585394273
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 85.99683585394273
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655838.133098145,
+      "end_monotonic": 655841.275845723,
+      "duration_seconds": 3.142747577978298,
+      "processes_compared": 464,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.501830295305815
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.501830295305815
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655841.275845723,
+      "end_monotonic": 655844.417814763,
+      "duration_seconds": 3.1419690400362015,
+      "processes_compared": 464,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655844.417814763,
+      "end_monotonic": 655847.56970995,
+      "duration_seconds": 3.151895186980255,
+      "processes_compared": 465,
+      "unmatched_starts": 1,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 54.57034253882932
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 54.57034253882932
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655847.56970995,
+      "end_monotonic": 655850.717078317,
+      "duration_seconds": 3.1473683669464663,
+      "processes_compared": 465,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 75.61873039694567
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 75.61873039694567
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655850.717078317,
+      "end_monotonic": 655853.865357145,
+      "duration_seconds": 3.1482788280118257,
+      "processes_compared": 465,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.72722305375693
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 55.90356179193506
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.72722305375693
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 55.90356179193506
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655853.865357145,
+      "end_monotonic": 655857.011946347,
+      "duration_seconds": 3.1465892019914463,
+      "processes_compared": 465,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 75.31965083017667
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 75.31965083017667
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655857.011946347,
+      "end_monotonic": 655860.1607005,
+      "duration_seconds": 3.1487541530514136,
+      "processes_compared": 465,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 57.16546648316907
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 53.672021309197625
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 57.16546648316907
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 53.672021309197625
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655860.1607005,
+      "end_monotonic": 655863.307318484,
+      "duration_seconds": 3.146617983933538,
+      "processes_compared": 465,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 50.530442783917664
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 78.49697715489097
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 50.530442783917664
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 78.49697715489097
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655863.307318484,
+      "end_monotonic": 655866.462211204,
+      "duration_seconds": 3.154892720049247,
+      "processes_compared": 465,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 87.80013286653883
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 87.80013286653883
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655866.462211204,
+      "end_monotonic": 655869.607657373,
+      "duration_seconds": 3.145446168957278,
+      "processes_compared": 465,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 91.2430175510335
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 91.2430175510335
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655869.607657373,
+      "end_monotonic": 655872.754675743,
+      "duration_seconds": 3.1470183701021597,
+      "processes_compared": 465,
+      "unmatched_starts": 0,
+      "unmatched_exits": 1,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 91.51519506085718
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 91.51519506085718
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655872.754675743,
+      "end_monotonic": 655875.905422447,
+      "duration_seconds": 3.1507467039627954,
+      "processes_compared": 464,
+      "unmatched_starts": 0,
+      "unmatched_exits": 1,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 71.09425829701512
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 71.09425829701512
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655875.905422447,
+      "end_monotonic": 655879.052783516,
+      "duration_seconds": 3.1473610689863563,
+      "processes_compared": 463,
+      "unmatched_starts": 0,
+      "unmatched_exits": 2,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655879.052783516,
+      "end_monotonic": 655882.192779062,
+      "duration_seconds": 3.1399955459637567,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655882.192779062,
+      "end_monotonic": 655885.331660182,
+      "duration_seconds": 3.138881120015867,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 63.07980214268169
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 63.07980214268169
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655885.331660182,
+      "end_monotonic": 655888.472883297,
+      "duration_seconds": 3.1412231150316074,
+      "processes_compared": 465,
+      "unmatched_starts": 6,
+      "unmatched_exits": 2,
+      "busy_processes": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 81.17856983152696
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 81.17856983152696
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655888.472883297,
+      "end_monotonic": 655891.619783354,
+      "duration_seconds": 3.1469000569777563,
+      "processes_compared": 462,
+      "unmatched_starts": 1,
+      "unmatched_exits": 6,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655891.619783354,
+      "end_monotonic": 655894.758639733,
+      "duration_seconds": 3.138856378966011,
+      "processes_compared": 460,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 78.69108050154423
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 78.69108050154423
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655894.758639733,
+      "end_monotonic": 655897.899248603,
+      "duration_seconds": 3.1406088700750843,
+      "processes_compared": 461,
+      "unmatched_starts": 1,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 90.42832512703508
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 90.42832512703508
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655897.899248603,
+      "end_monotonic": 655901.044719608,
+      "duration_seconds": 3.1454710050020367,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 89.01687523259135
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 89.01687523259135
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655901.044719608,
+      "end_monotonic": 655904.190536537,
+      "duration_seconds": 3.145816928939894,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 80.74214289564372
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 80.74214289564372
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655904.190536537,
+      "end_monotonic": 655907.342356894,
+      "duration_seconds": 3.1518203570740297,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655907.342356894,
+      "end_monotonic": 655910.491613856,
+      "duration_seconds": 3.149256962002255,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [],
+      "busy_count": 0,
+      "busy_processes_observed": [],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655910.491613856,
+      "end_monotonic": 655913.634345301,
+      "duration_seconds": 3.1427314449101686,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.54751617812211
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 51.54751617812211
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655913.634345301,
+      "end_monotonic": 655916.783806373,
+      "duration_seconds": 3.1494610720546916,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 65.09050129845203
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 65.09050129845203
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655916.783806373,
+      "end_monotonic": 655919.92589905,
+      "duration_seconds": 3.1420926769496873,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 73.83614165869331
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195553,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 73.83614165869331
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655919.92589905,
+      "end_monotonic": 655923.074210353,
+      "duration_seconds": 3.148311302997172,
+      "processes_compared": 461,
+      "unmatched_starts": 0,
+      "unmatched_exits": 2,
+      "busy_processes": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 89.25419787188447
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195546,
+          "start_ticks": 65565951,
+          "comm": "SU2_CFD",
+          "percent_one_core": 89.25419787188447
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655923.074210353,
+      "end_monotonic": 655926.221250075,
+      "duration_seconds": 3.1470397220691666,
+      "processes_compared": 459,
+      "unmatched_starts": 0,
+      "unmatched_exits": 1,
+      "busy_processes": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.11246583572533
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 53.3835015878162
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195549,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 52.11246583572533
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 53.3835015878162
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655926.221250075,
+      "end_monotonic": 655929.361186661,
+      "duration_seconds": 3.1399365859106183,
+      "processes_compared": 458,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195550,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 95.54333082589835
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 66.24337603928953
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195550,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 95.54333082589835
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 66.24337603928953
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655929.361186661,
+      "end_monotonic": 655932.499653003,
+      "duration_seconds": 3.1384663420030847,
+      "processes_compared": 458,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195550,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 95.58808899270494
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 76.15184423085493
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195550,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 95.58808899270494
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 76.15184423085493
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655932.499653003,
+      "end_monotonic": 655935.636843801,
+      "duration_seconds": 3.137190798064694,
+      "processes_compared": 458,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195550,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 75.8640501390034
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 83.83296296873064
+        }
+      ],
+      "busy_count": 2,
+      "busy_processes_observed": [
+        {
+          "pid": 1195550,
+          "start_ticks": 65565952,
+          "comm": "SU2_CFD",
+          "percent_one_core": 75.8640501390034
+        },
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 83.83296296873064
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    },
+    {
+      "start_monotonic": 655935.636843801,
+      "end_monotonic": 655938.774148665,
+      "duration_seconds": 3.137304864008911,
+      "processes_compared": 458,
+      "unmatched_starts": 0,
+      "unmatched_exits": 0,
+      "busy_processes": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 99.76716116776817
+        }
+      ],
+      "busy_count": 1,
+      "busy_processes_observed": [
+        {
+          "pid": 1195552,
+          "start_ticks": 65565953,
+          "comm": "SU2_CFD",
+          "percent_one_core": 99.76716116776817
+        }
+      ],
+      "scope": "all-process observation; gate counts owned CFD session"
+    }
+  ],
+  "summary": {
+    "passed": true,
+    "window_count": 87,
+    "gate_scope": "owned CFD session; user processes are observations only",
+    "window_min_seconds": 3.137190798064694,
+    "window_max_seconds": 8.790854651946574,
+    "covered_seconds": 279.26993653096724,
+    "observed_seconds": 281.36079647089355,
+    "coverage_fraction": 0.9925687588102111,
+    "max_busy_processes": 2,
+    "busy_process_limit": 6,
+    "process_scope": "all /proc processes keyed by PID/start_ticks",
+    "window_method": "sample CPU ticks opportunistically; emit when accumulated interval reaches 3s; no added wait"
+  }
+}

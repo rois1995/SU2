@@ -634,3 +634,17 @@ FP1 resume C. Saved 481 replay passed in 190.235 s with exact payload and planni
 FP1 resume C. All scoped checks and standing safeguards passed. Next is G5 OFF followed by the two ON runs.
 
 FP1 resume C. All scoped controllers and saved safeguards are terminal and accepted. Current target replay took 144.886 s and matched its payload and planning records exactly. G5 OFF is running on the sealed build608 solver. The G5 controller launches ON1 then ON2 only after OFF and its isolated restart have passed.
+
+FP1 resume C. Pushed scoped OFF gate checkpoint `20f425e3e6`. The G5 OFF first-collapse check passed with 90,809,869 work. Event 1 is in quality repair under the same pinned build608 source and solver. Find the live controller and resource records in FP1/resume/G5/OFF.
+
+FP1 resume C. G5 OFF event 1 connected and timing gates passed with job peak 14,031,564,800 bytes, proof face total 61,906 and minimum coverage 95.2570%. The first continued CFD row was written. The same solver run proceeds to event 2.
+
+FP1 resume C. G5 OFF event 1 mesh, native reference and restart flow match all three adopted SHA256 values. Event 2 started in the same workflow.
+
+FP1 resume C. G5 OFF event 2 connected and timing gates passed with job peak 16,756,809,728 bytes, proof face total 58,260 and minimum coverage 95.3334%. Full two-event payload and isolated restart gates follow.
+
+FP1 resume C. G5 OFF PASSED on build608. All six payloads match the adopted hashes. The event 2 isolated restart passed in 284.115 s with zero coordinate error. OFF native maxima are 1,818.319 / 1,039.725 s. ON1 started directly afterward with the same solver and config SHA256 `1ec6c26d49d4ec7c62103d5bd096471b5422290cd06c44b2f1073b7489f2b4c1`.
+
+FP1 ON FAILED. ON1 event 1 first reported `complete=0` against 1, with `Degenerate metric donor`. The one read-only R5 diagnosis traced rejection to the prescribed point-move affine-weight calculation in pass 1, before either shift. No wiring correction or shift fallback applies. All solver handles are terminal. OFF passed both events, six hashes and isolated restart. Retain Parts A/B/C/F. ON2, ON event 2 and the ON reference are unevaluated. Seal the failure and close the item.
+
+FP1 closed on build608. Last production checkpoint `f36b66eadd`. Verified 179 recorded identities terminal and zero active owned heavy processes. OFF remains the validated default. ON is failed under §12.5. The progress report, handoff and timings are complete. Next action is the next user order.

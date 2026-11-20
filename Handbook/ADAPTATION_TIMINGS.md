@@ -6,14 +6,17 @@ Build608 passed the fresh Part C OFF G2 prefix in 246.927 s with 90,809,869 work
 
 The Part F single-rank refusal-memory fixture skipped 1,134 evaluations and produced identical owned bytes. The modeled local-core charge increased from 9,492 to 10,620 bytes per cell. Both MPI fixture layouts exercised all five local edit types and both border shifts. Strict refinement returned valid. [FP1 fixture evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_608.md)
 
-| Stage | FP1 OFF G5 events 1 and 2 | FP1 ON G5 events 1 and 2 |
-|---|---|---|
-| Preparation | Unevaluated | Unevaluated |
-| Local core | Unevaluated | Unevaluated |
-| Border shifts | Unevaluated | Unevaluated |
-| Engine construction | Unevaluated | Unevaluated |
-| Quality | Unevaluated | Unevaluated |
-| Final proof | Unevaluated | Unevaluated |
+| Stage | OFF event 1 (s) | OFF event 2 (s) | ON1 event 1 |
+|---|---:|---:|---|
+| Preparation | 64.113 | 80.215 | Reached the first local pass |
+| Local core | 0.000 | 0.000 | First pass rejected an old metric donor |
+| Border shifts | 0.000 | 0.000 | 0 shift rows |
+| Engine construction | 460.024 | 209.275 | Unevaluated |
+| Quality | 1,183.856 | 607.086 | Unevaluated |
+| Final proof | 65.801 | 103.523 | Unevaluated |
+| Whole native event | 1,818.319 | 1,039.725 | Incomplete |
+
+The phase seconds are maxima over ranks. OFF peak memory was 13,381.543 / 15,980.539 MiB and minimum coverage was 95.257% / 95.333%. In the incomplete ON1 event, rank 0 recorded 413.263 s inclusive in the first local topology call, of which 376.998 s was nested communication. The attempt printed one normalization stage and no completed pass or shifts. The purpose timing comparison and ON event 2 memory remain unevaluated.
 
 ## Step 8.5u, build591
 
