@@ -10,7 +10,16 @@ import os
 from pathlib import Path
 import subprocess
 import signal
+import sys
 import time
+
+import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import read_epm_field as epm_field  # noqa: E402  (sits next to this script)
+
+FIELD_RELATIVE_TOLERANCE = 1e-10
+FIELD_KINDS = {"EDGE": 0, "BOUNDARY": 1, "NODE": 2}
 
 
 def read_csv(path):
@@ -27,6 +36,85 @@ def read_config(path):
             key, value = line.split("=", 1)
             config[key.strip()] = value.strip()
     return config
+
+
+def check_field_files(directory, canonical, edges, source_minimum):
+    """Check the EPM field files written in `directory` against the CSV rows `canonical` (probe_pair == 3).
+
+    Returns (merged fields, {"bytes": total .bin size, "sites": {kind: merged site count with uses > 0}})."""
+    objectives = {r["objective"] for r in canonical.values()}
+    assert len(objectives) == 1, objectives
+    objective = objectives.pop()
+    header_path = directory / f"sst_epm_field_{objective}.json"
+    assert header_path.is_file(), f"{header_path} was not written"
+    csv_path = directory / "sst_epm_sensitivities.csv"
+    header = json.loads(header_path.read_text())
+    kinds = header.get("kinds", FIELD_KINDS)
+    assert kinds == FIELD_KINDS, kinds
+    columns = header["columns"]
+    assert header["dtype"] == "float64" and header["record_bytes"] == 8 * len(columns), header["record_bytes"]
+    assert header["objective"] == objective, (header["objective"], objective)
+    assert len(header["ranks"]) == header["mpi_ranks"], header["ranks"]
+    total_bytes = 0
+    for entry in header["ranks"]:
+        size = (directory / entry["file"]).stat().st_size
+        assert size == entry["count"] * header["record_bytes"], (entry, size, header["record_bytes"])
+        total_bytes += size
+    # The reader recomputes the five classical gradients from the files and compares them with the CSV.
+    reader = subprocess.run([sys.executable, str(Path(epm_field.__file__).resolve()), str(header_path),
+                             "--csv", str(csv_path)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                            universal_newlines=True)
+    assert reader.returncode == 0, f"read_epm_field.py failed on {header_path}:\n{reader.stdout}"
+    fields = epm_field.load(header_path)
+    kind = fields["kind"]
+    uses = fields["uses"]
+    # A site stands for its repeated uses: unmerged (all ranks, halo copies included) the uses add up to the
+    # evaluations the CSV counts.
+    stress_uses = math.fsum(uses[(kind == kinds["EDGE"]) | (kind == kinds["BOUNDARY"])].tolist())
+    source_uses = math.fsum(uses[kind == kinds["NODE"]].tolist())
+    for row in canonical.values():
+        assert stress_uses == int(row["stress_evaluations"]), (stress_uses, row["stress_evaluations"])
+        assert source_uses == int(row["source_evaluations"]), (source_uses, row["source_evaluations"])
+    merged = epm_field.merge(fields)
+    sites = {name: int(np.count_nonzero((merged["kind"] == value) & (merged["uses"] > 0)))
+             for name, value in kinds.items()}
+    assert sites["EDGE"] >= edges, (sites, edges)
+    assert sites["NODE"] >= source_minimum, (sites, source_minimum)
+    return merged, {"bytes": total_bytes, "sites": sites}
+
+
+def assert_no_field_files(directory):
+    found = sorted(p.name for p in directory.glob("sst_epm_field_*"))
+    assert not found, f"{directory.name} must not write field files, found {found}"
+
+
+def compare_fields(reference, other):
+    """Compare the merged S_* columns of two fields site by site; returns the largest |a-b| / max|S of the column|.
+
+    Tolerance per value: max(1e-10 * max(|a|, |b|), 1e-10 * max|S| over the column in both fields)."""
+    def order(fields):
+        keys = [fields[name] for name in epm_field.KEY_COLUMNS]
+        return np.lexsort(keys[::-1]), np.column_stack(keys)
+
+    first, first_keys = order(reference)
+    second, second_keys = order(other)
+    assert first_keys.shape == second_keys.shape and np.array_equal(first_keys[first], second_keys[second]), \
+        "The two fields do not hold the same set of sites"
+    names = [n for n in reference if n.startswith("S_")]
+    assert len([n for n in names if n.startswith("S_tau_")]) > 0 and "S_pk" in names and "S_pw" in names, names
+    worst = 0.0
+    for name in names:
+        a, b = reference[name][first], other[name][second]
+        assert np.all(np.isfinite(a)) and np.all(np.isfinite(b)), f"{name} has nonfinite values"
+        scale = max(float(np.max(np.abs(a), initial=0.0)), float(np.max(np.abs(b), initial=0.0)))
+        difference = np.abs(a - b)
+        allowed = np.maximum(FIELD_RELATIVE_TOLERANCE * np.maximum(np.abs(a), np.abs(b)),
+                             FIELD_RELATIVE_TOLERANCE * scale)
+        bad = np.flatnonzero(difference > allowed)
+        assert bad.size == 0, (name, first_keys[first][bad[0]].tolist(), float(a[bad[0]]), float(b[bad[0]]), scale)
+        if scale > 0:
+            worst = max(worst, float(np.max(difference)) / scale)
+    return worst
 
 
 def main():
@@ -143,9 +231,14 @@ def main():
         assert row["status"] == "frozen_forcing_unverified" and row["adjoint_converged"] == "true"
         assert row["extraction"] == "field", row["extraction"]
     assert all(abs(float(r["dJ_da_at_zero"])) > 1e-12 for r in canonical.values())
+    assert {r["objective"] for r in canonical.values()} == {config["OBJECTIVE_FUNCTION"]}
+    source_minimum = math.prod(sizes) - math.prod(sizes[:1] + sizes[2:])
+    enabled_field, enabled_info = check_field_files(on, canonical, edges, source_minimum)
     # The field replay must reproduce the scalar-amplitude replay row by row.
     scalar_rows = {(r["case"], r["probe_pair"]): r for r in read_csv(scalar / "sst_epm_sensitivities.csv")}
     assert set(scalar_rows) == {(r["case"], r["probe_pair"]) for r in rows}, (sorted(scalar_rows), rows)
+    assert_no_field_files(scalar)
+    assert_no_field_files(off)
     max_field_scalar_error = 0.0
     for row in rows:
         reference = scalar_rows[(row["case"], row["probe_pair"])]
@@ -183,6 +276,10 @@ def main():
         assert again["extraction"] == "field", again["extraction"]
         assert math.isclose(float(first["dJ_da_at_zero"]), float(again["dJ_da_at_zero"]),
                             rel_tol=1e-10, abs_tol=1e-14), (first, again)
+    extracted_canonical = {r["case"]: r for r in extracted_rows if r["probe_pair"] == "3"}
+    assert set(extracted_canonical) == set(canonical), sorted(extracted_canonical)
+    extracted_field, extracted_info = check_field_files(extracted, extracted_canonical, edges, source_minimum)
+    max_extract_only_field_error = compare_fields(enabled_field, extracted_field)
     assert hashlib.sha256(adjoint_restart.read_bytes()).hexdigest() == adjoint_hash
     written_adjoint = extracted / f"restart_adj_out{objective_suffix}.dat"
     assert written_adjoint.exists(), written_adjoint
@@ -222,6 +319,9 @@ def main():
                "max_extract_only_gradient_abs_error": max(abs(float(a["dJ_da_at_zero"])-float(b["dJ_da_at_zero"]))
                                                           for a, b in zip(rows, extracted_rows)),
                "extract_only_restart_identical_to_input": written_adjoint.read_bytes() == adjoint_restart.read_bytes(),
+               "field_file_bytes": {"enabled": enabled_info["bytes"], "extract_only": extracted_info["bytes"]},
+               "field_sites": {"enabled": enabled_info["sites"], "extract_only": extracted_info["sites"]},
+               "max_extract_only_field_scaled_error": max_extract_only_field_error,
                "rows": len(rows), "status": "passed_infrastructure_smoke_test"}
     (root / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
