@@ -1,0 +1,46 @@
+{
+  "dataset": "LAB1_V1",
+  "controller": {
+    "pid": 1571605,
+    "start_ticks": 67037506,
+    "ppid": 1540710,
+    "pgid": 1540710,
+    "argv": [
+      "/usr/bin/time",
+      "-v",
+      "-o",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume3/lab/LAB1_V1/time.txt",
+      "timeout",
+      "1200",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "[.][NativeLocalCoreLab]"
+    ]
+  },
+  "timeout": {
+    "pid": 1571606,
+    "start_ticks": 67037506,
+    "ppid": 1571605,
+    "pgid": 1571606,
+    "argv": [
+      "timeout",
+      "1200",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "[.][NativeLocalCoreLab]"
+    ]
+  },
+  "seconds_limit": 1200,
+  "elapsed_before_hard_stop": 1292.141187429428,
+  "signal": "SIGKILL",
+  "reason": "GNU timeout sent SIGTERM at 1200 s. The SU2 signal handler acknowledged SIGTERM and continued the core sweep.",
+  "recent_output": [
+    "NATIVE3D_LOCAL_SWEEP rank=0 stage=0 pass=1 kind=quality round=0 sweep=6 candidates=617647 live_cells=1127485 bad_listed=617647 evaluated_collapse=0 evaluated_split=0 evaluated_quality=292797 deferred=0 skipped_memory=121 blocked=0 collapses=0 splits=0 edge_removals=39302 face_swaps=2549 moves=41368 refused_valid=2779428 refused_size=319065 refused_topology=0 refused_memory=1364031 refused_numeric=0 refused_shape=0 refused_exact=53 seconds=40.334187984999971",
+    "NATIVE3D_LOCAL_SWEEP rank=0 stage=0 pass=1 kind=quality round=0 sweep=7 candidates=613699 live_cells=1127485 bad_listed=613699 evaluated_collapse=0 evaluated_split=0 evaluated_quality=295403 deferred=0 skipped_memory=181 blocked=0 collapses=0 splits=0 edge_removals=37878 face_swaps=2767 moves=41166 refused_valid=2834082 refused_size=298935 refused_topology=0 refused_memory=1387124 refused_numeric=0 refused_shape=0 refused_exact=56 seconds=40.80515811500004",
+    "NATIVE3D_LOCAL_SWEEP rank=0 stage=0 pass=1 kind=quality round=0 sweep=8 candidates=610184 live_cells=1127485 bad_listed=610184 evaluated_collapse=0 evaluated_split=0 evaluated_quality=297042 deferred=0 skipped_memory=263 blocked=0 collapses=0 splits=0 edge_removals=35828 face_swaps=2702 moves=40888 refused_valid=2876826 refused_size=277986 refused_topology=0 refused_memory=1414050 refused_numeric=0 refused_shape=0 refused_exact=51 seconds=40.96163564099993",
+    "NATIVE3D_LOCAL_SWEEP rank=0 stage=0 pass=1 kind=quality round=0 sweep=9 candidates=606589 live_cells=1127485 bad_listed=606589 evaluated_collapse=0 evaluated_split=0 evaluated_quality=299280 deferred=0 skipped_memory=395 blocked=0 collapses=0 splits=0 edge_removals=34491 face_swaps=2772 moves=40197 refused_valid=2928936 refused_size=258726 refused_topology=0 refused_memory=1431719 refused_numeric=0 refused_shape=0 refused_exact=49 seconds=41.041199603999985",
+    "Interrupt signal (15) received, saving files and exiting.",
+    "Interrupt signal (15) received, saving files and exiting.",
+    "NATIVE3D_LOCAL_SWEEP rank=0 stage=0 pass=1 kind=quality round=0 sweep=10 candidates=603197 live_cells=1127485 bad_listed=603197 evaluated_collapse=0 evaluated_split=0 evaluated_quality=303497 deferred=0 skipped_memory=527 blocked=0 collapses=0 splits=0 edge_removals=32773 face_swaps=2699 moves=39361 refused_valid=3000603 refused_size=244616 refused_topology=0 refused_memory=1464399 refused_numeric=0 refused_shape=0 refused_exact=46 seconds=41.705475739999883",
+    "NATIVE3D_LOCAL_SWEEP rank=0 stage=0 pass=1 kind=quality round=0 sweep=11 candidates=599780 live_cells=1127485 bad_listed=599780 evaluated_collapse=0 evaluated_split=0 evaluated_quality=307100 deferred=0 skipped_memory=694 blocked=0 collapses=0 splits=0 edge_removals=30967 face_swaps=2667 moves=38773 refused_valid=3050412 refused_size=231794 refused_topology=0 refused_memory=1511393 refused_numeric=0 refused_shape=0 refused_exact=41 seconds=42.041577467000025"
+  ],
+  "hard_stop_unix": 1795179361.0465407
+}

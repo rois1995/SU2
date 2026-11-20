@@ -1,0 +1,527 @@
+{
+  "build": 613,
+  "test_binary_sha256": "268a21b93ddfa83114f1756b13137ffd29fd978a21d0bb7544886d600610f1af",
+  "source_pins_sha256": "c66e76358ca95b849170df49d4f919323203955ca32ec467a217ee352c8cbd4a",
+  "v2_hold": [
+    "LAB1"
+  ],
+  "results": [
+    {
+      "dataset": "LAB2",
+      "variant": "V2",
+      "state": "completed",
+      "wait": {
+        "actual_host_proc": true,
+        "controller": {
+          "pid": 1540955,
+          "start_ticks": 66892381
+        },
+        "returncode": 0,
+        "elapsed_seconds": 161.82820773124695,
+        "terminal": true
+      },
+      "peak_rss_kib": 2458396,
+      "within_job_memory": true,
+      "pass_seconds": 88.835158244,
+      "exact_validity": true,
+      "sweep_counts_match": true,
+      "first_exception": null,
+      "rows": {
+        "load": {
+          "variant": "V2",
+          "seconds": "39.511529435"
+        },
+        "before": {
+          "cells": "726442",
+          "points": "146676",
+          "bad_cells": "22541",
+          "short_edges": "502869",
+          "short_edges_09": "502869",
+          "long_edges": "25063",
+          "short_edge": "0.90000000000000002"
+        },
+        "pass": {
+          "variant": "V2",
+          "seconds": "88.835158243999999",
+          "self_check": "1",
+          "cells_in": "726442",
+          "cells_out": "577406",
+          "points_in": "146676",
+          "points_out": "114227",
+          "collapses": "63641",
+          "splits": "31192",
+          "edge_removals": "37536",
+          "face_swaps": "3677",
+          "moves": "16001",
+          "deferred": "722017",
+          "skipped_memory": "366039",
+          "blocked": "67478",
+          "refused_valid": "3377262",
+          "refused_exact": "402",
+          "refused_size": "297594",
+          "refused_topology": "0",
+          "refused_memory": "0",
+          "refused_numeric": "0",
+          "refused_shape": "32096",
+          "evaluated_collapse": "289587",
+          "evaluated_split": "49465",
+          "evaluated_quality": "233857",
+          "sweeps_collapse": "101",
+          "sweeps_split": "223",
+          "sweeps_quality": "20",
+          "rounds": "7",
+          "limit": "1",
+          "round_changes": "c40938(23)s28114(50),c20873(27)s2749(50),c1645(25)s219(50),c137(13)s85(50),c37(7)s25(21),c11(5)s0(1),c0(1)s0(1)",
+          "quality_changes": "11426,6770,4715,3783,3243,2883,2612,2591,2384,2195,1990,1869,1646,1552,1412,1361,1275,1198,1158,1151",
+          "seconds_build": "0.62060648800000007",
+          "seconds_collapse": "53.008552884999986",
+          "seconds_split": "8.975498576000021",
+          "seconds_quality": "25.133358016999992",
+          "seconds_check": "0.75813476400000468",
+          "seconds_write": "0.28102457600000003",
+          "memory_admission_bytes": "8301779176",
+          "cell_limit": "1127485"
+        },
+        "exact": {
+          "cells": "577406",
+          "nonpositive": "0",
+          "first_nonpositive": "0"
+        },
+        "after": {
+          "cells": "577406",
+          "points": "114227",
+          "bad_cells": "17246",
+          "short_edges": "356016",
+          "short_edges_09": "356016",
+          "long_edges": "2846",
+          "short_edge": "0.90000000000000002"
+        },
+        "strict": {
+          "cells": "577406",
+          "q_bad": "16748",
+          "j_bad": "16560",
+          "long_cells": "8230",
+          "seconds": "31.432708260000002"
+        }
+      }
+    },
+    {
+      "dataset": "LAB1",
+      "variant": "V2",
+      "state": "completed",
+      "wait": {
+        "actual_host_proc": true,
+        "controller": {
+          "pid": 1544407,
+          "start_ticks": 66909666
+        },
+        "returncode": 0,
+        "elapsed_seconds": 1117.901218175888,
+        "terminal": true
+      },
+      "peak_rss_kib": 1161852,
+      "within_job_memory": true,
+      "pass_seconds": 1072.121445059,
+      "exact_validity": true,
+      "sweep_counts_match": true,
+      "first_exception": null,
+      "rows": {
+        "load": {
+          "variant": "V2",
+          "seconds": "11.013018180000001"
+        },
+        "before": {
+          "cells": "303359",
+          "points": "61330",
+          "bad_cells": "15008",
+          "short_edges": "209553",
+          "short_edges_09": "209553",
+          "long_edges": "43113",
+          "short_edge": "0.90000000000000002"
+        },
+        "pass": {
+          "variant": "V2",
+          "seconds": "1072.1214450590001",
+          "self_check": "1",
+          "cells_in": "303359",
+          "cells_out": "593731",
+          "points_in": "61330",
+          "points_out": "114317",
+          "collapses": "412810",
+          "splits": "465797",
+          "edge_removals": "190920",
+          "face_swaps": "18747",
+          "moves": "89940",
+          "deferred": "4779009",
+          "skipped_memory": "653526",
+          "blocked": "1222901",
+          "refused_valid": "25789445",
+          "refused_exact": "32658",
+          "refused_size": "2868759",
+          "refused_topology": "0",
+          "refused_memory": "45429",
+          "refused_numeric": "0",
+          "refused_shape": "178756",
+          "evaluated_collapse": "1336096",
+          "evaluated_split": "1804177",
+          "evaluated_quality": "1693316",
+          "sweeps_collapse": "312",
+          "sweeps_split": "364",
+          "sweeps_quality": "20",
+          "rounds": "8",
+          "limit": "1",
+          "round_changes": "c6361(21)s183278(39),c138673(50)s132230(25),c124283(50)s85022(50),c80726(50)s40058(50),c38621(43)s16712(50),c16340(29)s5926(50),c5909(50)s1867(50),c1897(19)s704(50)",
+          "quality_changes": "36058,30362,26531,23367,21113,19232,17165,15467,14250,12855,11873,10901,9949,9111,8258,7561,7153,6675,6139,5587",
+          "seconds_build": "0.30659145500000001",
+          "seconds_collapse": "265.07349999799982",
+          "seconds_split": "515.0567955260002",
+          "seconds_quality": "290.46663588900003",
+          "seconds_check": "0.99544944200010832",
+          "seconds_write": "0.19344923700000002",
+          "memory_admission_bytes": "3466786652",
+          "cell_limit": "1127485"
+        },
+        "exact": {
+          "cells": "593731",
+          "nonpositive": "0",
+          "first_nonpositive": "0"
+        },
+        "after": {
+          "cells": "593731",
+          "points": "114317",
+          "bad_cells": "122791",
+          "short_edges": "353380",
+          "short_edges_09": "353380",
+          "long_edges": "15743",
+          "short_edge": "0.90000000000000002"
+        },
+        "strict": {
+          "cells": "593731",
+          "q_bad": "121267",
+          "j_bad": "119593",
+          "long_cells": "35040",
+          "seconds": "33.152283159"
+        }
+      }
+    },
+    {
+      "dataset": "LAB2",
+      "variant": "V3",
+      "state": "completed",
+      "wait": {
+        "actual_host_proc": true,
+        "controller": {
+          "pid": 1568714,
+          "start_ticks": 67022572
+        },
+        "returncode": 0,
+        "elapsed_seconds": 138.26289701461792,
+        "terminal": true
+      },
+      "peak_rss_kib": 2458412,
+      "within_job_memory": true,
+      "pass_seconds": 60.968915870000004,
+      "exact_validity": true,
+      "sweep_counts_match": true,
+      "first_exception": null,
+      "rows": {
+        "load": {
+          "variant": "V3",
+          "seconds": "39.259047658"
+        },
+        "before": {
+          "cells": "726442",
+          "points": "146676",
+          "bad_cells": "22541",
+          "short_edges": "296546",
+          "short_edges_09": "502869",
+          "long_edges": "25063",
+          "short_edge": "0.63639610306789274"
+        },
+        "pass": {
+          "variant": "V3",
+          "seconds": "60.968915870000004",
+          "self_check": "1",
+          "cells_in": "726442",
+          "cells_out": "664394",
+          "points_in": "146676",
+          "points_out": "130688",
+          "collapses": "48110",
+          "splits": "32122",
+          "edge_removals": "38521",
+          "face_swaps": "3801",
+          "moves": "16475",
+          "deferred": "284446",
+          "skipped_memory": "129593",
+          "blocked": "69279",
+          "refused_valid": "3353898",
+          "refused_exact": "414",
+          "refused_size": "161170",
+          "refused_topology": "0",
+          "refused_memory": "0",
+          "refused_numeric": "0",
+          "refused_shape": "27079",
+          "evaluated_collapse": "127748",
+          "evaluated_split": "50248",
+          "evaluated_quality": "241000",
+          "sweeps_collapse": "118",
+          "sweeps_split": "223",
+          "sweeps_quality": "20",
+          "rounds": "7",
+          "limit": "1",
+          "round_changes": "c28879(26)s28963(50),c17340(43)s2771(50),c1633(21)s211(50),c146(11)s149(50),c98(11)s28(21),c14(5)s0(1),c0(1)s0(1)",
+          "quality_changes": "11688,6819,4767,3736,3272,2953,2614,2545,2400,2342,2113,1945,1886,1775,1559,1509,1369,1246,1187,1072",
+          "seconds_build": "0.60873744900000004",
+          "seconds_collapse": "24.317174336000001",
+          "seconds_split": "9.0142412260000029",
+          "seconds_quality": "25.978664672000008",
+          "seconds_check": "0.74232520399999657",
+          "seconds_write": "0.244544331",
+          "memory_admission_bytes": "8301779176",
+          "cell_limit": "1127485"
+        },
+        "exact": {
+          "cells": "664394",
+          "nonpositive": "0",
+          "first_nonpositive": "0"
+        },
+        "after": {
+          "cells": "664394",
+          "points": "130688",
+          "bad_cells": "17674",
+          "short_edges": "249939",
+          "short_edges_09": "417170",
+          "long_edges": "2849",
+          "short_edge": "0.63639610306789274"
+        },
+        "strict": {
+          "cells": "664394",
+          "q_bad": "17181",
+          "j_bad": "17032",
+          "long_cells": "8331",
+          "seconds": "35.955524491000006"
+        }
+      }
+    },
+    {
+      "dataset": "LAB1",
+      "variant": "V1",
+      "state": "test_failure",
+      "wait": {
+        "actual_host_proc": true,
+        "controller": {
+          "pid": 1571605,
+          "start_ticks": 67037506
+        },
+        "returncode": 137,
+        "elapsed_seconds": 1292.1419606208801,
+        "terminal": true
+      },
+      "peak_rss_kib": 1792,
+      "within_job_memory": true,
+      "pass_seconds": null,
+      "exact_validity": null,
+      "sweep_counts_match": null,
+      "first_exception": null,
+      "rows": {
+        "load": {
+          "variant": "V1",
+          "seconds": "10.523160336"
+        },
+        "before": {
+          "cells": "303359",
+          "points": "61330",
+          "bad_cells": "15008",
+          "short_edges": "209553",
+          "short_edges_09": "209553",
+          "long_edges": "43113",
+          "short_edge": "0.90000000000000002"
+        }
+      }
+    },
+    {
+      "dataset": "LAB2",
+      "variant": "V1",
+      "state": "test_failure",
+      "wait": {
+        "actual_host_proc": true,
+        "controller": {
+          "pid": 1596990,
+          "start_ticks": 67167826
+        },
+        "returncode": 1,
+        "elapsed_seconds": 119.85597276687622,
+        "terminal": true
+      },
+      "peak_rss_kib": 2458172,
+      "within_job_memory": true,
+      "pass_seconds": 66.450357004,
+      "exact_validity": true,
+      "sweep_counts_match": true,
+      "first_exception": "Degenerate metric donor. at native 3D metric cell 732833.",
+      "rows": {
+        "load": {
+          "variant": "V1",
+          "seconds": "39.168940221"
+        },
+        "before": {
+          "cells": "726442",
+          "points": "146676",
+          "bad_cells": "22541",
+          "short_edges": "502869",
+          "short_edges_09": "502869",
+          "long_edges": "25063",
+          "short_edge": "0.90000000000000002"
+        },
+        "pass": {
+          "variant": "V1",
+          "seconds": "66.450357003999997",
+          "self_check": "1",
+          "cells_in": "726442",
+          "cells_out": "580374",
+          "points_in": "146676",
+          "points_out": "114717",
+          "collapses": "58573",
+          "splits": "26614",
+          "edge_removals": "25625",
+          "face_swaps": "2074",
+          "moves": "10976",
+          "deferred": "673340",
+          "skipped_memory": "168922",
+          "blocked": "0",
+          "refused_valid": "2078391",
+          "refused_exact": "202",
+          "refused_size": "254806",
+          "refused_topology": "0",
+          "refused_memory": "0",
+          "refused_numeric": "0",
+          "refused_shape": "29280",
+          "evaluated_collapse": "273196",
+          "evaluated_split": "27772",
+          "evaluated_quality": "147208",
+          "sweeps_collapse": "43",
+          "sweeps_split": "115",
+          "sweeps_quality": "20",
+          "rounds": "4",
+          "limit": "1",
+          "round_changes": "c40938(23)s25447(50),c17635(18)s1004(50),c0(1)s163(14),c0(1)s0(1)",
+          "quality_changes": "10056,5436,3185,2318,1828,1606,1303,1277,1157,1173,1064,988,949,974,902,977,913,892,868,809",
+          "seconds_build": "0.61869548100000005",
+          "seconds_collapse": "44.502937667999994",
+          "seconds_split": "4.9645715230000036",
+          "seconds_quality": "15.370439187999992",
+          "seconds_check": "0.6737143360000033",
+          "seconds_write": "0.26101797800000004",
+          "memory_admission_bytes": "8301779176",
+          "cell_limit": "1127485"
+        },
+        "exact": {
+          "cells": "580374",
+          "nonpositive": "0",
+          "first_nonpositive": "0"
+        },
+        "after": {
+          "cells": "580374",
+          "points": "114717",
+          "bad_cells": "10345",
+          "short_edges": "354495",
+          "short_edges_09": "354495",
+          "long_edges": "587",
+          "short_edge": "0.90000000000000002"
+        }
+      }
+    },
+    {
+      "dataset": "LAB2",
+      "variant": "V0",
+      "state": "test_failure",
+      "wait": {
+        "actual_host_proc": true,
+        "controller": {
+          "pid": 1599612,
+          "start_ticks": 67180946
+        },
+        "returncode": 1,
+        "elapsed_seconds": 215.79704236984253,
+        "terminal": true
+      },
+      "peak_rss_kib": 2458460,
+      "within_job_memory": true,
+      "pass_seconds": 162.988153739,
+      "exact_validity": true,
+      "sweep_counts_match": true,
+      "first_exception": "Degenerate metric donor. at native 3D metric cell 729907.",
+      "rows": {
+        "load": {
+          "variant": "V0",
+          "seconds": "39.369299581"
+        },
+        "before": {
+          "cells": "726442",
+          "points": "146676",
+          "bad_cells": "22541",
+          "short_edges": "502869",
+          "short_edges_09": "502869",
+          "long_edges": "25063",
+          "short_edge": "0.90000000000000002"
+        },
+        "pass": {
+          "variant": "V0",
+          "seconds": "162.98815373900001",
+          "self_check": "1",
+          "cells_in": "726442",
+          "cells_out": "566975",
+          "points_in": "146676",
+          "points_out": "112471",
+          "collapses": "60678",
+          "splits": "26473",
+          "edge_removals": "32286",
+          "face_swaps": "2072",
+          "moves": "10996",
+          "deferred": "696693",
+          "skipped_memory": "1607856",
+          "blocked": "0",
+          "refused_valid": "2193804",
+          "refused_exact": "0",
+          "refused_size": "239425",
+          "refused_topology": "0",
+          "refused_memory": "0",
+          "refused_numeric": "0",
+          "refused_shape": "0",
+          "evaluated_collapse": "231039",
+          "evaluated_split": "43227",
+          "evaluated_quality": "159663",
+          "sweeps_collapse": "43",
+          "sweeps_split": "151",
+          "sweeps_quality": "20",
+          "rounds": "4",
+          "limit": "1",
+          "round_changes": "c42970(26)s25213(50),c17706(14)s1039(50),c2(2)s221(50),c0(1)s0(1)",
+          "quality_changes": "15675,6016,3308,2358,1886,1624,1351,1238,1164,1081,1012,1017,1035,959,984,987,946,928,895,890",
+          "seconds_build": "0.622463082",
+          "seconds_collapse": "66.91833635200004",
+          "seconds_split": "53.720333818",
+          "seconds_quality": "40.645535147999993",
+          "seconds_check": "0.7230547940000065",
+          "seconds_write": "0.29988120100000004",
+          "memory_admission_bytes": "8301779176",
+          "cell_limit": "1127485"
+        },
+        "exact": {
+          "cells": "566975",
+          "nonpositive": "0",
+          "first_nonpositive": "0"
+        },
+        "after": {
+          "cells": "566975",
+          "points": "112471",
+          "bad_cells": "11121",
+          "short_edges": "344577",
+          "short_edges_09": "344577",
+          "long_edges": "610",
+          "short_edge": "0.90000000000000002"
+        }
+      }
+    }
+  ]
+}

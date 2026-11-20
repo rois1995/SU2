@@ -2,6 +2,21 @@
 
 ## Fast path stage 1
 
+### Resume 3 lab, build613
+
+| Pair | Pass wall (s) | Outcome |
+|---|---:|---|
+| LAB2 V2 | 88.835 | Exact and strict audits completed |
+| LAB1 V2 | 1,072.121 | Exact and strict audits completed. The 600 s threshold triggered the stop |
+| LAB2 V3 | 60.969 | Lower short-edge variant, exact and strict audits completed |
+| LAB1 V1 | — | 1,200 s cutoff during quality. Owned process group stopped at 1,292.141 s after SIGTERM did not end the core |
+| LAB2 V1 | 66.450 | Exact audit passed. Strict metric audit stopped at cell 732833 |
+| LAB2 V0 | 162.988 | Exact audit passed. Strict metric audit stopped at cell 729907 |
+
+Pass wall time covers array construction through write-back. LAB1 V2 consumed 265.073 s for collapse, 515.057 s for split and 290.467 s for quality. Its 696 sweep rows reached a peak of 1,127,484 live cells. Build613 OFF prefixes captured G2 in 246.756 s and GQ in 685.827 s with exact adopted comparisons. The six-rank H replay and H workflow timing are unevaluated. [Resume 3 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_613_resume3.md)
+
+### Build608 workflow reference
+
 Build608 passed the fresh Part C OFF G2 prefix in 246.927 s with 90,809,869 work units, matching the exact rows of the adopted reference. Rank 0 recorded 250 preparation and 333,799 construction communication calls. Work order 3 correction 1 designated those counters as report rows. [FP1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_608.md)
 
 The Part F single-rank refusal-memory fixture skipped 1,134 evaluations and produced identical owned bytes. The modeled local-core charge increased from 9,492 to 10,620 bytes per cell. Both MPI fixture layouts exercised all five local edit types and both border shifts. Strict refinement returned valid. [FP1 fixture evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_608.md)

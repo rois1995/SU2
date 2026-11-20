@@ -1,6 +1,6 @@
 # Native adaptation handoff
 
-FP1 OFF passed on build608. Part F passed all fixtures and G1 at `f36b66eadd`. Part C passed the scoped gates, all six workflow payload hashes, and the isolated restart. FP1 ON failed in event 1 with `complete=0` and `Degenerate metric donor`. The first-pass point-move interpolation failed before either shift. Section 12.5 closes ON as failed and retains Parts A, B, C and F. The default stays NO. [FP1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_608.md)
+FP1 Resume 3 stopped after the six lab pairs. Part G is pushed at `9940a85314` and Part H at `1391148436`. Build613 passed the fixtures and OFF identity checks G1, G2 and GQ. Production-form LAB1 V2 took 1,072.121 s against a 600 s threshold. LAB2 V2 took 88.835 s. Both V2 outputs were exactly positive. The six-rank replay and G5 ON remain unevaluated. Build608 supplies the accepted G5 OFF proof. The default is NO. [Resume 3 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_613_resume3.md) · [Build608 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_608.md)
 
 N22 result gates passed. The user accepted both purpose timing flags on 2026-11-19. Both parts matched all six N21 W payload hashes. [Step 8.5u report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N22/reports/STEP_8_5U_591.md)
 

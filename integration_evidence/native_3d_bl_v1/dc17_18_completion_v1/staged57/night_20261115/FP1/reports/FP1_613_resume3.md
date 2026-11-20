@@ -47,3 +47,57 @@ G1 matched the adopted records and failed-assertion identities for serial, two-r
 G2 passed at the first-collapse prefix in 246.756 s with 90,809,869 work units. All six exact decision and modeled-storage rows matched the N14 reference under the corrected comparator. The timer fixed storage was 4,120 bytes. Communication and collective report rows are recorded alongside the reference. [G2 comparison](../resume3/prefix/G2_comparison.json)
 
 GQ passed at the quality prefix in 685.827 s. All exact decisions and modeled storage matched the adopted N22 capture. Timer fixed storage remained 4,120 bytes. The two OFF prefixes preserve runtime evidence with matching binary, source and frozen input hashes. [GQ comparison](../resume3/prefix/GQ_comparison.json) · [Prefix receipts](../resume3/prefix/checkpoint_paths.json)
+
+## Ordered lab results
+
+Resume 3 §9.1 stops the item at the lab. Production-form LAB1 V2 took 1,072.121 s, exceeding the 600 s threshold by 472.121 s. Both V2 passes passed self-check and exact orientation. All six prescribed pair attempts reached terminal receipts. [Lab summary](../resume3/lab/lab_summary.json)
+
+| Order | Pair | Pass wall (s) | Process wall (s) | Result |
+|---:|---|---:|---:|---|
+| 1 | [LAB2 V2](../resume3/lab/LAB2_V2/lab_receipt.json) | 88.835 | 161.828 | Completed |
+| 2 | [LAB1 V2](../resume3/lab/LAB1_V2/lab_receipt.json) | 1,072.121 | 1,117.901 | Completed |
+| 3 | [LAB2 V3](../resume3/lab/LAB2_V3/lab_receipt.json) | 60.969 | 138.263 | Completed |
+| 4 | [LAB1 V1](../resume3/lab/LAB1_V1/lab_receipt.json) | — | 1,292.142 | Wall cutoff during quality |
+| 5 | [LAB2 V1](../resume3/lab/LAB2_V1/lab_receipt.json) | 66.450 | 119.856 | Exact-positive output, strict audit stopped |
+| 6 | [LAB2 V0](../resume3/lab/LAB2_V0/lab_receipt.json) | 162.988 | 215.797 | Exact-positive output, strict audit stopped |
+
+Pass time covers array construction through write-back. Input loading and post-pass exact and strict audits are measured separately.
+
+| Pair | Cells | Points | Margin-bad cells | Short edges | Long edges |
+|---|---:|---:|---:|---:|---:|
+| LAB2 V2 | 726,442 → 577,406 | 146,676 → 114,227 | 22,541 → 17,246 | 502,869 → 356,016 | 25,063 → 2,846 |
+| LAB1 V2 | 303,359 → 593,731 | 61,330 → 114,317 | 15,008 → 122,791 | 209,553 → 353,380 | 43,113 → 15,743 |
+| LAB2 V3 | 726,442 → 664,394 | 146,676 → 130,688 | 22,541 → 17,674 | 296,546 → 249,939 | 25,063 → 2,849 |
+| LAB1 V1 | 303,359 → — | 61,330 → — | 15,008 → — | 209,553 → — | 43,113 → — |
+| LAB2 V1 | 726,442 → 580,374 | 146,676 → 114,717 | 22,541 → 10,345 | 502,869 → 354,495 | 25,063 → 587 |
+| LAB2 V0 | 726,442 → 566,975 | 146,676 → 112,471 | 22,541 → 11,121 | 502,869 → 344,577 | 25,063 → 610 |
+
+LAB2 V3 counts short edges at 0.6363961031. Its pair receipt also records the count at 0.9.
+
+| Pair | Nonpositive output cells | Strict q-bad / J-bad / long cells |
+|---|---:|---:|
+| LAB2 V2 | 0 | 16,748 / 16,560 / 8,230 |
+| LAB1 V2 | 0 | 121,267 / 119,593 / 35,040 |
+| LAB2 V3 | 0 | 17,181 / 17,032 / 8,331 |
+| LAB1 V1 | — | Unavailable |
+| LAB2 V1 | 0 | Unavailable |
+| LAB2 V0 | 0 | Unavailable |
+
+| Pair | Edits in collapse / split / removal / swap / move order | Blocked | Valid / exact / size / topology / memory / numeric / shape refusals |
+|---|---|---:|---|
+| LAB2 V2 | 63,641 / 31,192 / 37,536 / 3,677 / 16,001 | 67,478 | 3,377,262 / 402 / 297,594 / 0 / 0 / 0 / 32,096 |
+| LAB1 V2 | 412,810 / 465,797 / 190,920 / 18,747 / 89,940 | 1,222,901 | 25,789,445 / 32,658 / 2,868,759 / 0 / 45,429 / 0 / 178,756 |
+| LAB2 V3 | 48,110 / 32,122 / 38,521 / 3,801 / 16,475 | 69,279 | 3,353,898 / 414 / 161,170 / 0 / 0 / 0 / 27,079 |
+| LAB1 V1 through cutoff | 77,786 / 249,273 / 414,488 / 21,408 / 356,866 | 0 | 24,366,587 / 557 / 3,222,042 / 0 / 12,033,017 / 0 / 35,289 |
+| LAB2 V1 | 58,573 / 26,614 / 25,625 / 2,074 / 10,976 | 0 | 2,078,391 / 202 / 254,806 / 0 / 0 / 0 / 29,280 |
+| LAB2 V0 | 60,678 / 26,473 / 32,286 / 2,072 / 10,996 | 0 | 2,193,804 / 0 / 239,425 / 0 / 0 / 0 / 0 |
+
+The sweep counters reconcile with the pass rows in all five cases that reached write-back. The pair receipts contain every raw sweep row. The assessment records the cutoff-aware totals, per-kind sweep counts, live cell peaks and test-process RSS where available. [Sweep assessment](../resume3/lab/sweep_assessment.json)
+
+On LAB1 V2, the measured 1,072.121 s included 265.073 s for collapse, 515.057 s for split and 290.467 s for quality. The strict audit found 121,267 q-bad cells, 119,593 J-bad cells and 35,040 long cells on its exact-positive mesh.
+
+LAB1 V1 reached the 1,200 s wall limit during quality. GNU timeout sent SIGTERM, which the SU2 handler acknowledged while core work continued. The verified owned process group was hard-stopped at 1,292.141 s. The cutoff assessment uses the 188 complete rows preceding the first SIGTERM marker. The raw logs retain two later rows. The killed wrapper did not report the test process peak. A live sample observed its RSS high-water mark at 1,161,600 KiB. A separate nice-19 guard monitored the same deadline for the remaining pairs, which both ended before it. [Stop receipt](../resume3/lab/LAB1_V1/hard_wall_stop.json) · [Guard](../resume3/lab_wall_guard.py)
+
+LAB2 V1 and V0 passed the core self-check and exact orientation audit. Production MeasureMetricCells then raised Degenerate metric donor at cells 732833 and 729907, respectively. Their complete strict totals are unavailable. The two V2 runs and LAB2 V3 completed the strict audit.
+
+The six-rank replay, G3, shared-code safeguards and G5 ON remain unevaluated under this order. The build608 G5 OFF proof remains the accepted workflow evidence. The default is NO. [Build608 report](FP1_608.md)

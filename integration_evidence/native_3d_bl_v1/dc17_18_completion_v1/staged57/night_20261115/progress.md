@@ -688,3 +688,21 @@ FP1 H G1 passed on build613. Adopted case tables matched exactly for serial 375,
 FP1 H G2 passed. OFF cut at 246.756 s. Work 90,809,869, all six ranks captured, exact corrected comparator passed with fixedstorage 4120. GQ started after G2 terminated.
 
 FP1 H GQ passed. OFF cut at 685.827 s, exact corrected comparator passed with fixedstorage 4120. All build613 short gates and input provenance checks passed. Commit and push FP1 H, then run LAB2 V2, LAB1 V2, LAB2 V3, LAB1 V1, LAB2 V1 and LAB2 V0 in order.
+
+FP1 H checkpoint pushed and verified at 1391148436. Started the ordered one-rank lab campaign on build613. Each pair has its own 1,200 s wrapper. Apply Resume 3 §9.1 only after all six pair receipts.
+
+FP1 H lab pair 1 of 6 completed. LAB2 V2 pass wall 88.835 s, self-check passed and all written-back cells exactly positive. The separate strict quality counts and every sweep row are preserved. LAB1 V2 is running.
+
+FP1 H lab pair 2 of 6 crossed the §9.1 timing threshold. LAB1 V2 had 301 complete sweep rows totaling 670.801 s before write-back, already beyond the 600 s inclusive pass threshold. Its 1,200 s wrapper remains in force. Preserve the terminal result and finish all ordered pairs before closing at §9.1.
+
+FP1 H lab pair 2 of 6 completed. LAB1 V2 pass wall 1,072.121 s, self-check passed and all output cells exactly positive. The timing stop is confirmed. LAB2 V3 started after LAB1 V2 terminated.
+
+FP1 H lab pair 3 of 6 completed. LAB2 V3 pass wall 60.969 s, self-check passed and all output cells exactly positive. LAB1 V1 started after the terminal receipt.
+
+FP1 H lab pair 4 of 6 reached its 1,200 s limit during quality. GNU timeout sent SIGTERM and SU2's handler acknowledged it but sweep execution continued. Ended the verified owned group with SIGKILL at 1,292.141 s. Treat the rows before the first SIGTERM marker as the 20-minute result and preserve all raw rows separately. The receipt records exit 137 and the stop evidence. LAB2 V1 started after its terminal wait. A separate nice-19 guard now enforces the existing limit for the two remaining pairs.
+
+FP1 H lab pair 5 of 6 completed the pass in 66.450 s and wrote 580,374 exactly positive cells with a passing self-check. The strict MeasureMetricCells audit then failed with Degenerate metric donor at cell 732833, so strict totals for LAB2 V1 are unavailable. LAB2 V0 started after that terminal result.
+
+FP1 H lab pair 6 of 6 completed the pass in 162.988 s and wrote 566,975 exactly positive cells with a passing self-check. The strict MeasureMetricCells audit raised Degenerate metric donor at cell 729907. All six pair receipts and the wall guard are terminal.
+
+FP1 Resume 3 STOP at §9.1. LAB1 V2 1,072.121 s exceeds 600 s by 472.121 s. LAB2 V2 88.835 s. Both production-form outputs passed exact validity and self-check. H checkpoint 1391148436 stays recorded. Seal the six ordered results and hold the replay, G3, safeguards, and G5 ON until the next order. The accepted G5 OFF proof is build608.
