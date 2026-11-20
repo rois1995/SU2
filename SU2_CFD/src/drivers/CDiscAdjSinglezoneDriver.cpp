@@ -35,6 +35,8 @@
 #include "../../../Common/include/toolboxes/CQuasiNewtonInvLeastSquares.hpp"
 #include "../../../Common/include/CEPMFieldSites.hpp"
 #include "../../include/numerics/CNumerics.hpp"
+#include "../../../Common/include/linear_algebra/CSysVector.hpp"
+#include "../../../Common/include/linear_algebra/CSysMatrix.hpp"
 
 
 CDiscAdjSinglezoneDriver::CDiscAdjSinglezoneDriver(char* confFile,
@@ -209,6 +211,8 @@ void CDiscAdjSinglezoneDriver::Run() {
     iteration->IterateDiscAdj(geometry_container, solver_container,
                               config_container, ZONE_0, INST_0, false);
 
+    if (epm_extract_only) MeasureEPMTotalAdjointResidual(loaded_adjoint);
+
     /*--- Monitor the pseudo-time ---*/
 
     StopCalc = iteration->Monitor(output_container[ZONE_0], integration_container, geometry_container,
@@ -242,6 +246,75 @@ void CDiscAdjSinglezoneDriver::Run() {
     CheckEPMExtractOnlyResidual();
   }
 
+}
+
+void CDiscAdjSinglezoneDriver::MeasureEPMTotalAdjointResidual(const su2passivematrix& loaded_adjoint) {
+  epm_total_adjoint_residuals.clear();
+
+  /*--- Serial: no halos, the history residuals are already those of the total adjoint. ---*/
+  if (SU2_MPI::GetSize() == 1) return;
+
+#ifdef CODI_REVERSE_TYPE
+  using PassiveMPI = SelectMPIWrapper<passivedouble>::W;
+
+  /*--- With MPI the halo copies of the solution are registered inputs of the recorded iteration, and some of them
+   *    are used before the halo exchange (e.g. the eddy viscosity of the SetDependencies postprocessing), so a
+   *    converged adjoint has nonzero halo values. The halo seeds are added to the owners' seeds in the reverse
+   *    halo exchange, so the adjoint that the iteration (and the EPM replay) acts on is the TOTAL adjoint: owned
+   *    value plus all halo copies. The native residual compares the new owned part with the loaded total, so it
+   *    reports the halo share, not convergence. Measure the change of the total adjoint instead. ---*/
+  const auto nPoint = geometry->GetnPoint();
+  const auto nPointDomain = geometry->GetnPointDomain();
+  const auto nVarTotal = GetTotalNumberOfVariables(ZONE_0, true);
+  su2passivematrix current(nPoint, nVarTotal);
+  GetAllSolutions(ZONE_0, true, current);
+
+  CSysVector<passivedouble> change(nPoint, nPointDomain, nVarTotal, 0.0);
+  for (unsigned long iPoint = 0; iPoint < nPoint; ++iPoint)
+    for (unsigned short iVar = 0; iVar < nVarTotal; ++iVar)
+      change(iPoint, iVar) = current(iPoint, iVar) - loaded_adjoint(iPoint, iVar);
+  CSysMatrixComms::Initiate(change, geometry, config, MPI_QUANTITIES::SOLUTION_MATRIXTRANS);
+  CSysMatrixComms::Complete(change, geometry, config, MPI_QUANTITIES::SOLUTION_MATRIXTRANS);
+
+  /*--- RMS and max over owned points, as CSolver::SetResidual_RMS. ---*/
+  vector<passivedouble> local_sum(nVarTotal, 0.0), local_max(nVarTotal, 0.0), sum(nVarTotal, 0.0), maximum(nVarTotal, 0.0);
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint)
+    for (unsigned short iVar = 0; iVar < nVarTotal; ++iVar) {
+      const passivedouble r = fabs(change(iPoint, iVar));
+      local_sum[iVar] += r * r;
+      local_max[iVar] = max(local_max[iVar], r);
+    }
+  PassiveMPI::Allreduce(local_sum.data(), sum.data(), nVarTotal, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  PassiveMPI::Allreduce(local_max.data(), maximum.data(), nVarTotal, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+
+  /*--- History names of the columns, in the order of GetAllSolutions. ---*/
+  const auto global_points = static_cast<passivedouble>(geometry->GetGlobal_nPointDomain());
+  unsigned short offset = 0;
+  for (unsigned short iSol = 0; iSol < MAX_SOLS; ++iSol) {
+    const auto* adjoint = solver[iSol];
+    if (!adjoint || !adjoint->GetAdjoint()) continue;
+    vector<string> names;
+    if (iSol == ADJFLOW_SOL) {
+      names = {"DENSITY", "MOMENTUM-X", "MOMENTUM-Y"};
+      if (nDim == 3) names.push_back("MOMENTUM-Z");
+      names.push_back("ENERGY");
+    } else if (iSol == ADJTURB_SOL) {
+      names = {"TKE", "DISSIPATION"};
+    }
+    if (names.size() != adjoint->GetnVar())
+      SU2_MPI::Error("SST_EPM_EXTRACT_ONLY with MPI supports only the compressible flow and SST adjoints.",
+                     CURRENT_FUNCTION);
+    for (unsigned short iVar = 0; iVar < adjoint->GetnVar(); ++iVar) {
+      const auto column = offset + iVar;
+      const passivedouble rms = max(EPS * EPS, sqrt(sum[column] / global_points));
+      epm_total_adjoint_residuals.emplace_back("RMS_ADJ_" + names[iVar], log10(rms));
+      epm_total_adjoint_residuals.emplace_back("MAX_ADJ_" + names[iVar], log10(maximum[column]));
+    }
+    offset += adjoint->GetnVar();
+  }
+#else
+  SU2_MPI::Error("SST_EPM_EXTRACT_ONLY requires SU2_CFD_AD.", CURRENT_FUNCTION);
+#endif
 }
 
 void CDiscAdjSinglezoneDriver::CheckEPMExtractOnlyResidual() {
@@ -278,7 +351,18 @@ void CDiscAdjSinglezoneDriver::CheckEPMExtractOnlyResidual() {
     if (it == monitored.end())
       SU2_MPI::Error("SST_EPM_EXTRACT_ONLY: convergence field " + names[iField] +
                      " is not an adjoint residual history field.", CURRENT_FUNCTION);
-    const passivedouble value = it->second;
+    passivedouble value = it->second;
+    if (!epm_total_adjoint_residuals.empty()) {
+      /*--- With MPI, the residual of the total adjoint (halo copies summed into their owners) replaces the history
+       *    value, see MeasureEPMTotalAdjointResidual. ---*/
+      const auto total = std::find_if(epm_total_adjoint_residuals.begin(), epm_total_adjoint_residuals.end(),
+                                      [&](const pair<string, passivedouble>& f) { return f.first == names[iField]; });
+      if (total == epm_total_adjoint_residuals.end())
+        SU2_MPI::Error("SST_EPM_EXTRACT_ONLY with MPI: convergence field " + names[iField] +
+                       " has no total-adjoint residual (supported: RMS_ADJ_*/MAX_ADJ_* of the flow and SST "
+                       "adjoints).", CURRENT_FUNCTION);
+      value = total->second;
+    }
     passed = passed && value <= criterion;
     json << (iField ? ", " : "") << '"' << names[iField] << "\": " << json_number(value);
     screen << "  " << names[iField] << " = " << value << "\n";
@@ -291,10 +375,15 @@ void CDiscAdjSinglezoneDriver::CheckEPMExtractOnlyResidual() {
   json << "}, \"passed\": " << (passed ? "true" : "false") << "}";
   epm_extract_only_residuals_json = json.str();
 
-  if (rank == MASTER_NODE)
+  if (rank == MASTER_NODE) {
     cout << "\nEPM extract-only: residual of one adjoint iteration from the loaded adjoint (update discarded, "
          << "criterion CONV_RESIDUAL_MINVAL= " << criterion << "): " << (passed ? "passed" : "FAILED") << "\n"
-         << screen.str() << endl;
+         << screen.str();
+    if (!epm_total_adjoint_residuals.empty())
+      cout << "  (MPI: residual of the total adjoint, halo copies summed into their owners; the history values "
+              "above the extraction measure the owned part only.)\n";
+    cout << endl;
+  }
 
   /*--- The extraction guard reads this flag; an interrupt keeps the flag set by the output. ---*/
   if (!output->GetConvergenceInterrupted()) output->SetConvergence(passed);

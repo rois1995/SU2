@@ -118,6 +118,17 @@ protected:
    */
   void CheckEPMExtractOnlyResidual();
 
+  /*!
+   * \brief Extract-only with MPI: residual of the total adjoint (owned value plus all halo copies, summed by the
+   *        reverse halo exchange) after the measuring iteration, against the loaded adjoint. Fills
+   *        epm_total_adjoint_residuals (log10, RMS_ADJ_* and MAX_ADJ_* history names); empty in serial, where the
+   *        history residuals are already those of the total adjoint.
+   * \param[in] loaded_adjoint - Adjoint solution before the iteration (layout of GetAllSolutions).
+   */
+  void MeasureEPMTotalAdjointResidual(const su2passivematrix& loaded_adjoint);
+
+  vector<pair<string, passivedouble>> epm_total_adjoint_residuals; /*!< \brief See MeasureEPMTotalAdjointResidual. */
+
   std::string epm_extract_only_residuals_json;  /*!< \brief JSON value of the extract-only residuals ("criterion",
                                                      "fields" (log10, by CONV_FIELD name), "passed"); empty if not
                                                      extract-only. Written as "extract_only_residuals". */

@@ -25,7 +25,9 @@ import numpy as np
 
 KEY_COLUMNS = ("kind", "key_a", "key_b")
 DEFAULT_CASE_NAMES = ("1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C")
-DTAU_RELATIVE_TOLERANCE = 1e-12
+# Field consistency tolerance (design spec 9.3): 1e-10 relative, with an absolute floor scaled by the field's max norm
+# (the largest |value| of the column). Shared with check_extraction.py.
+FIELD_RELATIVE_TOLERANCE = 1e-10
 CSV_REL_TOL = 1e-10
 CSV_ABS_TOL = 1e-14
 CANONICAL_PROBE_PAIR = "3"
@@ -75,11 +77,21 @@ def _dtau_names(fields):
     return [name for name in fields if name.startswith("dtau_")]
 
 
-def _agree(a, b):
-    """Elementwise scale-aware equality |a-b| <= 1e-12*max(|a|,|b|,tiny); equal infinities and NaN pairs agree."""
+def scaled_close(a, b, scale):
+    """Elementwise |a-b| <= FIELD_RELATIVE_TOLERANCE * max(|a|, |b|, scale), the field consistency test of the design
+    (spec 9.3). `scale` is the field's max norm (broadcast, e.g. one value per column). Equal values (infinities
+    included) and NaN pairs agree."""
     with np.errstate(invalid="ignore"):
-        close = np.abs(a - b) <= DTAU_RELATIVE_TOLERANCE * np.maximum(np.maximum(np.abs(a), np.abs(b)), _TINY)
+        bound = FIELD_RELATIVE_TOLERANCE * np.maximum(np.maximum(np.abs(a), np.abs(b)), np.maximum(scale, _TINY))
+        close = np.abs(a - b) <= bound
     return close | (a == b) | (np.isnan(a) & np.isnan(b))
+
+
+def column_scale(values, rows=None):
+    """Max norm of each column of `values` (2D) over `rows` (boolean mask or None for all), ignoring non-finite."""
+    values = values if rows is None else values[rows]
+    finite = np.where(np.isfinite(values), np.abs(values), 0.0)
+    return np.max(finite, axis=0, initial=0.0)
 
 
 def merge(fields):
@@ -90,7 +102,10 @@ def merge(fields):
     * Rows with uses == 0 were never evaluated on their rank (their S and d columns are 0): they add nothing to the
       sums, they are excluded from the dtau consistency check, and they are never the 'first copy' when an evaluated
       copy exists. A site with no evaluated copy is kept as its first (unused) row.
-    * If an evaluated copy's dtau_* differs from the first copy's by more than 1e-12 relative, ValueError is raised.
+    * Evaluated copies of a site agree only to round-off: the ranks orient a shared edge by their local point
+      numbering, and SU2's gradient correction is not bitwise symmetric in (i, j). If an evaluated copy's dtau_*
+      differs from the first copy's beyond scaled_close (1e-10 relative, floor 1e-10 times the column's max norm over
+      evaluated rows), ValueError is raised.
     The output has one row per site, in order of first appearance; the input is not modified.
     """
     n = len(fields["kind"])
@@ -114,13 +129,14 @@ def merge(fields):
     if dtau:
         mine = np.column_stack([fields[name] for name in dtau])
         reference = mine[representative[inverse]]
-        bad = used[:, None] & ~_agree(mine, reference)
+        bad = used[:, None] & ~scaled_close(mine, reference, column_scale(mine, used))
         if bad.any():
             row, col = np.argwhere(bad)[0]
             site = tuple(float(fields[name][row]) for name in KEY_COLUMNS)
             raise ValueError("Inconsistent halo copies of site (kind, key_a, key_b) = %r: %s is %.17g, first copy has "
-                             "%.17g (relative difference above %g)."
-                             % (site, dtau[col], mine[row, col], reference[row, col], DTAU_RELATIVE_TOLERANCE))
+                             "%.17g (difference above %g relative, with a floor scaled by the column max %.17g)."
+                             % (site, dtau[col], mine[row, col], reference[row, col], FIELD_RELATIVE_TOLERANCE,
+                                column_scale(mine, used)[col]))
 
     order = np.argsort(first_any, kind="stable")  # groups in order of first appearance
     merged = Fields((), getattr(fields, "meta", None))

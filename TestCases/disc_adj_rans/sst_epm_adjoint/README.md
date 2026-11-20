@@ -43,6 +43,19 @@ python3 TestCases/disc_adj_rans/sst_epm_adjoint/check_extraction.py \
 The runner uses `mpirun --host localhost`, shares the serial primal restart, and
 compares every sensitivity/probe with the serial result (`rtol=1e-5`, `atol=1e-9`).
 Evaluation counts include partition-local work and need not be rank-independent.
+
+On several ranks, a converged discrete adjoint has nonzero values at halo points. The
+adjoint restart stores owned points only, so restarting a multi-rank adjoint is lossy
+(native SU2: the 2-rank `restarted` run starts near a `1e-7` residual). On several ranks
+the extract-only guard therefore measures the total adjoint: the owned value plus all its
+halo copies, summed by the reverse halo exchange. It rejects a restart written by a
+multi-rank run, and the runner records this as `extract_only_status`. The 2-rank
+extract-only checks (`mpi_extract_field`, `mpi_extract_scalar`) load the serial adjoint
+and compare with serial to `1e-10`. Their history residuals are those of the owned part
+only, so the runner checks the guard line in the log instead. Halo copies of an edge
+site agree to round-off, not bitwise: the ranks orient the edge by local numbering. The
+reader and the runner use the same test: `1e-10` relative, with a floor of `1e-10` times
+the column's max norm.
 The current development sandbox blocks MPI launcher sockets, so two-rank runtime
 validation must remain pending until these commands pass in a permitted local environment.
 

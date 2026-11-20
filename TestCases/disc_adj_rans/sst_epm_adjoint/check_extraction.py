@@ -18,7 +18,6 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import read_epm_field as epm_field  # noqa: E402  (sits next to this script)
 
-FIELD_RELATIVE_TOLERANCE = 1e-10
 FIELD_KINDS = {"EDGE": 0, "BOUNDARY": 1, "NODE": 2}
 
 
@@ -99,7 +98,8 @@ def assert_no_field_files(directory):
 def compare_fields(reference, other, used_only=False):
     """Compare the merged S_* columns of two fields site by site; returns the largest |a-b| / max|S of the column|.
 
-    Tolerance per value: max(1e-10 * max(|a|, |b|), 1e-10 * max|S| over the column in both fields).
+    Tolerance per value: epm_field.scaled_close, i.e. 1e-10 * max(|a|, |b|, max|S| over the column in both fields),
+    the same test as the halo-copy check of the reader.
     With used_only, only the sites with uses > 0 are kept in each field before comparing: different partitions
     register different unused (halo) sites, so only the evaluated sites are comparable, and their key sets must
     agree."""
@@ -125,9 +125,7 @@ def compare_fields(reference, other, used_only=False):
         assert np.all(np.isfinite(a)) and np.all(np.isfinite(b)), f"{name} has nonfinite values"
         scale = max(float(np.max(np.abs(a), initial=0.0)), float(np.max(np.abs(b), initial=0.0)))
         difference = np.abs(a - b)
-        allowed = np.maximum(FIELD_RELATIVE_TOLERANCE * np.maximum(np.abs(a), np.abs(b)),
-                             FIELD_RELATIVE_TOLERANCE * scale)
-        bad = np.flatnonzero(difference > allowed)
+        bad = np.flatnonzero(~epm_field.scaled_close(a, b, scale))
         assert bad.size == 0, (name, first_keys[first][bad[0]].tolist(), float(a[bad[0]]), float(b[bad[0]]), scale)
         if scale > 0:
             worst = max(worst, float(np.max(difference)) / scale)
@@ -183,14 +181,19 @@ def main():
                                f"{output[-6000:]}")
         print(f"{name}: rejected as expected, {timings[name]:.2f}s", flush=True)
 
-    def run(name, overrides):
+    def run(name, overrides, history_converged=True):
+        """Run and require convergence. history_converged=False is only for extract-only runs on several ranks: there
+        the history residuals measure the owned part of the adjoint only (see EXTRACT_ONLY_MPI_NOTE), and convergence
+        is the extract-only guard on the total adjoint, which the caller checks in the log."""
         directory, returncode = launch(name, overrides)
         if returncode:
             raise RuntimeError(f"{name} failed: {(directory / 'run.log').read_text()[-6000:]}")
         assert "All convergence criteria satisfied." in (directory / "run.log").read_text()
         history = read_csv(directory / "history.csv")
         residuals = {k: float(v) for k, v in history[-1].items() if k.startswith("rms[")}
-        assert residuals and all(math.isfinite(v) and v <= -10 for v in residuals.values()), residuals
+        assert residuals and all(math.isfinite(v) for v in residuals.values()), residuals
+        if history_converged:
+            assert all(v <= -10 for v in residuals.values()), residuals
         print(f"{name}: converged in {len(history)} history rows, {timings[name]:.2f}s", flush=True)
         return directory, history
 
@@ -280,26 +283,49 @@ def main():
     # whose update is discarded, and replay from the loaded adjoint; it must reproduce "enabled" to round-off.
     extract_only_options = dict(adjoint, SST_EPM_POSTPROCESS="YES", SST_EPM_EXTRACT_ONLY="YES",
                                 RESTART_SOL="YES", ITER="1")
-    extracted, extracted_history = run("extract_only", dict(extract_only_options,
-                                                            SOLUTION_ADJ_FILENAME=str(on / "restart_adj"),
-                                                            RESTART_ADJ_FILENAME="restart_adj_out"))
-    assert len(extracted_history) == 1, len(extracted_history)
-    extracted_log = (extracted / "run.log").read_text()
-    assert "EPM extract-only: residual of one adjoint iteration" in extracted_log and "): passed" in extracted_log
-    extracted_rows = read_csv(extracted / "sst_epm_sensitivities.csv")
-    assert len(rows) == len(extracted_rows)
-    for first, again in zip(rows, extracted_rows):
-        assert (first["case"], first["probe_pair"]) == (again["case"], again["probe_pair"]), (first, again)
-        assert again["extraction"] == "field", again["extraction"]
-        assert math.isclose(float(first["dJ_da_at_zero"]), float(again["dJ_da_at_zero"]),
-                            rel_tol=1e-10, abs_tol=1e-14), (first, again)
-    extracted_canonical = {r["case"]: r for r in extracted_rows if r["probe_pair"] == "3"}
-    assert set(extracted_canonical) == set(canonical), sorted(extracted_canonical)
-    extracted_field, extracted_info = check_field_files(extracted, extracted_canonical, edges, source_minimum)
-    max_extract_only_field_error = compare_fields(enabled_field, extracted_field)
+    own_adjoint_options = dict(extract_only_options, SOLUTION_ADJ_FILENAME=str(on / "restart_adj"),
+                               RESTART_ADJ_FILENAME="restart_adj_out")
+    extract_only_status = "passed"
+    if args.ranks > 1:
+        # EXTRACT_ONLY_MPI_NOTE: a converged adjoint on several ranks has nonzero halo values, which the restart
+        # (owned points only) does not keep, so restarting it is lossy (native SU2: the 2-rank "restarted" run also
+        # starts at a one-step residual near 1e-7). The extract-only guard measures the total adjoint (halo copies
+        # summed into their owners) and is expected to reject this input; the 2-rank extract-only checks below use
+        # the serial adjoint instead (mpi_extract_*). If the guard accepts, the usual checks apply.
+        extracted, returncode = launch("extract_only", own_adjoint_options)
+        extracted_log = (extracted / "run.log").read_text()
+        if returncode:
+            assert ("EPM extract-only: residual of one adjoint iteration" in extracted_log
+                    and "): FAILED" in extracted_log
+                    and "EPM extraction requires the native adjoint convergence criterion to pass" in extracted_log), \
+                f"extract_only failed for another reason than the guard:\n{extracted_log[-6000:]}"
+            extract_only_status = "rejected_by_guard_lossy_mpi_restart"
+            print(f"extract_only: {args.ranks}-rank adjoint restart rejected by the guard (lossy halo adjoint), "
+                  f"{timings['extract_only']:.2f}s", flush=True)
+        else:
+            extract_only_status = "passed_from_mpi_restart"
+            extracted_history = read_csv(extracted / "history.csv")
+    else:
+        extracted, extracted_history = run("extract_only", own_adjoint_options)
+    if extract_only_status.startswith("passed"):
+        assert len(extracted_history) == 1, len(extracted_history)
+        extracted_log = (extracted / "run.log").read_text()
+        assert "EPM extract-only: residual of one adjoint iteration" in extracted_log and "): passed" in extracted_log
+        assert "All convergence criteria satisfied." in extracted_log
+        extracted_rows = read_csv(extracted / "sst_epm_sensitivities.csv")
+        assert len(rows) == len(extracted_rows)
+        for first, again in zip(rows, extracted_rows):
+            assert (first["case"], first["probe_pair"]) == (again["case"], again["probe_pair"]), (first, again)
+            assert again["extraction"] == "field", again["extraction"]
+            assert math.isclose(float(first["dJ_da_at_zero"]), float(again["dJ_da_at_zero"]),
+                                rel_tol=1e-10, abs_tol=1e-14), (first, again)
+        extracted_canonical = {r["case"]: r for r in extracted_rows if r["probe_pair"] == "3"}
+        assert set(extracted_canonical) == set(canonical), sorted(extracted_canonical)
+        extracted_field, extracted_info = check_field_files(extracted, extracted_canonical, edges, source_minimum)
+        max_extract_only_field_error = compare_fields(enabled_field, extracted_field)
+        written_adjoint = extracted / f"restart_adj_out{objective_suffix}.dat"
+        assert written_adjoint.exists(), written_adjoint
     assert hashlib.sha256(adjoint_restart.read_bytes()).hexdigest() == adjoint_hash
-    written_adjoint = extracted / f"restart_adj_out{objective_suffix}.dat"
-    assert written_adjoint.exists(), written_adjoint
     # Config rejections abort during parsing; none of these reaches the solver.
     run_expect_failure("reject_no_restart", dict(extract_only_options, RESTART_SOL="NO",
                                                  SOLUTION_ADJ_FILENAME="restart_adj_in"),
@@ -349,7 +375,9 @@ def main():
                     worst = max(worst, abs(a - b) / max(abs(a), abs(b)))
             return worst
 
-        mpi_field, mpi_field_history = run("mpi_extract_field", mpi_options)
+        # history_converged=False: the history residuals are the owned part (EXTRACT_ONLY_MPI_NOTE); the guard line
+        # "): passed" on the total adjoint is checked for both runs below.
+        mpi_field, mpi_field_history = run("mpi_extract_field", mpi_options, history_converged=False)
         assert len(mpi_field_history) == 1, len(mpi_field_history)
         mpi_field_rows = read_csv(mpi_field / "sst_epm_sensitivities.csv")
         mpi_errors["field"] = compare_rows("mpi_extract_field", mpi_field_rows, reference, "field")
@@ -358,7 +386,8 @@ def main():
         mpi_merged, mpi_info = check_field_files(mpi_field, mpi_canonical, edges, source_minimum)
         mpi_errors["field_scaled"] = compare_fields(serial_field, mpi_merged, used_only=True)
         mpi_scalar, mpi_scalar_history = run("mpi_extract_scalar", dict(mpi_options,
-                                                                        SST_EPM_EXTRACTION="SCALAR_REPLAY"))
+                                                                        SST_EPM_EXTRACTION="SCALAR_REPLAY"),
+                                             history_converged=False)
         assert len(mpi_scalar_history) == 1, len(mpi_scalar_history)
         mpi_errors["scalar"] = compare_rows("mpi_extract_scalar", read_csv(mpi_scalar / "sst_epm_sensitivities.csv"),
                                             serial_scalar, "scalar_replay")
@@ -383,19 +412,27 @@ def main():
                                                      for a, b in zip(rows, resumed_rows)),
                "adjoint_final_residuals": {k: v for k, v in on_history[-1].items() if k.startswith("rms[")},
                "adjoint_restart_sha256": adjoint_hash,
-               "extract_only_residuals": {k: v for k, v in extracted_history[-1].items() if k.startswith("rms[")},
-               "max_extract_only_gradient_abs_error": max(abs(float(a["dJ_da_at_zero"])-float(b["dJ_da_at_zero"]))
-                                                          for a, b in zip(rows, extracted_rows)),
-               "extract_only_restart_identical_to_input": written_adjoint.read_bytes() == adjoint_restart.read_bytes(),
-               "field_file_bytes": {"enabled": enabled_info["bytes"], "extract_only": extracted_info["bytes"]},
-               "field_sites": {"enabled": enabled_info["sites"], "extract_only": extracted_info["sites"]},
-               "max_extract_only_field_scaled_error": max_extract_only_field_error,
+               "extract_only_status": extract_only_status,
+               "field_file_bytes": {"enabled": enabled_info["bytes"]},
+               "field_sites": {"enabled": enabled_info["sites"]},
                "rows": len(rows), "status": "passed_infrastructure_smoke_test"}
+    if extract_only_status.startswith("passed"):
+        summary.update({
+            "extract_only_residuals": {k: v for k, v in extracted_history[-1].items() if k.startswith("rms[")},
+            "max_extract_only_gradient_abs_error": max(abs(float(a["dJ_da_at_zero"])-float(b["dJ_da_at_zero"]))
+                                                       for a, b in zip(rows, extracted_rows)),
+            "extract_only_restart_identical_to_input": written_adjoint.read_bytes() == adjoint_restart.read_bytes(),
+            "max_extract_only_field_scaled_error": max_extract_only_field_error})
+        summary["field_file_bytes"]["extract_only"] = extracted_info["bytes"]
+        summary["field_sites"]["extract_only"] = extracted_info["sites"]
     if mpi_errors:
         summary.update(mpi_max_rel_error_field=mpi_errors["field"], mpi_max_rel_error_scalar=mpi_errors["scalar"],
                        mpi_max_field_scaled_error=mpi_errors["field_scaled"])
         summary["field_file_bytes"]["mpi_extract_field"] = mpi_info["bytes"]
         summary["field_sites"]["mpi_extract_field"] = mpi_info["sites"]
+        # Guard values on the total adjoint, as written by SU2 in the field header.
+        summary["mpi_extract_only_guard"] = json.loads(
+            (mpi_field / f"sst_epm_field_{config['OBJECTIVE_FUNCTION']}.json").read_text())["extract_only_residuals"]
     (root / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
 

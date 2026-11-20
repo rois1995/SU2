@@ -167,7 +167,7 @@ class ReaderTests(unittest.TestCase):
         rank0, rank1 = self._two_rank_case()
         dtau, dpk, dpw = rng_arrays(1)
         dtau = dtau.copy()
-        dtau[2, 4] *= 1 + 1e-9  # beyond 1e-12 relative
+        dtau[2, 4] *= 1 + 1e-8  # beyond 1e-10 relative and beyond the column floor
         rank1[0] = make_row("EDGE", 3, 7, S_tau=0.75 * np.ones(9), dtau=dtau, dpk=dpk, dpw=dpw)
         fields = rd.load(write_case(self.dir, [rank0, rank1]))
         with self.assertRaises(ValueError):
@@ -181,6 +181,46 @@ class ReaderTests(unittest.TestCase):
         rank1[0] = make_row("EDGE", 3, 7, S_tau=0.75 * np.ones(9), dtau=dtau, dpk=dpk, dpw=dpw)
         merged = rd.merge(rd.load(write_case(self.dir, [rank0, rank1])))
         self.assertEqual(len(merged["kind"]), 3)
+
+    def test_cluster_3d_round_off_between_copies_is_accepted(self):
+        # 2-rank 3D smoke run (job 664723): the two copies of EDGE (230, 293) differ at round-off, because the ranks
+        # orient the edge differently and the gradient correction is not bitwise symmetric in (i, j).
+        dtau, dpk, dpw = rng_arrays(1)
+        first, second = dtau.copy(), dtau.copy()
+        first[2, 2], second[2, 2] = -5.4376830634819001e-10, -5.4376830634671484e-10
+        rows0 = [make_row("EDGE", 230, 293, S_tau=np.ones(9), dtau=first, dpk=dpk, dpw=dpw)]
+        rows1 = [make_row("EDGE", 230, 293, S_tau=np.ones(9), dtau=second, dpk=dpk, dpw=dpw)]
+        merged = rd.merge(rd.load(write_case(self.dir, [rows0, rows1])))
+        self.assertEqual(len(merged["kind"]), 1)
+        self.assertEqual(merged["dtau_2_2"][0], first[2, 2])  # kept from the first copy
+        self.assertEqual(merged["S_tau_0"][0], 2.0)
+
+    def test_small_value_round_off_is_accepted_by_the_column_floor(self):
+        # Relative to itself the difference is large, but it is below 1e-10 times the column's max norm.
+        dtau, dpk, dpw = rng_arrays(1)
+        big, small_a, small_b = dtau.copy(), dtau.copy(), dtau.copy()
+        big[0, 3] = 1e-5
+        small_a[0, 3], small_b[0, 3] = 1e-20, 3e-20
+        rows0 = [make_row("EDGE", 1, 2, dtau=big, dpk=dpk, dpw=dpw), make_row("EDGE", 3, 4, dtau=small_a)]
+        rows1 = [make_row("EDGE", 3, 4, dtau=small_b)]
+        merged = rd.merge(rd.load(write_case(self.dir, [rows0, rows1])))
+        self.assertEqual(len(merged["kind"]), 2)
+
+    def test_small_value_above_the_column_floor_raises(self):
+        dtau, dpk, dpw = rng_arrays(1)
+        big, small_a, small_b = dtau.copy(), dtau.copy(), dtau.copy()
+        big[0, 3] = 1.0
+        small_a[0, 3], small_b[0, 3] = 1e-3, 1e-3 * (1 + 1e-6)  # difference 1e-9 > floor 1e-10
+        rows0 = [make_row("EDGE", 1, 2, dtau=big, dpk=dpk, dpw=dpw), make_row("EDGE", 3, 4, dtau=small_a)]
+        rows1 = [make_row("EDGE", 3, 4, dtau=small_b)]
+        with self.assertRaises(ValueError):
+            rd.merge(rd.load(write_case(self.dir, [rows0, rows1])))
+
+    def test_scaled_close(self):
+        a = np.array([1.0, 1e-20, 1e-3, np.nan, np.inf])
+        b = np.array([1.0 + 5e-11, 3e-20, 1e-3 + 1e-9, np.nan, np.inf])
+        self.assertEqual(list(rd.scaled_close(a, b, 1.0)), [True, True, False, True, True])
+        self.assertEqual(list(rd.scaled_close(a, b, 0.0)), [True, False, False, True, True])
 
     def test_zero_dtau_copies_agree(self):
         # scale-aware check: exact zeros on both copies are consistent
