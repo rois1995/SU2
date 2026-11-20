@@ -139,6 +139,23 @@ class CEPMFieldSites {
     }
   }
 
+  /*!
+   * \brief Drop the AD indices of all inputs and set their values to zero. Records and keys are kept.
+   * \note Call when the recording is over, so that no stale tape index stays in the inputs.
+   */
+  void ResetInputs() {
+    for (auto& in : inputs_) {
+      for (auto& t : in.tau) {
+        AD::ResetInput(t);
+        t = 0.0;
+      }
+      AD::ResetInput(in.pk);
+      in.pk = 0.0;
+      AD::ResetInput(in.pw);
+      in.pw = 0.0;
+    }
+  }
+
   /*! \brief Set every input to zero and register it as an AD input of the current recording. */
   void RegisterInputs() {
     for (auto& in : inputs_) {

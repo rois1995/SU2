@@ -28,12 +28,22 @@
 #include "catch.hpp"
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/CEPMFieldSites.hpp"
+#include "../../../Common/include/geometry/CGeometry.hpp"
+#include "../../../SU2_CFD/include/output/CEPMFieldWriter.hpp"
 #include "epm_test_setup.hpp"
 
 #include <cmath>
+#include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <iterator>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
+
+#include <unistd.h>
 
 #if defined(CODI_REVERSE_TYPE) && !defined(HAVE_OMP)
 namespace {
@@ -538,3 +548,97 @@ TEST_CASE("Field dot product equals amplitude derivative", "[EPMField]") {
   CheckFusedDot<3>();
 }
 #endif
+
+TEST_CASE("Reset inputs keeps sites and records", "[EPMField]") {
+  CEPMFieldSites sites;
+  const auto s = sites.Site(EPMSiteKind::EDGE, 7, 3);
+  sites.Freeze();
+  sites.Data(s).uses = 3;
+  sites.Data(s).rho = 2;
+  sites.Data(s).S_pk = 5;
+  sites.TauInput(s)[4] = 1.5;
+  sites.PkInput(s) = 2.5;
+  sites.PwInput(s) = 3.5;
+  sites.ResetInputs();
+  CHECK(SU2_TYPE::GetValue(sites.TauInput(s)[4]) == 0.0);
+  CHECK(SU2_TYPE::GetValue(sites.PkInput(s)) == 0.0);
+  CHECK(SU2_TYPE::GetValue(sites.PwInput(s)) == 0.0);
+  CHECK(sites.Size() == 1);
+  CHECK(sites.Frozen());
+  CHECK(sites.Data(s).uses == 3);
+  CHECK(sites.Data(s).rho == 2);
+  CHECK(sites.Data(s).S_pk == 5);
+  CHECK(sites.Data(s).key_a == 3);
+  CHECK(sites.Site(EPMSiteKind::EDGE, 3, 7) == s);
+}
+
+TEST_CASE("Writer layout", "[EPMField]") {
+  using Rec = CEPMFieldSites::Record;
+  constexpr size_t columns = sizeof(Rec) / sizeof(passivedouble);
+  CEPMFieldSites sites;
+  for (unsigned long i = 0; i < 3; ++i) {
+    const auto site = sites.Site(i == 2 ? EPMSiteKind::NODE : EPMSiteKind::EDGE, i + 10, i + 20);
+    auto& record = sites.Data(site);
+    record.uses = static_cast<double>(i);
+    record.rho = 1.0 + i;
+    record.grad[5] = 100.0 + i;
+    record.S_tau[2] = -3.0 - i;
+    record.dtau[4][8] = 4.0e-3 + i;
+  }
+  /*--- Unevaluated sites are written too. ---*/
+  sites.Data(1).rho = std::numeric_limits<double>::quiet_NaN();
+
+  std::stringstream options(epm_test::Options(0, false));
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  CGeometry geometry;
+  geometry.SetnDim(3);
+
+  namespace fs = std::filesystem;
+  const fs::path original = fs::current_path();
+  const fs::path directory = original / ("epm_writer_test_" + std::to_string(getpid()));
+  fs::create_directories(directory);
+  fs::current_path(directory);
+  WriteEPMField(sites, config, geometry, "DRAG", "{\"criterion\": 1e-9}");
+  std::ifstream bin("sst_epm_field_DRAG_rank0.bin", std::ios::binary | std::ios::ate);
+  const std::streamoff bin_size = bin ? static_cast<std::streamoff>(bin.tellg()) : -1;
+  std::vector<double> data(3 * columns, 0.0);
+  if (bin) {
+    bin.seekg(0);
+    bin.read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(data.size() * sizeof(double)));
+  }
+  bin.close();
+  std::ifstream json_file("sst_epm_field_DRAG.json");
+  const std::string json((std::istreambuf_iterator<char>(json_file)), std::istreambuf_iterator<char>());
+  json_file.close();
+  fs::current_path(original);
+  fs::remove_all(directory);
+
+  CHECK(columns == 100);
+  CHECK(bin_size == static_cast<std::streamoff>(3 * sizeof(Rec)));
+  const auto at = [&](size_t row, size_t column) { return data[row * columns + column]; };
+  /*--- Row 2: NODE site (10+2, 20+2); the offsets follow the Record member order. ---*/
+  CHECK(at(2, 0) == static_cast<double>(EPMSiteKind::NODE));
+  CHECK(at(2, 1) == 12.0);
+  CHECK(at(2, 2) == 22.0);
+  CHECK(at(2, 9) == 3.0);               // rho
+  CHECK(at(2, 12 + 5) == 102.0);        // grad_5
+  CHECK(at(2, 33 + 2) == -5.0);         // S_tau_2
+  CHECK(at(2, 44 + 4 * 9 + 8) == 4.0e-3 + 2);  // dtau_4_8
+  CHECK(at(2, 99) == 2.0);              // uses
+  CHECK(std::isnan(at(1, 9)));
+  CHECK(at(0, 99) == 0.0);
+
+  CHECK(json.find("\"count\": 3") != std::string::npos);
+  CHECK(json.find("\"dtau_4_8\"") != std::string::npos);
+  CHECK(json.find("\"grad_0\"") != std::string::npos);
+  CHECK(json.find("\"S_tau_8\"") != std::string::npos);
+  CHECK(json.find("\"record_bytes\": 800") != std::string::npos);
+  CHECK(json.find("\"file\": \"sst_epm_field_DRAG_rank0.bin\"") != std::string::npos);
+  CHECK(json.find("\"nDim\": 3") != std::string::npos);
+  CHECK(json.find("\"objective\": \"DRAG\"") != std::string::npos);
+  CHECK(json.find("\"delta_b\": 1") != std::string::npos);
+  CHECK(json.find("\"1C_KEEP\"") != std::string::npos);
+  CHECK(json.find("\"BOUNDARY\": 1") != std::string::npos);
+  CHECK(json.find("\"extract_only_residuals\": {\"criterion\": 1e-9}") != std::string::npos);
+  CHECK(json.find("\"ref_dimensionalization\": \"DIMENSIONAL\"") != std::string::npos);
+}

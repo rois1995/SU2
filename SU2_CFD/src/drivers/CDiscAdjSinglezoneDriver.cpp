@@ -29,6 +29,7 @@
 #include "../../include/output/tools/CWindowingTools.hpp"
 #include "../../include/output/COutputFactory.hpp"
 #include "../../include/output/COutput.hpp"
+#include "../../include/output/CEPMFieldWriter.hpp"
 #include "../../include/iteration/CIterationFactory.hpp"
 #include "../../include/iteration/CTurboIteration.hpp"
 #include "../../../Common/include/toolboxes/CQuasiNewtonInvLeastSquares.hpp"
@@ -869,8 +870,9 @@ void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
          << "]. Includes baseline and sampled orientations; not verified nonlinear bounds.\n";
   }
 
-  /*--- TODO(Task 7): write the per-rank field files and the JSON layout here, e.g.
-   *    WriteEPMField(field, *config, *geometry, objective, extras_json); the records hold the recorded state,
-   *    the symmetrized sensitivities, the canonical corrections and the coordinates. The value of
-   *    "extract_only_residuals" is epm_extract_only_residuals_json (empty, i.e. null, unless extract-only). ---*/
+  /*--- Per-rank record files and the JSON layout for all sites (the reader filters on uses). The inputs of the
+   *    sites still carry indices of the last recording: reset them now. ---*/
+  WriteEPMField(field, *config, *geometry, config->GetKind_ObjFunc() == DRAG_COEFFICIENT ? "DRAG" : "LIFT",
+                epm_extract_only_residuals_json);
+  field.ResetInputs();
 }
