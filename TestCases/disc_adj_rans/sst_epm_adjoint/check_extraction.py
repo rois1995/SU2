@@ -52,7 +52,7 @@ def main():
         command = ["mpirun", "--host", "localhost", "--bind-to", "none", "-np", str(args.ranks)] + command
     timings = {}
 
-    def run(name, overrides):
+    def launch(name, overrides):
         directory = root / name
         directory.mkdir()
         options = dict(config, **overrides)
@@ -68,6 +68,18 @@ def main():
                 process.wait()
                 raise
         timings[name] = time.monotonic() - start
+        return directory, returncode
+
+    def run_expect_failure(name, overrides, substring):
+        directory, returncode = launch(name, overrides)
+        output = (directory / "run.log").read_text()
+        if returncode == 0 or substring not in output:
+            raise RuntimeError(f"{name}: expected a failure with {substring!r}, got exit code {returncode}: "
+                               f"{output[-6000:]}")
+        print(f"{name}: rejected as expected, {timings[name]:.2f}s", flush=True)
+
+    def run(name, overrides):
+        directory, returncode = launch(name, overrides)
         if returncode:
             raise RuntimeError(f"{name} failed: {(directory / 'run.log').read_text()[-6000:]}")
         assert "All convergence criteria satisfied." in (directory / "run.log").read_text()
@@ -108,6 +120,9 @@ def main():
                 if key.startswith("rms["):
                     assert off_row[key] == on_row[key], (key, off_row[key], on_row[key])
 
+    objective_suffix = {"DRAG": "_cd", "LIFT": "_cl"}[config["OBJECTIVE_FUNCTION"]]
+    adjoint_restart = on / f"restart_adj{objective_suffix}.dat"
+    adjoint_hash = hashlib.sha256(adjoint_restart.read_bytes()).hexdigest()
     rows = read_csv(on / "sst_epm_sensitivities.csv")
     canonical = {r["case"]: r for r in rows if r["probe_pair"] == "3"}
     assert set(canonical) == {"1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C"}
@@ -151,6 +166,36 @@ def main():
         assert first["case"] == resumed["case"] and first["probe_pair"] == resumed["probe_pair"]
         assert math.isclose(float(first["dJ_da_at_zero"]), float(resumed["dJ_da_at_zero"]),
                             rel_tol=1e-5, abs_tol=1e-9), (first, resumed)
+    # Extract-only: load the primal and the adjoint saved by "enabled", measure the residual with one iteration
+    # whose update is discarded, and replay from the loaded adjoint; it must reproduce "enabled" to round-off.
+    extract_only_options = dict(adjoint, SST_EPM_POSTPROCESS="YES", SST_EPM_EXTRACT_ONLY="YES",
+                                RESTART_SOL="YES", ITER="1")
+    extracted, extracted_history = run("extract_only", dict(extract_only_options,
+                                                            SOLUTION_ADJ_FILENAME=str(on / "restart_adj"),
+                                                            RESTART_ADJ_FILENAME="restart_adj_out"))
+    assert len(extracted_history) == 1, len(extracted_history)
+    extracted_log = (extracted / "run.log").read_text()
+    assert "EPM extract-only: residual of one adjoint iteration" in extracted_log and "): passed" in extracted_log
+    extracted_rows = read_csv(extracted / "sst_epm_sensitivities.csv")
+    assert len(rows) == len(extracted_rows)
+    for first, again in zip(rows, extracted_rows):
+        assert (first["case"], first["probe_pair"]) == (again["case"], again["probe_pair"]), (first, again)
+        assert again["extraction"] == "field", again["extraction"]
+        assert math.isclose(float(first["dJ_da_at_zero"]), float(again["dJ_da_at_zero"]),
+                            rel_tol=1e-10, abs_tol=1e-14), (first, again)
+    assert hashlib.sha256(adjoint_restart.read_bytes()).hexdigest() == adjoint_hash
+    written_adjoint = extracted / f"restart_adj_out{objective_suffix}.dat"
+    assert written_adjoint.exists(), written_adjoint
+    # Config rejections abort during parsing; none of these reaches the solver.
+    run_expect_failure("reject_no_restart", dict(extract_only_options, RESTART_SOL="NO",
+                                                 SOLUTION_ADJ_FILENAME="restart_adj_in"),
+                       "SST_EPM_EXTRACT_ONLY= YES requires RESTART_SOL= YES")
+    run_expect_failure("reject_iter", dict(extract_only_options, ITER="5", SOLUTION_ADJ_FILENAME="restart_adj_in"),
+                       "SST_EPM_EXTRACT_ONLY= YES requires RESTART_SOL= YES")
+    # Same effective name: the .dat extension is stripped before the objective suffix is added.
+    run_expect_failure("reject_same_adjoint_file", dict(extract_only_options, SOLUTION_ADJ_FILENAME="restart_adj",
+                                                        RESTART_ADJ_FILENAME="restart_adj.dat"),
+                       "requires SOLUTION_ADJ_FILENAME to differ from RESTART_ADJ_FILENAME")
     assert hashlib.sha256(primal_restart.read_bytes()).hexdigest() == original_hash
     if args.reference:
         reference = read_csv(args.reference / "enabled" / "sst_epm_sensitivities.csv")
@@ -172,6 +217,11 @@ def main():
                "max_restart_gradient_abs_error": max(abs(float(a["dJ_da_at_zero"])-float(b["dJ_da_at_zero"]))
                                                      for a, b in zip(rows, resumed_rows)),
                "adjoint_final_residuals": {k: v for k, v in on_history[-1].items() if k.startswith("rms[")},
+               "adjoint_restart_sha256": adjoint_hash,
+               "extract_only_residuals": {k: v for k, v in extracted_history[-1].items() if k.startswith("rms[")},
+               "max_extract_only_gradient_abs_error": max(abs(float(a["dJ_da_at_zero"])-float(b["dJ_da_at_zero"]))
+                                                          for a, b in zip(rows, extracted_rows)),
+               "extract_only_restart_identical_to_input": written_adjoint.read_bytes() == adjoint_restart.read_bytes(),
                "rows": len(rows), "status": "passed_infrastructure_smoke_test"}
     (root / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))

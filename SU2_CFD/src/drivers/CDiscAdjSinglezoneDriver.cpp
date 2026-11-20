@@ -175,6 +175,16 @@ void CDiscAdjSinglezoneDriver::Run() {
     if (TimeIter != 0) GetAllSolutions(ZONE_0, true, fixPtCorrector);
   }
 
+  /*--- EPM extract-only (SST_EPM_EXTRACT_ONLY, ITER= 1): the single iteration only measures the residual of the
+   *    loaded adjoint; its update is discarded below, so the replay is seeded with the loaded adjoint. ---*/
+  const bool epm_extract_only = config->GetEPMExtraction().enabled && config->GetEPMExtraction().extract_only;
+  su2passivematrix loaded_adjoint;
+  if (epm_extract_only) {
+    loaded_adjoint.resize(geometry_container[ZONE_0][INST_0][MESH_0]->GetnPoint(),
+                          GetTotalNumberOfVariables(ZONE_0, true));
+    GetAllSolutions(ZONE_0, true, loaded_adjoint);
+  }
+
   for (auto Adjoint_Iter = 0ul; Adjoint_Iter < nAdjoint_Iter; Adjoint_Iter++) {
 
     /*--- Initialize the adjoint of the output variables of the iteration with the adjoint solution
@@ -226,6 +236,67 @@ void CDiscAdjSinglezoneDriver::Run() {
 
   }
 
+  if (epm_extract_only) {
+    SetAllSolutions(ZONE_0, true, loaded_adjoint);
+    CheckEPMExtractOnlyResidual();
+  }
+
+}
+
+void CDiscAdjSinglezoneDriver::CheckEPMExtractOnlyResidual() {
+  auto* output = output_container[ZONE_0];
+  const passivedouble criterion = SU2_TYPE::GetValue(config->GetMinLogResidual());
+
+  /*--- Current values of the monitored residual fields. The output drops CONV_FIELD entries that are not history
+   *    fields, so every configured entry (all RMS_/MAX_, checked in CConfig) must be found here; with no
+   *    CONV_FIELD the output's default field is used. ---*/
+  const auto monitored = output->GetResidualConvFields();
+  vector<string> names;
+  for (unsigned short iField = 0; iField < config->GetnConv_Field(); ++iField)
+    names.push_back(config->GetConv_Field(iField));
+  if (names.empty())
+    for (const auto& field : monitored) names.push_back(field.first);
+  if (names.empty())
+    SU2_MPI::Error("SST_EPM_EXTRACT_ONLY found no adjoint residual convergence field.", CURRENT_FUNCTION);
+
+  /*--- COutput::ConvergenceMonitoring never converges on the first iteration (nor before CONV_STARTITER), so with
+   *    ITER= 1 the residual criterion is evaluated here, on the same history values and with the same test. ---*/
+  const auto json_number = [](passivedouble value) {
+    std::ostringstream text;
+    text << std::setprecision(17);
+    if (std::isfinite(value)) text << value; else text << "null";
+    return text.str();
+  };
+  bool passed = true;
+  std::ostringstream json, screen;
+  json << "{\"criterion\": " << json_number(criterion) << ", \"fields\": {";
+  screen << std::setprecision(6);
+  for (size_t iField = 0; iField < names.size(); ++iField) {
+    const auto it = std::find_if(monitored.begin(), monitored.end(),
+                                 [&](const pair<string, passivedouble>& f) { return f.first == names[iField]; });
+    if (it == monitored.end())
+      SU2_MPI::Error("SST_EPM_EXTRACT_ONLY: convergence field " + names[iField] +
+                     " is not an adjoint residual history field.", CURRENT_FUNCTION);
+    const passivedouble value = it->second;
+    passed = passed && value <= criterion;
+    json << (iField ? ", " : "") << '"' << names[iField] << "\": " << json_number(value);
+    screen << "  " << names[iField] << " = " << value << "\n";
+  }
+
+  /*--- History residuals are global reductions; agree on the outcome anyway. ---*/
+  unsigned short local = passed, global = 0;
+  SU2_MPI::Allreduce(&local, &global, 1, MPI_UNSIGNED_SHORT, MPI_MIN, SU2_MPI::GetComm());
+  passed = global > 0;
+  json << "}, \"passed\": " << (passed ? "true" : "false") << "}";
+  epm_extract_only_residuals_json = json.str();
+
+  if (rank == MASTER_NODE)
+    cout << "\nEPM extract-only: residual of one adjoint iteration from the loaded adjoint (update discarded, "
+         << "criterion CONV_RESIDUAL_MINVAL= " << criterion << "): " << (passed ? "passed" : "FAILED") << "\n"
+         << screen.str() << endl;
+
+  /*--- The extraction guard reads this flag; an interrupt keeps the flag set by the output. ---*/
+  if (!output->GetConvergenceInterrupted()) output->SetConvergence(passed);
 }
 
 void CDiscAdjSinglezoneDriver::Postprocess() {
@@ -800,5 +871,6 @@ void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
 
   /*--- TODO(Task 7): write the per-rank field files and the JSON layout here, e.g.
    *    WriteEPMField(field, *config, *geometry, objective, extras_json); the records hold the recorded state,
-   *    the symmetrized sensitivities, the canonical corrections and the coordinates. ---*/
+   *    the symmetrized sensitivities, the canonical corrections and the coordinates. The value of
+   *    "extract_only_residuals" is epm_extract_only_residuals_json (empty, i.e. null, unless extract-only). ---*/
 }

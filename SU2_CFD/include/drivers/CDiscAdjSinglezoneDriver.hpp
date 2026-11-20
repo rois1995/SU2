@@ -112,6 +112,17 @@ protected:
   void ExtractEPMFieldSensitivities();
 
   /*!
+   * \brief Extract-only (SST_EPM_EXTRACT_ONLY): evaluate the residual criterion of the CONV_FIELD residuals measured
+   *        by the single iteration from the loaded adjoint, set the output convergence flag read by the extraction
+   *        guard, and record the values in epm_extract_only_residuals_json.
+   */
+  void CheckEPMExtractOnlyResidual();
+
+  std::string epm_extract_only_residuals_json;  /*!< \brief JSON value of the extract-only residuals ("criterion",
+                                                     "fields" (log10, by CONV_FIELD name), "passed"); empty if not
+                                                     extract-only. Written as "extract_only_residuals". */
+
+  /*!
    * \brief gets Convergence on physical time scale, (deactivated in adjoint case)
    * \return false
    */

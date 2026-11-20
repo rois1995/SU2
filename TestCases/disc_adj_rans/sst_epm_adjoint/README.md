@@ -20,9 +20,12 @@ python3 TestCases/disc_adj_rans/sst_epm_adjoint/check_extraction.py \
 
 The output directory must be new. The script converges every flow and SST residual
 below `1e-10`, saves the primal restart, runs ordinary and EPM-enabled coupled drag
-adjoints, and restarts the saved adjoint. It checks unchanged adjoint iterations,
+adjoints, and restarts the saved adjoint. It also runs `SST_EPM_EXTRACT_ONLY= YES`
+from the saved adjoint (one iteration measures the residual, its update is discarded),
+which must reproduce the end-of-run sensitivities to `1e-10`, and three option
+rejections. It checks unchanged adjoint iterations,
 finite nonzero sensitivities for all five targets, interior viscous-edge coverage,
-SST source coverage, restart agreement, and an unchanged primal file. It retains
+SST source coverage, restart agreement, and unchanged primal and adjoint files. It retains
 configs, logs, histories, restarts, CSVs and a `summary.json` with checksums.
 
 For local MPI validation, use an **MPI-enabled** AD executable and matching serial
