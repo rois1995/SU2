@@ -114,3 +114,9 @@ The frozen-input replay accepted event 1 in 1,568.109 s and produced 554,738 cel
 | 5 | 16.793 | 43,597 |
 
 All stage-0 higher shifts were observed within 17.610 s of the six initial partition rows. The watchdog uses a one-second polling interval and records first-sweep onset estimates. The comparison preserves all sweep rows and the Resume 2 comparison against the build608 and FP0 OFF baselines. [Watch receipt](../resume4/event1/core_watch.json) · [Replay comparison](../resume4/event1/replay_comparison.json)
+
+## Post-replay OFF proof
+
+Build614 passed G3 with 1,148 accepted splits against a minimum of 336. All 1,113 shared edits matched the N14 reference, and the physical and observer-adjusted work gates passed. G4 passed all three rank cohorts. The saved-state safeguard receipts passed merit481 in 126.450 s, saved481 in 153.365 s, and the current target in 144.596 s. G1, G2 and GQ are the already-run build614 receipts above. [Scoped comparison](../resume4/scoped/scoped.json) · [Safeguards](../resume4/scoped/safeguards.json)
+
+The build608 OFF proof provides the six accepted payloads, isolated restart, standing gates and the 1,818.319 / 1,039.725 s reference times. CConfig and the OFF-reachable NRR source match the Part C option checkpoint outside the isolated local-core and print functions. [OFF workflow receipt](../resume/G5/OFF/run_receipt.json) · [Source scope](../resume4/scope.json)

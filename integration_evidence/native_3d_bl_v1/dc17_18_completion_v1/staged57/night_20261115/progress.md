@@ -738,3 +738,13 @@ FP1 H6 lab evidence pushed at 8f484c76d4. Starting one six-rank frozen event 1 r
 FP1 H6 replay stage 0 completed both passes and both shifts on all six ranks. The sum of completed core and shift seconds per rank is 16.793–16.806 s. All higher shifts were visible under two minutes from process launch. The engine has 420,249 cells after the higher shift. Event acceptance is still live.
 
 FP1 H6 replay accepted event 1 in 1,568.109 s with 554,738 cells, job peak equal to rank sum, and 95.055% minimum timer coverage. The stage-0 inclusive core/shift max was 16.806 s, and all higher shifts arrived within 600 s. Replay and all owned descendants are terminal. Seal and run §9.3 scoped OFF safeguards on build614.
+
+FP1 H6 replay evidence pushed at a25cb93f9c. Run G3, G4, and the remaining saved-state safeguards sequentially.
+
+FP1 H6 post-replay. G3 passed with 1148 splits and 1113 identical shared edits.
+
+FP1 H6 post-replay. G4 2D cohorts passed.
+
+FP1 H6 post-replay. Scoped gates and saved-state safeguards passed. The OFF workflow proof is build608.
+
+FP1 H6 post-replay OFF scope passed. G3 1,148 splits and 1,113 exact shared edits. G4 at 1/2/4 ranks and saved safeguard modes merit481, saved481 and saved_current passed. Reuse build614 short prefixes and build608 G5 OFF. Seal then run two G5 ON workflows sequentially.
