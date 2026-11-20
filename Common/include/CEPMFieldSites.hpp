@@ -124,6 +124,21 @@ class CEPMFieldSites {
   void Freeze() { frozen_ = true; }
   bool Frozen() const { return frozen_; }
 
+  /*!
+   * \brief Reset every record to its unused state (uses, adjoints and corrections zero, state NaN).
+   * \note Keys and inputs are kept. Call after Freeze() and before the recording: the hooks fill the
+   *       state of a site only on its first use.
+   */
+  void ResetRecords() {
+    for (auto& record : records_) {
+      const auto kind = record.kind, a = record.key_a, b = record.key_b;
+      record = Record();
+      record.kind = kind;
+      record.key_a = a;
+      record.key_b = b;
+    }
+  }
+
   /*! \brief Set every input to zero and register it as an AD input of the current recording. */
   void RegisterInputs() {
     for (auto& in : inputs_) {

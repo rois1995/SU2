@@ -94,7 +94,27 @@ FORCEINLINE MatrixDbl<nDim> stressTensor(const Double& viscosity,
 template<class PrimitiveType, class MatrixType, size_t nDim>
 NEVERINLINE void addEPMExtractionStress(const PrimitiveType& V, const MatrixType& grad,
                                         const Double& turb_ke, MatrixDbl<nDim,nDim>& tau,
-                                        const CConfig& config) {
+                                        const CConfig& config, const VectorDbl<nDim>& unitNormal,
+                                        const Double& area) {
+  if (config.GetEPMExtraction().mode == CEPMExtraction::Mode::FIELD) {
+    /*--- One site per call, the cursor is set by the caller (scalar lanes of the reverse-AD build). ---*/
+    if (Double::Size != 1)
+      SU2_MPI::Error("EPM field extraction needs a SIMD size of 1 (reverse AD build).", CURRENT_FUNCTION);
+    passivedouble velgrad[nDim][nDim];
+    su2double normal[3] = {}, laneTau[3][3] = {};
+    for (size_t i = 0; i < nDim; ++i) {
+      normal[i] = unitNormal(i)[0];
+      for (size_t j = 0; j < nDim; ++j) {
+        velgrad[i][j] = SU2_TYPE::GetValue(grad(i+1,j)[0]);
+        laneTau[i][j] = tau(i,j)[0];
+      }
+    }
+    CNumerics::EPMFieldStressHook(nDim, velgrad, V.density()[0], V.eddyVisc()[0], turb_ke[0], normal,
+                                  area[0], &config, laneTau);
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j) tau(i,j)[0] = laneTau[i][j];
+    return;
+  }
   const auto& amplitude = config.GetEPMExtraction().amplitude;
   AD::SetPreaccIn(amplitude);
   for (size_t lane = 0; lane < Double::Size; ++lane) {

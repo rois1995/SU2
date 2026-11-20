@@ -1014,7 +1014,11 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
         dk = min(max(eff_intermittency, 0.1), 1.0) * dk;
       }
 
-      if (config->GetEPMExtraction().active) {
+      if (config->GetEPMExtraction().active &&
+          config->GetEPMExtraction().mode == CEPMExtraction::Mode::FIELD) {
+        EPMFieldSourceHook(config, pk, pw, nDim, PrimVar_Grad_i + idx.Velocity(), Density_i,
+                           Eddy_Viscosity_i, ScalarVar_i[0], Volume, prod_limit, alfa_blended, P);
+      } else if (config->GetEPMExtraction().active) {
         const auto& amplitude = config->GetEPMExtraction().amplitude;
         AD::SetPreaccIn(amplitude);
         passivedouble target[3][3], grad[3][3] = {};

@@ -28,12 +28,14 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <limits>
 #include <cstdlib>
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/CEPMFieldSites.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 
@@ -704,12 +706,11 @@ public:
     }
   }
 
-  /*! \brief Passive classical target at the actual replay stage; no eigenvector AD. */
+  /*! \brief Passive classical target of one EPM case; no eigenvector AD and no counters. */
   template<class Mat>
-  static void EPMExtractionTarget(size_t nDim, const Mat& gradient, su2double density,
-                                  su2double viscosity, su2double k, const CConfig* config,
-                                  passivedouble (&target)[3][3]) {
-    auto& epm = config->GetEPMExtraction();
+  static void EPMCaseTarget(size_t nDim, const Mat& gradient, su2double density, su2double viscosity,
+                            su2double k, unsigned short component, bool permute, double angle,
+                            unsigned short probe_pair, passivedouble (&target)[3][3], bool& ambiguous) {
     passivedouble grad[3][3] = {};
     const auto rho = SU2_TYPE::GetValue(density);
     const auto mu = SU2_TYPE::GetValue(viscosity);
@@ -722,19 +723,32 @@ public:
         grad[i][j] = SU2_TYPE::GetValue(gradient[i][j]);
         if (!std::isfinite(grad[i][j])) SU2_MPI::Error("Nonfinite EPM gradient.", CURRENT_FUNCTION);
       }
+    ambiguous = false;
+    ComputePerturbedRSM(nDim, component, permute, 1.0, 1.0, grad, rho, mu, tke,
+                       target, angle, CEPMExtraction::gap_tolerance, &ambiguous, probe_pair);
+  }
+
+  /*! \brief Passive classical target at the actual replay stage; no eigenvector AD. */
+  template<class Mat>
+  static void EPMExtractionTarget(size_t nDim, const Mat& gradient, su2double density,
+                                  su2double viscosity, su2double k, const CConfig* config,
+                                  passivedouble (&target)[3][3]) {
+    auto& epm = config->GetEPMExtraction();
     bool ambiguous = false;
-    ComputePerturbedRSM(nDim, epm.component, epm.permute, 1.0, 1.0, grad, rho, mu, tke,
-                       target, epm.angle, CEPMExtraction::gap_tolerance, &ambiguous, epm.probe_pair);
+    EPMCaseTarget(nDim, gradient, density, viscosity, k, epm.component, epm.permute, epm.angle,
+                  epm.probe_pair, target, ambiguous);
     ++epm.evaluations;
     epm.ambiguous += ambiguous;
   }
 
-  /*! \brief Shared passive turbulent-stress correction for scalar and fused edge fluxes. */
+  /*! \brief Passive turbulent-stress correction of one EPM case; no counters. */
   template<class Mat>
-  static void EPMExtractionStressCorrection(size_t nDim, const Mat& gradient, su2double density,
-                                            su2double viscosity, su2double k, const CConfig* config,
-                                            passivedouble (&correction)[3][3]) {
-    EPMExtractionTarget(nDim, gradient, density, viscosity, k, config, correction);
+  static void EPMCaseStressCorrection(size_t nDim, const Mat& gradient, su2double density, su2double viscosity,
+                                      su2double k, unsigned short component, bool permute, double angle,
+                                      unsigned short probe_pair, passivedouble (&correction)[3][3],
+                                      bool& ambiguous) {
+    EPMCaseTarget(nDim, gradient, density, viscosity, k, component, permute, angle, probe_pair,
+                  correction, ambiguous);
     passivedouble grad[3][3] = {}, baseline[3][3] = {};
     for (size_t i = 0; i < nDim; ++i)
       for (size_t j = 0; j < nDim; ++j) grad[i][j] = SU2_TYPE::GetValue(gradient[i][j]);
@@ -742,7 +756,147 @@ public:
     for (size_t i = 0; i < nDim; ++i)
       for (size_t j = 0; j < nDim; ++j)
         correction[i][j] = -SU2_TYPE::GetValue(density) * correction[i][j] - baseline[i][j];
-    ++config->GetEPMExtraction().stress_evaluations;
+  }
+
+  /*! \brief Shared passive turbulent-stress correction for scalar and fused edge fluxes. */
+  template<class Mat>
+  static void EPMExtractionStressCorrection(size_t nDim, const Mat& gradient, su2double density,
+                                            su2double viscosity, su2double k, const CConfig* config,
+                                            passivedouble (&correction)[3][3]) {
+    auto& epm = config->GetEPMExtraction();
+    bool ambiguous = false;
+    EPMCaseStressCorrection(nDim, gradient, density, viscosity, k, epm.component, epm.permute, epm.angle,
+                            epm.probe_pair, correction, ambiguous);
+    ++epm.evaluations;
+    epm.ambiguous += ambiguous;
+    ++epm.stress_evaluations;
+  }
+
+  /*!
+   * \brief Site of the evaluation being recorded in EPM field mode.
+   * \return The index of the cursor site in the field store, or CEPMFieldSites::npos if the cursor is not set,
+   *         there is no store, or the store is frozen and does not know the key.
+   * \note Always clears the cursor, so a cursor serves a single hook call.
+   */
+  static size_t EPMFieldSiteIndex(const CConfig* config) {
+    auto& epm = config->GetEPMExtraction();
+    const bool set = epm.cursor.set;
+    epm.cursor.set = false;
+    if (!set || !epm.field) return CEPMFieldSites::npos;
+    return epm.field->Site(epm.cursor.kind, epm.cursor.a, epm.cursor.b);
+  }
+
+  /*!
+   * \brief EPM field mode: add the zero-valued stress inputs of the cursor site to tau.
+   * \note The first use of a site in a recording stores the passive state and the stress corrections of the
+   *       five canonical cases (m: component m/2+1, permute m%2, angle 0, probe pair 3).
+   * \param[in] normal - Unit normal of the face.
+   * \param[in] area - Area of the face.
+   * \param[in,out] tau - Stress tensor, indexed tau[i][j].
+   */
+  template<class Mat, class Tau>
+  static void EPMFieldStressHook(size_t nDim, const Mat& gradient, su2double density, su2double viscosity,
+                                 su2double k, const su2double* normal, su2double area, const CConfig* config,
+                                 Tau& tau) {
+    auto& epm = config->GetEPMExtraction();
+    const auto site = EPMFieldSiteIndex(config);
+    if (site == CEPMFieldSites::npos)
+      SU2_MPI::Error("EPM field hook reached without a site cursor", CURRENT_FUNCTION);
+    auto& sites = *epm.field;
+    auto& record = sites.Data(site);
+    if (record.uses == 0) {
+      record.rho = SU2_TYPE::GetValue(density);
+      record.mu_t = SU2_TYPE::GetValue(viscosity);
+      record.k = SU2_TYPE::GetValue(k);
+      for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j)
+          record.grad[i*3+j] = i < nDim && j < nDim ? SU2_TYPE::GetValue(gradient[i][j]) : 0.0;
+        record.normal[i] = i < nDim ? SU2_TYPE::GetValue(normal[i]) : 0.0;
+      }
+      record.area = SU2_TYPE::GetValue(area);
+      for (int m = 0; m < CEPMFieldSites::kCases; ++m) {
+        passivedouble correction[3][3];
+        bool ambiguous = false;
+        EPMCaseStressCorrection(nDim, gradient, density, viscosity, k, m / 2 + 1, m % 2, 0.0, 3,
+                                correction, ambiguous);
+        for (size_t i = 0; i < nDim; ++i)
+          for (size_t j = 0; j < nDim; ++j) record.dtau[m][i*3+j] = correction[i][j];
+      }
+    }
+    ++record.uses;
+    ++epm.evaluations;
+    ++epm.stress_evaluations;
+
+    auto* input = sites.TauInput(site);
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j) {
+        AD::SetPreaccIn(input[i*3+j]);
+        tau[i][j] += input[i*3+j];
+      }
+  }
+
+  /*!
+   * \brief EPM field mode: add the zero-valued k and omega production inputs of the cursor site.
+   * \note The first use of a site in a recording stores the passive state, the clip flags of the raw baseline
+   *       production and the production changes of the five canonical cases, clipped like the scalar replay.
+   * \param[in,out] pk - k production after the clip, the input is added to it.
+   * \param[in,out] pw - omega production, the input is added to it.
+   * \param[in] raw_production - Baseline production before the clip.
+   */
+  template<class Mat>
+  static void EPMFieldSourceHook(const CConfig* config, su2double& pk, su2double& pw, size_t nDim,
+                                 const Mat& gradient, su2double density, su2double viscosity, su2double k,
+                                 su2double volume, su2double prod_limit, su2double alfa_blended,
+                                 su2double raw_production) {
+    auto& epm = config->GetEPMExtraction();
+    const auto site = EPMFieldSiteIndex(config);
+    if (site == CEPMFieldSites::npos)
+      SU2_MPI::Error("EPM field hook reached without a site cursor", CURRENT_FUNCTION);
+    auto& sites = *epm.field;
+    auto& record = sites.Data(site);
+    if (record.uses == 0) {
+      passivedouble grad[3][3] = {};
+      for (size_t i = 0; i < nDim; ++i)
+        for (size_t j = 0; j < nDim; ++j) grad[i][j] = SU2_TYPE::GetValue(gradient[i][j]);
+      const auto rho = SU2_TYPE::GetValue(density);
+      const auto mu = SU2_TYPE::GetValue(viscosity);
+      const auto limit = SU2_TYPE::GetValue(prod_limit);
+      const auto alfa = SU2_TYPE::GetValue(alfa_blended);
+      const auto raw0 = SU2_TYPE::GetValue(raw_production);
+      const auto pk0 = SU2_TYPE::GetValue(pk);
+      const auto pw0 = SU2_TYPE::GetValue(pw);
+      record.rho = rho;
+      record.mu_t = mu;
+      record.k = SU2_TYPE::GetValue(k);
+      for (size_t i = 0; i < 3; ++i)
+        for (size_t j = 0; j < 3; ++j) record.grad[i*3+j] = grad[i][j];
+      record.volume = SU2_TYPE::GetValue(volume);
+      record.prod_limit = limit;
+      record.pk0 = pk0;
+      record.pw0 = pw0;
+      record.p_raw0 = raw0;
+      record.alfa_blended = alfa;
+      record.floor_active = raw0 < 0;
+      record.cap_active = raw0 > limit;
+      for (int m = 0; m < CEPMFieldSites::kCases; ++m) {
+        passivedouble target[3][3];
+        bool ambiguous = false;
+        EPMCaseTarget(nDim, gradient, density, viscosity, k, m / 2 + 1, m % 2, 0.0, 3, target, ambiguous);
+        const auto raw = ComputeReynoldsStressProduction(nDim, target, grad, rho);
+        const auto epm_pk = std::max(0.0, std::min(raw, limit));
+        const auto epm_pw = mu > 0 ? alfa * rho / mu * epm_pk : 0.0;
+        record.dpk[m] = epm_pk - pk0;
+        record.dpw[m] = epm_pw - pw0;
+      }
+    }
+    ++record.uses;
+    ++epm.evaluations;
+
+    auto& input_pk = sites.PkInput(site);
+    auto& input_pw = sites.PwInput(site);
+    AD::SetPreaccIn(input_pk, input_pw);
+    pk += input_pk;
+    pw += input_pw;
   }
 
   /*!

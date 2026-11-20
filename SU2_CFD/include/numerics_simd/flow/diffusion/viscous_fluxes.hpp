@@ -161,7 +161,7 @@ protected:
     if (config.GetEPMExtraction().active) {
       const Double turb_ke = 0.5*(gatherVariables(iPoint, turbVars->GetSolution()) +
                                   gatherVariables(jPoint, turbVars->GetSolution()));
-      addEPMExtractionStress(avgV, avgGrad, turb_ke, tau, config);
+      addEPMExtractionStress(avgV, avgGrad, turb_ke, tau, config, unitNormal, area);
     }
 
     if(wallFun) addTauWall(iPoint, jPoint, solution.GetTau_Wall(), unitNormal, tau);
