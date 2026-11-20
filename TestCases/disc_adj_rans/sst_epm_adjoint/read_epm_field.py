@@ -77,12 +77,12 @@ def _dtau_names(fields):
     return [name for name in fields if name.startswith("dtau_")]
 
 
-def scaled_close(a, b, scale):
-    """Elementwise |a-b| <= FIELD_RELATIVE_TOLERANCE * max(|a|, |b|, scale), the field consistency test of the design
-    (spec 9.3). `scale` is the field's max norm (broadcast, e.g. one value per column). Equal values (infinities
-    included) and NaN pairs agree."""
+def scaled_close(a, b, scale, tolerance=FIELD_RELATIVE_TOLERANCE):
+    """Elementwise |a-b| <= tolerance * max(|a|, |b|, scale), the field consistency test of the design (spec 9.3,
+    tolerance 1e-10). `scale` is the field's max norm (broadcast, e.g. one value per column). Equal values
+    (infinities included) and NaN pairs agree."""
     with np.errstate(invalid="ignore"):
-        bound = FIELD_RELATIVE_TOLERANCE * np.maximum(np.maximum(np.abs(a), np.abs(b)), np.maximum(scale, _TINY))
+        bound = tolerance * np.maximum(np.maximum(np.abs(a), np.abs(b)), np.maximum(scale, _TINY))
         close = np.abs(a - b) <= bound
     return close | (a == b) | (np.isnan(a) & np.isnan(b))
 
