@@ -65,3 +65,49 @@ struct CEPMExtraction {
   unsigned long stress_evaluations = 0;
   static constexpr double gap_tolerance = 1e-10;
 };
+
+/*!
+ * \brief Whether the recording in progress needs site cursors (field extraction).
+ * \note Templated on the config type because CConfig includes this header; call it with a CConfig.
+ */
+template <class Config>
+inline bool EPMFieldCursorOn(const Config* config) {
+  const auto& epm = config->GetEPMExtraction();
+  return epm.enabled && epm.active && epm.mode == CEPMExtraction::Mode::FIELD;
+}
+
+/*!
+ * \brief Point the EPM field hooks at the site of the next viscous-flux or source evaluation.
+ * \note No-op unless EPMFieldCursorOn. Keys: EDGE (global ids of the two points), BOUNDARY (global id of the
+ *       vertex point, index of the marker in the config file), NODE (global id, 0). The next hook call consumes it.
+ */
+template <class Config>
+inline void SetEPMCursor(const Config* config, CEPMExtraction::SiteKind kind, unsigned long a, unsigned long b) {
+  if (!EPMFieldCursorOn(config)) return;
+  auto& cursor = config->GetEPMExtraction().cursor;
+  cursor.kind = kind;
+  cursor.a = a;
+  cursor.b = b;
+  cursor.set = true;
+}
+
+/*!
+ * \brief SetEPMCursor for a boundary vertex: global id of iPoint and config-file index of the marker, so that
+ *        all ranks agree. The marker lookup is only done when the cursor is needed.
+ */
+template <class Config, class Geometry>
+inline void SetEPMBoundaryCursor(const Config* config, const Geometry* geometry, unsigned short iMarker,
+                                 unsigned long iPoint) {
+  if (!EPMFieldCursorOn(config)) return;
+  SetEPMCursor(config, CEPMExtraction::SiteKind::BOUNDARY, geometry->nodes->GetGlobalIndex(iPoint),
+               config->GetMarker_CfgFile_TagBound(config->GetMarker_All_TagBound(iMarker)));
+}
+
+/*!
+ * \brief Drop a cursor that was not consumed, so it cannot serve another site.
+ * \note No-op (no write to the shared config) unless EPMFieldCursorOn.
+ */
+template <class Config>
+inline void ClearEPMCursor(const Config* config) {
+  if (EPMFieldCursorOn(config)) config->GetEPMExtraction().cursor.set = false;
+}

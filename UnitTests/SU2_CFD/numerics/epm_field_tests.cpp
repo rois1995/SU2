@@ -316,6 +316,59 @@ TEST_CASE("Stale cursor is an error", "[EPMField]") {
   CHECK_FALSE(field.epm.cursor.set);
 }
 
+namespace {
+/*--- Stand-in for CGeometry in the boundary cursor helper; it must not be touched when cursors are off. ---*/
+struct NoGeometry {
+  struct Nodes {
+    unsigned long GetGlobalIndex(unsigned long) const { FAIL("geometry used"); return 0; }
+  };
+  const Nodes* nodes = nullptr;
+};
+}  // namespace
+
+TEST_CASE("Solver loops set cursors only in a field recording", "[EPMField]") {
+  FieldCase field;
+  const CConfig* config = &field.config;
+  auto& epm = field.epm;
+  const NoGeometry* noGeometry = nullptr;
+
+  /*--- Not enabled, inactive, or scalar replay: no cursor, and no geometry or marker lookup. ---*/
+  for (int off = 0; off < 3; ++off) {
+    epm.enabled = off != 0;
+    epm.active = off != 1;
+    epm.mode = off == 2 ? CEPMExtraction::Mode::SCALAR_REPLAY : CEPMExtraction::Mode::FIELD;
+    CHECK_FALSE(EPMFieldCursorOn(config));
+    SetEPMCursor(config, EPMSiteKind::EDGE, 3, 7);
+    SetEPMBoundaryCursor(config, noGeometry, 0, 3);
+    CHECK_FALSE(epm.cursor.set);
+    /*--- A cursor left by someone else is not touched either. ---*/
+    epm.cursor.set = true;
+    ClearEPMCursor(config);
+    CHECK(epm.cursor.set);
+    epm.cursor.set = false;
+  }
+
+  epm.enabled = true;
+  epm.active = true;
+  epm.mode = CEPMExtraction::Mode::FIELD;
+  CHECK(EPMFieldCursorOn(config));
+  SetEPMCursor(config, EPMSiteKind::NODE, 9, 0);
+  CHECK(epm.cursor.set);
+  CHECK(epm.cursor.kind == EPMSiteKind::NODE);
+  CHECK(epm.cursor.a == 9);
+  CHECK(epm.cursor.b == 0);
+  /*--- The next hook call consumes it. ---*/
+  CHECK(CNumerics::EPMFieldSiteIndex(config) == 0);
+  CHECK_FALSE(epm.cursor.set);
+  /*--- An unused cursor is dropped at the end of a loop. ---*/
+  SetEPMCursor(config, EPMSiteKind::EDGE, 7, 3);
+  CHECK(epm.cursor.set);
+  ClearEPMCursor(config);
+  CHECK_FALSE(epm.cursor.set);
+  CHECK(CNumerics::EPMFieldSiteIndex(config) == CEPMFieldSites::npos);
+  CHECK(epm.field->Size() == 1);
+}
+
 #ifdef CODI_REVERSE_TYPE
 namespace {
 /*--- Driver order: discovery (passive), Freeze, ResetRecords, RegisterInputs in the recording, evaluation,

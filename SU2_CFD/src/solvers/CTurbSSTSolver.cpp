@@ -386,6 +386,7 @@ void CTurbSSTSolver::Source_Residual(CGeometry *geometry, CSolver **solver_conta
 
     /*--- Compute the source term ---*/
 
+    SetEPMCursor(config, CEPMExtraction::SiteKind::NODE, geometry->nodes->GetGlobalIndex(iPoint), 0);
     auto residual = numerics->ComputeResidual(config);
 
     /*--- Store the intermittency ---*/
@@ -401,6 +402,9 @@ void CTurbSSTSolver::Source_Residual(CGeometry *geometry, CSolver **solver_conta
 
   }
   END_SU2_OMP_FOR
+
+  /*--- The source skips the EPM hook near walls (zero distance), drop the unused cursor. ---*/
+  ClearEPMCursor(config);
 
   AD::EndNoSharedReading();
 

@@ -5236,6 +5236,7 @@ void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container,
 
         /*--- Compute and update viscous residual ---*/
 
+        SetEPMBoundaryCursor(config, geometry, val_marker, iPoint);
         auto residual = visc_numerics->ComputeResidual(config);
         LinSysRes.SubtractBlock(iPoint, residual);
 
@@ -5661,6 +5662,7 @@ void CEulerSolver::BC_Riemann(CGeometry *geometry, CSolver **solver_container,
                                               solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint,0));
 
         /*--- Compute and update residual ---*/
+        SetEPMBoundaryCursor(config, geometry, val_marker, iPoint);
         auto residual = visc_numerics->ComputeResidual(config);
         LinSysRes.SubtractBlock(iPoint, residual);
 
@@ -6174,6 +6176,7 @@ void CEulerSolver::BC_TurboRiemann(CGeometry *geometry, CSolver **solver_contain
 
           /*--- Compute and update residual ---*/
 
+          SetEPMBoundaryCursor(config, geometry, val_marker, iPoint);
           auto residual = visc_numerics->ComputeResidual(config);
           LinSysRes.SubtractBlock(iPoint, residual);
 
@@ -7109,6 +7112,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
 
         /*--- Compute and update residual ---*/
 
+        SetEPMBoundaryCursor(config, geometry, val_marker, iPoint);
         auto residual = visc_numerics->ComputeResidual(config);
         LinSysRes.SubtractBlock(iPoint, residual);
 
@@ -7817,6 +7821,7 @@ void CEulerSolver::BC_Supersonic_Outlet(CGeometry *geometry, CSolver **solver_co
 
        /*--- Compute and update residual ---*/
 
+       SetEPMBoundaryCursor(config, geometry, val_marker, iPoint);
        auto residual = visc_numerics->ComputeResidual(config);
        LinSysRes.SubtractBlock(iPoint, residual);
 

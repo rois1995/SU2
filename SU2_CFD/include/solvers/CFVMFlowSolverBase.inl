@@ -506,6 +506,8 @@ CNumerics::ResidualType<> CFVMFlowSolverBase<V, R>::Viscous_Residual_impl(unsign
 
   /*--- Compute and update residual ---*/
 
+  SetEPMCursor(config, CEPMExtraction::SiteKind::EDGE, geometry->nodes->GetGlobalIndex(iPoint),
+               geometry->nodes->GetGlobalIndex(jPoint));
   auto residual = numerics->ComputeResidual(config);
 
   if (ReducerStrategy) {
