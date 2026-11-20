@@ -31,3 +31,7 @@ G2 and GQ passed at 236.468 and 660.034 s. All strict rows matched, including mo
 G3 passed physical and observer-adjusted identity checks with 1,552 accepted splits and 1,113 identical common edits. G4 passed at 1, 2 and 4 ranks. The merit481, saved481 and saved_current safeguards passed. These three gate families do not compare scheduling calls against prior runs. [Scoped receipt](../resume6/scoped/scoped.json) · [Saved-state receipts](../resume6/scoped/safeguards.json)
 
 **Part S gates 1 to 4 passed. G5 OFF pending (FX1).** Resume 6 uses the accepted build615 OFF workflow and its native maxima 1,778.627 / 1,029.081 s for the ON comparisons.
+
+## G5 ON1
+
+ON1 passed both events, continued CFD and isolated disk restart. Native maxima were 1,499.541 / 386.884 s and minimum named coverage was 99.041% / 98.658%. The six ON1 files are sealed for the repeat. [Run receipt](../resume6/G5/ON1/run_receipt.json) · [Build615 OFF binding](../resume6/G5/build615_off_binding.json)

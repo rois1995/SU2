@@ -842,3 +842,13 @@ FP1 S. G4 passed at 1, 2 and 4 ranks.
 FP1 S. Saved-state safeguards passed. The Part S checkpoint is next, with G5 OFF pending (FX1).
 
 FP1 S gates 1 to 4 passed. G2 / GQ took 236.468 / 660.034 s. The per-rank Scheduling calls are sealed. G5 OFF pending (FX1). Next is the build616 ON pair with the sealed build615 OFF proof.
+
+FP1 S gates 1 to 4 checkpoint pushed at 23ef6e9d3f. G5 OFF pending (FX1). Starting the two build616 ON runs.
+
+FP1 S ON1 event 1 passed final timer and connected proof at 1499.541 s and 99.041% minimum named coverage. The workflow continues through event 1 publication and continued CFD to event 2.
+
+FP1 S ON1 event 1 mesh, geometry sidecar and restart match build615 ON1 byte for byte. Event 2 is running.
+
+FP1 S ON1 event 2 passed final timer and connected proof at 386.884 s. Minimum named coverage was 98.658%. Publication and restart validation continue.
+
+FP1 S G5 ON1 passed both events, continued CFD and isolated disk restart. Native maxima 1,499.541 / 386.884 s and minimum named coverage 99.041% / 98.658%. The second run uses the same pinned build616 solver. Repeat identity is pending.
