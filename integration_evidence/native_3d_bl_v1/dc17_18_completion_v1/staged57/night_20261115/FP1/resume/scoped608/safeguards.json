@@ -1,0 +1,306 @@
+{
+  "passed": true,
+  "build": 608,
+  "safeguards": {
+    "merit481": {
+      "private_work": false,
+      "require_identity": true,
+      "payloads": {
+        "p6c_gap_scan.jsonl": {
+          "reference": "53f4ad805400ac8175a30dceebba70ab08e8670cd7b4e3b16eaee1b829ae2bdc",
+          "candidate": "53f4ad805400ac8175a30dceebba70ab08e8670cd7b4e3b16eaee1b829ae2bdc"
+        }
+      },
+      "exact": true,
+      "passed": true,
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume/scoped608/safeguards/cases/geometry_merit505_serial_20261120T072418_1116996",
+      "seconds": 120.19076490402222
+    },
+    "saved481": {
+      "private_work": false,
+      "require_identity": true,
+      "payloads": {
+        "trajectory_working_owned.bin": {
+          "reference": "31139b0f1766dddb7122b0d3aa6d7378c37b59f9ece2fe472ef1d82327c478aa",
+          "candidate": "31139b0f1766dddb7122b0d3aa6d7378c37b59f9ece2fe472ef1d82327c478aa"
+        },
+        "trajectory_working_parameters.bin": {
+          "reference": "60d9d41e4d24ff0a2a49bac21405d7bf6004d8091ade11c955b0566105ec2e71",
+          "candidate": "60d9d41e4d24ff0a2a49bac21405d7bf6004d8091ade11c955b0566105ec2e71"
+        },
+        "correction_unchanged_owned.bin": {
+          "reference": "612c72fdfda078f8497e2b91b4e61633ece944c8d9fbdfa2e5ef02b6e9679b5f",
+          "candidate": "612c72fdfda078f8497e2b91b4e61633ece944c8d9fbdfa2e5ef02b6e9679b5f"
+        }
+      },
+      "exact": true,
+      "passed": true,
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume/scoped608/safeguards/cases/curved505_saved_surface_corrections_serial_20261120T072627_1119499",
+      "seconds": 190.23493432998657
+    },
+    "saved_current": {
+      "private_work": false,
+      "require_identity": true,
+      "payloads": {
+        "trajectory_working_owned.bin": {
+          "reference": "31139b0f1766dddb7122b0d3aa6d7378c37b59f9ece2fe472ef1d82327c478aa",
+          "candidate": "31139b0f1766dddb7122b0d3aa6d7378c37b59f9ece2fe472ef1d82327c478aa"
+        },
+        "trajectory_working_parameters.bin": {
+          "reference": "60d9d41e4d24ff0a2a49bac21405d7bf6004d8091ade11c955b0566105ec2e71",
+          "candidate": "60d9d41e4d24ff0a2a49bac21405d7bf6004d8091ade11c955b0566105ec2e71"
+        },
+        "correction_unchanged_owned.bin": {
+          "reference": "612c72fdfda078f8497e2b91b4e61633ece944c8d9fbdfa2e5ef02b6e9679b5f",
+          "candidate": "612c72fdfda078f8497e2b91b4e61633ece944c8d9fbdfa2e5ef02b6e9679b5f"
+        }
+      },
+      "exact": true,
+      "passed": true,
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume/scoped608/safeguards/cases/curved505_current_target_surface_corrections_serial_20261120T073008_1123817",
+      "seconds": 144.88611030578613
+    }
+  },
+  "G3": {
+    "passed": true,
+    "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume/scoped608/g3/cases/FP1F_G3_20261120T071257_1103013",
+    "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/cases/n14_g3_first_20261117T104157_3163858",
+    "physical_gates": {
+      "executed_successfully": true,
+      "runtime_pins_verified": true,
+      "serial_bounded_command": true,
+      "exact_input_and_target": true,
+      "unchanged_stage_limits": true,
+      "all_private_cells_positive_with_sensors": true,
+      "modeled_storage_within_12GiB": true,
+      "same_frozen_input_contract": true,
+      "same_frozen_configuration": true,
+      "zero_upper_refinements": true,
+      "whole_job_peak_RSS_19073_MiB_serial": true
+    },
+    "terminal_receipt_sha256": "811b742a6fbe12c0ea2bee46dd536b19ac90218c8794bfeb79bee20d35957151",
+    "accepted_splits": 1535,
+    "minimum_splits": 336,
+    "common_edit_count": 1113,
+    "first_mismatch_index": null,
+    "observer_adjusted_entry_work": {
+      "reference": 5113,
+      "candidate": 5113
+    },
+    "report_only_split_rows": {
+      "reference": 1113,
+      "candidate": 1535,
+      "candidate_saved_stage": {
+        "rank": 0,
+        "ranks": 1,
+        "input_cells": 303823,
+        "donor_cells": 303823,
+        "output_cells": 307519,
+        "global_output_cells": 307519,
+        "positive_cells": 307519,
+        "sensor_cells": 307519,
+        "surface_prepared": false,
+        "engine_valid": false,
+        "final_mesh_accepted": false,
+        "same_target_policy": true,
+        "input_parameters_unchanged": true,
+        "exact_transported_input": true,
+        "captured": true,
+        "stage_height": 6.4e-05,
+        "seconds": 461.544891769,
+        "maximum_seconds": 388.8,
+        "maximum_work": 233220,
+        "stop": "time_budget",
+        "reason": "Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined. Local cached demands: geometry_cells=3026, metric_or_height_cells=6145, geometry_edges=8039, metric_edges=0. Last local rejection: edge 7280,7284: Native 3D size insertion does not shorten the longest changed-edge frontier.",
+        "work": 6547,
+        "commits": 1535,
+        "moved": 0,
+        "reconnected": 0,
+        "splits": 1535,
+        "collapses": 0,
+        "geometry_work": 162099403,
+        "process_cpu_seconds": 460.899629,
+        "ownership_evaluations": 0,
+        "ownership_changes": 0,
+        "ownership_moved_cells": 0,
+        "geometry_guidance_trials": 728,
+        "geometry_guidance_rejected": 173,
+        "surface_required": 42303,
+        "surface_measured": 42303,
+        "surface_census_complete": true,
+        "surface_geometry_complete": true,
+        "guidance_memo_reserved_bytes": 1082433473,
+        "guidance_memo_live_bytes": 17212104,
+        "guidance_memo_hits": 100025,
+        "strip_memo_hits": 0,
+        "upper_calls": 18653,
+        "upper_work": 169359175,
+        "upper_seconds": 317.1317827009999,
+        "scope_work": 1918356,
+        "scope_seconds": 37.34310017099995,
+        "facet_resolutions": 2,
+        "facet_work": 1258702,
+        "traversal_work": 162649000,
+        "tracked_collective_seconds": 0.2288180280120855,
+        "ownership_seconds": 0,
+        "maximum_work_bytes": 11222441241,
+        "timers_overlap": true,
+        "cpu_includes_MPI_polling": true
+      }
+    },
+    "excluded_legacy_gate": "P6c first 336 edits"
+  },
+  "G4": {
+    "schema": "n4_g4_build608_case_receipt_v1",
+    "passed": true,
+    "build_label": "build608",
+    "required_filters": [
+      "[NativeEngine2D]",
+      "[NativeMesh2D]",
+      "[NativeBL2D]"
+    ],
+    "new_cases": [
+      {
+        "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/build608_2d1_20261120T072324_1115754",
+        "status": {
+          "state": "terminal",
+          "exit_code": 0,
+          "seconds": 6.566763162612915,
+          "pins_verified": true,
+          "changed": [],
+          "largest_sampled_individual_process_rss_bytes": 38023168,
+          "rss_note": "sampled process RSS; not a whole-job peak"
+        },
+        "sample_count": 3,
+        "actual_host_terminal_handles": [
+          {
+            "pid": 1115953,
+            "start_ticks": 65171241,
+            "alive": false
+          },
+          {
+            "pid": 1115954,
+            "start_ticks": 65171241,
+            "alive": false
+          },
+          {
+            "pid": 1115955,
+            "start_ticks": 65171241,
+            "alive": false
+          },
+          {
+            "pid": 1115956,
+            "start_ticks": 65171242,
+            "alive": false
+          }
+        ],
+        "disappeared_before_identity_sample": 0,
+        "all_observed_identities_terminal": true,
+        "pins_unchanged": true,
+        "pins_sha256": "b58ee1489178515f61dd574ff1f2b6db9fdead2e11819f147a54033c9a3099f8",
+        "run_log_sha256": "010757caa16ed132c2e70b2a95d4ab20a1cb7305ab7e3ac12a829e152fc2af4d"
+      },
+      {
+        "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/build608_2d2_20261120T072332_1115754",
+        "status": {
+          "state": "terminal",
+          "exit_code": 0,
+          "seconds": 6.57989501953125,
+          "pins_verified": true,
+          "changed": [],
+          "largest_sampled_individual_process_rss_bytes": 37990400,
+          "rss_note": "sampled process RSS; not a whole-job peak"
+        },
+        "sample_count": 3,
+        "actual_host_terminal_handles": [
+          {
+            "pid": 1116130,
+            "start_ticks": 65172066,
+            "alive": false
+          },
+          {
+            "pid": 1116131,
+            "start_ticks": 65172066,
+            "alive": false
+          },
+          {
+            "pid": 1116132,
+            "start_ticks": 65172066,
+            "alive": false
+          },
+          {
+            "pid": 1116135,
+            "start_ticks": 65172069,
+            "alive": false
+          },
+          {
+            "pid": 1116136,
+            "start_ticks": 65172069,
+            "alive": false
+          }
+        ],
+        "disappeared_before_identity_sample": 0,
+        "all_observed_identities_terminal": true,
+        "pins_unchanged": true,
+        "pins_sha256": "b58ee1489178515f61dd574ff1f2b6db9fdead2e11819f147a54033c9a3099f8",
+        "run_log_sha256": "abaed50c0e9c123f1ead501707c12921f7dcc8c0f134bc47c290348a516badcd"
+      },
+      {
+        "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/build608_2d4_20261120T072340_1115754",
+        "status": {
+          "state": "terminal",
+          "exit_code": 0,
+          "seconds": 6.5809407234191895,
+          "pins_verified": true,
+          "changed": [],
+          "largest_sampled_individual_process_rss_bytes": 39653376,
+          "rss_note": "sampled process RSS; not a whole-job peak"
+        },
+        "sample_count": 3,
+        "actual_host_terminal_handles": [
+          {
+            "pid": 1116334,
+            "start_ticks": 65172893,
+            "alive": false
+          },
+          {
+            "pid": 1116335,
+            "start_ticks": 65172893,
+            "alive": false
+          },
+          {
+            "pid": 1116336,
+            "start_ticks": 65172893,
+            "alive": false
+          },
+          {
+            "pid": 1116339,
+            "start_ticks": 65172895,
+            "alive": false
+          },
+          {
+            "pid": 1116340,
+            "start_ticks": 65172896,
+            "alive": false
+          },
+          {
+            "pid": 1116341,
+            "start_ticks": 65172896,
+            "alive": false
+          },
+          {
+            "pid": 1116342,
+            "start_ticks": 65172896,
+            "alive": false
+          }
+        ],
+        "disappeared_before_identity_sample": 0,
+        "all_observed_identities_terminal": true,
+        "pins_unchanged": true,
+        "pins_sha256": "b58ee1489178515f61dd574ff1f2b6db9fdead2e11819f147a54033c9a3099f8",
+        "run_log_sha256": "725389814d1aed563222d1cc8eb22008c0570008bfe1edca7873a0bcb1b2d205"
+      }
+    ],
+    "launched_by": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume/scoped608/g4/run_g4_608.py"
+  }
+}

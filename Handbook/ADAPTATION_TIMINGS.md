@@ -2,9 +2,9 @@
 
 ## Fast path stage 1
 
-The Part C OFF G2 prefix stopped at the first-collapse boundary in 251.972 s with 90,809,869 work units and a sampled rank process high-water sum of 7,958,585,344 B. Preparation kept 250 communication calls per rank. Construction measured 333,799 per rank against the historical gate of 340,843. The exact prefix comparison to the accepted N22 C capture passed. [FP1 Part C report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_600.md)
+Build608 passed the fresh Part C OFF G2 prefix in 246.927 s with 90,809,869 work units, matching the exact rows of the adopted reference. Rank 0 recorded 250 preparation and 333,799 construction communication calls. Work order 3 correction 1 designated those counters as report rows. [FP1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_608.md)
 
-The option fixtures exercised 8 splits per repeat. Their maximum recorded local pass wall times at 1, 2 and 4 ranks were 0.409, 0.275 and 0.584 ms, respectively. The Part B MPI fixtures verified both shifts and strict engine acceptance. [FP1 Part B report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_599.md)
+The Part F single-rank refusal-memory fixture skipped 1,134 evaluations and produced identical owned bytes. The modeled local-core charge increased from 9,492 to 10,620 bytes per cell. Both MPI fixture layouts exercised all five local edit types and both border shifts. Strict refinement returned valid. [FP1 fixture evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_608.md)
 
 | Stage | FP1 OFF G5 events 1 and 2 | FP1 ON G5 events 1 and 2 |
 |---|---|---|

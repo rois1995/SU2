@@ -616,3 +616,21 @@ FP1 F4.4 R3. Build607 field variant 1 passed at 2 and 4 ranks. Pass 1 made 32/96
 FP1 F. Build608 passed in 14.307 s with zero new warnings. All original and resume fixtures passed on the pinned solver and test driver. F4.4 counts matched build607. Serial G1 started under controller PID 1050241/start 64901709 with MPI G1 queued. One short no-launch Python review observed during preflight completed in under 5 s. Next is the Part F gate-scope audit and checkpoint after G1.
 
 FP1 F. G1 matched 375 / 114 / 228 records at 1 / 2 / 4 ranks in 765.088 / 8.946 / 11.937 s. Every Part F gate passed. The source scope is confined to the reviewed files and the PrintLocalPass field. Checkpoint Part F before any live Part C gate.
+
+FP1 F. Pushed `f36b66eadd` after all gates passed. Section 4's code-tree comparison to Part B `6dc801d609` passed. The audit script initially omitted Part C's permitted PassCount declaration from its expected paths. Included that core header in the audit without a source change. Run fresh G2/GQ on build608, then G3 and the shared safeguards.
+
+FP1 resume C. G2 passed on build608 at 246.927 s.
+
+FP1 resume C. GQ passed on build608 at 696.140 s.
+
+FP1 resume C. G3 passed 1535 splits with 1113 identical shared edits.
+
+FP1 resume C. G4 passed at 1 / 2 / 4 ranks, matching the adopted 39-case assertion signatures on every rank. The three saved-state safeguards are next in the same controller.
+
+FP1 resume C. The 481 merit safeguard passed byte-exactly in 120.191 s, with no private work. The saved 481 trajectory replay started next.
+
+FP1 resume C. Saved 481 replay passed in 190.235 s with exact payload and planning rows and no private work. Current target replay is in progress.
+
+FP1 resume C. All scoped checks and standing safeguards passed. Next is G5 OFF followed by the two ON runs.
+
+FP1 resume C. All scoped controllers and saved safeguards are terminal and accepted. Current target replay took 144.886 s and matched its payload and planning records exactly. G5 OFF is running on the sealed build608 solver. The G5 controller launches ON1 then ON2 only after OFF and its isolated restart have passed.
