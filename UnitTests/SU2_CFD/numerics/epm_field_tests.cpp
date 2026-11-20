@@ -27,6 +27,7 @@
 
 #include "catch.hpp"
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/CEPMFieldSites.hpp"
 
 #include <sstream>
 #include <string>
@@ -76,5 +77,57 @@ TEST_CASE("EPM extract-only configuration is accepted", "[EPMField]") {
   CHECK(epm.mode == CEPMExtraction::Mode::FIELD);
   CHECK(config.GetRestart());
   CHECK(config.GetnInner_Iter() == 1);
+}
+#endif
+
+using EPMSiteKind = CEPMExtraction::SiteKind;
+
+TEST_CASE("Site keys are unique and edge order independent", "[EPMField]") {
+  CEPMFieldSites sites;
+  const auto edge = sites.Site(EPMSiteKind::EDGE, 7, 3);
+  CHECK(sites.Site(EPMSiteKind::EDGE, 3, 7) == edge);
+  CHECK(sites.Site(EPMSiteKind::NODE, 3, 0) != edge);
+  CHECK(sites.Size() == 2);
+  /*--- Edge keys are stored as (min, max) of the global ids. ---*/
+  CHECK(sites.Data(edge).key_a == 3);
+  CHECK(sites.Data(edge).key_b == 7);
+  CHECK(sites.Data(edge).kind == static_cast<int>(EPMSiteKind::EDGE));
+}
+
+TEST_CASE("Freeze rejects new sites", "[EPMField]") {
+  CEPMFieldSites sites;
+  const auto edge = sites.Site(EPMSiteKind::EDGE, 3, 7);
+  sites.Freeze();
+  CHECK(sites.Site(EPMSiteKind::NODE, 99, 0) == CEPMFieldSites::npos);
+  CHECK(sites.Site(EPMSiteKind::EDGE, 7, 3) == edge);
+  CHECK(sites.Size() == 1);
+}
+
+#ifdef CODI_REVERSE_TYPE
+TEST_CASE("Repeated site accumulates", "[EPMField]") {
+  CEPMFieldSites sites;
+  const auto s = sites.Site(EPMSiteKind::NODE, 5, 0);
+  sites.Freeze();
+  sites.Data(s).uses = 2;
+
+  AD::Reset();
+  AD::StartRecording();
+  sites.RegisterInputs();
+  su2double y = 2 * sites.PkInput(s) + 3 * sites.PkInput(s);
+  AD::RegisterOutput(y);
+  AD::StopRecording();
+  SU2_TYPE::SetDerivative(y, 1);
+  AD::ComputeAdjoint();
+  sites.ExtractAdjoints();
+  const auto record = sites.Data(s);
+
+  /*--- Leave the tape clean for the other tests before checking. ---*/
+  AD::ClearAdjoints();
+  sites.Clear();
+  AD::Reset();
+
+  CHECK(record.S_pk == Approx(5.0));
+  CHECK(record.S_pw == 0.0);
+  CHECK(record.uses == 2.0);
 }
 #endif
