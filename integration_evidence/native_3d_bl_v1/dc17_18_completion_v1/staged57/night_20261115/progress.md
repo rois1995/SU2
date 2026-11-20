@@ -852,3 +852,11 @@ FP1 S ON1 event 1 mesh, geometry sidecar and restart match build615 ON1 byte for
 FP1 S ON1 event 2 passed final timer and connected proof at 386.884 s. Minimum named coverage was 98.658%. Publication and restart validation continue.
 
 FP1 S G5 ON1 passed both events, continued CFD and isolated disk restart. Native maxima 1,499.541 / 386.884 s and minimum named coverage 99.041% / 98.658%. The second run uses the same pinned build616 solver. Repeat identity is pending.
+
+FP1 S ON2 event 1 passed final timer and connected proof at 1500.864 s and 99.043% minimum named coverage. Continuing publication and CFD toward event 2.
+
+FP1 S ON2 event 1 published all three files. They match build616 ON1 and build615 ON2 byte for byte.
+
+FP1 S ON2 event 2 passed final timer and connected proof at 373.634 s. Minimum named coverage was 98.650%. Publication, continued CFD, isolated reload and full repeat identity are next.
+
+FP1 ON accepted. Build616 ON1 1,499.541 / 386.884 s at 99.041% / 98.658%, ON2 1,500.864 / 373.634 s at 99.043% / 98.650%. Both continued CFD and disk restart gates passed. Six output hashes match. All owned identities terminal. Part S G5 OFF pending (FX1). No further FP1 work in this order.

@@ -2,6 +2,27 @@
 
 ## Fast path stage 1
 
+### Resume 6 Part S, build616
+
+| Run | Event 1 / event 2 native max (s) | Minimum named coverage |
+|---|---:|---:|
+| Build615 OFF | 1,778.627 / 1,029.081 | 97.467% / 98.019% |
+| Build616 ON1 | 1,499.541 / 386.884 | 99.041% / 98.658% |
+| Build616 ON2 | 1,500.864 / 373.634 | 99.043% / 98.650% |
+
+Each phase, core and shift clock is a rank maximum in seconds. Engine construction excludes the core and shift within each rank. These maxima are nonadditive.
+
+| Event | Run | Preparation | Engine construction | Core | Shift | Quality | Final proof |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Build615 OFF | 63.022 | 460.190 | 0.000 | 0.000 | 1,150.640 | 63.140 |
+| 1 | ON1 | 64.431 | 464.264 | 15.047 | 0.592 | 855.544 | 57.016 |
+| 1 | ON2 | 64.371 | 465.799 | 15.185 | 0.601 | 856.888 | 56.233 |
+| 2 | Build615 OFF | 83.436 | 202.218 | 0.000 | 0.000 | 602.798 | 105.126 |
+| 2 | ON1 | 54.316 | 157.551 | 9.930 | 0.751 | 99.501 | 28.825 |
+| 2 | ON2 | 53.270 | 156.628 | 9.670 | 0.733 | 90.169 | 27.780 |
+
+Part S assigned generation, queue rebuild and census work to Scheduling. The ON pair passed all standing gates and matched all six payloads. Both ON runs passed the native time comparisons against build615 OFF. G5 OFF for Part S is pending FX1. [Resume 6 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_616_resume6.md)
+
 ### Resume 5 Part N, build615
 
 | Mode | Event 1 native maximum (s) | Event 2 native maximum (s) | Named coverage minima |
