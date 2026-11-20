@@ -776,3 +776,11 @@ FP1 N. G3 passed with 1563 splits and 1113 identical shared edits.
 FP1 N. G4 passed at 1, 2 and 4 ranks.
 
 FP1 N. Saved-state safeguards passed. The Part N checkpoint and fresh OFF G5 are next.
+
+FP1 N pushed at d76fa0d5bc after Resume 5 §2 items 1 to 3. Starting the fresh build615 G5 OFF workflow.
+
+FP1 N G5 OFF event 1 native remesh completed on all six ranks in at most 1,778.627 s. The F3b timer and P7/P8 connected proof gates passed. Minimum coverage rose from build608's 95.257% to 97.467%. Continued CFD and event 2 are next in the same workflow.
+
+FP1 N G5 OFF event 1 published mesh, authority sidecar and restart all match the adopted reference hashes. Event 2 is executing in the same owned workflow.
+
+FP1 N G5 OFF PASSED. Both events and isolated restart passed all standing gates. All six files match the adopted reference. Native maxima 1,778.627 / 1,029.081 s, per-event minimum coverage 97.467% / 98.019%. Commit OFF, then start the two same-binary ON runs.
