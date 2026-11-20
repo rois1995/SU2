@@ -48,11 +48,11 @@ struct FaceMark {
 struct Announcement {
   Id id = 0;
   int rank = 0;
-  bool surface = false;
+  bool surface = false, unresolved = false;
 
   template <class Stream>
   void Fields(Stream& stream) {
-    stream(id, rank, surface);
+    stream(id, rank, surface, unresolved);
   }
 };
 
@@ -86,9 +86,12 @@ std::vector<Announcement> LocalBorder(const Owned& owned, int rank) {
   std::sort(physical.begin(), physical.end());
   std::sort(border.begin(), border.end());
   border.erase(std::unique(border.begin(), border.end()), border.end());
+  const auto unresolved = UnresolvedSurfacePoints(owned);
   std::vector<Announcement> result;
   result.reserve(border.size());
-  for (auto id : border) result.push_back({id, rank, std::binary_search(physical.begin(), physical.end(), id)});
+  for (auto id : border)
+    result.push_back({id, rank, std::binary_search(physical.begin(), physical.end(), id),
+                      std::binary_search(unresolved.begin(), unresolved.end(), id)});
   return result;
 }
 
@@ -97,14 +100,16 @@ void BorderReplies(const std::vector<Announcement>& received, std::vector<std::v
   for (size_t i = 0; i < received.size();) {
     const auto id = received[i].id;
     bool surface = received[i].surface;
+    bool unresolved = received[i].unresolved;
     size_t last = i + 1;
     while (last < received.size() && received[last].id == id) {
       if (received[last].rank == received[last - 1].rank)
         throw std::invalid_argument("Native local border meeting received a duplicate rank.");
-      surface |= received[last++].surface;
+      surface |= received[last].surface;
+      unresolved |= received[last++].unresolved;
     }
     if (last == i + 1) throw std::invalid_argument("Native local border point has no partner rank.");
-    const BorderPoint value{id, received[i].rank, received[last - 1].rank, surface};
+    const BorderPoint value{id, received[i].rank, received[last - 1].rank, surface, unresolved};
     for (size_t j = i; j < last; ++j) replies.at(received[j].rank).push_back(value);
     // Keep the list in both modes because it is part of the admission accounting.
     rendezvous.push_back(id);
@@ -169,7 +174,8 @@ BorderMeeting MeetBorderPoints(World& world, const Owned& owned, MemoryBudget& b
   using transfer_memory::GrowthBound;
   using transfer_memory::Mul;
   const auto baseline = Add(budget.caller_bytes, budget.OwnedBytes(owned.size()), retained);
-  const auto local_scratch = Mul(owned.size(), 4 * sizeof(FaceMark) + 12 * (3 * sizeof(Id) + sizeof(Announcement)));
+  const auto local_scratch =
+      Mul(owned.size(), 4 * sizeof(FaceMark) + 12 * (7 * sizeof(Id) + sizeof(Announcement)));
   budget.Require(world, Add(baseline, local_scratch), "Native local border incidence exceeds storage admission.");
   std::vector<Announcement> local;
   LocalStep(world, [&] { local = LocalBorder(owned, world.rank); });
@@ -218,6 +224,7 @@ void Mesh::MarkBorderSurface(const BorderMeeting& meeting) {
     const auto* mark = meeting.Find(point.node.id);
     if (!mark) throw std::runtime_error("Native local pass has a border point missing from the meeting.");
     point.surface |= mark->surface;
+    point.unresolved |= mark->unresolved;
   }
 }
 

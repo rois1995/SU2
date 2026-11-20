@@ -1,0 +1,36 @@
+{
+  "state": "terminal",
+  "passed": false,
+  "build": 611,
+  "exit_code": 0,
+  "pins_verified": true,
+  "changed": [],
+  "source_pins_sha256": "2f17730bc0011fcde6156e4d4a5dedc004895d46023cdc77a3d48616a7023bfa",
+  "graph_after": {
+    "build.ninja": "bdf3bc53199a18d1f7c95a38d859adc34a2d9bee9b10cb03228f9e24fb3fa221",
+    "compile_commands.json": "9596ee35013c179e13a8ff3d07342e4acd1d1d3ed4878eb60faef4d434c70352"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "f14a971e3fc6bc8fd0dedbf5a0852b002c41343e6148628b4a5530d381214149",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "9f7101e6868111f6477213f0a551c404ac25cf290bc522713388008722eee188",
+  "warnings": [
+    "WARNING: CMake Toolchain: Failed to determine CMake compilers state",
+    "../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.",
+    "WARNING: Deprecated features used:",
+    "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: \u2018void* __builtin_memcpy(void*, const void*, long unsigned int)\u2019 writing 96 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]"
+  ],
+  "new_warnings": [
+    "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: \u2018void* __builtin_memcpy(void*, const void*, long unsigned int)\u2019 writing 96 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]"
+  ],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 1490082,
+      "start_ticks": 66642401
+    },
+    "returncode": 0,
+    "elapsed_seconds": 34.94701886177063,
+    "terminal": true
+  }
+}

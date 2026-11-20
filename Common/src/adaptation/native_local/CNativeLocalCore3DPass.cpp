@@ -6,7 +6,9 @@
  */
 #include "../../../include/adaptation/CNativeLocalCore3D.hpp"
 #include <algorithm>
+#include <ostream>
 #include <tuple>
+#include <unordered_map>
 #include <unordered_set>
 
 namespace SU2NativeLocal3D {
@@ -14,6 +16,38 @@ namespace {
 constexpr unsigned LengthSweepLimit = 50, LengthRoundLimit = 8, QualitySweepLimit = 20;
 
 double ReportClock(const PassStats& stats) { return stats.report ? SU2_MPI::Wtime() : 0.0; }
+
+constexpr std::pair<const char*, size_t SweepCounters::*> SweepFields[] = {
+    {"evaluated_collapse", &SweepCounters::evaluated_collapse},
+    {"evaluated_split", &SweepCounters::evaluated_split},
+    {"evaluated_quality", &SweepCounters::evaluated_quality},
+    {"deferred", &SweepCounters::deferred}, {"skipped_memory", &SweepCounters::skipped_memory},
+    {"blocked", &SweepCounters::blocked}, {"collapses", &SweepCounters::collapses}, {"splits", &SweepCounters::splits},
+    {"edge_removals", &SweepCounters::edge_removals}, {"face_swaps", &SweepCounters::face_swaps},
+    {"moves", &SweepCounters::moves}, {"refused_valid", &SweepCounters::refused_valid},
+    {"refused_size", &SweepCounters::refused_size}, {"refused_topology", &SweepCounters::refused_topology},
+    {"refused_memory", &SweepCounters::refused_memory}, {"refused_numeric", &SweepCounters::refused_numeric},
+    {"refused_shape", &SweepCounters::refused_shape}, {"refused_exact", &SweepCounters::refused_exact}};
+
+struct SweepWatch {
+  explicit SweepWatch(const PassStats& stats) {
+    if (stats.report && stats.sink) {
+      before = stats;
+      start = ReportClock(stats);
+    }
+  }
+
+  void Emit(const PassStats& stats, const char* kind, unsigned round, unsigned sweep, size_t candidates,
+            size_t live_cells, size_t bad_listed = 0) const {
+    if (!stats.report || !stats.sink) return;
+    SweepRow row{kind, round, sweep, candidates, live_cells, bad_listed, ReportClock(stats) - start, {}};
+    for (const auto& field : SweepFields) row.counters.*field.second = stats.*field.second - before.*field.second;
+    stats.sink(row);
+  }
+
+  SweepCounters before;
+  double start = 0;
+};
 
 struct LengthCandidate {
   double order;
@@ -40,12 +74,20 @@ void EachEdge(const Vertices& vertices, Action action) {
 }
 }  // namespace
 
+void PrintSweepFields(std::ostream& output, const SweepRow& row) {
+  output << " kind=" << row.kind << " round=" << row.round << " sweep=" << row.sweep
+         << " candidates=" << row.candidates << " live_cells=" << row.live_cells << " bad_listed=" << row.bad_listed;
+  for (const auto& field : SweepFields) output << ' ' << field.first << '=' << row.counters.*field.second;
+  output << " seconds=" << row.seconds;
+}
+
 // Four points, six edge uses and four faces per cell bound even a rank owning disjoint tetrahedra.
 // Include sort candidates, reversible cavity links and node/bucket overhead of the temporary lookup tables.
 const size_t Mesh::BytesPerCell = transfer_memory::GrowthBound(
     1, sizeof(CellRow) + sizeof(std::array<FacetBinding, 4>) + sizeof(Id) + 3 * sizeof(Slot) +
            4 * (sizeof(PointRow) + sizeof(FrozenPoint) + sizeof(Id) + 5 * sizeof(void*) + sizeof(uint32_t)) +
-           6 * (sizeof(EdgeUse) + sizeof(LengthCandidate) + sizeof(uint64_t) + 4 * sizeof(void*)) +
+           6 * (sizeof(EdgeUse) + sizeof(LengthCandidate) + sizeof(uint64_t) + 4 * sizeof(void*) +
+                sizeof(Edge) + sizeof(Slot)) + 4 * sizeof(Slot) +
            6 * (2 * sizeof(Id) + sizeof(uint64_t) + 4 * sizeof(void*)) +
            8 * (sizeof(FreshCell) + sizeof(Face) + 6 * sizeof(void*)) + sizeof(QualityCandidate));
 
@@ -65,20 +107,67 @@ std::vector<EdgeUse> Mesh::Edges() const {
   return result;
 }
 
+void Mesh::RememberWorkPoints(const Plan& plan) {
+  if (!work_start_) return;
+  std::vector<Slot> touched;
+  const auto add = [&](Vertices vertices) {
+    for (auto point : vertices)
+      if (points_[point].changed_at <= work_start_) touched.push_back(point);
+  };
+  for (auto slot : plan.old) add(cells_[slot].vertices);
+  for (const auto& row : plan.fresh) add(row.vertices);
+  std::sort(touched.begin(), touched.end());
+  work_points_.insert(work_points_.end(), touched.begin(), std::unique(touched.begin(), touched.end()));
+}
+
+std::vector<EdgeUse> Mesh::NextEdges(const std::vector<Edge>& deferred) {
+  // Untouched refusals remain unchanged. Within a split call, available capacity only decreases.
+  std::unordered_map<uint64_t, EdgeUse> uses;
+  const auto add = [&](Edge edge, Slot cell) {
+    const uint64_t key = (uint64_t(std::min(edge[0], edge[1])) << 32) | std::max(edge[0], edge[1]);
+    const auto insertion = uses.emplace(key, EdgeUse{ById(edge), cell});
+    insertion.first->second.cell = std::min(insertion.first->second.cell, cell);
+  };
+  for (auto p : work_points_) {
+    if (points_[p].removed) continue;
+    for (auto cell : Star(p))
+      for (auto q : cells_[cell].vertices)
+        if (p != q) add({p, q}, cell);
+  }
+  for (auto edge : deferred) {
+    if (points_[edge[0]].removed || points_[edge[1]].removed) continue;
+    for (auto cell : Star(edge[0])) {
+      const auto& vertices = cells_[cell].vertices;
+      if (std::find(vertices.begin(), vertices.end(), edge[1]) != vertices.end()) add(edge, cell);
+    }
+  }
+  std::vector<EdgeUse> result;
+  result.reserve(uses.size());
+  for (const auto& entry : uses) result.push_back(entry.second);
+  return result;
+}
+
 size_t Mesh::CollapseSweeps(PassStats& stats) {
   size_t total = 0;
+  const bool work_list = options_.work_list && options_.memory;
+  std::vector<Edge> deferred;
   for (unsigned sweep = 0; sweep < LengthSweepLimit; ++sweep) {
+    const SweepWatch watch(stats);
     stats.Increment(stats.sweeps_collapse);
     ++sweep_;
     MarkWallNear();
     size_t accepted = 0;
     std::vector<LengthCandidate> candidates;
-    for (const auto& use : Edges()) {
+    for (const auto& use : work_list && sweep ? NextEdges(deferred) : Edges()) {
       const auto edge = use.edge;
       if (!CanCollapse(edge[0]) && !CanCollapse(edge[1])) continue;
       const auto length = Length(edge);
-      if (length < ShortEdge) candidates.push_back({length, {points_[edge[0]].node.id, points_[edge[1]].node.id}, use});
+      if (length < options_.short_edge)
+        candidates.push_back({length, {points_[edge[0]].node.id, points_[edge[1]].node.id}, use});
     }
+    deferred.clear();
+    work_points_.clear();
+    work_start_ = work_list ? change_ : 0;
     std::sort(candidates.begin(), candidates.end());
     for (const auto& candidate : candidates) {
       const auto edge = candidate.use.edge;
@@ -91,11 +180,12 @@ size_t Mesh::CollapseSweeps(PassStats& stats) {
       }
       if (stamped) {
         stats.Increment(stats.deferred);
+        if (work_list) deferred.push_back(edge);
         continue;
       }
       // An edit to an incident cell or one of its point values stamps an endpoint.
       // This includes changes to wall-near marks, so an untouched star still refuses.
-      if (memory_) {
+      if (options_.memory) {
         const auto remembered = collapse_refusals_.find(candidate.ids);
         if (remembered != collapse_refusals_.end() && remembered->second >= points_[edge[0]].changed_at &&
             remembered->second >= points_[edge[1]].changed_at) {
@@ -106,11 +196,13 @@ size_t Mesh::CollapseSweeps(PassStats& stats) {
       stats.Increment(stats.evaluated_collapse);
       if (Collapse(edge, sweep_, stats) == Refusal::None) {
         ++accepted;
-      } else if (memory_) {
+      } else if (options_.memory) {
         collapse_refusals_.insert_or_assign(candidate.ids, change_);
         if (collapse_refusals_.size() > 6 * live_cells_) collapse_refusals_.clear();
       }
     }
+    work_start_ = 0;
+    watch.Emit(stats, "collapse", stats.rounds, stats.sweeps_collapse, candidates.size(), live_cells_);
     if (!accepted) return total;
     total += accepted;
   }
@@ -120,17 +212,29 @@ size_t Mesh::CollapseSweeps(PassStats& stats) {
 
 size_t Mesh::SplitSweeps(IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
   size_t total = 0;
+  const bool work_list = options_.work_list && options_.memory;
+  std::vector<Edge> deferred;
   for (unsigned sweep = 0; sweep < LengthSweepLimit; ++sweep) {
+    const SweepWatch watch(stats);
     stats.Increment(stats.sweeps_split);
     ++sweep_;
     size_t accepted = 0;
     std::vector<LengthCandidate> candidates;
-    for (const auto& use : Edges()) {
+    for (const auto& use : work_list && sweep ? NextEdges(deferred) : Edges()) {
       const auto edge = use.edge;
       const auto length = Length(edge);
-      if (length > LongEdge && ClosedRing(edge, use.cell))
-        candidates.push_back({-length, {points_[edge[0]].node.id, points_[edge[1]].node.id}, use});
+      if (length <= LongEdge) continue;
+      const auto ring = EdgeRing(edge, use.cell);
+      if (!ring.Closed()) continue;
+      if (Blocked(ring.cells)) {
+        stats.Increment(stats.blocked);
+        continue;
+      }
+      candidates.push_back({-length, {points_[edge[0]].node.id, points_[edge[1]].node.id}, use});
     }
+    deferred.clear();
+    work_points_.clear();
+    work_start_ = work_list ? change_ : 0;
     std::sort(candidates.begin(), candidates.end());
     for (const auto& candidate : candidates) {
       const auto& [edge, seed] = candidate.use;
@@ -139,16 +243,20 @@ size_t Mesh::SplitSweeps(IdSequence& point_ids, size_t cell_limit, PassStats& st
             return std::find(row.vertices.begin(), row.vertices.end(), point) == row.vertices.end();
           })) {
         stats.Increment(stats.deferred);
+        if (work_list) deferred.push_back(edge);
         continue;
       }
       const auto ring = EdgeRing(edge, seed);
       if (std::any_of(ring.cells.begin(), ring.cells.end(), [this](Slot c) { return cells_[c].stamp == sweep_; })) {
         stats.Increment(stats.deferred);
+        if (work_list) deferred.push_back(edge);
         continue;
       }
       stats.Increment(stats.evaluated_split);
       if (Split(edge, seed, point_ids, sweep_, cell_limit, stats) == Refusal::None) ++accepted;
     }
+    work_start_ = 0;
+    watch.Emit(stats, "split", stats.rounds, stats.sweeps_split, candidates.size(), live_cells_);
     if (!accepted) return total;
     total += accepted;
   }
@@ -179,6 +287,7 @@ void Mesh::LengthWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats
 }
 
 bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
+  const SweepWatch watch(stats);
   stats.Increment(stats.sweeps_quality);
   ++sweep_;
   bool changed = false;
@@ -187,7 +296,12 @@ bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& sta
     if (!cells_[cell].live) continue;
     const auto vertices = cells_[cell].vertices;
     const auto margin = Margin(vertices);
-    if (margin < BadMargin) candidates.push_back({margin, Key(vertices), cell});
+    if (margin >= BadMargin) continue;
+    if (Blocked(vertices)) {
+      stats.Increment(stats.blocked);
+      continue;
+    }
+    candidates.push_back({margin, Key(vertices), cell});
   }
   std::sort(candidates.begin(), candidates.end());
   for (const auto& candidate : candidates) {
@@ -196,7 +310,7 @@ bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& sta
     if (!row.live || row.stamp == sweep_) continue;
     // Incident-cell edits stamp their points, including point values read by adjacent options.
     // Capacity refusals also depend on the live cell count and cannot be remembered.
-    if (memory_ && row.failed_at != 0 && std::all_of(row.vertices.begin(), row.vertices.end(), [&](Slot p) {
+    if (options_.memory && row.failed_at != 0 && std::all_of(row.vertices.begin(), row.vertices.end(), [&](Slot p) {
           return row.failed_at >= points_[p].changed_at;
         })) {
       stats.Increment(stats.skipped_memory);
@@ -229,6 +343,11 @@ bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& sta
       }
     }
     if (best.Accepted()) {
+      if (options_.float_trials && !ExactlyPositive(best)) {
+        stats.CountExact();
+        if (options_.memory) row.failed_at = refused_capacity ? 0 : change_;
+        continue;
+      }
       Commit(best, sweep_);
       changed = true;
       if (best_edge)
@@ -238,14 +357,15 @@ bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& sta
     } else {
       bool moved = false;
       for (auto p : vertices) {
-        if (MovePoint(p, point_ids, sweep_, stats) != Refusal::None) continue;
-        moved = true;
-        break;
+        bool exact_refusal = false;
+        moved = MovePoint(p, point_ids, sweep_, stats, &exact_refusal) == Refusal::None;
+        if (moved || exact_refusal) break;
       }
       changed |= moved;
-      if (memory_ && !moved) row.failed_at = refused_capacity ? 0 : change_;
+      if (options_.memory && !moved) row.failed_at = refused_capacity ? 0 : change_;
     }
   }
+  watch.Emit(stats, "quality", 0, stats.sweeps_quality, candidates.size(), live_cells_, candidates.size());
   return changed;
 }
 
@@ -281,7 +401,7 @@ void Mesh::ReportResult(PassStats& stats) const {
   for (const auto& use : Edges()) {
     ++stats.edges_out;
     const auto length = Length(use.edge);
-    stats.short_out += length < ShortEdge;
+    stats.short_out += length < options_.short_edge;
     if (length > LongEdge) {
       const auto ring = EdgeRing(use.edge, use.cell);
       stats.long_left_surface += ring.surface;
@@ -290,11 +410,15 @@ void Mesh::ReportResult(PassStats& stats) const {
   }
 }
 
-PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, bool report, bool memory) {
-  memory_ = memory;
+PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, bool report, CoreOptions options) {
   PassStats stats;
   stats.report = report;
-  if (report) {
+  return RunPass(point_ids, cell_limit, std::move(stats), options);
+}
+
+PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stats, CoreOptions options) {
+  options_ = options;
+  if (stats.report) {
     stats.cells_in = live_cells_;
     stats.points_in = points_.size();
     for (const auto& row : cells_)
@@ -305,7 +429,7 @@ PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, bool report, b
   QualityWork(point_ids, cell_limit, stats);
   const auto check_start = ReportClock(stats);
   Check();
-  if (report) {
+  if (stats.report) {
     MarkWallNear();
     ReportResult(stats);
     stats.seconds_quality = check_start - quality_start;

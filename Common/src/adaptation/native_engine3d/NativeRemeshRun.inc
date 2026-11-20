@@ -740,6 +740,8 @@ struct RemeshRun {
               << " round_changes=" << p.round_changes << " quality_changes=" << p.quality_changes
               << " refused_valid=" << p.refused_valid << " refused_size=" << p.refused_size
               << " refused_topology=" << p.refused_topology << " refused_memory=" << p.refused_memory
+              << " refused_shape=" << p.refused_shape << " refused_exact=" << p.refused_exact
+              << " blocked=" << p.blocked
               << " long_left_surface=" << p.long_left_surface << " long_left_border=" << p.long_left_border
               << " short_out=" << p.short_out << " edges_out=" << p.edges_out << " bad_in=" << p.bad_in
               << " bad_out=" << p.bad_out << " bad_out_free=" << p.bad_out_free
@@ -748,8 +750,16 @@ struct RemeshRun {
               << " seconds=" << seconds << " bytes=" << bytes << std::endl;
   }
 
-  static void PrintLocalShift(int rank, bool lower, const SU2NativeLocal3D::ShiftStats& shift, double seconds) {
-    std::cout << "NATIVE3D_LOCAL_SHIFT rank=" << rank << " direction=" << (lower ? "lower" : "higher")
+  void PrintLocalSweep(int rank, unsigned pass, const SU2NativeLocal3D::SweepRow& row) {
+    std::cout << "NATIVE3D_LOCAL_SWEEP rank=" << rank << " stage=" << stats.normalization_stages - 1
+              << " pass=" << pass;
+    SU2NativeLocal3D::PrintSweepFields(std::cout, row);
+    std::cout << std::endl;
+  }
+
+  void PrintLocalShift(int rank, bool lower, const SU2NativeLocal3D::ShiftStats& shift, double seconds) {
+    std::cout << "NATIVE3D_LOCAL_SHIFT rank=" << rank << " stage=" << stats.normalization_stages - 1
+              << " direction=" << (lower ? "lower" : "higher")
               << " cells_before=" << shift.cells_before << " cells_after=" << shift.cells_after << " sent=" << shift.sent
               << " received=" << shift.received << " border_points=" << shift.border_points;
     if (!lower) std::cout << " frozen_in_both=" << shift.frozen_in_both;
@@ -788,13 +798,15 @@ struct RemeshRun {
       stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
       const auto cell_limit = (kernel.memory_ceiling - kernel.caller_bytes) / (owned_row_bytes + core::Mesh::BytesPerCell);
       core::PassStats counts;
+      counts.report = report;
+      if (report) counts.sink = [this, rank = workers.rank, pass](const auto& row) { PrintLocalSweep(rank, pass, row); };
       CLocalFailure local;
       try {
         const auto build_start = report ? workers.seconds() : 0.0;
         core::Mesh pass_mesh(working, workers.size > 1);
         const auto build_seconds = report ? workers.seconds() - build_start : 0.0;
         pass_mesh.MarkBorderSurface(meeting);
-        counts = pass_mesh.RunPass(point_ids, cell_limit, report);
+        counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));
         const auto write_start = report ? workers.seconds() : 0.0;
         pass_mesh.WriteBack(working, cell_ids);
         if (report) {

@@ -672,3 +672,19 @@ FP1 G replay remains live near one hour of the 5,400 s cap. No local-pass, shift
 FP1 G. Event 1 completed pass 1 and the lower shift on all six ranks. Rank 3 grew from 51,202 to 1,112,091 cells, spent 3,677.323 s in quality work and finished the first pass at 4,074.199 s inclusive. Rank 2 spent 1,060.993 s in quality. The lower shift preserved 1,642,036 cells globally. All six pass rows reported zero Numeric step refusals. Pass 2 is live.
 
 FP1 resume 2 closed by Resume 3 §0. The verified replay group was ended with SIGTERM after 5,301 s and the controller returned terminal at 5,303.001 s. Six pass-1 and six lower-shift rows were preserved. No pass-2 or higher-shift row and no native event result. Resume 2 items 5.1 to 5.3 passed. Checkpoint Part G before editing H.
+
+## FP1 resume 3
+
+Archived and verified Resume 3. Part G and its stopped-replay evidence are pushed at 9940a85314. The whole-order H source check and readings are recorded. Capture the exact G Owned bytes before modifying the core, then implement H and run the required short gates.
+
+FP1 H. Captured the independent Part G F4.1 canonical Owned payload using unchanged production sources and the temporary serial observer. Implemented the CoreOptions switches, shape/float/surface rules, work-list path and sweep sink. Starting build611 and separate new and inherited fixture cohorts.
+
+FP1 H. Build611 linked but stopped before fixtures on one GCC 13 range-insertion warning in the new hand-mesh fixture. Three ordered appends kept the fixture vertices and assertions identical. Build612 then passed with zero new warnings. HO, HB, B, C, FA, FR, FC, FB and G passed. H matched the work-list and scan bytes on both test boxes and reproduced the 1,102,400-byte G control. The new second box reached only 9 collapse and 1 split sweeps in one call. Its only hot point was eligible for collapse before splitting. The inherited A probe also recorded 72 unclassified residual closed long edges near the unresolved surface. Correct the fixture's hot-node tensor and classify Blocked directly in the inherited probe. Rebuild with production H frozen.
+
+FP1 H. Build613 passed with zero new warnings and all eleven fixture cohorts at the required rank counts. The second work-list box reached 38 collapse and 23 split sweeps in one call, with matched Owned bytes and edits. The legacy probe accounted for all 72 residual closed edges as blocked under H4. The code-scope proof passed. Fresh G1 and corrected OFF G2/GQ are running in order on the same pinned build. Commit H only after they pass.
+
+FP1 H G1 passed on build613. Adopted case tables matched exactly for serial 375, two ranks 114, and four ranks 228. Clocks were 766.897 / 9.922 / 9.928 s. The OFF G2 prefix started after G1 terminated.
+
+FP1 H G2 passed. OFF cut at 246.756 s. Work 90,809,869, all six ranks captured, exact corrected comparator passed with fixedstorage 4120. GQ started after G2 terminated.
+
+FP1 H GQ passed. OFF cut at 685.827 s, exact corrected comparator passed with fixedstorage 4120. All build613 short gates and input provenance checks passed. Commit and push FP1 H, then run LAB2 V2, LAB1 V2, LAB2 V3, LAB1 V1, LAB2 V1 and LAB2 V0 in order.

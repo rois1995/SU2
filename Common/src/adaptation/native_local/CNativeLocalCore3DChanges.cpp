@@ -26,6 +26,15 @@ Tensor Midpoint(const Tensor& a, const Tensor& b) {
 }
 }  // namespace
 
+bool EvenOrder(const Vertices& cell, Vertices order) {
+  for (auto& p : order) p = std::find(cell.begin(), cell.end(), p) - cell.begin();
+  bool even = true;
+  for (unsigned i = 0; i < 4; ++i)
+    for (unsigned j = i + 1; j < 4; ++j)
+      if (order[i] > order[j]) even = !even;
+  return even;
+}
+
 bool SampleMovedTensor(const std::vector<DonorCell>& donors, Point point, Tensor& tensor) {
   std::vector<DonorCell> usable;
   usable.reserve(donors.size());
@@ -61,6 +70,12 @@ void PassStats::Count(Refusal refusal) {
       break;
     case Refusal::Numeric:
       ++refused_numeric;
+      break;
+    case Refusal::Shape:
+      ++refused_shape;
+      break;
+    case Refusal::Blocked:
+      ++blocked;
       break;
     case Refusal::None:
     case Refusal::Ineligible:
@@ -131,7 +146,7 @@ std::vector<Slot> Mesh::OrderedRim(Edge edge, const Ring& ring) const {
       rim[n++] = p;
       if (first == NoSlot || points_[p].node.id < points_[first].node.id) first = p;
     }
-    if (!Positive({edge[0], edge[1], rim[0], rim[1]})) std::swap(rim[0], rim[1]);
+    if (!EvenOrder(cells_[slot].vertices, {edge[0], edge[1], rim[0], rim[1]})) std::swap(rim[0], rim[1]);
     rim_edges.push_back(rim);
   }
   std::vector<Slot> result{first};
@@ -185,20 +200,34 @@ Mesh::Plan Mesh::CollapsePlan(Slot remove, Slot keep) const {
       plan.score = std::max(plan.score, Length({keep, p}));
     }
   }
-  if (plan.score > LongEdge) plan.refusal = Refusal::Size;
+  if (plan.score > LongEdge) {
+    plan.refusal = Refusal::Size;
+  } else if (options_.shape_test) {
+    double worst_new = std::numeric_limits<double>::infinity();
+    for (const auto& cell : plan.fresh) worst_new = std::min(worst_new, Margin(cell.vertices));
+    if (worst_new < BadMargin && worst_new < Worst(plan.old)) plan.refusal = Refusal::Shape;
+  }
   return plan;
 }
 
 Refusal Mesh::Collapse(Edge edge, uint32_t stamp, PassStats& stats, bool apply) {
   edge = ById(edge);
-  if (points_[edge[0]].removed || points_[edge[1]].removed || Length(edge) >= ShortEdge) return Refusal::Ineligible;
+  if (points_[edge[0]].removed || points_[edge[1]].removed || Length(edge) >= options_.short_edge)
+    return Refusal::Ineligible;
   auto lower = CollapsePlan(edge[0], edge[1]);
   auto higher = CollapsePlan(edge[1], edge[0]);
-  stats.Count(lower.refusal);
-  stats.Count(higher.refusal);
+  if (lower.refusal != Refusal::Blocked) stats.Count(lower.refusal);
+  if (higher.refusal != Refusal::Blocked) stats.Count(higher.refusal);
+  if ((lower.refusal == Refusal::Blocked && (higher.refusal == Refusal::Blocked || higher.refusal == Refusal::Ineligible)) ||
+      (higher.refusal == Refusal::Blocked && lower.refusal == Refusal::Ineligible)) stats.Increment(stats.blocked);
   const auto& best = lower.Accepted() && (!higher.Accepted() || lower.score < higher.score) ? lower : higher;
   if (!best.Accepted()) return best.refusal == Refusal::Ineligible ? lower.refusal : best.refusal;
+  if (options_.float_trials && !ExactlyPositive(best)) {
+    stats.CountExact();
+    return Refusal::Validity;
+  }
   if (apply) {
+    RememberWorkPoints(best);
     Commit(best, stamp);
     stats.Increment(stats.collapses);
   }
@@ -209,6 +238,10 @@ Refusal Mesh::Split(Edge edge, Slot seed, IdSequence& point_ids, uint32_t stamp,
   edge = ById(edge);
   auto ring = EdgeRing(edge, seed);
   if (!ring.Closed() || Length(edge) <= LongEdge) return Refusal::Ineligible;
+  if (Blocked(ring.cells)) {
+    stats.Count(Refusal::Blocked);
+    return Refusal::Blocked;
+  }
   if (!Fits(ring.cells.size(), 2 * ring.cells.size(), cell_limit)) {
     stats.Count(Refusal::Memory);
     return Refusal::Memory;
@@ -236,14 +269,21 @@ Refusal Mesh::Split(Edge edge, Slot seed, IdSequence& point_ids, uint32_t stamp,
     points_[slot] = middle;
   }
   const auto plan = Prepare(ring.cells, fresh);
-  stats.Count(plan.refusal);
-  if (!plan.Accepted()) {
+  auto refusal = plan.refusal;
+  if (plan.Accepted() && options_.float_trials && !ExactlyPositive(plan)) {
+    stats.CountExact();
+    refusal = Refusal::Validity;
+  } else {
+    stats.Count(refusal);
+  }
+  if (refusal != Refusal::None) {
     if (append)
       points_.pop_back();
     else
       points_[slot] = previous;
-    return plan.refusal;
+    return refusal;
   }
+  RememberWorkPoints(plan);
   if (!append) free_points_.pop_back();
   point_ids.Take();
   Commit(plan, stamp);
@@ -263,6 +303,10 @@ Mesh::Plan Mesh::RemoveEdgePlan(Edge edge, Slot seed, size_t cell_limit) const {
   const auto n = ring.cells.size();
   if (!ring.Closed() || n < 3 || n > 7) return {};
   Plan refused;
+  if (Blocked(ring.cells)) {
+    refused.refusal = Refusal::Blocked;
+    return refused;
+  }
   if (!Fits(n, 2 * (n - 2), cell_limit)) {
     refused.refusal = Refusal::Memory;
     return refused;
@@ -294,7 +338,7 @@ Mesh::Plan Mesh::RemoveEdgePlan(Edge edge, Slot seed, size_t cell_limit) const {
           continue;
         }
         const auto trial = pair(i, k, j);
-        if (!Positive(trial[0]) || !Positive(trial[1])) {
+        if (!TrialPositive(trial[0]) || !TrialPositive(trial[1])) {
           invalid = true;
           continue;
         }
@@ -330,6 +374,11 @@ Mesh::Plan Mesh::SwapFacePlan(Slot cell, unsigned face, size_t cell_limit) const
   if (!a.live || a.neighbors[face] < 0) return {};
   const auto neighbor = static_cast<Slot>(a.neighbors[face]);
   const auto& b = cells_[neighbor];
+  Plan refused;
+  if (Blocked(a.vertices) || Blocked(b.vertices)) {
+    refused.refusal = Refusal::Blocked;
+    return refused;
+  }
   std::array<Slot, 3> rim{};
   for (unsigned k = 0, l = 0; k < 4; ++k)
     if (k != face) rim[l++] = a.vertices[k];
@@ -337,8 +386,7 @@ Mesh::Plan Mesh::SwapFacePlan(Slot cell, unsigned face, size_t cell_limit) const
   auto p = a.vertices[face];
   auto q =
       b.vertices[std::find(b.neighbors.begin(), b.neighbors.end(), static_cast<int32_t>(cell)) - b.neighbors.begin()];
-  if (!Positive({rim[0], rim[1], rim[2], p})) std::swap(p, q);
-  Plan refused;
+  if (!EvenOrder(a.vertices, {rim[0], rim[1], rim[2], p})) std::swap(p, q);
   if (Length({p, q}) > LongEdge) {
     refused.refusal = Refusal::Size;
     return refused;
@@ -360,6 +408,10 @@ Refusal Mesh::RemoveEdge(Edge edge, Slot seed, uint32_t stamp, size_t cell_limit
   const auto plan = RemoveEdgePlan(edge, seed, cell_limit);
   stats.Count(plan.refusal);
   if (plan.Accepted()) {
+    if (options_.float_trials && !ExactlyPositive(plan)) {
+      stats.CountExact();
+      return Refusal::Validity;
+    }
     Commit(plan, stamp);
     stats.Increment(stats.edge_removals);
   }
@@ -370,16 +422,25 @@ Refusal Mesh::SwapFace(Slot cell, unsigned face, uint32_t stamp, size_t cell_lim
   const auto plan = SwapFacePlan(cell, face, cell_limit);
   stats.Count(plan.refusal);
   if (plan.Accepted()) {
+    if (options_.float_trials && !ExactlyPositive(plan)) {
+      stats.CountExact();
+      return Refusal::Validity;
+    }
     Commit(plan, stamp);
     stats.Increment(stats.face_swaps);
   }
   return plan.refusal;
 }
 
-Refusal Mesh::MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& stats) {
+Refusal Mesh::MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& stats, bool* exact_refusal) {
+  if (exact_refusal) *exact_refusal = false;
   if (!points_[point].Free()) return Refusal::Ineligible;
   const auto star = Star(point);
   if (star.empty()) return Refusal::Ineligible;
+  if (Blocked(star)) {
+    stats.Count(Refusal::Blocked);
+    return Refusal::Blocked;
+  }
   const double before = Worst(star);
   std::vector<Slot> neighbors;
   std::vector<SU2Native3D::DonorCell> donors;
@@ -414,24 +475,34 @@ Refusal Mesh::MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& 
     auto candidate = original;
     candidate.node.p = {double(p.x + step * (mean[0] - p.x)), double(p.y + step * (mean[1] - p.y)),
                         double(p.z + step * (mean[2] - p.z))};
-    if (!SampleMovedTensor(donors, candidate.node.p, candidate.tensor)) {
+    const bool sampled = options_.float_trials ? SampleMovedTensorFloat(donors, candidate.node.p, candidate.tensor)
+                                               : SampleMovedTensor(donors, candidate.node.p, candidate.tensor);
+    if (!sampled) {
       refusal = Refusal::Numeric;
       stats.Count(refusal);
       continue;
     }
     points_[point] = candidate;
+    bool failed_exactly = false;
     try {
-      if (std::any_of(star.begin(), star.end(), [&](Slot c) { return !Positive(cells_[c].vertices); }))
+      if (std::any_of(star.begin(), star.end(), [&](Slot c) { return !TrialPositive(cells_[c].vertices); }))
         refusal = Refusal::Validity;
       else if (std::any_of(neighbors.begin(), neighbors.end(), [&](Slot n) { return Length({point, n}) > LongEdge; }))
         refusal = Refusal::Size;
       else
         refusal = Worst(star) > before ? Refusal::None : Refusal::Ineligible;
+      failed_exactly = refusal == Refusal::None && options_.float_trials &&
+                       std::any_of(star.begin(), star.end(), [&](Slot c) { return !Positive(cells_[c].vertices); });
     } catch (...) {
       points_[point] = original;
       throw;
     }
     points_[point] = original;
+    if (failed_exactly) {
+      stats.CountExact();
+      if (exact_refusal) *exact_refusal = true;
+      return Refusal::Validity;
+    }
     if (refusal == Refusal::None) {
       candidate.node.id = ids.Take();
       points_[point] = candidate;

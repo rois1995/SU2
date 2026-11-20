@@ -7,6 +7,7 @@
 #include "../../../include/adaptation/CNativeLocalCore3D.hpp"
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 
 namespace SU2NativeLocal3D {
@@ -24,6 +25,16 @@ double NormSquared(Point a, Point b, const Tensor& m) {
          d.z * (m.xz * d.x + m.yz * d.y + m.zz * d.z);
 }
 
+double MetricLength(Point a, Point b, const Tensor& ma, const Tensor& mb) {
+  const double first = std::sqrt(NormSquared(a, b, ma));
+  const double last = std::sqrt(NormSquared(a, b, mb));
+  const double largest = std::max(first, last);
+  if (!std::isfinite(first) || !std::isfinite(last) || largest <= 0)
+    throw std::runtime_error("Native local core encountered an unrepresentable metric edge.");
+  const double r = std::min(first, last) / largest;
+  return largest * (2. / 3.) * (1 + r + r * r) / (1 + r);
+}
+
 Tensor MeanTensor(const std::array<const Tensor*, 4>& tensors) {
   Tensor mean{0, 0, 0, 0, 0, 0};
   for (const auto* m : tensors) {
@@ -38,21 +49,95 @@ Tensor MeanTensor(const std::array<const Tensor*, 4>& tensors) {
 }
 }  // namespace
 
+bool SampleMovedTensorFloat(const std::vector<DonorCell>& donors, Point point, Tensor& tensor, size_t* chosen) {
+  size_t best = donors.size();
+  double score = -std::numeric_limits<double>::infinity();
+  std::array<double, 4> weights{};
+  for (size_t i = 0; i < donors.size(); ++i) {
+    const auto& v = donors[i].cell.v;
+    const auto a = v[0].p, b = v[1].p, c = v[2].p, d = v[3].p;
+    const double volume = FloatOrientation(a, b, c, d);
+    if (!(volume > 0) || !std::isfinite(volume)) continue;
+    const double x = FloatOrientation(a, point, c, d) / volume;
+    const double y = FloatOrientation(a, b, point, d) / volume;
+    const double z = FloatOrientation(a, b, c, point) / volume;
+    const std::array<double, 4> trial{1 - x - y - z, x, y, z};
+    if (!std::all_of(trial.begin(), trial.end(), [](double w) { return std::isfinite(w); })) continue;
+    const double least = *std::min_element(trial.begin(), trial.end());
+    if (least < score || (least == score && !(donors[i].Key() < donors[best].Key()))) continue;
+    best = i;
+    score = least;
+    weights = trial;
+  }
+  if (best == donors.size()) return false;
+  const double scale = *std::max_element(weights.begin(), weights.end());
+  double sum = 0;
+  for (auto& w : weights) {
+    w = std::max(0., w) / scale;
+    sum += w;
+  }
+  tensor = {0, 0, 0, 0, 0, 0};
+  for (size_t k = 0; k < 4; ++k) {
+    const auto& t = donors[best].sensor[k];
+    const auto w = weights[k] / sum;
+    tensor.xx += w * t.xx;
+    tensor.xy += w * t.xy;
+    tensor.xz += w * t.xz;
+    tensor.yy += w * t.yy;
+    tensor.yz += w * t.yz;
+    tensor.zz += w * t.zz;
+  }
+  if (chosen) *chosen = best;
+  return true;
+}
+
+std::vector<Id> UnresolvedSurfacePoints(const Owned& owned) {
+  std::vector<Id> unresolved;
+  for (const auto& entry : owned) {
+    const auto& row = entry.second;
+    for (unsigned face = 0; face < 4; ++face) {
+      if (!row.physical[face].present) continue;
+      for (unsigned a = 0; a < 4; ++a) {
+        if (a == face) continue;
+        for (unsigned b = a + 1; b < 4; ++b) {
+          if (b == face) continue;
+          const auto& first = row.cell.v[a];
+          const auto& last = row.cell.v[b];
+          if (MetricLength(first.p, last.p, row.sensor[a], row.sensor[b]) <= LongEdge) continue;
+          unresolved.push_back(first.id);
+          unresolved.push_back(last.id);
+        }
+      }
+    }
+  }
+  std::sort(unresolved.begin(), unresolved.end());
+  unresolved.erase(std::unique(unresolved.begin(), unresolved.end()), unresolved.end());
+  return unresolved;
+}
+
 bool Mesh::Positive(Vertices vertices) const {
   return SU2Native3D::Orientation(points_[vertices[0]].node.p, points_[vertices[1]].node.p, points_[vertices[2]].node.p,
                                   points_[vertices[3]].node.p) > 0;
 }
 
+bool Mesh::FloatPositive(Vertices vertices) const {
+  const auto p = [&](size_t k) { return points_[vertices[k]].node.p; };
+  const auto volume = FloatOrientation(p(0), p(1), p(2), p(3));
+  return volume > 0 && std::isfinite(volume);
+}
+
+bool Mesh::TrialPositive(Vertices vertices) const {
+  return options_.float_trials ? FloatPositive(vertices) : Positive(vertices);
+}
+
+bool Mesh::ExactlyPositive(const Plan& plan) const {
+  return std::all_of(plan.fresh.begin(), plan.fresh.end(), [this](const auto& row) { return Positive(row.vertices); });
+}
+
 double Mesh::Length(Edge edge) const {
   const auto& a = points_[edge[0]];
   const auto& b = points_[edge[1]];
-  const double first = std::sqrt(NormSquared(a.node.p, b.node.p, a.tensor));
-  const double last = std::sqrt(NormSquared(a.node.p, b.node.p, b.tensor));
-  const double largest = std::max(first, last);
-  if (!std::isfinite(first) || !std::isfinite(last) || largest <= 0)
-    throw std::runtime_error("Native local core encountered an unrepresentable metric edge.");
-  const double r = std::min(first, last) / largest;
-  return largest * (2. / 3.) * (1 + r + r * r) / (1 + r);
+  return MetricLength(a.node.p, b.node.p, a.tensor, b.tensor);
 }
 
 MetricMeasures Mesh::Shape(Vertices vertices) const {

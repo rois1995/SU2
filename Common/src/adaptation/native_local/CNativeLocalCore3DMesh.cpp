@@ -73,7 +73,7 @@ Id IdSequence::Take() {
   return last_;
 }
 
-Mesh::Mesh(const Owned& owned, bool allow_border) : live_cells_(owned.size()) {
+Mesh::Mesh(const Owned& owned, bool allow_border, CoreOptions options) : live_cells_(owned.size()), options_(options) {
   if (owned.size() > size_t(INT32_MAX)) throw std::length_error("Too many native local core cells.");
   cells_.reserve(owned.size());
   {
@@ -102,6 +102,9 @@ Mesh::Mesh(const Owned& owned, bool allow_border) : live_cells_(owned.size()) {
     }
   }
   BuildFaces(allow_border);
+  const auto unresolved = UnresolvedSurfacePoints(owned);
+  for (auto& point : points_)
+    point.unresolved = std::binary_search(unresolved.begin(), unresolved.end(), point.node.id);
   for (size_t k = 0; k < points_.size(); ++k)
     if (!points_[k].Free()) frozen_.push_back({static_cast<Slot>(k), points_[k].node, points_[k].tensor});
 }
@@ -171,6 +174,10 @@ Mesh::Plan Mesh::Prepare(const std::vector<Slot>& old, const std::vector<Vertice
   for (auto slot : old) {
     if (slot >= cells_.size() || !cells_[slot].live) return plan;
     const auto& row = cells_[slot];
+    if (Blocked(row.vertices)) {
+      plan.refusal = Refusal::Blocked;
+      return plan;
+    }
     const auto bindings = Bindings(slot);
     for (unsigned k = 0; k < 4; ++k) {
       const auto neighbor = row.neighbors[k];
@@ -188,7 +195,7 @@ Mesh::Plan Mesh::Prepare(const std::vector<Slot>& old, const std::vector<Vertice
     if (std::any_of(vertices.begin(), vertices.end(),
                     [this](Slot point) { return point >= points_.size() || points_[point].removed; }))
       return plan;
-    if (!Positive(vertices)) {
+    if (!TrialPositive(vertices)) {
       plan.refusal = Refusal::Validity;
       return plan;
     }
@@ -296,8 +303,20 @@ void Mesh::Commit(const Plan& plan, uint32_t stamp) {
 
 Refusal Mesh::ReplaceCells(const std::vector<Slot>& old, const std::vector<Vertices>& fresh, uint32_t stamp) {
   const auto plan = Prepare(old, fresh);
+  if (plan.Accepted() && options_.float_trials && !ExactlyPositive(plan)) return Refusal::Validity;
   if (plan.Accepted()) Commit(plan, stamp);
   return plan.refusal;
+}
+
+bool Mesh::Blocked(Vertices vertices) const {
+  // The engine resolves the surface before the adjoining volume can reach its target.
+  return options_.surface_first &&
+         std::any_of(vertices.begin(), vertices.end(), [this](Slot p) { return points_[p].unresolved; });
+}
+
+bool Mesh::Blocked(const std::vector<Slot>& cells) const {
+  return options_.surface_first &&
+         std::any_of(cells.begin(), cells.end(), [this](Slot c) { return Blocked(cells_[c].vertices); });
 }
 
 void Mesh::Check() const {

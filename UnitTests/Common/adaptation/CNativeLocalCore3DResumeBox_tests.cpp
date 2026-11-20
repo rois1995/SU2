@@ -136,8 +136,10 @@ TEST_CASE("Local tetrahedral refusal memory changes only refusal bookkeeping", "
   local::Mesh on(rows_on), off(rows_off);
   const auto base = MaximumPointId(on);
   local::IdSequence points_on(base), points_off(base);
-  const auto stats_on = on.RunPass(points_on, SIZE_MAX, true, true);
-  const auto stats_off = off.RunPass(points_off, SIZE_MAX, true, false);
+  local::CoreOptions no_memory;
+  no_memory.memory = false;
+  const auto stats_on = on.RunPass(points_on, SIZE_MAX, true);
+  const auto stats_off = off.RunPass(points_off, SIZE_MAX, true, no_memory);
   CHECK(stats_on.skipped_memory > 0);
   CHECK(stats_off.skipped_memory == 0);
   CHECK(points_on.Peek() == points_off.Peek());

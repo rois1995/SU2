@@ -25,7 +25,7 @@ def source_pins():
         *(str(path.relative_to(cut.REPO)) for path in
           (cut.REPO / 'UnitTests/Common/adaptation').glob('CNativeLocalCore3D*_tests.cpp')),
         *(str(path.relative_to(cut.REPO)) for path in
-          (cut.REPO / 'UnitTests/SU2_CFD/adaptation').glob('CNativeLocalCore3D*_tests.cpp')),
+          (cut.REPO / 'UnitTests/SU2_CFD/adaptation').glob('CNativeLocalCore*_tests.cpp')),
     ]
     for path in set(changed + added):
         path = cut.REPO / path

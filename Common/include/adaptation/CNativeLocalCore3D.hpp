@@ -10,6 +10,8 @@
 #include "CNativeMetric3D.hpp"
 #include <array>
 #include <cstdint>
+#include <functional>
+#include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
@@ -37,11 +39,20 @@ constexpr double ShortEdge = SU2Native3D::CoarseningMetricEdge;
 constexpr double BadMargin = 1 + 1e-12;
 constexpr unsigned PassCount = 2;
 
+struct CoreOptions {
+  bool memory = true;
+  bool shape_test = true;
+  bool float_trials = true;
+  bool surface_first = true;
+  bool work_list = true;
+  double short_edge = ShortEdge;
+};
+
 struct PointRow {
   Node node;
   Tensor tensor;
   Slot incident = NoSlot;
-  bool surface = false, border = false, removed = false, wall_near = false;
+  bool surface = false, border = false, removed = false, wall_near = false, unresolved = false;
   uint64_t changed_at = 0;
   bool Free() const { return !surface && !border && !removed; }
 };
@@ -62,17 +73,34 @@ struct EdgeUse {
   Slot cell;
 };
 
-enum class Refusal { None, Ineligible, Validity, Size, Topology, Memory, Numeric };
+enum class Refusal { None, Ineligible, Validity, Size, Topology, Memory, Numeric, Shape, Blocked };
 
 bool SampleMovedTensor(const std::vector<DonorCell>& donors, Point point, Tensor& tensor);
+bool SampleMovedTensorFloat(const std::vector<DonorCell>& donors, Point point, Tensor& tensor, size_t* chosen = nullptr);
+bool EvenOrder(const Vertices& cell, Vertices order);
+std::vector<Id> UnresolvedSurfacePoints(const Owned& owned);
 
-struct PassStats {
+struct SweepCounters {
+  size_t collapses = 0, splits = 0, edge_removals = 0, face_swaps = 0, moves = 0;
+  size_t deferred = 0, skipped_memory = 0, blocked = 0;
+  size_t refused_numeric = 0, refused_valid = 0, refused_size = 0, refused_topology = 0, refused_memory = 0,
+         refused_shape = 0, refused_exact = 0;
+  size_t evaluated_collapse = 0, evaluated_split = 0, evaluated_quality = 0;
+};
+
+struct SweepRow {
+  const char* kind;
+  unsigned round, sweep;
+  size_t candidates, live_cells, bad_listed;
+  double seconds;
+  SweepCounters counters;
+};
+
+void PrintSweepFields(std::ostream& output, const SweepRow& row);
+
+struct PassStats : SweepCounters {
   size_t cells_in = 0, cells_out = 0, points_in = 0, points_out = 0;
   size_t surface_points = 0, border_points = 0, wall_near_points = 0;
-  size_t collapses = 0, splits = 0, edge_removals = 0, face_swaps = 0, moves = 0;
-  size_t deferred = 0, skipped_memory = 0, refused_numeric = 0, refused_valid = 0, refused_size = 0, refused_topology = 0,
-         refused_memory = 0;
-  size_t evaluated_collapse = 0, evaluated_split = 0, evaluated_quality = 0;
   double seconds_build = 0, seconds_collapse = 0, seconds_split = 0, seconds_quality = 0, seconds_check = 0,
          seconds_write = 0;
   std::string round_changes, quality_changes;
@@ -81,12 +109,17 @@ struct PassStats {
   unsigned sweeps_collapse = 0, sweeps_split = 0, sweeps_quality = 0, rounds = 0;
   bool limit = false;
   bool report = true;
+  std::function<void(const SweepRow&)> sink;
 
   template <class CountType>
   void Increment(CountType& value) {
     if (report) ++value;
   }
   void Count(Refusal refusal);
+  void CountExact() {
+    Increment(refused_valid);
+    Increment(refused_exact);
+  }
 };
 
 /*! Each rank owns a disjoint progression above the greatest input id. */
@@ -110,11 +143,11 @@ struct MemoryBudget {
 struct BorderPoint {
   Id id = 0;
   int lower = 0, upper = 0;
-  bool surface = false;
+  bool surface = false, unresolved = false;
 
   template <class Stream>
   void Fields(Stream& stream) {
-    stream(id, lower, upper, surface);
+    stream(id, lower, upper, surface, unresolved);
   }
 };
 
@@ -140,7 +173,7 @@ ShiftStats ShiftBorders(World& world, Owned& owned, const BorderMeeting& meeting
 /*! One pass owns its arrays. Slots may be reused, while point ids are never reused. */
 class Mesh {
  public:
-  explicit Mesh(const Owned& owned, bool allow_border = false);
+  explicit Mesh(const Owned& owned, bool allow_border = false, CoreOptions options = {});
 
   const std::vector<PointRow>& Points() const { return points_; }
   const std::vector<CellRow>& Cells() const { return cells_; }
@@ -161,12 +194,13 @@ class Mesh {
   Refusal Split(Edge edge, Slot seed, IdSequence& point_ids, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal RemoveEdge(Edge edge, Slot seed, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal SwapFace(Slot cell, unsigned face, uint32_t stamp, size_t cell_limit, PassStats& stats);
-  Refusal MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& stats);
+  Refusal MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& stats, bool* exact_refusal = nullptr);
 
   size_t CollapseSweeps(PassStats& stats);
   void LengthWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void QualityWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
-  PassStats RunPass(IdSequence& point_ids, size_t cell_limit, bool report, bool memory = true);
+  PassStats RunPass(IdSequence& point_ids, size_t cell_limit, bool report, CoreOptions options = {});
+  PassStats RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stats, CoreOptions options = {});
 
   static size_t ArrayBytes(size_t cells);
   static const size_t BytesPerCell;
@@ -200,6 +234,11 @@ class Mesh {
 
   void BuildFaces(bool allow_border);
   bool Positive(Vertices vertices) const;
+  bool FloatPositive(Vertices vertices) const;
+  bool TrialPositive(Vertices vertices) const;
+  bool ExactlyPositive(const Plan& plan) const;
+  bool Blocked(Vertices vertices) const;
+  bool Blocked(const std::vector<Slot>& cells) const;
   Edge ById(Edge edge) const;
   std::array<Id, 4> Key(Vertices vertices) const;
   std::vector<Slot> Star(Slot point) const;
@@ -219,6 +258,8 @@ class Mesh {
   size_t SplitSweeps(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   bool QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void ReportResult(PassStats& stats) const;
+  void RememberWorkPoints(const Plan& plan);
+  std::vector<EdgeUse> NextEdges(const std::vector<Edge>& deferred);
 
   struct FrozenPoint {
     Slot slot;
@@ -234,8 +275,10 @@ class Mesh {
   std::vector<FrozenPoint> frozen_;
   size_t live_cells_ = 0;
   uint32_t sweep_ = 0;
-  bool memory_ = true;
+  CoreOptions options_;
   uint64_t change_ = 1;
   std::map<std::array<Id, 2>, uint64_t> collapse_refusals_;
+  uint64_t work_start_ = 0;
+  std::vector<Slot> work_points_;
 };
 }  // namespace SU2NativeLocal3D

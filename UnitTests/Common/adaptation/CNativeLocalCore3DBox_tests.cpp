@@ -191,7 +191,7 @@ Id LastPoint(const Owned& rows) {
 
 void CheckLengthWork(local::Mesh& mesh, const local::IdSequence& ids, const local::PassStats& stats) {
   constexpr auto probe_stamp = std::numeric_limits<uint32_t>::max();
-  size_t closed_long = 0, long_validity = 0, long_limit = 0, admissible_short = 0;
+  size_t closed_long = 0, long_validity = 0, long_limit = 0, long_blocked = 0, admissible_short = 0;
   mesh.MarkWallNear();
   for (const auto& [key, edge] : Edges(mesh)) {
     const auto length = mesh.Length(edge.slots);
@@ -207,6 +207,10 @@ void CheckLengthWork(local::Mesh& mesh, const local::IdSequence& ids, const loca
       if (reason == local::Refusal::Validity) {
         CHECK((stats.refused_valid > 0 || stats.limit));
         ++long_validity;
+      } else if (reason == local::Refusal::Blocked) {
+        CHECK(split.blocked == 1);
+        CHECK(stats.blocked > 0);
+        ++long_blocked;
       } else {
         CHECK((reason == local::Refusal::None && stats.limit));
         ++long_limit;
@@ -221,6 +225,7 @@ void CheckLengthWork(local::Mesh& mesh, const local::IdSequence& ids, const loca
   CHECK((admissible_short == 0 || stats.limit));
   std::cout << "FP1_FIXTURE length closed_long=" << closed_long << " admissible_short=" << admissible_short
             << " long_validity=" << long_validity << " long_limit=" << long_limit
+            << " long_blocked=" << long_blocked
             << " refused_valid=" << stats.refused_valid << " refused_memory=" << stats.refused_memory
             << " limit=" << stats.limit << '\n';
 }

@@ -16,6 +16,9 @@ FIXTURES = {
     'FB': tuple((ranks, '[NativeLocalCore3DResumeShift]') for ranks in (2, 4)),
     'FC': tuple((ranks, '[NativeLocalCore3DResumeOption]') for ranks in (1, 2, 4)),
     'G': ((1, '[NativeLocalCore3DResumeMove]'),),
+    'HO': ((1, '[NativeLocalCoreHOperators]'),),
+    'H': ((1, '[NativeLocalCoreH]'),),
+    'HB': ((2, '[NativeLocalCoreHBorder]'),),
 }
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 PASS = re.compile(r'All tests passed \((\d+) assertions? in (\d+) test cases?\)')
