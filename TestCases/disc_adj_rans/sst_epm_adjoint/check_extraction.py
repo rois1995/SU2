@@ -455,7 +455,7 @@ def main():
         # MPI_ADJOINT_NOTE. The converged adjoint lambda is the fixed point of the RECORDED iteration map, and that
         # map contains the transposed linear solve of the implicit update (CSysSolve::Solve_b: FGMRES with the
         # rank-local ILU). Those solves are converged to LINEAR_SOLVER_ERROR (1e-10 relative residual; cluster LINSOL:
-        # 10-14 iterations, not the 50-iteration cap), not exactly, and the operator they apply depends on the
+        # 9-14 iterations, not the 50-iteration cap), not exactly, and the operator they apply depends on the
         # partition through the rank-local ILU; the conditioning amplifies the remaining error. So lambda depends on
         # the partition. dJ/da (= dJ/da|_explicit - psi^T dR/da, psi the adjoint of the residual) and the S_* depend
         # on psi only, and only when lambda is the fixed point of the same map that is replayed. Hence the serial

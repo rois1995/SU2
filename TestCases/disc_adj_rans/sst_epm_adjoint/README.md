@@ -56,7 +56,7 @@ end-of-run fields at the convergence level (below).
 The adjoint is the fixed point of the recorded iteration. That iteration includes the
 transposed linear solve of the implicit update (FGMRES with rank-local ILU). These solves
 stop at `LINEAR_SOLVER_ERROR` (`1e-10` relative residual; the cluster runs reach it in
-10-14 iterations, well below the `LINEAR_SOLVER_ITER` cap), not at the exact solution, and
+9-14 iterations, well below the `LINEAR_SOLVER_ITER` cap), not at the exact solution, and
 the rank-local ILU makes the applied operator depend on the partition. So the adjoint
 fixed point depends on the partition. dJ/da and the per-site `S_*` depend only on the
 adjoint of the residual, and only when the loaded adjoint is the fixed point of the same
