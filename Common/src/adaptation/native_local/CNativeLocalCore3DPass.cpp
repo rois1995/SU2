@@ -13,6 +13,8 @@ namespace SU2NativeLocal3D {
 namespace {
 constexpr unsigned LengthSweepLimit = 50, LengthRoundLimit = 8, QualitySweepLimit = 20;
 
+double ReportClock(const PassStats& stats) { return stats.report ? SU2_MPI::Wtime() : 0.0; }
+
 struct LengthCandidate {
   double order;
   std::array<Id, 2> ids;
@@ -101,6 +103,7 @@ size_t Mesh::CollapseSweeps(PassStats& stats) {
           continue;
         }
       }
+      stats.Increment(stats.evaluated_collapse);
       if (Collapse(edge, sweep_, stats) == Refusal::None) {
         ++accepted;
       } else if (memory_) {
@@ -143,6 +146,7 @@ size_t Mesh::SplitSweeps(IdSequence& point_ids, size_t cell_limit, PassStats& st
         stats.Increment(stats.deferred);
         continue;
       }
+      stats.Increment(stats.evaluated_split);
       if (Split(edge, seed, point_ids, sweep_, cell_limit, stats) == Refusal::None) ++accepted;
     }
     if (!accepted) return total;
@@ -155,8 +159,20 @@ size_t Mesh::SplitSweeps(IdSequence& point_ids, size_t cell_limit, PassStats& st
 void Mesh::LengthWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
   for (unsigned round = 0; round < LengthRoundLimit; ++round) {
     stats.Increment(stats.rounds);
+    const auto collapse_sweeps = stats.sweeps_collapse;
+    const auto split_sweeps = stats.sweeps_split;
+    const auto collapse_start = ReportClock(stats);
     const auto collapses = CollapseSweeps(stats);
+    const auto split_start = ReportClock(stats);
     const auto splits = SplitSweeps(point_ids, cell_limit, stats);
+    if (stats.report) {
+      stats.seconds_collapse += split_start - collapse_start;
+      stats.seconds_split += ReportClock(stats) - split_start;
+      if (!stats.round_changes.empty()) stats.round_changes += ',';
+      stats.round_changes += "c" + std::to_string(collapses) + "(" +
+                             std::to_string(stats.sweeps_collapse - collapse_sweeps) + ")s" +
+                             std::to_string(splits) + "(" + std::to_string(stats.sweeps_split - split_sweeps) + ")";
+    }
     if (!collapses && !splits) return;
   }
   if (stats.report) stats.limit = true;
@@ -186,6 +202,7 @@ bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& sta
       stats.Increment(stats.skipped_memory);
       continue;
     }
+    stats.Increment(stats.evaluated_quality);
     const auto stable_order = [this](Slot a, Slot b) { return points_[a].node.id < points_[b].node.id; };
     auto vertices = row.vertices;
     std::sort(vertices.begin(), vertices.end(), stable_order);
@@ -233,8 +250,16 @@ bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& sta
 }
 
 void Mesh::QualityWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
-  for (unsigned sweep = 0; sweep < QualitySweepLimit; ++sweep)
-    if (!QualitySweep(point_ids, cell_limit, stats)) return;
+  const auto accepted = [&stats] { return stats.edge_removals + stats.face_swaps + stats.moves; };
+  for (unsigned sweep = 0; sweep < QualitySweepLimit; ++sweep) {
+    const auto before = stats.report ? accepted() : 0;
+    const bool changed = QualitySweep(point_ids, cell_limit, stats);
+    if (stats.report) {
+      if (!stats.quality_changes.empty()) stats.quality_changes += ',';
+      stats.quality_changes += std::to_string(accepted() - before);
+    }
+    if (!changed) return;
+  }
   if (stats.report) stats.limit = true;
 }
 
@@ -276,11 +301,15 @@ PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, bool report, b
       if (row.live && Margin(row.vertices) < BadMargin) ++stats.bad_in;
   }
   LengthWork(point_ids, cell_limit, stats);
+  const auto quality_start = ReportClock(stats);
   QualityWork(point_ids, cell_limit, stats);
+  const auto check_start = ReportClock(stats);
   Check();
   if (report) {
     MarkWallNear();
     ReportResult(stats);
+    stats.seconds_quality = check_start - quality_start;
+    stats.seconds_check = ReportClock(stats) - check_start;
   }
   return stats;
 }

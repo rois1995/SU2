@@ -1,0 +1,9 @@
+{
+  "launched": false,
+  "preflight_returncode": 1,
+  "observed_processes": [
+    {"pid": 1325810, "start_ticks": 66027545, "comm": "ninja"},
+    {"pid": 1325816, "start_ticks": 66027546, "comm": "cc1plus"}
+  ],
+  "observation": "Both processes belonged to an unrelated build workspace. The adopted all-machine preflight stopped before spawning the fixture. The pinned inputs and attempted command were retained."
+}

@@ -11,9 +11,11 @@
 #include <array>
 #include <cstdint>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace SU2NativeLocal3D {
+using SU2Native3D::DonorCell;
 using SU2Native3D::FacetBinding;
 using SU2Native3D::Id;
 using SU2Native3D::MetricMeasures;
@@ -60,14 +62,20 @@ struct EdgeUse {
   Slot cell;
 };
 
-enum class Refusal { None, Ineligible, Validity, Size, Topology, Memory };
+enum class Refusal { None, Ineligible, Validity, Size, Topology, Memory, Numeric };
+
+bool SampleMovedTensor(const std::vector<DonorCell>& donors, Point point, Tensor& tensor);
 
 struct PassStats {
   size_t cells_in = 0, cells_out = 0, points_in = 0, points_out = 0;
   size_t surface_points = 0, border_points = 0, wall_near_points = 0;
   size_t collapses = 0, splits = 0, edge_removals = 0, face_swaps = 0, moves = 0;
-  size_t deferred = 0, skipped_memory = 0, refused_valid = 0, refused_size = 0, refused_topology = 0,
+  size_t deferred = 0, skipped_memory = 0, refused_numeric = 0, refused_valid = 0, refused_size = 0, refused_topology = 0,
          refused_memory = 0;
+  size_t evaluated_collapse = 0, evaluated_split = 0, evaluated_quality = 0;
+  double seconds_build = 0, seconds_collapse = 0, seconds_split = 0, seconds_quality = 0, seconds_check = 0,
+         seconds_write = 0;
+  std::string round_changes, quality_changes;
   size_t long_left_surface = 0, long_left_border = 0, short_out = 0, edges_out = 0;
   size_t bad_in = 0, bad_out = 0, bad_out_free = 0;
   unsigned sweeps_collapse = 0, sweeps_split = 0, sweeps_quality = 0, rounds = 0;

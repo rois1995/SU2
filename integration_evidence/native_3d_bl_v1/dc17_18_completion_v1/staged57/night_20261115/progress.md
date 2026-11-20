@@ -648,3 +648,27 @@ FP1 resume C. G5 OFF PASSED on build608. All six payloads match the adopted hash
 FP1 ON FAILED. ON1 event 1 first reported `complete=0` against 1, with `Degenerate metric donor`. The one read-only R5 diagnosis traced rejection to the prescribed point-move affine-weight calculation in pass 1, before either shift. No wiring correction or shift fallback applies. All solver handles are terminal. OFF passed both events, six hashes and isolated restart. Retain Parts A/B/C/F. ON2, ON event 2 and the ON reference are unevaluated. Seal the failure and close the item.
 
 FP1 closed on build608. Last production checkpoint `f36b66eadd`. Verified 179 recorded identities terminal and zero active owned heavy processes. OFF remains the validated default. ON is failed under §12.5. The progress report, handoff and timings are complete. Next action is the next user order.
+
+## FP1 resume 2
+
+Archived and SHA256-verified `FP1_RESUME_2.md` and confirmed all 179 previous owned handles terminal. The whole-order source check identified a print-only scope discrepancy and recorded the R4 reading. Next is the exact filtered donor rule, pass diagnostics and focused flat-donor fixture. The standing OFF G5 proof is retained.
+
+FP1 G. Implemented the filtered donor rule, Numeric step refusal and report-only timing/count fields. The flat-donor fixture is registered under a new hidden tag. Starting build609 on the verified host, then the new and inherited fixtures, G1 and fresh corrected OFF prefixes.
+
+FP1 G. Build609 linked in 134.787 s with zero new warnings. The flat-donor fixture passed 12 assertions. Every inherited fixture passed with identical assertion totals and wired edit rows. The new timing, evaluation and sweep fields reconciled with the printed edit totals. G1 is running before corrected G2 and GQ.
+
+FP1 G. G1 passed on build609, matching 375 / 114 / 228 exact records in 784.477 / 10.448 / 10.411 s. Code scope against f36b66eadd passed under the recorded print-only R4 reading. Corrected OFF G2 and GQ are next in the same controller.
+
+FP1 G. Fresh OFF G2 passed in 257.098 s to cutoff. Exact first-collapse work 90,809,869 and accepted counts 480 / 473 / 346 / 263 / 469 / 464. The corrected comparator matched the exact rows, modeled storage, decisions and fixedstorage=4120. GQ is live.
+
+FP1 G. Fresh OFF GQ passed in 906.877 s to cutoff with exact rows, modeled storage and decisions and fixedstorage=4120. An unrelated compiler workload was observed during the run and was terminal before replay preflight. Both fresh OFF gates and G1 are now accepted. Starting the frozen event 1 ON replay with the verified build609 driver, no CFD and no state capture.
+
+FP1 G replay preparation. The adopted preflight stopped event 1 before spawning ranks because a separate Ninja/cc1plus build resumed. Confirmed no launch, wait record, run log or MPI output. Preserved the attempted command and the two process identities. Wait for the unrelated build's active compiler handles to clear, then retry only the preflight and launch. The case and build pins are intact.
+
+FP1 G. The second preflight also stopped before rank spawn. The third cleared and launched exactly one event 1 replay at 10:48:58 Europe/Rome under controller PID 1331506/start 66044450. The replay uses six nice-19 ranks and the event 1 config SHA256 `1ec6c26d49d4ec7c62103d5bd096471b5422290cd06c44b2f1073b7489f2b4c1`.
+
+FP1 G replay remains live near one hour of the 5,400 s cap. No local-pass, shift or rejection rows yet. Two bounded CPU samples show rank 3 in quality work while peers are in MPI in the later sample. Periodic actual-host RSS samples remain near 3,221 MiB sum of rank high-water marks.
+
+FP1 G. Event 1 completed pass 1 and the lower shift on all six ranks. Rank 3 grew from 51,202 to 1,112,091 cells, spent 3,677.323 s in quality work and finished the first pass at 4,074.199 s inclusive. Rank 2 spent 1,060.993 s in quality. The lower shift preserved 1,642,036 cells globally. All six pass rows reported zero Numeric step refusals. Pass 2 is live.
+
+FP1 resume 2 closed by Resume 3 §0. The verified replay group was ended with SIGTERM after 5,301 s and the controller returned terminal at 5,303.001 s. Six pass-1 and six lower-shift rows were preserved. No pass-2 or higher-shift row and no native event result. Resume 2 items 5.1 to 5.3 passed. Checkpoint Part G before editing H.

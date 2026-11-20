@@ -7,6 +7,7 @@
 #include "../../../include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../../include/adaptation/CNativeMetricTransport3D.hpp"
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <stdexcept>
 
@@ -25,6 +26,24 @@ Tensor Midpoint(const Tensor& a, const Tensor& b) {
 }
 }  // namespace
 
+bool SampleMovedTensor(const std::vector<DonorCell>& donors, Point point, Tensor& tensor) {
+  std::vector<DonorCell> usable;
+  usable.reserve(donors.size());
+  for (const auto& donor : donors) {
+    std::array<long double, 4> weights;
+    try {
+      weights = SU2Native3D::MetricAffineWeights(donor.cell, point);
+    } catch (const std::invalid_argument&) {
+      continue;
+    }
+    if (std::all_of(weights.begin(), weights.end(), [](long double weight) { return std::isfinite(weight); }))
+      usable.push_back(donor);
+  }
+  if (usable.empty()) return false;
+  tensor = SU2Native3D::EvaluateCavitySample(usable, point).sensor;
+  return true;
+}
+
 void PassStats::Count(Refusal refusal) {
   if (!report) return;
   switch (refusal) {
@@ -39,6 +58,9 @@ void PassStats::Count(Refusal refusal) {
       break;
     case Refusal::Memory:
       ++refused_memory;
+      break;
+    case Refusal::Numeric:
+      ++refused_numeric;
       break;
     case Refusal::None:
     case Refusal::Ineligible:
@@ -392,7 +414,11 @@ Refusal Mesh::MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& 
     auto candidate = original;
     candidate.node.p = {double(p.x + step * (mean[0] - p.x)), double(p.y + step * (mean[1] - p.y)),
                         double(p.z + step * (mean[2] - p.z))};
-    candidate.tensor = SU2Native3D::EvaluateCavitySample(donors, candidate.node.p).sensor;
+    if (!SampleMovedTensor(donors, candidate.node.p, candidate.tensor)) {
+      refusal = Refusal::Numeric;
+      stats.Count(refusal);
+      continue;
+    }
     points_[point] = candidate;
     try {
       if (std::any_of(star.begin(), star.end(), [&](Slot c) { return !Positive(cells_[c].vertices); }))

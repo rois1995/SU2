@@ -732,6 +732,12 @@ struct RemeshRun {
               << " wall_near_points=" << p.wall_near_points << " collapses=" << p.collapses << " splits=" << p.splits
               << " edge_removals=" << p.edge_removals << " face_swaps=" << p.face_swaps << " moves=" << p.moves
               << " deferred=" << p.deferred << " skipped_memory=" << p.skipped_memory
+              << " refused_numeric=" << p.refused_numeric << " seconds_build=" << p.seconds_build
+              << " seconds_collapse=" << p.seconds_collapse << " seconds_split=" << p.seconds_split
+              << " seconds_quality=" << p.seconds_quality << " seconds_check=" << p.seconds_check
+              << " seconds_write=" << p.seconds_write << " evaluated_collapse=" << p.evaluated_collapse
+              << " evaluated_split=" << p.evaluated_split << " evaluated_quality=" << p.evaluated_quality
+              << " round_changes=" << p.round_changes << " quality_changes=" << p.quality_changes
               << " refused_valid=" << p.refused_valid << " refused_size=" << p.refused_size
               << " refused_topology=" << p.refused_topology << " refused_memory=" << p.refused_memory
               << " long_left_surface=" << p.long_left_surface << " long_left_border=" << p.long_left_border
@@ -784,16 +790,23 @@ struct RemeshRun {
       core::PassStats counts;
       CLocalFailure local;
       try {
+        const auto build_start = report ? workers.seconds() : 0.0;
         core::Mesh pass_mesh(working, workers.size > 1);
+        const auto build_seconds = report ? workers.seconds() - build_start : 0.0;
         pass_mesh.MarkBorderSurface(meeting);
         counts = pass_mesh.RunPass(point_ids, cell_limit, report);
+        const auto write_start = report ? workers.seconds() : 0.0;
         pass_mesh.WriteBack(working, cell_ids);
+        if (report) {
+          counts.seconds_build = build_seconds;
+          counts.seconds_write = workers.seconds() - write_start;
+        }
       } catch (const std::exception& e) {
         local.Set(2, 0, e.what());
       }
       const auto elected = workers.elect(local);
+      if (report && !local.Failed()) PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
       if (elected.any) throw elected;
-      if (report) PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
 
       if (passes > 1) {
         const bool lower = pass == 1;
