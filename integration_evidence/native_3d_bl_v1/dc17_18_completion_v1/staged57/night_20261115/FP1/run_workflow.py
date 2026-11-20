@@ -26,6 +26,7 @@ F_WORKFLOW = NIGHT / 'N18/drafts/recipes/workflow_f.py'
 SUMMARY = cut.PHASE / 'phase_C/collect_g5_summary.py'
 N21 = NIGHT / 'N21/accepted_reference.json'
 ORDER = ITEM / 'inputs/FAST_PATH_STAGE1.md'
+RESUME_ORDER = ITEM / 'inputs/FP1_RESUME.md'
 BASE_CONFIG = R / 'm6_inputs/euler_adapted293_event1_v1/run.cfg'
 OFF_CONFIG = N22 / 'full591_run1/run.cfg'
 OFF_CONFIG_SHA = '5c0fe04144c7bb230ec7f71e26c87bf7d0150cdf5c89caa6e840ba20f3ae2d56'
@@ -148,7 +149,7 @@ def bind_text(path, source):
 
 def prepare(work, build, build_dir, config):
     work.mkdir(parents=True, exist_ok=True)
-    sources = [CORE, WRAPPER, PAYLOADS, TIMER_REPORT, F_WORKFLOW, SUMMARY, N21, ORDER, BASE_CONFIG,
+    sources = [CORE, WRAPPER, PAYLOADS, TIMER_REPORT, F_WORKFLOW, SUMMARY, N21, ORDER, RESUME_ORDER, BASE_CONFIG,
                OFF_CONFIG, config, Path(__file__).resolve(),
                R / 'f3b_20261115/check_timer_tree.py', NIGHT / 'N16/event_prefix.py']
     bound = []
@@ -307,12 +308,13 @@ def prefix_report(off, on):
 
 def report_rows(case, event, parse):
     """Collect the FP1 report rows within each rank's terminal remesh event."""
-    _, local, _, final_timers = parse['read_event'](case, event)
+    summaries, local, _, final_timers = parse['read_event'](case, event)
     fields = parse['fields']
     strip = parse['timer'].strip_mpi_prefixes
     core, shift = defaultdict(list), defaultdict(list)
     length_rows, engine, entries = {}, {}, {}
     core_clock, shift_clock = {}, {}
+    per_rank, shifts_by_rank = defaultdict(list), defaultdict(list)
     frozen = complexity = None
     for rank, lines in sorted(local.items()):
         last_length = None
@@ -325,12 +327,17 @@ def report_rows(case, event, parse):
                     continue
                 stage = int(row['stage'])
                 core[stage, int(row['pass'])].append(row)
+                keys = ('pass', 'limit', 'sweeps_collapse', 'sweeps_split', 'sweeps_quality', 'rounds',
+                        'skipped_memory', 'cells_in', 'cells_out')
+                per_rank[rank].append({'stage': stage, **{key: int(row[key]) for key in keys if key in row}})
                 core_clock[rank] += float(row['seconds'])
                 entries[rank][stage] = int(row['cells_out'])
             elif row := fields(line, 'NATIVE3D_LOCAL_SHIFT'):
                 if row.get('rank') != str(rank):
                     continue
                 shift[stage, row['direction']].append(row)
+                shifts_by_rank[rank].append({'stage': stage, 'direction': row['direction'],
+                                             'cells_after': int(row['cells_after'])})
                 shift_clock[rank] += float(row['seconds'])
                 entries[rank][stage] = int(row['cells_after'])
             elif row := fields(line, 'NATIVE3D_PARTITION'):
@@ -374,13 +381,31 @@ def report_rows(case, event, parse):
         'engine_accepted_splits': sum(row['length_splits'] for rows in engine.values() for row in rows),
         'last_length_by_rank': {str(rank): row for rank, row in length_rows.items()},
         'last_length_sums': sum_fields(length_rows.values(), ()),
+        'process_peak_rss_bytes_by_rank': {str(rank): int(row['process_peak_rss']) for rank, row in summaries.items()},
         'normalization_stages': frozen, 'complexity_value': complexity,
+        'local_core_by_rank_and_pass': {str(rank): rows for rank, rows in per_rank.items()},
+        'local_shifts_by_rank_and_stage': {str(rank): rows for rank, rows in shifts_by_rank.items()},
         'core_pass_seconds_by_rank': {str(rank): value for rank, value in core_clock.items()},
         'shift_seconds_by_rank': {str(rank): value for rank, value in shift_clock.items()},
         'construction_excluding_core_passes_and_shifts_seconds_by_rank': {
             str(rank): seconds - core_clock[rank] - shift_clock[rank] for rank, seconds in construction.items()
         },
     }
+
+
+def join_difference(row):
+    difference = row['join_relative_difference']
+    if difference is None:
+        assert row['join_within_one_percent'] and row['join_wait_seconds'] == row['legacy_join']['join_seconds'] == 0
+        return 0.0
+    return float(difference)
+
+
+def event_collector():
+    source = replace_once(SUMMARY.read_text(), "float(row['join_relative_difference'])", 'join_difference(row)')
+    namespace = {'__name__': 'fp1_event_summary', 'join_difference': join_difference}
+    exec(compile(source, str(SUMMARY), 'exec'), namespace)
+    return namespace['collect_events']
 
 
 def campaign(output, build_dir, scoped, safeguards):
@@ -396,7 +421,7 @@ def campaign(output, build_dir, scoped, safeguards):
     binary_sha = receipt['binary_sha256']
     assert cut.sha(receipt['binary']) == binary_sha
     payloads = runpy.run_path(str(PAYLOADS))
-    collect = runpy.run_path(str(SUMMARY))['collect_events']
+    collect = event_collector()
     parse = runpy.run_path(str(N22 / 'check_connected_events.py'))
     reference = off_reference(payloads)
     outputs = {}
@@ -463,6 +488,9 @@ def self_check():
     status = cut.PHASE / 'build591'
     assert payloads['payload_hashes'](archive) == off_reference(payloads)
     assert timer_report(archive, require_wall=True)['all_fixedstorage_4120']
+    assert join_difference({'join_relative_difference': None, 'join_within_one_percent': True,
+                            'join_wait_seconds': 0, 'legacy_join': {'join_seconds': 0}}) == 0
+    assert event_collector()(archive) == runpy.run_path(str(SUMMARY))['collect_events'](archive)
     parse = runpy.run_path(str(N22 / 'check_connected_events.py'))
     for event, value in ((1, 51328.596781622735), (2, 50588.745036561028)):
         report = report_rows(archive, event, parse)

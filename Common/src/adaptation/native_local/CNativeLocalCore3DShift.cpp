@@ -93,7 +93,7 @@ std::vector<Announcement> LocalBorder(const Owned& owned, int rank) {
 }
 
 void BorderReplies(const std::vector<Announcement>& received, std::vector<std::vector<BorderPoint>>& replies,
-                   std::vector<Id>& rendezvous, bool report) {
+                   std::vector<Id>& rendezvous, bool /*report*/) {
   for (size_t i = 0; i < received.size();) {
     const auto id = received[i].id;
     bool surface = received[i].surface;
@@ -106,7 +106,8 @@ void BorderReplies(const std::vector<Announcement>& received, std::vector<std::v
     if (last == i + 1) throw std::invalid_argument("Native local border point has no partner rank.");
     const BorderPoint value{id, received[i].rank, received[last - 1].rank, surface};
     for (size_t j = i; j < last; ++j) replies.at(received[j].rank).push_back(value);
-    if (report) rendezvous.push_back(id);
+    // Keep the list in both modes because it is part of the admission accounting.
+    rendezvous.push_back(id);
     i = last;
   }
 }
@@ -191,11 +192,10 @@ BorderMeeting MeetBorderPoints(World& world, const Owned& owned, MemoryBudget& b
             [](const auto& a, const auto& b) { return std::tie(a.id, a.rank) < std::tie(b.id, b.rank); });
   BorderMeeting meeting;
   const auto response_baseline = Add(baseline, Bytes(local), Bytes(received));
-  budget.Require(
-      world,
-      Add(response_baseline, GrowthBound(received.size(), sizeof(BorderPoint)),
-          Mul(world.size, sizeof(std::vector<BorderPoint>)), report ? GrowthBound(received.size(), sizeof(Id)) : 0),
-      "Native local border replies exceed storage admission.");
+  budget.Require(world,
+                 Add(response_baseline, GrowthBound(received.size(), sizeof(BorderPoint)),
+                     Mul(world.size, sizeof(std::vector<BorderPoint>)), GrowthBound(received.size(), sizeof(Id))),
+                 "Native local border replies exceed storage admission.");
   std::vector<std::vector<BorderPoint>> replies;
   LocalStep(world, [&] {
     replies.resize(world.size);

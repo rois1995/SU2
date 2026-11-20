@@ -12,13 +12,28 @@ from build_fp1 import verify
 
 N22 = ITEM.parent / 'N22'
 sys.path.insert(0, str(N22))
-from compare_prefix import N4, compare_cases, parse_case, split_communication
+from compare_prefix import C_FIELDS, N4, compare_cases, parse_case, split_communication
 
 ORIGINAL = cut.PHASE / 'N22C/validation'
 CAPTURE = ORIGINAL / 'run_g2_gq_prefix_591.py'
 G2_REFERENCE = ITEM.parent / 'N14/section6_12/validation/cases/N14_G2_552'
 G2_PREPARATION = Path(cut.read(N22 / 'C/scoped_acceptance.json')['G2']['case'])
 GQ_REFERENCE = Path(cut.read(N22 / 'gq_reference.json')['case'])
+
+
+def report_counters(reference, candidate, gate):
+    before, after = (parse_case(path, gate) for path in (reference, candidate))
+    reports = {}
+    for stream in sorted(before):
+        rows = []
+        for index, (old, new) in enumerate(zip(before[stream]['plain'], after[stream]['plain']), 1):
+            keys = sorted(C_FIELDS & (old.fields.keys() | new.fields.keys()))
+            if keys:
+                rows.append({'row': index, 'marker': old.marker,
+                             'reference': {key: old.fields.get(key) for key in keys},
+                             'candidate': {key: new.fields.get(key) for key in keys}})
+        reports[stream] = rows
+    return reports
 
 
 def check_g2(case):
@@ -48,7 +63,7 @@ def check_g2(case):
             'preparation_reference': str(G2_PREPARATION)}
 
 
-def bind_controller(build, root):
+def bind_controller(build, root, corrected=False):
     """Bind the qualified prefix stopping conditions to this build and fresh evidence root."""
     source = runpy.run_path(str(CAPTURE))['load_runner']()
     old_patch = source['patched_controller']
@@ -74,8 +89,9 @@ def bind_controller(build, root):
 
     def patch():
         text = old_patch()
+        check = ITEM / 'reports' / ('FP1_resume_source_check.md' if corrected else 'FP1_source_check.md')
         replacements = {
-            'GROUP / "source_check.md"': f'Path({str(ITEM / "reports/FP1_source_check.md")!r})',
+            'GROUP / "source_check.md"': f'Path({str(check)!r})',
             'PURPOSE / "validate_g2_gq.py"': f'Path({str(ORIGINAL / "validate_g2_gq.py")!r})',
             'PURPOSE / "run_g2_gq_prefix.py"': f'Path({str(CAPTURE)!r})',
             'BUILD / "terminal_handles.json"': 'BUILD / "build_wait.json"',
@@ -84,6 +100,11 @@ def bind_controller(build, root):
         for old, new in replacements.items():
             assert old in text, old
             text = text.replace(old, new)
+        if corrected:
+            order = ITEM / 'inputs/FP1_RESUME.md'
+            line = '    input_hashes.update(runtime_pins)'
+            assert text.count(line) == 1
+            text = text.replace(line, line + f'\n    input_hashes[{str(order)!r}] = sha(Path({str(order)!r}))')
         return text
 
     spec = spec_from_file_location('validate_g2_gq', ORIGINAL / 'validate_g2_gq.py')
@@ -96,21 +117,21 @@ def bind_controller(build, root):
     return env
 
 
-def controller(build, root, gate, case):
-    env = bind_controller(build, root)
+def controller(build, root, gate, case, corrected):
+    env = bind_controller(build, root, corrected)
     env['verify_pins']()
     os.environ['OMPI_MCA_osc'] = 'pt2pt'
     sys.argv = [str(env['N4_SCRIPT']), str(case), '--gate', gate]
     env['main']()
 
 
-def run(build, gate):
-    root = ITEM / 'C/prefix'
-    root.mkdir(exist_ok=True)
+def run(build, gate, root, corrected):
+    root.mkdir(parents=True, exist_ok=True)
     case = root / 'cases' / gate
     if not (case / 'status.json').is_file():
+        flags = ['--corrected'] if corrected else []
         cut.run_gate(root, gate, [cut.PYTHON, '-B', str(Path(__file__).resolve()),
-                                 str(build), gate, '--capture'])
+                                 str(build), gate, '--output', str(root), '--capture', *flags])
     status = cut.read(case / 'status.json')
     assert status['all_owned_handles_terminal'] and all(cut.terminal(row) for row in status['owned_identities'])
     assert status['inputs_unchanged'] and status['source_and_binary_pins_unchanged']
@@ -124,7 +145,12 @@ def run(build, gate):
         hashes = [{Path(path).name: digest for path, digest in provenance['input_hashes'].items()}
                   for provenance in (current, reference)]
         assert hashes[0][basename] == hashes[1][basename], basename
-    result = check_g2(case) if gate == 'G2' else compare_cases('C', 'GQ', GQ_REFERENCE, case)
+    reference_case = G2_REFERENCE if gate == 'G2' else GQ_REFERENCE
+    if gate == 'G2' and not corrected:
+        result = check_g2(case)
+    else:
+        result = compare_cases('C', gate, reference_case, case)
+        result['report_only_integer_fields'] = report_counters(reference_case, case, gate)
     cut.save(root / f'{gate}_comparison.json', result)
     print(f"{gate} {'PASSED' if result['passed'] else 'FAILED'}; comparison at {root}", flush=True)
     return result['passed']
@@ -135,10 +161,12 @@ def self_check():
     root = ITEM / 'C/prefix'
     env = bind_controller(build, root)
     assert env['PURPOSE'] == root and env['BUILD_STATUS'] == build / 'build_status.json'
+    bind_controller(build, root, corrected=True)
     assert env['SOURCE_PINS'] == build / 'source_pins.json'
     assert env['N4_SCRIPT'] == ITEM.parent / 'N4/run_prefix_controller.py'
     assert env['EXPECTED_G2_WORK'] == 90_809_869
     assert (env['N1_FULL'] / 'run.cfg').is_file()
+    assert compare_cases('C', 'G2', G2_REFERENCE, G2_PREPARATION)['passed']
     result = check_g2(G2_PREPARATION)
     witness = result['first_difference']
     print(witness['key'])
@@ -146,6 +174,9 @@ def self_check():
     assert all(row['passed'] for row in result['communication_calls'] if row['phase'] == 'preparation')
     construction = [row for row in result['communication_calls'] if row['phase'] == 'construction']
     assert len(construction) == 6 and all((r['expected'], r['actual']) == (340843, 333799) for r in construction)
+    rows = report_counters(G2_REFERENCE, G2_PREPARATION, 'G2')
+    first = rows[sorted(rows)[0]][0]
+    assert first['reference']['collective_calls'] == '120046' and first['candidate']['collective_calls'] == '114332'
 
 
 if __name__ == '__main__':
@@ -153,13 +184,15 @@ if __name__ == '__main__':
     parser.add_argument('build', type=Path, nargs='?')
     parser.add_argument('gate', choices=('G2', 'GQ'), nargs='?')
     parser.add_argument('--capture', action='store_true')
+    parser.add_argument('--output', type=Path, default=ITEM / 'C/prefix')
+    parser.add_argument('--corrected', action='store_true')
     parser.add_argument('--self-check', action='store_true')
     args = parser.parse_args()
     if args.self_check:
         self_check()
         sys.exit(0)
-    root = ITEM / 'C/prefix'
+    root = args.output.resolve()
     if args.capture:
-        controller(args.build.resolve(), root, args.gate, root / 'cases' / args.gate)
+        controller(args.build.resolve(), root, args.gate, root / 'cases' / args.gate, args.corrected)
     else:
-        sys.exit(not run(args.build.resolve(), args.gate))
+        sys.exit(not run(args.build.resolve(), args.gate, root, args.corrected))

@@ -588,3 +588,31 @@ FP1 C. OFF G2 is live with the build600 source and solver pins. The runtime cont
 FP1 C. OFF G2 FAILED. At rank 0 row 19 the collective call count was 114,332 against 120,046. Construction timer calls were 333,799 against 340,843 on all ranks, and preparation matched N22 C at 250. Physical capture passed 90,809,869 work with collapse counts 480/473/346/263/469/464 in 251.972 s. The one read-only diagnosis matched all compared rows to the accepted N22 C capture and showed zero core/shift rows. No R5 correction or repeat applies. Preserve and revert C only. GQ, G3, safeguards and all G5 runs remain unevaluated.
 
 FP1 close. Parts A/B passed and are retained at `68d28afad0` / `6dc801d609`. Failed C candidate `5bf9b8b4fd` was reverted by `d6e2ee8c4c`. Restored the accepted build591 solver and build599 test driver and verified their hashes. All 41 recorded owned process identities are terminal. Handoff, next-work status and timings updated. GQ, G3, safeguards and full workflows remain unevaluated. Next action under Work order 3 is the next user order.
+
+## FP1 resumed — 2026-11-20
+
+Archived and verified the resume order. Reviewed the original candidate and the F call paths before production restoration. Section 1 replaces the erroneous preparation-only G2 reference sentence. Next is the exact restoration of candidate `5bf9b8b4fd` by reverting `d6e2ee8c4c`, then Part F.
+
+FP1 resume. Pushed Work order 3 correction 1 at `6733db27dd` and restored Part C at `61ad198cda`. The code tree at restoration matches candidate `5bf9b8b4fd`. The original stop at `d6e2ee8c4c` was caused by the erroneous reference sentence. F1–F3 are implemented. Next is the production precompile, then the complete F fixture build and G1.
+
+FP1 F. Production precompile passed with F source pins verified. The four new fixture files are frozen and added to Meson. Starting build601 and the original and new fixture cohorts.
+
+FP1 F. Build601 passed. Its fixture wrapper used a relative output path after changing directory, so GNU time exited 125 before any test. Resolved the output root and retained the original F3 report argument through the border reply call. Starting incremental build602 and all fixture cohorts.
+
+FP1 F. Build602 stopped compiling because the retained report argument was still unnamed at the meeting definition. Named it so the private reply call can receive it. The argument stays unused in the callee and admission is the same for both modes. Retrying as build603.
+
+FP1 F. Build603 passed with zero new warnings. Fixtures A, B, C and F4.1–3 and F4.5 passed. F4.1 changed 2,058 to 2,600 cells and made all five kinds of edit. F4.3 skipped 1,134 evaluations with identical output. F4.5 completed at 1/2/4 ranks with 16 total collapses per case and deterministic transfer. F4.4 is active at two ranks. Direct CPU sampling showed progress in the point-move quality operator on one rank while the other waited at the paired reduction. G1 follows the fixture.
+
+FP1 F4.4 R3. Build603's two-rank exploratory fixture reached the quality sweep. Rank 1 reported `Degenerate metric donor`, then entered MPI finalization while rank 0 waited in the test reduction. Verified the owned timeout group's identity and terminated it. All seven recorded group and supervisor handles are terminal. Preserve both logs and retry the same box with a less extreme exploratory metric and collective exception reporting. No production correction was made.
+
+FP1 F4.4 R3. Build604 passed and fixtures A/B/C, F4.1–3 and F4.5 passed again. The F4.4 two-rank retry ended in 2.487 s. Validity, repeat bytes, border writeback and strict Refine passed. All three quality edit counts were zero in both passes. Next is a fixture-only adjustment to create quality opportunities under the same box, cuts and assertions.
+
+FP1 F4.4 R3. Build605 passed with the same solver hash. Tested both layouts. Two ranks produced 29/87/4/0/0 edits in pass 1 and 3/3/0/0/0 in pass 2 (collapse/split/edge removal/face swap/move). Four ranks produced 29/75/4/0/0 and 3/14/0/0/0, with 9 three-rank points, 4 four-rank points and 9 frozen at both meetings. The conforming and repeat checks and strict refinement passed. Face swaps and moves remain absent, and pass 2 makes no quality edit. Next is another fixture-only field adjustment.
+
+FP1 F4.4 R3. Build606 passed with the same solver hash. Sharpened the x metric band and changed shear signs to vary the weak direction. At 2 / 4 ranks, pass 1 made 30/91/14/0/2 and 30/77/13/0/1 edits. Pass 2 made 2/3/7/0/0 and 2/16/7/0/0. Both cases passed all assertions except face swaps in pass 1. Test a small number of nearby exploratory field variants next.
+
+FP1 F4.4 R3. Build607 field variant 1 passed at 2 and 4 ranks. Pass 1 made 32/96/19/3/4 and 32/81/17/3/3 edits. Pass 2 made 2/5/5/1/7 and 2/19/8/1/2. Both runs repeated exactly and strict refinement accepted. Pin this field and run all fixtures and G1 on build608.
+
+FP1 F. Build608 passed in 14.307 s with zero new warnings. All original and resume fixtures passed on the pinned solver and test driver. F4.4 counts matched build607. Serial G1 started under controller PID 1050241/start 64901709 with MPI G1 queued. One short no-launch Python review observed during preflight completed in under 5 s. Next is the Part F gate-scope audit and checkpoint after G1.
+
+FP1 F. G1 matched 375 / 114 / 228 records at 1 / 2 / 4 ranks in 765.088 / 8.946 / 11.937 s. Every Part F gate passed. The source scope is confined to the reviewed files and the PrintLocalPass field. Checkpoint Part F before any live Part C gate.

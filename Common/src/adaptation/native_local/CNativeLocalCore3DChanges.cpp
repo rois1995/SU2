@@ -409,7 +409,11 @@ Refusal Mesh::MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& 
     if (refusal == Refusal::None) {
       candidate.node.id = ids.Take();
       points_[point] = candidate;
-      for (auto c : star) MarkChanged(cells_[c], stamp);
+      ++change_;
+      for (auto c : star) {
+        MarkChanged(cells_[c], stamp);
+        for (auto p : cells_[c].vertices) points_[p].changed_at = change_;
+      }
       stats.Increment(stats.moves);
       return Refusal::None;
     }

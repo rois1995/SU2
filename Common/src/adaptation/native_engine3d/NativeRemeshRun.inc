@@ -731,7 +731,8 @@ struct RemeshRun {
               << " surface_points=" << p.surface_points << " border_points=" << p.border_points
               << " wall_near_points=" << p.wall_near_points << " collapses=" << p.collapses << " splits=" << p.splits
               << " edge_removals=" << p.edge_removals << " face_swaps=" << p.face_swaps << " moves=" << p.moves
-              << " deferred=" << p.deferred << " refused_valid=" << p.refused_valid << " refused_size=" << p.refused_size
+              << " deferred=" << p.deferred << " skipped_memory=" << p.skipped_memory
+              << " refused_valid=" << p.refused_valid << " refused_size=" << p.refused_size
               << " refused_topology=" << p.refused_topology << " refused_memory=" << p.refused_memory
               << " long_left_surface=" << p.long_left_surface << " long_left_border=" << p.long_left_border
               << " short_out=" << p.short_out << " edges_out=" << p.edges_out << " bad_in=" << p.bad_in

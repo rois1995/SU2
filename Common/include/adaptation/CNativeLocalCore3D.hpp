@@ -10,6 +10,7 @@
 #include "CNativeMetric3D.hpp"
 #include <array>
 #include <cstdint>
+#include <map>
 #include <vector>
 
 namespace SU2NativeLocal3D {
@@ -39,6 +40,7 @@ struct PointRow {
   Tensor tensor;
   Slot incident = NoSlot;
   bool surface = false, border = false, removed = false, wall_near = false;
+  uint64_t changed_at = 0;
   bool Free() const { return !surface && !border && !removed; }
 };
 
@@ -50,6 +52,7 @@ struct CellRow {
   int32_t binding = -1;
   uint32_t stamp = 0;
   bool live = true, changed = false;
+  uint64_t failed_at = 0;
 };
 
 struct EdgeUse {
@@ -63,7 +66,8 @@ struct PassStats {
   size_t cells_in = 0, cells_out = 0, points_in = 0, points_out = 0;
   size_t surface_points = 0, border_points = 0, wall_near_points = 0;
   size_t collapses = 0, splits = 0, edge_removals = 0, face_swaps = 0, moves = 0;
-  size_t deferred = 0, refused_valid = 0, refused_size = 0, refused_topology = 0, refused_memory = 0;
+  size_t deferred = 0, skipped_memory = 0, refused_valid = 0, refused_size = 0, refused_topology = 0,
+         refused_memory = 0;
   size_t long_left_surface = 0, long_left_border = 0, short_out = 0, edges_out = 0;
   size_t bad_in = 0, bad_out = 0, bad_out_free = 0;
   unsigned sweeps_collapse = 0, sweeps_split = 0, sweeps_quality = 0, rounds = 0;
@@ -154,7 +158,7 @@ class Mesh {
   size_t CollapseSweeps(PassStats& stats);
   void LengthWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void QualityWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
-  PassStats RunPass(IdSequence& point_ids, size_t cell_limit, bool report);
+  PassStats RunPass(IdSequence& point_ids, size_t cell_limit, bool report, bool memory = true);
 
   static size_t ArrayBytes(size_t cells);
   static const size_t BytesPerCell;
@@ -222,5 +226,8 @@ class Mesh {
   std::vector<FrozenPoint> frozen_;
   size_t live_cells_ = 0;
   uint32_t sweep_ = 0;
+  bool memory_ = true;
+  uint64_t change_ = 1;
+  std::map<std::array<Id, 2>, uint64_t> collapse_refusals_;
 };
 }  // namespace SU2NativeLocal3D

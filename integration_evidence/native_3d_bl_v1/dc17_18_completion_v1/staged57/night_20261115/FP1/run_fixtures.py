@@ -11,6 +11,10 @@ FIXTURES = {
     'B': ((2, '[NativeLocalCore3DShift]'), (4, '[NativeLocalCore3DShift]')),
     'C': ((1, '[NativeLocalCore3DOption]'), (2, '[NativeLocalCore3DOption]'),
           (4, '[NativeLocalCore3DOption]')),
+    'FA': ((1, '[NativeLocalCore3DResumeA]'),),
+    'FR': ((1, '[NativeLocalCore3DResumeRing]'),),
+    'FB': tuple((ranks, '[NativeLocalCore3DResumeShift]') for ranks in (2, 4)),
+    'FC': tuple((ranks, '[NativeLocalCore3DResumeOption]') for ranks in (1, 2, 4)),
 }
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 PASS = re.compile(r'All tests passed \((\d+) assertions? in (\d+) test cases?\)')
@@ -49,4 +53,4 @@ if __name__ == '__main__':
     parser.add_argument('build', type=Path)
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
-    fixtures(args.part, args.build.resolve(), args.output or ITEM / args.part / 'fixtures')
+    fixtures(args.part, args.build.resolve(), (args.output or ITEM / args.part / 'fixtures').resolve())

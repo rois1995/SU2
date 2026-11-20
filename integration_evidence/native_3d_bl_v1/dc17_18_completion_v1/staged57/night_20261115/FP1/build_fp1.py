@@ -77,7 +77,7 @@ def build(work, label, solver):
     ok = wait['returncode'] == 0 and not new_warnings
     cut.save(work / 'build_status.json', {
         'state': 'terminal', 'passed': ok, 'build': label, 'exit_code': wait['returncode'],
-        'pins_verified': True, 'source_pins_sha256': sha(manifest), 'graph_after': graph(),
+        'pins_verified': True, 'changed': [], 'source_pins_sha256': sha(manifest), 'graph_after': graph(),
         'binary': str(active_solver), 'binary_sha256': sha(active_solver),
         'test_binary': str(test_binary), 'test_binary_sha256': sha(test_binary),
         'warnings': warnings, 'new_warnings': new_warnings, 'wait': wait,

@@ -238,6 +238,7 @@ void Mesh::MarkChanged(CellRow& row, uint32_t stamp) {
 }
 
 void Mesh::Commit(const Plan& plan, uint32_t stamp) {
+  ++change_;
   std::vector<Slot> touched, slots;
   slots.reserve(plan.fresh.size());
   for (auto cell : plan.old) {
@@ -247,6 +248,7 @@ void Mesh::Commit(const Plan& plan, uint32_t stamp) {
     free_cells_.push_back(cell);
     if (row.binding >= 0) free_bindings_.push_back(static_cast<Slot>(row.binding));
     for (auto point : row.vertices) {
+      points_[point].changed_at = change_;
       if (points_[point].incident != cell) continue;
       points_[point].incident = NoSlot;
       touched.push_back(point);
@@ -269,7 +271,10 @@ void Mesh::Commit(const Plan& plan, uint32_t stamp) {
     row.binding = SaveBindings(fresh.bindings);
     row.stamp = stamp;
     row.changed = true;
-    for (auto point : row.vertices) points_[point].incident = slot;
+    for (auto point : row.vertices) {
+      points_[point].incident = slot;
+      points_[point].changed_at = change_;
+    }
   }
   for (size_t i = 0; i < slots.size(); ++i) {
     const auto slot = slots[i];
@@ -286,6 +291,7 @@ void Mesh::Commit(const Plan& plan, uint32_t stamp) {
     free_points_.push_back(point);
   }
   live_cells_ = live_cells_ - plan.old.size() + plan.fresh.size();
+  if (collapse_refusals_.size() > 6 * live_cells_) collapse_refusals_.clear();
 }
 
 Refusal Mesh::ReplaceCells(const std::vector<Slot>& old, const std::vector<Vertices>& fresh, uint32_t stamp) {

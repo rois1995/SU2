@@ -44,6 +44,7 @@ const size_t Mesh::BytesPerCell = transfer_memory::GrowthBound(
     1, sizeof(CellRow) + sizeof(std::array<FacetBinding, 4>) + sizeof(Id) + 3 * sizeof(Slot) +
            4 * (sizeof(PointRow) + sizeof(FrozenPoint) + sizeof(Id) + 5 * sizeof(void*) + sizeof(uint32_t)) +
            6 * (sizeof(EdgeUse) + sizeof(LengthCandidate) + sizeof(uint64_t) + 4 * sizeof(void*)) +
+           6 * (2 * sizeof(Id) + sizeof(uint64_t) + 4 * sizeof(void*)) +
            8 * (sizeof(FreshCell) + sizeof(Face) + 6 * sizeof(void*)) + sizeof(QualityCandidate));
 
 size_t Mesh::ArrayBytes(size_t cells) { return transfer_memory::Mul(cells, BytesPerCell); }
@@ -88,8 +89,23 @@ size_t Mesh::CollapseSweeps(PassStats& stats) {
       }
       if (stamped) {
         stats.Increment(stats.deferred);
-      } else if (Collapse(edge, sweep_, stats) == Refusal::None) {
+        continue;
+      }
+      // An edit to an incident cell or one of its point values stamps an endpoint.
+      // This includes changes to wall-near marks, so an untouched star still refuses.
+      if (memory_) {
+        const auto remembered = collapse_refusals_.find(candidate.ids);
+        if (remembered != collapse_refusals_.end() && remembered->second >= points_[edge[0]].changed_at &&
+            remembered->second >= points_[edge[1]].changed_at) {
+          stats.Increment(stats.skipped_memory);
+          continue;
+        }
+      }
+      if (Collapse(edge, sweep_, stats) == Refusal::None) {
         ++accepted;
+      } else if (memory_) {
+        collapse_refusals_.insert_or_assign(candidate.ids, change_);
+        if (collapse_refusals_.size() > 6 * live_cells_) collapse_refusals_.clear();
       }
     }
     if (!accepted) return total;
@@ -113,20 +129,21 @@ size_t Mesh::SplitSweeps(IdSequence& point_ids, size_t cell_limit, PassStats& st
         candidates.push_back({-length, {points_[edge[0]].node.id, points_[edge[1]].node.id}, use});
     }
     std::sort(candidates.begin(), candidates.end());
-    std::vector<bool> stamped(points_.size());
     for (const auto& candidate : candidates) {
-      const auto edge = candidate.use.edge;
-      if (stamped[edge[0]] || stamped[edge[1]]) {
+      const auto& [edge, seed] = candidate.use;
+      const auto& row = cells_[seed];
+      if (!row.live || row.stamp == sweep_ || std::any_of(edge.begin(), edge.end(), [&](Slot point) {
+            return std::find(row.vertices.begin(), row.vertices.end(), point) == row.vertices.end();
+          })) {
         stats.Increment(stats.deferred);
         continue;
       }
-      const auto ring = EdgeRing(edge, candidate.use.cell);
-      std::vector<Slot> touched;
-      for (auto c : ring.cells) touched.insert(touched.end(), cells_[c].vertices.begin(), cells_[c].vertices.end());
-      if (Split(edge, candidate.use.cell, point_ids, sweep_, cell_limit, stats) == Refusal::None) {
-        ++accepted;
-        for (auto p : touched) stamped[p] = true;
+      const auto ring = EdgeRing(edge, seed);
+      if (std::any_of(ring.cells.begin(), ring.cells.end(), [this](Slot c) { return cells_[c].stamp == sweep_; })) {
+        stats.Increment(stats.deferred);
+        continue;
       }
+      if (Split(edge, seed, point_ids, sweep_, cell_limit, stats) == Refusal::None) ++accepted;
     }
     if (!accepted) return total;
     total += accepted;
@@ -159,16 +176,25 @@ bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& sta
   std::sort(candidates.begin(), candidates.end());
   for (const auto& candidate : candidates) {
     const auto cell = candidate.cell;
-    const auto& row = cells_[cell];
+    auto& row = cells_[cell];
     if (!row.live || row.stamp == sweep_) continue;
+    // Incident-cell edits stamp their points, including point values read by adjacent options.
+    // Capacity refusals also depend on the live cell count and cannot be remembered.
+    if (memory_ && row.failed_at != 0 && std::all_of(row.vertices.begin(), row.vertices.end(), [&](Slot p) {
+          return row.failed_at >= points_[p].changed_at;
+        })) {
+      stats.Increment(stats.skipped_memory);
+      continue;
+    }
     const auto stable_order = [this](Slot a, Slot b) { return points_[a].node.id < points_[b].node.id; };
     auto vertices = row.vertices;
     std::sort(vertices.begin(), vertices.end(), stable_order);
     Plan best;
-    bool best_edge = false;
+    bool best_edge = false, refused_capacity = false;
     EachEdge(vertices, [&](Edge edge) {
       auto plan = RemoveEdgePlan(edge, cell, cell_limit);
       stats.Count(plan.refusal);
+      refused_capacity |= plan.refusal == Refusal::Memory;
       if (plan.Accepted() && (!best.Accepted() || plan.score > best.score)) {
         best = std::move(plan);
         best_edge = true;
@@ -179,6 +205,7 @@ bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& sta
       const unsigned face = std::find(row.vertices.begin(), row.vertices.end(), *it) - row.vertices.begin();
       auto plan = SwapFacePlan(cell, face, cell_limit);
       stats.Count(plan.refusal);
+      refused_capacity |= plan.refusal == Refusal::Memory;
       if (plan.Accepted() && (!best.Accepted() || plan.score > best.score)) {
         best = std::move(plan);
         best_edge = false;
@@ -192,11 +219,14 @@ bool Mesh::QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& sta
       else
         stats.Increment(stats.face_swaps);
     } else {
+      bool moved = false;
       for (auto p : vertices) {
         if (MovePoint(p, point_ids, sweep_, stats) != Refusal::None) continue;
-        changed = true;
+        moved = true;
         break;
       }
+      changed |= moved;
+      if (memory_ && !moved) row.failed_at = refused_capacity ? 0 : change_;
     }
   }
   return changed;
@@ -235,7 +265,8 @@ void Mesh::ReportResult(PassStats& stats) const {
   }
 }
 
-PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, bool report) {
+PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, bool report, bool memory) {
+  memory_ = memory;
   PassStats stats;
   stats.report = report;
   if (report) {
