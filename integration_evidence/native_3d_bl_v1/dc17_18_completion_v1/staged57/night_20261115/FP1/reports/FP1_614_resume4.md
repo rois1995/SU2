@@ -120,3 +120,41 @@ All stage-0 higher shifts were observed within 17.610 s of the six initial parti
 Build614 passed G3 with 1,148 accepted splits against a minimum of 336. All 1,113 shared edits matched the N14 reference, and the physical and observer-adjusted work gates passed. G4 passed all three rank cohorts. The saved-state safeguard receipts passed merit481 in 126.450 s, saved481 in 153.365 s, and the current target in 144.596 s. G1, G2 and GQ are the already-run build614 receipts above. [Scoped comparison](../resume4/scoped/scoped.json) · [Safeguards](../resume4/scoped/safeguards.json)
 
 The build608 OFF proof provides the six accepted payloads, isolated restart, standing gates and the 1,818.319 / 1,039.725 s reference times. CConfig and the OFF-reachable NRR source match the Part C option checkpoint outside the isolated local-core and print functions. [OFF workflow receipt](../resume/G5/OFF/run_receipt.json) · [Source scope](../resume4/scope.json)
+
+## G5 verdict
+
+**FP1 ON FAILED under FAST_PATH_STAGE1 §12.5.** ON1 event 2 reached `complete=1` on all six native ranks. The standing timer gate then stopped the workflow. The first failed value was rank 0 named coverage of 93.688330% against 95.000000%. All six ranks fell below 95%. Join agreement passed on all six, the ledgers reconciled and timer fixed storage was 4,120 bytes. [Event 1 timer gate](../resume4/G5/ON1/full614_run1/f3b_event1_timer_gate.json) · [Event 2 timer gate](../resume4/G5/ON1/full614_run1/f3b_event2_timer_gate.json)
+
+| ON1 event 2 rank | Named coverage | Named seconds short of 95% |
+|---:|---:|---:|
+| 0 | 93.688330% | 5.027 |
+| 1 | 94.378722% | 2.381 |
+| 2 | 94.515189% | 1.858 |
+| 3 | 93.996078% | 3.848 |
+| 4 | 94.133442% | 3.321 |
+| 5 | 94.069620% | 3.566 |
+
+The single read-only diagnosis reproduced the result from the raw completed ledgers. On rank 0 of event 2, root time fell from 1039.770 s OFF to 383.289 s ON, while unattributed time fell from 44.773 to 24.192 s. The shorter ON event still needed 5.027 more named seconds to clear the gate. Construction was the largest unattributed phase component at 19.011 s, with 4.072 s outside phase rows. The local core and shifts run under the existing named construction topology scope. The evidence identifies an attribution shortfall and supplies neither a wiring correction nor a border-shift cause for a §12.5 retry. [Read-only diagnosis](../resume4/G5/on1_diagnosis.json)
+
+| Measurement | OFF event 1 | ON1 event 1 | OFF event 2 | ON1 event 2 |
+|---|---:|---:|---:|---:|
+| Native maximum seconds | 1,818.319 | 1,572.119 | 1,039.725 | 383.244 |
+| Preparation phase seconds | 64.113 | 84.805 | 80.215 | 52.769 |
+| Construction phase seconds | 460.024 | 513.126 | 209.275 | 171.965 |
+| Quality phase seconds | 1,183.856 | 872.460 | 607.086 | 90.696 |
+| Final proof phase seconds | 65.801 | 56.867 | 103.523 | 28.141 |
+| Local core seconds | 0.000 | 18.270 | 0.000 | 10.261 |
+| Shift seconds | 0.000 | 0.781 | 0.000 | 0.746 |
+| Engine construction seconds | 460.024 | 494.099 | 209.275 | 160.964 |
+| Minimum named coverage | 95.257% | 95.467% | 95.333% | 93.688% |
+| Job peak RSS MiB | 13,381.543 | 11,029.734 | 15,980.539 | 11,097.828 |
+| Final native cells / published points | 694,248 / 138,661 | 554,969 / 111,697 | 822,882 / 161,189 | 553,652 / Unevaluated |
+| Last local edges / short local edges | 940,285 / 472,252 | 736,095 / 336,474 | 1,029,309 / 538,452 | 716,154 / 324,865 |
+| Engine collapses / splits | 9,709 / 82,036 | 2,821 / 28,728 | 6,660 / 26,108 | 4,282 / 5,844 |
+| Normalization stages | 1 | 1 | 1 | 1 |
+| Nominal candidate complexity | 51,328.597 | 51,484.195 | 50,588.745 | 50,627.363 |
+| Engine entry cells by rank | 48,316 / 51,155 / 56,223 / 51,202 / 50,531 / 45,932 | 50,044 / 53,134 / 89,880 / 131,765 / 51,829 / 43,597 | 115,746 / 102,554 / 127,730 / 119,151 / 121,207 / 107,860 | 104,696 / 80,115 / 88,893 / 95,522 / 81,558 / 86,613 |
+
+Phase seconds are maximum rank-local exclusive totals, with unlabeled phase time still identified in the ledger. The inclusive core and shift clocks are inside construction. Rank maxima and nested clocks cannot be added. The run showed native maxima below the comparison bounds, but its standing coverage gate failed.
+
+Event 1 passed the connected proof gate, published a mesh and authority sidecar, and continued CFD into event 2. The failed workflow retains their hashes and the event 1 restart. Native event 2 reported a candidate of 553,652 cells and an owned-proof face sum of 64,758, equal to the surface total. The controller stopped before event 2 mesh publication, full workflow validation and the isolated restart. ON2 and the six-payload repeat comparison are unevaluated under §12.5. The H6 checkpoint and build608 OFF proof are retained. The default is NO. [Connected event 1](../resume4/G5/ON1/full614_run1/p7p8_event1_gate.json) · [Terminal workflow receipt](../resume4/G5/ON1/full614_run1/full_workflow_receipt.json)

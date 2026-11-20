@@ -748,3 +748,9 @@ FP1 H6 post-replay. G4 2D cohorts passed.
 FP1 H6 post-replay. Scoped gates and saved-state safeguards passed. The OFF workflow proof is build608.
 
 FP1 H6 post-replay OFF scope passed. G3 1,148 splits and 1,113 exact shared edits. G4 at 1/2/4 ranks and saved safeguard modes merit481, saved481 and saved_current passed. Reuse build614 short prefixes and build608 G5 OFF. Seal then run two G5 ON workflows sequentially.
+
+FP1 H6 scoped safeguards pushed at 92d1247868. Start the paired G5 ON campaign with the accepted build608 OFF proof.
+
+FP1 H6 G5 ON1 event 1 native remesh returned complete on all six ranks, max 1572.119 s. Mesh and authority sidecar published. The full workflow continues toward event 2 and the standing gate collector.
+
+FP1 H6 G5 ON1 ended at its event 2 F3b timer gate. Both native events returned complete=1 on all six ranks. Event maxima 1,572.119 / 383.244 s. Event 2 rank 0 named coverage 0.936883297417 versus 0.95, the first failed number. All six coverage values fail while join and the remaining timer ledger checks pass. The read-only diagnosis found that lower named time left a larger unattributed fraction, led by construction. There is no supported wiring or border-shift retry. FP1 ON FAILED under §12.5. ON2 and event 2 publication, workflow validation and restart are unevaluated. Retain H6 and build608 OFF. Seal the terminal evidence, update the handbooks and stop.

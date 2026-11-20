@@ -2,6 +2,18 @@
 
 ## Fast path stage 1
 
+### Resume 4 H6, build614
+
+| Check | Pass or native wall (s) | Evidence |
+|---|---:|---|
+| LAB1 V2 | 43.571 | 422,857 exact-positive output cells |
+| LAB2 V2 | 51.102 | 558,310 exact-positive output cells |
+| LAB1 V5 | 47.670 | Surface blocking off. 479,791 exact-positive output cells |
+| LAB2 V3 | 26.658 | Lower short-edge variant. 644,771 exact-positive output cells |
+| Six-rank frozen event 1 replay | 1,568.109 | Accepted. Stage-0 core and shifts max 16.806 s |
+
+LAB1 V2 split work fell from 515.057 s on H to 7.826 s on H6, and peak live cells in sweep rows fell from 1,127,484 to 564,602. The frozen replay used zero CFD steps and reached 95.055% minimum timer coverage. G5 ON1 native maxima were 1,572.119 and 383.244 s against build608 OFF at 1,818.319 and 1,039.725 s. The second event failed named coverage at 93.688% minimum against 95%. Rank 0 retained 24.192 s of unattributed time, including 19.011 s in construction. The run stopped before event 2 publication and the repeat. [Resume 4 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_614_resume4.md)
+
 ### Resume 3 lab, build613
 
 | Pair | Pass wall (s) | Outcome |
