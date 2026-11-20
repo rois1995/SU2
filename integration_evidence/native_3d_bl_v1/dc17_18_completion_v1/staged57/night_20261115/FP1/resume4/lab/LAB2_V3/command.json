@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "env",
+    "-C",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume4/lab/LAB2_V3",
+    "LC_ALL=C",
+    "OMP_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "OMPI_MCA_osc=pt2pt",
+    "TMPDIR=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "SU2_NATIVE_FROZEN_CONFIG=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume4/lab/LAB2_V3/run.cfg",
+    "SU2_NATIVE_FROZEN_SENSOR3D=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/cases/A/sensor.bin",
+    "SU2_NATIVE_LOCAL_LAB_VARIANT=V3",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume4/lab/LAB2_V3/time.txt",
+    "timeout",
+    "--verbose",
+    "--signal=KILL",
+    "1200",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[.][NativeLocalCoreLab]"
+  ],
+  "wrapper_argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/python3",
+    "-B",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume4/run_lab.py",
+    "--owned",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume4/lab/LAB2_V3"
+  ],
+  "ranks": 1,
+  "selector": "[.][NativeLocalCoreLab]",
+  "seconds_limit": 1200,
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver"
+}

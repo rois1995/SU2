@@ -722,3 +722,13 @@ FP1 H6 G1 matched exactly 375 / 114 / 228 adopted records in 767.842 / 10.282 / 
 FP1 H6 G2 passed in 241.778 s to cutoff with 90,809,869 work units. Exact corrected comparison passed and fixedstorage 4120. GQ OFF started after G2.
 
 FP1 H6 GQ passed in 716.584 s to cutoff. All corrected exact rows and fixedstorage 4120 matched. Commit FP1 H6, then run LAB1 V2, LAB2 V2, LAB1 V5 and LAB2 V3 in that order.
+
+FP1 H6 checkpoint pushed and verified at c9ba8b3cb5. Started the ordered Resume 4 lab campaign on build614 with the hard 1,200 s wall wrappers. The source and config pins match.
+
+FP1 H6 lab pair 1 of 4 passed both audits. LAB1 V2 pass wall 43.571 s, down from 1,072.121 s on H. All 422,857 written-back cells exactly positive. LAB2 V2 started after the terminal receipt.
+
+FP1 H6 lab pair 2 of 4 passed both audits. LAB2 V2 pass wall 51.102 s, down from 88.835 s on H. All 558,310 written-back cells exactly positive. LAB1 V5 is next.
+
+FP1 H6 lab pair 3 of 4 passed both audits. LAB1 V5 with surface blocking off completed in 47.670 s, with a passing self-check and exact-positive output. LAB2 V3 is next.
+
+FP1 H6 lab pair 4 of 4 passed both audits. LAB2 V3 pass wall 26.658 s. All four owned lab receipts and observed processes are terminal. V2 on LAB1 and LAB2 passed its timing and exact-validity stop conditions. Seal the lab evidence and run the six-rank frozen event 1 replay under Resume 3 §9.2.
