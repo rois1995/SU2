@@ -1,0 +1,40 @@
+diff --git a/SU2_CFD/src/solvers/CSolver.cpp b/SU2_CFD/src/solvers/CSolver.cpp
+index 40550d0b3c..7a637780f5 100644
+--- a/SU2_CFD/src/solvers/CSolver.cpp
++++ b/SU2_CFD/src/solvers/CSolver.cpp
+@@ -3176,21 +3176,29 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
+       unsigned long localNeedsUpdate = 0, globalNeedsUpdate = 0;
+       for (auto point = 0ul; point < nPointDomain; ++point) {
+         // Retry attempted corrections even if bounds left the tensor unchanged; that is not a certificate.
+-        const bool active = changed[point] || sourceChanged[point] ||
++        const bool own = changed[point] || sourceChanged[point];
++        const bool active = own ||
+             std::any_of(metricNeighbors[point].begin(), metricNeighbors[point].end(),
+                         [&](auto neighbor) { return sourceChanged[neighbor]; });
+         changed[point] = false;
+         if (!active) continue;
+         ++totalGradedPoints;
+         su2double vec[3][3], val[3], work[3];
+-        CBlasStructure::EigenDecomposition(previous[point].m, vec, val, nDim, work);
+-        for (auto i = 0u; i < nDim; ++i) {
+-          if (!(val[i] > 0) || !std::isfinite(SU2_TYPE::GetValue(val[i])))
+-            SU2_MPI::Error("Sensor gradation received a non-SPD trial metric.", CURRENT_FUNCTION);
+-          for (auto j = 0u; j < nDim; ++j) inverse[point].m[j][i] = vec[j][i] / sqrt(val[i]);
++        // Sweep zero visits every point. Later, an unchanged point can reuse its inverse in 3D.
++        // If both tensors are unchanged under the frontier's != test (which ignores signed zero),
++        // the previous pair was satisfied: a correction would have left changed[point] set.
++        const bool reuseInverse = nDim == 3 && !own;
++        if (!reuseInverse) {
++          CBlasStructure::EigenDecomposition(previous[point].m, vec, val, nDim, work);
++          for (auto i = 0u; i < nDim; ++i) {
++            if (!(val[i] > 0) || !std::isfinite(SU2_TYPE::GetValue(val[i])))
++              SU2_MPI::Error("Sensor gradation received a non-SPD trial metric.", CURRENT_FUNCTION);
++            for (auto j = 0u; j < nDim; ++j) inverse[point].m[j][i] = vec[j][i] / sqrt(val[i]);
++          }
+         }
+         auto& current = blMetric[point];
+         for (const auto neighbor : metricNeighbors[point]) {
++          if (reuseInverse && !sourceChanged[neighbor]) continue;
+           su2double delta[3] = {}, distance2 = 0, transported[3][3] = {}, whitened[3][3] = {};
+           for (auto i = 0u; i < nDim; ++i)
+             delta[i] = geometry->nodes->GetCoord(point, i) - geometry->nodes->GetCoord(neighbor, i);

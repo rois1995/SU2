@@ -860,3 +860,25 @@ FP1 S ON2 event 1 published all three files. They match build616 ON1 and build61
 FP1 S ON2 event 2 passed final timer and connected proof at 373.634 s. Minimum named coverage was 98.650%. Publication, continued CFD, isolated reload and full repeat identity are next.
 
 FP1 ON accepted. Build616 ON1 1,499.541 / 386.884 s at 99.041% / 98.658%, ON2 1,500.864 / 373.634 s at 99.043% / 98.650%. Both continued CFD and disk restart gates passed. Six output hashes match. All owned identities terminal. Part S G5 OFF pending (FX1). No further FP1 work in this order.
+
+FX1. Verified order and completed R4. Start projection passed at 98.5820%. Skipped P1 and P2 under their explicit R4 conditions because the skipped build feeds later admission or exception classification. Applying independent Part M. Full OFF and ON workflow checks remain in scope.
+
+FX1 M. Build617 passed without a new warning in 49.752 s. Starting G1, G2, GQ, G3, G4 and saved-state safeguards.
+
+FX1 M. G1 matched adopted records 375 / 114 / 228. Starting prefix and safeguard validation.
+
+FX1 M. G2 passed the corrected comparator at 236.506 s.
+
+FX1 M. G2 initial metric SHA256 and gradation rows match the reference.
+
+FX1 M. GQ passed the corrected comparator at 660.503 s.
+
+FX1 M. GQ initial metric SHA256 and gradation rows match the reference.
+
+FX1 M. G3 passed with 1576 splits and 1113 identical shared edits.
+
+FX1 M. G4 passed at 1, 2 and 4 ranks.
+
+FX1 M. Saved-state safeguards passed. The Part M checkpoint is next, with G5 pending.
+
+FX1 M short gates passed on build617. Both initial metric hashes and all gradation rows match, and all eighteen adopted scheduling rows are exact. G5 pending. Next is the fresh OFF workflow.
