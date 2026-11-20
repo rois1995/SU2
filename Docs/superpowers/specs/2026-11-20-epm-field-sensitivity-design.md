@@ -198,3 +198,25 @@ each endpoint, as the parent spec requires.
   state set by the solver loop before each `ComputeResidual`).
 - The memory layout of the input arrays.
 - Code organisation inside the driver.
+
+## 11. Deviations after implementation
+
+Recorded 2026-11-21. The approved text above is unchanged. Two user rulings (2026-11-20) change it in practice.
+
+**(a) Extract-only from adjoint restarts written by MPI runs is rejected (§3.5).** With more than one rank, a
+converged discrete adjoint has nonzero halo values. The adjoint restart stores owned points only, and native SU2
+does not restore the halo part on restart. On several ranks the extract-only guard measures the total adjoint
+(owned value plus halo copies) and rejects such restarts. To re-extract from them, run a short re-converge: a
+restarted adjoint run with `SST_EPM_POSTPROCESS= YES`, which extracts at the end. No native SU2 change was made.
+
+**(b) Option A replaces the strict 2-rank check (§9.3).** The adjoint fixed point depends on the partition,
+through the finite accuracy of the transposed linear solves and the rank-local ILU. The `S_*` and `g_m` depend
+only on the adjoint of the residual, and only when the loaded adjoint is the fixed point of the same map that is
+replayed. So the serial adjoint is not a converged adjoint of the 2-rank iteration. The 2-rank checks are:
+- field vs scalar replay on the same 2-rank run, to `1e-10`;
+- the converged 2-rank run vs serial, and the 2-rank restarted re-extraction vs its end-of-run fields, at a
+  convergence tolerance derived from the adjoint histories.
+
+The §9.3 check (serial adjoint into 2 ranks, `1e-10` against serial) is a guard-decided diagnostic. The runner
+enforces it if the guard accepts and records the guard values if it rejects. On CFDHub (job 664789) the guard
+rejected it in 2D and 3D, and all other checks passed. Details: parent spec, Section 1, "MPI result".

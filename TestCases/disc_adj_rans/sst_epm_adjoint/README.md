@@ -20,15 +20,20 @@ python3 TestCases/disc_adj_rans/sst_epm_adjoint/check_extraction.py \
 
 The output directory must be new. The script converges every flow and SST residual
 below `1e-10`, saves the primal restart, runs ordinary and EPM-enabled coupled drag
-adjoints, and restarts the saved adjoint. It also runs `SST_EPM_EXTRACT_ONLY= YES`
+adjoints, and restarts the saved adjoint. The `enabled` run uses the default
+`SST_EPM_EXTRACTION= FIELD`. The `scalar` run uses `SCALAR_REPLAY`, the reference: its
+CSV must match the field CSV row by row to `1e-10`. It also runs `SST_EPM_EXTRACT_ONLY= YES`
 from the saved adjoint (one iteration measures the residual, its update is discarded),
-which must reproduce the end-of-run sensitivities to `1e-10`, and three option
+which must reproduce the end-of-run sensitivities and field files to `1e-10`, and three option
 rejections. It checks unchanged adjoint iterations,
 finite nonzero sensitivities for all five targets, interior viscous-edge coverage,
-SST source coverage, restart agreement, and unchanged primal and adjoint files. It retains
-configs, logs, histories, restarts, CSVs and a `summary.json` with checksums.
+SST source coverage, restart agreement, and unchanged primal and adjoint files. For every
+field run it runs `read_epm_field.py <json> --csv <csv>`, which recomputes the five
+canonical gradients from the field files alone, checks the `.bin` sizes against the JSON,
+and checks that the site uses add up to the CSV evaluation counts. It retains
+configs, logs, histories, restarts, CSVs, field files and a `summary.json` with checksums.
 
-For local MPI validation, use an **MPI-enabled** AD executable and matching serial
+For MPI validation, use an **MPI-enabled** AD executable and matching serial
 reference directories from the commands above:
 
 ```bash
@@ -40,9 +45,11 @@ python3 TestCases/disc_adj_rans/sst_epm_adjoint/check_extraction.py \
   --ranks 2 --reference build-epm-local/check-3d
 ```
 
-The runner uses `mpirun --host localhost`, shares the serial primal restart, and
-compares every sensitivity/probe with the serial result (`rtol=1e-5`, `atol=1e-9`).
-Evaluation counts include partition-local work and need not be rank-independent.
+The runner uses `mpirun --bind-to none -np 2`. It adds `--host localhost` only when
+`PE_HOSTFILE` is not set (outside an SGE parallel environment). It shares the serial
+primal restart and compares every sensitivity/probe with the serial result (`rtol=1e-5`,
+`atol=1e-9`; the tighter checks are below). Evaluation counts include partition-local
+work and need not be rank-independent. The merged field sites must equal serial.
 
 On several ranks, a converged discrete adjoint has nonzero values at halo points. The
 adjoint restart stores owned points only, so restarting a multi-rank adjoint is lossy
@@ -76,10 +83,9 @@ linear in the adjoint, so the tolerance between two runs is the sum of their two
 It is measured, not fixed, because `CONV_RESIDUAL_MINVAL= -10` bounds the absolute rms
 only: the omega adjoint starts near `2e-11` in 3D, and the 3D 2-rank restart stops only
 3.7 decades below that (level `1.8e-4`) while `rms[A_Rho]` is 6 decades below. On cluster
-job 664770 the observed errors were 0.002 to 0.09 of this tolerance (2D: restarted
+job 664789 the observed errors were 0.002 to 0.09 of this tolerance (2D: restarted
 `8.4e-8` of `2.6e-6`, vs serial `2.1e-7` of `2.3e-6`; 3D: restarted `3.1e-6` of `1.9e-4`,
-vs serial `2.5e-8` of `1.6e-5`, recomputed from the job's field files because the job
-stopped at the restarted check). Real bugs are O(1) (a halo double count is a factor 2;
+vs serial `2.5e-8` of `1.6e-5`). Real bugs are O(1) (a halo double count is a factor 2;
 a missing site fails the site-set check). A tolerance above `1e-3` fails the run as not
 converged enough to compare. `summary.json` records the tolerances
 (`convergence_tolerances`).
@@ -97,8 +103,12 @@ iteration count and residual. Halo copies of an edge site agree to round-off, no
 the ranks orient the edge by local numbering. The reader and the runner use the same test:
 `1e-10` relative, with a floor of `1e-10` times the column's max norm.
 
-The current development sandbox blocks MPI launcher sockets, so two-rank runtime
-validation must remain pending until these commands pass in a permitted local environment.
+Cluster result. On CFDHub, job 664789 (binaries built from `d7fbb0c`, scripts at
+`d1fc118`) passes the serial and the 2-rank runs in 2D and 3D. On 2 ranks, the
+`extract_only` run from the 2-rank restart and the `mpi_extract_field` run from the serial
+adjoint were both rejected by the guard, as expected above. So extract-only on 2 ranks has
+not been positively verified. The recorded values are in
+[smoke_results.json](smoke_results.json).
 
 Passing this test verifies infrastructure. It does not establish nonlinear EPM
 endpoint accuracy, resolve eigenvector degeneracy, or validate uncertainty bounds.

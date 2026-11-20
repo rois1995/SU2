@@ -14,11 +14,21 @@ The estimator must return the baseline QoI, five first derivatives, five first-o
 
 This is not an implementation of a probabilistic uncertainty interval or a guarantee of bounds. It is not one ordinary flow run that produces a validated EPM envelope without additional work. Independent lift and drag estimates normally require separate adjoints; an adjoint for a weighted objective gives that combination's sensitivity.
 
-**Implementation status (2026-11-08):** branch `rois1995/SU2:feature_UQ` starts at the upstream commit below. Reference corrections and experimental 2D/3D extraction are implemented. The complete serial reverse-AD executable builds and passes tiny 2D and 3D end-to-end regressions: all primal/adjoint residuals below `1e-10`, unchanged adjoint iterations with extraction enabled, full interior-edge coverage, finite nonzero five-case sensitivities, saved-adjoint restart agreement, and an unchanged primal restart. Local numerics tests pass 721 assertions in seven passive cases and 695 in four reverse-AD cases, including the fused edge kernel. MPI reductions, synchronized probes and master-only CSV output are implemented; modified driver/flux sources pass MPI/MeDiPack syntax compilation. Two-rank runtime validation is blocked by the sandbox's socket permissions (`errno=1`) and remains pending. No production runs or cluster access occurred. Nonlinear derivative and endpoint validation remain separate pending gates.
+**Implementation status (2026-11-21):** branch `rois1995/SU2:feature_UQ` starts at the upstream commit below. Reference corrections and experimental 2D/3D extraction are implemented. Extraction has two modes, set by `SST_EPM_EXTRACTION`. `FIELD` (default) records every evaluation site once and writes per-site sensitivity files. `SCALAR_REPLAY` is the earlier scalar-amplitude replay; it is kept as the reference. `SST_EPM_EXTRACT_ONLY= YES` re-extracts from saved restarts. Field-sensitivity design: [design spec](superpowers/specs/2026-11-20-epm-field-sensitivity-design.md).
+
+What passed on CFDHub (verify job 664789, 2026-11-20; binaries built from `d7fbb0c`; test scripts at `d1fc118`; no C++ change since `d7fbb0c`):
+
+- The `[EPM],[EPMExtraction],[EPMField]` unit tests: 944 assertions in 15 passive cases, 1024 in 17 reverse-AD cases.
+- The tiny 2D and 3D smoke tests, serial and on 2 MPI ranks. All primal and adjoint residuals are below `1e-10`. The adjoint history is unchanged with extraction on, in both modes. Interior-edge and source coverage, restart agreement and unchanged primal/adjoint restarts are checked.
+- Serial: `FIELD` equals `SCALAR_REPLAY` row by row (largest difference `4.1e-20` in 2D and `5.2e-21` in 3D, on gradients of order `1e-5` and `1e-6`). Extract-only from the saved serial adjoint reproduces the end-of-run CSV and field files exactly (difference 0). The field reader reproduces the CSV from the field files.
+- The serial `FIELD` gradients match the pre-feature scalar replay (commit `8f12d50`, job 664628) to `7e-15` relative. The primal restart is bitwise identical to the one written by that binary.
+- 2 ranks: see "MPI result" below.
+
+Values, binary SHA-256s and timings are in [smoke_results.json](../TestCases/disc_adj_rans/sst_epm_adjoint/smoke_results.json). Earlier local serial checks (GCC 13.3, O0) are kept there as superseded. No production runs occurred. Nonlinear Taylor checks, nonlinear continuation and wide SIMD/OpenMP extraction remain pending.
 
 **Study constraint: preserve classical EPM.** Keep the corrected classical 1C/2C/3C targets, orientation permutations, and endpoint controls. Do not introduce spectral smoothing, average admissible orientations into a weaker stress tensor, or attenuate anisotropy to obtain a derivative. The earlier smooth-target proposal is withdrawn: at isotropy it collapses all five targets to 3C and changes the uncertainty experiment. The smoothing prototype has been removed; its historical commit remains available for audit. The reference-model bug fixes remain in place.
 
-**Adjoint status:** a common baseline adjoint remains appropriate wherever the classical target correction has a suitable continuous or justified directional limit. Degenerate targets require explicit orientation diagnostics and qualification; no globally valid live-EPM derivative is established by selecting an arbitrary eigensolver basis. Section 5.5 specifies the model-preserving investigation. The first extraction implementation now exists behind `SST_EPM_POSTPROCESS=YES`: runtime scalar registration in the native adjoint driver, passive classical target corrections in scalar and fused-edge viscous momentum/energy fluxes and limited SST sources, reuse of the coupled adjoint, sampled eigenspace probes, and CSV output. A preparation-only paper-case generator now supplies ordinary baselines, coupled drag/lift adjoints and the five classical endpoints for NACA 0012, the NASA hump and ONERA M6. Nonlinear continuation, wide-SIMD/OpenMP extraction, nonlinear CFD Taylor tests, and an execution/comparison campaign runner remain pending. MPI runtime validation is pending despite implemented distributed extraction. The broader `SST_EPM_ANALYSIS/CASE/AMPLITUDE/OUTPUT` interface below remains proposed and is not accepted by this branch.
+**Adjoint status:** a common baseline adjoint remains appropriate wherever the classical target correction has a suitable continuous or justified directional limit. Degenerate targets require explicit orientation diagnostics and qualification; no globally valid live-EPM derivative is established by selecting an arbitrary eigensolver basis. Section 5.5 specifies the model-preserving investigation. The first extraction implementation now exists behind `SST_EPM_POSTPROCESS=YES`: runtime scalar registration in the native adjoint driver, passive classical target corrections in scalar and fused-edge viscous momentum/energy fluxes and limited SST sources, reuse of the coupled adjoint, sampled eigenspace probes, and CSV output. The `FIELD` mode adds per-site sensitivity files from one recording. A preparation-only paper-case generator now supplies ordinary baselines, coupled drag/lift adjoints and the five classical endpoints for NACA 0012, the NASA hump and ONERA M6. Nonlinear continuation, wide-SIMD/OpenMP extraction, nonlinear CFD Taylor tests, and an execution/comparison campaign runner remain pending. Two-rank runtime checks pass on the tiny smoke tests (see the MPI result below). The broader `SST_EPM_ANALYSIS/CASE/AMPLITUDE/OUTPUT` interface below remains proposed and is not accepted by this branch.
 
 **Execution contract:** the user has now selected CFDHub for the paper campaign, replacing the earlier blanket no-cluster instruction. Follow [the CFDHub workflow and storage contract](CFDHUB_SST_EPM.md): all SU2/postprocessing outputs belong inside this modified SU2 checkout under the user's global scratch area; MPI/scheduler runtime files retain their default locations. The latest user instruction is local case setup only: do not launch jobs. The destination-policy update did not launch a campaign. Mesh qualification and the numerical/MPI gates below still apply. Pushing this branch to the user's fork remains authorized.
 
@@ -49,13 +59,22 @@ UQ_URLX= 1
 UQ_COMPONENT= 1
 UQ_PERMUTE= NO
 SST_EPM_POSTPROCESS= YES
+SST_EPM_EXTRACTION= FIELD
 ```
 
-Use a reverse-AD build without OpenMP. The driver accepts 2D and 3D; one-process execution is locally verified and MPI execution awaits its two-rank check. The fused edge kernel is included even though `USE_VECTORIZATION=NO` remains required. Smooth stationary ideal-gas flow without extra coupled physics, moving/deforming grids, wall functions, rough walls, periodic interfaces, Newton–Krylov, fixed-lift control, or ramping is required. A single unit-weight DRAG or LIFT objective is accepted. Unsupported combinations fail explicitly. The normal baseline and classical UQ runs leave the new option disabled.
+Use a reverse-AD build without OpenMP. The driver accepts 2D and 3D. Serial and 2-rank MPI execution pass the tiny smoke tests on CFDHub. The fused edge kernel is included even though `USE_VECTORIZATION=NO` remains required. Smooth stationary ideal-gas flow without extra coupled physics, moving/deforming grids, wall functions, rough walls, periodic interfaces, Newton–Krylov, fixed-lift control, or ramping is required. A single unit-weight DRAG or LIFT objective is accepted. Unsupported combinations fail explicitly. The normal baseline and classical UQ runs leave the new option disabled.
 
-Extraction runs in the adjoint driver's postprocess after its native convergence criterion passes, before the usual geometry sensitivity recording. Each replay clears old indices, restores all direct state blocks, registers the single persistent amplitude before dependencies, records one direct iteration, seeds the saved coupled state adjoints and native objective, reverses, extracts only the amplitude derivative, and clears derivatives. It does not call the state-adjoint extraction/update. Zero-amplitude flow/turbulence iteration outputs and the saved adjoint arrays are checked against their original values; an altered baseline objective also stops extraction. Direct states and dependencies are restored before subsequent processing.
+Extraction runs in the adjoint driver's postprocess after its native convergence criterion passes, before the usual geometry sensitivity recording. In `SCALAR_REPLAY` mode, each replay clears old indices, restores all direct state blocks, registers the single persistent amplitude before dependencies, records one direct iteration, seeds the saved coupled state adjoints and native objective, reverses, extracts only the amplitude derivative, and clears derivatives. It does not call the state-adjoint extraction/update. Zero-amplitude flow/turbulence iteration outputs and the saved adjoint arrays are checked against their original values; an altered baseline objective also stops extraction. Direct states and dependencies are restored before subsequent processing.
 
-`sst_epm_sensitivities.csv` is written by rank 0 only after all replays succeed. Rows include `dimension` and `mpi_ranks`. Every rank registers a local amplitude; its reverse derivative is summed with a passive MPI reduction. Global ambiguity counts keep the recording/reverse sequence identical on all ranks. It contains the baseline, five canonical case gradients/predictions, and diagnostic rows when small eigenvalue gaps affect the target. `probe_pair=3, probe_angle=0` identifies the canonical result. Other rows swap a pair of nearly tied eigenvectors using a 90-degree rotation: pair 0=(0,1), 1=(0,2), 2=(1,2), with zero-based ascending baseline eigenvalue indices. These swaps preserve the full target eigenvalues and avoid introducing finite out-of-plane shear merely by continuously tilting a planar eigensystem. There are five canonical recordings and up to three extra recordings per ambiguous anisotropic case (at most 17 total).
+In `FIELD` mode (default), the driver runs one passive discovery pass, which creates one site per evaluation key, and then one real recording. There are three site kinds. `EDGE` is a fused-kernel edge, keyed by the global ids of its two points (smaller first). `BOUNDARY` is a scalar viscous flux at a boundary vertex, keyed by the global point id and the config-file marker index. `NODE` is an SST source, keyed by the global point id. Each site owns zero-valued AD inputs: a 3x3 additive stress `δτ` for viscous fluxes, and additions `δP_k`, `δP_ω` to the k and omega productions after the clip. One reverse sweep, seeded with the saved coupled adjoint, gives the site sensitivities `S_tau`, `S_pk` and `S_pw`. The same baseline and saved-adjoint checks as in `SCALAR_REPLAY` apply. The driver then forms each case and probe gradient as a passive dot product, followed by one MPI sum:
+
+\[
+g_m=\sum_{e} S_\tau(e):\Delta\tau_m(e)+\sum_i \left[S_k(i)\,\Delta P_{k,m}(i)+S_\omega(i)\,\Delta P_{\omega,m}(i)\right].
+\]
+
+The canonical cases use the corrections stored during the recording. The probes recompute them from the stored passive state, with the same helpers and clip. `S_tau` is symmetrized over the nDim block; only its symmetric part is meaningful. A site evaluated more than once holds the sum over its uses.
+
+`sst_epm_sensitivities.csv` is written by rank 0 only after all replays succeed. Rows include `dimension`, `mpi_ranks` and `extraction` (`field` or `scalar_replay`). In `SCALAR_REPLAY`, every rank registers a local amplitude; its reverse derivative is summed with a passive MPI reduction. Global ambiguity counts keep the recording/reverse sequence identical on all ranks. It contains the baseline, five canonical case gradients/predictions, and diagnostic rows when small eigenvalue gaps affect the target. `probe_pair=3, probe_angle=0` identifies the canonical result. Other rows swap a pair of nearly tied eigenvectors using a 90-degree rotation: pair 0=(0,1), 1=(0,2), 2=(1,2), with zero-based ascending baseline eigenvalue indices. These swaps preserve the full target eigenvalues and avoid introducing finite out-of-plane shear merely by continuously tilting a planar eigensystem. `SCALAR_REPLAY` uses five canonical recordings and up to three extra recordings per ambiguous anisotropic case (at most 17 total). `FIELD` uses one recording for all cases and probes, after the passive discovery pass.
 
 The fixed dimensionless gap threshold is `1e-10` in baseline anisotropy eigenvalues. `ambiguous_evaluations` counts numerical evaluations, not unique cells; fused interior edges, scalar boundary fluxes and SST sources contribute. Separate `stress_evaluations` and `source_evaluations` counters expose omitted execution paths. In MPI these are sums of rank-local evaluations, including any duplicated partition work; they are not decomposition-independent cell counts. Near ties these probes are conditioning diagnostics, not exact additional members of the classical five-case set. They sample a few basis permutations, not every orientation or spatially varying orientation field. Agreement among samples does not prove a unique derivative, rotation-invariant uncertainty range, or global extrema. No stress averaging or target attenuation is used.
 
@@ -63,11 +82,67 @@ Rows are labeled `frozen_forcing_unverified`, with `primal_converged=unverified`
 
 The extraction scalar is internal; setting it to nonzero in a local test verifies contribution identities, not a user-accessible nonlinear continuation solver. State derivatives of the passive target correction are intentionally absent at zero amplitude; ordinary baseline flow/turbulence derivatives remain active. Reference and extraction use the same corrected tensor and production floor/cap, including the existing zero-mu_t omega-production fallback. The unresolved physical-limit qualification for that fallback still applies.
 
+#### Extract-only re-extraction
+
+`SST_EPM_EXTRACT_ONLY= YES` loads the saved primal and adjoint restarts and repeats only the extraction. It requires `SST_EPM_POSTPROCESS= YES`, `RESTART_SOL= YES`, `ITER= 1`, a residual-type `CONV_FIELD` (`RMS_` or `MAX_` fields) and `SOLUTION_ADJ_FILENAME` different from `RESTART_ADJ_FILENAME`. Otherwise the run stops while parsing the configuration.
+
+Guard: the run performs one adjoint iteration from the loaded adjoint, measures its residual and discards the update. Each `CONV_FIELD` residual must meet `CONV_RESIDUAL_MINVAL`. If it does not, extraction stops with an error. The replay is seeded with the loaded adjoint, not the updated one. The guard values go to the screen and, in `FIELD` mode, to `extract_only_residuals` in the field JSON. With more than one rank, the guard measures the residual of the total adjoint: the owned value plus all its halo copies, summed by the reverse halo exchange.
+
+Verified: serial extract-only from a serial adjoint restart reproduces the end-of-run CSV and field files exactly (2D and 3D, CFDHub job 664789).
+
+Adjoint restarts written by MPI runs (user ruling, 2026-11-20). With more than one rank, a converged discrete adjoint has nonzero values at halo points. The adjoint restart stores owned points only, and native SU2 does not restore the halo part on restart. So these restarts are lossy: a plain 2-rank adjoint restart starts at `rms[A_Rho]` `10^-7.0` (2D) and `10^-7.4` (3D), and `rms[A_k]` `10^-5.2` and `10^-5.7`, instead of below `1e-10`. The extract-only guard rejects them; on 2 ranks it did so in 2D and 3D. This is by design. To re-extract from such a restart, run a short re-converge: an adjoint run with `RESTART_SOL= YES`, `SOLUTION_ADJ_FILENAME` set to the saved adjoint, and `SST_EPM_POSTPROCESS= YES`. It converges again and extracts at the end. In the 2-rank smoke tests this took 33 (2D) and 16 (3D) adjoint history rows, against 175 and 95 from zero. No native SU2 change was made.
+
+#### Field files
+
+`FIELD` mode writes, in the run directory:
+
+- `sst_epm_field_<OBJ>_rank<r>.bin`, one per rank: raw float64 records in native (little-endian on the cluster) byte order, one per site, without padding. All sites are written, including sites with `uses == 0`.
+- `sst_epm_field_<OBJ>.json`, written by the master. It is the source of truth for the layout: column names and order, `dtype`, `record_bytes`, the per-rank file names and record counts, `nDim`, objective, `delta_b`, `urlx`, gap tolerance, rank count, SU2 version, `source_commit`, `ref_dimensionalization`, case names, kind codes, and `extract_only_residuals` (null in a normal run).
+
+Today a record has 100 columns (800 bytes), so a file grows linearly with the number of sites. The 2D smoke case has 347 sites (277,600 bytes); the 3D case has 1313 (1,050,400 bytes). The JSON does not record the byte order. `source_commit` is `unknown` unless the build defines `SU2_EPM_COMMIT`; it was `unknown` in the cluster runs, so keep the build identity next to the files.
+
+Reader: `python3 TestCases/disc_adj_rans/sst_epm_adjoint/read_epm_field.py sst_epm_field_DRAG.json --csv sst_epm_sensitivities.csv`. It loads all ranks and merges halo copies by `(kind, key_a, key_b)`. It sums the `S_*` columns over copies and keeps the other columns from the first evaluated copy. Evaluated copies must agree to `1e-10` relative, with a floor of `1e-10` times the column's max norm (copies agree to round-off, not bitwise, because ranks orient an edge by local numbering). It then recomputes the five canonical `g_m` from the files and compares them with the CSV (`1e-10` relative or `1e-14` absolute). It needs only numpy.
+
+#### Form 1 chain-rule data
+
+These columns hold the data that the later form 1 map (a sensitivity to a Reynolds-stress perturbation, design spec §8) needs. The map itself is not computed here.
+
+- Keys and position: `kind`, `key_a`, `key_b`, coordinates `coord_a` (and `coord_b` for edges, for the point `key_b`).
+- State at the site, taken from the values that build the correction: `rho`, `mu_t`, `k`, the velocity gradient `grad` (row-major, `grad[i*3+j] = du_i/dx_j`).
+- `EDGE`/`BOUNDARY`: face `normal` and `area`.
+- `NODE`: `volume`, `prod_limit`, baseline `pk0` and `pw0` before the addition, raw production `p_raw0`, `alfa_blended`, and the clip flags `floor_active`, `cap_active`.
+- Sensitivities `S_tau` (9 entries, symmetrized), `S_pk`, `S_pw`.
+- The classical corrections of the five canonical cases: `dtau_<case>_<entry>`, `dpk_<case>`, `dpw_<case>`.
+- `uses`: the number of evaluations at the site.
+
+State columns that do not apply to a kind are NaN; sensitivity and correction columns that do not apply are zero. Values are SU2's nondimensional solver variables; `ref_dimensionalization` in the JSON names the scaling.
+
+#### MPI result
+
+CFDHub job 664789 ran the 2D and 3D smoke tests on 2 ranks against the serial runs of the same job. The primal restart is shared. Everything listed below passed.
+
+| Check (2 ranks) | 2D | 3D | Tolerance |
+|---|---:|---:|---:|
+| `FIELD` vs `SCALAR_REPLAY`, same run, max abs difference | `2.0e-20` | `4.7e-21` | `1e-10` rel. |
+| Reader vs CSV (end-of-run and restarted fields) | pass | pass | `1e-10` rel. |
+| Converged 2-rank vs serial, dJ/da max rel. difference | `8.1e-9` | `4.3e-9` | `2.3e-6` / `1.6e-5` |
+| Converged 2-rank vs serial, merged `S_*` scaled error | `2.1e-7` | `2.5e-8` | `2.3e-6` / `1.6e-5` |
+| Restarted re-extraction vs end-of-run fields | `8.4e-8` | `3.1e-6` | `2.6e-6` / `1.9e-4` |
+| Merged sites EDGE/BOUNDARY/NODE (equal to serial) | 212/31/104 | 802/241/270 | exact |
+| Extract-only from the 2-rank restart | rejected by guard | rejected by guard | ruling (a) |
+| Extract-only from the serial adjoint on 2 ranks | rejected by guard | rejected by guard | diagnostic, ruling (b) |
+
+The convergence tolerance is derived from the adjoint histories. For each run, the level is the worst adjoint component of `10^(final rms - first rms of the run started from zero)`. The tolerance between two runs is the sum of their levels. A tolerance above `1e-3` fails the run. The [test README](../TestCases/disc_adj_rans/sst_epm_adjoint/README.md) gives the derivation.
+
+Option A for the 2-rank checks (user ruling, 2026-11-20). The adjoint fixed point depends on the partition. The transposed linear solves of the recorded iteration stop at a finite accuracy (`1e-10` relative residual, reached in at most 14 iterations in these runs), and the ILU preconditioner is rank-local. `dJ/da` and the `S_*` depend only on the adjoint of the residual, and only when the loaded adjoint is the fixed point of the same map that is replayed. So the serial adjoint loaded on 2 ranks is not a converged adjoint of the 2-rank iteration. The guard rejects it: the worst total-adjoint residual was `10^-6.09` (2D) and `10^-7.72` (3D), above the `1e-10` criterion. The accepted checks are: field vs scalar replay on the same run to `1e-10`; the converged 2-rank run vs serial, and the 2-rank restarted re-extraction vs the end-of-run fields, at the history-derived convergence tolerance. The strict check of design spec §9.3 (serial adjoint into 2 ranks, `1e-10` against serial) is a guard-decided diagnostic. If the guard accepts, the runner enforces `1e-10`; if it rejects, the runner records the guard values. In job 664789 it rejected in 2D and 3D. So extract-only on 2 ranks has not been positively verified.
+
+A guard rejection counts as expected only if every guard residual is at most `1e-5`; the largest observed was `10^-5.46` (2D, lossy restart, k adjoint). A zero or wrongly loaded adjoint leaves the first-iteration residual (`rms[A_Rho]` near `10^-3.5` in 2D and `10^-4.1` in 3D) and fails the runner.
+
 ### Tiny local infrastructure verification
 
-Use [the smoke-test runner and commands](../TestCases/disc_adj_rans/sst_epm_adjoint/README.md). It creates its own 117-point 2D rectangle or 315-point 3D box with spanwise flow, uses a coupled drag adjoint, and limits each solver invocation to 2,000 iterations and 300 seconds. The test compares feature-disabled/enabled adjoint histories, checks every equation's convergence, verifies stress evaluations cover all interior mesh edges, extracts all five sensitivities, reloads the saved adjoint, and checks the primal restart checksum. Configs, logs, histories, restarts and CSVs remain in the selected local test directory.
+Use [the smoke-test runner and commands](../TestCases/disc_adj_rans/sst_epm_adjoint/README.md). It creates its own 117-point 2D rectangle or 315-point 3D box with spanwise flow, uses a coupled drag adjoint, and limits each solver invocation to 2,000 iterations and 300 seconds. The test compares feature-disabled/enabled adjoint histories, checks every equation's convergence, verifies stress evaluations cover all interior mesh edges, extracts all five sensitivities, reloads the saved adjoint, and checks the primal restart checksum. It also compares `FIELD` with `SCALAR_REPLAY`, runs extract-only and three option rejections, and checks the field files with the reader. Configs, logs, histories, restarts, CSVs and field files remain in the selected test directory.
 
-[Recorded smoke-test evidence](../TestCases/disc_adj_rans/sst_epm_adjoint/smoke_results.json) contains executable/source checksums, residuals, timings, sensitivities and restart differences. These coarse meshes are not physically resolved validation cases.
+[Recorded smoke-test evidence](../TestCases/disc_adj_rans/sst_epm_adjoint/smoke_results.json) contains the CFDHub results (job 664789): binary checksums and commits, residuals, timings, sensitivities, error metrics, field sizes and site counts, for 1 and 2 ranks. These coarse meshes are not physically resolved validation cases. The table below is from the earlier local serial run; the CFDHub serial runs give the same adjoint history rows and evaluation counts.
 
 | Case | Points | Primal history rows | Adjoint history rows | Stress/source evaluations per canonical replay |
 |---|---:|---:|---:|---:|
@@ -78,7 +153,7 @@ The end-to-end audit identified a necessary integration correction: `USE_VECTORI
 
 Full builds also require the corrected relative includes in `CMixingPlaneInterface.hpp/.cpp` and `CFlowTractionInterface.cpp`; their old paths could resolve SU2 headers from an unrelated neighbouring checkout through a dependency include directory. The lightweight local build used available CoDiPack, Eigen and MEL headers, without changing that neighbouring source checkout. Exact dependency revisions were not independently verified against pinned gitlinks.
 
-For MPI, the runner uses `mpirun --host localhost -np 2`, reuses the matching serial primal, and compares sensitivities and probes with the serial result. The current sandbox rejects the launcher's socket creation before application execution. MPI driver and flux syntax checks pass with real MPI/MeDiPack headers, but no full MPI executable/run or rank-invariance result is claimed. CFDHub is now the selected campaign destination; follow the storage and runtime-location policy in the execution contract above.
+For MPI, the runner uses `mpirun --bind-to none -np 2` (adding `--host localhost` outside an SGE parallel environment), reuses the matching serial primal, and runs the 2-rank checks of the MPI result above. They pass on CFDHub (job 664789). The earlier local sandbox could not launch MPI. CFDHub is now the selected campaign destination; follow the storage and runtime-location policy in the execution contract above.
 
 ### Inspected source
 
@@ -782,11 +857,23 @@ For the future CFDHub campaign, after qualifying the meshes and execution enviro
 
 A zero exit code and the 20,000-iteration cap are not convergence certificates. Apply Section 12.9 to every primal and coupled adjoint, including tighter-solve noise checks. Reuse a compatible saved primal only after Section 12.3's checks. Count baseline, adjoint convergence, tape/replays and nonlinear reference costs separately. Do not silently launch validation cases when requesting an estimate.
 
-The existing tiny `check_extraction.py --ranks 2 --reference ...` is the local MPI verification path. Its runtime gate remains pending because the sandbox cannot create the required sockets. Do not infer parallel correctness from syntax compilation or bypass that restriction. Production MPI execution requires a later successful runtime check.
+The tiny `check_extraction.py --ranks 2 --reference ...` is the MPI verification path. It passes on CFDHub (job 664789; Section 1, MPI result). It covers 2 ranks on tiny meshes only. Do not use extract-only on adjoint restarts written by MPI runs: the guard rejects them. Re-extract those with a short re-converge (Section 1, extract-only re-extraction).
 
 ### 12.6 Exactly how the sensitivity result is obtained
 
-The implemented `SST_EPM_POSTPROCESS=YES` driver performs the five canonical replays after the selected baseline adjoint is converged, with additional eigenspace probes when required. For each replay:
+The implemented `SST_EPM_POSTPROCESS=YES` driver extracts after the selected baseline adjoint is converged. It has two modes (`SST_EPM_EXTRACTION`).
+
+With `FIELD` (default), the driver records once and reverses once for all cases and probes:
+
+1. Restore the same baseline and preserve the converged flow and turbulence adjoint arrays.
+2. Run a passive discovery pass that creates the evaluation sites, then register their zero-valued inputs before dependent computations.
+3. Record the direct iteration and the actual native objective, with the site inputs added to the stress and the SST productions.
+4. Seed the state outputs with the saved adjoint and the steady native objective with the existing master-rank seed.
+5. Reverse the tape once and read all site sensitivities before clearing the derivative storage.
+6. Form each case and probe gradient as the passive dot product of Section 1, and sum it over ranks once.
+7. Write the CSV and the per-rank field files after all cases, without overwriting the saved state adjoint.
+
+With `SCALAR_REPLAY` (the reference), the driver performs the five canonical replays, with additional eigenspace probes when required. For each replay:
 
 1. Restore the same baseline and preserve the converged flow and turbulence adjoint arrays.
 2. Register the persistent amplitude at zero before dependent computations.
@@ -803,7 +890,7 @@ The result is:
 g_m=\left.\frac{dJ_m}{da}\right|_0=H_a+\lambda^T G_a.
 \]
 
-This is the derivative with respect to the **new dimensionless amplitude**. Do not negate the extracted value, add the direct objective term again, or multiply/divide by `UQ_DELTA_B` or `UQ_URLX`. Those controls are already included in the endpoint correction.
+Both modes give this value; on the tiny smoke tests they agree to `1e-10` relative or better (Section 1). This is the derivative with respect to the **new dimensionless amplitude**. Do not negate the extracted value, add the direct objective term again, or multiply/divide by `UQ_DELTA_B` or `UQ_URLX`. Those controls are already included in the endpoint correction.
 
 The patch must explicitly write the new model-parameter derivative. Existing geometric sensitivity files, adjoint fields, adjoint residuals, `SENS_AOA`, `SENS_MACH`, and `SENS_PRESS` are not this result.
 
@@ -848,6 +935,10 @@ PY
 ```
 
 The comparison helper must additionally validate the five unique case names, status flags, input identities, and consistency of the repeated baseline value. The small reader above only demonstrates how to access the result.
+
+To check that the field files are complete, run `read_epm_field.py` on the field JSON and the CSV (Section 1, field files). It recomputes the five canonical gradients from the files alone.
+
+To extract again later from the same converged primal and adjoint: for a restart written by a serial adjoint run, use `SST_EPM_EXTRACT_ONLY= YES`; for a restart written by an MPI run, use a short re-converge (Section 1, extract-only re-extraction). Extract-only on more than one rank has not been positively verified: in the smoke tests the guard rejected both inputs it was given.
 
 ### 12.7 Required simulation matrix and honest run counts
 
@@ -1034,7 +1125,7 @@ A successful Taylor check establishes derivative correctness under the stated re
 
 ## 13. Completion checklist
 
-Current branch: corrected classical targets and scalar/fused-edge extraction in 2D/3D are implemented. Passive and reverse-AD numerics tests, full serial executable linkage, and tiny serial driver/restart checks pass. MPI accumulation, coordinated probe loops and single-writer output are implemented and compile-checked but have not run on multiple ranks. Wide SIMD/OpenMP extraction, broader boundary/physics coverage, nonlinear CFD Taylor checks, nonlinear continuation and full-endpoint accuracy remain unverified. Tiny-case sensitivity files are infrastructure evidence, not validated uncertainty bounds or a speed-up result.
+Current branch (2026-11-21): corrected classical targets and scalar/fused-edge extraction in 2D/3D are implemented, in `FIELD` (default) and `SCALAR_REPLAY` modes, with extract-only re-extraction. On CFDHub (job 664789) the passive and reverse-AD unit tests and the tiny 2D/3D smoke tests pass, serial and on 2 MPI ranks (Section 1). Extract-only is verified serially; on 2 ranks the guard rejected both inputs it was given, so it has not been positively verified there. Wide SIMD/OpenMP extraction, broader boundary/physics coverage, nonlinear CFD Taylor checks, nonlinear continuation and full-endpoint accuracy remain unverified. Tiny-case sensitivity files are infrastructure evidence, not validated uncertainty bounds or a speed-up result.
 
 Reproduce the lightweight tests without building or running a CFD executable, from the repository root. This Bash snippet requires the normal external headers, including CoDiPack for reverse mode. `CODI_INCLUDE` can point to an existing local CoDiPack include directory. During these local checks, the available sibling checkout's headers were used; their exact revision was not independently verified against the pinned submodule.
 
@@ -1073,7 +1164,7 @@ for mode in passive reverse; do
 done
 ```
 
-The extraction test is also registered in `UnitTests/meson.build` for passive and reverse-AD test drivers. Local tests cover zero-amplitude flux/source values and state derivatives, full classical local endpoints, final-contribution blending, amplitude finite differences with preaccumulation enabled, capped/uncapped production, full-strength tie probes and the accepted serial configuration. These unit tests are complemented by the tiny complete-driver checks below. The runtime guards have been exercised on both dimensions. Wider boundary coverage, distributed runtime replay and nonlinear CFD Taylor checks remain pending.
+The snippet above predates the field tests and was not rerun after the field work. The extraction and field tests (`epm_extraction_tests.cpp`, `epm_field_tests.cpp`, tag `[EPMField]`) are registered in `UnitTests/meson.build` for the passive and reverse-AD test drivers; the CFDHub runs use those drivers. Local tests cover zero-amplitude flux/source values and state derivatives, full classical local endpoints, final-contribution blending, amplitude finite differences with preaccumulation enabled, capped/uncapped production, full-strength tie probes and the accepted serial configuration. These unit tests are complemented by the tiny complete-driver checks below. The field tests cover option parsing, site keys and freezing, the stress hook (zero input, finite difference against the adjoint), the field dot product against the amplitude derivative, cursors in the solver loops, and the file layout. The runtime guards have been exercised on both dimensions. Distributed runtime replay passes on 2 ranks for the tiny cases. Wider boundary coverage and nonlinear CFD Taylor checks remain pending.
 
 
 The feature is ready for review when:
@@ -1087,6 +1178,18 @@ The feature is ready for review when:
 - Ordinary SST with the feature disabled is unaffected.
 - Documentation and outputs consistently describe a linearized model-response estimate, not validated uncertainty bounds.
 - The generated baseline, adjoint, and nonlinear configurations are runnable with documented commands; sensitivity CSVs and comparison tables are delivered for completed stages, with pending or failed runs explicitly identified.
+
+Status against this list (2026-11-21):
+
+- Baseline and corrected endpoints: defined; unit tests pass.
+- Same zero-amplitude baseline and adjoint operator: the smoke tests show unchanged adjoint histories with extraction on, and the replay checks pass.
+- Coupled sensitivity, seeding and MPI accumulation: tiny 2D/3D smoke tests pass serially and on 2 ranks; `FIELD` equals `SCALAR_REPLAY`.
+- Caching, preaccumulation, routes and restoration: scalar and fused-edge routes with `USE_VECTORIZATION=NO` are tested. Wide SIMD and OpenMP are not supported yet.
+- Nonlinear small-amplitude (Taylor) tests: pending.
+- Full-amplitude error and cost: not yet evaluated.
+- Feature off: the adjoint history with the feature off equals the history with it on; the primal restart is bitwise identical to the pre-feature binary's (`8f12d50`).
+- Documentation: updated for the field extraction and the MPI result.
+- Paper-case configurations and results: prepared only; no campaign run.
 
 If only early gates are completed, deliver the working partial implementation with an exact remaining-work list. Do not relabel it as a validated one-baseline EPM uncertainty method.
 
