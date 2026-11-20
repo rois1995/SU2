@@ -413,10 +413,10 @@ TEST_CASE("Field stress hook: input FD matches adjoint", "[EPMField]") {
     auto& sites = *field.epm.field;
     PointState state(100, nDim);
     const auto numerics = MakeNumerics(true, nDim, field.config, state);
-    /*--- Seeded output: x-momentum flux, which depends on tau[0][1] through the normal. ---*/
+    /*--- Seeded output: y-momentum flux, residual[2] = tau[0][1]*n0 + tau[1][1]*n1 (+ tau[2][1]*n2), n0 = 1. ---*/
     const auto output = [&]() {
       SetCursor(field.epm, true);
-      return SU2_TYPE::GetValue(numerics->ComputeResidual(&field.config)[1]);
+      return SU2_TYPE::GetValue(numerics->ComputeResidual(&field.config)[2]);
     };
     output();
     sites.Freeze();
@@ -435,7 +435,7 @@ TEST_CASE("Field stress hook: input FD matches adjoint", "[EPMField]") {
     AD::StartRecording();
     sites.RegisterInputs();
     SetCursor(field.epm, true);
-    su2double objective = numerics->ComputeResidual(&field.config)[1];
+    su2double objective = numerics->ComputeResidual(&field.config)[2];
     AD::RegisterOutput(objective);
     AD::StopRecording();
     SU2_TYPE::SetDerivative(objective, 1);
