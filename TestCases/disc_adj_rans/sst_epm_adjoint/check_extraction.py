@@ -19,11 +19,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import read_epm_field as epm_field  # noqa: E402  (sits next to this script)
 
 FIELD_KINDS = {"EDGE": 0, "BOUNDARY": 1, "NODE": 2}
-# Two independently converged adjoints (serial and 2 ranks) agree on dJ/da and on the per-site S_* only to the
-# adjoint convergence level (observed: dJ/da within 1e-8 relative); see MPI_ADJOINT_NOTE in main().
-CONVERGENCE_RELATIVE_TOLERANCE = 1e-6
+# Largest convergence-level tolerance (see convergence_tolerance) at which a comparison still means something: the
+# bugs it must catch (halo double count: factor 2, wrong sign, wrong scaling) are O(1), three decades above.
+CONVERGENCE_TOLERANCE_CAP = 1e-3
 GUARD_LINE = "EPM extract-only: residual of one adjoint iteration"
 GUARD_ERROR = "EPM extraction requires the native adjoint convergence criterion to pass"
+# Sanity bound (log10) on an extract-only guard REJECTION on several ranks. The expected rejections (lossy multi-rank
+# restart, serial adjoint on 2 ranks) leave a residual of 1e-5..1e-7 (cluster jobs 664755/664770: worst field -5.46,
+# RMS_ADJ_TKE of the 2D lossy restart; worst of the serial adjoint on 2 ranks -6.09). A zero or wrongly loaded adjoint
+# leaves the residual of the first iteration from zero, rms[A_Rho] -3.5 (2D) / -4.1 (3D), above the bound. Blind
+# spot: RMS_ADJ_DISSIPATION is always below the bound (its first-iteration residual is already 1e-9..1e-11).
+GUARD_REJECTION_MAX_LOG10 = -5.0
 
 
 def read_csv(path):
@@ -113,6 +119,63 @@ def guard_values(log):
                 fields[name] = float(value)
             return {"passed": line.rstrip().endswith("passed"), "fields": fields}
     return None
+
+
+def extract_only_outcome(returncode, log, conv_fields, rejected_status):
+    """Decide an extract-only run on several ranks, where the guard may reject the loaded adjoint by design.
+
+    Returns (status, guard): ("passed", guard) if the run succeeded with a passing guard, (rejected_status, guard) if
+    the guard rejected it. Raises AssertionError if the guard block is missing or does not list exactly the
+    convergence fields, if the run failed for another reason than the guard, or if the rejection is larger than
+    GUARD_REJECTION_MAX_LOG10 (a loader or total-adjoint bug, not the expected partition effects)."""
+    guard = guard_values(log)
+    assert guard is not None, f"no extract-only guard block in the log (exit code {returncode}):\n{log[-6000:]}"
+    fields = guard["fields"]
+    assert sorted(fields) == sorted(conv_fields), (sorted(fields), sorted(conv_fields))
+    assert all(math.isfinite(v) for v in fields.values()), fields
+    if returncode == 0:
+        assert guard["passed"] and "All convergence criteria satisfied." in log, guard
+        return "passed", guard
+    assert not guard["passed"] and GUARD_ERROR in log, \
+        f"extract-only failed for another reason than the guard (exit code {returncode}):\n{log[-6000:]}"
+    worst = max(fields, key=fields.get)
+    assert fields[worst] <= GUARD_REJECTION_MAX_LOG10, \
+        (f"guard rejection too large for {rejected_status}: {worst} = {fields[worst]} > {GUARD_REJECTION_MAX_LOG10} "
+         f"(the loaded adjoint is not the expected one)", fields)
+    return rejected_status, guard
+
+
+def convergence_level(scale_row, history):
+    """Relative convergence of an adjoint run: the largest 10**(final rms - scale rms) over the adjoint components.
+
+    scale_row is the first history row of a run started from a zero adjoint (rms of the first update, the size of the
+    adjoint per component). See convergence_tolerance."""
+    keys = [k for k in scale_row if k.startswith("rms[")]
+    assert keys and all(k in history[-1] for k in keys), (keys, sorted(history[-1]))
+    return max(10.0 ** (float(history[-1][k]) - float(scale_row[k])) for k in keys)
+
+
+def convergence_tolerance(scale_row, *histories):
+    """Relative tolerance between the sensitivities of adjoint runs that were each converged on their own.
+
+    CONVERGENCE_LEVEL_NOTE. A converged run stops at an iterate, not at the fixed point. For an iteration contracting
+    at rate rho, the error left is about r_n rho / (1 - rho), with r_n the last update, and an adjoint started from
+    zero has size about r_0 / (1 - rho), with r_0 the first update. So its relative error is about rho r_n / r_0, less
+    than r_n / r_0 (convergence_level, worst component). dJ/da and the per-site S_* are linear in the adjoint, so
+    their errors relative to the value (rows) or to the column max norm (fields) are of the same order. Two runs
+    differ by both errors: tolerance = sum of their levels.
+    CONV_RESIDUAL_MINVAL= -10 bounds the absolute rms only, so the level is measured, not assumed: the omega adjoint
+    starts near 2e-11 (3D), and the 3D 2-rank restart stops 3.7 decades below its scale (level 1.8e-4) while rms[A_Rho]
+    is 6 decades below. Cluster job 664770: the observed errors are 0.002 to 0.09 of this tolerance in six comparisons
+    (2D/3D, restarted vs end of run, 2 ranks vs serial). The rate is not uniform (faster early) and the field test is
+    pointwise, not rms; the observed ratios show the bound holds anyway.
+    Raises AssertionError above CONVERGENCE_TOLERANCE_CAP: the runs would not be converged enough to tell a
+    convergence difference from a bug."""
+    tolerance = math.fsum(convergence_level(scale_row, history) for history in histories)
+    assert math.isfinite(tolerance) and 0.0 < tolerance <= CONVERGENCE_TOLERANCE_CAP, \
+        (f"adjoint runs converged to a relative level {tolerance:.3g} > {CONVERGENCE_TOLERANCE_CAP}: "
+         "too coarse to compare")
+    return tolerance
 
 
 def linear_solver_stats(history):
@@ -303,8 +366,8 @@ def main():
             assert int(row[key]) == int(reference[key]), (key, row, reference)
         max_field_scalar_error = max(max_field_scalar_error,
                                      abs(float(row["dJ_da_at_zero"]) - float(reference["dJ_da_at_zero"])))
-    restarted, _ = run("restarted", dict(adjoint, SST_EPM_POSTPROCESS="YES", RESTART_SOL="YES",
-                                         SOLUTION_ADJ_FILENAME=str(on / "restart_adj")))
+    restarted, restarted_history = run("restarted", dict(adjoint, SST_EPM_POSTPROCESS="YES", RESTART_SOL="YES",
+                                                         SOLUTION_ADJ_FILENAME=str(on / "restart_adj")))
     resumed_rows = read_csv(restarted / "sst_epm_sensitivities.csv")
     assert len(rows) == len(resumed_rows)
     assert all(r["extraction"] == "field" for r in resumed_rows)
@@ -313,14 +376,17 @@ def main():
         assert math.isclose(float(first["dJ_da_at_zero"]), float(resumed["dJ_da_at_zero"]),
                             rel_tol=1e-5, abs_tol=1e-9), (first, resumed)
     restarted_field_error = None
+    convergence_tolerances = {}
     if args.ranks > 1:
         # Re-extraction from a multi-rank adjoint restart is a short re-converge (the restart is lossy, see
-        # EXTRACT_ONLY_MPI_NOTE): its fields must match the end-of-run fields to the convergence level.
+        # EXTRACT_ONLY_MPI_NOTE): its fields must match the end-of-run fields to the convergence level of the two
+        # runs (CONVERGENCE_LEVEL_NOTE in convergence_tolerance).
+        convergence_tolerances["restarted"] = convergence_tolerance(on_history[0], on_history, restarted_history)
         resumed_canonical = {r["case"]: r for r in resumed_rows if r["probe_pair"] == "3"}
         assert set(resumed_canonical) == set(canonical), sorted(resumed_canonical)
         restarted_field, _ = check_field_files(restarted, resumed_canonical, edges, source_minimum)
         restarted_field_error = compare_fields(enabled_field, restarted_field, used_only=True,
-                                               tolerance=CONVERGENCE_RELATIVE_TOLERANCE)
+                                               tolerance=convergence_tolerances["restarted"])
     # Extract-only: load the primal and the adjoint saved by "enabled", measure the residual with one iteration
     # whose update is discarded, and replay from the loaded adjoint; it must reproduce "enabled" to round-off.
     extract_only_options = dict(adjoint, SST_EPM_POSTPROCESS="YES", SST_EPM_EXTRACT_ONLY="YES",
@@ -328,6 +394,7 @@ def main():
     own_adjoint_options = dict(extract_only_options, SOLUTION_ADJ_FILENAME=str(on / "restart_adj"),
                                RESTART_ADJ_FILENAME="restart_adj_out")
     extract_only_status = "passed"
+    conv_fields = [f.strip() for f in adjoint["CONV_FIELD"].strip("()").split(",")]
     if args.ranks > 1:
         # EXTRACT_ONLY_MPI_NOTE: a converged adjoint on several ranks has nonzero halo values, which the restart
         # (owned points only) does not keep, so restarting it is lossy (native SU2: the 2-rank "restarted" run also
@@ -335,18 +402,14 @@ def main():
         # summed into their owners) and is expected to reject this input; the 2-rank extract-only checks below use
         # the serial adjoint instead (mpi_extract_*). If the guard accepts, the usual checks apply.
         extracted, returncode = launch("extract_only", own_adjoint_options)
-        extracted_log = (extracted / "run.log").read_text()
-        if returncode:
-            assert ("EPM extract-only: residual of one adjoint iteration" in extracted_log
-                    and "): FAILED" in extracted_log
-                    and "EPM extraction requires the native adjoint convergence criterion to pass" in extracted_log), \
-                f"extract_only failed for another reason than the guard:\n{extracted_log[-6000:]}"
-            extract_only_status = "rejected_by_guard_lossy_mpi_restart"
-            print(f"extract_only: {args.ranks}-rank adjoint restart rejected by the guard (lossy halo adjoint), "
-                  f"{timings['extract_only']:.2f}s", flush=True)
-        else:
+        extract_only_status, extract_only_guard = extract_only_outcome(
+            returncode, (extracted / "run.log").read_text(), conv_fields, "rejected_by_guard_lossy_mpi_restart")
+        if extract_only_status == "passed":
             extract_only_status = "passed_from_mpi_restart"
             extracted_history = read_csv(extracted / "history.csv")
+        else:
+            print(f"extract_only: {args.ranks}-rank adjoint restart rejected by the guard (lossy halo adjoint), "
+                  f"{timings['extract_only']:.2f}s", flush=True)
     else:
         extracted, extracted_history = run("extract_only", own_adjoint_options)
     if extract_only_status.startswith("passed"):
@@ -389,15 +452,17 @@ def main():
             assert math.isclose(float(row["dJ_da_at_zero"]), float(ref["dJ_da_at_zero"]),
                                 rel_tol=1e-5, abs_tol=1e-9), (row, ref)
     if args.reference and args.ranks > 1:
-        # MPI_ADJOINT_NOTE. The converged adjoint is the fixed point of the RECORDED iteration map, and that map
-        # contains the transposed linear solve of the implicit update (CSysSolve::Solve_b: FGMRES with the rank-local
-        # ILU, LINEAR_SOLVER_ITER / LINEAR_SOLVER_ERROR). Unless those solves are exact, the operator they apply
-        # depends on the partition, so the adjoint fixed point does too, while dJ/da (= dJ/da|_explicit - psi^T dR/da,
-        # psi the adjoint of the residual) does not. Two independently converged adjoints therefore agree on dJ/da
-        # and on S_* to the convergence level only, and the serial adjoint is in general NOT converged for the 2-rank
-        # map. Checks:
+        # MPI_ADJOINT_NOTE. The converged adjoint lambda is the fixed point of the RECORDED iteration map, and that
+        # map contains the transposed linear solve of the implicit update (CSysSolve::Solve_b: FGMRES with the
+        # rank-local ILU). Those solves are converged to LINEAR_SOLVER_ERROR (1e-10 relative residual; cluster LINSOL:
+        # 10-14 iterations, not the 50-iteration cap), not exactly, and the operator they apply depends on the
+        # partition through the rank-local ILU; the conditioning amplifies the remaining error. So lambda depends on
+        # the partition. dJ/da (= dJ/da|_explicit - psi^T dR/da, psi the adjoint of the residual) and the S_* depend
+        # on psi only, and only when lambda is the fixed point of the same map that is replayed. Hence the serial
+        # adjoint is in general NOT a fixed point of the 2-rank map (the guard decides), while two independently
+        # converged adjoints agree on dJ/da and S_* to their convergence level. Checks:
         #   1. 2-rank field vs 2-rank scalar replay, row by row to 1e-10 (above), reader vs 2-rank CSV to 1e-10;
-        #   2. 2-rank merged S_* and dJ/da vs serial at CONVERGENCE_RELATIVE_TOLERANCE;
+        #   2. 2-rank merged S_* and dJ/da vs serial at the convergence level of the two runs (convergence_tolerance);
         #   3. 2-rank re-extraction from its restart (short re-converge, "restarted") vs end-of-run fields (above);
         #   4. the design check (spec 9.3), extract-only from the serial adjoint on 2 ranks against serial to 1e-10,
         #      is run as a diagnostic: the guard decides. If it accepts, the 1e-10 comparisons are enforced; if it
@@ -426,31 +491,28 @@ def main():
                     worst = max(worst, abs(a - b) / max(abs(a), abs(b)))
             return worst
 
-        # 2. Independently converged 2-rank adjoint vs serial, at the convergence level.
-        mpi_errors["converged_rows"] = compare_rows("enabled", rows, reference, "field", CONVERGENCE_RELATIVE_TOLERANCE)
+        # 2. Independently converged 2-rank adjoint vs serial, at the convergence level of the two runs (the scalar
+        #    runs repeat the rms history of their enabled run, checked above for each).
+        serial_history = read_csv(serial / "enabled" / "history.csv")
+        convergence_tolerances["vs_serial"] = tolerance = convergence_tolerance(on_history[0], on_history,
+                                                                                serial_history)
+        mpi_errors["converged_rows"] = compare_rows("enabled", rows, reference, "field", tolerance)
         mpi_errors["converged_scalar_rows"] = compare_rows("scalar", read_csv(scalar / "sst_epm_sensitivities.csv"),
-                                                           serial_scalar, "scalar_replay",
-                                                           CONVERGENCE_RELATIVE_TOLERANCE)
+                                                           serial_scalar, "scalar_replay", tolerance)
         mpi_errors["converged_field_scaled"] = compare_fields(serial_field, enabled_field, used_only=True,
-                                                              tolerance=CONVERGENCE_RELATIVE_TOLERANCE)
+                                                              tolerance=tolerance)
 
         # 4. Design check, decided by the guard (history_converged=False: the history residuals are the owned part,
         #    see EXTRACT_ONLY_MPI_NOTE).
         mpi_options = dict(extract_only_options, SOLUTION_ADJ_FILENAME=str(serial / "enabled" / "restart_adj"),
                            RESTART_ADJ_FILENAME="restart_adj_out")
         mpi_field, returncode = launch("mpi_extract_field", mpi_options)
-        mpi_log = (mpi_field / "run.log").read_text()
-        mpi_guard = guard_values(mpi_log)
-        if returncode:
-            assert mpi_guard is not None and not mpi_guard["passed"] and GUARD_ERROR in mpi_log, \
-                f"mpi_extract_field failed for another reason than the guard:\n{mpi_log[-6000:]}"
-            mpi_status = "rejected_by_guard_partition_dependent_adjoint"
+        mpi_status, mpi_guard = extract_only_outcome(returncode, (mpi_field / "run.log").read_text(), conv_fields,
+                                                     "rejected_by_guard_partition_dependent_adjoint")
+        if mpi_status != "passed":
             print(f"mpi_extract_field: serial adjoint rejected by the {args.ranks}-rank guard (not a fixed point of "
                   f"the {args.ranks}-rank iteration), {timings['mpi_extract_field']:.2f}s", flush=True)
         else:
-            mpi_status = "passed"
-            assert mpi_guard is not None and mpi_guard["passed"], mpi_guard
-            assert "All convergence criteria satisfied." in mpi_log
             mpi_field_history = read_csv(mpi_field / "history.csv")
             assert len(mpi_field_history) == 1, len(mpi_field_history)
             mpi_field_rows = read_csv(mpi_field / "sst_epm_sensitivities.csv")
@@ -503,6 +565,10 @@ def main():
     summary["adjoint_linear_solver_max"] = linear_solver_stats(on_history)
     if restarted_field_error is not None:
         summary["max_restarted_field_scaled_error"] = restarted_field_error
+    if convergence_tolerances:
+        summary["convergence_tolerances"] = convergence_tolerances
+    if args.ranks > 1:
+        summary["extract_only_guard"] = extract_only_guard
     if args.reference and args.ranks > 1:
         summary.update(mpi_max_rel_error_converged_rows=mpi_errors["converged_rows"],
                        mpi_max_rel_error_converged_scalar_rows=mpi_errors["converged_scalar_rows"],

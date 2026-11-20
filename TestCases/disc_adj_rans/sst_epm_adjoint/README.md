@@ -51,21 +51,47 @@ the extract-only guard therefore measures the total adjoint: the owned value plu
 halo copies, summed by the reverse halo exchange. It rejects a restart written by a
 multi-rank run, and the runner records this as `extract_only_status`. Re-extraction from
 a multi-rank adjoint is a short re-converge (`restarted`), whose fields must match the
-end-of-run fields to `1e-6`.
+end-of-run fields at the convergence level (below).
 
 The adjoint is the fixed point of the recorded iteration. That iteration includes the
-transposed linear solve of the implicit update (FGMRES with rank-local ILU, at most
-`LINEAR_SOLVER_ITER` iterations), so the adjoint depends on the partition unless those
-solves are exact. dJ/da and the per-site `S_*` do not depend on it. On 2 ranks the runner
-therefore checks:
+transposed linear solve of the implicit update (FGMRES with rank-local ILU). These solves
+stop at `LINEAR_SOLVER_ERROR` (`1e-10` relative residual; the cluster runs reach it in
+10-14 iterations, well below the `LINEAR_SOLVER_ITER` cap), not at the exact solution, and
+the rank-local ILU makes the applied operator depend on the partition. So the adjoint
+fixed point depends on the partition. dJ/da and the per-site `S_*` depend only on the
+adjoint of the residual, and only when the loaded adjoint is the fixed point of the same
+map that is replayed. On 2 ranks the runner therefore checks:
 
 - field against scalar replay, and the reader against the CSV, to `1e-10`;
-- dJ/da and the merged `S_*` against serial to `1e-6` (convergence level);
-- the restarted extraction.
+- dJ/da and the merged `S_*` against serial at the convergence level;
+- the restarted extraction against the end of the run at the convergence level.
+
+Convergence level. Each run stops at an iterate, not at the fixed point. For an iteration
+that contracts at rate `rho`, the error left is about `r_n rho/(1-rho)` (`r_n` the last
+update), and an adjoint started from zero has size about `r_0/(1-rho)` (`r_0` the first
+update). Its relative error is therefore about `rho r_n/r_0`, below `r_n/r_0`. The runner
+takes `r_n/r_0` per adjoint component from the histories (final rms minus the first rms of
+the run started from zero, in decades) and uses the worst component. dJ/da and `S_*` are
+linear in the adjoint, so the tolerance between two runs is the sum of their two levels.
+It is measured, not fixed, because `CONV_RESIDUAL_MINVAL= -10` bounds the absolute rms
+only: the omega adjoint starts near `2e-11` in 3D, and the 3D 2-rank restart stops only
+3.7 decades below that (level `1.8e-4`) while `rms[A_Rho]` is 6 decades below. On cluster
+job 664770 the observed errors were 0.002 to 0.09 of this tolerance (2D: restarted
+`8.4e-8` of `2.6e-6`, vs serial `2.1e-7` of `2.3e-6`; 3D: restarted `3.1e-6` of `1.9e-4`,
+vs serial `2.5e-8` of `1.6e-5`, recomputed from the job's field files because the job
+stopped at the restarted check). Real bugs are O(1) (a halo double count is a factor 2;
+a missing site fails the site-set check). A tolerance above `1e-3` fails the run as not
+converged enough to compare. `summary.json` records the tolerances
+(`convergence_tolerances`).
 
 Extract-only from the serial adjoint (`mpi_extract_field`, then `mpi_extract_scalar`) is
 left to the guard. If the guard accepts, the runner enforces `1e-10` against serial. If it
-rejects, the runner records `mpi_extract_from_serial_status` and the guard values. The
+rejects, the runner records `mpi_extract_from_serial_status` and the guard values. A guard
+rejection (here or in `extract_only`) is accepted only if every guard residual is at most
+`1e-5` (largest observed: `10^-5.46` for the lossy restart, `10^-6.09` for the serial
+adjoint on 2 ranks). A zero or wrongly loaded
+adjoint leaves the residual of the first iteration (`rms[A_Rho]` near `1e-3.5`) and fails.
+The bound cannot see the omega adjoint, whose residual is always below `1e-9`. The
 adjoint history now includes `LINSOL`, and `summary.json` reports the largest linear-solver
 iteration count and residual. Halo copies of an edge site agree to round-off, not bitwise:
 the ranks orient the edge by local numbering. The reader and the runner use the same test:
