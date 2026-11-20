@@ -194,6 +194,10 @@ CPhysicalGeometry::CPhysicalGeometry(CGeometry* geometry, CConfig* config) : CGe
 
   DistributePoints(config, geometry);
 
+  /*--- The neighbor lists are only needed to distribute the coloring and the points. ---*/
+
+  decltype(Neighbors)().swap(Neighbors);
+
   /*--- Distribute the element information to all ranks based on coloring. ---*/
 
   if ((rank == MASTER_NODE) && (size != SINGLE_NODE)) cout << "Rebalancing volume element connectivity." << endl;
@@ -204,6 +208,16 @@ CPhysicalGeometry::CPhysicalGeometry(CGeometry* geometry, CConfig* config) : CGe
   DistributeVolumeConnectivity(config, geometry, HEXAHEDRON);
   DistributeVolumeConnectivity(config, geometry, PRISM);
   DistributeVolumeConnectivity(config, geometry, PYRAMID);
+
+  /*--- The volume elements of the linear partition are not needed anymore,
+   free them before the new elements are created in LoadVolumeElements. ---*/
+
+  if (geometry->elem != nullptr) {
+    for (unsigned long iElem = 0; iElem < geometry->GetnElem(); iElem++) delete geometry->elem[iElem];
+    delete[] geometry->elem;
+    geometry->elem = nullptr;
+    geometry->SetnElem(0);
+  }
 
   /*--- Distribute the marker information to all ranks based on coloring. ---*/
 
@@ -241,6 +255,15 @@ CPhysicalGeometry::CPhysicalGeometry(CGeometry* geometry, CConfig* config) : CGe
 
   LoadPoints(config, geometry);
   LoadVolumeElements(config, geometry);
+
+  /*--- The volume connectivity buffers are only needed by LoadVolumeElements. ---*/
+
+  for (auto* buf : {&Conn_Tria, &Conn_Quad, &Conn_Tetr, &Conn_Hexa, &Conn_Pris, &Conn_Pyra,
+                    &ID_Tria, &ID_Quad, &ID_Tetr, &ID_Hexa, &ID_Pris, &ID_Pyra}) {
+    delete[] *buf;
+    *buf = nullptr;
+  }
+
   LoadSurfaceElements(config, geometry);
 
   /*--- If the gradient smoothing solver is active, allocate space for the sensitivity and initialize. ---*/
@@ -505,7 +528,9 @@ void CPhysicalGeometry::DistributeColoring(const CConfig* config, CGeometry* geo
       iPoint = Global2Local[geometry->elem[iElem]->GetNode(iNode)];
       for (jNode = 0; jNode < geometry->elem[iElem]->GetnNodes(); jNode++) {
         jPoint = geometry->elem[iElem]->GetNode(jNode);
-        Neighbors[iPoint].push_back(jPoint);
+        /*--- Skip repeated entries, a point is shared by many elements. ---*/
+        auto& list = Neighbors[iPoint];
+        if (find(list.begin(), list.end(), jPoint) == list.end()) list.push_back(jPoint);
       }
     }
   }
@@ -516,6 +541,7 @@ void CPhysicalGeometry::DistributeColoring(const CConfig* config, CGeometry* geo
     sort(Neighbors[iPoint].begin(), Neighbors[iPoint].end());
     auto it = unique(Neighbors[iPoint].begin(), Neighbors[iPoint].end());
     Neighbors[iPoint].resize(it - Neighbors[iPoint].begin());
+    Neighbors[iPoint].shrink_to_fit();
   }
 
   /*--- Prepare structures for communication. ---*/
