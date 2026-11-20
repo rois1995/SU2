@@ -27,10 +27,16 @@ from the saved adjoint (one iteration measures the residual, its update is disca
 which must reproduce the end-of-run sensitivities and field files to `1e-10`, and three option
 rejections. It checks unchanged adjoint iterations,
 finite nonzero sensitivities for all five targets, interior viscous-edge coverage,
-SST source coverage, restart agreement, and unchanged primal and adjoint files. For every
-field run it runs `read_epm_field.py <json> --csv <csv>`, which recomputes the five
-canonical gradients from the field files alone, checks the `.bin` sizes against the JSON,
-and checks that the site uses add up to the CSV evaluation counts. It retains
+SST source coverage, restart agreement, and unchanged primal and adjoint files. The final
+adjoint restarts of the `disabled`, `enabled` and `scalar` runs must be bitwise equal (same
+sha256): the runs differ only in the EPM options, and the restart is written after the
+extraction. For every field run it runs `read_epm_field.py <json> --csv <csv>`, which
+recomputes the five canonical gradients from the field files alone, checks the `.bin` sizes
+against the JSON, and checks that the site uses add up to the CSV evaluation counts. It also
+requires `byte_order` = `little` in the JSON, `uses` of 0 or 1 only (one evaluation per site
+and recording), and the normal convention on every evaluated copy of every rank: an `EDGE`
+normal points from `key_a` to `key_b` (positive along `coord_b - coord_a` on these
+median-dual box meshes), a `BOUNDARY` normal points outward. It retains
 configs, logs, histories, restarts, CSVs, field files and a `summary.json` with checksums.
 
 For MPI validation, use an **MPI-enabled** AD executable and matching serial
@@ -71,7 +77,9 @@ map that is replayed. On 2 ranks the runner therefore checks:
 
 - field against scalar replay, and the reader against the CSV, to `1e-10`;
 - dJ/da and the merged `S_*` against serial at the convergence level;
-- the restarted extraction against the end of the run at the convergence level.
+- the restarted extraction against the end of the run at the convergence level;
+- the merged unit normals against serial to round-off (`1e-10`): the stored orientation does
+  not depend on the partition.
 
 Convergence level. Each run stops at an iterate, not at the fixed point. For an iteration
 that contracts at rate `rho`, the error left is about `r_n rho/(1-rho)` (`r_n` the last
@@ -100,8 +108,12 @@ adjoint leaves the residual of the first iteration (`rms[A_Rho]` near `1e-3.5`) 
 The bound cannot see the omega adjoint, whose residual is always below `1e-9`. The
 adjoint history now includes `LINSOL`, and `summary.json` reports the largest linear-solver
 iteration count and residual. Halo copies of an edge site agree to round-off, not bitwise:
-the ranks orient the edge by local numbering. The reader and the runner use the same test:
-`1e-10` relative, with a floor of `1e-10` times the column's max norm.
+the ranks orient the edge by local numbering. The stored `EDGE` normal is oriented by the
+key (from `key_a` to `key_b`), so the copies' normals agree too; the reader checks the
+`dtau_*` and `normal_*` columns with the same test as the runner: `1e-10` relative, with a
+floor of `1e-10` times the column's max norm. (Field files up to `bc43d43` stored the local
+orientation: the 2-rank files of job 664770 have opposite normals on 27 of 28 (2D) and 169
+of 174 (3D) shared edges, and the reader now rejects them.)
 
 Cluster result. On CFDHub, job 664789 (binaries built from `d7fbb0c`, scripts at
 `d1fc118`) passes the serial and the 2-rank runs in 2D and 3D. On 2 ranks, the

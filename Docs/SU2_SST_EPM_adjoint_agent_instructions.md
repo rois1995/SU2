@@ -72,7 +72,7 @@ In `FIELD` mode (default), the driver runs one passive discovery pass, which cre
 g_m=\sum_{e} S_\tau(e):\Delta\tau_m(e)+\sum_i \left[S_k(i)\,\Delta P_{k,m}(i)+S_\omega(i)\,\Delta P_{\omega,m}(i)\right].
 \]
 
-The canonical cases use the corrections stored during the recording. The probes recompute them from the stored passive state, with the same helpers and clip. `S_tau` is symmetrized over the nDim block; only its symmetric part is meaningful. A site evaluated more than once holds the sum over its uses.
+The canonical cases use the corrections stored during the recording. The probes recompute them from the stored passive state, with the same helpers and clip (`CNumerics::EPMFieldSiteGradient`, unit-tested at a degenerate state against the scalar replay of each probe). `S_tau` is symmetrized over the nDim block; only its symmetric part is meaningful. In the supported configurations each site is evaluated once per recording (`uses = 1` in every smoke run, asserted by the runner). A repeated evaluation must have the passive state of the first one, or the hook stops with an error; the site then holds the sum of the sensitivities over its uses, at that one state.
 
 `sst_epm_sensitivities.csv` is written by rank 0 only after all replays succeed. Rows include `dimension`, `mpi_ranks` and `extraction` (`field` or `scalar_replay`). In `SCALAR_REPLAY`, every rank registers a local amplitude; its reverse derivative is summed with a passive MPI reduction. Global ambiguity counts keep the recording/reverse sequence identical on all ranks. It contains the baseline, five canonical case gradients/predictions, and diagnostic rows when small eigenvalue gaps affect the target. `probe_pair=3, probe_angle=0` identifies the canonical result. Other rows swap a pair of nearly tied eigenvectors using a 90-degree rotation: pair 0=(0,1), 1=(0,2), 2=(1,2), with zero-based ascending baseline eigenvalue indices. These swaps preserve the full target eigenvalues and avoid introducing finite out-of-plane shear merely by continuously tilting a planar eigensystem. `SCALAR_REPLAY` uses five canonical recordings and up to three extra recordings per ambiguous anisotropic case (at most 17 total). `FIELD` uses one recording for all cases and probes, after the passive discovery pass.
 
@@ -90,18 +90,22 @@ Guard: the run performs one adjoint iteration from the loaded adjoint, measures 
 
 Verified: serial extract-only from a serial adjoint restart reproduces the end-of-run CSV and field files exactly (2D and 3D, CFDHub job 664789).
 
+In practice extract-only works serial-into-serial only: a serial run loading a serial adjoint restart. Both multi-rank inputs tried in job 664789 were rejected by the guard, as designed: an adjoint restart written by a multi-rank run (lossy, see below), and a serial adjoint loaded on several ranks (not a fixed point of the multi-rank iteration, see the MPI result). For multi-rank re-extraction use the short re-converge below.
+
+To watch in the first campaign comparison: extract-only records its replay at `InnerIter = 0` (its single iteration), while a normal run records it at its last inner iteration. In the supported configurations (fixed CFL, no ramping, no iteration-dependent options) the recorded iteration should not depend on the iteration counter; the smoke tests agree exactly, but a campaign case with an iteration-dependent option would show it as an extract-only vs end-of-run mismatch.
+
 Adjoint restarts written by MPI runs (user ruling, 2026-11-20). With more than one rank, a converged discrete adjoint has nonzero values at halo points. The adjoint restart stores owned points only, and native SU2 does not restore the halo part on restart. So these restarts are lossy: a plain 2-rank adjoint restart starts at `rms[A_Rho]` `10^-7.0` (2D) and `10^-7.4` (3D), and `rms[A_k]` `10^-5.2` and `10^-5.7`, instead of below `1e-10`. The extract-only guard rejects them; on 2 ranks it did so in 2D and 3D. This is by design. To re-extract from such a restart, run a short re-converge: an adjoint run with `RESTART_SOL= YES`, `SOLUTION_ADJ_FILENAME` set to the saved adjoint, and `SST_EPM_POSTPROCESS= YES`. It converges again and extracts at the end. In the 2-rank smoke tests this took 33 (2D) and 16 (3D) adjoint history rows, against 175 and 95 from zero. No native SU2 change was made.
 
 #### Field files
 
 `FIELD` mode writes, in the run directory:
 
-- `sst_epm_field_<OBJ>_rank<r>.bin`, one per rank: raw float64 records in native (little-endian on the cluster) byte order, one per site, without padding. All sites are written, including sites with `uses == 0`.
-- `sst_epm_field_<OBJ>.json`, written by the master. It is the source of truth for the layout: column names and order, `dtype`, `record_bytes`, the per-rank file names and record counts, `nDim`, objective, `delta_b`, `urlx`, gap tolerance, rank count, SU2 version, `source_commit`, `ref_dimensionalization`, case names, kind codes, and `extract_only_residuals` (null in a normal run).
+- `sst_epm_field_<OBJ>_rank<r>.bin`, one per rank: raw float64 records in the host byte order (little-endian on the cluster), one per site, without padding. All sites are written, including sites with `uses == 0`.
+- `sst_epm_field_<OBJ>.json`, written by the master. It is the source of truth for the layout: column names and order, `dtype`, `byte_order` (`little` or `big`, from the host), `record_bytes`, the per-rank file names and record counts, `nDim`, objective, `delta_b`, `urlx`, gap tolerance, rank count, SU2 version, `source_commit`, `ref_dimensionalization`, case names, kind codes, the `S_tau` and normal conventions (`S_tau_note`, `normal_note`), and `extract_only_residuals` (null in a normal run).
 
-Today a record has 100 columns (800 bytes), so a file grows linearly with the number of sites. The 2D smoke case has 347 sites (277,600 bytes); the 3D case has 1313 (1,050,400 bytes). The JSON does not record the byte order. `source_commit` is `unknown` unless the build defines `SU2_EPM_COMMIT`; it was `unknown` in the cluster runs, so keep the build identity next to the files.
+Today a record has 100 columns (800 bytes), so a file grows linearly with the number of sites. The 2D smoke case has 347 sites (277,600 bytes); the 3D case has 1313 (1,050,400 bytes). Files written before `byte_order` was added have no such key; the reader then assumes little-endian (they all come from CFDHub). `source_commit` is `unknown` unless the build defines `SU2_EPM_COMMIT`; it was `unknown` in the cluster runs so far. For campaign builds pass it at meson setup, e.g. `-Dcpp_args=-DSU2_EPM_COMMIT=$(git rev-parse HEAD)` (on an existing build directory, `meson configure <build> -Dcpp_args=...`, which rebuilds everything). A value given as a string literal (`'-DSU2_EPM_COMMIT="<sha>"'`) loses its quotes, and any other quote, backslash or control character is escaped, so the JSON stays valid. Keep the build identity (`BUILT_FROM`) next to the files anyway.
 
-Reader: `python3 TestCases/disc_adj_rans/sst_epm_adjoint/read_epm_field.py sst_epm_field_DRAG.json --csv sst_epm_sensitivities.csv`. It loads all ranks and merges halo copies by `(kind, key_a, key_b)`. It sums the `S_*` columns over copies and keeps the other columns from the first evaluated copy. Evaluated copies must agree to `1e-10` relative, with a floor of `1e-10` times the column's max norm (copies agree to round-off, not bitwise, because ranks orient an edge by local numbering). It then recomputes the five canonical `g_m` from the files and compares them with the CSV (`1e-10` relative or `1e-14` absolute). It needs only numpy.
+Reader: `python3 TestCases/disc_adj_rans/sst_epm_adjoint/read_epm_field.py sst_epm_field_DRAG.json --csv sst_epm_sensitivities.csv`. It loads all ranks and merges halo copies by `(kind, key_a, key_b)`. It sums the `S_*` columns over copies and keeps the other columns from the first evaluated copy. The `dtau_*` and `normal_*` columns of evaluated copies must agree to `1e-10` relative, with a floor of `1e-10` times the column's max norm (copies agree to round-off, not bitwise, because ranks orient an edge by local numbering). It reads the byte order from the JSON. It then recomputes the five canonical `g_m` from the files and compares them with the CSV (`1e-10` relative or `1e-14` absolute). It needs only numpy.
 
 #### Form 1 chain-rule data
 
@@ -109,11 +113,11 @@ These columns hold the data that the later form 1 map (a sensitivity to a Reynol
 
 - Keys and position: `kind`, `key_a`, `key_b`, coordinates `coord_a` (and `coord_b` for edges, for the point `key_b`).
 - State at the site, taken from the values that build the correction: `rho`, `mu_t`, `k`, the velocity gradient `grad` (row-major, `grad[i*3+j] = du_i/dx_j`).
-- `EDGE`/`BOUNDARY`: face `normal` and `area`.
+- `EDGE`/`BOUNDARY`: unit face `normal` and `area`. An `EDGE` normal points from `key_a` to `key_b` (from the smaller to the larger global id), on every rank and whatever the local orientation of the edge; a `BOUNDARY` normal points outward of the domain (the BC routines negate the inward vertex normal before the viscous flux). `g_m` and the `S_*` do not depend on these signs. Field files written before this convention (up to commit `bc43d43`) store `EDGE` normals in the local edge orientation, which differs from the key order on many edges even in serial (SU2 renumbers points with reverse Cuthill-McKee), and halo copies of an edge can then have opposite signs; do not use their `EDGE` normals for form 1.
 - `NODE`: `volume`, `prod_limit`, baseline `pk0` and `pw0` before the addition, raw production `p_raw0`, `alfa_blended`, and the clip flags `floor_active`, `cap_active`.
 - Sensitivities `S_tau` (9 entries, symmetrized), `S_pk`, `S_pw`.
 - The classical corrections of the five canonical cases: `dtau_<case>_<entry>`, `dpk_<case>`, `dpw_<case>`.
-- `uses`: the number of evaluations at the site.
+- `uses`: the number of evaluations at the site in the recording (1 in the supported configurations; 0 for a site not evaluated on that rank).
 
 State columns that do not apply to a kind are NaN; sensitivity and correction columns that do not apply are zero. Values are SU2's nondimensional solver variables; `ref_dimensionalization` in the JSON names the scaling.
 
@@ -140,7 +144,7 @@ A guard rejection counts as expected only if every guard residual is at most `1e
 
 ### Tiny local infrastructure verification
 
-Use [the smoke-test runner and commands](../TestCases/disc_adj_rans/sst_epm_adjoint/README.md). It creates its own 117-point 2D rectangle or 315-point 3D box with spanwise flow, uses a coupled drag adjoint, and limits each solver invocation to 2,000 iterations and 300 seconds. The test compares feature-disabled/enabled adjoint histories, checks every equation's convergence, verifies stress evaluations cover all interior mesh edges, extracts all five sensitivities, reloads the saved adjoint, and checks the primal restart checksum. It also compares `FIELD` with `SCALAR_REPLAY`, runs extract-only and three option rejections, and checks the field files with the reader. Configs, logs, histories, restarts, CSVs and field files remain in the selected test directory.
+Use [the smoke-test runner and commands](../TestCases/disc_adj_rans/sst_epm_adjoint/README.md). It creates its own 117-point 2D rectangle or 315-point 3D box with spanwise flow, uses a coupled drag adjoint, and limits each solver invocation to 2,000 iterations and 300 seconds. The test compares feature-disabled/enabled adjoint histories and requires their final adjoint restarts to be bitwise equal (also against `SCALAR_REPLAY`), checks every equation's convergence, verifies stress evaluations cover all interior mesh edges, extracts all five sensitivities, reloads the saved adjoint, and checks the primal restart checksum. It also compares `FIELD` with `SCALAR_REPLAY`, runs extract-only and three option rejections, and checks the field files with the reader, their byte order, one use per site, and the normal convention on every copy (`EDGE` from `key_a` to `key_b`, `BOUNDARY` outward). Configs, logs, histories, restarts, CSVs and field files remain in the selected test directory.
 
 [Recorded smoke-test evidence](../TestCases/disc_adj_rans/sst_epm_adjoint/smoke_results.json) contains the CFDHub results (job 664789): binary checksums and commits, residuals, timings, sensitivities, error metrics, field sizes and site counts, for 1 and 2 ranks. These coarse meshes are not physically resolved validation cases. The table below is from the earlier local serial run; the CFDHub serial runs give the same adjoint history rows and evaluation counts.
 
@@ -718,7 +722,8 @@ python3 meson.py setup build-epm \
   -Denable-normal=true \
   -Denable-autodiff=true \
   -Dwith-mpi=enabled \
-  -Dwith-omp=false
+  -Dwith-omp=false \
+  -Dcpp_args="-DSU2_EPM_COMMIT=$(git rev-parse HEAD)"
 
 ./ninja -C build-epm install
 
@@ -728,7 +733,7 @@ EPM_ADJOINT="$EPM_INSTALL_PREFIX/bin/SU2_CFD_AD"
 
 If an installation already exists, inspect and reuse a compatible build directory or choose a new one; do not overwrite unrelated build settings. If MPI is unavailable, use `-Dwith-mpi=disabled` and report MPI verification as pending. Start with one process and no OpenMP, then verify two MPI ranks.
 
-Record source commit, patch/diff identity, compiler, build configuration, executable paths, MPI library, and process count in the campaign manifest. Building a forward-mode/direct-differentiation executable is unnecessary for this workflow.
+Record source commit, patch/diff identity, compiler, build configuration, executable paths, MPI library, and process count in the campaign manifest. `SU2_EPM_COMMIT` is only read by the EPM field writer (`source_commit` in the field JSON); without it the value is `unknown`. It is fixed at configure time, so reconfigure (`meson configure build-epm -Dcpp_args=...`, a full rebuild) when the source commit changes. Building a forward-mode/direct-differentiation executable is unnecessary for this workflow.
 
 Sources: [build options](https://github.com/su2code/SU2/blob/f4b67d23deaac22948cc8d2a2c0da3138ae804f6/meson_options.txt), [CFD executable targets](https://github.com/su2code/SU2/blob/f4b67d23deaac22948cc8d2a2c0da3138ae804f6/SU2_CFD/src/meson.build), [build wrapper](https://github.com/su2code/SU2/blob/f4b67d23deaac22948cc8d2a2c0da3138ae804f6/meson.py).
 
@@ -1164,7 +1169,7 @@ for mode in passive reverse; do
 done
 ```
 
-The snippet above predates the field tests and was not rerun after the field work. The extraction and field tests (`epm_extraction_tests.cpp`, `epm_field_tests.cpp`, tag `[EPMField]`) are registered in `UnitTests/meson.build` for the passive and reverse-AD test drivers; the CFDHub runs use those drivers. Local tests cover zero-amplitude flux/source values and state derivatives, full classical local endpoints, final-contribution blending, amplitude finite differences with preaccumulation enabled, capped/uncapped production, full-strength tie probes and the accepted serial configuration. These unit tests are complemented by the tiny complete-driver checks below. The field tests cover option parsing, site keys and freezing, the stress hook (zero input, finite difference against the adjoint), the field dot product against the amplitude derivative, cursors in the solver loops, and the file layout. The runtime guards have been exercised on both dimensions. Distributed runtime replay passes on 2 ranks for the tiny cases. Wider boundary coverage and nonlinear CFD Taylor checks remain pending.
+The snippet above predates the field tests and was not rerun after the field work. The extraction and field tests (`epm_extraction_tests.cpp`, `epm_field_tests.cpp`, tag `[EPMField]`) are registered in `UnitTests/meson.build` for the passive and reverse-AD test drivers; the CFDHub runs use those drivers. Local tests cover zero-amplitude flux/source values and state derivatives, full classical local endpoints, final-contribution blending, amplitude finite differences with preaccumulation enabled, capped/uncapped production, full-strength tie probes and the accepted serial configuration. These unit tests are complemented by the tiny complete-driver checks below. The field tests cover option parsing, site keys and freezing, the stress hook (zero input, finite difference against the adjoint, repeated use at the same state, edge normal stored from `key_a` to `key_b` for both cursor orders), the field dot product against the amplitude derivative, the orientation probes at a degenerate (ambiguous) state against the scalar replay of each probe, cursors in the solver loops, and the file layout (including `byte_order`). The runtime guards have been exercised on both dimensions. Distributed runtime replay passes on 2 ranks for the tiny cases. Wider boundary coverage and nonlinear CFD Taylor checks remain pending.
 
 
 The feature is ready for review when:
@@ -1190,6 +1195,7 @@ Status against this list (2026-11-21):
 - Feature off: the adjoint history with the feature off equals the history with it on; the primal restart is bitwise identical to the pre-feature binary's (`8f12d50`).
 - Documentation: updated for the field extraction and the MPI result.
 - Paper-case configurations and results: prepared only; no campaign run.
+- Extract-only from adjoint restarts written by the pre-field binary (`39bca1f`, design spec §3.5): untested. The restart format is unchanged by the field work (the options only add postprocessing), so such restarts should load, but no run has checked it.
 
 If only early gates are completed, deliver the working partial implementation with an exact remaining-work list. Do not relabel it as a validated one-baseline EPM uncertainty method.
 
