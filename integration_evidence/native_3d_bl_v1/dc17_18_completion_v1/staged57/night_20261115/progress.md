@@ -796,3 +796,49 @@ FP1 N G5 ON1 passed both events, continued CFD and isolated restart. Native maxi
 FP1 N ON2 event 1 passed final timer and connected proof gates. Native max 1519.720 s and minimum coverage 96.978%. Continue publication and event 2.
 
 FP1 N ON: FAILED. Build615 ON1 passed both events and isolated restart. ON2 native maxima were 1,519.720 / 393.250 s. Event 2 rank 0 failed the first gate at 94.8416718673% named coverage against 95%, confirmed from the final exclusive rows. Event 1 files matched ON1. Event 2 publication, isolated restart and six-file repeat identity are unevaluated. The failed-run checkpoint retains the code and proven OFF default. Resume 5 ends here with no repeat.
+
+FP1 S. Resume 6 SHA256 verified. R4 found no print checkpoint inside the three approved scopes. Prior workflows verified terminal. Starting the pinned build616.
+
+FP1 S fixture A. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture B. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture C. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture FA. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture FR. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture FB. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture FC. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S. Build616 passed in 102.720 s with no new warnings. The scheduling comparator self-check and the build615 OFF proof binding passed without launching any solver.
+
+FP1 S fixture G. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture HO. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture H. The first invocation omitted SU2_FP1_G_OWNED_BASELINE and stopped on its input check. The failed receipt is preserved. Retrying the fixture on build616 with the verified build609 F4.1 artifact.
+
+FP1 S fixture H. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture HB. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S fixture H6. Passed at the prescribed ranks; assertion counts match build615.
+
+FP1 S. All 12 fixture selectors passed. Starting build616 G1.
+
+FP1 S. G1 matched adopted records 375 / 114 / 228. Starting the G2, GQ, G3, G4 and saved-state checks.
+
+FP1 S. G2 passed the corrected comparator at 236.468 s.
+
+FP1 S. GQ passed the corrected comparator at 660.034 s.
+
+FP1 S. G3 passed with 1552 splits and 1113 identical shared edits.
+
+FP1 S. G4 passed at 1, 2 and 4 ranks.
+
+FP1 S. Saved-state safeguards passed. The Part S checkpoint is next, with G5 OFF pending (FX1).
+
+FP1 S gates 1 to 4 passed. G2 / GQ took 236.468 / 660.034 s. The per-rank Scheduling calls are sealed. G5 OFF pending (FX1). Next is the build616 ON pair with the sealed build615 OFF proof.

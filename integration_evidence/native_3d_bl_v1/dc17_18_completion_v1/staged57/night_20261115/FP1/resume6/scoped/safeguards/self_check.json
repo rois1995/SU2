@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "launched": false,
+  "build": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume6/build616",
+  "terminal_proof": {
+    "build_status_sha256": "6be3dc386c1beb4c6c58048d1d71c868ec1105f6e75542503f9501da6385805d",
+    "terminal_handles_sha256": "10b076ffae40a538e9928936f152ab0aca95464928523f8f3ebbcd56c1e5cafc",
+    "build_sha256": "8be4d34422ef8e3e8577bfdc14b5a2adac086842a421b959d3d8d03e31a69470",
+    "terminal_pid_count": 1
+  },
+  "resources_observed": {
+    "hostname": "pc-rausa",
+    "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+    "procfs_pid1": true,
+    "loadavg": "1.36 1.70 2.76 1/2456 2481375",
+    "mem_available_kib": 46604144,
+    "mem_available_mib": 45511
+  },
+  "accepted_validator_sha256": "6a4bf3103b2406fb6faea6cca922378f634b19e8e180d04d3828e82012f615ac",
+  "section62_runner_sha256": "1569e519573959f63c99e465d5312eaa5176e61ce646f5b8fd8ac25e8ee04f8d",
+  "build616_alias_source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/build578_aliases.py",
+  "modes": {
+    "merit481": {
+      "source_sha256": "1e9a9eccbb8e0ec538940799ddd9f5d9c1a2065fb49cf7f41ef134388aa3d32e",
+      "namespace_name": "n11_build616_safeguards"
+    },
+    "saved481": {
+      "source_sha256": "1e9a9eccbb8e0ec538940799ddd9f5d9c1a2065fb49cf7f41ef134388aa3d32e",
+      "namespace_name": "n11_build616_safeguards"
+    },
+    "saved_current": {
+      "source_sha256": "1e9a9eccbb8e0ec538940799ddd9f5d9c1a2065fb49cf7f41ef134388aa3d32e",
+      "namespace_name": "n11_build616_safeguards"
+    }
+  },
+  "preparations_stopped_at_stub": [
+    {
+      "mode": "merit481",
+      "stopped_at": "stubbed run_cases.main before Popen",
+      "root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume6/scoped/safeguards",
+      "repo": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/runtime_20261113_474/loaded_runtime_pins.json"
+    },
+    {
+      "mode": "saved481",
+      "stopped_at": "stubbed run_cases.main before Popen",
+      "root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume6/scoped/safeguards",
+      "repo": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/runtime_20261113_474/loaded_runtime_pins.json"
+    },
+    {
+      "mode": "saved_current",
+      "stopped_at": "stubbed run_cases.main before Popen",
+      "root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume6/scoped/safeguards",
+      "repo": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+      "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/runtime_20261113_474/loaded_runtime_pins.json"
+    }
+  ],
+  "alias_setup": "qualified N11 build616_aliases.py",
+  "target_binding": "accepted qualified checkpoint492/v3 for saved481 and saved_current"
+}

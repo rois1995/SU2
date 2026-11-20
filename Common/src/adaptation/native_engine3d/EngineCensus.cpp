@@ -42,6 +42,7 @@ bool EngineCensus::GenerationCensus(EngineContext& context) {
   auto& options = context.options;
   auto& source = *context.exchange.source;
   auto& directory = *context.exchange.directory;
+  SU2NativeTiming3D::Scope scheduling_timer(SU2NativeTiming3D::Operation::Scheduling);
   const auto extra =
       transfer_memory::Mul(selection.census.edges.size(),
                            sizeof(EdgeProgressSample) + sizeof(Selection::History) + sizeof(Edge) + 4 * sizeof(void*));

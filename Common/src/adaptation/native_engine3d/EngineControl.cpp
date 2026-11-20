@@ -479,6 +479,7 @@ bool EngineControl::BeginLengthGeneration(EngineContext& context, bool collapse)
   auto& stats = context.control.result->stats;
   auto& working = *context.ownership.working;
 
+  SU2NativeTiming3D::Scope scheduling_timer(SU2NativeTiming3D::Operation::Scheduling);
   if (!context.exchange.Admit(
           context,
           transfer_memory::Add(transfer_memory::Mul(working.size(), context.control.SelectionBound(context, false)),
@@ -597,6 +598,7 @@ bool EngineControl::CompletePhaseEntry(EngineContext& context, EnginePhase next,
   auto& working = *context.ownership.working;
   CLocalFailure failure;
   try {
+    SU2NativeTiming3D::Scope scheduling_timer(SU2NativeTiming3D::Operation::Scheduling);
     if (!refine_geometry) selection.ChangePhase(repairing, working, field_identity);
     initial.clear();
     initial.reserve(working.size());

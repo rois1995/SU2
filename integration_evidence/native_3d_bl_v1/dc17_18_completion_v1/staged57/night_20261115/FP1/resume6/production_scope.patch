@@ -1,0 +1,32 @@
+diff --git a/Common/src/adaptation/native_engine3d/EngineCensus.cpp b/Common/src/adaptation/native_engine3d/EngineCensus.cpp
+index 9c9c588063..7c75faac80 100644
+--- a/Common/src/adaptation/native_engine3d/EngineCensus.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineCensus.cpp
+@@ -42,6 +42,7 @@ bool EngineCensus::GenerationCensus(EngineContext& context) {
+   auto& options = context.options;
+   auto& source = *context.exchange.source;
+   auto& directory = *context.exchange.directory;
++  SU2NativeTiming3D::Scope scheduling_timer(SU2NativeTiming3D::Operation::Scheduling);
+   const auto extra =
+       transfer_memory::Mul(selection.census.edges.size(),
+                            sizeof(EdgeProgressSample) + sizeof(Selection::History) + sizeof(Edge) + 4 * sizeof(void*));
+diff --git a/Common/src/adaptation/native_engine3d/EngineControl.cpp b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+index ac8539690a..820e9b4f42 100644
+--- a/Common/src/adaptation/native_engine3d/EngineControl.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+@@ -479,6 +479,7 @@ bool EngineControl::BeginLengthGeneration(EngineContext& context, bool collapse)
+   auto& stats = context.control.result->stats;
+   auto& working = *context.ownership.working;
+ 
++  SU2NativeTiming3D::Scope scheduling_timer(SU2NativeTiming3D::Operation::Scheduling);
+   if (!context.exchange.Admit(
+           context,
+           transfer_memory::Add(transfer_memory::Mul(working.size(), context.control.SelectionBound(context, false)),
+@@ -597,6 +598,7 @@ bool EngineControl::CompletePhaseEntry(EngineContext& context, EnginePhase next,
+   auto& working = *context.ownership.working;
+   CLocalFailure failure;
+   try {
++    SU2NativeTiming3D::Scope scheduling_timer(SU2NativeTiming3D::Operation::Scheduling);
+     if (!refine_geometry) selection.ChangePhase(repairing, working, field_identity);
+     initial.clear();
+     initial.reserve(working.size());
