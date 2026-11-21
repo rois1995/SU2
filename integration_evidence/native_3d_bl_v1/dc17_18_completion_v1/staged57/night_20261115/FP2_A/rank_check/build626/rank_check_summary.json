@@ -1,0 +1,39 @@
+{
+  "build": 626,
+  "binary_sha256": "1059893f6a419cf60b3f98f638825f3931ad801bccfd584c46c66b9ff866113a",
+  "test_binary_sha256": "f888180f4b55d8aee277be1b699f6be0df09b22b969a684070a67816bdfefc82",
+  "source_pins_sha256": "ef5a36c6fc7c9f3d823f2b38b77cdaa86adb5ccdf2835d0e7154a8645147dfb4",
+  "proceed_11_3": false,
+  "default_gates_11_2_required": true,
+  "status": "stopped_before_11_3",
+  "progress_order": [
+    "K1",
+    "K2",
+    "K3"
+  ],
+  "results": {
+    "K1": {
+      "ended": false,
+      "state": "wrapper_time_limit",
+      "first_difference": {
+        "field": "wrapper_time_limit",
+        "wrapper_seconds_limit": 1200
+      },
+      "alarm_over_600": [],
+      "receipt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_A/rank_check/build626/K1/rank_check_receipt.json",
+      "receipt_sha256": "f0370fa957644ca1fd4f6519932e33a0e8d0afc46fcc3eab3d0712d864d13e94"
+    },
+    "K2": {
+      "ended": true,
+      "state": "ended",
+      "first_difference": null,
+      "alarm_over_600": [],
+      "receipt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_A/rank_check/build626/K2/rank_check_receipt.json",
+      "receipt_sha256": "d024149fc0180bdccb12c548cab4c9b6dcb2da2bc8f404703f5716c253642f5a"
+    },
+    "K3": {
+      "ended": false,
+      "state": "skipped_k1_did_not_end"
+    }
+  }
+}

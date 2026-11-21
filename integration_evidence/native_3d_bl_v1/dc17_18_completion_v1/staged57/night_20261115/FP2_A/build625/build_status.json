@@ -1,0 +1,32 @@
+{
+  "state": "terminal",
+  "passed": true,
+  "build": 625,
+  "exit_code": 0,
+  "pins_verified": true,
+  "changed": [],
+  "source_pins_sha256": "7205706e6440b0f929b4a181eb502599293a2187b4829c74705fe442997a3c6a",
+  "graph_after": {
+    "build.ninja": "32f55d26ad5db9fa073466ee0ac67a7b3a13c3d2bfcefc0c119241b2f8dd9714",
+    "compile_commands.json": "bd2526e820ddf7c36f662744ba54cd4b33c7e8cfa0600eda2ae5a5d573ff68aa"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "1059893f6a419cf60b3f98f638825f3931ad801bccfd584c46c66b9ff866113a",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "88a3fa430ad23fb7dc19fcb92f564b0e32d60c6b8ccc8e755d91b354aa9ed2eb",
+  "warnings": [
+    "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: \u2018void* __builtin_memmove(void*, const void*, long unsigned int)\u2019 writing between 9 and 9223372036854775800 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]",
+    "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: argument 1 null where non-null expected [-Wnonnull]"
+  ],
+  "new_warnings": [],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 4170930,
+      "start_ticks": 75963880
+    },
+    "returncode": 0,
+    "elapsed_seconds": 790.2847669124603,
+    "terminal": true
+  }
+}

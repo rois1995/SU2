@@ -1,0 +1,71 @@
+{
+  "all_observed_terminal": true,
+  "identities": [
+    {
+      "pid": 7472,
+      "start_ticks": 76063639
+    },
+    {
+      "pid": 7473,
+      "state": "S",
+      "ppid": 7472,
+      "pgid": 7473,
+      "sid": 7472,
+      "start_ticks": 76063639,
+      "comm": "timeout"
+    },
+    {
+      "pid": 7474,
+      "state": "S",
+      "ppid": 7473,
+      "pgid": 7473,
+      "sid": 7472,
+      "start_ticks": 76063639,
+      "comm": "mpirun"
+    },
+    {
+      "pid": 7477,
+      "state": "R",
+      "ppid": 7474,
+      "pgid": 7477,
+      "sid": 7472,
+      "start_ticks": 76063642,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 7478,
+      "state": "R",
+      "ppid": 7474,
+      "pgid": 7478,
+      "sid": 7472,
+      "start_ticks": 76063642,
+      "comm": "test_driver"
+    }
+  ],
+  "sigkill_sent_to": [
+    {
+      "pid": 7477,
+      "start_ticks": 76063642
+    },
+    {
+      "pid": 7478,
+      "start_ticks": 76063642
+    }
+  ],
+  "sampled_rank_peak_lower_bound_bytes": 1729417216,
+  "sampled_rank_peaks_bytes": [
+    {
+      "pid": 7477,
+      "start_ticks": 76063642,
+      "peak_rss_bytes": 871145472
+    },
+    {
+      "pid": 7478,
+      "start_ticks": 76063642,
+      "peak_rss_bytes": 858271744
+    }
+  ],
+  "child_returncode": 137,
+  "elapsed_seconds": 1201.1495146719972,
+  "stop": "wrapper_time_limit"
+}

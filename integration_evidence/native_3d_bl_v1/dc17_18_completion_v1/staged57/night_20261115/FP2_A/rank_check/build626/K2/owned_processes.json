@@ -1,0 +1,62 @@
+{
+  "all_observed_terminal": true,
+  "identities": [
+    {
+      "pid": 39741,
+      "start_ticks": 76184473
+    },
+    {
+      "pid": 39747,
+      "state": "R",
+      "ppid": 39743,
+      "pgid": 39747,
+      "sid": 39741,
+      "start_ticks": 76184476,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 39748,
+      "state": "R",
+      "ppid": 39743,
+      "pgid": 39748,
+      "sid": 39741,
+      "start_ticks": 76184476,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 39742,
+      "state": "S",
+      "ppid": 39741,
+      "pgid": 39742,
+      "sid": 39741,
+      "start_ticks": 76184473,
+      "comm": "timeout"
+    },
+    {
+      "pid": 39743,
+      "state": "S",
+      "ppid": 39742,
+      "pgid": 39742,
+      "sid": 39741,
+      "start_ticks": 76184473,
+      "comm": "mpirun"
+    }
+  ],
+  "sigkill_sent_to": [],
+  "sampled_rank_peak_lower_bound_bytes": 1900802048,
+  "sampled_rank_peaks_bytes": [
+    {
+      "pid": 39747,
+      "start_ticks": 76184476,
+      "peak_rss_bytes": 870891520
+    },
+    {
+      "pid": 39748,
+      "start_ticks": 76184476,
+      "peak_rss_bytes": 1029910528
+    }
+  ],
+  "child_returncode": 0,
+  "elapsed_seconds": 70.74268114892766,
+  "stop": null
+}

@@ -1004,3 +1004,13 @@ FP2-A Part A correction 1 PASSED on build624. G1 matched 375 / 114 / 228 and all
 FP2-A Part A correction 1 pushed as 299e2928ec. Repeating the Part B MPI cases on build624 and verifying the freshly repeated same-binary FP1 and G1 receipts.
 
 FP2-A part B PASSED on corrected build624. Exact MPI snapshots matched at 2 and 4 ranks with 24 faces, 14 points and 18 traces, and the re-executed same-binary 18 FP1 cohorts plus G1 375 / 114 / 228 are verified. Checkpoint before Part C.
+
+FP2-A part B after correction 1 pushed as b569e34e7e. Part C option and owned-worker call implemented. Starting full build625, including the solver, at nice 19.
+
+FP2-A correction 2 archived and SHA256 verified while full build625 is pinned. The new bounded LAB1 MPI rank check precedes every §11.2 gate.
+
+FP2-A full build625 passed in 790.285 s with no new warning. Its controller is terminal. Correction 2 test source can now be added and compiled before its rank gate.
+
+FP2-A correction 2 build626 passed without new warning. Its sole source-pin difference from build625 is the rank-check test TU, and the solver hash matches. Starting K1 then K2 with 1200 s each; K3 is conditional on K1.
+
+FP2-A rank check: stopped before 11.3. K1 reached the 1200 s wrapper limit with no completed pass 1 on either rank; first-sweep max stars 65,654 and 98,388 with zero unresolved/blocked at that observation. K2 ended in 70.818 s with both passes, exact positive cells and geometry/Snapshot agreement. K3 skipped by the K1 rule. All owned rank-check handles terminal. Committing evidence before starting 11.2.
