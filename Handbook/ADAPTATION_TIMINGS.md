@@ -2,6 +2,46 @@
 
 ## Fast path stage 1
 
+### FX1 Part M, build617
+
+| Run | Event | Native maximum | Transfer maximum | Transfer mobility maximum | Rank 0 output root | Rank 0 output mobility |
+| --- | --- | --- | --- | --- | --- | --- |
+| N22 C OFF | 1 | 2,018.805 | 29.640 | 16.953 | 35.225 | 18.013 |
+| N22 C OFF | 2 | 1,083.551 | 31.151 | 17.858 | 35.340 | 18.617 |
+| Build615 OFF | 1 | 1,778.627 | 29.558 | 16.937 | 34.106 | 17.853 |
+| Build615 OFF | 2 | 1,029.081 | 28.890 | 16.911 | 33.409 | 17.792 |
+| Build617 OFF | 1 | 1,783.323 | 29.383 | 17.034 | 34.184 | 17.810 |
+| Build617 OFF | 2 | 1,051.580 | 29.207 | 17.159 | 34.516 | 18.062 |
+| Build616 ON1 | 1 | 1,499.541 | 31.576 | 17.020 | 36.216 | 18.145 |
+| Build616 ON1 | 2 | 386.884 | 31.072 | 17.002 | 36.028 | 17.999 |
+| Build616 ON2 | 1 | 1,500.864 | 30.799 | 16.875 | 35.496 | 17.841 |
+| Build616 ON2 | 2 | 373.634 | 30.547 | 16.874 | 35.530 | 17.879 |
+| Build617 ON | 1 | 1,552.606 | 30.641 | 16.838 | 35.519 | 17.922 |
+| Build617 ON | 2 | 378.535 | 30.236 | 16.734 | 35.037 | 17.779 |
+
+| Run | Metric computation | Target composition max (s) | Nested gradation max (s) | Trials | Sweeps | Visits | Updates |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| N22 C OFF | Event 1 | 39.408 | 39.167 | 7 | 800 | 14,153,877 | 9,853,577 |
+| N22 C OFF | Event 2 | 161.847 | 161.166 | 8 | 1478 | 43,004,068 | 30,146,553 |
+| N22 C OFF | After event 2 | 129.573 | 128.824 | 8 | 1199 | 41,122,066 | 28,821,833 |
+| Build615 OFF | Event 1 | 38.394 | 38.153 | 7 | 800 | 14,153,877 | 9,853,577 |
+| Build615 OFF | Event 2 | 146.205 | 145.609 | 8 | 1478 | 43,004,068 | 30,146,553 |
+| Build615 OFF | After event 2 | 127.417 | 126.723 | 8 | 1199 | 41,122,066 | 28,821,833 |
+| Build617 OFF | Event 1 | 33.608 | 33.368 | 7 | 800 | 14,153,877 | 9,853,577 |
+| Build617 OFF | Event 2 | 130.076 | 129.457 | 8 | 1478 | 43,004,068 | 30,146,553 |
+| Build617 OFF | After event 2 | 113.713 | 113.006 | 8 | 1199 | 41,122,066 | 28,821,833 |
+| Build616 ON1 | Event 1 | 38.678 | 38.439 | 7 | 800 | 14,153,877 | 9,853,577 |
+| Build616 ON1 | Event 2 | 68.233 | 67.762 | 8 | 1056 | 28,977,415 | 21,001,471 |
+| Build616 ON1 | After event 2 | 91.056 | 90.575 | 8 | 1246 | 28,674,333 | 20,088,842 |
+| Build616 ON2 | Event 1 | 39.845 | 39.597 | 7 | 800 | 14,153,877 | 9,853,577 |
+| Build616 ON2 | Event 2 | 68.269 | 67.798 | 8 | 1056 | 28,977,415 | 21,001,471 |
+| Build616 ON2 | After event 2 | 89.052 | 88.577 | 8 | 1246 | 28,674,333 | 20,088,842 |
+| Build617 ON | Event 1 | 34.112 | 33.873 | 7 | 800 | 14,153,877 | 9,853,577 |
+| Build617 ON | Event 2 | 60.603 | 60.125 | 8 | 1056 | 28,977,415 | 21,001,471 |
+| Build617 ON | After event 2 | 77.166 | 76.695 | 8 | 1246 | 28,674,333 | 20,088,842 |
+
+The two mobility-policy builds remain in their original transfer and output paths. Part M skips 3D gradation work for unchanged pairs. Both G5 modes passed with their exact reference files and gradation counts. The Part N and S timer names provide coverage margin, with minima of 99.008% / 99.529% OFF and 99.065% / 98.738% ON against 95%. The timing rows are measured rank maxima and nested clocks. [FX1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FX1/reports/FX1_617.md)
+
 ### Resume 6 Part S, build616
 
 | Run | Event 1 / event 2 native max (s) | Minimum named coverage |
@@ -21,7 +61,7 @@ Each phase, core and shift clock is a rank maximum in seconds. Engine constructi
 | 2 | ON1 | 54.316 | 157.551 | 9.930 | 0.751 | 99.501 | 28.825 |
 | 2 | ON2 | 53.270 | 156.628 | 9.670 | 0.733 | 90.169 | 27.780 |
 
-Part S assigned generation, queue rebuild and census work to Scheduling. The ON pair passed all standing gates and matched all six payloads. Both ON runs passed the native time comparisons against build615 OFF. G5 OFF for Part S is pending FX1. [Resume 6 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_616_resume6.md)
+Part S assigned generation, queue rebuild and census work to Scheduling. The ON pair passed all standing gates and matched all six payloads. Both ON runs passed the native time comparisons against build615 OFF. The Part S G5 OFF proof passed in FX1. [Resume 6 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_616_resume6.md)
 
 ### Resume 5 Part N, build615
 

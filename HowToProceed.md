@@ -1,6 +1,8 @@
 # Work order status
 
-FP1 Part S passed gates 1 to 4 on build616. G5 OFF is pending FX1, and the build615 OFF run remains the comparison proof. FP1 ON accepted on build616. Both ON runs passed the standing workflow and isolated restart gates. All six payloads match. Minimum named coverage was 99.041% / 98.658% in ON1 and 99.043% / 98.650% in ON2. The default is NO. [Resume 6 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_616_resume6.md) · [ON payload reference](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/on_reference.json)
+FX1 closed with Part M accepted on build617. Part P was omitted under R4 because its budget values feed later admission and decode exception classification. Both G5 modes passed and matched their six reference hashes. Minimum named coverage was 99.008% / 99.529% OFF and 99.065% / 98.738% ON. This also closes the FP1 Part S OFF proof. The default is NO. [FX1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FX1/reports/FX1_617.md)
+
+FP1 Part S passed gates 1 to 4 on build616. Its G5 OFF proof passed in FX1. FP1 ON accepted on build616. Both ON runs passed the standing workflow and isolated restart gates. All six payloads match. Minimum named coverage was 99.041% / 98.658% in ON1 and 99.043% / 98.650% in ON2. The default is NO. [Resume 6 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/reports/FP1_616_resume6.md) · [ON payload reference](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/on_reference.json)
 
 N22 result gates passed. The user accepted both purpose timing flags on 2026-11-19. Both parts matched all six N21 W payload hashes. [Step 8.5u report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N22/reports/STEP_8_5U_591.md)
 

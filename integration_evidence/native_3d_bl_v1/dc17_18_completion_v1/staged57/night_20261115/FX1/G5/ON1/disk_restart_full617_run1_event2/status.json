@@ -1,0 +1,44 @@
+{
+  "state": "terminal",
+  "exit_code": 0,
+  "seconds": 138.57471108436584,
+  "pins_verified": true,
+  "changed": [],
+  "disk_restart_validated": false,
+  "runtime_receipt_written": true,
+  "runtime_observation_error": null,
+  "resource_gate": {
+    "passed": true,
+    "rank_process_count": 6,
+    "rank_process_peak_hwm_bytes": {
+      "2856421:71200057": 242487296,
+      "2856422:71200057": 211599360,
+      "2856425:71200058": 210612224,
+      "2856427:71200058": 205246464,
+      "2856428:71200058": 211525632,
+      "2856430:71200058": 209465344
+    },
+    "sum_rank_process_peak_hwm_bytes": 1290936320,
+    "limit_bytes": 19999490048,
+    "hwm_sample_before_runtime_check": true,
+    "owned_cpu_ids": [
+      0,
+      1
+    ],
+    "affinity_violations": [],
+    "cpu_monitor": {
+      "passed": true,
+      "window_count": 41,
+      "gate_scope": "owned CFD session; user processes are observations only",
+      "window_min_seconds": 3.1283323250245303,
+      "window_max_seconds": 8.521312338067219,
+      "covered_seconds": 133.83617497701198,
+      "observed_seconds": 135.92237218504306,
+      "coverage_fraction": 0.9846515538649446,
+      "max_busy_processes": 2,
+      "busy_process_limit": 6,
+      "process_scope": "all /proc processes keyed by PID/start_ticks",
+      "window_method": "sample CPU ticks opportunistically; emit when accumulated interval reaches 3s; no added wait"
+    }
+  }
+}

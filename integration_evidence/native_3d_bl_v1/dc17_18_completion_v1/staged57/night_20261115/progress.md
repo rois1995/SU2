@@ -894,3 +894,11 @@ FX1 G5 OFF event 1 mesh, geometry sidecar and restart match the adopted payloads
 FX1 G5 OFF event 2 passed final timer and connected proof at 1051.580 s and 99.529% minimum coverage. Publication, continued CFD and isolated restart are next.
 
 FX1 G5 OFF passed at 1,783.323 / 1,051.580 s and 99.008% / 99.529% minimum named coverage. All six payloads, the initial restart and all gradation counts match. This completes the FP1 Part S OFF proof. Starting the same-binary ON check.
+
+FX1 G5 ON event 1 passed final timer and connected proof at 1552.606 s and 99.065% minimum coverage. Publication and continued CFD advance toward event 2.
+
+FX1 G5 ON event 1 mesh, geometry sidecar and restart match the accepted build616 ON payloads byte for byte.
+
+FX1 G5 ON event 2 passed final timer and connected proof at 378.535 s and 98.738% minimum coverage. Publication, continued CFD and isolated restart are next.
+
+FX1 closed. Part M passed both G5 modes on build617. ON native maxima 1,552.606 / 378.535 s, coverage minima 99.065% / 98.738%. Both modes match their exact reference and initial metric files. Part P omitted under R4. FP1 S OFF proof is complete. All owned jobs terminal.
