@@ -459,6 +459,15 @@ double StressDot(const Record& record, int m) {
 
 double SourceDot(const Record& record, int m) { return record.S_pk * record.dpk[m] + record.S_pw * record.dpw[m]; }
 
+/*--- Absolute margin for SourceDot against the scalar replay. Where the production cap stays active in a case,
+ *    dpk = clip(raw) - pk0 = 0 and dpw = alfa*rho/mu_t*clip(raw) - pw0 are zero in exact arithmetic, but the hook,
+ *    the replay and the solver round alfa*rho/mu_t*pk on their own (-ffast-math: FMA contraction, reassociation, so
+ *    the result depends on the code generated for the build host). Their difference is a few ulp of the terms
+ *    S_pk*pk0 and S_pw*pw0; the margin allows 1e-12 of them, far below any case that moves the production. ---*/
+double SourceMargin(const Record& record) {
+  return 1e-12 * (std::fabs(record.S_pk * record.pk0) + std::fabs(record.S_pw * record.pw0));
+}
+
 template<size_t nDim>
 void CheckFusedDot() {
   const auto record = FusedFieldAdjoint<nDim>();
@@ -541,7 +550,7 @@ TEST_CASE("Field dot product equals amplitude derivative", "[EPMField]") {
       for (int m = 0; m < CEPMFieldSites::kCases; ++m) {
         const auto reference = Evaluate(false, m, false, true, 0, omega, nDim).parameter;
         nonzero |= reference != 0;
-        CHECK(SourceDot(record, m) == Approx(reference).epsilon(1e-12));
+        CHECK(SourceDot(record, m) == Approx(reference).epsilon(1e-12).margin(SourceMargin(record)));
       }
       CHECK(nonzero);
     }
@@ -570,7 +579,8 @@ TEST_CASE("Field probes at a degenerate state equal the amplitude derivative", "
           const auto reference = Evaluate(flux, m, false, true, 0, omega, nDim, angle, pair, true);
           bool ambiguous = false;
           const auto gradient = CNumerics::EPMFieldSiteGradient(nDim, record, m, probe, ambiguous);
-          CHECK(gradient == Approx(reference.parameter).epsilon(1e-12).margin(1e-14));
+          const double margin = flux ? 1e-14 : std::max(1e-14, SourceMargin(record));
+          CHECK(gradient == Approx(reference.parameter).epsilon(1e-12).margin(margin));
           CHECK(ambiguous == (reference.ambiguous > 0));
           CHECK(ambiguous == canonical_ambiguous);
           nonzero |= reference.parameter != 0;
