@@ -12,7 +12,9 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <set>
 #include <stdexcept>
+#include <tuple>
 
 namespace SU2NativeLocal3D {
 namespace {
@@ -318,6 +320,116 @@ const BoundaryState& GetState(const std::shared_ptr<const PlanarReference>& refe
 
 double Clock(bool report) { return report ? SU2_MPI::Wtime() : 0.; }
 
+template <class Action>
+void LocalStep(const World& world, Action action) {
+  if (world.size == 1) {
+    action();
+    return;
+  }
+  CLocalFailure local;
+  try { action(); }
+  catch (const std::exception& e) { local.Set(2, 0, e.what()); }
+  const auto failure = world.elect(local);
+  if (failure.any) throw failure;
+}
+
+template <class Row>
+std::vector<Row> SendEverywhere(World& world, const std::vector<Row>& local, MemoryBudget& budget, size_t caller) {
+  using Buckets = std::vector<std::vector<Row>>;
+  budget.Require(world, Add(caller, Mul(world.size, Add(sizeof(std::vector<Row>), transfer_memory::Bytes(local)))),
+                 "Native local surface send lists exceed working-storage admission.");
+  Buckets outgoing;
+  LocalStep(world, [&] { outgoing.assign(world.size, local); });
+  std::vector<Row> received;
+  LocalStep(world, [&] {
+    bool admitted = false;
+    received = world.exchange(outgoing, &admitted, budget.ceiling, caller);
+    budget.maximum_bytes = std::max(budget.maximum_bytes, world.max_exchange_work_bytes);
+    if (!admitted) throw std::length_error("Native local surface exchange exceeds working-storage admission.");
+  });
+  return received;
+}
+
+struct CreatedRecord {
+  BoundaryPoint point;
+  uint64_t source = 0;
+  template <class Stream>
+  void Fields(Stream& stream) { stream(point, source); }
+};
+
+struct ErasedRecord {
+  SurfaceEdge edge;
+  template <class Stream>
+  void Fields(Stream& stream) { stream(edge); }
+};
+
+struct AtlasPage {
+  uint64_t source = 0, revision = 0, identity = 0, sequence = 0, total = 0, used = 0;
+  std::array<uint64_t, 64> words{};
+  template <class Stream>
+  void Fields(Stream& stream) { stream(source, revision, identity, sequence, total, used, words); }
+};
+
+std::vector<AtlasPage> EncodePages(const BoundaryCoverage& coverage, const BoundaryState& state, int rank,
+                                  size_t ceiling, size_t caller) {
+  if (coverage.traces.empty()) return {};
+  const auto bytes = SU2Native3D::EncodeBoundaryAtlas(coverage, {}, ceiling, caller);
+  SU2NativeBoundary2D::RecordStream input(bytes);
+  constexpr size_t page_words = std::tuple_size<decltype(AtlasPage::words)>::value;
+  const auto words = bytes.size() / sizeof(uint64_t);
+  const auto count = transfer_memory::CeilDiv(words, page_words);
+  std::vector<AtlasPage> pages(count);
+  for (size_t i = 0; i < count; ++i) {
+    auto& page = pages[i];
+    page.source = rank;
+    page.revision = state.Revision();
+    page.identity = state.Mobility().identity;
+    page.sequence = i;
+    page.total = count;
+    page.used = std::min(page_words, words - i * page_words);
+    for (size_t j = 0; j < page.used; ++j) input(page.words[j]);
+  }
+  if (!input.End()) throw std::invalid_argument("Native local surface trace payload is not word-aligned.");
+  return pages;
+}
+
+template <class Consumer>
+void DecodePages(std::vector<AtlasPage>& pages, const BoundaryState& state, int ranks, size_t ceiling, size_t caller,
+                 Consumer consume) {
+  std::sort(pages.begin(), pages.end(), [](const auto& a, const auto& b) {
+    return std::tie(a.source, a.sequence) < std::tie(b.source, b.sequence);
+  });
+  for (size_t first = 0; first < pages.size();) {
+    const auto source = pages[first].source, total = pages[first].total;
+    size_t last = first + 1;
+    while (last < pages.size() && pages[last].source == source) ++last;
+    if (source >= static_cast<uint64_t>(ranks) || total != last - first)
+      throw std::invalid_argument("Native local surface trace payload has missing or duplicate pages.");
+    std::vector<char> bytes;
+    bytes.reserve(Mul(total, sizeof(AtlasPage::words)));
+    SU2NativeBoundary2D::RecordStream output(bytes);
+    for (size_t i = first; i < last; ++i) {
+      const auto& p = pages[i];
+      if (p.sequence != i - first || p.total != total || p.revision != state.Revision() ||
+          p.identity != state.Mobility().identity || p.used == 0 || p.used > p.words.size() ||
+          (i + 1 < last && p.used != p.words.size()))
+        throw std::invalid_argument("Native local surface trace payload has stale or inconsistent pages.");
+      for (size_t j = 0; j < p.used; ++j) {
+        auto word = p.words[j];
+        output(word);
+      }
+    }
+    BoundaryCoverage coverage;
+    SU2NativeGeometry::MobilityPolicy policy;
+    SU2Native3D::DecodeBoundaryAtlas(bytes, coverage, policy, ceiling, caller);
+    if (!coverage.faces.empty() || policy.identity || !policy.roles.empty() || !policy.features.empty() ||
+        !policy.corners.empty() || !policy.bodies.empty() || !policy.sheets.empty())
+      throw std::invalid_argument("Native local surface trace payload attempts a face or policy edit.");
+    consume(source, std::move(coverage));
+    first = last;
+  }
+}
+
 SurfaceFace OwnedFace(const SU2Native3D::OwnedCell& row, unsigned k) {
   const auto order = OrientedFace({0, 1, 2, 3}, k);
   return {{row.cell.v[order[0]].id, row.cell.v[order[1]].id, row.cell.v[order[2]].id}, row.physical[k].facet};
@@ -400,7 +512,9 @@ struct StateSurfaceGeometry::Impl {
 
   size_t ResidentBytes() const {
     return Add(sizeof(*this), walker.ResidentBytes(), MapBytes(created), MapBytes(erased), MapBytes(supports),
-               MapBytes(coordinates), SU2Native3D::BoundaryCoverageBytes(overlay));
+               MapBytes(coordinates), SU2Native3D::BoundaryCoverageBytes(overlay),
+               transfer_memory::Bytes(pending_points), transfer_memory::Bytes(pending_traces),
+               transfer_memory::Bytes(pending_erased));
   }
 
   void CheckBudget() {
@@ -496,6 +610,9 @@ struct StateSurfaceGeometry::Impl {
   std::set<SurfaceEdge> erased;
   std::set<BoundaryState::Coordinate> coordinates;
   std::set<BoundaryState::Support> supports;
+  size_t local_splits = 0;
+  std::vector<Id> pending_points;
+  std::vector<SurfaceEdge> pending_traces, pending_erased;
 };
 
 StateSurfaceGeometry::StateSurfaceGeometry(std::shared_ptr<const PlanarReference> reference, AtlasBudget budget)
@@ -506,11 +623,12 @@ StateSurfaceGeometry::StateSurfaceGeometry(std::shared_ptr<const PlanarReference
 StateSurfaceGeometry::~StateSurfaceGeometry() = default;
 
 double StateSurfaceGeometry::Tolerance() const { return impl_->state.GeometryTolerance(); }
-bool StateSurfaceGeometry::Feature(const SurfaceEdge& edge) const { return impl_->Trace(edge) != nullptr; }
+bool StateSurfaceGeometry::Feature(const SurfaceEdge& edge) const { return FindTrace(edge) != nullptr; }
 const BoundaryPoint* StateSurfaceGeometry::Find(Id id) const { return impl_->Find(id); }
+const EdgeTrace* StateSurfaceGeometry::FindTrace(const SurfaceEdge& edge) const { return impl_->Trace(edge); }
 const SU2Native3D::BoundaryParameterState& StateSurfaceGeometry::State() const { return impl_->state; }
 size_t StateSurfaceGeometry::ResidentBytes() const { return Add(sizeof(*this), impl_->ResidentBytes()); }
-size_t StateSurfaceGeometry::Splits() const { return impl_->created.size(); }
+size_t StateSurfaceGeometry::Splits() const { return impl_->local_splits; }
 
 void StateSurfaceGeometry::SetCallerBytes(size_t caller) {
   impl_->caller_bytes = caller;
@@ -558,12 +676,100 @@ void StateSurfaceGeometry::Accept(SurfacePlacement&& placement) {
       !geometry.created.emplace(placement.point.node.id, placement.point).second)
     throw std::invalid_argument("Native local surface attempted a duplicate or refused publication.");
   geometry.AddKeys(placement.point);
+  ++geometry.local_splits;
+  geometry.pending_points.push_back(placement.point.node.id);
   if (placement.parent) {
     geometry.erased.insert(*placement.parent);
+    geometry.pending_erased.push_back(*placement.parent);
     geometry.overlay.traces.erase(*placement.parent);
+    for (const auto& child : placement.children) geometry.pending_traces.push_back(child.first);
     geometry.overlay.traces.merge(placement.children);
     if (!placement.children.empty()) throw std::invalid_argument("Native local surface child trace already exists.");
   }
+}
+
+void StateSurfaceGeometry::Exchange(World& world, MemoryBudget& budget, size_t caller) {
+  if (world.size == 1) return;
+  auto& g = *impl_;
+  const auto baseline = Add(caller, ResidentBytes());
+  std::vector<CreatedRecord> local_points;
+  std::vector<ErasedRecord> local_erased;
+  std::vector<AtlasPage> local_pages;
+  budget.Require(world, Add(baseline, Mul(2, SU2Native3D::BoundaryCoverageBytes(g.overlay)),
+                            Mul(g.pending_points.size(), sizeof(CreatedRecord)),
+                            Mul(g.pending_erased.size(), sizeof(ErasedRecord))),
+                 "Native local surface overlay send preparation exceeds working-storage admission.");
+  LocalStep(world, [&] {
+    local_points.reserve(g.pending_points.size());
+    for (Id id : g.pending_points) local_points.push_back({g.created.at(id), static_cast<uint64_t>(world.rank)});
+    local_erased.reserve(g.pending_erased.size());
+    for (const auto& edge : g.pending_erased) local_erased.push_back({edge});
+    BoundaryCoverage recent;
+    // An edge created and split again in one pass is already absent from the outgoing live traces.
+    for (const auto& edge : g.pending_traces)
+      if (const auto* trace = g.Trace(edge)) recent.traces.emplace(edge, *trace);
+    const auto live = Add(baseline, transfer_memory::Bytes(local_points), transfer_memory::Bytes(local_erased),
+                          SU2Native3D::BoundaryCoverageBytes(recent));
+    const auto encoded = recent.traces.empty() ? 0 : SU2Native3D::BoundaryAtlasBytes(recent, {});
+    const auto peak = Add(live, Mul(4, encoded));
+    if (peak == SIZE_MAX || peak > budget.ceiling)
+      throw std::length_error("Native local surface trace packing exceeds working-storage admission.");
+    budget.maximum_bytes = std::max(budget.maximum_bytes, peak);
+    local_pages = EncodePages(recent, g.state, world.rank, budget.ceiling, live);
+  });
+  const auto send_live = Add(baseline, transfer_memory::Bytes(local_points), transfer_memory::Bytes(local_erased),
+                             transfer_memory::Bytes(local_pages));
+  auto points = SendEverywhere(world, local_points, budget, send_live);
+  auto erased = SendEverywhere(world, local_erased, budget, Add(send_live, transfer_memory::Bytes(points)));
+  const auto lists = Add(send_live, transfer_memory::Bytes(points), transfer_memory::Bytes(erased));
+  auto pages = SendEverywhere(world, local_pages, budget, lists);
+  const auto decode_base = Add(lists, transfer_memory::Bytes(pages));
+  const auto merge_bound = Add(decode_base, Mul(4, transfer_memory::Bytes(pages)),
+                               Mul(points.size(), 512), Mul(erased.size(), 128));
+  budget.Require(world, merge_bound, "Native local surface overlay merge exceeds working-storage admission.");
+
+  LocalStep(world, [&] {
+    BoundaryCoverage incoming;
+    std::set<SurfaceEdge> own_traces;
+    DecodePages(pages, g.state, world.size, budget.ceiling, merge_bound,
+                [&](uint64_t source, BoundaryCoverage&& decoded) {
+      for (const auto& row : decoded.traces)
+        if (source == static_cast<uint64_t>(world.rank)) own_traces.insert(row.first);
+      incoming.traces.merge(decoded.traces);
+      if (!decoded.traces.empty()) throw std::invalid_argument("Duplicate native local surface child edge from workers.");
+    });
+
+    std::sort(points.begin(), points.end(), [](const auto& a, const auto& b) { return a.point.node.id < b.point.node.id; });
+    for (size_t i = 0; i < points.size(); ++i) {
+      const auto& row = points[i];
+      const auto id = row.point.node.id;
+      if (i && points[i - 1].point.node.id == id)
+        throw std::invalid_argument("Duplicate native local surface point id from workers.");
+      if (row.source >= static_cast<uint64_t>(world.size))
+        throw std::invalid_argument("Invalid native local surface point source.");
+      if (row.source == static_cast<uint64_t>(world.rank)) {
+        const auto& previous = g.created.at(id);
+        if (!SamePosition(previous.node.p, row.point.node.p) || BindingKey(previous) != BindingKey(row.point) ||
+            previous.binding.version != row.point.binding.version)
+          throw std::invalid_argument("Native local surface point changed on its round trip.");
+      } else {
+        if (g.Find(id) || g.Duplicate(row.point) || !g.created.emplace(id, row.point).second)
+          throw std::invalid_argument("Duplicate native local surface point association from workers.");
+        g.AddKeys(row.point);
+      }
+    }
+
+    for (const auto& edge : own_traces) incoming.traces.erase(edge);
+    g.overlay.traces.merge(incoming.traces);
+    if (!incoming.traces.empty()) throw std::invalid_argument("Native local surface child edge was already stored.");
+    for (const auto& row : erased) {
+      g.erased.insert(row.edge);
+      g.overlay.traces.erase(row.edge);
+    }
+    g.pending_points.clear();
+    g.pending_traces.clear();
+    g.pending_erased.clear();
+  });
 }
 
 SurfaceEdits StateSurfaceGeometry::GatherEdits(const std::vector<SurfaceFace>& faces) const {
@@ -598,8 +804,8 @@ size_t SurfaceAtlasIntegerBits() {
 }
 
 SurfaceStateResult BuildSurfaceState(const StateSurfaceGeometry& geometry, const SurfaceEdits& edits, size_t ceiling,
-                                     size_t caller) {
-  const auto start = Clock(true);
+                                     size_t caller, bool report) {
+  const auto start = Clock(report);
   const auto& state = geometry.State();
   if (state.Revision() == UINT64_MAX) throw std::invalid_argument("Native surface state exhausted its revision.");
   const auto points = edits.points.size(), faces = edits.faces.size();
@@ -617,26 +823,57 @@ SurfaceStateResult BuildSurfaceState(const StateSurfaceGeometry& geometry, const
       state.Mobility(), &reservation, state.GeometryTolerance());
   result.splits = geometry.Splits();
   result.modeled_peak = std::max(bound, reservation.peak_bytes);
-  result.seconds_build = Clock(true) - start;
+  result.seconds_build = Clock(report) - start;
   return result;
 }
 
 SurfaceStateResult BuildSurfaceState(World& world, const Owned& owned, const StateSurfaceGeometry& geometry,
                                      MemoryBudget& budget, size_t caller, bool report) {
-  if (world.size != 1) throw std::invalid_argument("Native surface state assembly requires one worker.");
-  if (geometry.Splits() == 0) return {};
+  const auto splits = world.size == 1 ? geometry.Splits()
+                                      : world.reduce<uint64_t>(geometry.Splits(), CPassiveComm::Op::SUM);
+  if (!splits) return {};
   const auto begin = Clock(report);
-  auto faces = OwnedFaces(owned);
-  auto edits = geometry.GatherEdits(faces);
+  const auto baseline = Add(caller, geometry.ResidentBytes());
+  std::vector<SurfaceFace> local;
+  LocalStep(world, [&] {
+    size_t count = 0;
+    for (const auto& entry : owned)
+      for (const auto& binding : entry.second.physical) count += binding.present;
+    const auto bound = Add(baseline, transfer_memory::GrowthBound(count, sizeof(SurfaceFace)));
+    if (bound == SIZE_MAX || bound > budget.ceiling)
+      throw std::length_error("Native local owned face list exceeds working-storage admission.");
+    budget.maximum_bytes = std::max(budget.maximum_bytes, bound);
+    local = OwnedFaces(owned);
+  });
+  auto faces = world.size == 1 ? std::move(local)
+                               : SendEverywhere(world, local, budget, Add(baseline, transfer_memory::Bytes(local)));
+  const auto lists = Add(transfer_memory::Bytes(local), transfer_memory::Bytes(faces));
+  SurfaceEdits edits;
+  LocalStep(world, [&] {
+    const auto face_scratch = Add(Mul(3, 256), sizeof(SurfaceFace) + sizeof(SurfaceFaceKey) + 4 * sizeof(void*));
+    const auto bound = Add(baseline, lists, Mul(faces.size(), face_scratch),
+                           SU2Native3D::BoundaryCoverageBytes(geometry.State().Coverage()), geometry.ResidentBytes());
+    if (bound == SIZE_MAX || bound > budget.ceiling)
+      throw std::length_error("Native local surface edit assembly exceeds working-storage admission.");
+    budget.maximum_bytes = std::max(budget.maximum_bytes, bound);
+    edits = geometry.GatherEdits(faces);
+  });
   const auto gather = Clock(report) - begin;
-  auto result = BuildSurfaceState(geometry, edits, budget.ceiling, Add(caller, transfer_memory::Bytes(faces)));
+  SurfaceStateResult result;
+  LocalStep(world, [&] { result = BuildSurfaceState(geometry, edits, budget.ceiling, Add(caller, lists), report); });
   const auto check = Clock(report);
-  if (CheckOwnedFaces(owned, *result.state) != result.state->Surface().size())
-    throw std::invalid_argument("Owned physical face count differs from native surface state.");
+  size_t counted = 0;
+  LocalStep(world, [&] { counted = CheckOwnedFaces(owned, *result.state); });
+  if (world.size > 1) counted = world.reduce<uint64_t>(counted, CPassiveComm::Op::SUM);
+  LocalStep(world, [&] {
+    if (counted != result.state->Surface().size())
+      throw std::invalid_argument("Owned physical face count differs from native surface state.");
+  });
   budget.maximum_bytes = std::max(result.modeled_peak, budget.maximum_bytes);
+  result.splits = splits;
+  result.modeled_peak = budget.maximum_bytes;
   result.seconds_gather = gather;
   result.seconds_check = Clock(report) - check;
-  if (!report) result.seconds_build = 0;
   return result;
 }
 }  // namespace SU2NativeLocal3D

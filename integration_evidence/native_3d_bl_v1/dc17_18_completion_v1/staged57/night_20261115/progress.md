@@ -1000,3 +1000,7 @@ FP2-A correction 1 build624 LAB-S passed in 284.768 s. All 554,554 cells exact-p
 FP2-A correction 1 build624 all 18 inherited FP1 cohorts passed. G1 is running.
 
 FP2-A Part A correction 1 PASSED on build624. G1 matched 375 / 114 / 228 and all 18 FP1 cohorts passed. Committing the correction and evidence before the corrected Part B MPI fixtures.
+
+FP2-A Part A correction 1 pushed as 299e2928ec. Repeating the Part B MPI cases on build624 and verifying the freshly repeated same-binary FP1 and G1 receipts.
+
+FP2-A part B PASSED on corrected build624. Exact MPI snapshots matched at 2 and 4 ranks with 24 faces, 14 points and 18 traces, and the re-executed same-binary 18 FP1 cohorts plus G1 375 / 114 / 228 are verified. Checkpoint before Part C.

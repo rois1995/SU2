@@ -6,6 +6,7 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalSurface3D.hpp"
+#include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -423,4 +424,226 @@ TEST_CASE("Cylinder surface length and distance steps repeat and account for eve
   std::cout << "FP2A_FIXTURE surface_cylinder splits_length=" << stats.splits_length
             << " splits_distance=" << stats.splits_distance << " left_distance=" << stats.left_distance
             << " left_refused=" << stats.left_refused << '\n';
+}
+
+namespace {
+constexpr Edge LowerCrease{1, 2}, UpperCrease{7, 8};
+constexpr Id LastOriginalPoint = 11;
+constexpr size_t ExchangeCeiling = size_t(1) << 28;
+
+Owned TwoCubes() {
+  constexpr std::array<size_t, 6> ring{1, 2, 3, 7, 4, 5};
+  std::vector<Point> points;
+  for (size_t z = 0; z < 2; ++z)
+    for (size_t y = 0; y < 2; ++y)
+      for (size_t x = 0; x < 3; ++x) points.push_back({double(x), double(y), double(z)});
+  std::vector<Tet> tets;
+  for (size_t x = 0; x < 2; ++x) {
+    const std::array<size_t, 8> v{x, x + 1, x + 4, x + 3, x + 6, x + 7, x + 10, x + 9};
+    for (size_t i = 0; i < ring.size(); ++i)
+      tets.push_back({v[0], v[6], v[ring[i]], v[ring[(i + 1) % ring.size()]]});
+  }
+  return BoundMesh(points, tets, 1);
+}
+
+SU2NativeGeometry::AtlasBudget AtlasBudget() { return {size_t(1) << 29, ExchangeCeiling, 4096}; }
+
+std::shared_ptr<const PlanarReference> EntityReference(const Owned& rows) {
+  const auto surface = Surface(rows);
+  std::map<Id, Node> nodes;
+  for (const auto& entry : rows)
+    for (const auto& node : entry.second.cell.v) nodes.emplace(node.id, node);
+  std::vector<Facet> facets;
+  std::map<Id, double> errors;
+  for (const auto& face : surface) {
+    facets.push_back({face.facet, 0, {nodes.at(face.v[0]), nodes.at(face.v[1]), nodes.at(face.v[2])}});
+    errors.emplace(face.facet, 1e-12);
+  }
+  auto definition = std::make_shared<PlanarReference>(facets);
+  auto mapped = std::make_shared<SU2NativeGeometry::MappedFacetReference>(definition, errors, 71, SIZE_MAX, false);
+  auto budget = AtlasBudget();
+  std::string reason;
+  SU2NativeGeometry::MobilityPolicy policy;
+  INFO(reason);
+  REQUIRE(mapped->BuildMobilityPolicy(45, {{0, 2}}, policy, budget, reason));
+  BoundaryPoints points;
+  for (const auto& [id, node] : nodes) points.emplace(id, BoundaryPoint{node, mapped->Vertex(id)});
+  const BoundaryParameterState initial(mapped, points, surface, 1, ExchangeCeiling, 0, {}, policy, &budget);
+  const auto entity = initial.WithEntityGeometry(1e-4, budget, ExchangeCeiling);
+  REQUIRE(entity->Coverage().traces.count(LowerCrease) == 1);
+  REQUIRE(entity->Coverage().traces.count(UpperCrease) == 1);
+  return PlanarReference::WithParameters(definition, entity);
+}
+
+std::array<SurfaceFace, 2> Parents(const Owned& rows, const Edge& edge) {
+  std::vector<SurfaceFace> parents;
+  for (const auto& face : Surface(rows))
+    if (Holds(face.v, edge[0]) && Holds(face.v, edge[1])) parents.push_back(face);
+  REQUIRE(parents.size() == 2);
+  return {parents[0], parents[1]};
+}
+
+local::SurfacePlacement Propose(local::StateSurfaceGeometry& geometry, const Owned& initial, const Edge& edge, Id id) {
+  const auto* a = geometry.Find(edge[0]);
+  const auto* b = geometry.Find(edge[1]);
+  REQUIRE((a && b));
+  auto placement = geometry.Place({a->node, b->node}, Parents(initial, edge), id);
+  INFO(placement.reason);
+  REQUIRE(placement.Accepted());
+  REQUIRE(placement.parent == edge);
+  REQUIRE(placement.children.size() == 2);
+  return placement;
+}
+
+void SplitOnRank(World& world, int owner, Owned& working, const local::BorderMeeting& meeting,
+                 local::StateSurfaceGeometry& geometry, const Edge& edge, local::IdSequence& points,
+                 local::IdSequence& cells) {
+  bool ok = true;
+  std::string reason;
+  if (world.rank == owner) {
+    try {
+      local::Mesh mesh(working, true);
+      mesh.MarkBorderSurface(meeting);
+      const auto point = [&](Id id) {
+        const auto& all = mesh.Points();
+        const auto found = std::find_if(all.begin(), all.end(), [id](const auto& row) { return row.node.id == id; });
+        if (found == all.end()) throw std::invalid_argument("Surface exchange fixture owner lacks a split endpoint.");
+        return static_cast<local::Slot>(found - all.begin());
+      };
+      const local::Edge slots{point(edge[0]), point(edge[1])};
+      const auto holds = [&slots](const local::CellRow& row) {
+        return std::all_of(slots.begin(), slots.end(), [&](local::Slot slot) {
+          return std::find(row.vertices.begin(), row.vertices.end(), slot) != row.vertices.end();
+        });
+      };
+      const auto seed = std::find_if(mesh.Cells().begin(), mesh.Cells().end(), holds);
+      if (seed == mesh.Cells().end()) throw std::invalid_argument("Surface exchange fixture owner lacks a child ring.");
+      local::SurfaceCounters stats;
+      const auto result = mesh.SplitSurface(slots, seed - mesh.Cells().begin(), geometry, points, 1, SIZE_MAX, stats, false);
+      ok = result == local::SurfaceRefusal::None && stats.splits_feature == 1;
+      if (!ok) {
+        reason = std::to_string(static_cast<int>(result)) + " " + stats.first_feature_reason + " " + stats.first_trace_reason;
+      } else {
+        mesh.Check();
+        mesh.WriteBack(working, cells);
+      }
+    } catch (const std::exception& error) {
+      ok = false;
+      reason = error.what();
+    }
+  }
+  INFO(reason);
+  REQUIRE(world.maximum(!ok) == 0);
+}
+
+local::MemoryBudget ExchangeBudget() { return {ExchangeCeiling, 0, sizeof(Owned::value_type) + 4 * sizeof(void*)}; }
+}  // namespace
+
+TEST_CASE("Surface overlays deliver true child traces to the post-shift owner", "[.][NativeLocalCoreSurfaceExchange]") {
+  World world;
+  REQUIRE((world.size == 2 || world.size == 4));
+  const auto initial = TwoCubes();
+  const auto reference = EntityReference(initial);
+  local::StateSurfaceGeometry geometry(reference, AtlasBudget());
+  constexpr Id midpoint = LastOriginalPoint + 2;
+  const auto expected = Propose(geometry, initial, LowerCrease, midpoint);
+  Owned working;
+  for (const auto& entry : initial) {
+    const int owner = Centroid(entry.second.cell).x < 1 ? 0 : 1;
+    if (world.rank == owner) working.emplace(entry);
+  }
+  const auto input_cells = working.size();
+  auto memory = ExchangeBudget();
+  local::IdSequence point_ids(LastOriginalPoint, world.rank, world.size);
+  local::IdSequence cell_ids(initial.rbegin()->first, world.rank, world.size);
+  const auto first = local::MeetBorderPoints(world, working, memory);
+  SplitOnRank(world, 1, working, first, geometry, LowerCrease, point_ids, cell_ids);
+  CHECK((geometry.Find(midpoint) != nullptr) == (world.rank == 1));
+  geometry.Exchange(world, memory, memory.OwnedBytes(working.size()));
+
+  const auto* shared = geometry.Find(midpoint);
+  REQUIRE(world.maximum(shared == nullptr) == 0);
+  CHECK(Bytes(*shared) == Bytes(expected.point));
+  CHECK_FALSE(geometry.Feature(LowerCrease));
+  SU2NativeGeometry::BoundaryCoverage actual, oracle;
+  for (const auto& [edge, trace] : expected.children) {
+    const auto* received = geometry.FindTrace(edge);
+    REQUIRE(world.maximum(received == nullptr) == 0);
+    actual.traces.emplace(edge, *received);
+    oracle.traces.emplace(edge, trace);
+  }
+  CHECK(EncodeBoundaryAtlas(actual, {}) == EncodeBoundaryAtlas(oracle, {}));
+
+  const auto lower = local::ShiftBorders(world, working, first, local::Direction::Lower, memory);
+  CHECK((world.rank == 0 ? lower.received > 0 : true));
+  const auto second = local::MeetBorderPoints(world, working, memory);
+  const Edge child{LowerCrease[0], midpoint};
+  constexpr Id second_midpoint = LastOriginalPoint + 1;
+  SplitOnRank(world, 0, working, second, geometry, child, point_ids, cell_ids);
+  geometry.Exchange(world, memory, memory.OwnedBytes(working.size()));
+  CHECK_FALSE(geometry.Feature(child));
+  CHECK(geometry.Find(second_midpoint) != nullptr);
+  CHECK(geometry.Feature({child[0], second_midpoint}));
+  CHECK(geometry.Feature({second_midpoint, child[1]}));
+  local::ShiftBorders(world, working, second, local::Direction::Higher, memory, &first);
+  const auto caller = transfer_memory::Add(reference->ResidentBytes(), memory.OwnedBytes(working.size()));
+  const auto rebuilt = local::BuildSurfaceState(world, working, geometry, memory, caller);
+  REQUIRE(rebuilt.state);
+  const auto& state = *rebuilt.state;
+  const auto& before = *reference->Parameters();
+  CHECK(rebuilt.splits == 2);
+  CHECK(state.Revision() == before.Revision() + 1);
+  CHECK(state.Surface().size() == 24);
+  CHECK(state.Records().size() == 14);
+  CHECK(state.Coverage().traces.size() == before.Coverage().traces.size() + 2);
+  const auto owned_faces = Surface(working).size();
+  const auto summed_faces = world.reduce<uint64_t>(owned_faces, CPassiveComm::Op::SUM);
+  CHECK(summed_faces == state.Surface().size());
+  const auto snapshot = state.Snapshot();
+  auto reference_bytes = world.rank == 0 ? snapshot : std::vector<char>{};
+  CPassiveComm::BcastRounds(reference_bytes, 0, world.comm);
+  REQUIRE_FALSE(world.maximum(snapshot != reference_bytes));
+  std::cout << "FP2_A MPI_BUILD rank=" << world.rank << " ranks=" << world.size << " splits=" << rebuilt.splits
+            << " input_cells=" << input_cells << " output_cells=" << working.size() << " owned_faces=" << owned_faces
+            << " total_owned_faces=" << summed_faces << " faces=" << state.Surface().size()
+            << " points=" << state.Records().size() << " traces=" << state.Coverage().traces.size()
+            << " revision=" << state.Revision() << " snapshot_bytes=" << snapshot.size()
+            << " snapshot_equal=1 peak_rss=" << ProcessPeakRSS3D() << '\n';
+  if (world.rank == 0)
+    std::cout << "FP2A_FIXTURE surface_exchange ranks=" << world.size << " owner_before=1 owner_after=0 received="
+              << lower.received << " point=" << midpoint << " child_point=" << second_midpoint
+              << " traces=" << expected.children.size() << '\n';
+}
+
+TEST_CASE("Surface exchanges elect duplicate ids and child-trace keys", "[.][NativeLocalCoreSurfaceExchange]") {
+  World world;
+  REQUIRE((world.size == 2 || world.size == 4));
+  const auto initial = TwoCubes();
+  const auto reference = EntityReference(initial);
+  for (const bool duplicate_id : {true, false}) {
+    CAPTURE(duplicate_id);
+    local::StateSurfaceGeometry geometry(reference, AtlasBudget());
+    auto lower = Propose(geometry, initial, LowerCrease, LastOriginalPoint + 1);
+    auto upper = Propose(geometry, initial, UpperCrease, LastOriginalPoint + (duplicate_id ? 1 : 2));
+    if (!duplicate_id) {
+      auto shared = upper.children.extract(upper.children.begin());
+      shared.key() = {LowerCrease[0], LastOriginalPoint + 1};
+      REQUIRE(upper.children.insert(std::move(shared)).inserted);
+    }
+    if (world.rank == 0) geometry.Accept(std::move(lower));
+    if (world.rank == 1) geometry.Accept(std::move(upper));
+    auto memory = ExchangeBudget();
+    std::string message;
+    try {
+      geometry.Exchange(world, memory, 0);
+    } catch (const CElectedFailure& failure) {
+      message = failure.message;
+    }
+    INFO(message);
+    CHECK(message == (duplicate_id ? "Duplicate native local surface point id from workers."
+                                   : "Duplicate native local surface child edge from workers."));
+    if (world.rank == 0)
+      std::cout << "FP2A_FIXTURE surface_exchange_duplicate ranks=" << world.size
+                << " kind=" << (duplicate_id ? "point" : "trace") << '\n';
+  }
 }

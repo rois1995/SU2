@@ -1,0 +1,195 @@
+"""Run the FP2-A Part B MPI cases, inherited FP1 fixtures and G1 on one pinned build."""
+
+from argparse import ArgumentParser
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+sys.dont_write_bytecode = True
+import run_a as a
+
+EXCHANGE = '[.][NativeLocalCoreSurfaceExchange]'
+BUILD = '[.][NativeLocalCoreSurfaceBuild]'
+RANKS = (2, 4)
+RANK_LINE = b'ADAP_NATIVE_RANKS= 1\n'
+PART_A = a.HERE / 'part_a/build621/part_a_receipt.json'
+PART_A_SHA = '7b54bfb65affac6704a1207d907bec0ed489871a38a74c189f763039fe6fea39'
+MPI_ROW = re.compile(r'\bFP2_A MPI_BUILD (?P<fields>.*)$')
+SURFACE = re.compile(r'\bNATIVE3D_LOCAL_SURFACE (?P<fields>.*)$')
+SAME = ('splits', 'total_owned_faces', 'faces', 'points', 'traces', 'revision', 'snapshot_bytes')
+NUMBERS = (*SAME, 'input_cells', 'output_cells', 'owned_faces', 'peak_rss')
+
+
+def rank_inputs(lab1, ranks):
+    config = lab1[0]
+    assert ranks in RANKS and config.count(RANK_LINE) == 1
+    return (config.replace(RANK_LINE, f'ADAP_NATIVE_RANKS= {ranks}\n'.encode(), 1), *lab1[1:])
+
+
+def read_rows(log, pattern):
+    return [dict(a.FIELD.findall(match['fields'])) for line in log.splitlines(keepends=True)
+            if line.endswith('\n') and (match := pattern.search(line.rstrip('\r\n')))]
+
+
+def compare_build(rank_logs, ranks, input_cells):
+    rank_data = {}
+    for rank, log in sorted(rank_logs.items()):
+        rows = read_rows(log, MPI_ROW)
+        surface = read_rows(log, SURFACE)
+        rank_data[str(rank)] = {'build': rows, 'passes': surface}
+    result = {'ranks': ranks, 'by_rank': rank_data, 'passed': False}
+
+    def fail(reason):
+        return {**result, 'first_difference': reason}
+
+    if set(rank_logs) != set(range(ranks)):
+        return fail({'rank_streams': sorted(rank_logs), 'expected': list(range(ranks))})
+    counts = []
+    for rank, data in rank_data.items():
+        if len(data['build']) != 1:
+            return fail({'rank': rank, 'MPI_BUILD_rows': len(data['build']), 'expected': 1})
+        row = data['build'][0]
+        if row.get('rank') != rank or row.get('ranks') != str(ranks) or row.get('snapshot_equal') != '1':
+            return fail({'rank': rank, 'build_row': row})
+        missing = [key for key in NUMBERS if not row.get(key, '').isdecimal()]
+        if missing:
+            return fail({'rank': rank, 'missing_integer_fields': missing})
+        counts.append({key: int(row[key]) for key in NUMBERS})
+        passes = [row['pass'] for row in data['passes']
+                  if row.get('rank') == rank and row.get('stage') == '0' and row.get('applicable') == '1'
+                  and 'pass' in row]
+        if passes != ['1', '2']:
+            return fail({'rank': rank, 'surface_passes': passes, 'expected': ['1', '2']})
+    reference = counts[0]
+    for rank, row in enumerate(counts):
+        difference = next((key for key in SAME if row[key] != reference[key]), None)
+        if difference:
+            return fail({'rank': rank, 'field': difference, 'observed': row[difference],
+                         'expected': reference[difference]})
+    for observed, expected, label in (
+        (sum(row['input_cells'] for row in counts), input_cells, 'input_cells'),
+        (sum(row['owned_faces'] for row in counts), reference['faces'], 'owned_faces_sum'),
+        (reference['total_owned_faces'], reference['faces'], 'total_owned_faces'),
+    ):
+        if observed != expected:
+            return fail({'field': label, 'observed': observed, 'expected': expected})
+    if reference['splits'] <= 0 or reference['snapshot_bytes'] <= 0:
+        return fail({'splits': reference['splits'], 'snapshot_bytes': reference['snapshot_bytes']})
+    peak = sum(row['peak_rss'] for row in counts)
+    limit = a.MEMORY * 1024
+    result.update(job_peak_rss_bytes=peak, job_peak_limit_bytes=limit)
+    if not all(row['peak_rss'] > 0 for row in counts) or peak > limit:
+        return fail({'field': 'job_peak_rss_bytes', 'observed': peak, 'maximum': limit})
+    return {**result, 'passed': True, 'state': {key: reference[key] for key in SAME},
+            'output_cells_sum': sum(row['output_cells'] for row in counts)}
+
+
+def run(build, output, verify_only):
+    status_path, manifest = build / 'build_status.json', build / 'source_pins.json'
+    status = a.cut.read(status_path)
+    binary, source_hash = a.verify_build(status, manifest)
+    assert not status['new_warnings']
+    header = a.cut.REPO / 'Common/include/adaptation/CNativeLocalSurface3D.hpp'
+    assert a.cut.read(manifest)[str(header)] == a.sha(header)
+    baseline = subprocess.check_output(['git', 'show', f'{a.BASE}:{a.NRR}'], cwd=a.cut.REPO)
+    assert (a.cut.REPO / a.NRR).read_bytes() == baseline, 'Part B changed the NRR call path.'
+    original, _, pins, _, lab1, parity = a.evidence_inputs()
+    assert a.cut.read(PART_A)['passed']
+    pins.update({str(status_path): a.sha(status_path), str(manifest): source_hash,
+                 str(binary): status['test_binary_sha256'], str(Path(__file__).resolve()): a.sha(Path(__file__)),
+                 str(PART_A): PART_A_SHA})
+    original['verify'](pins)
+    output = output or a.HERE / 'part_b' / f"build{status['build']}"
+    if verify_only:
+        return {'verified': True, 'launched': False, 'build': status['build'], 'output': str(output),
+                'selectors': (EXCHANGE, BUILD), 'ranks': RANKS}
+
+    assert Path('/proc/1/comm').read_text().strip() == 'systemd'
+    assert status['wait']['terminal'] and a.cut.terminal(status['wait']['controller'])
+    for key in tuple(os.environ):
+        if key.startswith(('SU2_NATIVE_', 'SU2_FP2_', 'SU2_FP1_')):
+            del os.environ[key]
+    prov = {'build': status['build'], 'test_binary_sha256': status['test_binary_sha256'],
+            'source_pins_sha256': source_hash, 'output': str(output), 'pins': pins}
+    results = {}
+    for ranks in RANKS:
+        a.fixture(output / f'exchange/rank{ranks}', binary, ranks, EXCHANGE, {}, prov)
+        case = output / f'build/rank{ranks}'
+        case.mkdir(parents=True, exist_ok=True)
+        cfg, sensor, bound = original['prepare'](case, rank_inputs(lab1, ranks), pins)
+        env = {'SU2_NATIVE_FROZEN_CONFIG': str(cfg), 'SU2_NATIVE_FROZEN_SENSOR3D': str(sensor)}
+        run_result = a.fixture(case, binary, ranks, BUILD, env, {**prov, 'pins': bound})
+        rank_logs = {}
+        for name, digest in run_result['artifacts'].items():
+            path = case / name
+            if path.name != 'stdout':
+                continue
+            rank = int(path.parent.name.rsplit('.', 1)[1])
+            assert rank not in rank_logs and a.sha(path) == digest, path
+            rank_logs[rank] = path.read_text(errors='replace')
+        state = compare_build(rank_logs, ranks, lab1[-1]['cells'])
+        a.sealed(case / 'state_comparison.json', state)
+        assert state['passed'], state['first_difference']
+        original['verify'](bound)
+        results[str(ranks)] = state
+
+    fixtures = []
+    for tag, cohorts in a.FIXTURES.items():
+        for ranks, selector in cohorts:
+            env = {'SU2_FP1_G_OWNED_BASELINE': parity} if tag == 'H' else {}
+            case = output / f'FP1/{tag}/rank{ranks}'
+            a.fixture(case, binary, ranks, selector, env, prov)
+            fixtures.append(str(case / 'fixture_status.json'))
+    assert len(fixtures) == 18
+    g1 = output / 'G1'
+    subprocess.run([a.cut.PYTHON, '-B', str(a.FP1 / 'run_g1.py'), str(g1), str(status_path), str(manifest)],
+                   cwd=a.cut.REPO, check=True)
+    counts = {}
+    for cohort, count in zip(('serial', 'mpi2', 'mpi4'), (375, 114, 228), strict=True):
+        row = a.cut.read(g1 / cohort / 'comparison.json')
+        assert row['identity_pass'] and row['records'] == count
+        counts[cohort] = count
+    original['verify'](pins)
+    assert a.verify_build(status, manifest) == (binary, source_hash)
+    path = output / 'part_b_receipt.json'
+    a.sealed(path, {**prov, 'passed': True, 'NRR_matches_base': a.BASE, 'state_comparisons': results,
+                    'fp1_fixture_receipts': fixtures, 'G1': counts})
+    return {'passed': True, 'build': status['build'], 'receipt': str(path), 'G1': counts}
+
+
+def self_check():
+    def log(rank):
+        rows = ''.join(f'NATIVE3D_LOCAL_SURFACE rank={rank} stage=0 pass={p} applicable=1\n' for p in (1, 2))
+        return rows + (f'FP2_A MPI_BUILD rank={rank} ranks=2 input_cells=4 output_cells=6 splits=20 '
+                       'owned_faces=10 total_owned_faces=20 faces=20 points=12 traces=0 revision=3 '
+                       'snapshot_bytes=42 snapshot_equal=1 peak_rss=100\n')
+
+    logs = {rank: log(rank) for rank in range(2)}
+    assert compare_build(logs, 2, 8)['passed']
+    assert not compare_build(logs, 2, 9)['passed']
+    assert not compare_build({**logs, 1: logs[1].replace('snapshot_equal=1', 'snapshot_equal=0')}, 2, 8)['passed']
+    assert not compare_build({**logs, 1: logs[1].replace('owned_faces=10', 'owned_faces=9')}, 2, 8)['passed']
+    _, _, _, _, lab, _ = a.evidence_inputs()
+    for ranks in RANKS:
+        assert rank_inputs(lab, ranks)[0].replace(f'ADAP_NATIVE_RANKS= {ranks}\n'.encode(), RANK_LINE) == lab[0]
+
+
+if __name__ == '__main__':
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument('build', nargs='?', type=Path)
+    parser.add_argument('--output', type=Path)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--verify-only', action='store_true')
+    group.add_argument('--self-check', action='store_true')
+    args = parser.parse_args()
+    if args.self_check:
+        self_check()
+        print('Part B rank configuration and receipt checks passed.')
+    elif args.build:
+        print(json.dumps(run(args.build.resolve(), args.output.resolve() if args.output else None, args.verify_only),
+                         indent=2))
+    else:
+        parser.error('supply the pinned build directory or --self-check')

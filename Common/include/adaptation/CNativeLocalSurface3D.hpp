@@ -71,9 +71,11 @@ class StateSurfaceGeometry final : public SurfaceGeometry {
   bool OnEntity(const SurfaceFace&, const BoundaryPoint&) override;
   void Accept(SurfacePlacement&&) override;
   const BoundaryPoint* Find(Id) const;
+  const SU2NativeGeometry::EdgeTrace* FindTrace(const SurfaceEdge&) const;
   size_t ResidentBytes() const;
   void SetCallerBytes(size_t);
   size_t Splits() const;
+  void Exchange(World&, MemoryBudget&, size_t caller);
   const SU2Native3D::BoundaryParameterState& State() const;
   SurfaceEdits GatherEdits(const std::vector<SurfaceFace>&) const;
 
@@ -83,7 +85,8 @@ class StateSurfaceGeometry final : public SurfaceGeometry {
 };
 
 size_t SurfaceAtlasIntegerBits();
-SurfaceStateResult BuildSurfaceState(const StateSurfaceGeometry&, const SurfaceEdits&, size_t ceiling, size_t caller);
+SurfaceStateResult BuildSurfaceState(const StateSurfaceGeometry&, const SurfaceEdits&, size_t ceiling, size_t caller,
+                                     bool report = true);
 SurfaceStateResult BuildSurfaceState(World&, const Owned&, const StateSurfaceGeometry&, MemoryBudget&, size_t caller,
                                      bool report = true);
 }  // namespace SU2NativeLocal3D
