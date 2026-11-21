@@ -1078,3 +1078,7 @@ FP2-A build627 G4 passed the 1-, 2- and 4-rank cohorts in 36.556 s. Running the 
 FP2-A build627 merit481 saved-state safeguard passed in 121.675 s. The saved481 and saved_current repeats remain.
 
 FP2-A build627 §11.2.2 complete. Saved481 and saved_current passed in 143.906 / 144.107 s. G2/GQ, G3/G4 and all three saved-state safeguards passed and the scoped controller is terminal. Starting the fresh same-binary §11.2.3 OFF workflow.
+
+FP2-A build627 scoped default evidence pushed as f88fbc758d. Part C production sources remain pinned and uncommitted during G5. The build627 OFF runner is active.
+
+FP2-A Correction 4 received during build627 G5 OFF. Copied, fully read and verified SHA256 43b828333e7bcd4db85445de7ee94b660785a8aab485ac509140536637a2b3dd. Re-evaluation of the sealed receipts found K1 pass sums 84,118 / 84,174 and K3 sums 84,124 / 84,184 against 126,153. Max star 168 and max distance sweeps 14 in both, K3 max rank pass 26.570 s. K1 and K3 count as ended, K2 retained. The prior Correction 3 stop remains historical. No rank rerun or production change. Current OFF continues under its pinned script, then CORE, S1 and S2 on build627.
