@@ -1,0 +1,33 @@
+{
+  "state": "terminal",
+  "passed": true,
+  "build": 621,
+  "exit_code": 0,
+  "pins_verified": true,
+  "changed": [],
+  "source_pins_sha256": "30830e9ee3e674e2f5ae87ea87c80a10758917ecbc0bd62177d4d228eb73636c",
+  "graph_after": {
+    "build.ninja": "32f55d26ad5db9fa073466ee0ac67a7b3a13c3d2bfcefc0c119241b2f8dd9714",
+    "compile_commands.json": "bd2526e820ddf7c36f662744ba54cd4b33c7e8cfa0600eda2ae5a5d573ff68aa"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "1cee0e6798fdefc01f1c9d72144acf86075739e90ad8b9f3494f8a7dcd1f85d5",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "b13ef7a054046b37d9a05e5a13017840a15dcec2b694015f2bd42110c724f6e2",
+  "warnings": [
+    "WARNING: CMake Toolchain: Failed to determine CMake compilers state",
+    "../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.",
+    "WARNING: Deprecated features used:"
+  ],
+  "new_warnings": [],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 3892244,
+      "start_ticks": 74990803
+    },
+    "returncode": 0,
+    "elapsed_seconds": 41.8917350769043,
+    "terminal": true
+  }
+}

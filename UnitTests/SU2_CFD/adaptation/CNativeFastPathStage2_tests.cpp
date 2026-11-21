@@ -9,8 +9,10 @@
 #include "../../../Common/include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../../Common/include/adaptation/CNativeCurvedReference.hpp"
 #include "../../../Common/include/adaptation/CNativeGeometryBackend3D.hpp"
+#include "../../../Common/include/adaptation/CNativeLocalSurface3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
+#include "fixtures/native_fast_path_stage2_setup.hpp"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -41,10 +43,11 @@
 
 namespace {
 using namespace SU2Native3D;
+namespace local = SU2NativeLocal3D;
 using State = BoundaryParameterState;
 using Clock = std::chrono::steady_clock;
 using Triangle = std::array<BoundaryPoint, 3>;
-constexpr double Tol = 1e-4;
+constexpr double Tol = native_fp2_fixture::Tolerance;
 constexpr size_t Ceiling = size_t{12288} << 20;
 
 double Seconds(Clock::time_point start) { return std::chrono::duration<double>(Clock::now() - start).count(); }
@@ -89,24 +92,7 @@ Triangle GetTriangle(const BoundaryPoints& points, const SurfaceFace& face) {
 }
 
 SU2NativeGeometry::AtlasBudget Fp2Budget(size_t cells, size_t caller, Clock::time_point start, double seconds) {
-  using SU2NativeGeometry::CurvedAtlasWorkspaceBytes;
-  constexpr size_t scratch = size_t{16} << 20;
-  size_t low = 0, high = scratch * 8;
-  while (low < high) {
-    const size_t middle = low + (high - low + 1) / 2;
-    if (2 * CurvedAtlasWorkspaceBytes(middle) <= scratch / 2)
-      low = middle;
-    else
-      high = middle - 1;
-  }
-  SU2NativeGeometry::AtlasBudget budget;
-  budget.maximum_work =
-      (cells + std::max(size_t{4096}, cells * 64)) * SU2NativeGeometry::MappedFacetReference::ClearanceWork;
-  budget.maximum_bytes = Ceiling;
-  budget.maximum_integer_bits = low;
-  budget.caller_bytes = caller;
-  budget.within_time = [start, seconds] { return Seconds(start) < seconds; };
-  return budget;
+  return native_fp2_fixture::Budget(cells, caller, start, seconds, Ceiling);
 }
 
 struct EntityCounts {
@@ -174,25 +160,12 @@ ReferenceState LoadSurface(bool output) {
 
 void PrepareInput(ReferenceState& reference) {
   const auto start = Clock::now();
-  const auto& state = *reference.original->Parameters();
   REQUIRE((reference.marker_names == std::vector<std::string>{"FARFIELD", "SYMMETRY", "WING3D"}));
-  REQUIRE(state.Mobility().identity == 0);
-  const size_t baseline = reference.original->ResidentBytes();
-  if (baseline >= Ceiling) throw std::length_error("Curved mobility setup exceeds storage admission.");
-  SU2NativeGeometry::AtlasBudget budget;
-  budget.maximum_bytes = Ceiling;
-  budget.caller_bytes = baseline;
-  budget.maximum_integer_bits = transfer_memory::Mul(Ceiling - baseline, 8);
-  budget.maximum_work = transfer_memory::Mul(
-      transfer_memory::Add(state.Geometry().Reference().Facets().size(), state.Surface().size()),
-      SU2NativeGeometry::MappedFacetReference::ClearanceWork);
-  if (budget.maximum_work == SIZE_MAX || budget.maximum_integer_bits == SIZE_MAX)
-    throw std::length_error("Curved mobility setup reservation overflows.");
-  auto mobility = state.WithMobilityPolicy(60, {{0, 2}, {1, 0}, {2, 2}}, budget, Ceiling, baseline);
-  auto entity = mobility->WithEntityGeometry(Tol, budget, Ceiling, transfer_memory::Add(baseline, mobility->ResidentBytes()));
-  reference.original = reference.original->WithParameterState(entity);
+  REQUIRE(reference.original->Parameters()->Mobility().identity == 0);
+  const auto budget = native_fp2_fixture::PrepareIN1(reference, Ceiling);
+  const auto* entity = reference.original->Parameters();
   Output("IN1_setup");
-  std::cout << "\"seconds\":" << Seconds(start) << ",\"caller_bytes\":" << baseline
+  std::cout << "\"seconds\":" << Seconds(start) << ",\"caller_bytes\":" << budget.caller_bytes
             << ",\"modeled_peak_bytes\":" << budget.peak_bytes << ",\"work\":" << budget.work
             << ",\"protected_edges\":" << entity->Mobility().features.size()
             << ",\"traces\":" << entity->Coverage().traces.size() << '}' << std::endl;
@@ -290,6 +263,11 @@ TEST_CASE("FP2-0 input surface split and strict proof", "[.][NativeFastPathStage
   } catch (const std::exception& error) {
     ReportError("P", start, error);
   }
+}
+
+TEST_CASE("FP2-A production surface geometry on IN1", "[.][NativeFastPathStage2Surface]") {
+  auto reference = LoadSurface(false);
+  CheckProductionSurface(reference);
 }
 
 #if defined(__GNUC__) && !defined(__clang__)

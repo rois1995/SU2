@@ -39,6 +39,9 @@ constexpr double ShortEdge = SU2Native3D::CoarseningMetricEdge;
 constexpr double BadMargin = 1 + 1e-12;
 constexpr unsigned PassCount = 2;
 
+Face OrientedFace(Vertices vertices, unsigned face);
+class SurfaceGeometry;
+
 struct CoreOptions {
   bool memory = true;
   bool shape_test = true;
@@ -47,6 +50,7 @@ struct CoreOptions {
   bool work_list = true;
   bool split_progress = true;
   double short_edge = ShortEdge;
+  bool surface_splits = false;
 };
 
 struct PointRow {
@@ -75,6 +79,9 @@ struct EdgeUse {
 };
 
 enum class Refusal { None, Ineligible, Validity, Size, Topology, Memory, Numeric, Shape, Blocked };
+enum class SurfaceRefusal {
+  None, Border, Ineligible, Walk, Protected, Feature, Trace, Duplicate, Outward, Size, Validity, Topology, Memory, Entity
+};
 
 bool SampleMovedTensor(const std::vector<DonorCell>& donors, Point point, Tensor& tensor);
 bool SampleMovedTensorFloat(const std::vector<DonorCell>& donors, Point point, Tensor& tensor, size_t* chosen = nullptr);
@@ -99,7 +106,23 @@ struct SweepRow {
 
 void PrintSweepFields(std::ostream& output, const SweepRow& row);
 
+struct SurfaceCounters {
+  size_t faces_in = 0, faces_out = 0, points_in = 0, points_out = 0;
+  size_t splits_length = 0, splits_distance = 0, splits_feature = 0, sweeps_length = 0, sweeps_distance = 0;
+  size_t left_long = 0, left_border = 0, left_distance = 0, left_all_feature = 0, left_refused = 0, left_limit = 0;
+  size_t feature_dominated = 0, chord_unknown = 0, samples = 0, samples_unconverged = 0;
+  size_t refused_walk = 0, refused_protected = 0, refused_feature = 0, refused_trace = 0, refused_duplicate = 0;
+  size_t refused_outward = 0, refused_size = 0, refused_valid = 0, refused_topology = 0, refused_memory = 0;
+  size_t refused_entity = 0;
+  double outward_max = 0, seconds_length = 0, seconds_distance = 0, seconds_samples = 0, seconds_place = 0;
+  double seconds_entity = 0;
+  std::string first_feature_reason, first_trace_reason;
+};
+
+void PrintSurfaceFields(std::ostream&, const SurfaceCounters&);
+
 struct PassStats : SweepCounters {
+  SurfaceCounters surface;
   size_t cells_in = 0, cells_out = 0, points_in = 0, points_out = 0;
   size_t surface_points = 0, border_points = 0, wall_near_points = 0;
   double seconds_build = 0, seconds_collapse = 0, seconds_split = 0, seconds_quality = 0, seconds_check = 0,
@@ -193,6 +216,9 @@ class Mesh {
   Refusal ReplaceCells(const std::vector<Slot>& old, const std::vector<Vertices>& fresh, uint32_t stamp);
   Refusal Collapse(Edge edge, uint32_t stamp, PassStats& stats, bool apply = true);
   Refusal Split(Edge edge, Slot seed, IdSequence& point_ids, uint32_t stamp, size_t cell_limit, PassStats& stats);
+  SurfaceRefusal SplitSurface(Edge edge, Slot seed, SurfaceGeometry& geometry, IdSequence& point_ids,
+                              uint32_t stamp, size_t cell_limit, SurfaceCounters& stats, bool progress_test,
+                              bool report = true);
   Refusal RemoveEdge(Edge edge, Slot seed, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal SwapFace(Slot cell, unsigned face, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& stats, bool* exact_refusal = nullptr);
@@ -200,13 +226,25 @@ class Mesh {
   size_t CollapseSweeps(PassStats& stats);
   void LengthWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void QualityWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
-  PassStats RunPass(IdSequence& point_ids, size_t cell_limit, bool report, CoreOptions options = {});
-  PassStats RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stats, CoreOptions options = {});
+  PassStats RunPass(IdSequence& point_ids, size_t cell_limit, bool report, CoreOptions options = {},
+                    SurfaceGeometry* surface = nullptr);
+  PassStats RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stats, CoreOptions options = {},
+                    SurfaceGeometry* surface = nullptr);
 
   static size_t ArrayBytes(size_t cells);
   static const size_t BytesPerCell;
 
  private:
+  friend struct SurfaceFixtureAccess;
+  struct PhysicalFace {
+    Slot cell;
+    unsigned face;
+  };
+  struct ReplacedFace {
+    Slot cell;
+    unsigned face;
+    Slot a, b, m;
+  };
   struct Ring {
     std::vector<Slot> cells;
     bool surface = false, border = false;
@@ -245,12 +283,14 @@ class Mesh {
   std::array<Id, 4> Key(Vertices vertices) const;
   std::vector<Slot> Star(Slot point) const;
   Ring EdgeRing(Edge edge, Slot seed) const;
+  std::vector<PhysicalFace> SurfaceParents(Edge edge, const Ring& ring) const;
   std::vector<Slot> OrderedRim(Edge edge, const Ring& ring) const;
   bool CanCollapse(Slot point) const;
   bool Fits(size_t old, size_t fresh, size_t cell_limit) const;
   double Worst(const std::vector<Slot>& cells) const;
 
-  Plan Prepare(const std::vector<Slot>& old, const std::vector<Vertices>& fresh) const;
+  Plan Prepare(const std::vector<Slot>& old, const std::vector<Vertices>& fresh,
+               const std::vector<ReplacedFace>& replaced = {}) const;
   Plan CollapsePlan(Slot remove, Slot keep) const;
   Plan RemoveEdgePlan(Edge edge, Slot seed, size_t cell_limit) const;
   Plan SwapFacePlan(Slot cell, unsigned face, size_t cell_limit) const;
@@ -258,6 +298,12 @@ class Mesh {
   void MarkChanged(CellRow& row, uint32_t stamp);
   int32_t SaveBindings(const std::array<FacetBinding, 4>& binding);
   size_t SplitSweeps(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
+  std::vector<PhysicalFace> PhysicalFaces() const;
+  SU2Native3D::SurfaceFace SurfaceFaceAt(PhysicalFace face) const;
+  void SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
+  void SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
+  void SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
+  void MarkUnresolved();
   bool QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void ReportResult(PassStats& stats) const;
   void RememberWorkPoints(const Plan& plan);

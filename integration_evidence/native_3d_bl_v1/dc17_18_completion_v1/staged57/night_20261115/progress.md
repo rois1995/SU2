@@ -946,3 +946,23 @@ FP2-0b build620 Run A is terminal and sealed. P4 accepted all four entities, wit
 FP2-0b build620 G1 serial matched 375 adopted case records in 753.158 s. Running the two MPI cohorts sequentially.
 
 FP2-0b closed on test-only build620. G1 matched 375 / 114 / 228 adopted case records in 753.158 / 9.954 / 10.820 s. P3 accepted PA and P4 accepted all four entities. The report and ledgers are complete. All five owned controllers and three supervisors are terminal.
+
+FP2-A. Verified input SHA256 and read complete order. Confirmed prior owned controllers terminal. Completed one whole-item R4 source check on abc9450b86. Part A implementation and test fixtures next.
+
+FP2-A part A. Implemented the dormant surface split core and one-rank state builder. Starting build621 with unit-test target only.
+
+FP2-A part A build621 passed in 41.892 s without new warning. Starting serial box, IN1, LAB-S, then qualified FP1 fixture and G1 selectors.
+
+FP2-A part A build621 box and cylinder passed all 615 assertions across 3 cases. Checking pinned IN1 with production geometry.
+
+FP2-A part A build621 IN1 passed in 76.611 s. The validating constructor accepted 84,086 faces, 42,045 points and 731 traces after 17,566 splits. Running LAB-S on the saved volume.
+
+FP2-A part A build621 LAB-S accepted 16,201 surface splits (56 feature), validated 469,411 exact-positive cells and rebuilt the 81,356-face state. Zero outward or validity refusals. Proof and full Classify census running.
+
+FP2-A part A build621 LAB-S passed in 274.368 s. All 469,411 cells exact-positive, 81,356 final faces classified with zero above tol, both proof directions accepted for all four entities. Inherited FP1 and G1 checks running.
+
+FP2-A part A build621 all 18 pinned FP1 fixture cohorts passed. G1 serial has started.
+
+FP2-A part A build621 G1 serial matched 375 adopted records in 754.401 s. The two MPI cohorts follow.
+
+FP2-A part A PASSED on build621. All 18 FP1 cohorts and G1 375 / 114 / 228 matched. Ready to checkpoint Part A, then begin the worker exchange and state build.

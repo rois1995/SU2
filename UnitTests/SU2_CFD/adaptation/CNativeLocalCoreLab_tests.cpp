@@ -7,8 +7,11 @@
 #include "TransferTestCase.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalCore3D.hpp"
+#include "../../../Common/include/adaptation/CNativeLocalSurface3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
+#include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
+#include "fixtures/native_fast_path_stage2_setup.hpp"
 
 #include <algorithm>
 #include <array>
@@ -18,6 +21,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -69,7 +73,7 @@ struct LabInput {
   Id point_base, cell_base;
 };
 
-LabInput LoadMesh() {
+LabInput LoadMesh(ReferenceState* kept = nullptr) {
   REQUIRE(SU2_MPI::GetSize() == 1);
   const char* config = std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const char* sensor = std::getenv("SU2_NATIVE_FROZEN_SENSOR3D");
@@ -105,6 +109,7 @@ LabInput LoadMesh() {
   for (const auto& row : imported.cells) visit(row.second.cell);
   for (const auto& donor : imported.original) visit(donor.cell);
   driver.Finalize();
+  if (kept) *kept = std::move(reference);
   return {std::move(imported.cells), ceiling, point_base, cell_base};
 }
 
@@ -190,6 +195,73 @@ void ReportStrict(const Owned& owned) {
             << " long_cells=" << long_cells << " seconds=" << Seconds(start) << std::endl;
   REQUIRE(measured == owned.size());
 }
+
+struct LabEntityCensus {
+  size_t faces = 0, above = 0;
+};
+
+LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2NativeGeometry::AtlasBudget& budget) {
+  LabEntityCensus census;
+  for (const auto& [key, face] : state.Surface()) {
+    (void)key;
+    std::array<SU2NativeGeometry::SurfaceBinding, 3> bindings;
+    std::array<Point, 3> points;
+    for (size_t k = 0; k < 3; ++k) {
+      const auto& point = state.Records().at(face.v[k]).point;
+      bindings[k] = point.binding;
+      points[k] = point.node.p;
+    }
+    const double bound = state.EntityFaceError(face.facet, bindings, points, &budget,
+                                               SU2NativeGeometry::SurfaceQueryNeed::Classify());
+    census.above += bound > state.GeometryTolerance();
+    ++census.faces;
+  }
+  return census;
+}
+
+void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t ceiling, size_t caller,
+                     Clock::time_point deadline_start) {
+  auto budget = native_fp2_fixture::Budget(cells, caller, deadline_start, 5400, ceiling);
+  std::vector<SurfaceFace> faces;
+  faces.reserve(state.Surface().size());
+  for (const auto& row : state.Surface()) faces.push_back(row.second);
+  std::set<BoundaryParameterState::EntityKey> keys;
+  for (const auto& row : state.Geometry().Reference().Facets()) keys.insert(state.Entity(row.first));
+
+  const auto reverse_start = Clock::now();
+  const auto reverse = state.OwnedFaceReverseBounds(faces, budget);
+  const auto reverse_seconds = Seconds(reverse_start);
+  const auto forward_start = Clock::now();
+  const auto& forward = state.GeometryCertificates(budget, false);
+  const auto forward_seconds = Seconds(forward_start);
+  REQUIRE(reverse.size() == keys.size());
+  REQUIRE(forward.size() == keys.size());
+  REQUIRE_FALSE(keys.empty());
+  bool accepted = state.ReverseProofComplete(reverse);
+  const auto tolerance = state.GeometryTolerance();
+  size_t i = 0;
+  for (const auto& key : keys) {
+    const auto& [body, sheet, marker] = key;
+    const auto mesh_to_model = reverse[i++];
+    const auto& certificate = forward.at(key);
+    const auto model_to_mesh = certificate.model_to_mesh;
+    const bool valid = !certificate.outside_tolerance && mesh_to_model >= 0 && mesh_to_model <= tolerance &&
+                       model_to_mesh >= 0 && model_to_mesh <= tolerance;
+    std::cout << "FP2_A LAB_S_ENTITY body=" << body << " sheet=" << sheet << " marker=" << marker
+              << " mesh_to_model=" << mesh_to_model << " model_to_mesh=" << model_to_mesh
+              << " accepted=" << valid << std::endl;
+    accepted &= valid;
+  }
+  const auto classify_start = Clock::now();
+  const auto census = ClassifyLabSurface(state, budget);
+  std::cout << "FP2_A LAB_S_PROOF entities=" << keys.size() << " classified=" << census.faces
+            << " classify_above_tol=" << census.above << " accepted=" << accepted
+            << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
+            << " seconds_classify=" << Seconds(classify_start) << " work=" << budget.work
+            << " modeled_peak=" << budget.peak_bytes << std::endl;
+  REQUIRE(census.faces == state.Surface().size());
+  REQUIRE(accepted);
+}
 }  // namespace
 
 TEST_CASE("FP1 local-core lab on frozen M6 inputs", "[.][NativeLocalCoreLab]") {
@@ -241,4 +313,82 @@ TEST_CASE("FP1 local-core lab on frozen M6 inputs", "[.][NativeLocalCoreLab]") {
   ReportExact(input.cells);
   ReportMesh("after", mesh, options.short_edge);
   ReportStrict(input.cells);
+}
+
+TEST_CASE("FP2-A LAB-S on the frozen M6 event 1 volume", "[.][NativeLocalCoreSurfaceLab]") {
+  const auto start = Clock::now();
+  ReferenceState reference;
+  auto input = LoadMesh(&reference);
+  const auto load_seconds = Seconds(start);
+  REQUIRE(input.cells.size() == 303359);
+  REQUIRE((reference.marker_names == std::vector<std::string>{"FARFIELD", "SYMMETRY", "WING3D"}));
+  REQUIRE(reference.original->Parameters()->Mobility().identity == 0);
+  REQUIRE_FALSE(reference.original->Parameters()->EntityGeometry());
+  const auto setup_start = Clock::now();
+  const auto owned_bytes = OwnedStorageBytes(input.cells);
+  native_fp2_fixture::PrepareIN1(reference, input.ceiling, owned_bytes);
+  const auto setup_seconds = Seconds(setup_start);
+  const auto* before = reference.original->Parameters();
+  REQUIRE(before->Surface().size() == 48954);
+  REQUIRE(before->Records().size() == 24479);
+
+  const auto reference_bytes = reference.original->ResidentBytes();
+  const auto main_caller = transfer_memory::Add(reference_bytes, owned_bytes);
+  const auto mesh_bytes = local::Mesh::ArrayBytes(input.cells.size());
+  const auto geometry_caller = transfer_memory::Add(main_caller, mesh_bytes);
+  auto budget = native_fp2_fixture::Budget(input.cells.size(), geometry_caller, start, 5400, input.ceiling);
+  local::StateSurfaceGeometry surface(reference.original, std::move(budget));
+  const auto baseline = transfer_memory::Add(reference_bytes, surface.ResidentBytes());
+  constexpr auto owned_row_bytes = sizeof(Owned::value_type) + 4 * sizeof(void*);
+  World world;
+  local::MemoryBudget memory{input.ceiling, reference_bytes, owned_row_bytes};
+  memory.Require(world, transfer_memory::Add(baseline, owned_bytes, mesh_bytes), "FP2-A LAB-S initial core admission.");
+  const auto cell_limit = (input.ceiling - baseline) / (owned_row_bytes + local::Mesh::BytesPerCell);
+  auto options = Variant("V2");
+  options.surface_splits = true;
+  local::IdSequence point_ids(input.point_base), cell_ids(input.cell_base);
+  local::PassStats stats;
+  double build_seconds = 0, pass_seconds = 0, write_seconds = 0;
+  {
+    const auto build_start = Clock::now();
+    local::Mesh mesh(input.cells, false, options);
+    build_seconds = Seconds(build_start);
+    const auto pass_start = Clock::now();
+    stats = mesh.RunPass(point_ids, cell_limit, true, options, &surface);
+    pass_seconds = Seconds(pass_start);
+    std::cout << std::setprecision(17) << "NATIVE3D_LOCAL_SURFACE rank=0 stage=0 pass=1 applicable=1";
+    local::PrintSurfaceFields(std::cout, stats.surface);
+    std::cout << std::endl;
+    const auto write_start = Clock::now();
+    mesh.WriteBack(input.cells, cell_ids);
+    write_seconds = Seconds(write_start);
+  }
+  std::cout << "FP2_A LAB_S cells_in=" << stats.cells_in << " cells_out=" << stats.cells_out
+            << " bad_in=" << stats.bad_in << " bad_out=" << stats.bad_out << " seconds_load=" << load_seconds
+            << " seconds_setup=" << setup_seconds << " seconds_build=" << build_seconds
+            << " seconds_pass=" << pass_seconds << " seconds_write=" << write_seconds << std::endl;
+  const auto exact_start = Clock::now();
+  ReportExact(input.cells);
+  const auto exact_seconds = Seconds(exact_start);
+  const auto caller = transfer_memory::Add(reference_bytes, OwnedStorageBytes(input.cells));
+  const auto rss_before = CurrentRSS3D();
+  const auto result = local::BuildSurfaceState(world, input.cells, surface, memory, caller);
+  const auto rss_after = CurrentRSS3D();
+  REQUIRE(result.state);
+  REQUIRE(result.splits > 0);
+  REQUIRE(result.state->Revision() == before->Revision() + 1);
+  REQUIRE(result.state->Records().size() == before->Records().size() + result.splits);
+  REQUIRE(result.state->Surface().size() == before->Surface().size() + 2 * result.splits);
+  std::cout << "NATIVE3D_LOCAL_SURFACE_STATE rank=0 stage=0 splits_all=" << result.splits
+            << " faces=" << result.state->Surface().size() << " points=" << result.state->Records().size()
+            << " traces=" << result.state->Coverage().traces.size() << " revision=" << result.state->Revision()
+            << " seconds_exchange=0 seconds_gather=" << result.seconds_gather
+            << " seconds_build=" << result.seconds_build << " seconds_check=" << result.seconds_check
+            << " modeled_peak=" << result.modeled_peak << " rss_before=" << rss_before << " rss_after=" << rss_after
+            << std::endl;
+  std::cout << "FP2_A LAB_S_EXACT seconds=" << exact_seconds << std::endl;
+  const auto proof_live =
+      transfer_memory::Add(caller, surface.ResidentBytes(), result.state->ResidentBytes(),
+                           transfer_memory::Mul(result.state->Surface().size(), sizeof(SurfaceFace)));
+  ProveLabSurface(*result.state, stats.cells_in, input.ceiling, proof_live, start);
 }

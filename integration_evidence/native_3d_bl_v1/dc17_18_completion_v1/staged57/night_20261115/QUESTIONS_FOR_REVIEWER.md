@@ -196,3 +196,9 @@ Question: how should trailing-edge and tip failures be counted when the order sp
 Does §1.4's later-pass exclusion reset between L and D? The options were a reset at the step boundary or a run-wide exclusion. Used one run-wide set because §1.5 excludes refused edges from marking in either phase of later scans.
 
 Can P4 seconds be attributed to each entity while retaining the ordered public calls? The choices were aggregate clocks with per-entity bounds or independent timed proofs that change the workload. Used the aggregate clocks and marked per-entity seconds unavailable because the public calls return bounds but expose no per-entity time. Base `0167ad274f`.
+
+### 2026-11-21 — FP2-A R4 fixture access and affine components
+
+For the one-parent test, the options were a test friend across the existing private boundary or widening the production surface split API. Used the fixture friend to call the same Prepare implementation without relaxing the two-parent ring contract.
+
+The FP2-0b float walk directly indexes the cubic net, while supported entity states may have disconnected flat components. The choices were a flat projection over the existing facet vertices or treating a missing net as a failed walk. Used the same affine triangle as the authority for the flat branch, leaving curved iteration and applicability as specified. Base `abc9450b86`.

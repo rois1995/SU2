@@ -12,12 +12,12 @@
 #include <unordered_map>
 
 namespace SU2NativeLocal3D {
-namespace {
 Face OrientedFace(Vertices v, unsigned face) {
   constexpr unsigned order[4][3]{{1, 2, 3}, {0, 3, 2}, {0, 1, 3}, {0, 2, 1}};
   return {v[order[face][0]], v[order[face][1]], v[order[face][2]]};
 }
 
+namespace {
 bool FaceSign(Face v) { return ((v[0] > v[1]) + (v[0] > v[2]) + (v[1] > v[2])) % 2 == 0; }
 
 Face Sorted(Face face) {
@@ -162,7 +162,8 @@ void Mesh::BuildFaces(bool allow_border) {
   }
 }
 
-Mesh::Plan Mesh::Prepare(const std::vector<Slot>& old, const std::vector<Vertices>& fresh) const {
+Mesh::Plan Mesh::Prepare(const std::vector<Slot>& old, const std::vector<Vertices>& fresh,
+                         const std::vector<ReplacedFace>& replaced) const {
   Plan plan;
   plan.refusal = Refusal::Topology;
   if (old.empty() || fresh.empty()) return plan;
@@ -174,7 +175,7 @@ Mesh::Plan Mesh::Prepare(const std::vector<Slot>& old, const std::vector<Vertice
   for (auto slot : old) {
     if (slot >= cells_.size() || !cells_[slot].live) return plan;
     const auto& row = cells_[slot];
-    if (Blocked(row.vertices)) {
+    if (replaced.empty() && Blocked(row.vertices)) {
       plan.refusal = Refusal::Blocked;
       return plan;
     }
@@ -186,6 +187,26 @@ Mesh::Plan Mesh::Prepare(const std::vector<Slot>& old, const std::vector<Vertice
       const auto face = OrientedFace(row.vertices, k);
       const auto reverse = neighbor < 0 ? 0 : ReverseSlot(cells_[neighbor].neighbors, slot);
       if (!outer.emplace(Sorted(face), OuterFace{neighbor, reverse, bindings[k], FaceSign(face)}).second) return plan;
+    }
+  }
+
+  // The four children of the two parents keep the parents' border edges. Match the new cavity's
+  // oriented boundary after replacing both parents, so each child inherits its own parent's binding.
+  for (const auto& edit : replaced) {
+    if (!std::binary_search(old_slots.begin(), old_slots.end(), edit.cell) || edit.face >= 4 ||
+        cells_[edit.cell].neighbors[edit.face] != Physical || edit.a == edit.b)
+      return plan;
+    const auto parent = OrientedFace(cells_[edit.cell].vertices, edit.face);
+    const auto entry = outer.find(Sorted(parent));
+    if (entry == outer.end() || entry->second.cell != Physical || entry->second.sign != FaceSign(parent)) return plan;
+    const auto binding = entry->second.binding;
+    outer.erase(entry);
+    for (auto end : {edit.a, edit.b}) {
+      auto child = parent;
+      const auto vertex = std::find(child.begin(), child.end(), end);
+      if (vertex == child.end()) return plan;
+      *vertex = edit.m;
+      if (!outer.emplace(Sorted(child), OuterFace{Physical, 0, binding, FaceSign(child)}).second) return plan;
     }
   }
 
@@ -341,6 +362,9 @@ void Mesh::Check() const {
       const auto neighbor = row.neighbors[k];
       if (Bindings(slot)[k].present != (neighbor == Physical))
         throw std::runtime_error("Native local core lost a physical binding.");
+      if (neighbor == Physical)
+        for (auto vertex : OrientedFace(row.vertices, k))
+          if (!points_[vertex].surface) throw std::runtime_error("Native local core lost a physical point mark.");
       if (neighbor >= 0) {
         if (static_cast<size_t>(neighbor) >= cells_.size() || !cells_[neighbor].live)
           throw std::runtime_error("Native local core linked a dead cell.");

@@ -162,14 +162,21 @@ bool PassesFold(const State& state, Id facet, const Triangle& triangle) {
 
 class Prototype {
  public:
-  Prototype(const PlanarReference& reference, std::vector<MetricPoint> input, AtlasBudget& budget, bool strict)
-      : reference(reference), state(*reference.Parameters()), walker(state), budget(budget), strict_children(strict),
-        points(std::move(input)), traces(state.Coverage().traces) {
+  Prototype(const PlanarReference& reference, std::vector<MetricPoint> input, AtlasBudget& budget, bool strict,
+            local::StateSurfaceGeometry* surface = nullptr)
+      : reference(reference), state(*reference.Parameters()), budget(budget), strict_children(strict), surface(surface),
+        points(std::move(input)) {
+    if (!surface) {
+      walker.emplace(state);
+      traces = state.Coverage().traces;
+    }
     for (size_t i = 0; i < points.size(); ++i) {
       const auto& point = points[i].point;
       point_ids.emplace(point.node.id, i);
-      coordinates.insert(Coordinate(point.node.p));
-      bindings.insert(Support(point.binding));
+      if (!surface) {
+        coordinates.insert(Coordinate(point.node.p));
+        bindings.insert(Support(point.binding));
+      }
       next_id = std::max(next_id, point.node.id + 1);
     }
     faces.reserve(state.Surface().size());
@@ -216,14 +223,21 @@ class Prototype {
     for (auto& row : faces) {
       if (row.measurement.sample >= 0) continue;
       const auto& face = row.measurement.face;
-      const auto samples = walker.Samples(face, Corners(face));
-      for (size_t i = 0; i < samples.size(); ++i) {
-        if (!std::isfinite(samples[i].distance)) throw std::runtime_error("Float walk produced a nonfinite sample.");
-        row.samples[i] = samples[i].distance;
-        ++stats.samples;
-        stats.unconverged_samples += !samples[i].converged;
-        stats.capped_samples += samples[i].capped;
+      if (surface) {
+        const auto samples = surface->Samples(face);
+        row.samples = samples.distances;
+        stats.unconverged_samples += samples.unconverged;
+      } else {
+        const auto samples = walker->Samples(face, Corners(face));
+        for (size_t i = 0; i < samples.size(); ++i) {
+          row.samples[i] = samples[i].distance;
+          stats.unconverged_samples += !samples[i].converged;
+          stats.capped_samples += samples[i].capped;
+        }
       }
+      if (!std::all_of(row.samples.begin(), row.samples.end(), [](double value) { return std::isfinite(value); }))
+        throw std::runtime_error("Float walk produced a nonfinite sample.");
+      stats.samples += row.samples.size();
       row.measurement.sample = *std::max_element(row.samples.begin(), row.samples.end());
     }
   }
@@ -241,7 +255,7 @@ class Prototype {
       std::vector<std::optional<Edge>> choices;
       if (distance) {
         SampleFaces(stats);
-        MarkFeatures(marks, stats);
+        MarkFeatures(edges, marks, stats);
         if (!Exhausted()) choices = MarkFaces(marks, stats);
       } else {
         for (const auto& [edge, incident] : edges) {
@@ -263,6 +277,13 @@ class Prototype {
     }
     if (distance && !Exhausted()) SampleFaces(totals);
     ReportSplit(distance ? "P_D" : "P_L", step, 0, totals, Seconds(start));
+  }
+
+  std::vector<SurfaceFace> SurfaceFaces() const {
+    std::vector<SurfaceFace> result;
+    result.reserve(faces.size());
+    for (const auto& row : faces) result.push_back(row.measurement.face);
+    return result;
   }
 
   void ReportEntities(const BoundaryPoints& in_points, const std::vector<FaceMeasurement>& in_faces) const {
@@ -364,7 +385,7 @@ class Prototype {
     return result;
   }
 
-  bool Feature(const Edge& edge) const { return traces.count(edge); }
+  bool Feature(const Edge& edge) const { return surface ? surface->Feature(edge) : traces.count(edge) != 0; }
 
   double Length(const Edge& edge) const { return WalkDistance(At(edge[0]).point.node.p, At(edge[1]).point.node.p); }
 
@@ -379,19 +400,27 @@ class Prototype {
     return passed;
   }
 
-  void MarkFeatures(std::map<Edge, Candidate>& marks, SplitStats& stats) {
-    for (const auto& [edge, trace] : traces) {
-      (void)trace;
+  void MarkFeatures(const std::map<Edge, Incident>& edges, std::map<Edge, Candidate>& marks, SplitStats& stats) {
+    for (const auto& [edge, incident] : edges) {
+      (void)incident;
+      if (!Feature(edge)) continue;
       if (refused.count(edge)) continue;
       auto [where, inserted] = chords.try_emplace(edge);
       if (inserted) {
-        const Point query = Midpoint(At(edge[0]).point.node.p, At(edge[1]).point.node.p);
-        BoundaryPoint point;
-        std::string reason;
-        if (Propose(edge, query, point, reason, stats))
-          where->second = WalkDistance(query, point.node.p);
-        else
-          stats.Refuse("feature_chord_unknown", reason);
+        if (surface) {
+          const auto start = Clock::now();
+          where->second = surface->Chord({At(edge[0]).point.node, At(edge[1]).point.node});
+          stats.propose.Record(start);
+          if (!where->second) stats.Refuse("feature_chord_unknown");
+        } else {
+          const Point query = Midpoint(At(edge[0]).point.node.p, At(edge[1]).point.node.p);
+          BoundaryPoint point;
+          std::string reason;
+          if (Propose(edge, query, point, reason, stats))
+            where->second = WalkDistance(query, point.node.p);
+          else
+            stats.Refuse("feature_chord_unknown", reason);
+        }
       }
       if (Exhausted()) break;
       if (where->second && *where->second > SplitTolerance) marks.emplace(edge, Candidate{Length(edge)});
@@ -484,12 +513,12 @@ class Prototype {
       if (first_face.v[k] == edge[1]) second = k;
     }
     try {
-      const auto closest = walker.Run(query, walker.EdgeStart(first_face, corners, first, second, query));
+      const auto closest = walker->Run(query, walker->EdgeStart(first_face, corners, first, second, query));
       if (!closest.converged || closest.capped) {
         stats.Refuse(closest.capped ? "walk_cap" : "walk_nonconvergence");
         return false;
       }
-      point.binding = walker.Binding(closest);
+      point.binding = walker->Binding(closest);
       if (state.Geometry().MobilityDimension(point.binding, state.Mobility()) != 2) {
         stats.Refuse("protected_binding");
         return false;
@@ -541,7 +570,34 @@ class Prototype {
     return false;
   }
 
+  bool SplitWithProductionGeometry(const Edge& edge, const Incident& incident, SplitStats& stats) {
+    const std::array<SurfaceFace, 2> parents{faces[incident[0]].measurement.face, faces[incident[1]].measurement.face};
+    const auto start = Clock::now();
+    auto placement = surface->Place({At(edge[0]).point.node, At(edge[1]).point.node}, parents, next_id);
+    stats.propose.Record(start);
+    if (!placement.Accepted()) {
+      stats.Refuse("production_placement", placement.reason);
+      return false;
+    }
+    const auto children = Children(edge, incident);
+    for (const auto& child : children) {
+      const auto check = Clock::now();
+      const bool valid = surface->OnEntity(child, placement.point);
+      stats.strict.Record(check);
+      if (!valid) {
+        stats.Refuse("strict_entity");
+        return false;
+      }
+    }
+    const auto point = placement.point;
+    surface->Accept(std::move(placement));
+    CommitPoint(edge, incident, children, point);
+    chords.erase(edge);
+    return true;
+  }
+
   bool Split(const Edge& edge, const Incident& incident, bool feature, SplitStats& stats) {
+    if (surface) return SplitWithProductionGeometry(edge, incident, stats);
     const auto& a = At(edge[0]);
     const auto& b = At(edge[1]);
     const auto query = Midpoint(a.point.node.p, b.point.node.p);
@@ -605,32 +661,39 @@ class Prototype {
       }
     }
 
-    const Tensor m{0.5 * (a.tensor.xx + b.tensor.xx), 0.5 * (a.tensor.xy + b.tensor.xy),
-                   0.5 * (a.tensor.xz + b.tensor.xz), 0.5 * (a.tensor.yy + b.tensor.yy),
-                   0.5 * (a.tensor.yz + b.tensor.yz), 0.5 * (a.tensor.zz + b.tensor.zz)};
     bindings.insert(support);
     coordinates.insert(coord);
+    CommitPoint(edge, incident, children, point);
+    if (feature) {
+      traces.erase(edge);
+      chords.erase(edge);
+      traces.insert(rebuilt.extract(EdgeOf(edge[0], point.node.id)));
+      traces.insert(rebuilt.extract(EdgeOf(edge[1], point.node.id)));
+    }
+    return true;
+  }
+
+  void CommitPoint(const Edge& edge, const Incident& incident, const std::array<SurfaceFace, 4>& children,
+                   const BoundaryPoint& point) {
+    const auto& a = At(edge[0]).tensor;
+    const auto& b = At(edge[1]).tensor;
+    const Tensor m{0.5 * (a.xx + b.xx), 0.5 * (a.xy + b.xy), 0.5 * (a.xz + b.xz),
+                   0.5 * (a.yy + b.yy), 0.5 * (a.yz + b.yz), 0.5 * (a.zz + b.zz)};
     point_ids.emplace(next_id, points.size());
     points.push_back({point, m});
     for (size_t i = 0; i < incident.size(); ++i) {
       faces[incident[i]] = NewFace(children[2 * i], false);
       faces.push_back(NewFace(children[2 * i + 1], false));
     }
-    if (feature) {
-      traces.erase(edge);
-      chords.erase(edge);
-      traces.insert(rebuilt.extract(EdgeOf(edge[0], next_id)));
-      traces.insert(rebuilt.extract(EdgeOf(edge[1], next_id)));
-    }
     ++next_id;
-    return true;
   }
 
   const PlanarReference& reference;
   const State& state;
-  Walker walker;
+  std::optional<Walker> walker;
   AtlasBudget& budget;
   bool strict_children;
+  local::StateSurfaceGeometry* surface;
   std::vector<MetricPoint> points;
   std::map<Edge, EdgeTrace> traces;
   std::map<Edge, std::optional<double>> chords;
@@ -675,4 +738,30 @@ void MeasurePrototype(ReferenceState& reference) {
   auto final_faces = mesh.Measurements();
   MeasureStrict(state, in_points, in_faces, final_points, final_faces, !strict);
   MeasureProof(state, final_points, final_faces, mesh.Coverage());
+}
+
+void CheckProductionSurface(ReferenceState& reference) {
+  PrepareInput(reference);
+  const auto& state = *reference.original->Parameters();
+  auto points = ReadSurfaceSensor(state);
+  const auto caller = reference.original->ResidentBytes();
+  auto budget = Fp2Budget(726442, caller, Clock::now(), 5400);
+  local::StateSurfaceGeometry surface(reference.original, budget);
+  Prototype mesh(*reference.original, std::move(points), budget, true, &surface);
+  mesh.Run(false);
+  mesh.Run(true);
+  const auto faces = mesh.SurfaceFaces();
+  const auto edits = surface.GatherEdits(faces);
+  const auto result = local::BuildSurfaceState(surface, edits, Ceiling, caller);
+  REQUIRE(result.state);
+  REQUIRE(result.state->Revision() == state.Revision() + 1);
+  CHECK(result.state->Surface().size() == faces.size());
+  const auto points_out = result.state->Records().size();
+  REQUIRE(points_out > state.Records().size());
+  const auto splits = points_out - state.Records().size();
+  CHECK(faces.size() == state.Surface().size() + 2 * splits);
+  std::cout << "FP2_A IN1_STATE faces=" << faces.size() << " points=" << points_out
+            << " traces=" << result.state->Coverage().traces.size() << " revision=" << result.state->Revision()
+            << " splits=" << splits << " seconds_build=" << result.seconds_build
+            << " modeled_peak=" << result.modeled_peak << std::endl;
 }
