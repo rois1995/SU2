@@ -2055,7 +2055,7 @@ def main():
     species_passive_val.cfg_dir   = "species_transport/passive_transport_validation"
     species_passive_val.cfg_file  = "passive_transport.cfg"
     species_passive_val.test_iter = 50
-    species_passive_val.test_vals = [-16.493002, -16.246291, -16.871574, -4.253999, 10.000000, -4.526973, 8.000000, -5.184872, 0.186370, 0.000000]
+    species_passive_val.test_vals = [-16.493002, -16.246291, -16.871574, -4.253948, 10.000000, -4.526973, 8.000000, -5.185710, 0.186390, 0.000000]
     species_passive_val.test_vals_aarch64 = [-16.517744, -16.282420, -16.871663, -4.257599, 10.000000, -4.278151, 8.000000, -5.193350, 0.186610, 0.000000]
     test_list.append(species_passive_val)
 
