@@ -966,3 +966,37 @@ FP2-A part A build621 all 18 pinned FP1 fixture cohorts passed. G1 serial has st
 FP2-A part A build621 G1 serial matched 375 adopted records in 754.401 s. The two MPI cohorts follow.
 
 FP2-A part A PASSED on build621. All 18 FP1 cohorts and G1 375 / 114 / 228 matched. Ready to checkpoint Part A, then begin the worker exchange and state build.
+
+FP2-A part A checkpoint pushed as f7ec841a9a. Part B worker-only overlay and state builder implemented without an NRR change. Starting test-only build622.
+
+FP2-A part B build622 passed in 24.396 s without new warning. Starting the 2/4-rank overlay and LAB1 rebuild cases, the 18 FP1 cohorts, and G1.
+
+FP2-A part B build622 rank-2 overlay fixture passed (including migrated feature child split and duplicate refusals). The LAB1 fixture is active. A noninterrupting 116-sample callchain attributes 88.79% to Mesh::Star from MovePoint in QualitySweep and 6.90% to EdgeRing through RemoveEdgePlan in the same volume-quality phase. No files or running job were changed.
+
+FP2-A part B rank-2 LAB1 is still in pass 1 as of 12:42 CET. Its controller is live and the 5400 s fixture bound is unchanged. R4 permits a small independent §10.7 case if the LAB fixture reaches its bound.
+
+FP2-A part B build622 rank-2 LAB1 reached its 5400 s wrapper limit (124, 5402.006 s including exit) with no completed pass row. Verified both ranks and controllers terminal. Retained the attempt and exact fixture patch. Proceeding with the explicitly permitted independent two-cube MPI rebuild fixture.
+
+FP2-A part B build623 passed with the small reconstruction fixture, no new warning. Starting the 2/4-rank exchange and state proof, inherited FP1 and G1.
+
+FP2-A part B R3. Build623 rank-2 small fixture passed 150 assertions per rank, with 24 surface faces and equal snapshots. The report parser found 0 rows because an ANSI reset adjoined the marker. Preserved the receipt and parser, stripped ANSI before row detection, and extended the parser self-check to cover that prefix. Retesting with the same pinned binary.
+
+FP2-A part B build623 passed the small 2- and 4-rank exchange and rebuild cases. Both reconstructed 24 faces, 14 points, 18 traces, revision 2, with 9664 identical Snapshot bytes on every rank and owned-face sum 24. FP1 and G1 are sequentially running.
+
+FP2-A part B build623 all 18 inherited FP1 cohorts passed. G1 is in its serial cohort.
+
+FP2-A correction 1 received and SHA256 verified. Build623 Part B G1 remains pinned and is finishing. At the next boundary, remove the surface length step’s use of the split progress test, rerun §2 checks (including the LAB-S alarms), and repeat Part B on the corrected binary.
+
+FP2-A build623 uncorrected G1 finished 375 / 114 / 228 and all owned jobs are terminal. These Part B receipts are historical under Correction 1. Applied the correction in one surface L call; both surface calls now pass false and the volume progress rule is intact. Corrected build624 next.
+
+FP2-A correction 1 build624 passed without a new warning. Running repeated Part A fixtures with explicit LAB-S runaway alarms before the inherited gates.
+
+FP2-A correction 1 build624 repeated box/cylinder and IN1 successfully. Box/cylinder counts and IN1 split/face/trace counts match build621. Corrected LAB-S is active.
+
+FP2-A correction 1 build624 LAB-S finished the volume pass at 554,554 cells with 7 surface L sweeps. L accepted 2,416 splits and left 0 long edges, with 0 size, outward and validity refusals. Neither alarm triggered. Constructor and owned-face check passed; proof/census active.
+
+FP2-A correction 1 build624 LAB-S passed in 284.768 s. All 554,554 cells exact-positive, all four entities proved, full Classify 0 of 84,088 above tolerance. No alarm. Continuing the inherited FP1 and G1 gates.
+
+FP2-A correction 1 build624 all 18 inherited FP1 cohorts passed. G1 is running.
+
+FP2-A Part A correction 1 PASSED on build624. G1 matched 375 / 114 / 228 and all 18 FP1 cohorts passed. Committing the correction and evidence before the corrected Part B MPI fixtures.

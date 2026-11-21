@@ -202,3 +202,9 @@ Can P4 seconds be attributed to each entity while retaining the ordered public c
 For the one-parent test, the options were a test friend across the existing private boundary or widening the production surface split API. Used the fixture friend to call the same Prepare implementation without relaxing the two-parent ring contract.
 
 The FP2-0b float walk directly indexes the cubic net, while supported entity states may have disconnected flat components. The choices were a flat projection over the existing facet vertices or treating a missing net as a failed walk. Used the same affine triangle as the authority for the flat branch, leaving curved iteration and applicability as specified. Base `abc9450b86`.
+
+### 2026-11-21T14:06:00+01:00 — FP2-A Correction 1 qualification scope
+
+Does the instruction to repeat Part B on the corrected binary apply to the superseded full-volume lab attempt as well as the selected §10.7 alternative? The choices were to rerun the timed-out full-volume lab or to re-execute the required MPI reconstruction gate on the permitted two-cube case. Used the two-cube case for the gate because it is the selected §10.7 fixture and verifies the required owned-face checks and exact snapshot agreement at both rank counts. The full-volume attempt is preserved as a timeout. Base `f7ec841a9a`.
+
+The corrected Part A and Part B test campaigns have one exact pinned source manifest and binary. Reuse the freshly repeated FP1/G1 results from that binary for the identical inherited gates and run both Part B MPI cases separately. The alternative was duplicate execution of the same binary and selectors. The pre-correction receipts are historical for this qualification.

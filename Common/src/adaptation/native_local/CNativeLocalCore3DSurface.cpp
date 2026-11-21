@@ -314,7 +314,7 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
         if (work_list) deferred.push_back(edge);
         continue;
       }
-      const auto result = SplitSurface(edge, seed, geometry, point_ids, sweep_, cell_limit, stats.surface, true,
+      const auto result = SplitSurface(edge, seed, geometry, point_ids, sweep_, cell_limit, stats.surface, false,
                                        stats.report);
       if (result == SurfaceRefusal::None) {
         ++accepted;

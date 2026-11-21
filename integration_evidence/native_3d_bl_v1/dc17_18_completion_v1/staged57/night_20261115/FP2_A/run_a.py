@@ -195,7 +195,14 @@ def fixture(case, binary, ranks, selector, environment, provenance, measure=None
     return result
 
 
-def run(build, output, verify_only):
+def correction_counts(measurement):
+    rows = measurement['rows']
+    sweeps = int(expect_one(rows, 'NATIVE3D_LOCAL_SURFACE')['sweeps_length'])
+    cells = int(expect_one(rows, 'FP2_A LAB_S')['cells_out'])
+    return {'sweeps_length': sweeps, 'cells_out': cells, 'stopped': sweeps >= 50 or 2 * cells > 3 * 469411}
+
+
+def run(build, output, verify_only, correction1=False):
     status_path, manifest = build / 'build_status.json', build / 'source_pins.json'
     status = cut.read(status_path)
     binary, source_hash = verify_build(status, manifest)
@@ -206,6 +213,9 @@ def run(build, output, verify_only):
     baseline = subprocess.check_output(['git', 'show', f'{BASE}:{NRR}'], cwd=cut.REPO)
     assert (cut.REPO / NRR).read_bytes() == baseline, 'Part A changed the NRR call path.'
     original, measurements, pins, in1, lab1, parity = evidence_inputs()
+    if correction1:
+        correction = HERE / 'inputs/FP2_A_CORRECTION_1.md'
+        pins[str(correction)] = 'c072cc7d48473dbac5f0c83b2fa83ce96444448364c72aab626a1d033b6d4249'
     pins.update({str(status_path): sha(status_path), str(manifest): source_hash,
                  str(binary): status['test_binary_sha256']})
     output = output or HERE / 'part_a' / f"build{status['build']}"
@@ -232,6 +242,11 @@ def run(build, output, verify_only):
            'SU2_NATIVE_LOCAL_LAB_VARIANT': 'V2'}
     lab_result = fixture(lab_case, binary, 1, NAME_LAB, env, {**prov, 'pins': bound},
                          measure=lambda log: summarize_lab(log, lab1[-1]), lab=setup_lab(output))
+    if correction1:
+        alarm = correction_counts(lab_result['measurement'])
+        sealed(output / 'correction_1_alarm.json', alarm)
+        if alarm['stopped']:
+            return {**alarm, 'build': status['build'], 'passed': False}
     for tag, cohorts in FIXTURES.items():
         for ranks, selector in cohorts:
             env = {'SU2_FP1_G_OWNED_BASELINE': parity} if tag == 'H' else {}
@@ -276,6 +291,7 @@ if __name__ == '__main__':
     parser.add_argument('build', nargs='?', type=Path)
     parser.add_argument('--output', type=Path)
     parser.add_argument('--verify-only', action='store_true')
+    parser.add_argument('--correction-1', action='store_true')
     parser.add_argument('--self-check', action='store_true')
     parser.add_argument('--owned', type=Path, help='internal LAB-S worker')
     args = parser.parse_args()
@@ -286,7 +302,10 @@ if __name__ == '__main__':
         self_check()
         print('Part A input, parser and hard lab wrapper binding checks passed.')
     elif args.build:
-        print(json.dumps(run(args.build.resolve(), args.output.resolve() if args.output else None, args.verify_only),
-                         indent=2))
+        result = run(args.build.resolve(), args.output.resolve() if args.output else None, args.verify_only,
+                     args.correction_1)
+        print(json.dumps(result, indent=2))
+        if result.get('stopped'):
+            raise SystemExit(2)
     else:
         parser.error('supply the pinned build directory or --self-check')
