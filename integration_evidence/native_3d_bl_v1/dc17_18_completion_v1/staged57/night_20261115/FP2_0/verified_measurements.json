@@ -1,0 +1,1159 @@
+{
+  "cases": [
+    {
+      "case": "bounds",
+      "build": 619,
+      "test_binary_sha256": "7dcef40914fe54c3b1662d465457bed1992c66337143f1a37b9edb51264d953d",
+      "provenance_sha256": "0f560d3eee52f4efb8a6fbe6a187eea09534fe5dd98f2cc0e0efa33369bdc9af",
+      "log_sha256": "3a68b642c4aff223858128d154795657b16091d0f65f66b672bf4385142a6e98",
+      "artifacts": {
+        "test_outer.log": "3a68b642c4aff223858128d154795657b16091d0f65f66b672bf4385142a6e98",
+        "time.txt": "af5bef761cb9bf0e26eab454a16d5a98f3b0508f078747b6493cefc905844447",
+        "test_wait.json": "098758e913c20d288a3aade2071f64040916c07e4e3bb4ee18ec8469133b9774",
+        "test_launch.json": "a23feda8ef8e2c0ed1db668b4a1987509b0f34fa24dd7c85c067f4ba117f2893",
+        "test_host_preflight.json": "502d242887c9feaba3f6d3cc1346c4096a7bfd7ebdf512187f1eea596dcb1717",
+        "command.json": "35f7ddb4edec93c556d4bea9f8649ed2795c252f20737516f06d7fb274563e86"
+      },
+      "returncode": 0,
+      "controller": {
+        "pid": 3503376,
+        "start_ticks": 73627584
+      },
+      "status": "measurement_terminal",
+      "elapsed_seconds": 78.92792677879333,
+      "process_peak_kib": 373496,
+      "missing_rows": [],
+      "malformed_rows": [],
+      "rows": [
+        {
+          "name": "OUT1_load",
+          "line": 3,
+          "value": {
+            "seconds": 28.059187111000004,
+            "modeled_peak_bytes": 5455167104,
+            "faces": 67170,
+            "points": 33587,
+            "entities": [
+              {
+                "entity": [
+                  0,
+                  0,
+                  0
+                ],
+                "faces": 2825,
+                "points": 1463
+              },
+              {
+                "entity": [
+                  0,
+                  2060,
+                  1
+                ],
+                "faces": 11762,
+                "points": 6048
+              },
+              {
+                "entity": [
+                  0,
+                  10154,
+                  2
+                ],
+                "faces": 51142,
+                "points": 25887
+              },
+              {
+                "entity": [
+                  0,
+                  27868,
+                  2
+                ],
+                "faces": 1441,
+                "points": 923
+              }
+            ]
+          }
+        },
+        {
+          "name": "B1",
+          "line": 4,
+          "value": {
+            "points": 33587,
+            "faces": 67170,
+            "constructor_seconds": 25.209457555,
+            "policy_seconds": 15.479509409,
+            "constructor_minus_policy_seconds": 9.729948146,
+            "modeled_peak_bytes": 3992061856,
+            "policy_modeled_peak_bytes": 3957944912,
+            "rss_before_bytes": 234586112,
+            "rss_after_bytes": 286015488,
+            "rss_change_bytes": 51429376,
+            "snapshot_equal": true,
+            "traces": 733
+          }
+        },
+        {
+          "name": "B2",
+          "line": 5,
+          "value": {
+            "seconds": 9.347328755000001,
+            "all": {
+              "admissible_calls": 33587,
+              "admissible_failures": 0,
+              "admissible_seconds": 0.2571293169999989,
+              "admissible_us_per_call": 7.655620239973767,
+              "realize_calls": 33587,
+              "realize_failures": 0,
+              "realize_seconds": 0.3260058769999988,
+              "realize_us_per_call": 9.706311281150407,
+              "realize_not_bit_equal": 0,
+              "realize_max_difference": 0,
+              "contains_calls": 67170,
+              "contains_failures": 0,
+              "contains_seconds": 8.699940359000024,
+              "contains_us_per_call": 129.5212201726965
+            },
+            "entities": [
+              {
+                "entity": [
+                  0,
+                  0,
+                  0
+                ],
+                "checks": {
+                  "admissible_calls": 1463,
+                  "admissible_failures": 0,
+                  "admissible_seconds": 0.009355055999999987,
+                  "admissible_us_per_call": 6.394433356117557,
+                  "realize_calls": 1463,
+                  "realize_failures": 0,
+                  "realize_seconds": 0.010175673000000019,
+                  "realize_us_per_call": 6.955347231715666,
+                  "realize_not_bit_equal": 0,
+                  "realize_max_difference": 0,
+                  "contains_calls": 2825,
+                  "contains_failures": 0,
+                  "contains_seconds": 0.44997574399999996,
+                  "contains_us_per_call": 159.28344920353982
+                }
+              },
+              {
+                "entity": [
+                  0,
+                  2060,
+                  1
+                ],
+                "checks": {
+                  "admissible_calls": 6048,
+                  "admissible_failures": 0,
+                  "admissible_seconds": 0.048487236999999836,
+                  "admissible_us_per_call": 8.017069609788333,
+                  "realize_calls": 6048,
+                  "realize_failures": 0,
+                  "realize_seconds": 0.056129429000000036,
+                  "realize_us_per_call": 9.280659556878312,
+                  "realize_not_bit_equal": 0,
+                  "realize_max_difference": 0,
+                  "contains_calls": 11762,
+                  "contains_failures": 0,
+                  "contains_seconds": 1.7820277300000105,
+                  "contains_us_per_call": 151.50720370685346
+                }
+              },
+              {
+                "entity": [
+                  0,
+                  10154,
+                  2
+                ],
+                "checks": {
+                  "admissible_calls": 25887,
+                  "admissible_failures": 0,
+                  "admissible_seconds": 0.19820960100000043,
+                  "admissible_us_per_call": 7.656723490555121,
+                  "realize_calls": 25887,
+                  "realize_failures": 0,
+                  "realize_seconds": 0.2576997420000001,
+                  "realize_us_per_call": 9.954793602966744,
+                  "realize_not_bit_equal": 0,
+                  "realize_max_difference": 0,
+                  "contains_calls": 51142,
+                  "contains_failures": 0,
+                  "contains_seconds": 6.295989809999973,
+                  "contains_us_per_call": 123.10800926831124
+                }
+              },
+              {
+                "entity": [
+                  0,
+                  27868,
+                  2
+                ],
+                "checks": {
+                  "admissible_calls": 923,
+                  "admissible_failures": 0,
+                  "admissible_seconds": 0.0070680440000000025,
+                  "admissible_us_per_call": 7.657685807150599,
+                  "realize_calls": 923,
+                  "realize_failures": 0,
+                  "realize_seconds": 0.008916368000000008,
+                  "realize_us_per_call": 9.660203683640312,
+                  "realize_not_bit_equal": 0,
+                  "realize_max_difference": 0,
+                  "contains_calls": 1441,
+                  "contains_failures": 0,
+                  "contains_seconds": 0.1719470750000001,
+                  "contains_us_per_call": 119.32482650936856
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "case_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/cases/bounds619",
+      "provenance": {
+        "case": "bounds",
+        "build": 619,
+        "selector": "[.][NativeFastPathStage2Bounds]",
+        "ranks": 1,
+        "seconds_limit": 5400,
+        "splits_only": false,
+        "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "test_binary_sha256": "7dcef40914fe54c3b1662d465457bed1992c66337143f1a37b9edb51264d953d",
+        "build_status": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/build619/build_status.json",
+        "build_status_sha256": "49a9c9fd82eea32ab74123b1877d490dd696cf0bcdfa2edd494f4fde72f0724c",
+        "source_pins": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/build619/source_pins.json",
+        "source_pins_sha256": "c3e3c88fa9b3c25d97bc2fc3bfcc68936a69d46d10d92592df5028dad9e88ca5",
+        "fp0_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/case_input_manifest.json",
+        "fp0_manifest_sha256": "fa6d12a30ae5f78de2a1f4d774ea546e63ae18532d7bc7a2b67c308a07a9fe78",
+        "order_sha256": "0d558dc46f3c8c6f0fd11391009acdaa7d56741750f704a458e5196080432331",
+        "launcher_sha256": "e1fee6caa007cb09f4c6c30916a42d4a228806a213f32d44faee858d4898fa7b",
+        "inputs": {
+          "SU2_FP2_IN": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/m6.su2.native_ref",
+            "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+          },
+          "SU2_FP2_OUT": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/adapted_mesh_adap_00001.su2.native_ref",
+            "sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9"
+          },
+          "SU2_FP2_SENSOR": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/cases/B/sensor.bin",
+            "sha256": "55fbb8deeb5ea2b91b5233e1573ca8c94269c17524c7f1d8715c566730964ccb"
+          }
+        }
+      },
+      "receipt_sha256": "a64bdad432311ec0f6603ab3dd33e2824c9cc3d527158d3bce6fe8b474917066"
+    },
+    {
+      "case": "projection",
+      "build": 619,
+      "test_binary_sha256": "7dcef40914fe54c3b1662d465457bed1992c66337143f1a37b9edb51264d953d",
+      "provenance_sha256": "d307e7078aabe824ed8842076b252f3db302071c5488649149fa18af23ae4c1c",
+      "log_sha256": "61e29a9bb6963929b2b3311d4978dcdc4f3f7bd93aa96e807fb19b5f2e33e5dd",
+      "artifacts": {
+        "test_outer.log": "61e29a9bb6963929b2b3311d4978dcdc4f3f7bd93aa96e807fb19b5f2e33e5dd",
+        "time.txt": "47dbaf3b9ebdd067d0c2d12969ce304b25575d3ca61c1ff7f4280ccf94365224",
+        "test_wait.json": "a79c2fb836b672f0cad89fba26ed90338726c24239ae32dccdc08c2842134433",
+        "test_launch.json": "b9ae5bb61278734dabe00da59031322f1b6accb84b40667fdf4d2933c316cb5e",
+        "test_host_preflight.json": "680d2905820df71f6f0db6821c9dbcc0a0e5bd64623768c38280182fd723f304",
+        "command.json": "99c08ecc3310f40e505e1c9c7aa3913c42c5779705f33e2f8f02c98fd3f237ea"
+      },
+      "returncode": 0,
+      "controller": {
+        "pid": 3505601,
+        "start_ticks": 73636155
+      },
+      "status": "measurement_terminal",
+      "elapsed_seconds": 36.22923469543457,
+      "process_peak_kib": 373476,
+      "missing_rows": [],
+      "malformed_rows": [],
+      "rows": [
+        {
+          "name": "OUT1_load",
+          "line": 3,
+          "value": {
+            "seconds": 28.031341371000003,
+            "modeled_peak_bytes": 5455167104,
+            "faces": 67170,
+            "points": 33587,
+            "entities": [
+              {
+                "entity": [
+                  0,
+                  0,
+                  0
+                ],
+                "faces": 2825,
+                "points": 1463
+              },
+              {
+                "entity": [
+                  0,
+                  2060,
+                  1
+                ],
+                "faces": 11762,
+                "points": 6048
+              },
+              {
+                "entity": [
+                  0,
+                  10154,
+                  2
+                ],
+                "faces": 51142,
+                "points": 25887
+              },
+              {
+                "entity": [
+                  0,
+                  27868,
+                  2
+                ],
+                "faces": 1441,
+                "points": 923
+              }
+            ]
+          }
+        },
+        {
+          "name": "G1",
+          "line": 4,
+          "value": {
+            "seconds": 3.33354768,
+            "neighbor_table_seconds": 0.054254742,
+            "samples": 210332,
+            "faces": 52583,
+            "microseconds_per_sample": 15.848980088621799,
+            "mean_steps": 1.927143753684651,
+            "max_steps": 12,
+            "mean_facet_changes": 0.5319637525435977,
+            "max_facet_changes": 11,
+            "minimizer_nonconvergences": 10371,
+            "failed_walks": 5655,
+            "capped_walks": 0,
+            "fallback_samples": 0,
+            "entities": [
+              {
+                "body": 0,
+                "sheet": 0,
+                "marker": 0,
+                "faces": 2825,
+                "samples": 0
+              },
+              {
+                "body": 0,
+                "sheet": 2060,
+                "marker": 1,
+                "faces": 11762,
+                "samples": 0
+              },
+              {
+                "body": 0,
+                "sheet": 10154,
+                "marker": 2,
+                "faces": 51142,
+                "samples": 204568,
+                "seconds": 3.1457633129999962,
+                "microseconds_per_sample": 15.377592355598122,
+                "mean_distance": 1.4814497681441545e-05,
+                "max_distance": 9.904660625835762e-05,
+                "above_half_tolerance": 9849,
+                "above_eighty_percent_tolerance": 2884,
+                "above_tolerance": 0
+              },
+              {
+                "body": 0,
+                "sheet": 27868,
+                "marker": 2,
+                "faces": 1441,
+                "samples": 5764,
+                "seconds": 0.12430619899999987,
+                "microseconds_per_sample": 21.565960964607886,
+                "mean_distance": 2.5988086186017175e-08,
+                "max_distance": 1.1155362104451974e-05,
+                "above_half_tolerance": 0,
+                "above_eighty_percent_tolerance": 0,
+                "above_tolerance": 0
+              }
+            ]
+          }
+        },
+        {
+          "name": "G2",
+          "line": 5,
+          "value": {
+            "pass": 1,
+            "absolute_error": 1.25e-05,
+            "planned_samples": 10000,
+            "tip_span": 1.196299999999894,
+            "trailing_edge_chain": 908,
+            "work": 875350,
+            "work_exhausted": false,
+            "time_exhausted": false,
+            "seconds": 1.7946559770000032,
+            "samples": 10000,
+            "microseconds_per_sample": 179.46559770000033,
+            "failures": 2,
+            "first_failure": "No converged numerical projection on the prescribed body/sheet/feature; first failed facet 18446744073709551615.",
+            "trailing_edge_failures": 2,
+            "tip_failures": 0,
+            "successful_comparisons": 9998,
+            "max_distance_difference": 0.0031579016511332774,
+            "feet_over_1e_9": 388,
+            "entities": [
+              {
+                "body": 0,
+                "sheet": 10154,
+                "marker": 2,
+                "seconds": 1.7502137010000032,
+                "samples": 9730,
+                "microseconds_per_sample": 179.87807821171666,
+                "failures": 2,
+                "first_failure": "No converged numerical projection on the prescribed body/sheet/feature; first failed facet 18446744073709551615.",
+                "trailing_edge_failures": 2,
+                "tip_failures": 0,
+                "successful_comparisons": 9728,
+                "max_distance_difference": 0.0031579016511332774,
+                "feet_over_1e_9": 348
+              },
+              {
+                "body": 0,
+                "sheet": 27868,
+                "marker": 2,
+                "seconds": 0.044442276,
+                "samples": 270,
+                "microseconds_per_sample": 164.60102222222224,
+                "failures": 0,
+                "first_failure": "",
+                "trailing_edge_failures": 0,
+                "tip_failures": 0,
+                "successful_comparisons": 270,
+                "max_distance_difference": 0.0001587689549575846,
+                "feet_over_1e_9": 40
+              }
+            ]
+          }
+        },
+        {
+          "name": "G2",
+          "line": 6,
+          "value": {
+            "pass": 2,
+            "absolute_error": 1e-12,
+            "planned_samples": 10000,
+            "tip_span": 1.196299999999894,
+            "trailing_edge_chain": 908,
+            "work": 1415380,
+            "work_exhausted": false,
+            "time_exhausted": false,
+            "seconds": 2.375218306000004,
+            "samples": 10000,
+            "microseconds_per_sample": 237.5218306000004,
+            "failures": 10,
+            "first_failure": "No converged numerical projection on the prescribed body/sheet/feature; first failed facet 18446744073709551615.",
+            "trailing_edge_failures": 3,
+            "tip_failures": 0,
+            "successful_comparisons": 9990,
+            "max_distance_difference": 0.005855650086728543,
+            "feet_over_1e_9": 144,
+            "entities": [
+              {
+                "body": 0,
+                "sheet": 10154,
+                "marker": 2,
+                "seconds": 2.323981407000004,
+                "samples": 9730,
+                "microseconds_per_sample": 238.84700996916797,
+                "failures": 10,
+                "first_failure": "No converged numerical projection on the prescribed body/sheet/feature; first failed facet 18446744073709551615.",
+                "trailing_edge_failures": 3,
+                "tip_failures": 0,
+                "successful_comparisons": 9720,
+                "max_distance_difference": 0.005855650086728543,
+                "feet_over_1e_9": 121
+              },
+              {
+                "body": 0,
+                "sheet": 27868,
+                "marker": 2,
+                "seconds": 0.051236899,
+                "samples": 270,
+                "microseconds_per_sample": 189.7662925925926,
+                "failures": 0,
+                "first_failure": "",
+                "trailing_edge_failures": 0,
+                "tip_failures": 0,
+                "successful_comparisons": 270,
+                "max_distance_difference": 0.0001587689549575846,
+                "feet_over_1e_9": 23
+              }
+            ]
+          }
+        }
+      ],
+      "case_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/cases/projection619",
+      "provenance": {
+        "case": "projection",
+        "build": 619,
+        "selector": "[.][NativeFastPathStage2Projection]",
+        "ranks": 1,
+        "seconds_limit": 5400,
+        "splits_only": false,
+        "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "test_binary_sha256": "7dcef40914fe54c3b1662d465457bed1992c66337143f1a37b9edb51264d953d",
+        "build_status": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/build619/build_status.json",
+        "build_status_sha256": "49a9c9fd82eea32ab74123b1877d490dd696cf0bcdfa2edd494f4fde72f0724c",
+        "source_pins": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/build619/source_pins.json",
+        "source_pins_sha256": "c3e3c88fa9b3c25d97bc2fc3bfcc68936a69d46d10d92592df5028dad9e88ca5",
+        "fp0_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/case_input_manifest.json",
+        "fp0_manifest_sha256": "fa6d12a30ae5f78de2a1f4d774ea546e63ae18532d7bc7a2b67c308a07a9fe78",
+        "order_sha256": "0d558dc46f3c8c6f0fd11391009acdaa7d56741750f704a458e5196080432331",
+        "launcher_sha256": "e1fee6caa007cb09f4c6c30916a42d4a228806a213f32d44faee858d4898fa7b",
+        "inputs": {
+          "SU2_FP2_IN": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/m6.su2.native_ref",
+            "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+          },
+          "SU2_FP2_OUT": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/adapted_mesh_adap_00001.su2.native_ref",
+            "sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9"
+          },
+          "SU2_FP2_SENSOR": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/cases/B/sensor.bin",
+            "sha256": "55fbb8deeb5ea2b91b5233e1573ca8c94269c17524c7f1d8715c566730964ccb"
+          }
+        }
+      },
+      "receipt_sha256": "26650147db2e883beef7eb58faa002a260997ab2c31901350125441f1e04fe06"
+    },
+    {
+      "case": "split",
+      "build": 619,
+      "test_binary_sha256": "7dcef40914fe54c3b1662d465457bed1992c66337143f1a37b9edb51264d953d",
+      "provenance_sha256": "af3cfc9435267a11f3fcd11ba1cbc850ce6deb9e4e08c957ba9210b13dc820d9",
+      "log_sha256": "b4e991cc1eb54f3d90214ff9835c15362376f1129e6a242a6fbacc15e3d312da",
+      "artifacts": {
+        "test_outer.log": "b4e991cc1eb54f3d90214ff9835c15362376f1129e6a242a6fbacc15e3d312da",
+        "time.txt": "45d88a5a6f930e24c0c088815abe0d7f4ec43459b61a03e822b15b303b1364ef",
+        "values.jsonl": "b069c6ea8b659391e2bf7f6f9644c625f84fb814b59bbca69d9ea347c00fec27",
+        "test_wait.json": "d6ef9fc4685fa025c18d70fed50d46a8675f8eb7b24e7a65c87aa1514fb8f4d2",
+        "test_launch.json": "38687f9dd637c6a5490aec447b80f74784615b528b5ade7bd185f359fa6f8aa8",
+        "test_host_preflight.json": "5fa639c8a0e29b60361bce8ea666149b73ea9f49fcf1bee7b2cd7f627082134d",
+        "command.json": "0fbeb0583799b7c98eb82641d5a65194d57c1babd88e6e9de8990c8be1f60d11"
+      },
+      "returncode": 0,
+      "controller": {
+        "pid": 3506689,
+        "start_ticks": 73640455
+      },
+      "status": "measurement_terminal",
+      "elapsed_seconds": 696.237016916275,
+      "process_peak_kib": 2742700,
+      "missing_rows": [],
+      "malformed_rows": [],
+      "rows": [
+        {
+          "name": "IN1_load",
+          "line": 3,
+          "value": {
+            "seconds": 5.496616923,
+            "modeled_peak_bytes": 4625561376,
+            "faces": 48954,
+            "points": 24479
+          }
+        },
+        {
+          "name": "IN1_setup",
+          "line": 4,
+          "value": {
+            "seconds": 29.353910712,
+            "caller_bytes": 3336096640,
+            "modeled_peak_bytes": 6789203004,
+            "work": 181938600,
+            "protected_edges": 674,
+            "traces": 674
+          }
+        },
+        {
+          "name": "IN1_sensor",
+          "line": 5,
+          "value": {
+            "seconds": 0.064964513,
+            "sensor_records": 61330,
+            "matched": 24479
+          }
+        },
+        {
+          "name": "P_initial_samples",
+          "line": 6,
+          "value": {
+            "seconds": 0.492972909,
+            "samples": 195816,
+            "unconverged": 7640,
+            "capped": 0
+          }
+        },
+        {
+          "name": "P_L",
+          "line": 7,
+          "value": {
+            "seconds": 0.658520274,
+            "passes": 20,
+            "splits": 2719,
+            "microseconds_per_split": 242.19208311879368,
+            "initial_requests": 1645,
+            "initial_wing_requests": 0,
+            "blocked_by_pass_conflict": 1829,
+            "sample_calls": 0,
+            "sample_unconverged": 0,
+            "sample_capped": 0,
+            "refusals": {},
+            "first_projection_error": ""
+          }
+        },
+        {
+          "name": "P_D",
+          "line": 8,
+          "value": {
+            "seconds": 3.4447648880000004,
+            "passes": 20,
+            "splits": 12873,
+            "microseconds_per_split": 267.59612273751264,
+            "initial_requests": 3090,
+            "initial_wing_requests": 0,
+            "blocked_by_pass_conflict": 3315,
+            "sample_calls": 235068,
+            "sample_unconverged": 1601,
+            "sample_capped": 0,
+            "refusals": {
+              "protected_binding": 155,
+              "walk_nonconvergence": 76
+            },
+            "first_projection_error": ""
+          }
+        },
+        {
+          "name": "P_entities",
+          "line": 9,
+          "value": {
+            "IN1_faces": 48954,
+            "IN1_points": 24479,
+            "PD_faces": 80138,
+            "PD_points": 40071,
+            "IN1": [
+              {
+                "entity": [
+                  0,
+                  0,
+                  0
+                ],
+                "faces": 2060,
+                "points": 1063
+              },
+              {
+                "entity": [
+                  0,
+                  2060,
+                  1
+                ],
+                "faces": 8094,
+                "points": 4184
+              },
+              {
+                "entity": [
+                  0,
+                  10154,
+                  2
+                ],
+                "faces": 37202,
+                "points": 18905
+              },
+              {
+                "entity": [
+                  0,
+                  27868,
+                  2
+                ],
+                "faces": 1598,
+                "points": 1002
+              }
+            ],
+            "PD": [
+              {
+                "entity": [
+                  0,
+                  0,
+                  0
+                ],
+                "faces": 3132,
+                "points": 1599
+              },
+              {
+                "entity": [
+                  0,
+                  2060,
+                  1
+                ],
+                "faces": 12550,
+                "points": 6412
+              },
+              {
+                "entity": [
+                  0,
+                  10154,
+                  2
+                ],
+                "faces": 62858,
+                "points": 31733
+              },
+              {
+                "entity": [
+                  0,
+                  27868,
+                  2
+                ],
+                "faces": 1598,
+                "points": 1002
+              }
+            ],
+            "PD_above_0p8_tol": [
+              {
+                "entity": [
+                  0,
+                  0,
+                  0
+                ],
+                "faces": 0
+              },
+              {
+                "entity": [
+                  0,
+                  2060,
+                  1
+                ],
+                "faces": 16
+              },
+              {
+                "entity": [
+                  0,
+                  10154,
+                  2
+                ],
+                "faces": 20
+              },
+              {
+                "entity": [
+                  0,
+                  27868,
+                  2
+                ],
+                "faces": 0
+              }
+            ]
+          }
+        },
+        {
+          "name": "P_STRICT",
+          "line": 10,
+          "value": {
+            "seconds": 138.930932557,
+            "contains_seconds": 12.21308263,
+            "in_classify_seconds": 47.074513965,
+            "in_attempted": 48954,
+            "pd_classify_seconds": 79.64333596200001,
+            "pd_new_total": 36189,
+            "pd_new_attempted": 36189,
+            "pd_pilot_attempted": 2000,
+            "pd_pilot_seconds": 1.9890429170000001,
+            "pd_full_estimate_seconds": 35.9907370616565,
+            "pd_remaining_stride": 1,
+            "pd_limit_seconds": 1200,
+            "IN1": {
+              "all": {
+                "faces": 48954,
+                "contains_measured": 48954,
+                "contains_failed": 0,
+                "float_sampled": 48954,
+                "float_above_half_tol": 3838,
+                "float_above_eight_tenths_tol": 3090,
+                "float_above_tol": 2894,
+                "classified": 48954,
+                "unclassified": 0,
+                "classify_above_tol": 2982
+              },
+              "entities": [
+                {
+                  "entity": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "counts": {
+                    "faces": 2060,
+                    "contains_measured": 2060,
+                    "contains_failed": 0,
+                    "float_sampled": 2060,
+                    "float_above_half_tol": 0,
+                    "float_above_eight_tenths_tol": 0,
+                    "float_above_tol": 0,
+                    "classified": 2060,
+                    "unclassified": 0,
+                    "classify_above_tol": 0
+                  }
+                },
+                {
+                  "entity": [
+                    0,
+                    2060,
+                    1
+                  ],
+                  "counts": {
+                    "faces": 8094,
+                    "contains_measured": 8094,
+                    "contains_failed": 0,
+                    "float_sampled": 8094,
+                    "float_above_half_tol": 10,
+                    "float_above_eight_tenths_tol": 10,
+                    "float_above_tol": 8,
+                    "classified": 8094,
+                    "unclassified": 0,
+                    "classify_above_tol": 10
+                  }
+                },
+                {
+                  "entity": [
+                    0,
+                    10154,
+                    2
+                  ],
+                  "counts": {
+                    "faces": 37202,
+                    "contains_measured": 37202,
+                    "contains_failed": 0,
+                    "float_sampled": 37202,
+                    "float_above_half_tol": 3828,
+                    "float_above_eight_tenths_tol": 3080,
+                    "float_above_tol": 2886,
+                    "classified": 37202,
+                    "unclassified": 0,
+                    "classify_above_tol": 2972
+                  }
+                },
+                {
+                  "entity": [
+                    0,
+                    27868,
+                    2
+                  ],
+                  "counts": {
+                    "faces": 1598,
+                    "contains_measured": 1598,
+                    "contains_failed": 0,
+                    "float_sampled": 1598,
+                    "float_above_half_tol": 0,
+                    "float_above_eight_tenths_tol": 0,
+                    "float_above_tol": 0,
+                    "classified": 1598,
+                    "unclassified": 0,
+                    "classify_above_tol": 0
+                  }
+                }
+              ]
+            },
+            "PD_NEW": {
+              "all": {
+                "faces": 36189,
+                "contains_measured": 36189,
+                "contains_failed": 18,
+                "float_sampled": 36189,
+                "float_above_half_tol": 9815,
+                "float_above_eight_tenths_tol": 36,
+                "float_above_tol": 30,
+                "classified": 36189,
+                "unclassified": 0,
+                "classify_above_tol": 34
+              },
+              "entities": [
+                {
+                  "entity": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "counts": {
+                    "faces": 1485,
+                    "contains_measured": 1485,
+                    "contains_failed": 0,
+                    "float_sampled": 1485,
+                    "float_above_half_tol": 0,
+                    "float_above_eight_tenths_tol": 0,
+                    "float_above_tol": 0,
+                    "classified": 1485,
+                    "unclassified": 0,
+                    "classify_above_tol": 0
+                  }
+                },
+                {
+                  "entity": [
+                    0,
+                    2060,
+                    1
+                  ],
+                  "counts": {
+                    "faces": 5900,
+                    "contains_measured": 5900,
+                    "contains_failed": 0,
+                    "float_sampled": 5900,
+                    "float_above_half_tol": 17,
+                    "float_above_eight_tenths_tol": 16,
+                    "float_above_tol": 14,
+                    "classified": 5900,
+                    "unclassified": 0,
+                    "classify_above_tol": 16
+                  }
+                },
+                {
+                  "entity": [
+                    0,
+                    10154,
+                    2
+                  ],
+                  "counts": {
+                    "faces": 28804,
+                    "contains_measured": 28804,
+                    "contains_failed": 18,
+                    "float_sampled": 28804,
+                    "float_above_half_tol": 9798,
+                    "float_above_eight_tenths_tol": 20,
+                    "float_above_tol": 16,
+                    "classified": 28804,
+                    "unclassified": 0,
+                    "classify_above_tol": 18
+                  }
+                }
+              ]
+            },
+            "PD": {
+              "all": {
+                "faces": 80138,
+                "contains_measured": 80138,
+                "contains_failed": 18,
+                "float_sampled": 80138,
+                "float_above_half_tol": 10519,
+                "float_above_eight_tenths_tol": 36,
+                "float_above_tol": 30,
+                "classified": 80138,
+                "unclassified": 0,
+                "classify_above_tol": 46
+              },
+              "entities": [
+                {
+                  "entity": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "counts": {
+                    "faces": 3132,
+                    "contains_measured": 3132,
+                    "contains_failed": 0,
+                    "float_sampled": 3132,
+                    "float_above_half_tol": 0,
+                    "float_above_eight_tenths_tol": 0,
+                    "float_above_tol": 0,
+                    "classified": 3132,
+                    "unclassified": 0,
+                    "classify_above_tol": 0
+                  }
+                },
+                {
+                  "entity": [
+                    0,
+                    2060,
+                    1
+                  ],
+                  "counts": {
+                    "faces": 12550,
+                    "contains_measured": 12550,
+                    "contains_failed": 0,
+                    "float_sampled": 12550,
+                    "float_above_half_tol": 17,
+                    "float_above_eight_tenths_tol": 16,
+                    "float_above_tol": 14,
+                    "classified": 12550,
+                    "unclassified": 0,
+                    "classify_above_tol": 16
+                  }
+                },
+                {
+                  "entity": [
+                    0,
+                    10154,
+                    2
+                  ],
+                  "counts": {
+                    "faces": 62858,
+                    "contains_measured": 62858,
+                    "contains_failed": 18,
+                    "float_sampled": 62858,
+                    "float_above_half_tol": 10502,
+                    "float_above_eight_tenths_tol": 20,
+                    "float_above_tol": 16,
+                    "classified": 62858,
+                    "unclassified": 0,
+                    "classify_above_tol": 30
+                  }
+                },
+                {
+                  "entity": [
+                    0,
+                    27868,
+                    2
+                  ],
+                  "counts": {
+                    "faces": 1598,
+                    "contains_measured": 1598,
+                    "contains_failed": 0,
+                    "float_sampled": 1598,
+                    "float_above_half_tol": 0,
+                    "float_above_eight_tenths_tol": 0,
+                    "float_above_tol": 0,
+                    "classified": 1598,
+                    "unclassified": 0,
+                    "classify_above_tol": 0
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "T_IN1",
+          "line": 11,
+          "value": {
+            "seconds": 300.002653856,
+            "requested": 200,
+            "selected": 200,
+            "attempted": 146,
+            "completed": 145,
+            "first20_attempted": 20,
+            "first20_completed": 20,
+            "first20_seconds": 41.756111077,
+            "time_limit_seconds": 300,
+            "work": 95885919,
+            "deadline": true,
+            "first_exception": "Curved atlas elapsed-time budget exhausted."
+          }
+        },
+        {
+          "name": "T_PD",
+          "line": 12,
+          "value": {
+            "seconds": 188.86483949400002,
+            "requested": 200,
+            "selected": 200,
+            "attempted": 200,
+            "completed": 200,
+            "first20_attempted": 20,
+            "first20_completed": 20,
+            "first20_seconds": 4.970374959,
+            "time_limit_seconds": 300,
+            "work": 87858037,
+            "deadline": false
+          }
+        },
+        {
+          "name": "P3",
+          "line": 13,
+          "value": {
+            "accepted": false,
+            "seconds": 27.087042967000002,
+            "modeled_peak_bytes": 4160334792,
+            "points": 40071,
+            "faces": 80138,
+            "traces": 674,
+            "constructor_error": "Physical face violates its model entity/orientation.",
+            "first_local_witness": {
+              "anchor": 23238,
+              "vertices": [
+                40049,
+                40059,
+                270
+              ],
+              "entity": [
+                0,
+                10154,
+                2
+              ],
+              "float_sample": 6.90663455914314e-05,
+              "classify": 9.873782904605036e-05,
+              "coordinates": [
+                [
+                  0.03134823809060405,
+                  2.1226997455411387e-06,
+                  0.022442196902170274
+                ],
+                [
+                  0.035246914606888335,
+                  1.4986807416769623e-06,
+                  0.0231107252875333
+                ],
+                [
+                  0.02747467976889768,
+                  -1.062527844e-13,
+                  0.02163786655234605
+                ]
+              ]
+            },
+            "witness_kind": "face"
+          }
+        },
+        {
+          "name": "P4",
+          "line": 14,
+          "value": {
+            "status": "not_applicable",
+            "reason": "P3 constructor declined PD.",
+            "seconds": 0
+          }
+        }
+      ],
+      "case_path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/cases/split619",
+      "provenance": {
+        "case": "split",
+        "build": 619,
+        "selector": "[.][NativeFastPathStage2Split]",
+        "ranks": 1,
+        "seconds_limit": 5400,
+        "splits_only": false,
+        "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "test_binary_sha256": "7dcef40914fe54c3b1662d465457bed1992c66337143f1a37b9edb51264d953d",
+        "build_status": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/build619/build_status.json",
+        "build_status_sha256": "49a9c9fd82eea32ab74123b1877d490dd696cf0bcdfa2edd494f4fde72f0724c",
+        "source_pins": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/build619/source_pins.json",
+        "source_pins_sha256": "c3e3c88fa9b3c25d97bc2fc3bfcc68936a69d46d10d92592df5028dad9e88ca5",
+        "fp0_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/case_input_manifest.json",
+        "fp0_manifest_sha256": "fa6d12a30ae5f78de2a1f4d774ea546e63ae18532d7bc7a2b67c308a07a9fe78",
+        "order_sha256": "0d558dc46f3c8c6f0fd11391009acdaa7d56741750f704a458e5196080432331",
+        "launcher_sha256": "e1fee6caa007cb09f4c6c30916a42d4a228806a213f32d44faee858d4898fa7b",
+        "inputs": {
+          "SU2_FP2_IN": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/m6.su2.native_ref",
+            "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+          },
+          "SU2_FP2_OUT": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/adapted_mesh_adap_00001.su2.native_ref",
+            "sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9"
+          },
+          "SU2_FP2_SENSOR": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/cases/B/sensor.bin",
+            "sha256": "55fbb8deeb5ea2b91b5233e1573ca8c94269c17524c7f1d8715c566730964ccb"
+          }
+        }
+      },
+      "receipt_sha256": "484a24e95743d9bd3781db6fc32e53de802ff2f95b42207ef9ece9910ddd5a77"
+    }
+  ]
+}

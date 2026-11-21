@@ -186,3 +186,7 @@ N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`
 - 2026-11-20T14:21:42+01:00, FP1 H6 R4. Does the engine reference import aggregate progress as well as the frontier test? Options were the general engine admission expression and the explicit one-edge inequality in Resume 4 §1. Used the explicit inequality because the order restricts this split trial to its one removed edge. Base 1391148436.
 
 - 2026-11-20T15:03:32+01:00, FP1 H6 replay. Which observed row anchors the 600 s clock? Options were the initial partition rows and the first completed sweep. Used the latest observation of the six initial partition rows because the core follows the partition directly and the first sweep omits its setup. The watchdog also records first-sweep onset estimates and its one-second polling cadence. Base c9ba8b3cb5.
+
+### 2026-11-21T07:45:49+01:00 — FP2-0 G2 failure locations
+
+Question: how should trailing-edge and tip failures be counted when the order specifies locations but gives no predicate? Options: omit attribution, or use the frozen authority geometry to define reproducible predicates. Used the latter. Trailing edge uses sheet 27868 and the shared physical feature chain 908; the tip uses the outer-span station 1.196299999999894 from facet 27868. Counts may overlap. Base commit f2d4dfda7d.

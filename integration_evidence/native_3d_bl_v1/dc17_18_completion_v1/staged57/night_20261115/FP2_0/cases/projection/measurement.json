@@ -1,0 +1,250 @@
+{
+  "case": "projection",
+  "build": 618,
+  "test_binary_sha256": "a556559743d6943f8f129028739f488ed14ab4156e5c8b91e7401071e8175507",
+  "provenance_sha256": "42c996baa2c8ab4eb492002e717a5b1273325f2d9634fcdcf016447dbc2122a7",
+  "log_sha256": "ef9b15448718729eed9f87507643c59052ed08208deef8b651ab046eab76a98d",
+  "artifacts": {
+    "test_outer.log": "ef9b15448718729eed9f87507643c59052ed08208deef8b651ab046eab76a98d",
+    "time.txt": "c2979e419c51f1f4d62212e0424ed42cbb234104e104364cc2a38e3644aca76a",
+    "test_wait.json": "38a537dea4b461df0c4049d2044c990479b6b136cd56f4d15dcbc84fe6e6037c",
+    "test_launch.json": "ee9cd516d6d01d12dc4eda67b127ce7c6a49f503f22b8ae0312e0cc18f60f91f",
+    "test_host_preflight.json": "db1edd19a982c0e3df65e770029d18a0c6ba8f989dc6f61c964cf8ec1a338e25",
+    "command.json": "5f6a76d9496f80a170ca385037b2f1d924796ce4165fccac305931901dd51748"
+  },
+  "returncode": 0,
+  "controller": {
+    "pid": 3497233,
+    "start_ticks": 73604476
+  },
+  "status": "measurement_terminal",
+  "elapsed_seconds": 37.07089614868164,
+  "process_peak_kib": 373368,
+  "missing_rows": [],
+  "malformed_rows": [],
+  "rows": [
+    {
+      "name": "OUT1_load",
+      "line": 3,
+      "value": {
+        "seconds": 28.118619805,
+        "modeled_peak_bytes": 5455167104,
+        "faces": 67170,
+        "points": 33587,
+        "entities": [
+          {
+            "entity": [
+              0,
+              0,
+              0
+            ],
+            "faces": 2825,
+            "points": 1463
+          },
+          {
+            "entity": [
+              0,
+              2060,
+              1
+            ],
+            "faces": 11762,
+            "points": 6048
+          },
+          {
+            "entity": [
+              0,
+              10154,
+              2
+            ],
+            "faces": 51142,
+            "points": 25887
+          },
+          {
+            "entity": [
+              0,
+              27868,
+              2
+            ],
+            "faces": 1441,
+            "points": 923
+          }
+        ]
+      }
+    },
+    {
+      "name": "G1",
+      "line": 4,
+      "value": {
+        "seconds": 3.3380342780000003,
+        "neighbor_table_seconds": 0.054127883,
+        "samples": 210332,
+        "faces": 52583,
+        "microseconds_per_sample": 15.870311117661604,
+        "mean_steps": 1.927143753684651,
+        "max_steps": 12,
+        "mean_facet_changes": 0.5319637525435977,
+        "max_facet_changes": 11,
+        "minimizer_nonconvergences": 10371,
+        "failed_walks": 5655,
+        "capped_walks": 0,
+        "fallback_samples": 0,
+        "entities": [
+          {
+            "body": 0,
+            "sheet": 0,
+            "marker": 0,
+            "faces": 2825,
+            "samples": 0
+          },
+          {
+            "body": 0,
+            "sheet": 2060,
+            "marker": 1,
+            "faces": 11762,
+            "samples": 0
+          },
+          {
+            "body": 0,
+            "sheet": 10154,
+            "marker": 2,
+            "faces": 51142,
+            "samples": 204568,
+            "seconds": 3.1498457679999987,
+            "microseconds_per_sample": 15.397548824840634,
+            "mean_distance": 1.4814497681441545e-05,
+            "max_distance": 9.904660625835762e-05,
+            "above_half_tolerance": 9849,
+            "above_eighty_percent_tolerance": 2884,
+            "above_tolerance": 0
+          },
+          {
+            "body": 0,
+            "sheet": 27868,
+            "marker": 2,
+            "faces": 1441,
+            "samples": 5764,
+            "seconds": 0.12353658799999989,
+            "microseconds_per_sample": 21.432440666204005,
+            "mean_distance": 2.5988086186017175e-08,
+            "max_distance": 1.1155362104451974e-05,
+            "above_half_tolerance": 0,
+            "above_eighty_percent_tolerance": 0,
+            "above_tolerance": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "G2",
+      "line": 5,
+      "value": {
+        "pass": 1,
+        "absolute_error": 1.25e-05,
+        "planned_samples": 10000,
+        "tip_span": 1.196299999999894,
+        "trailing_edge_chain": 908,
+        "work": 875350,
+        "work_exhausted": false,
+        "time_exhausted": false,
+        "seconds": 1.7981375200000063,
+        "samples": 10000,
+        "microseconds_per_sample": 179.81375200000062,
+        "failures": 2,
+        "first_failure": "No converged numerical projection on the prescribed body/sheet/feature; first failed facet 18446744073709551615.",
+        "trailing_edge_failures": 2,
+        "tip_failures": 0,
+        "successful_comparisons": 9998,
+        "max_distance_difference": 0.0031579016511332774,
+        "feet_over_1e_9": 388,
+        "entities": [
+          {
+            "body": 0,
+            "sheet": 10154,
+            "marker": 2,
+            "seconds": 1.753982160000007,
+            "samples": 9730,
+            "microseconds_per_sample": 180.26538129496473,
+            "failures": 2,
+            "first_failure": "No converged numerical projection on the prescribed body/sheet/feature; first failed facet 18446744073709551615.",
+            "trailing_edge_failures": 2,
+            "tip_failures": 0,
+            "successful_comparisons": 9728,
+            "max_distance_difference": 0.0031579016511332774,
+            "feet_over_1e_9": 348
+          },
+          {
+            "body": 0,
+            "sheet": 27868,
+            "marker": 2,
+            "seconds": 0.04415535999999997,
+            "samples": 270,
+            "microseconds_per_sample": 163.53837037037027,
+            "failures": 0,
+            "first_failure": "",
+            "trailing_edge_failures": 0,
+            "tip_failures": 0,
+            "successful_comparisons": 270,
+            "max_distance_difference": 0.0001587689549575846,
+            "feet_over_1e_9": 40
+          }
+        ]
+      }
+    },
+    {
+      "name": "G2",
+      "line": 6,
+      "value": {
+        "pass": 2,
+        "absolute_error": 1e-12,
+        "planned_samples": 10000,
+        "tip_span": 1.196299999999894,
+        "trailing_edge_chain": 908,
+        "work": 1415380,
+        "work_exhausted": false,
+        "time_exhausted": false,
+        "seconds": 2.404043394000007,
+        "samples": 10000,
+        "microseconds_per_sample": 240.40433940000068,
+        "failures": 10,
+        "first_failure": "No converged numerical projection on the prescribed body/sheet/feature; first failed facet 18446744073709551615.",
+        "trailing_edge_failures": 3,
+        "tip_failures": 0,
+        "successful_comparisons": 9990,
+        "max_distance_difference": 0.005855650086728543,
+        "feet_over_1e_9": 144,
+        "entities": [
+          {
+            "body": 0,
+            "sheet": 10154,
+            "marker": 2,
+            "seconds": 2.3520297580000067,
+            "samples": 9730,
+            "microseconds_per_sample": 241.7296770811929,
+            "failures": 10,
+            "first_failure": "No converged numerical projection on the prescribed body/sheet/feature; first failed facet 18446744073709551615.",
+            "trailing_edge_failures": 3,
+            "tip_failures": 0,
+            "successful_comparisons": 9720,
+            "max_distance_difference": 0.005855650086728543,
+            "feet_over_1e_9": 121
+          },
+          {
+            "body": 0,
+            "sheet": 27868,
+            "marker": 2,
+            "seconds": 0.05201363599999999,
+            "samples": 270,
+            "microseconds_per_sample": 192.64309629629628,
+            "failures": 0,
+            "first_failure": "",
+            "trailing_edge_failures": 0,
+            "tip_failures": 0,
+            "successful_comparisons": 270,
+            "max_distance_difference": 0.0001587689549575846,
+            "feet_over_1e_9": 23
+          }
+        ]
+      }
+    }
+  ]
+}

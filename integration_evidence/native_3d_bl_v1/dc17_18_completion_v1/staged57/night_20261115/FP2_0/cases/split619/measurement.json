@@ -1,0 +1,593 @@
+{
+  "case": "split",
+  "build": 619,
+  "test_binary_sha256": "7dcef40914fe54c3b1662d465457bed1992c66337143f1a37b9edb51264d953d",
+  "provenance_sha256": "af3cfc9435267a11f3fcd11ba1cbc850ce6deb9e4e08c957ba9210b13dc820d9",
+  "log_sha256": "b4e991cc1eb54f3d90214ff9835c15362376f1129e6a242a6fbacc15e3d312da",
+  "artifacts": {
+    "test_outer.log": "b4e991cc1eb54f3d90214ff9835c15362376f1129e6a242a6fbacc15e3d312da",
+    "time.txt": "45d88a5a6f930e24c0c088815abe0d7f4ec43459b61a03e822b15b303b1364ef",
+    "values.jsonl": "b069c6ea8b659391e2bf7f6f9644c625f84fb814b59bbca69d9ea347c00fec27",
+    "test_wait.json": "d6ef9fc4685fa025c18d70fed50d46a8675f8eb7b24e7a65c87aa1514fb8f4d2",
+    "test_launch.json": "38687f9dd637c6a5490aec447b80f74784615b528b5ade7bd185f359fa6f8aa8",
+    "test_host_preflight.json": "5fa639c8a0e29b60361bce8ea666149b73ea9f49fcf1bee7b2cd7f627082134d",
+    "command.json": "0fbeb0583799b7c98eb82641d5a65194d57c1babd88e6e9de8990c8be1f60d11"
+  },
+  "returncode": 0,
+  "controller": {
+    "pid": 3506689,
+    "start_ticks": 73640455
+  },
+  "status": "measurement_terminal",
+  "elapsed_seconds": 696.237016916275,
+  "process_peak_kib": 2742700,
+  "missing_rows": [],
+  "malformed_rows": [],
+  "rows": [
+    {
+      "name": "IN1_load",
+      "line": 3,
+      "value": {
+        "seconds": 5.496616923,
+        "modeled_peak_bytes": 4625561376,
+        "faces": 48954,
+        "points": 24479
+      }
+    },
+    {
+      "name": "IN1_setup",
+      "line": 4,
+      "value": {
+        "seconds": 29.353910712,
+        "caller_bytes": 3336096640,
+        "modeled_peak_bytes": 6789203004,
+        "work": 181938600,
+        "protected_edges": 674,
+        "traces": 674
+      }
+    },
+    {
+      "name": "IN1_sensor",
+      "line": 5,
+      "value": {
+        "seconds": 0.064964513,
+        "sensor_records": 61330,
+        "matched": 24479
+      }
+    },
+    {
+      "name": "P_initial_samples",
+      "line": 6,
+      "value": {
+        "seconds": 0.492972909,
+        "samples": 195816,
+        "unconverged": 7640,
+        "capped": 0
+      }
+    },
+    {
+      "name": "P_L",
+      "line": 7,
+      "value": {
+        "seconds": 0.658520274,
+        "passes": 20,
+        "splits": 2719,
+        "microseconds_per_split": 242.19208311879368,
+        "initial_requests": 1645,
+        "initial_wing_requests": 0,
+        "blocked_by_pass_conflict": 1829,
+        "sample_calls": 0,
+        "sample_unconverged": 0,
+        "sample_capped": 0,
+        "refusals": {},
+        "first_projection_error": ""
+      }
+    },
+    {
+      "name": "P_D",
+      "line": 8,
+      "value": {
+        "seconds": 3.4447648880000004,
+        "passes": 20,
+        "splits": 12873,
+        "microseconds_per_split": 267.59612273751264,
+        "initial_requests": 3090,
+        "initial_wing_requests": 0,
+        "blocked_by_pass_conflict": 3315,
+        "sample_calls": 235068,
+        "sample_unconverged": 1601,
+        "sample_capped": 0,
+        "refusals": {
+          "protected_binding": 155,
+          "walk_nonconvergence": 76
+        },
+        "first_projection_error": ""
+      }
+    },
+    {
+      "name": "P_entities",
+      "line": 9,
+      "value": {
+        "IN1_faces": 48954,
+        "IN1_points": 24479,
+        "PD_faces": 80138,
+        "PD_points": 40071,
+        "IN1": [
+          {
+            "entity": [
+              0,
+              0,
+              0
+            ],
+            "faces": 2060,
+            "points": 1063
+          },
+          {
+            "entity": [
+              0,
+              2060,
+              1
+            ],
+            "faces": 8094,
+            "points": 4184
+          },
+          {
+            "entity": [
+              0,
+              10154,
+              2
+            ],
+            "faces": 37202,
+            "points": 18905
+          },
+          {
+            "entity": [
+              0,
+              27868,
+              2
+            ],
+            "faces": 1598,
+            "points": 1002
+          }
+        ],
+        "PD": [
+          {
+            "entity": [
+              0,
+              0,
+              0
+            ],
+            "faces": 3132,
+            "points": 1599
+          },
+          {
+            "entity": [
+              0,
+              2060,
+              1
+            ],
+            "faces": 12550,
+            "points": 6412
+          },
+          {
+            "entity": [
+              0,
+              10154,
+              2
+            ],
+            "faces": 62858,
+            "points": 31733
+          },
+          {
+            "entity": [
+              0,
+              27868,
+              2
+            ],
+            "faces": 1598,
+            "points": 1002
+          }
+        ],
+        "PD_above_0p8_tol": [
+          {
+            "entity": [
+              0,
+              0,
+              0
+            ],
+            "faces": 0
+          },
+          {
+            "entity": [
+              0,
+              2060,
+              1
+            ],
+            "faces": 16
+          },
+          {
+            "entity": [
+              0,
+              10154,
+              2
+            ],
+            "faces": 20
+          },
+          {
+            "entity": [
+              0,
+              27868,
+              2
+            ],
+            "faces": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "P_STRICT",
+      "line": 10,
+      "value": {
+        "seconds": 138.930932557,
+        "contains_seconds": 12.21308263,
+        "in_classify_seconds": 47.074513965,
+        "in_attempted": 48954,
+        "pd_classify_seconds": 79.64333596200001,
+        "pd_new_total": 36189,
+        "pd_new_attempted": 36189,
+        "pd_pilot_attempted": 2000,
+        "pd_pilot_seconds": 1.9890429170000001,
+        "pd_full_estimate_seconds": 35.9907370616565,
+        "pd_remaining_stride": 1,
+        "pd_limit_seconds": 1200,
+        "IN1": {
+          "all": {
+            "faces": 48954,
+            "contains_measured": 48954,
+            "contains_failed": 0,
+            "float_sampled": 48954,
+            "float_above_half_tol": 3838,
+            "float_above_eight_tenths_tol": 3090,
+            "float_above_tol": 2894,
+            "classified": 48954,
+            "unclassified": 0,
+            "classify_above_tol": 2982
+          },
+          "entities": [
+            {
+              "entity": [
+                0,
+                0,
+                0
+              ],
+              "counts": {
+                "faces": 2060,
+                "contains_measured": 2060,
+                "contains_failed": 0,
+                "float_sampled": 2060,
+                "float_above_half_tol": 0,
+                "float_above_eight_tenths_tol": 0,
+                "float_above_tol": 0,
+                "classified": 2060,
+                "unclassified": 0,
+                "classify_above_tol": 0
+              }
+            },
+            {
+              "entity": [
+                0,
+                2060,
+                1
+              ],
+              "counts": {
+                "faces": 8094,
+                "contains_measured": 8094,
+                "contains_failed": 0,
+                "float_sampled": 8094,
+                "float_above_half_tol": 10,
+                "float_above_eight_tenths_tol": 10,
+                "float_above_tol": 8,
+                "classified": 8094,
+                "unclassified": 0,
+                "classify_above_tol": 10
+              }
+            },
+            {
+              "entity": [
+                0,
+                10154,
+                2
+              ],
+              "counts": {
+                "faces": 37202,
+                "contains_measured": 37202,
+                "contains_failed": 0,
+                "float_sampled": 37202,
+                "float_above_half_tol": 3828,
+                "float_above_eight_tenths_tol": 3080,
+                "float_above_tol": 2886,
+                "classified": 37202,
+                "unclassified": 0,
+                "classify_above_tol": 2972
+              }
+            },
+            {
+              "entity": [
+                0,
+                27868,
+                2
+              ],
+              "counts": {
+                "faces": 1598,
+                "contains_measured": 1598,
+                "contains_failed": 0,
+                "float_sampled": 1598,
+                "float_above_half_tol": 0,
+                "float_above_eight_tenths_tol": 0,
+                "float_above_tol": 0,
+                "classified": 1598,
+                "unclassified": 0,
+                "classify_above_tol": 0
+              }
+            }
+          ]
+        },
+        "PD_NEW": {
+          "all": {
+            "faces": 36189,
+            "contains_measured": 36189,
+            "contains_failed": 18,
+            "float_sampled": 36189,
+            "float_above_half_tol": 9815,
+            "float_above_eight_tenths_tol": 36,
+            "float_above_tol": 30,
+            "classified": 36189,
+            "unclassified": 0,
+            "classify_above_tol": 34
+          },
+          "entities": [
+            {
+              "entity": [
+                0,
+                0,
+                0
+              ],
+              "counts": {
+                "faces": 1485,
+                "contains_measured": 1485,
+                "contains_failed": 0,
+                "float_sampled": 1485,
+                "float_above_half_tol": 0,
+                "float_above_eight_tenths_tol": 0,
+                "float_above_tol": 0,
+                "classified": 1485,
+                "unclassified": 0,
+                "classify_above_tol": 0
+              }
+            },
+            {
+              "entity": [
+                0,
+                2060,
+                1
+              ],
+              "counts": {
+                "faces": 5900,
+                "contains_measured": 5900,
+                "contains_failed": 0,
+                "float_sampled": 5900,
+                "float_above_half_tol": 17,
+                "float_above_eight_tenths_tol": 16,
+                "float_above_tol": 14,
+                "classified": 5900,
+                "unclassified": 0,
+                "classify_above_tol": 16
+              }
+            },
+            {
+              "entity": [
+                0,
+                10154,
+                2
+              ],
+              "counts": {
+                "faces": 28804,
+                "contains_measured": 28804,
+                "contains_failed": 18,
+                "float_sampled": 28804,
+                "float_above_half_tol": 9798,
+                "float_above_eight_tenths_tol": 20,
+                "float_above_tol": 16,
+                "classified": 28804,
+                "unclassified": 0,
+                "classify_above_tol": 18
+              }
+            }
+          ]
+        },
+        "PD": {
+          "all": {
+            "faces": 80138,
+            "contains_measured": 80138,
+            "contains_failed": 18,
+            "float_sampled": 80138,
+            "float_above_half_tol": 10519,
+            "float_above_eight_tenths_tol": 36,
+            "float_above_tol": 30,
+            "classified": 80138,
+            "unclassified": 0,
+            "classify_above_tol": 46
+          },
+          "entities": [
+            {
+              "entity": [
+                0,
+                0,
+                0
+              ],
+              "counts": {
+                "faces": 3132,
+                "contains_measured": 3132,
+                "contains_failed": 0,
+                "float_sampled": 3132,
+                "float_above_half_tol": 0,
+                "float_above_eight_tenths_tol": 0,
+                "float_above_tol": 0,
+                "classified": 3132,
+                "unclassified": 0,
+                "classify_above_tol": 0
+              }
+            },
+            {
+              "entity": [
+                0,
+                2060,
+                1
+              ],
+              "counts": {
+                "faces": 12550,
+                "contains_measured": 12550,
+                "contains_failed": 0,
+                "float_sampled": 12550,
+                "float_above_half_tol": 17,
+                "float_above_eight_tenths_tol": 16,
+                "float_above_tol": 14,
+                "classified": 12550,
+                "unclassified": 0,
+                "classify_above_tol": 16
+              }
+            },
+            {
+              "entity": [
+                0,
+                10154,
+                2
+              ],
+              "counts": {
+                "faces": 62858,
+                "contains_measured": 62858,
+                "contains_failed": 18,
+                "float_sampled": 62858,
+                "float_above_half_tol": 10502,
+                "float_above_eight_tenths_tol": 20,
+                "float_above_tol": 16,
+                "classified": 62858,
+                "unclassified": 0,
+                "classify_above_tol": 30
+              }
+            },
+            {
+              "entity": [
+                0,
+                27868,
+                2
+              ],
+              "counts": {
+                "faces": 1598,
+                "contains_measured": 1598,
+                "contains_failed": 0,
+                "float_sampled": 1598,
+                "float_above_half_tol": 0,
+                "float_above_eight_tenths_tol": 0,
+                "float_above_tol": 0,
+                "classified": 1598,
+                "unclassified": 0,
+                "classify_above_tol": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "T_IN1",
+      "line": 11,
+      "value": {
+        "seconds": 300.002653856,
+        "requested": 200,
+        "selected": 200,
+        "attempted": 146,
+        "completed": 145,
+        "first20_attempted": 20,
+        "first20_completed": 20,
+        "first20_seconds": 41.756111077,
+        "time_limit_seconds": 300,
+        "work": 95885919,
+        "deadline": true,
+        "first_exception": "Curved atlas elapsed-time budget exhausted."
+      }
+    },
+    {
+      "name": "T_PD",
+      "line": 12,
+      "value": {
+        "seconds": 188.86483949400002,
+        "requested": 200,
+        "selected": 200,
+        "attempted": 200,
+        "completed": 200,
+        "first20_attempted": 20,
+        "first20_completed": 20,
+        "first20_seconds": 4.970374959,
+        "time_limit_seconds": 300,
+        "work": 87858037,
+        "deadline": false
+      }
+    },
+    {
+      "name": "P3",
+      "line": 13,
+      "value": {
+        "accepted": false,
+        "seconds": 27.087042967000002,
+        "modeled_peak_bytes": 4160334792,
+        "points": 40071,
+        "faces": 80138,
+        "traces": 674,
+        "constructor_error": "Physical face violates its model entity/orientation.",
+        "first_local_witness": {
+          "anchor": 23238,
+          "vertices": [
+            40049,
+            40059,
+            270
+          ],
+          "entity": [
+            0,
+            10154,
+            2
+          ],
+          "float_sample": 6.90663455914314e-05,
+          "classify": 9.873782904605036e-05,
+          "coordinates": [
+            [
+              0.03134823809060405,
+              2.1226997455411387e-06,
+              0.022442196902170274
+            ],
+            [
+              0.035246914606888335,
+              1.4986807416769623e-06,
+              0.0231107252875333
+            ],
+            [
+              0.02747467976889768,
+              -1.062527844e-13,
+              0.02163786655234605
+            ]
+          ]
+        },
+        "witness_kind": "face"
+      }
+    },
+    {
+      "name": "P4",
+      "line": 14,
+      "value": {
+        "status": "not_applicable",
+        "reason": "P3 constructor declined PD.",
+        "seconds": 0
+      }
+    }
+  ]
+}

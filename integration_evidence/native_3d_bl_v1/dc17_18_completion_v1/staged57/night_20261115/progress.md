@@ -902,3 +902,31 @@ FX1 G5 ON event 1 mesh, geometry sidecar and restart match the accepted build616
 FX1 G5 ON event 2 passed final timer and connected proof at 378.535 s and 98.738% minimum coverage. Publication, continued CFD and isolated restart are next.
 
 FX1 closed. Part M passed both G5 modes on build617. ON native maxima 1,552.606 / 378.535 s, coverage minima 99.065% / 98.738%. Both modes match their exact reference and initial metric files. Part P omitted under R4. FP1 S OFF proof is complete. All owned jobs terminal.
+
+FP2-0. Order copied and SHA256 verified. The source check and test-only measurement fixtures are prepared. The new fixtures use the pinned sidecars and frozen sensor data.
+
+FP2-0. Verified FX1 terminal handles and host resources. Starting test-only build618.
+
+FP2-0. Build618 passed without a new warning. Starting the three serial measurement fixtures at nice 19.
+
+FP2-0. bounds fixture is terminal and its measurement receipt is sealed.
+
+FP2-0. projection fixture is terminal and its measurement receipt is sealed.
+
+FP2-0 R3. Build618 split stopped at the copied volume sensor count. Verified the unchanged B sensor contains 61,330 records and exactly matches all 24,479 boundary coordinates. Corrected the fixture reader. Building test-only build619.
+
+FP2-0. Test-only build619 passed without a new warning. Starting the final pinned measurement series.
+
+FP2-0 build619. bounds fixture is terminal and its measurement receipt is sealed.
+
+FP2-0 build619. projection fixture is terminal and its measurement receipt is sealed.
+
+FP2-0 build619. IN1 matched all 24,479 boundary points. L accepted 2,719 splits and D accepted 12,873, with each reaching 20 passes. The prototype has 80,138 faces and 40,071 points. The strict comparisons are running.
+
+FP2-0 build619. Strict Classify covered all 48,954 IN1 faces and 36,189 new PD faces at stride 1. PD has 18 local entity-check failures and 46 faces above the census cutoff. Tight lists and the bulk constructor are next.
+
+FP2-0 build619. split fixture is terminal and its measurement receipt is sealed.
+
+FP2-0 build619. P3 rejected PD after 27.087 s on an entity/orientation check. P4 is not applicable. T completed 145 IN1 and 200 PD queries. All measurement receipts and per-face ledgers verified. G1 validation is running.
+
+FP2-0 done on build619. G1 matched 375 / 114 / 228 adopted records. Length and distance steps produced 15,592 splits. The bulk constructor rejected PD on entity/orientation, so P4 was not applicable. The IN1 tight list reached its five-minute limit with 145 of 200 queries complete, and the PD list completed 200 of 200. This was a test-only measurement. All owned jobs are terminal.

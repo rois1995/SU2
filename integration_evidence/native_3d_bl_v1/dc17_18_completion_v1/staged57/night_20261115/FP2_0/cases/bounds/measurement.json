@@ -1,0 +1,210 @@
+{
+  "case": "bounds",
+  "build": 618,
+  "test_binary_sha256": "a556559743d6943f8f129028739f488ed14ab4156e5c8b91e7401071e8175507",
+  "provenance_sha256": "2328ad3b2347466a17ce26f524af25bd5d4f54d323d98cf32964b40aa99ca452",
+  "log_sha256": "a7d81435b12e91523e0ad38973e8edc4f1870d10d2d5dfbe9b577944fdffff87",
+  "artifacts": {
+    "test_outer.log": "a7d81435b12e91523e0ad38973e8edc4f1870d10d2d5dfbe9b577944fdffff87",
+    "time.txt": "7d55f53c5a0ee19d8692e3f82a6b9406ef5dc1641e93064b65208d3c278c7514",
+    "test_wait.json": "0f3df4d3c7a016d521d68a8459b0f552cde6a74ce3e7db8bc64150304c17dac5",
+    "test_launch.json": "28ae13e56ea0feb27c975d9f7d8500de4d82edefc8bab0fb5101936f71df399a",
+    "test_host_preflight.json": "b4f1f2053eada831d90c2163e3bf77bb66e99118d5574e50f2f0210f7f52b1fb",
+    "command.json": "60d3031a9d4081137419b416467850168de1c74d42a7fcacc1964e87e184a172"
+  },
+  "returncode": 0,
+  "controller": {
+    "pid": 3494944,
+    "start_ticks": 73595868
+  },
+  "status": "measurement_terminal",
+  "elapsed_seconds": 79.29808497428894,
+  "process_peak_kib": 373588,
+  "missing_rows": [],
+  "malformed_rows": [],
+  "rows": [
+    {
+      "name": "OUT1_load",
+      "line": 3,
+      "value": {
+        "seconds": 28.203290664,
+        "modeled_peak_bytes": 5455167104,
+        "faces": 67170,
+        "points": 33587,
+        "entities": [
+          {
+            "entity": [
+              0,
+              0,
+              0
+            ],
+            "faces": 2825,
+            "points": 1463
+          },
+          {
+            "entity": [
+              0,
+              2060,
+              1
+            ],
+            "faces": 11762,
+            "points": 6048
+          },
+          {
+            "entity": [
+              0,
+              10154,
+              2
+            ],
+            "faces": 51142,
+            "points": 25887
+          },
+          {
+            "entity": [
+              0,
+              27868,
+              2
+            ],
+            "faces": 1441,
+            "points": 923
+          }
+        ]
+      }
+    },
+    {
+      "name": "B1",
+      "line": 4,
+      "value": {
+        "points": 33587,
+        "faces": 67170,
+        "constructor_seconds": 25.235813015,
+        "policy_seconds": 15.562754967000002,
+        "constructor_minus_policy_seconds": 9.673058048,
+        "modeled_peak_bytes": 3992061856,
+        "policy_modeled_peak_bytes": 3957944912,
+        "rss_before_bytes": 234770432,
+        "rss_after_bytes": 286220288,
+        "rss_change_bytes": 51449856,
+        "snapshot_equal": true,
+        "traces": 733
+      }
+    },
+    {
+      "name": "B2",
+      "line": 5,
+      "value": {
+        "seconds": 9.385148879,
+        "all": {
+          "admissible_calls": 33587,
+          "admissible_failures": 0,
+          "admissible_seconds": 0.26028623100000214,
+          "admissible_us_per_call": 7.7496123797898635,
+          "realize_calls": 33587,
+          "realize_failures": 0,
+          "realize_seconds": 0.331207618000001,
+          "realize_us_per_call": 9.861184922737994,
+          "realize_not_bit_equal": 0,
+          "realize_max_difference": 0,
+          "contains_calls": 67170,
+          "contains_failures": 0,
+          "contains_seconds": 8.728720664999956,
+          "contains_us_per_call": 129.9496898168819
+        },
+        "entities": [
+          {
+            "entity": [
+              0,
+              0,
+              0
+            ],
+            "checks": {
+              "admissible_calls": 1463,
+              "admissible_failures": 0,
+              "admissible_seconds": 0.009426183000000022,
+              "admissible_us_per_call": 6.443050580997965,
+              "realize_calls": 1463,
+              "realize_failures": 0,
+              "realize_seconds": 0.01039647400000001,
+              "realize_us_per_call": 7.106270676691736,
+              "realize_not_bit_equal": 0,
+              "realize_max_difference": 0,
+              "contains_calls": 2825,
+              "contains_failures": 0,
+              "contains_seconds": 0.4595022669999985,
+              "contains_us_per_call": 162.65566973451277
+            }
+          },
+          {
+            "entity": [
+              0,
+              2060,
+              1
+            ],
+            "checks": {
+              "admissible_calls": 6048,
+              "admissible_failures": 0,
+              "admissible_seconds": 0.04894985800000004,
+              "admissible_us_per_call": 8.093561177248684,
+              "realize_calls": 6048,
+              "realize_failures": 0,
+              "realize_seconds": 0.05688447899999997,
+              "realize_us_per_call": 9.405502480158725,
+              "realize_not_bit_equal": 0,
+              "realize_max_difference": 0,
+              "contains_calls": 11762,
+              "contains_failures": 0,
+              "contains_seconds": 1.7659808370000007,
+              "contains_us_per_call": 150.14290401292303
+            }
+          },
+          {
+            "entity": [
+              0,
+              10154,
+              2
+            ],
+            "checks": {
+              "admissible_calls": 25887,
+              "admissible_failures": 0,
+              "admissible_seconds": 0.20097537099999954,
+              "admissible_us_per_call": 7.763563603353017,
+              "realize_calls": 25887,
+              "realize_failures": 0,
+              "realize_seconds": 0.2620446869999999,
+              "realize_us_per_call": 10.122636342565762,
+              "realize_not_bit_equal": 0,
+              "realize_max_difference": 0,
+              "contains_calls": 51142,
+              "contains_failures": 0,
+              "contains_seconds": 6.327508225000045,
+              "contains_us_per_call": 123.72430145477387
+            }
+          },
+          {
+            "entity": [
+              0,
+              27868,
+              2
+            ],
+            "checks": {
+              "admissible_calls": 923,
+              "admissible_failures": 0,
+              "admissible_seconds": 0.007044137000000001,
+              "admissible_us_per_call": 7.631784398699892,
+              "realize_calls": 923,
+              "realize_failures": 0,
+              "realize_seconds": 0.008740491000000006,
+              "realize_us_per_call": 9.469654387865663,
+              "realize_not_bit_equal": 0,
+              "realize_max_difference": 0,
+              "contains_calls": 1441,
+              "contains_failures": 0,
+              "contains_seconds": 0.175729336,
+              "contains_us_per_call": 121.94957390700903
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

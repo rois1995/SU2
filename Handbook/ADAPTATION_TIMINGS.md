@@ -1,5 +1,19 @@
 # Adaptation timings and computational work
 
+## Fast path stage 2
+
+### FP2-0 surface measurements, build619
+
+| Measurement | Seconds | Result |
+| --- | ---: | --- |
+| OUT1 bulk constructor and solo mobility policy | 25.209 / 15.480 | Snapshot equal |
+| OUT1 float wing scan | 3.334 | 210,332 samples |
+| IN1 length and distance split steps | 0.659 / 3.445 | 2,719 / 12,873 splits |
+| IN1 and new PD Classify | 47.075 / 79.643 | 48,954 / 36,189 faces queried |
+| PD bulk constructor | 27.087 | Rejected on entity/orientation |
+
+The split case peaked at 2,742,700 KiB. The strict census marked 46 PD faces, including 16 whose four-sample value was within tolerance. The two-sided proof is conditional on the bulk constructor accepting PD. [FP2-0 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/reports/FP2_0_619.md)
+
 ## Fast path stage 1
 
 ### FX1 Part M, build617

@@ -1,0 +1,58 @@
+{
+  "case": "split",
+  "build": 618,
+  "test_binary_sha256": "a556559743d6943f8f129028739f488ed14ab4156e5c8b91e7401071e8175507",
+  "provenance_sha256": "fc9b624f11cec96bff7e190274e781c7c546bb4e74d6364adff19bc97004dc54",
+  "log_sha256": "8b1b771066539ff6edaadd2c63eed3e654747795d2b0c44c899880d64ad62f2b",
+  "artifacts": {
+    "test_outer.log": "8b1b771066539ff6edaadd2c63eed3e654747795d2b0c44c899880d64ad62f2b",
+    "time.txt": "b07672db9c2e593eaab5ac86de2f5fff405310749dac0af75a07ebbaf51eb61e",
+    "test_wait.json": "01cbd049634066ecaaf3b7659bb8b38da2c19194dc218e9fdcc59d7540fdb094",
+    "test_launch.json": "b9b9a8b590c5451aba056c86f2881a84d5a0fbe0e3a5277219cbce506059cfca",
+    "test_host_preflight.json": "f2df331ce573da3875dc1750d8ec43c186388a3c0e43d38abb1a7251fabcb01e",
+    "command.json": "f7c9c8ea9c7c573d32bb8f9a63a6a9a081c14cec5ddd719c2d1a0cdd0a7cf86b"
+  },
+  "returncode": 1,
+  "controller": {
+    "pid": 3498377,
+    "start_ticks": 73608859
+  },
+  "status": "fixture_failed",
+  "elapsed_seconds": 35.476157903671265,
+  "process_peak_kib": 332884,
+  "missing_rows": [
+    "P_L",
+    "P_D",
+    "P_entities",
+    "P_STRICT",
+    "T_IN1",
+    "T_PD",
+    "P3",
+    "P4"
+  ],
+  "malformed_rows": [],
+  "rows": [
+    {
+      "name": "IN1_load",
+      "line": 3,
+      "value": {
+        "seconds": 5.484881403,
+        "modeled_peak_bytes": 4625561376,
+        "faces": 48954,
+        "points": 24479
+      }
+    },
+    {
+      "name": "IN1_setup",
+      "line": 4,
+      "value": {
+        "seconds": 29.406756876000003,
+        "caller_bytes": 3336096640,
+        "modeled_peak_bytes": 6789203004,
+        "work": 181938600,
+        "protected_edges": 674,
+        "traces": 674
+      }
+    }
+  ]
+}

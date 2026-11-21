@@ -1,0 +1,14 @@
+# FP2-0 whole-item source check
+
+Base `f2d4dfda7d`. The two sidecar headers and the FP0 manifest agree with the order. The fixture loads the sidecars via LoadReference, and reads the FP0 tensors against the IN1 boundary coordinates by binary64 bits. No volume, CFD driver or import is needed. The setup budget uses production PrepareMobility's formulas with caller bytes zero, because there is no loaded volume. The source check concerns the test implementation only.
+
+## Contradictions and readings used
+
+- OUT1 has wing entities `0/10154/2` and `0/27868/2`. The statement about upper and lower wing sides belonging to one sheet describes the large wing entity. The smaller trailing-edge entity is still measured. Each walk stays within the initial entity and respects protected reference edges.
+- The projection frame normalization explicitly requested from GB uses long-double intermediates internally. The test uses this routine as written and uses binary64 for the minimizer, comparison and final distance on the original net. The test functions' finite and nonfinite diagnostics are compiled without fast-math on GCC, following the existing test-local pragma convention.
+- The order gives no numeric rule for classifying G2 tip or trailing-edge failures. Use the persisted trailing-edge strip (sheet 27868) and its interface feature chain 908, and the tip station from the immutable wing facet 27868. Report the predicates and allow overlap. Compare the two numerical distances to the realized feet. The backend's conservative distance upper bound includes realization allowance.
+- T uses the production non-direct support search envelope and entity filter for every face, then asks BoundPhysicalSurface for ErrorMagnitude at the tighter gap. Classify is a proof of being within tolerance or an unproven value above tolerance. A classification above tolerance alone is not a proof that the true distance exceeds tolerance.
+- P4's public calls return a vector in sorted EntityKey order and a map keyed by EntityKey. They expose one elapsed time per direction. Per-entity bounds and acceptance are available, while per-entity time attribution would require observations within the production proof calls. The report keeps the direction clocks and names this unavailable attribution.
+- Split queues use the requested lengths and deterministic sorted edge IDs for ties. Duplicate checks use the constructor's coordinate and support keys. Faces keep their parent anchor and original orientation. Conflict skips and repeated refusals are tracked apart from accepted splits.
+
+The G2 sample selection uses the fixed proportional stride with indices floor(k × 210,332 / 10,000) in deterministic four-sample order. The read-only input edge cross-check counted 1,675 edges over 1.8 before the feature filter and zero on the wing. The prototype first pass counts 1,645 eligible edges. [Input cross-check](input_edge_crosscheck.json)
