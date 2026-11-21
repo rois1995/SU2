@@ -1,0 +1,197 @@
+{
+  "passed": true,
+  "mode": "OFF",
+  "build": 626,
+  "binary_sha256": "1059893f6a419cf60b3f98f638825f3931ad801bccfd584c46c66b9ff866113a",
+  "source_pins_sha256": "ef5a36c6fc7c9f3d823f2b38b77cdaa86adb5ccdf2835d0e7154a8645147dfb4",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_A/G5/build626/OFF/full626_run1",
+  "hashes": {
+    "adapted_mesh_adap_00001.su2": "104591aecdbce03e9e7a8548f8e6e385169667d3c64261f8e7b10273b6e14599",
+    "adapted_mesh_adap_00001.su2.native_ref": "4fb162414013c48cdb762f6ba0f1bc7d7199c2c71b6073bea6526f5ebb4b8526",
+    "restart_flow_adap_00001.dat": "6ab513b32e3ea5cc88a3b562486b0cb8f5bdfeca743b4ca95415a92c1bca27ff",
+    "adapted_mesh_adap_00002.su2": "0d07cefcf5d9e89bb6d70aa11e2ed5bda8344fee2755b9715d2f360a83f55738",
+    "adapted_mesh_adap_00002.su2.native_ref": "37156953991a561cc0483c015f32229f1083ea9dcd3d2313848d986b2c2cee9b",
+    "restart_flow_adap_00002.dat": "33c857da60fe3dc018ef25c196994fa8cf3b7ce44d3c65f61a009f4d1a219cd9"
+  },
+  "restart": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_A/G5/build626/OFF/disk_restart_full626_run1_event2/disk_restart_validation.json",
+  "events": [
+    {
+      "event": 1,
+      "native_seconds": 1760.966229936,
+      "remesh_detail_seconds": 1683.07002198,
+      "job_peak_rss_bytes": 14077104128,
+      "process_peak_sum_bytes": 14077104128,
+      "minimum_timer_coverage": 0.990119222840861,
+      "maximum_join_relative_difference": 9.902987071562023e-07,
+      "proof_faces": 61906,
+      "actual_mesh_counts": {
+        "points": 138661,
+        "cells": 694248
+      },
+      "certification_six_rank_sums": {
+        "cells": 694248,
+        "measured": 694248,
+        "q_measured": 694248,
+        "j_measured": 694248,
+        "q_bad": 0,
+        "j_bad": 0,
+        "size_bad": 0,
+        "geometry_bad": 0
+      },
+      "coordinate_maximum_error": 0.0,
+      "positive_solution": {
+        "minimum_density": 0.6272486226450977,
+        "minimum_internal_energy_density": 103903.3219392735,
+        "restart_precision": "Float64"
+      },
+      "maximum_transfer_residual": 7.789e-14,
+      "continued_cfd_row": [
+        -2.124185,
+        0.269766,
+        0.014825
+      ],
+      "phase_exclusive_clocks": {
+        "construction": {
+          "seconds_min": 447.61227735061965,
+          "seconds_max": 447.66030120760774,
+          "timer_calls_sum": 31064835
+        },
+        "final_proof": {
+          "seconds_min": 59.718778381999996,
+          "seconds_max": 59.718780906,
+          "timer_calls_sum": 30502
+        },
+        "metric": {
+          "seconds_min": 4.057517036999997,
+          "seconds_max": 4.062919840999999,
+          "timer_calls_sum": 258036
+        },
+        "preparation": {
+          "seconds_min": 62.73155969300078,
+          "seconds_max": 62.839781584002075,
+          "timer_calls_sum": 979429
+        },
+        "quality": {
+          "seconds_min": 1149.4702031390743,
+          "seconds_max": 1149.5173005270779,
+          "timer_calls_sum": 8827873
+        },
+        "transfer": {
+          "seconds_min": 29.421047773,
+          "seconds_max": 29.424453791,
+          "timer_calls_sum": 150
+        }
+      },
+      "global_work_by_rank": [
+        2268668,
+        2268668,
+        2268668,
+        2268668,
+        2268668,
+        2268668
+      ],
+      "unattributed_seconds_max": 17.40010587099944
+    },
+    {
+      "event": 2,
+      "native_seconds": 1040.0395806239999,
+      "remesh_detail_seconds": 994.084067543,
+      "job_peak_rss_bytes": 16755060736,
+      "process_peak_sum_bytes": 16755060736,
+      "minimum_timer_coverage": 0.9951510270795673,
+      "maximum_join_relative_difference": 4.2764432750468214e-07,
+      "proof_faces": 58260,
+      "actual_mesh_counts": {
+        "points": 161189,
+        "cells": 822882
+      },
+      "certification_six_rank_sums": {
+        "cells": 822882,
+        "measured": 822882,
+        "q_measured": 822882,
+        "j_measured": 822882,
+        "q_bad": 0,
+        "j_bad": 0,
+        "size_bad": 0,
+        "geometry_bad": 0
+      },
+      "coordinate_maximum_error": 0.0,
+      "positive_solution": {
+        "minimum_density": 0.627060347486066,
+        "minimum_internal_energy_density": 103868.86419774988,
+        "restart_precision": "Float64"
+      },
+      "maximum_transfer_residual": 8.857e-14,
+      "continued_cfd_row": [
+        -2.307745,
+        0.269982,
+        0.015264
+      ],
+      "phase_exclusive_clocks": {
+        "construction": {
+          "seconds_min": 204.271453460194,
+          "seconds_max": 204.28337747314924,
+          "timer_calls_sum": 11266942
+        },
+        "final_proof": {
+          "seconds_min": 108.823673514,
+          "seconds_max": 108.82367643699999,
+          "timer_calls_sum": 34086
+        },
+        "metric": {
+          "seconds_min": 4.761182109999985,
+          "seconds_max": 4.769303545000033,
+          "timer_calls_sum": 312684
+        },
+        "preparation": {
+          "seconds_min": 90.60892930599975,
+          "seconds_max": 90.7162422030136,
+          "timer_calls_sum": 2253121
+        },
+        "quality": {
+          "seconds_min": 600.4069871360003,
+          "seconds_max": 600.4166541270005,
+          "timer_calls_sum": 2613228
+        },
+        "transfer": {
+          "seconds_min": 28.996002219,
+          "seconds_max": 29.005516209000003,
+          "timer_calls_sum": 150
+        }
+      },
+      "global_work_by_rank": [
+        955329,
+        955329,
+        955329,
+        955329,
+        955329,
+        955329
+      ],
+      "unattributed_seconds_max": 5.043311732002233
+    }
+  ],
+  "config_sha256": "5c0fe04144c7bb230ec7f71e26c87bf7d0150cdf5c89caa6e840ba20f3ae2d56",
+  "artifacts": {
+    "helper_pins.json": "86d1784d7e72100c4e0b0cb0192eb3bf4b6f0edbf770b2f17b8d98b4e8c40a92",
+    "full_launch.json": "7ae47d295ab584bba6c37c1869dec2213e3633f5f2c0612bbe1b30cdb4296daa",
+    "full_wait.json": "2dbeef761b04b8649c0b337d6ca2f6b8cb679c894dc134e39e19674f22d432dc",
+    "restart_launch.json": "56f1f007da67732f9dd45d9ef14bd2298b4841e419d1935fa16568ae73a3503c",
+    "restart_wait.json": "b40cb3a2f2c0561cf5ba1285cc9a23cddee9c8577e64d9b56fb00c82d2e43d2e",
+    "full626_run1/provenance.json": "b6c8b62b089b2a4029d5ecf24cbe64628772eac82459ed69cc7898525836e661",
+    "full626_run1/status.json": "f655e17967197f29f05c171b25df6cff8f14121e69f2f64afed2de8bc28901ec",
+    "full626_run1/full_workflow_receipt.json": "2d12d5b430d48e6923ca9b2f1985647700b80a5f0cef1cece448330647b478a6",
+    "full626_run1/n8_payload_identity.json": "737acae7c8abd20431968208e89704be22878b29912d59cbd8e9ab67ba019d0d",
+    "full626_run1/p7p8_event1_gate.json": "1eb891ff0aea1485798f7cd342aad81d1e41c90ac4644f9435d798ccdafbb557",
+    "full626_run1/p7p8_event2_gate.json": "0f0941fc58f18f51d8b9315d8848900666f73b44dc358260d161209551657d3c",
+    "full626_run1/f3b_event1_timer_gate.json": "24a4f78af4bf30844498154c632bc7ce5d01b9c8c601b51140033414fb51e96b",
+    "full626_run1/f3b_event2_timer_gate.json": "6b095e6c62f47b37134b66ce49a5ea22179bcb00714e29eb4e3afbc5791cf8e2",
+    "full626_run1/rank_output/1/rank.3/stdout": "a104a4e872888c22e0d55f70aa83ee6ab8f4038c47c521b64bbd33ee730bd9d2",
+    "full626_run1/rank_output/1/rank.2/stdout": "f68fe95ccac531c8138947e4eb586370de5a9b553ecefa9bdd4b503804d48b76",
+    "full626_run1/rank_output/1/rank.1/stdout": "7b1fe7577ee4e2eec45ac17e15f37298881a3bd1f5229d2d575095661e708580",
+    "full626_run1/rank_output/1/rank.5/stdout": "a8b09a53e84a91da848b9b004a3da2250239e180b550a79dd2cf4df503512896",
+    "full626_run1/rank_output/1/rank.4/stdout": "4766e1ca30e58c7b8804f0df535497cdce930992e18a055ae1627387438babf2",
+    "full626_run1/rank_output/1/rank.0/stdout": "9c8f1b8ddf7c573c29fd8363839befceb4ac0a84a94c8d9504cfe3bb9f74399e",
+    "disk_restart_full626_run1_event2/disk_restart_validation.json": "344c96772f1a334783a82ea634abd14376e21176fdb4b717518e26f4da2467c1",
+    "payload_identity.json": "e87a3352f6151a88add12a3712d53dfba6500153072181fdc6f5f336ccff5d7b"
+  }
+}

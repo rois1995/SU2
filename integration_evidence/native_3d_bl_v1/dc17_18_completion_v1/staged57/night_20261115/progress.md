@@ -1014,3 +1014,31 @@ FP2-A full build625 passed in 790.285 s with no new warning. Its controller is t
 FP2-A correction 2 build626 passed without new warning. Its sole source-pin difference from build625 is the rank-check test TU, and the solver hash matches. Starting K1 then K2 with 1200 s each; K3 is conditional on K1.
 
 FP2-A rank check: stopped before 11.3. K1 reached the 1200 s wrapper limit with no completed pass 1 on either rank; first-sweep max stars 65,654 and 98,388 with zero unresolved/blocked at that observation. K2 ended in 70.818 s with both passes, exact positive cells and geometry/Snapshot agreement. K3 skipped by the K1 rule. All owned rank-check handles terminal. Committing evidence before starting 11.2.
+
+FP2-A rank-check evidence pushed as e056028b0a. Starting §11.2.1 and §11.2.2 on build626: fixtures and G1, then exact G2/GQ, G3/G4 and saved safeguards.
+
+FP2-A Part C §11.2.1 passed on build626. Corrected A/B and all 18 FP1 fixture cohorts passed, and G1 matched 375 / 114 / 228 in 759.081 / 9.050 / 9.749 s. Moving to §11.2.2.
+
+FP2-A Part C G2 passed on build626 (242.814 s wrapper), with exact governed rows, adopted scheduling calls and fixedstorage=4120. GQ is running.
+
+FP2-A Part C GQ passed on build626 (661.142 s wrapper) with exact governed rows and adopted scheduling calls. G3 is running.
+
+FP2-A Part C G3 passed on build626 (610.141 s wrapper). 1,538 splits, 1,113 matching common edits, and observer-adjusted entry work matched. G4 and safeguards follow.
+
+FP2-A G4 passed, 3 cohorts, 36.104 s wrapper. The merit481 saved safeguard passed in 122.416 s; the remaining saved-state safeguards are running.
+
+FP2-A Part C §11.2.2 complete on build626. G2/GQ, G3/G4 and merit481, saved481 and saved_current safeguards passed. Starting §11.2.3 G5 OFF with both local-core options disabled.
+
+FP2-A Part C R3. First G5 OFF adapter preflight stopped before launch because a string binary path was passed to the checksum helper. Converted the binary path to Path at both caller sites. Solver and receipts unchanged; no owned job started.
+
+FP2-A §11.2.3 build626 G5 OFF launched at 15:58 CET with both options disabled. Host check confirmed six owned solver ranks at nice 19. Event 1 reached the complete shape/geometry census and is in quality improvement. No gate result yet.
+
+FP2-A §11.2.3 build626 OFF event 1 passed the terminal proof and timer checks. Native max 1,760.966 s, minimum coverage 99.012%, peak 14,077,104,128 B equal to the sum of rank peaks, owned-face sum 61,906. Transfer, continued CFD and event 2 follow.
+
+FP2-A Correction 3 arrived during build626 G5 OFF. Copied the complete order, checked SHA256 01d871b7e2999e820d18529271b7a7050f3471f50983c552acd88e775406d758 and read it in full. The three event 1 payloads match N21 W. Event 2 is running. Drafting Correction 3 without changing pinned code, then repeating its serial and rank checks at the next boundary.
+
+FP2-A build626 OFF event 2 passed terminal proof and timers. Native max 1,040.040 s, coverage minimum 99.515%, job/process-sum peak 16,755,060,736 B, owned-face sum 58,260. Continued CFD and isolated restart remain in the owned workflow. Correction 3 will apply after its terminal audit.
+
+FP2-A build626 OFF full workflow passed both event validations and continued CFD. All six payloads are byte-identical to N21 W. The isolated restart has started. Neither local-core option is enabled and neither surface marker appears in the full run. Superseded build626 evidence will be kept separate from the corrected qualification.
+
+FP2-A build626 G5 OFF sealed PASSED. Both full events, their six exact payloads, continued CFD and isolated restart passed. Full wrapper 3,201.354 s, restart wrapper 234.563 s. Re-verified the sealed receipt and owned handles on the real host, then applied Correction 3. Its surface sweep printing adds a surface-only call to the existing solver sink printer in NativeRemeshRun.inc, so the pre-correction OFF proof falls outside the file-list exception. Build627 solver and test driver are compiling. Next: serial fixtures and LAB-S, then K1 and conditional K3.

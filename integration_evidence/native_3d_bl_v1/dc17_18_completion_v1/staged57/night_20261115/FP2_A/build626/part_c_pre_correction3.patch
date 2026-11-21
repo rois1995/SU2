@@ -1,0 +1,295 @@
+diff --git a/Common/include/CConfig.hpp b/Common/include/CConfig.hpp
+index db065e2225..0cbc1ecb91 100644
+--- a/Common/include/CConfig.hpp
++++ b/Common/include/CConfig.hpp
+@@ -1320,6 +1320,7 @@ private:
+   unsigned long Adap_Native_Ranks = 0;       /*!< \brief Native adaptation ranks; zero uses all CFD ranks. */
+   bool Adap_Native_Repartition = false;     /*!< \brief Cost-weighted native working partition, independent of CFD. */
+   bool Adap_Native_Local_Core = false;      /*!< \brief Run fixed-surface local remeshing before the native 3D engine. */
++  bool Adap_Native_Local_Surface = false;   /*!< \brief Split native 3D surface edges in the local core. */
+   string Adap_Native_Symmetry_Reference; /*!< \brief Explicit audited initial Cartesian symmetry reference file. */
+   bool Adap_Surface = true;                 /*!< \brief The remesher may change the boundary (surface) mesh. */
+   ADAP_REMESHER Kind_Adap_Remesher=ADAP_REMESHER::MMG; /*!< \brief Opt-in native backend; MMG remains default. */
+@@ -10494,6 +10495,7 @@ public:
+ 
+   /*! \brief Use the optional native 3D local volume core. */
+   bool GetAdap_Native_Local_Core(void) const { return Adap_Native_Local_Core; }
++  bool GetAdap_Native_Local_Surface(void) const { return Adap_Native_Local_Surface; }
+   /*! Explicit native3D working-storage ceiling in bytes; zero retains default/automatic policies. */
+   size_t GetAdap_Native_MemoryLimit() const { return size_t(Adap_Native_MemoryLimit)*(size_t(1)<<20); }
+   /*! Whole-job process peak RSS ceiling in bytes; zero disables refusal. */
+diff --git a/Common/include/adaptation/CNativeLocalCore3D.hpp b/Common/include/adaptation/CNativeLocalCore3D.hpp
+index 1c862fc06f..b80c1ce3fb 100644
+--- a/Common/include/adaptation/CNativeLocalCore3D.hpp
++++ b/Common/include/adaptation/CNativeLocalCore3D.hpp
+@@ -232,6 +232,7 @@ class Mesh {
+                     SurfaceGeometry* surface = nullptr);
+ 
+   static size_t ArrayBytes(size_t cells);
++  static size_t SurfaceArrayBytes(size_t cells);
+   static const size_t BytesPerCell;
+ 
+  private:
+diff --git a/Common/include/adaptation/CNativeLocalSurface3D.hpp b/Common/include/adaptation/CNativeLocalSurface3D.hpp
+index 7f6cf7ab7c..9cbecc1020 100644
+--- a/Common/include/adaptation/CNativeLocalSurface3D.hpp
++++ b/Common/include/adaptation/CNativeLocalSurface3D.hpp
+@@ -73,6 +73,7 @@ class StateSurfaceGeometry final : public SurfaceGeometry {
+   const BoundaryPoint* Find(Id) const;
+   const SU2NativeGeometry::EdgeTrace* FindTrace(const SurfaceEdge&) const;
+   size_t ResidentBytes() const;
++  size_t PeakBytes() const;
+   void SetCallerBytes(size_t);
+   size_t Splits() const;
+   void Exchange(World&, MemoryBudget&, size_t caller);
+diff --git a/Common/src/CConfig.cpp b/Common/src/CConfig.cpp
+index 2a1ee0b80e..e0bd768110 100644
+--- a/Common/src/CConfig.cpp
++++ b/Common/src/CConfig.cpp
+@@ -3308,6 +3308,7 @@ void CConfig::SetConfig_Options() {
+   addStringOption("ADAP_NATIVE_SYMMETRY_REFERENCE", Adap_Native_Symmetry_Reference, "");
+   addBoolOption("ADAP_NATIVE_REPARTITION", Adap_Native_Repartition, false);
+   addBoolOption("ADAP_NATIVE_LOCAL_CORE", Adap_Native_Local_Core, false);
++  addBoolOption("ADAP_NATIVE_LOCAL_SURFACE", Adap_Native_Local_Surface, false);
+   addUnsignedLongOption("ADAP_NATIVE_RANKS", Adap_Native_Ranks, 0);
+   addUnsignedLongOption("ADAP_NATIVE_MEMORY_LIMIT", Adap_Native_MemoryLimit, 0);
+   addUnsignedLongOption("ADAP_NATIVE_JOB_MEMORY_LIMIT", Adap_Native_Job_MemoryLimit, 0);
+@@ -6448,6 +6449,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
+     SU2_MPI::Error("ADAP_NATIVE_REPARTITION/ADAP_NATIVE_RANKS require ADAP_REMESHER= NATIVE_CAVITY.", CURRENT_FUNCTION);
+   if (Adap_Native_Local_Core && Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
+     SU2_MPI::Error("ADAP_NATIVE_LOCAL_CORE requires ADAP_REMESHER= NATIVE_CAVITY.", CURRENT_FUNCTION);
++  if (Adap_Native_Local_Surface && Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
++    SU2_MPI::Error("ADAP_NATIVE_LOCAL_SURFACE requires ADAP_REMESHER= NATIVE_CAVITY.", CURRENT_FUNCTION);
+ 
+   if (Adap_Native_Ranks > static_cast<unsigned long>(size))
+     SU2_MPI::Error("ADAP_NATIVE_RANKS cannot exceed the CFD communicator size.", CURRENT_FUNCTION);
+diff --git a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+index 3512b2a491..6732e763e2 100644
+--- a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
++++ b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+@@ -1,4 +1,5 @@
+ #include "../../../include/adaptation/CNativeLocalCore3D.hpp"
++#include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
+ 
+ 
+ // Remesh owns the timer and public transaction. These stages borrow its controls and live inputs.
+@@ -699,10 +700,14 @@ struct RemeshRun {
+                                 kernel.region_walls.empty() &&
+                                 !workers.maximum(std::any_of(mesh.working.begin(), mesh.working.end(),
+                                                              [](const auto& row) { return !row.second.sensor_present; }));
+-        if (applicable)
+-          RunLocalCore(mesh, trial);
+-        else if (control.timings)
++        if (applicable) {
++          if (RunLocalCore(mesh, trial, preparation))
++            kernel.caller_bytes = transfer_memory::Add(
++                Held(preparation), transfer_memory::Bytes(imported.original),
++                worker_source == &imported.original ? 0 : transfer_memory::Bytes(*worker_source));
++        } else if (control.timings) {
+           std::cout << "NATIVE3D_LOCAL_CORE rank=" << workers.rank << " applicable=0" << std::endl;
++        }
+       }
+       if (valid) valid = SnapshotSource(mesh, trial, *worker_source);
+       if (valid && construction) ConstructRows(preparation, input, mesh, trial);
+@@ -769,14 +774,85 @@ struct RemeshRun {
+     std::cout << " seconds=" << seconds << std::endl;
+   }
+ 
++  std::unique_ptr<SU2NativeLocal3D::StateSurfaceGeometry> BeginLocalSurface(const ReferencePreparation& preparation,
++                                                                          const Owned& working, WorkerTrial& trial) {
++    auto& workers = trial.workers;
++    const auto& original = preparation.pending->state.original;
++    const auto* state = original ? original->Parameters() : nullptr;
++    if (!state || !state->EntityGeometry() || !state->Mobility().identity) {
++      if (control.timings)
++        std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << workers.rank << " applicable=0" << std::endl;
++      return {};
++    }
++    const auto& kernel = trial.kernel;
++    std::unique_ptr<SU2NativeLocal3D::StateSurfaceGeometry> surface;
++    CLocalFailure local;
++    try {
++      SU2NativeGeometry::AtlasBudget budget;
++      budget.maximum_bytes = kernel.memory_ceiling;
++      budget.caller_bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working));
++      budget.maximum_integer_bits = SU2NativeLocal3D::SurfaceAtlasIntegerBits();
++      budget.maximum_work = transfer_memory::Mul(transfer_memory::Add(stats.initial_cells, control.maximum_work),
++                                                  SU2NativeGeometry::MappedFacetReference::ClearanceWork);
++      if (budget.maximum_work == SIZE_MAX) throw std::length_error("Native local surface geometry work overflows.");
++      budget.within_time = [this] { return WithinTime(); };
++      surface = std::make_unique<SU2NativeLocal3D::StateSurfaceGeometry>(original, std::move(budget));
++    } catch (const std::exception& e) {
++      local.Set(2, 0, e.what());
++    }
++    const auto elected = workers.elect(local);
++    if (elected.any) throw elected;
++    return surface;
++  }
++
++  void PrintLocalSurfacePass(int rank, unsigned pass, const SU2NativeLocal3D::SurfaceCounters& counts) {
++    std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << rank << " stage=" << stats.normalization_stages - 1
++              << " pass=" << pass << " applicable=1";
++    SU2NativeLocal3D::PrintSurfaceFields(std::cout, counts);
++    std::cout << std::endl;
++  }
++
++  bool InstallLocalSurface(ReferencePreparation& preparation, const Owned& working, WorkerTrial& trial,
++                           const SU2NativeLocal3D::StateSurfaceGeometry& surface, SU2NativeLocal3D::MemoryBudget& budget,
++                           double exchange_seconds) {
++    auto& workers = trial.workers;
++    const bool report = control.timings;
++    const auto rss = report ? CurrentRSS3D() : 0;
++    const auto caller_bytes = transfer_memory::Add(trial.kernel.caller_bytes, OwnedStorageBytes(working));
++    auto result = SU2NativeLocal3D::BuildSurfaceState(workers, working, surface, budget, caller_bytes, report);
++    stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
++    if (result.state) {
++      std::shared_ptr<const PlanarReference> next;
++      CLocalFailure local;
++      try { next = preparation.pending->state.original->WithParameterState(result.state); }
++      catch (const std::exception& e) { local.Set(2, 0, e.what()); }
++      const auto elected = workers.elect(local);
++      if (elected.any) throw elected;
++      preparation.pending->state.original = std::move(next);
++    }
++    if (report) {
++      const auto& state = result.state ? *result.state : surface.State();
++      std::cout << "NATIVE3D_LOCAL_SURFACE_STATE rank=" << workers.rank << " stage=" << stats.normalization_stages - 1
++                << " splits_all=" << result.splits << " faces=" << state.Surface().size()
++                << " points=" << state.Records().size() << " traces=" << state.Coverage().traces.size()
++                << " revision=" << state.Revision() << " seconds_exchange=" << exchange_seconds
++                << " seconds_gather=" << result.seconds_gather << " seconds_build=" << result.seconds_build
++                << " seconds_check=" << result.seconds_check << " modeled_peak=" << budget.maximum_bytes
++                << " rss_before=" << rss << " rss_after=" << CurrentRSS3D() << std::endl;
++    }
++    return bool(result.state);
++  }
++
+   // Replace the working volume before the existing current-nodal snapshot.
+-  void RunLocalCore(WorkerMesh& mesh, WorkerTrial& trial) {
++  bool RunLocalCore(WorkerMesh& mesh, WorkerTrial& trial, ReferencePreparation& preparation) {
+     namespace core = SU2NativeLocal3D;
+     SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::Construction);
+     SU2NativeTiming3D::Scope topology(SU2NativeTiming3D::Operation::Topology);
+     auto& workers = trial.workers;
+     auto& working = mesh.working;
+     const auto& kernel = trial.kernel;
++    const auto surface = config.GetAdap_Native_Local_Surface() ? BeginLocalSurface(preparation, working, trial)
++                                                               : nullptr;
+     Id point_base = 0, cell_base = 0;
+     const auto visit = [&](const Cell& cell) {
+       cell_base = std::max(cell_base, cell.id);
+@@ -791,15 +867,22 @@ struct RemeshRun {
+     core::MemoryBudget budget{kernel.memory_ceiling, kernel.caller_bytes, owned_row_bytes};
+     const unsigned passes = workers.size == 1 ? 1 : core::PassCount;
+     const bool report = control.timings;
++    double exchange_seconds = 0;
+     core::BorderMeeting previous;
+     for (unsigned pass = 1; pass <= passes; ++pass) {
+       const double begin = report ? workers.seconds() : 0;
++      if (surface) budget.caller_bytes = transfer_memory::Add(kernel.caller_bytes, surface->ResidentBytes());
+       auto meeting = core::MeetBorderPoints(workers, working, budget, previous.Bytes(), report);
+-      const auto bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working), previous.Bytes(),
+-                                              meeting.Bytes(), core::Mesh::ArrayBytes(working.size()));
++      auto bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working), previous.Bytes(),
++                                        meeting.Bytes(), core::Mesh::ArrayBytes(working.size()));
++      if (surface)
++        bytes = transfer_memory::Add(bytes, surface->ResidentBytes(), core::Mesh::SurfaceArrayBytes(working.size()));
+       budget.Require(workers, bytes, "Native local core arrays exceed working-storage admission.");
+       stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
+-      const auto cell_limit = (kernel.memory_ceiling - kernel.caller_bytes) / (owned_row_bytes + core::Mesh::BytesPerCell);
++      auto cell_limit = (kernel.memory_ceiling - kernel.caller_bytes) / (owned_row_bytes + core::Mesh::BytesPerCell);
++      if (surface)
++        cell_limit = (kernel.memory_ceiling - budget.caller_bytes) /
++                     (owned_row_bytes + core::Mesh::BytesPerCell + core::Mesh::SurfaceArrayBytes(1));
+       core::PassStats counts;
+       counts.report = report;
+       if (report) counts.sink = [this, rank = workers.rank, pass](const auto& row) { PrintLocalSweep(rank, pass, row); };
+@@ -809,7 +892,14 @@ struct RemeshRun {
+         core::Mesh pass_mesh(working, workers.size > 1);
+         const auto build_seconds = report ? workers.seconds() - build_start : 0.0;
+         pass_mesh.MarkBorderSurface(meeting);
+-        counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));
++        if (surface) {
++          surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
++          core::CoreOptions options;
++          options.surface_splits = true;
++          counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get());
++        } else {
++          counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));
++        }
+         const auto write_start = report ? workers.seconds() : 0.0;
+         pass_mesh.WriteBack(working, cell_ids);
+         if (report) {
+@@ -820,9 +910,25 @@ struct RemeshRun {
+         local.Set(2, 0, e.what());
+       }
+       const auto elected = workers.elect(local);
+-      if (report && !local.Failed()) PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
++      if (report && !local.Failed()) {
++        PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
++        if (surface) PrintLocalSurfacePass(workers.rank, pass, counts.surface);
++      }
+       if (elected.any) throw elected;
+ 
++      if (surface) {
++        budget.maximum_bytes = std::max(budget.maximum_bytes, surface->PeakBytes());
++        if (passes > 1) {
++          const auto exchange_start = report ? workers.seconds() : 0;
++          const auto caller_bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working),
++                                                         previous.Bytes(), meeting.Bytes());
++          surface->Exchange(workers, budget, caller_bytes);
++          if (report) exchange_seconds += workers.seconds() - exchange_start;
++        }
++        budget.caller_bytes = transfer_memory::Add(kernel.caller_bytes, surface->ResidentBytes());
++        stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
++      }
++
+       if (passes > 1) {
+         const bool lower = pass == 1;
+         const double shift_begin = report ? workers.seconds() : 0;
+@@ -834,6 +940,7 @@ struct RemeshRun {
+         if (lower) previous.rendezvous = std::move(meeting.rendezvous);
+       }
+     }
++    return surface && InstallLocalSurface(preparation, working, trial, *surface, budget, exchange_seconds);
+   }
+ 
+   // Replaces the private stage donor snapshot only after the existing vote.
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
+index aa95f0a35f..11f7aee618 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
+@@ -125,6 +125,21 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
+   if (!s.first_trace_reason.empty()) out << " first_trace_reason=" << std::quoted(s.first_trace_reason);
+ }
+ 
++size_t Mesh::SurfaceArrayBytes(size_t cells) {
++  using transfer_memory::Add;
++  using transfer_memory::Mul;
++  constexpr size_t links = 4 * sizeof(void*);
++  // Each split visits four child faces and adds at least one live cell. Bound retained sample
++  // and chord keys by four historical faces and twelve historical edges per live cell.
++  constexpr size_t face = sizeof(std::pair<const SurfaceFaceKey, SampleRow>) + links +
++                          3 * (sizeof(PhysicalFace) + sizeof(std::pair<SampleRow*, SurfaceEdge>));
++  constexpr size_t edge = sizeof(EdgeUses::value_type) + links + 2 * (sizeof(SurfaceEdge) + links) +
++                          sizeof(std::pair<const SurfaceEdge, std::optional<double>>) + links +
++                          sizeof(std::pair<const SurfaceEdge, DistanceMark>) + links +
++                          3 * (sizeof(Candidate) + sizeof(EdgeUse) + sizeof(Edge));
++  return Mul(cells, Add(Mul(4, face), Mul(12, edge)));
++}
++
+ std::vector<Mesh::PhysicalFace> Mesh::SurfaceParents(Edge edge, const Ring& ring) const {
+   std::vector<PhysicalFace> parents;
+   for (auto cell : ring.cells)
+diff --git a/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp b/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp
+index 148398d5f1..899e02fee5 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp
+@@ -628,6 +628,7 @@ const BoundaryPoint* StateSurfaceGeometry::Find(Id id) const { return impl_->Fin
+ const EdgeTrace* StateSurfaceGeometry::FindTrace(const SurfaceEdge& edge) const { return impl_->Trace(edge); }
+ const SU2Native3D::BoundaryParameterState& StateSurfaceGeometry::State() const { return impl_->state; }
+ size_t StateSurfaceGeometry::ResidentBytes() const { return Add(sizeof(*this), impl_->ResidentBytes()); }
++size_t StateSurfaceGeometry::PeakBytes() const { return impl_->budget.peak_bytes; }
+ size_t StateSurfaceGeometry::Splits() const { return impl_->local_splits; }
+ 
+ void StateSurfaceGeometry::SetCallerBytes(size_t caller) {
