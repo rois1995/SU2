@@ -1064,3 +1064,17 @@ FP2-A build627 rank-alarm evidence pushed as 5814de1d8b. Starting the same-binar
 FP2-A Correction 3 build627 passed both Part B MPI state comparisons and all 18 inherited FP1 fixture cohorts. G1 serial is running. The correction checkpoint follows G1 identity, then §11.2.2.
 
 FP2-A Correction 3 §3.3 passed on build627. G1 matched 375 / 114 / 228 adopted records. Part B and all inherited FP1 fixtures passed on the same binary. The correction checkpoint excludes the still-unqualified Part C integration. Next: §11.2.2 default prefix and safeguard checks.
+
+FP2-A correction 3 pushed as 44b5b199a4. Only the original Part C production integration remains uncommitted. Starting build627 default G2/GQ, G3/G4 and shared-engine saved safeguards.
+
+FP2-A build627 G2 passed in 238.103 s with all governed rows, six adopted scheduling counts and fixedstorage=4120 exact. GQ is running.
+
+FP2-A build627 GQ passed in 656.240 s with all governed rows, twelve adopted scheduling counts and fixedstorage=4120 exact. G3 is running.
+
+FP2-A build627 G3 passed in 615.279 s, with 1,559 accepted splits, exact common prefix of 1,113 edits, observer-adjusted entry work equal and all physical gates passed. G4 and saved safeguards follow.
+
+FP2-A build627 G4 passed the 1-, 2- and 4-rank cohorts in 36.556 s. Running the saved-state safeguards.
+
+FP2-A build627 merit481 saved-state safeguard passed in 121.675 s. The saved481 and saved_current repeats remain.
+
+FP2-A build627 §11.2.2 complete. Saved481 and saved_current passed in 143.906 / 144.107 s. G2/GQ, G3/G4 and all three saved-state safeguards passed and the scoped controller is terminal. Starting the fresh same-binary §11.2.3 OFF workflow.
