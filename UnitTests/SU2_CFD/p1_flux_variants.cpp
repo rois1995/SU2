@@ -11440,8 +11440,10 @@ TEST_CASE("TURB_VISC_P1_GALERKIN: SST rows, Jacobian vs finite differences, k ro
         CHECK(rW0[a] == rW[a]);
         for (int b = 0; b < nNodes; ++b) {
           CHECK(jac0[a][b][0][0] == 0.0);
-          CHECK(jac0[a][b][1][1] == jacA[a][b][1][1]);
-          CHECK(jac0[a][b][1][0] == jacA[a][b][1][0]);
+          /*--- Same expressions and inputs; the two inlined calls (constant kineRow true / false) may contract to FMA
+           * differently, so they agree to rounding only (the build showed last-bit differences). ---*/
+          CHECK(jac0[a][b][1][1] == Approx(jacA[a][b][1][1]).epsilon(1e-12));
+          CHECK(jac0[a][b][1][0] == Approx(jacA[a][b][1][0]).epsilon(1e-12));
         }
       }
     }
