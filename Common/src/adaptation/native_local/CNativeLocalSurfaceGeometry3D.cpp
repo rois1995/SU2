@@ -628,6 +628,7 @@ const BoundaryPoint* StateSurfaceGeometry::Find(Id id) const { return impl_->Fin
 const EdgeTrace* StateSurfaceGeometry::FindTrace(const SurfaceEdge& edge) const { return impl_->Trace(edge); }
 const SU2Native3D::BoundaryParameterState& StateSurfaceGeometry::State() const { return impl_->state; }
 size_t StateSurfaceGeometry::ResidentBytes() const { return Add(sizeof(*this), impl_->ResidentBytes()); }
+size_t StateSurfaceGeometry::PeakBytes() const { return impl_->budget.peak_bytes; }
 size_t StateSurfaceGeometry::Splits() const { return impl_->local_splits; }
 
 void StateSurfaceGeometry::SetCallerBytes(size_t caller) {

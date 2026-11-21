@@ -1,4 +1,5 @@
 #include "../../../include/adaptation/CNativeLocalCore3D.hpp"
+#include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
 
 
 // Remesh owns the timer and public transaction. These stages borrow its controls and live inputs.
@@ -699,10 +700,14 @@ struct RemeshRun {
                                 kernel.region_walls.empty() &&
                                 !workers.maximum(std::any_of(mesh.working.begin(), mesh.working.end(),
                                                              [](const auto& row) { return !row.second.sensor_present; }));
-        if (applicable)
-          RunLocalCore(mesh, trial);
-        else if (control.timings)
+        if (applicable) {
+          if (RunLocalCore(mesh, trial, preparation))
+            kernel.caller_bytes = transfer_memory::Add(
+                Held(preparation), transfer_memory::Bytes(imported.original),
+                worker_source == &imported.original ? 0 : transfer_memory::Bytes(*worker_source));
+        } else if (control.timings) {
           std::cout << "NATIVE3D_LOCAL_CORE rank=" << workers.rank << " applicable=0" << std::endl;
+        }
       }
       if (valid) valid = SnapshotSource(mesh, trial, *worker_source);
       if (valid && construction) ConstructRows(preparation, input, mesh, trial);
@@ -770,14 +775,85 @@ struct RemeshRun {
     std::cout << " seconds=" << seconds << std::endl;
   }
 
+  std::unique_ptr<SU2NativeLocal3D::StateSurfaceGeometry> BeginLocalSurface(const ReferencePreparation& preparation,
+                                                                          const Owned& working, WorkerTrial& trial) {
+    auto& workers = trial.workers;
+    const auto& original = preparation.pending->state.original;
+    const auto* state = original ? original->Parameters() : nullptr;
+    if (!state || !state->EntityGeometry() || !state->Mobility().identity) {
+      if (control.timings)
+        std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << workers.rank << " applicable=0" << std::endl;
+      return {};
+    }
+    const auto& kernel = trial.kernel;
+    std::unique_ptr<SU2NativeLocal3D::StateSurfaceGeometry> surface;
+    CLocalFailure local;
+    try {
+      SU2NativeGeometry::AtlasBudget budget;
+      budget.maximum_bytes = kernel.memory_ceiling;
+      budget.caller_bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working));
+      budget.maximum_integer_bits = SU2NativeLocal3D::SurfaceAtlasIntegerBits();
+      budget.maximum_work = transfer_memory::Mul(transfer_memory::Add(stats.initial_cells, control.maximum_work),
+                                                  SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+      if (budget.maximum_work == SIZE_MAX) throw std::length_error("Native local surface geometry work overflows.");
+      budget.within_time = [this] { return WithinTime(); };
+      surface = std::make_unique<SU2NativeLocal3D::StateSurfaceGeometry>(original, std::move(budget));
+    } catch (const std::exception& e) {
+      local.Set(2, 0, e.what());
+    }
+    const auto elected = workers.elect(local);
+    if (elected.any) throw elected;
+    return surface;
+  }
+
+  void PrintLocalSurfacePass(int rank, unsigned pass, const SU2NativeLocal3D::SurfaceCounters& counts) {
+    std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << rank << " stage=" << stats.normalization_stages - 1
+              << " pass=" << pass << " applicable=1";
+    SU2NativeLocal3D::PrintSurfaceFields(std::cout, counts);
+    std::cout << std::endl;
+  }
+
+  bool InstallLocalSurface(ReferencePreparation& preparation, const Owned& working, WorkerTrial& trial,
+                           const SU2NativeLocal3D::StateSurfaceGeometry& surface, SU2NativeLocal3D::MemoryBudget& budget,
+                           double exchange_seconds) {
+    auto& workers = trial.workers;
+    const bool report = control.timings;
+    const auto rss = report ? CurrentRSS3D() : 0;
+    const auto caller_bytes = transfer_memory::Add(trial.kernel.caller_bytes, OwnedStorageBytes(working));
+    auto result = SU2NativeLocal3D::BuildSurfaceState(workers, working, surface, budget, caller_bytes, report);
+    stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
+    if (result.state) {
+      std::shared_ptr<const PlanarReference> next;
+      CLocalFailure local;
+      try { next = preparation.pending->state.original->WithParameterState(result.state); }
+      catch (const std::exception& e) { local.Set(2, 0, e.what()); }
+      const auto elected = workers.elect(local);
+      if (elected.any) throw elected;
+      preparation.pending->state.original = std::move(next);
+    }
+    if (report) {
+      const auto& state = result.state ? *result.state : surface.State();
+      std::cout << "NATIVE3D_LOCAL_SURFACE_STATE rank=" << workers.rank << " stage=" << stats.normalization_stages - 1
+                << " splits_all=" << result.splits << " faces=" << state.Surface().size()
+                << " points=" << state.Records().size() << " traces=" << state.Coverage().traces.size()
+                << " revision=" << state.Revision() << " seconds_exchange=" << exchange_seconds
+                << " seconds_gather=" << result.seconds_gather << " seconds_build=" << result.seconds_build
+                << " seconds_check=" << result.seconds_check << " modeled_peak=" << budget.maximum_bytes
+                << " rss_before=" << rss << " rss_after=" << CurrentRSS3D() << std::endl;
+    }
+    return bool(result.state);
+  }
+
   // Replace the working volume before the existing current-nodal snapshot.
-  void RunLocalCore(WorkerMesh& mesh, WorkerTrial& trial) {
+  bool RunLocalCore(WorkerMesh& mesh, WorkerTrial& trial, ReferencePreparation& preparation) {
     namespace core = SU2NativeLocal3D;
     SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::Construction);
     SU2NativeTiming3D::Scope topology(SU2NativeTiming3D::Operation::Topology);
     auto& workers = trial.workers;
     auto& working = mesh.working;
     const auto& kernel = trial.kernel;
+    const auto surface = config.GetAdap_Native_Local_Surface() ? BeginLocalSurface(preparation, working, trial)
+                                                               : nullptr;
     Id point_base = 0, cell_base = 0;
     const auto visit = [&](const Cell& cell) {
       cell_base = std::max(cell_base, cell.id);
@@ -792,15 +868,22 @@ struct RemeshRun {
     core::MemoryBudget budget{kernel.memory_ceiling, kernel.caller_bytes, owned_row_bytes};
     const unsigned passes = workers.size == 1 ? 1 : core::PassCount;
     const bool report = control.timings;
+    double exchange_seconds = 0;
     core::BorderMeeting previous;
     for (unsigned pass = 1; pass <= passes; ++pass) {
       const double begin = report ? workers.seconds() : 0;
+      if (surface) budget.caller_bytes = transfer_memory::Add(kernel.caller_bytes, surface->ResidentBytes());
       auto meeting = core::MeetBorderPoints(workers, working, budget, previous.Bytes(), report);
-      const auto bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working), previous.Bytes(),
-                                              meeting.Bytes(), core::Mesh::ArrayBytes(working.size()));
+      auto bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working), previous.Bytes(),
+                                        meeting.Bytes(), core::Mesh::ArrayBytes(working.size()));
+      if (surface)
+        bytes = transfer_memory::Add(bytes, surface->ResidentBytes(), core::Mesh::SurfaceArrayBytes(working.size()));
       budget.Require(workers, bytes, "Native local core arrays exceed working-storage admission.");
       stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
-      const auto cell_limit = (kernel.memory_ceiling - kernel.caller_bytes) / (owned_row_bytes + core::Mesh::BytesPerCell);
+      auto cell_limit = (kernel.memory_ceiling - kernel.caller_bytes) / (owned_row_bytes + core::Mesh::BytesPerCell);
+      if (surface)
+        cell_limit = (kernel.memory_ceiling - budget.caller_bytes) /
+                     (owned_row_bytes + core::Mesh::BytesPerCell + core::Mesh::SurfaceArrayBytes(1));
       core::PassStats counts;
       counts.report = report;
       if (report) counts.sink = [this, rank = workers.rank, pass](const auto& row) { PrintLocalSweep(rank, pass, row); };
@@ -810,7 +893,14 @@ struct RemeshRun {
         core::Mesh pass_mesh(working, workers.size > 1);
         const auto build_seconds = report ? workers.seconds() - build_start : 0.0;
         pass_mesh.MarkBorderSurface(meeting);
-        counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));
+        if (surface) {
+          surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
+          core::CoreOptions options;
+          options.surface_splits = true;
+          counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get());
+        } else {
+          counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));
+        }
         const auto write_start = report ? workers.seconds() : 0.0;
         pass_mesh.WriteBack(working, cell_ids);
         if (report) {
@@ -821,8 +911,24 @@ struct RemeshRun {
         local.Set(2, 0, e.what());
       }
       const auto elected = workers.elect(local);
-      if (report && !local.Failed()) PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
+      if (report && !local.Failed()) {
+        PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
+        if (surface) PrintLocalSurfacePass(workers.rank, pass, counts.surface);
+      }
       if (elected.any) throw elected;
+
+      if (surface) {
+        budget.maximum_bytes = std::max(budget.maximum_bytes, surface->PeakBytes());
+        if (passes > 1) {
+          const auto exchange_start = report ? workers.seconds() : 0;
+          const auto caller_bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working),
+                                                         previous.Bytes(), meeting.Bytes());
+          surface->Exchange(workers, budget, caller_bytes);
+          if (report) exchange_seconds += workers.seconds() - exchange_start;
+        }
+        budget.caller_bytes = transfer_memory::Add(kernel.caller_bytes, surface->ResidentBytes());
+        stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
+      }
 
       if (passes > 1) {
         const bool lower = pass == 1;
@@ -835,6 +941,7 @@ struct RemeshRun {
         if (lower) previous.rendezvous = std::move(meeting.rendezvous);
       }
     }
+    return surface && InstallLocalSurface(preparation, working, trial, *surface, budget, exchange_seconds);
   }
 
   // Replaces the private stage donor snapshot only after the existing vote.

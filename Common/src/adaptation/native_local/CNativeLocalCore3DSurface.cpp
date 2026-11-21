@@ -173,6 +173,21 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
   if (!s.first_trace_reason.empty()) out << " first_trace_reason=" << std::quoted(s.first_trace_reason);
 }
 
+size_t Mesh::SurfaceArrayBytes(size_t cells) {
+  using transfer_memory::Add;
+  using transfer_memory::Mul;
+  constexpr size_t links = 4 * sizeof(void*);
+  // Each split visits four child faces and adds at least one live cell. Bound retained sample
+  // and chord keys by four historical faces and twelve historical edges per live cell.
+  constexpr size_t face = sizeof(std::pair<const SurfaceFaceKey, SampleRow>) + links +
+                          3 * (sizeof(PhysicalFace) + sizeof(std::pair<SampleRow*, SurfaceEdge>));
+  constexpr size_t edge = sizeof(EdgeUses::value_type) + links + 2 * (sizeof(SurfaceEdge) + links) +
+                          sizeof(std::pair<const SurfaceEdge, std::optional<double>>) + links +
+                          sizeof(std::pair<const SurfaceEdge, DistanceMark>) + links +
+                          3 * (sizeof(Candidate) + sizeof(EdgeUse) + sizeof(Edge));
+  return Mul(cells, Add(Mul(4, face), Mul(12, edge)));
+}
+
 std::vector<Mesh::PhysicalFace> Mesh::SurfaceParents(Edge edge, const Ring& ring) const {
   std::vector<PhysicalFace> parents;
   for (auto cell : ring.cells)

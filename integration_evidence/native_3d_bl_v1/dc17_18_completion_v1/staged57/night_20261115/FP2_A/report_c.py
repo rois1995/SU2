@@ -253,6 +253,7 @@ def format_markdown(report):
     for ordinal in (1, 2):
         lines += [f'## Event {ordinal}', '']
         rows, ranks, engine, surface = [], [], [], []
+        s1_faces = defaultdict(dict)
         for mode, run in report['runs'].items():
             event = next((item for item in run['events'] if item['event'] == ordinal), None)
             if event is None or not event['ranks']:
@@ -280,11 +281,19 @@ def format_markdown(report):
                                ', '.join(shown(x['surface_rounds']) for x in exits) or '—',
                                *(shown(sum(values)) if values and None not in values else '—' for values in commits.values()),
                                shown(counts.get('stage')), shown(counts.get('geometry_invalid_cells'))))
-                for title, key in (('pass', 'surface_passes'), ('state', 'surface_states')):
+                for marker, key in (('NATIVE3D_LOCAL_SURFACE', 'surface_passes'),
+                                    ('NATIVE3D_LOCAL_SURFACE_STATE', 'surface_states')):
                     for record in row[key]:
+                        if mode == 'S1' and ordinal == 1 and key == 'surface_passes':
+                            stage_pass = (number(record, 'stage', int), number(record, 'pass', int))
+                            if None not in stage_pass and (faces := number(record, 'faces_out', int)) is not None:
+                                group = s1_faces[stage_pass]
+                                if int(rank) in group:
+                                    raise ValueError(f'Duplicate S1 surface pass on rank {rank}, stage/pass {stage_pass}')
+                                group[int(rank)] = faces
                         fields = ' '.join(f'{name}={json.dumps(value) if any(c.isspace() for c in value) else value}'
                                           for name, value in record.items())
-                        surface.append(f'{mode} {title} {fields}')
+                        surface.append(f'{mode} {marker} {fields}')
         lines += table(('Case', 'Native max', 'Cells', 'Points', 'Surface faces', 'Min coverage %', 'Job peak', 'Builds observed'), rows)
         if ranks:
             lines += table(('Case', 'Rank', 'Native', *PHASES, *OPERATIONS, 'Process peak', 'Builds observed'), ranks)
@@ -293,6 +302,11 @@ def format_markdown(report):
                             'First census stage emitted', 'Geometry-invalid cells'), engine)
         if surface:
             lines += ['### Surface rows', '', '```text', *surface, '```', '']
+        if s1_faces:
+            lines += ['### S1 summed surface faces by stage and pass', '']
+            counts = [(stage, run_pass, ', '.join(str(rank) for rank in sorted(group)), sum(group.values()))
+                      for (stage, run_pass), group in sorted(s1_faces.items())]
+            lines += table(('Stage', 'Pass', 'Ranks with rows', 'Sum of faces_out'), counts)
     return '\n'.join(lines)
 
 
@@ -308,7 +322,8 @@ def self_check():
                        f'NATIVE3D_STAGE rank={rank} stage=exit length_splits=3 surface_rounds=2\n'
                        f'NATIVE3D_LANE_CENSUS rank={rank} stage=construction class=local_wall commits=4\n')
                 if mode == 'S1':
-                    log += (f'NATIVE3D_LOCAL_SURFACE rank={rank} stage=0 pass=1 applicable=1 first_feature_reason="two words"\n'
+                    log += (f'NATIVE3D_LOCAL_SURFACE rank={rank} stage=0 pass=1 applicable=1 faces_out={rank + 2} '
+                            'first_feature_reason="two words"\n'
                             f'NATIVE3D_LOCAL_SURFACE_STATE rank={rank} stage=0 splits_all=2\n')
                 if rank == 0:
                     log += '\n'.join(f'NATIVE3D rank={r} complete=1 total={10 + r} process_peak_rss=100 job_peak_rss=200'
@@ -349,8 +364,10 @@ def self_check():
         assert len(s1['events'][1]['ranks'][0]['surface_passes']) == 1
         assert s1['events'][1]['minimum_timer_coverage_observed'] is None
         assert s1['events'][1]['ranks'][0]['phase_exclusive_seconds'] == {}
-        assert 'geometry-invalid' in format_markdown(report)
-        assert 'truncated' in format_markdown(report)
+        rendered = format_markdown(report)
+        assert 'geometry-invalid' in rendered and 'truncated' in rendered
+        assert '| 0 | 1 | 0, 1 | 5 |' in rendered
+        assert 'S1 NATIVE3D_LOCAL_SURFACE rank=0 stage=0 pass=1 applicable=1 faces_out=2' in rendered
     print('FP2-A §11.4 report self-check passed.')
 
 

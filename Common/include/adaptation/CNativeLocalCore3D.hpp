@@ -243,6 +243,7 @@ class Mesh {
                     SurfaceGeometry* surface = nullptr);
 
   static size_t ArrayBytes(size_t cells);
+  static size_t SurfaceArrayBytes(size_t cells);
   static const size_t BytesPerCell;
 
  private:

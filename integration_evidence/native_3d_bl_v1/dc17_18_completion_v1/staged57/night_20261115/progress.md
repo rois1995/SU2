@@ -1082,3 +1082,25 @@ FP2-A build627 §11.2.2 complete. Saved481 and saved_current passed in 143.906 /
 FP2-A build627 scoped default evidence pushed as f88fbc758d. Part C production sources remain pinned and uncommitted during G5. The build627 OFF runner is active.
 
 FP2-A Correction 4 received during build627 G5 OFF. Copied, fully read and verified SHA256 43b828333e7bcd4db85445de7ee94b660785a8aab485ac509140536637a2b3dd. Re-evaluation of the sealed receipts found K1 pass sums 84,118 / 84,174 and K3 sums 84,124 / 84,184 against 126,153. Max star 168 and max distance sweeps 14 in both, K3 max rank pass 26.570 s. K1 and K3 count as ended, K2 retained. The prior Correction 3 stop remains historical. No rank rerun or production change. Current OFF continues under its pinned script, then CORE, S1 and S2 on build627.
+
+FP2-A Correction 4 evaluation pushed as c74b7223ea. The original OFF driver and rank summary remain byte-identical. The test-only successor uses the new sealed evaluation to admit the remaining same-binary workflows. The §11.4 report helper now checks the S1 event 1 per-stage/pass face sums.
+
+FP2-A build627 G5 OFF event 1 passed the terminal proof and timers. Native max 1,779.827 s, minimum coverage 99.004%, job peak and rank-peak sum 14,007,259,136 B, owned-face sum 61,906. Transfer and continued CFD are under way.
+
+FP2-A build627 G5 OFF event 1 published the mesh, geometry sidecar and restart. All three SHA256 values match N21 W. Event 2 is running.
+
+FP2-A build627 G5 OFF event 2 passed terminal proof and timers. Native max 1,023.870 s, minimum coverage 99.530%, job peak and rank-peak sum 16,775,716,864 B, owned-face sum 58,260. Publication, continued CFD and isolated restart follow.
+
+FP2-A build627 OFF full workflow passed both event validations and continued CFD. All six payloads match N21 W exactly. Both local-core options are absent and the six rank logs contain no surface pass or state rows. The isolated restart is running.
+
+FP2-A build627 G5 OFF passed both events, all standing workflow gates and isolated restart. All six outputs match N21 W. Native maxima 1,779.827 / 1,023.870 s with minimum coverage 99.004% / 99.530%. OFF controller and supervisor terminal. Starting §11.2.4 CORE on the same binary with the unchanged FP1 ON config and surface option at its NO default.
+
+FP2-A build627 CORE event 1 passed terminal proof and timers. Native max 1,512.056 s, minimum coverage 99.045%, job peak and rank-peak sum 11,576,320,000 B, owned-face sum 68,006. The §11.3 event 1 comparison bound will be 1.05 × the exact CORE maximum, approximately 1,587.659 s. Transfer and continued CFD are running.
+
+FP2-A build627 CORE event 1 published all three payloads, and all match the accepted FP1 ON hashes. Event 2 is running.
+
+FP2-A build627 CORE event 2 passed terminal proof and timers. Native max 369.654 s, minimum coverage 98.654%, job peak and process peak sum 11,655,073,792 B, owned-face sum 64,758. Publication, continued CFD and isolated restart follow.
+
+FP2-A build627 CORE full workflow passed two events, transfer and continued CFD. All six payloads match accepted FP1 ON exactly. The six rank logs contain zero surface pass and state rows. The isolated restart is running.
+
+FP2-A Part C default proven on build627. G5 OFF and CORE passed both events and isolated restart and each matched its six adopted payloads. Correction 4 opens §11.3 after the default checkpoint. Next: S1 and S2 on this same binary.

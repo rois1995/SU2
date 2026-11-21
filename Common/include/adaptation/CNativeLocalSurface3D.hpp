@@ -73,6 +73,7 @@ class StateSurfaceGeometry final : public SurfaceGeometry {
   const BoundaryPoint* Find(Id) const;
   const SU2NativeGeometry::EdgeTrace* FindTrace(const SurfaceEdge&) const;
   size_t ResidentBytes() const;
+  size_t PeakBytes() const;
   void SetCallerBytes(size_t);
   size_t Splits() const;
   void Exchange(World&, MemoryBudget&, size_t caller);

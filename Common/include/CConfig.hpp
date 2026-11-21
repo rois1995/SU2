@@ -1320,6 +1320,7 @@ private:
   unsigned long Adap_Native_Ranks = 0;       /*!< \brief Native adaptation ranks; zero uses all CFD ranks. */
   bool Adap_Native_Repartition = false;     /*!< \brief Cost-weighted native working partition, independent of CFD. */
   bool Adap_Native_Local_Core = false;      /*!< \brief Run fixed-surface local remeshing before the native 3D engine. */
+  bool Adap_Native_Local_Surface = false;   /*!< \brief Split native 3D surface edges in the local core. */
   string Adap_Native_Symmetry_Reference; /*!< \brief Explicit audited initial Cartesian symmetry reference file. */
   bool Adap_Surface = true;                 /*!< \brief The remesher may change the boundary (surface) mesh. */
   ADAP_REMESHER Kind_Adap_Remesher=ADAP_REMESHER::MMG; /*!< \brief Opt-in native backend; MMG remains default. */
@@ -10494,6 +10495,7 @@ public:
 
   /*! \brief Use the optional native 3D local volume core. */
   bool GetAdap_Native_Local_Core(void) const { return Adap_Native_Local_Core; }
+  bool GetAdap_Native_Local_Surface(void) const { return Adap_Native_Local_Surface; }
   /*! Explicit native3D working-storage ceiling in bytes; zero retains default/automatic policies. */
   size_t GetAdap_Native_MemoryLimit() const { return size_t(Adap_Native_MemoryLimit)*(size_t(1)<<20); }
   /*! Whole-job process peak RSS ceiling in bytes; zero disables refusal. */
