@@ -930,3 +930,19 @@ FP2-0 build619. split fixture is terminal and its measurement receipt is sealed.
 FP2-0 build619. P3 rejected PD after 27.087 s on an entity/orientation check. P4 is not applicable. T completed 145 IN1 and 200 PD queries. All measurement receipts and per-face ledgers verified. G1 validation is running.
 
 FP2-0 done on build619. G1 matched 375 / 114 / 228 adopted records. Length and distance steps produced 15,592 splits. The bulk constructor rejected PD on entity/orientation, so P4 was not applicable. The IN1 tight list reached its five-minute limit with 145 of 200 queries complete, and the PD list completed 200 of 200. This was a test-only measurement. All owned jobs are terminal.
+
+FP2-0b. Archived and verified the order. R4 source check complete, including the public feature proposal, two-face reconstruction, strict constructor and P4 paths. Starting test-only fixture changes.
+
+FP2-0b. Prior FP2-0 controllers verified terminal. Host load 0.85 / 0.72 / 0.48 with 45,418 MiB available. Starting test-only build620.
+
+FP2-0b build620 passed in 22.717 s without a new warning. Solver digest matches FP2-0. Starting fresh IN1 Run A, one rank at nice 19, with strict child checks off.
+
+FP2-0b build620 Run A finished L and D after 7 / 8 nonempty passes. L accepted 2,380 walk and 35 feature splits, D accepted 15,325 walk and 22 feature splits. PA has 84,478 faces, 42,241 points and 731 traces. Strict comparisons are running.
+
+FP2-0b build620 Run A strict census measured 48,954 IN1 and 40,734 new PA faces at stride 1. All 84,478 PA faces passed entity checks and zero were above tolerance by Classify. P3 accepted PA in 28.722 s. Running P4; the Run B condition was not met.
+
+FP2-0b build620 Run A is terminal and sealed. P4 accepted all four entities, with mesh-to-model 13.662 s and model-to-mesh 42.486 s. Peak RSS 2,034,744 KiB. Run B was not triggered. Starting G1 on the same pinned test binary.
+
+FP2-0b build620 G1 serial matched 375 adopted case records in 753.158 s. Running the two MPI cohorts sequentially.
+
+FP2-0b closed on test-only build620. G1 matched 375 / 114 / 228 adopted case records in 753.158 / 9.954 / 10.820 s. P3 accepted PA and P4 accepted all four entities. The report and ledgers are complete. All five owned controllers and three supervisors are terminal.

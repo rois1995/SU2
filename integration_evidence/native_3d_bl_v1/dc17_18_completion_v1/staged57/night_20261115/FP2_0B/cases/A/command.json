@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "env",
+    "-C",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0B/cases/A",
+    "OMP_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "OMPI_MCA_osc=pt2pt",
+    "TMPDIR=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "SU2_FP2_IN=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/m6.su2.native_ref",
+    "SU2_FP2_OUT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/adapted_mesh_adap_00001.su2.native_ref",
+    "SU2_FP2_SENSOR=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/cases/B/sensor.bin",
+    "SU2_FP2_VALUES=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0B/cases/A/values.jsonl",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0B/cases/A/time.txt",
+    "timeout",
+    "5400",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[.][NativeFastPathStage2Split]"
+  ],
+  "ranks": 1,
+  "selector": "[.][NativeFastPathStage2Split]",
+  "seconds_limit": 5400
+}

@@ -3,6 +3,7 @@ using StrictBudget = SU2NativeGeometry::AtlasBudget;
 using StrictGeometry = SU2NativeGeometry::MappedFacetReference;
 using StrictBinding = SU2NativeGeometry::SurfaceBinding;
 using StrictNeed = SU2NativeGeometry::SurfaceQueryNeed;
+using StrictCoverage = SU2NativeGeometry::BoundaryCoverage;
 
 struct FaceMeasurement {
   SurfaceFace face;
@@ -12,20 +13,22 @@ struct FaceMeasurement {
   std::optional<bool> contains;
 };
 
-std::pair<size_t, StrictBudget> BulkReservation(const State& state, size_t points, size_t faces) {
+std::pair<size_t, StrictBudget> BulkReservation(const State& state, size_t points, size_t faces,
+                                                const StrictCoverage& coverage) {
   using transfer_memory::Add;
   using transfer_memory::Mul;
   const auto live = Add(Mul(points, 256), Mul(faces, sizeof(SurfaceFace)),
-                        Mul(BoundaryCoverageBytes(state.Coverage()), 4));
+                        Mul(BoundaryCoverageBytes(coverage), 4));
   const auto bound = Add(live, state.Geometry().ResidentBytes(), Mul(points, 2048), Mul(faces, 8192),
                          Mul(BoundaryAtlasBytes({}, state.Mobility()), 4));
   if (bound == SIZE_MAX || bound > Ceiling) throw std::length_error("Rebind storage admission exceeded.");
-  return {live, BoundaryAtlasBudget(BoundaryAtlasBytes(state.Coverage(), state.Mobility()), Ceiling, bound)};
+  return {live, BoundaryAtlasBudget(BoundaryAtlasBytes(coverage, state.Mobility()), Ceiling, bound)};
 }
 
 std::unique_ptr<State> BuildSurface(const State& state, const BoundaryPoints& points,
-                                    const std::vector<SurfaceFace>& faces, size_t live, StrictBudget& budget) {
-  return std::make_unique<State>(state.Authority(), points, faces, state.Revision(), Ceiling, live, state.Coverage(),
+                                    const std::vector<SurfaceFace>& faces, const StrictCoverage& coverage,
+                                    size_t live, StrictBudget& budget) {
+  return std::make_unique<State>(state.Authority(), points, faces, state.Revision(), Ceiling, live, coverage,
                                  state.Mobility(), &budget, state.GeometryTolerance());
 }
 
@@ -40,14 +43,14 @@ void MeasureBulk(const State& state) {
   BoundaryPoints points;
   for (const auto& row : state.Records()) points.emplace(row.first, row.second.point);
   const auto faces = AcceptedFaces(state);
-  auto [live, reservation] = BulkReservation(state, points.size(), faces.size());
+  auto [live, reservation] = BulkReservation(state, points.size(), faces.size(), state.Coverage());
   auto policy_budget = reservation;
   const auto rss_before = CurrentRSS3D();
   auto start = Clock::now();
   std::unique_ptr<State> rebuilt;
   std::string error, snapshot_error, policy_error;
   try {
-    rebuilt = BuildSurface(state, points, faces, live, reservation);
+    rebuilt = BuildSurface(state, points, faces, state.Coverage(), live, reservation);
   } catch (const std::exception& e) {
     error = e.what();
   }
@@ -212,33 +215,6 @@ double StrictFaceError(const State& state, const SurfaceFace& face, const Bounda
   return state.EntityFaceError(face.facet, binding, coords, &budget, need);
 }
 
-double TightFaceError(const State& state, const SurfaceFace& face, const BoundaryPoints& points,
-                      StrictBudget& budget) {
-  const auto [binding, coords] = FaceData(GetTriangle(points, face));
-  const auto& geometry = state.Geometry();
-  Point lo = coords[0], hi = coords[0];
-  const auto model = geometry.Realize(binding[0]);
-  double radius = 0;
-  for (const auto p : coords) {
-    lo = {std::min(lo.x, p.x), std::min(lo.y, p.y), std::min(lo.z, p.z)};
-    hi = {std::max(hi.x, p.x), std::max(hi.y, p.y), std::max(hi.z, p.z)};
-    radius = std::max(radius, std::hypot(p.x - model.x, p.y - model.y, p.z - model.z));
-  }
-  radius = std::nextafter(radius + state.GeometryTolerance(), INFINITY);
-  lo = {std::nextafter(lo.x - radius, -INFINITY), std::nextafter(lo.y - radius, -INFINITY),
-        std::nextafter(lo.z - radius, -INFINITY)};
-  hi = {std::nextafter(hi.x + radius, INFINITY), std::nextafter(hi.y + radius, INFINITY),
-        std::nextafter(hi.z + radius, INFINITY)};
-  auto support = geometry.NearbySurfaceFacets(face.facet, {lo, hi}, &budget);
-  const auto entity = state.Entity(face.facet);
-  support.erase(std::remove_if(support.begin(), support.end(),
-                               [&](Id id) { return state.Entity(id) != entity; }), support.end());
-  std::sort(support.begin(), support.end());
-  support.erase(std::unique(support.begin(), support.end()), support.end());
-  if (support.empty()) throw std::invalid_argument("Tight query lost its supporting geometry.");
-  return geometry.BoundPhysicalSurface(support, {coords}, 1e-5, budget, StrictGeometry::SurfaceBoundPurpose::ErrorMagnitude);
-}
-
 using StrictFaceKey = std::pair<Id, Face>;
 
 StrictFaceKey FaceIdentity(const SurfaceFace& face) {
@@ -275,78 +251,67 @@ void WriteFaceValue(std::ostream& out, const State& state, const char* dataset, 
       << ",\"contains\":" << (row.contains ? (*row.contains ? "true" : "false") : "null") << "}\n";
 }
 
-void MeasureTight(const State& state, const BoundaryPoints& points, const std::vector<FaceMeasurement>& faces,
-                  const char* name, std::ostream& values) {
-  std::vector<const FaceMeasurement*> selected;
-  for (const auto& row : faces)
-    if (std::isfinite(row.sample)) selected.push_back(&row);
-  const auto count = std::min(size_t{200}, selected.size());
-  std::partial_sort(selected.begin(), selected.begin() + count, selected.end(), [](const auto* a, const auto* b) {
-    if (a->sample != b->sample) return a->sample > b->sample;
-    return FaceIdentity(a->face) < FaceIdentity(b->face);
-  });
-  const auto start = Clock::now();
-  auto budget = Fp2Budget(726442, state.ResidentBytes() + state.Geometry().ResidentBytes(), start, 300);
-  double first20_seconds = 0;
-  size_t attempted = 0, completed = 0, first20_completed = 0;
-  std::string first_error;
-  while (attempted < count && Seconds(start) < 300 && !budget.work_exhausted) {
-    const auto& row = *selected[attempted++];
-    double bound = std::numeric_limits<double>::quiet_NaN();
-    try {
-      bound = TightFaceError(state, row.face, points, budget);
-      ++completed;
-      if (attempted <= 20) ++first20_completed;
-    } catch (const std::exception& e) {
-      if (first_error.empty()) first_error = e.what();
+struct PairedCounts {
+  size_t both_above = 0, float_only_above = 0, classify_only_above = 0, both_within = 0, unpaired = 0;
+  void Add(bool has_sample, bool float_above, const std::optional<double>& classified) {
+    if (!has_sample || !classified) {
+      ++unpaired;
+      return;
     }
-    if (attempted <= 20) first20_seconds = Seconds(start);
-    values << "{\"kind\":\"tight\",\"surface\":\"" << name << "\",\"order\":" << attempted << ',';
-    WriteFaceIds(values, row.face);
-    values << ",\"sample\":" << row.sample << ",\"upper\":";
-    WriteNullable(values, bound);
-    values << "}\n";
-    if (budget.time_exhausted) break;
+    const bool strict_above = *classified > Tol;
+    both_above += float_above && strict_above;
+    float_only_above += float_above && !strict_above;
+    classify_only_above += !float_above && strict_above;
+    both_within += !float_above && !strict_above;
   }
-  Output(name);
-  std::cout << "\"seconds\":" << Seconds(start) << ",\"requested\":200,\"selected\":" << count
-            << ",\"attempted\":" << attempted << ",\"completed\":" << completed
-            << ",\"first20_attempted\":" << std::min(attempted, size_t{20})
-            << ",\"first20_completed\":" << first20_completed << ",\"first20_seconds\":" << first20_seconds
-            << ",\"time_limit_seconds\":300,\"work\":" << budget.work
-            << ",\"deadline\":" << ((attempted < count && Seconds(start) >= 300) || budget.time_exhausted ? "true" : "false");
-  if (!first_error.empty()) { std::cout << ",\"first_exception\":"; JsonString(first_error); }
-  std::cout << "}" << std::endl;
-  values.flush();
-}
+};
 
 struct StrictCounts {
   size_t faces = 0, contains_measured = 0, outside = 0;
-  size_t sampled = 0, sampled_above_half = 0, sampled_above_eight = 0, sampled_above_tol = 0;
+  size_t sampled = 0, sampled_above_half = 0, sampled_above_seven = 0, sampled_above_eight = 0;
+  size_t sampled_above_tol = 0;
   size_t classified = 0, classified_above_tol = 0;
+  PairedCounts at_tol, at_float_limit;
   void Add(const FaceMeasurement& row) {
     ++faces;
     contains_measured += bool(row.contains);
     outside += row.contains && !*row.contains;
-    if (std::isfinite(row.sample)) {
+    const bool has_sample = std::isfinite(row.sample);
+    const bool float_above = row.sample > Tol;
+    const bool strict_above = row.classified && *row.classified > Tol;
+    if (has_sample) {
       ++sampled;
       sampled_above_half += row.sample > 0.5 * Tol;
+      sampled_above_seven += row.sample > 0.7 * Tol;
       sampled_above_eight += row.sample > 0.8 * Tol;
-      sampled_above_tol += row.sample > Tol;
+      sampled_above_tol += float_above;
     }
     classified += bool(row.classified);
-    classified_above_tol += row.classified && *row.classified > Tol;
+    classified_above_tol += strict_above;
+    at_tol.Add(has_sample, float_above, row.classified);
+    at_float_limit.Add(has_sample, row.sample > 0.7 * Tol, row.classified);
   }
 };
+
+void WritePairedCounts(const PairedCounts& row) {
+  std::cout << "{\"both_above\":" << row.both_above << ",\"float_only_above\":" << row.float_only_above
+            << ",\"classify_only_above\":" << row.classify_only_above << ",\"both_within\":" << row.both_within
+            << ",\"unpaired\":" << row.unpaired << '}';
+}
 
 void WriteStrictCounts(const StrictCounts& row) {
   std::cout << "{\"faces\":" << row.faces << ",\"contains_measured\":" << row.contains_measured
             << ",\"contains_failed\":" << row.outside << ",\"float_sampled\":" << row.sampled
             << ",\"float_above_half_tol\":" << row.sampled_above_half
+            << ",\"float_above_seven_tenths_tol\":" << row.sampled_above_seven
             << ",\"float_above_eight_tenths_tol\":" << row.sampled_above_eight
             << ",\"float_above_tol\":" << row.sampled_above_tol << ",\"classified\":" << row.classified
             << ",\"unclassified\":" << row.faces - row.classified
-            << ",\"classify_above_tol\":" << row.classified_above_tol << '}';
+            << ",\"classify_above_tol\":" << row.classified_above_tol << ",\"paired_at_tol\":";
+  WritePairedCounts(row.at_tol);
+  std::cout << ",\"paired_at_float_limit\":";
+  WritePairedCounts(row.at_float_limit);
+  std::cout << '}';
 }
 
 void WriteStrictDataset(const State& state, const std::vector<FaceMeasurement>& faces, bool new_only) {
@@ -373,13 +338,17 @@ void WriteStrictDataset(const State& state, const std::vector<FaceMeasurement>& 
   std::cout << "]}";
 }
 
+void WriteEntityFailure(const State& state, const BoundaryPoints& points, const FaceMeasurement& row);
+
 void MeasureStrict(const State& state, const BoundaryPoints& in_points, std::vector<FaceMeasurement>& in_faces,
-                   const BoundaryPoints& final_points, std::vector<FaceMeasurement>& final_faces) {
+                   const BoundaryPoints& final_points, std::vector<FaceMeasurement>& final_faces, bool diagnose) {
   std::map<StrictFaceKey, const FaceMeasurement*> unchanged;
   const auto caller = state.ResidentBytes() + state.Geometry().ResidentBytes();
   std::string contains_error, in_error, pd_error;
   const auto contains_start = Clock::now();
   const auto check_entity = [&](const BoundaryPoints& points, FaceMeasurement& row) {
+    row.classified.reset();
+    row.contains.reset();
     try { row.contains = state.ContainsEntityFace(row.face.facet, GetTriangle(points, row.face)); }
     catch (const std::exception& e) { if (contains_error.empty()) contains_error = e.what(); }
   };
@@ -443,7 +412,7 @@ void MeasureStrict(const State& state, const BoundaryPoints& in_points, std::vec
   Output("P_STRICT");
   std::cout << "\"seconds\":" << contains_seconds + in_seconds + pd_seconds
             << ",\"contains_seconds\":" << contains_seconds << ",\"in_classify_seconds\":" << in_seconds
-            << ",\"in_attempted\":" << in_attempted
+            << ",\"in_attempted\":" << in_attempted << ",\"in_classify_source\":\"recomputed\""
             << ",\"pd_classify_seconds\":" << pd_seconds << ",\"pd_new_total\":" << fresh.size()
             << ",\"pd_new_attempted\":" << pd_attempted << ",\"pd_pilot_attempted\":" << pilot
             << ",\"pd_pilot_seconds\":" << pilot_seconds << ",\"pd_full_estimate_seconds\":" << estimate
@@ -467,11 +436,10 @@ void MeasureStrict(const State& state, const BoundaryPoints& in_points, std::vec
   for (const auto& row : in_faces) WriteFaceValue(values, state, "IN1", row);
   for (const auto& row : final_faces) WriteFaceValue(values, state, "PD", row);
   values.flush();
-  for (const bool in : {true, false}) {
-    const char* name = in ? "T_IN1" : "T_PD";
-    start = Clock::now();
-    try { MeasureTight(state, in ? in_points : final_points, in ? in_faces : final_faces, name, values); }
-    catch (const std::exception& e) { ReportError(name, start, e); }
+  if (diagnose) {
+    for (const auto& row : final_faces) {
+      if (row.contains && !*row.contains) WriteEntityFailure(state, final_points, row);
+    }
   }
 }
 
@@ -503,6 +471,66 @@ void WriteFaceWitness(const State& state, const BoundaryPoints& points, const Fa
     WritePosition(std::cout, points.at(row.face.v[i]).node.p);
   }
   std::cout << "]}";
+}
+
+void WriteEntityFailure(const State& state, const BoundaryPoints& points, const FaceMeasurement& row) {
+  const auto triangle = GetTriangle(points, row.face);
+  const auto coords = FaceData(triangle).second;
+  const auto normal = FlatNormal(triangle);
+  const auto entity = state.Entity(row.face.facet);
+  const auto& geometry = state.Geometry();
+  Output("P_ENTITY_FAILURE");
+  std::cout << "\"face\":";
+  WriteFaceWitness(state, points, row);
+  std::cout << ",\"corners\":[";
+  for (size_t i = 0; i < triangle.size(); ++i) {
+    if (i) std::cout << ',';
+    const auto& point = triangle[i];
+    std::cout << "{\"id\":" << point.node.id << ",\"admissible\":";
+    try {
+      std::cout << (geometry.Admissible(point.binding, point.node.p) ? "true" : "false");
+    } catch (const std::exception& e) {
+      std::cout << "null,\"admissible_error\":";
+      JsonString(e.what());
+    }
+    std::cout << ",\"sides\":[";
+    bool comma = false;
+    std::string facets_error;
+    try {
+      geometry.ForFacets(point.binding, [&](Id side) {
+        const auto side_entity = state.Entity(side);
+        if (comma) std::cout << ',';
+        comma = true;
+        std::cout << "{\"side\":" << side << ",\"entity\":";
+        EntityJson(side_entity);
+        std::cout << ",\"entity_matches\":" << (side_entity == entity ? "true" : "false")
+                  << ",\"oriented_face\":";
+        try {
+          std::cout << (geometry.OrientedFace(side, point.binding, coords) ? "true" : "false");
+        } catch (const std::exception& e) {
+          std::cout << "null,\"oriented_face_error\":";
+          JsonString(e.what());
+        }
+        std::cout << ",\"float_dot\":";
+        try {
+          JsonNumber(ChildNormalDot(state, side, point, normal));
+        } catch (const std::exception& e) {
+          std::cout << "null,\"float_dot_error\":";
+          JsonString(e.what());
+        }
+        std::cout << '}';
+      });
+    } catch (const std::exception& e) {
+      facets_error = e.what();
+    }
+    std::cout << ']';
+    if (!facets_error.empty()) {
+      std::cout << ",\"facets_error\":";
+      JsonString(facets_error);
+    }
+    std::cout << '}';
+  }
+  std::cout << "]}" << std::endl;
 }
 
 std::string FindBulkWitness(const State& state, const BoundaryPoints& points,
@@ -545,8 +573,103 @@ std::string FindBulkWitness(const State& state, const BoundaryPoints& points,
     WritePointWitness("unused point", row.second);
     return "point";
   }
-  std::cout << "null";
   return {};
+}
+
+struct TraceAudit {
+  std::optional<Edge> edge;
+  std::string error;
+  std::map<Id, size_t> chain_entries;
+};
+
+std::array<Edge, 3> FaceEdges(const SurfaceFace& face);
+
+std::string FindTopologyWitness(const State& state, const BoundaryPoints& points,
+                                const std::vector<FaceMeasurement>& faces) {
+  std::set<Face> keys;
+  std::map<Edge, int> directions;
+  std::vector<Face> skin;
+  skin.reserve(faces.size());
+  const auto write_edge = [](const Edge& edge) {
+    std::cout << "{\"edge\":[" << edge[0] << ',' << edge[1] << "]}";
+    return "topology_edge";
+  };
+  for (const auto& row : faces) {
+    const auto& face = row.face.v;
+    auto key = face;
+    std::sort(key.begin(), key.end());
+    if (std::adjacent_find(key.begin(), key.end()) != key.end() || !keys.insert(key).second) {
+      WriteFaceWitness(state, points, row);
+      return "topology_face";
+    }
+    const auto edges = FaceEdges(row.face);
+    for (size_t k = 0; k < edges.size(); ++k) {
+      const int direction = face[k] < face[(k + 1) % 3] ? 1 : -1;
+      const auto [entry, inserted] = directions.emplace(edges[k], direction);
+      if (!inserted) {
+        if (entry->second != -direction) return write_edge(edges[k]);
+        entry->second = 0;
+      }
+    }
+    skin.push_back(face);
+  }
+  for (const auto& [edge, direction] : directions)
+    if (direction != 0) return write_edge(edge);
+  Feature closure;
+  try { ValidateSurfaceTopology(skin, true, skin.size(), &closure); }
+  catch (const std::invalid_argument&) {
+    if (closure.count == 1) {
+      std::cout << "{\"vertex\":" << closure.vertices[0] << '}';
+      return "topology_vertex";
+    }
+    if (closure.count == 2) return write_edge({closure.vertices[0], closure.vertices[1]});
+  }
+  return {};
+}
+
+void AuditTraces(const State& state, const BoundaryPoints& points, const std::vector<SurfaceFace>& faces,
+                 const StrictCoverage& coverage, TraceAudit& result) {
+  const auto& geometry = state.Geometry();
+  auto budget = BulkReservation(state, points.size(), faces.size(), coverage).second;
+  std::set<Edge> edges;
+  for (const auto& face : faces)
+    for (const auto& edge : FaceEdges(face)) edges.insert(edge);
+  for (const auto& row : state.Mobility().features) result.chain_entries.emplace(row.second, 0);
+  for (const auto& [edge, trace] : coverage.traces) {
+    result.edge = edge;
+    if (edge[0] >= edge[1] || !edges.count(edge) || trace.pieces.empty()) {
+      result.error = "Entity curve has no physical edge.";
+      return;
+    }
+    auto normalized = trace;
+    std::optional<Id> chain;
+    std::string reason;
+    if (!SU2NativeGeometry::NormalizeFeatureTrace(geometry, state.Mobility(), normalized, chain, budget, reason) ||
+        !chain) {
+      result.error = "Invalid entity feature trace: " + reason;
+      return;
+    }
+    bool equal = false;
+    if (trace.pieces.size() != normalized.pieces.size() ||
+        !geometry.CompareTraces(trace, normalized, equal, budget, reason) || !equal) {
+      result.error = "Entity feature trace is not canonical.";
+      return;
+    }
+    for (size_t endpoint = 0; endpoint < edge.size(); ++endpoint) {
+      const auto& piece = endpoint ? trace.pieces.back() : trace.pieces.front();
+      const auto& parameter = endpoint ? piece.last : piece.first;
+      SU2NativeGeometry::ExactBary binding;
+      std::vector<uint64_t> actual, expected;
+      if (!geometry.BindingParameters(piece.facet, points.at(edge[endpoint]).binding, binding, budget, reason) ||
+          !geometry.ReferencePointKey(piece.facet, binding, actual, budget, reason) ||
+          !geometry.ReferencePointKey(piece.facet, parameter, expected, budget, reason) || actual != expected) {
+        result.error = "Entity feature trace endpoints differ from persistent associations.";
+        return;
+      }
+    }
+    ++result.chain_entries[*chain];
+  }
+  result.edge.reset();
 }
 
 void MeasureDirectedProof(const State& rebuilt, const BoundaryPoints& points, const std::vector<FaceMeasurement>& faces) {
@@ -638,8 +761,8 @@ void MeasureDirectedProof(const State& rebuilt, const BoundaryPoints& points, co
             << ",\"time_exhausted\":" << (budget.time_exhausted ? "true" : "false") << "}" << std::endl;
 }
 
-void MeasureProof(const State& state, const BoundaryPoints& final_points,
-                  const std::vector<FaceMeasurement>& final_faces) {
+bool MeasureProof(const State& state, const BoundaryPoints& final_points,
+                  const std::vector<FaceMeasurement>& final_faces, const StrictCoverage& coverage) {
   std::vector<SurfaceFace> faces;
   faces.reserve(final_faces.size());
   for (const auto& row : final_faces) faces.push_back(row.face);
@@ -648,8 +771,8 @@ void MeasureProof(const State& state, const BoundaryPoints& final_points,
   size_t modeled_peak = 0;
   std::string error;
   try {
-    auto [live, budget] = BulkReservation(state, final_points.size(), faces.size());
-    try { rebuilt = BuildSurface(state, final_points, faces, live, budget); }
+    auto [live, budget] = BulkReservation(state, final_points.size(), faces.size(), coverage);
+    try { rebuilt = BuildSurface(state, final_points, faces, coverage, live, budget); }
     catch (const std::exception& e) { error = e.what(); }
     modeled_peak = budget.peak_bytes;
   } catch (const std::exception& e) {
@@ -659,16 +782,50 @@ void MeasureProof(const State& state, const BoundaryPoints& final_points,
   Output("P3");
   std::cout << "\"accepted\":" << (rebuilt ? "true" : "false") << ",\"seconds\":" << seconds
             << ",\"modeled_peak_bytes\":" << modeled_peak << ",\"points\":" << final_points.size()
-            << ",\"faces\":" << faces.size() << ",\"traces\":" << state.Coverage().traces.size();
+            << ",\"faces\":" << faces.size() << ",\"traces\":" << coverage.traces.size();
   if (!rebuilt) {
     std::cout << ",\"constructor_error\":";
     JsonString(error);
     std::cout << ",\"first_local_witness\":";
     std::string witness;
-    try { witness = FindBulkWitness(state, final_points, final_faces); }
+    std::string witness_error;
+    const bool topology = error.find("Native 3D domain skin") == 0 || error.find("Native 3D cavity") == 0;
+    try {
+      witness = topology ? FindTopologyWitness(state, final_points, final_faces)
+                         : FindBulkWitness(state, final_points, final_faces);
+    }
     catch (const std::exception& e) {
-      std::cout << "null,\"witness_error\":";
-      JsonString(e.what());
+      witness_error = e.what();
+    }
+    if (witness.empty()) {
+      TraceAudit traces;
+      if (witness_error.empty() && !topology) {
+        try { AuditTraces(state, final_points, faces, coverage, traces); }
+        catch (const std::exception& e) { traces.error = e.what(); }
+      }
+      if (traces.edge) {
+        witness = "trace";
+        std::cout << "{\"edge\":[" << (*traces.edge)[0] << ',' << (*traces.edge)[1] << "],\"predicate\":";
+        JsonString(traces.error);
+        std::cout << '}';
+      } else {
+        std::cout << "null";
+        if (witness_error.empty() && traces.error.empty() && !topology) {
+          std::cout << ",\"trace_chain_entries\":[";
+          bool comma = false;
+          for (const auto& [chain, entries] : traces.chain_entries) {
+            if (comma) std::cout << ',';
+            comma = true;
+            std::cout << "{\"chain\":" << chain << ",\"entries\":" << entries << '}';
+          }
+          std::cout << ']';
+        }
+      }
+      if (!traces.edge && witness_error.empty()) witness_error = traces.error;
+    }
+    if (!witness_error.empty()) {
+      std::cout << ",\"witness_error\":";
+      JsonString(witness_error);
     }
     if (!witness.empty()) {
       std::cout << ",\"witness_kind\":";
@@ -678,10 +835,12 @@ void MeasureProof(const State& state, const BoundaryPoints& final_points,
   std::cout << "}" << std::endl;
   if (!rebuilt) {
     Output("P4");
-    std::cout << "\"status\":\"not_applicable\",\"reason\":\"P3 constructor declined PD.\",\"seconds\":0}" << std::endl;
-    return;
+    std::cout << "\"status\":\"not_applicable\",\"reason\":\"P3 constructor declined the prototype surface.\","
+                 "\"seconds\":0}" << std::endl;
+    return false;
   }
   start = Clock::now();
   try { MeasureDirectedProof(*rebuilt, final_points, final_faces); }
   catch (const std::exception& e) { ReportError("P4", start, e); }
+  return true;
 }

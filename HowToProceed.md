@@ -1,6 +1,6 @@
 # Work order status
 
-FP2-0 measurement completed on test-only build619. The float split prototype produced 80,138 faces. The strict local check flagged 18 faces and the bulk constructor rejected PD on entity/orientation. The G1 identity gate passed. [FP2-0 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/reports/FP2_0_619.md)
+FP2-0b measured the feature-edge split prototype on test-only build620. P3 accepted its 84,478 faces and P4 accepted all four entities in 56.148 s. Strict Classify flagged zero final faces. G1 matched 375 / 114 / 228 records. [FP2-0b report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0B/reports/FP2_0B_620.md) · [Earlier FP2-0 measurement](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/reports/FP2_0_619.md)
 
 FX1 closed with Part M accepted on build617. Part P was omitted under R4 because its budget values feed later admission and decode exception classification. Both G5 modes passed and matched their six reference hashes. Minimum named coverage was 99.008% / 99.529% OFF and 99.065% / 98.738% ON. This also closes the FP1 Part S OFF proof. The default is NO. [FX1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FX1/reports/FX1_617.md)
 

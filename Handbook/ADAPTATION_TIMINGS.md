@@ -2,6 +2,17 @@
 
 ## Fast path stage 2
 
+### FP2-0b feature-edge split measurement, build620
+
+| Measurement | Seconds | Result |
+| --- | ---: | --- |
+| Length and distance split steps | 1.658 / 12.944 | 2,415 / 15,347 splits, including 35 / 22 feature splits |
+| IN1 and new PA strict Classify | 47.712 / 74.964 | 48,954 / 40,734 faces queried |
+| PA bulk constructor | 28.722 | Accepted 84,478 faces and 731 traces |
+| PA mesh-to-model and model-to-mesh proof | 13.662 / 42.486 | All four entities within 1e-4 |
+
+The serial measurement peaked at 2,034,744 KiB RSS. P4 used 57,865,510 work units, with separate aggregate direction timings and per-entity bounds. Feature proposal and trace reconstruction times are nested in the split steps. [FP2-0b report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0B/reports/FP2_0B_620.md)
+
 ### FP2-0 surface measurements, build619
 
 | Measurement | Seconds | Result |

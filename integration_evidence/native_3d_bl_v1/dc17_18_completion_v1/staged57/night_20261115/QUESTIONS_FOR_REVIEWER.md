@@ -190,3 +190,9 @@ N20 A implementation question commit: `01d2bbd24f2504a35406ebc529978c97af29c647`
 ### 2026-11-21T07:45:49+01:00 — FP2-0 G2 failure locations
 
 Question: how should trailing-edge and tip failures be counted when the order specifies locations but gives no predicate? Options: omit attribution, or use the frozen authority geometry to define reproducible predicates. Used the latter. Trailing edge uses sheet 27868 and the shared physical feature chain 908; the tip uses the outer-span station 1.196299999999894 from facet 27868. Counts may overlap. Base commit f2d4dfda7d.
+
+### 2026-11-21T09:52:00+01:00 — FP2-0b split refusal scope and proof timing
+
+Does §1.4's later-pass exclusion reset between L and D? The options were a reset at the step boundary or a run-wide exclusion. Used one run-wide set because §1.5 excludes refused edges from marking in either phase of later scans.
+
+Can P4 seconds be attributed to each entity while retaining the ordered public calls? The choices were aggregate clocks with per-entity bounds or independent timed proofs that change the workload. Used the aggregate clocks and marked per-entity seconds unavailable because the public calls return bounds but expose no per-entity time. Base `0167ad274f`.
