@@ -28,6 +28,7 @@
 #pragma once
 
 #include "../scalar/scalar_edge_flux.hpp"
+#include "p1_turb_galerkin.hpp"
 
 /*!
  * \class CScalarFlux_SA
@@ -59,6 +60,8 @@ class CScalarFlux_SA
   static constexpr passivedouble sigma = 2.0 / 3.0; /*!< \brief Constant of the diffusion term. */
   static constexpr passivedouble cb2 = 0.622;       /*!< \brief Constant of the diffusion term. */
   static constexpr passivedouble cn1 = 16.0;        /*!< \brief Constant of the SA-neg diffusion correction. */
+  static_assert(sigma == P1TurbGalerkin::sa_sigma && cb2 == P1TurbGalerkin::sa_cb2 && cn1 == P1TurbGalerkin::sa_cn1,
+                "TURB_VISC_P1_GALERKIN copies the diffusion constants of this row (p1_turb_galerkin.hpp).");
 
   /*!< \brief Whether nu_tilde may go negative (SA_OPTIONS= NEGATIVE), which needs the fn-corrected
    *          diffusion coefficient below to keep the diffusion term from turning anti-diffusive. */

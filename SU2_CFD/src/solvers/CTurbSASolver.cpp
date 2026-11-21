@@ -30,6 +30,7 @@
 #include "../../include/variables/CTurbSAVariable.hpp"
 #include "../../include/variables/CFlowVariable.hpp"
 #include "../../include/numerics/turbulent/turb_sa_edge_flux.hpp"
+#include "../../include/numerics/turbulent/p1_turb_galerkin.hpp"
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../Common/include/toolboxes/random_toolbox.hpp"
@@ -348,13 +349,80 @@ void CTurbSASolver::Upwind_Residual(CGeometry* geometry, CSolver** solver_contai
                                     CConfig* config, unsigned short iMesh) {
   SU2_ZONE_SCOPED
 
-  const auto opt = ScalarFluxOptions::Interior(*config, config->GetBounded_Turb(),
-                                               config->GetUse_Accurate_Turb_Jacobians());
+  auto opt = ScalarFluxOptions::Interior(*config, config->GetBounded_Turb(), config->GetUse_Accurate_Turb_Jacobians());
+
+  /*--- TURB_VISC_P1_GALERKIN: the edges carry the convection only, the diffusion is the element operator below. ---*/
+  const bool galerkin = P1TurbGalerkin::ElementDiffusionReplacesEdges(*config, iMesh, opt);
 
   /*--- nVar is 1, or 4 with the three Langevin equations of stochastic backscatter. ---*/
   DispatchScheme<CScalarFlux_SA, 1, 4>(config, [&](auto tag) {
     EdgeFluxResidual<typename decltype(tag)::type>(geometry, solver_container, config, opt);
   });
+
+  if (galerkin) P1GalerkinDiffusion(geometry, solver_container, config);
+}
+
+void CTurbSASolver::P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {
+  namespace ptg = P1TurbGalerkin;
+  constexpr unsigned short MAXN = ptg::MAXNODE;
+
+  const auto* flowNodes = su2staticcast_p<const CFlowVariable*>(solver_container[FLOW_SOL]->GetNodes());
+  const bool implicit = (config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT);
+  const bool negativeSA = (config->GetSAParsedOptions().version == SA_OPTIONS::NEG);
+  /*--- As CScalarFlux_SA: the derivative of the coefficient only with USE_ACCURATE_TURB_JACOBIANS and not for SA-neg. ---*/
+  const bool accurate = config->GetUse_Accurate_Turb_Jacobians() && !negativeSA;
+  const unsigned short nNodes = nDim + 1;
+
+  /*--- Jacobian block of the first row and column (the backscatter rows have no diffusion). ---*/
+  su2double blockData[MAXNVAR * MAXNVAR] = {0.0};
+  const su2double* rows[MAXNVAR];
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar) rows[iVar] = &blockData[iVar * nVar];
+
+  /*--- Contributions of one simplex (weight 1) or sub-simplex of a split average (its weight omega_t). Smooth wall
+   * rows are replaced later by the strong nu_tilde = 0 of BC_HeatFlux_Wall; rough walls add their Robin flux there,
+   * the boundary term of this weak form. ---*/
+  auto addSimplex = [&](const unsigned long* point, const su2double* const* coord, const su2double& weight) {
+    su2double nuTilde[MAXN], nu[MAXN];
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      nuTilde[a] = nodes->GetSolution(point[a], 0);
+      nu[a] = flowNodes->GetLaminarViscosity(point[a]) / flowNodes->GetDensity(point[a]);
+    }
+
+    su2double grad[MAXN][3];
+    const su2double size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
+    if (size == 0.0) SU2_MPI::Error("TURB_VISC_P1_GALERKIN: degenerate element.", CURRENT_FUNCTION);
+    su2double S[MAXN][MAXN];
+    ptg::Stiffness(nDim, size, grad, S);
+
+    su2double dD = 0.0;
+    const su2double D = ptg::SADiffusivity(nNodes, nu, nuTilde, negativeSA, dD);
+    su2double res[MAXN];
+    ptg::SAResidual(nDim, size, grad, S, nuTilde, D, res);
+
+    su2double jac[MAXN][MAXN];
+    if (implicit) ptg::SAJacobian(nDim, size, grad, S, nuTilde, D, dD, accurate, jac);
+
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      if (!geometry->nodes->GetDomain(point[a])) continue;
+      LinSysRes(point[a], 0) += weight * res[a];
+      if (!implicit) continue;
+
+      for (unsigned short b = 0; b < nNodes; ++b) {
+        blockData[0] = weight * jac[a][b];
+        /*--- Non-edge pairs of a mixed cell are not in the sparsity pattern, AddBlock drops them (as the flow). ---*/
+        if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
+        else Jacobian.AddBlock(point[a], point[b], rows);
+      }
+    }
+  };
+
+  /*--- One pass over the simplices (serial, the rows of an element are not disjoint between elements). ---*/
+  SU2_OMP_MASTER
+  {
+    ptg::ForEachSimplex(*geometry, nDim, config->GetEdge_Form_P1_Mixed(), addSimplex);
+  }
+  END_SU2_OMP_MASTER
+  SU2_OMP_BARRIER
 }
 
 void CTurbSASolver::BoundaryFlux(CGeometry* geometry, CSolver** solver_container, CConfig* config,

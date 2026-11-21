@@ -31,6 +31,7 @@
 #include "../../include/variables/CFlowVariable.hpp"
 #include "../../include/numerics/turbulent/turb_sst_edge_flux.hpp"
 #include "../../include/numerics/flow/p1_sst_matched.hpp"
+#include "../../include/numerics/turbulent/p1_turb_galerkin.hpp"
 #include "../../../Common/include/toolboxes/p1_simplex.hpp"
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -329,6 +330,9 @@ void CTurbSSTSolver::Upwind_Residual(CGeometry* geometry, CSolver** solver_conta
     }
   }
 
+  /*--- TURB_VISC_P1_GALERKIN: the edges carry the convection only, the diffusion is the element operator below. ---*/
+  const bool galerkin = P1TurbGalerkin::ElementDiffusionReplacesEdges(*config, iMesh, opt);
+
   DispatchScheme<CScalarFlux_SST, 2>(config, [&](auto tag) {
     EdgeFluxResidual<typename decltype(tag)::type>(geometry, solver_container, config, opt);
   });
@@ -337,6 +341,7 @@ void CTurbSSTSolver::Upwind_Residual(CGeometry* geometry, CSolver** solver_conta
   if (matched) MatchedNodalKine(geometry, solver_container, config);
   if (matched && config->GetJST_Entropy_Budget()) MatchedCorrectionKine(geometry, solver_container, config);
   if ((iMesh == MESH_0) && config->GetSST_P1_Element_Kine()) P1KineDiffusion(geometry, solver_container, config);
+  if (galerkin) P1GalerkinDiffusion(geometry, solver_container, config);
 }
 
 void CTurbSSTSolver::MatchedNodalKine(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {
@@ -485,6 +490,71 @@ void CTurbSSTSolver::P1KineDiffusion(CGeometry* geometry, CSolver** solver_conta
       }
     }
     }
+  }
+  END_SU2_OMP_MASTER
+  SU2_OMP_BARRIER
+}
+
+void CTurbSSTSolver::P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {
+  namespace ptg = P1TurbGalerkin;
+  constexpr unsigned short MAXN = ptg::MAXNODE;
+
+  const auto* flowNodes = su2staticcast_p<const CFlowVariable*>(solver_container[FLOW_SOL]->GetNodes());
+  const bool implicit = (config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT);
+  const bool accurate = config->GetUse_Accurate_Turb_Jacobians();
+  const unsigned short nNodes = nDim + 1;
+
+  /*--- SST_ENERGY_CONSISTENT with VISC_P1_ENTROPY: P1KineDiffusion has the k row (the numbers of the energy row). ---*/
+  const bool kineRow = !config->GetSST_P1_Element_Kine();
+
+  /*--- Contributions of one simplex (weight 1) or sub-simplex of a split average (its weight omega_t). The diffusion
+   * coefficients are the vertex means of the edge averages of CScalarFlux_SST, mu_t clipped at 0 as in P1KineDiffusion
+   * (the same numbers there). Wall rows are replaced later by the strong k, omega of BC_HeatFlux_Wall. ---*/
+  auto addSimplex = [&](const unsigned long* point, const su2double* const* coord, const su2double& weight) {
+    su2double k[MAXN], omega[MAXN], mu[MAXN], muT[MAXN], F1[MAXN], rho[MAXN];
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      k[a] = nodes->GetSolution(point[a], 0);
+      omega[a] = nodes->GetSolution(point[a], 1);
+      mu[a] = flowNodes->GetLaminarViscosity(point[a]);
+      muT[a] = fmax(flowNodes->GetEddyViscosity(point[a]), 0.0);
+      F1[a] = nodes->GetF1blending(point[a]);
+      rho[a] = flowNodes->GetDensity(point[a]);
+    }
+
+    su2double grad[MAXN][3];
+    const su2double size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
+    if (size == 0.0) SU2_MPI::Error("TURB_VISC_P1_GALERKIN: degenerate element.", CURRENT_FUNCTION);
+    su2double S[MAXN][MAXN];
+    ptg::Stiffness(nDim, size, grad, S);
+
+    const auto coeff = ptg::MakeSSTCoefficients(nNodes, mu, muT, F1, rho, omega);
+    su2double resK[MAXN], resOmega[MAXN];
+    ptg::SSTResidual(nNodes, S, k, omega, coeff, kineRow, resK, resOmega);
+
+    su2double jac[MAXN][MAXN][2][2];
+    if (implicit) ptg::SSTJacobian(nNodes, S, k, omega, rho, coeff, kineRow, accurate, jac);
+
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      if (!geometry->nodes->GetDomain(point[a])) continue;
+      LinSysRes(point[a], 0) += weight * resK[a];
+      LinSysRes(point[a], 1) += weight * resOmega[a];
+      if (!implicit) continue;
+
+      for (unsigned short b = 0; b < nNodes; ++b) {
+        for (unsigned short iVar = 0; iVar < 2; ++iVar)
+          for (unsigned short jVar = 0; jVar < 2; ++jVar) jac[a][b][iVar][jVar] *= weight;
+        const su2double* rows[2] = {jac[a][b][0], jac[a][b][1]};
+        /*--- Non-edge pairs of a mixed cell are not in the sparsity pattern, AddBlock drops them (as the flow). ---*/
+        if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
+        else Jacobian.AddBlock(point[a], point[b], rows);
+      }
+    }
+  };
+
+  /*--- One pass over the simplices (serial, the rows of an element are not disjoint between elements). ---*/
+  SU2_OMP_MASTER
+  {
+    ptg::ForEachSimplex(*geometry, nDim, config->GetEdge_Form_P1_Mixed(), addSimplex);
   }
   END_SU2_OMP_MASTER
   SU2_OMP_BARRIER

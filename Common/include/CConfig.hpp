@@ -100,6 +100,7 @@ private:
   bool BC_Entropy_P1_FarField_Characteristic; /*!< \brief Characteristic dissipation at the far-field points of closure C. */
   bool Euler_Wall_Crease_Normals; /*!< \brief Crease-group normals in BC_Euler_Wall and correctGradientsSymmetry. */
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
+  bool Turb_Visc_P1_Galerkin;  /*!< \brief P1 Galerkin diffusion of the turbulence equations, one frozen coefficient per simplex. */
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
   bool JST_Weak_Wall_Diss;     /*!< \brief JST fourth-order term off on edges that leave a weak no-slip wall (P1_WALL_DISSIPATION.md). */
@@ -10166,6 +10167,12 @@ public:
    *        variables, F_T = K(wbar_T) grad(w_h) on each simplex (operator V-A of the P1 viscous notes).
    */
   bool GetVisc_P1_Entropy() const { return Visc_P1_Entropy; }
+
+  /*!
+   * \brief TURB_VISC_P1_GALERKIN: the diffusion of the SST (k, omega, cross diffusion) or SA equations from the P1
+   *        Galerkin element operator instead of the edge diffusion (TURB_GALERKIN_DIFFUSION.md).
+   */
+  bool GetTurb_Visc_P1_Galerkin() const { return Turb_Visc_P1_Galerkin; }
 
   /*!
    * \brief BC_WALL_ENTROPY_P1: weak no-slip heat flux (q = 0) and isothermal walls, closure C with the pressure

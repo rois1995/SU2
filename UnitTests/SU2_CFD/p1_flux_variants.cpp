@@ -55,6 +55,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_strong_slip.hpp"
 #include "../../SU2_CFD/include/gradients/correctGradientsSymmetry.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_sst_matched.hpp"
+#include "../../SU2_CFD/include/numerics/turbulent/p1_turb_galerkin.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_entropy.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_pair_jst.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
@@ -11167,5 +11168,413 @@ TEST_CASE("EDGE_FORM_P1_MIXED_DISS_ALIGNED: a pair with n_ik perpendicular to e_
     su2double sizeFull = 0.0;
     for (int v = 0; v < nVar; ++v) sizeFull += fabs(jFull_i[v][v]);
     CHECK(sizeFull > 0.0);
+  }
+}
+
+/*--- TURB_VISC_P1_GALERKIN (TURB_GALERKIN_DIFFUSION.md): P1 Galerkin diffusion of the turbulence equations. ---*/
+namespace {
+
+namespace ptg = P1TurbGalerkin;
+
+/*!
+ * \brief Random simplex near the reference one, stretched by `stretch` in the last direction, |T| > 0.
+ */
+void TurbGalerkinSimplex(std::mt19937& gen, int nDim, double stretch, su2double (*x)[3]) {
+  std::uniform_real_distribution<double> u(-0.2, 0.2);
+  for (int a = 0; a <= nDim; ++a) {
+    for (int i = 0; i < 3; ++i) x[a][i] = 0.0;
+    for (int i = 0; i < nDim; ++i) x[a][i] = ((a == i + 1) ? 1.0 : 0.0) + u(gen);
+    x[a][nDim - 1] *= stretch;
+  }
+}
+
+/*!
+ * \brief Dense sum over a patch of simplices of their stiffness matrices S^T (node lists into the coordinates).
+ */
+std::vector<std::vector<su2double>> TurbGalerkinAssemble(int nDim, const std::vector<std::array<su2double, 3>>& x,
+                                                         const std::vector<std::array<unsigned long, 4>>& simplices) {
+  std::vector<std::vector<su2double>> A(x.size(), std::vector<su2double>(x.size(), 0.0));
+  for (const auto& t : simplices) {
+    const su2double* c[4];
+    for (int a = 0; a <= nDim; ++a) c[a] = x[t[a]].data();
+    su2double g[4][3];
+    const su2double size = fabs(P1Simplex::ShapeGradients(nDim, c, g));
+    REQUIRE(size > 0.0);
+    su2double S[4][4];
+    ptg::Stiffness(nDim, size, g, S);
+    for (int a = 0; a <= nDim; ++a)
+      for (int b = 0; b <= nDim; ++b) A[t[a]][t[b]] += S[a][b];
+  }
+  return A;
+}
+
+/*!
+ * \brief Nodes of a (n+1)^2 lattice of dx x dy rectangles, each split by the diagonal (i,j)-(i+1,j+1) (the split-quad
+ *        meshes of T3), index i (n+1) + j.
+ */
+void TurbGalerkinSplitGrid(int n, double dx, double dy, std::vector<std::array<su2double, 3>>& x,
+                           std::vector<std::array<unsigned long, 4>>& tris) {
+  auto id = [n](int i, int j) { return static_cast<unsigned long>(i * (n + 1) + j); };
+  for (int i = 0; i <= n; ++i)
+    for (int j = 0; j <= n; ++j) x.push_back({i * dx, j * dy, 0.0});
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      tris.push_back({id(i, j), id(i + 1, j), id(i + 1, j + 1), 0});
+      tris.push_back({id(i, j), id(i + 1, j + 1), id(i, j + 1), 0});
+    }
+  }
+}
+
+}  // namespace
+
+TEST_CASE("TURB_VISC_P1_GALERKIN: the stiffness is symmetric, positive semi-definite, zero row sum, linearly exact", "[P1Flux]") {
+  std::mt19937 gen(4242);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim + 1;
+    for (int trial = 0; trial < 100; ++trial) {
+      su2double x[4][3], g[4][3], S[4][4];
+      TurbGalerkinSimplex(gen, nDim, (trial % 2) ? 1.0 : 1e-3, x);
+      const su2double size = fabs(P1Simplex::ShapeGradients(nDim, x, g));
+      REQUIRE(size > 0.0);
+      ptg::Stiffness(nDim, size, g, S);
+      su2double scale = 0.0;
+      for (int a = 0; a < nNodes; ++a) scale = fmax(scale, fabs(S[a][a]));
+      for (int a = 0; a < nNodes; ++a) {
+        su2double rowSum = 0.0;
+        for (int b = 0; b < nNodes; ++b) {
+          rowSum += S[a][b];
+          CHECK(S[a][b] == S[b][a]);
+        }
+        CHECK(fabs(rowSum) <= 1e-12 * scale);
+      }
+      /*--- phi^T S phi = |T| |grad phi_T|^2 >= 0 (the residual operator; -S is the negative semi-definite Laplacian). ---*/
+      su2double phi[4], gradPhi[3];
+      for (int a = 0; a < nNodes; ++a) phi[a] = u(gen);
+      ptg::ElementGradient(nDim, g, phi, gradPhi);
+      su2double quad = 0.0, energy = 0.0;
+      for (int a = 0; a < nNodes; ++a) quad += phi[a] * ptg::StiffnessRow(nNodes, S, a, phi);
+      for (int i = 0; i < nDim; ++i) energy += size * gradPhi[i] * gradPhi[i];
+      CHECK(quad >= 0.0);
+      CHECK(quad == Approx(energy).epsilon(1e-10));
+      /*--- Linear phi = c + b.x: (S phi)_a = |T| b.g_a. ---*/
+      su2double b[3] = {u(gen), u(gen), u(gen)};
+      for (int a = 0; a < nNodes; ++a) {
+        phi[a] = 0.4;
+        for (int i = 0; i < nDim; ++i) phi[a] += b[i] * x[a][i];
+      }
+      for (int a = 0; a < nNodes; ++a) {
+        su2double bg = 0.0;
+        for (int i = 0; i < nDim; ++i) bg += b[i] * g[a][i];
+        CHECK(ptg::StiffnessRow(nNodes, S, a, phi) == Approx(size * bg).margin(1e-10 * scale));
+      }
+    }
+  }
+}
+
+TEST_CASE("TURB_VISC_P1_GALERKIN: cotangent weights of a right-angle split are the quad 5-point stencil", "[P1Flux]") {
+  /*--- Stretched cells as near a wall: the diagonal gets weight 0, the edges dy/dx and dx/dy (no wall-normal flux on
+   * the streamwise and diagonal edges, unlike the median-dual faces of the edge scheme). ---*/
+  for (const double dy : {1.0, 1e-2, 1e-5}) {
+    const double dx = 1.0;
+    std::vector<std::array<su2double, 3>> x;
+    std::vector<std::array<unsigned long, 4>> tris;
+    TurbGalerkinSplitGrid(2, dx, dy, x, tris);
+    const auto A = TurbGalerkinAssemble(2, x, tris);
+    const unsigned long c = 4;  // node (1,1), interior
+    const double tol = 1e-12 * (dx / dy + dy / dx);
+    CHECK(A[c][c] == Approx(2.0 * (dx / dy + dy / dx)).epsilon(1e-12));
+    CHECK(A[c][1] == Approx(-dy / dx).margin(tol));  // (0,1)
+    CHECK(A[c][7] == Approx(-dy / dx).margin(tol));  // (2,1)
+    CHECK(A[c][3] == Approx(-dx / dy).margin(tol));  // (1,0)
+    CHECK(A[c][5] == Approx(-dx / dy).margin(tol));  // (1,2)
+    CHECK(A[c][0] == Approx(0.0).margin(tol));       // (0,0), diagonal edge
+    CHECK(A[c][8] == Approx(0.0).margin(tol));       // (2,2), diagonal edge
+    CHECK(A[c][2] == 0.0);                           // (0,2), no edge
+    CHECK(A[c][6] == 0.0);                           // (2,0), no edge
+    /*--- Element of one cell: the pair across the diagonal has S = 0. ---*/
+    su2double xt[3][3] = {{0.0, 0.0, 0.0}, {dx, 0.0, 0.0}, {dx, dy, 0.0}}, g[3][3], S[4][4];
+    const su2double size = fabs(P1Simplex::ShapeGradients(2, xt, g));
+    ptg::Stiffness(2, size, g, S);
+    CHECK(S[0][2] == Approx(0.0).margin(tol));
+    CHECK(S[0][1] == Approx(-0.5 * dy / dx).margin(tol));
+    CHECK(S[1][2] == Approx(-0.5 * dx / dy).margin(tol));
+  }
+}
+
+TEST_CASE("TURB_VISC_P1_GALERKIN: patches, linear exactness at interior nodes and the 7-point stencil of Kuhn bricks", "[P1Flux]") {
+  /*--- 2D: an interior node of a stretched split grid has zero residual for a linear field. ---*/
+  {
+    std::vector<std::array<su2double, 3>> x;
+    std::vector<std::array<unsigned long, 4>> tris;
+    TurbGalerkinSplitGrid(2, 0.3, 1e-4, x, tris);
+    const auto A = TurbGalerkinAssemble(2, x, tris);
+    su2double row = 0.0, scale = 0.0;
+    for (unsigned long j = 0; j < x.size(); ++j) {
+      row += A[4][j] * (0.2 + 1.7 * x[j][0] - 0.9 * x[j][1]);
+      scale += fabs(A[4][j]) * fabs(0.2 + 1.7 * x[j][0] - 0.9 * x[j][1]);
+    }
+    CHECK(fabs(row) <= 1e-12 * scale);
+  }
+  /*--- 3D: 2x2x2 bricks hx x hy x hz, each in the 6 Kuhn tetrahedra around its main diagonal. The centre row is the
+   * 7-point stencil (axis neighbours -h_j h_k / h_i, the face and body diagonals 0) and is exact for linear fields. ---*/
+  const double h[3] = {1.0, 0.5, 0.2};
+  auto id = [](int i, int j, int k) { return static_cast<unsigned long>((i * 3 + j) * 3 + k); };
+  std::vector<std::array<su2double, 3>> x;
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      for (int k = 0; k < 3; ++k) x.push_back({i * h[0], j * h[1], k * h[2]});
+  std::vector<std::array<unsigned long, 4>> tets;
+  int perm[3] = {0, 1, 2};
+  for (int i = 0; i < 2; ++i) {
+    for (int j = 0; j < 2; ++j) {
+      for (int k = 0; k < 2; ++k) {
+        std::sort(perm, perm + 3);
+        do {
+          int c[3] = {i, j, k};
+          std::array<unsigned long, 4> t;
+          t[0] = id(c[0], c[1], c[2]);
+          for (int s = 0; s < 3; ++s) {
+            ++c[perm[s]];
+            t[s + 1] = id(c[0], c[1], c[2]);
+          }
+          tets.push_back(t);
+        } while (std::next_permutation(perm, perm + 3));
+      }
+    }
+  }
+  REQUIRE(tets.size() == 48);
+  const auto A = TurbGalerkinAssemble(3, x, tets);
+  const unsigned long c = id(1, 1, 1);
+  const double axis[3] = {h[1] * h[2] / h[0], h[0] * h[2] / h[1], h[0] * h[1] / h[2]};
+  const double tol = 1e-12 * (axis[0] + axis[1] + axis[2]);
+  CHECK(A[c][c] == Approx(2.0 * (axis[0] + axis[1] + axis[2])).epsilon(1e-12));
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      for (int k = 0; k < 3; ++k) {
+        const int dist = (i != 1) + (j != 1) + (k != 1);
+        if (dist == 0) continue;
+        su2double expected = 0.0;
+        if (dist == 1) expected = -((i != 1) ? axis[0] : (j != 1) ? axis[1] : axis[2]);
+        CHECK(A[c][id(i, j, k)] == Approx(expected).margin(tol));
+      }
+    }
+  }
+  su2double row = 0.0;
+  for (unsigned long j = 0; j < x.size(); ++j) row += A[c][j] * (0.5 - 0.3 * x[j][0] + 1.1 * x[j][1] + 2.3 * x[j][2]);
+  CHECK(fabs(row) <= tol);
+}
+
+TEST_CASE("TURB_VISC_P1_GALERKIN: SST rows, Jacobian vs finite differences, k row left to P1KineDiffusion", "[P1Flux]") {
+  std::mt19937 gen(5151);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const unsigned short nNodes = nDim + 1;
+    for (int trial = 0; trial < 50; ++trial) {
+      su2double x[4][3], g[4][3], S[4][4];
+      TurbGalerkinSimplex(gen, nDim, 1.0, x);
+      const su2double size = fabs(P1Simplex::ShapeGradients(nDim, x, g));
+      ptg::Stiffness(nDim, size, g, S);
+      su2double U[8] = {}, rho[4] = {}, mu[4] = {}, muT[4] = {}, F1[4] = {};
+      for (int a = 0; a < nNodes; ++a) {
+        rho[a] = 1.0 + 0.3 * u(gen);
+        mu[a] = 1e-2 * exp(u(gen));
+        muT[a] = exp(u(gen));
+        F1[a] = 0.5 * (1.0 + u(gen));
+        U[a] = rho[a] * exp(u(gen));                // rho k
+        U[4 + a] = rho[a] * 10.0 * exp(2.0 * u(gen));  // rho omega
+      }
+      /*--- Residual of the conserved unknowns (rho k, rho omega) at a fixed density, as the solver's linear system. ---*/
+      auto residual = [&](const su2double* V, bool kineRow, su2double* rK, su2double* rW) {
+        su2double k[4], w[4];
+        for (int a = 0; a < nNodes; ++a) {
+          k[a] = V[a] / rho[a];
+          w[a] = V[4 + a] / rho[a];
+        }
+        const auto C = ptg::MakeSSTCoefficients(nNodes, mu, muT, F1, rho, w);
+        ptg::SSTResidual(nNodes, S, k, w, C, kineRow, rK, rW);
+      };
+      su2double k[4] = {}, w[4] = {};
+      for (int a = 0; a < nNodes; ++a) {
+        k[a] = U[a] / rho[a];
+        w[a] = U[4 + a] / rho[a];
+      }
+      const auto C = ptg::MakeSSTCoefficients(nNodes, mu, muT, F1, rho, w);
+      CHECK(C.diffKine == P1SSTMatched::ElementKineDiffusivity(nNodes, mu, muT, F1));
+      CHECK(C.diffOmega > 0.0);
+      su2double jacA[4][4][2][2], jacP[4][4][2][2];
+      ptg::SSTJacobian(nNodes, S, k, w, rho, C, true, true, jacA);
+      ptg::SSTJacobian(nNodes, S, k, w, rho, C, true, false, jacP);
+
+      for (int b = 0; b < nNodes; ++b) {
+        for (int col = 0; col < 2; ++col) {
+          su2double Vp[8], Vm[8], rKp[4], rWp[4], rKm[4], rWm[4];
+          std::copy(U, U + 8, Vp);
+          std::copy(U, U + 8, Vm);
+          const su2double step = 1e-6 * fabs(U[4 * col + b]);
+          Vp[4 * col + b] += step;
+          Vm[4 * col + b] -= step;
+          residual(Vp, true, rKp, rWp);
+          residual(Vm, true, rKm, rWm);
+          for (int a = 0; a < nNodes; ++a) {
+            const su2double fdK = (rKp[a] - rKm[a]) / (2 * step), fdW = (rWp[a] - rWm[a]) / (2 * step);
+            const su2double tolK = 1e-6 * (1.0 + fabs(fdK)), tolW = 1e-6 * (1.0 + fabs(fdW));
+            CHECK(jacA[a][b][0][col] == Approx(fdK).margin(tolK));
+            CHECK(jacA[a][b][1][col] == Approx(fdW).margin(tolW));
+            /*--- Picard: exact in the k columns (the residual is linear in k), the omega column misses dCross only. ---*/
+            if (col == 0) {
+              CHECK(jacP[a][b][0][0] == jacA[a][b][0][0]);
+              CHECK(jacP[a][b][1][0] == jacA[a][b][1][0]);
+            }
+          }
+        }
+      }
+
+      /*--- kineRow = false (SST_ENERGY_CONSISTENT with VISC_P1_ENTROPY): no k row, the omega row is unchanged. ---*/
+      su2double rK[4], rW[4], rK0[4], rW0[4], jac0[4][4][2][2];
+      residual(U, true, rK, rW);
+      residual(U, false, rK0, rW0);
+      ptg::SSTJacobian(nNodes, S, k, w, rho, C, false, true, jac0);
+      for (int a = 0; a < nNodes; ++a) {
+        CHECK(rK0[a] == 0.0);
+        CHECK(rW0[a] == rW[a]);
+        for (int b = 0; b < nNodes; ++b) {
+          CHECK(jac0[a][b][0][0] == 0.0);
+          CHECK(jac0[a][b][1][1] == jacA[a][b][1][1]);
+          CHECK(jac0[a][b][1][0] == jacA[a][b][1][0]);
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("TURB_VISC_P1_GALERKIN: SST cross diffusion is -V (lambda/omega) grad k . grad omega for linear k, omega", "[P1Flux]") {
+  /*--- Interior node of a stretched split grid, F1 = 0 and rho = 1 (lambda = 2 sigma_om2), mu = mu_t = 0 so that only
+   * the cross weight acts: sum_T CrossWeight_c (S k)_c -> -V_c (lambda/omega_c) b.c, V_c = sum |T|/3. ---*/
+  for (const double scale : {1e-2, 1e-3}) {
+    std::vector<std::array<su2double, 3>> x;
+    std::vector<std::array<unsigned long, 4>> tris;
+    TurbGalerkinSplitGrid(2, scale, 0.4 * scale, x, tris);
+    const su2double b[2] = {0.7, -1.3}, cw[2] = {2.0, 0.5};
+    const unsigned long c = 4;
+    su2double cross = 0.0, volume = 0.0;
+    for (const auto& t : tris) {
+      int ac = -1;
+      for (int a = 0; a < 3; ++a) if (t[a] == c) ac = a;
+      if (ac < 0) continue;
+      const su2double* xc[3] = {x[t[0]].data(), x[t[1]].data(), x[t[2]].data()};
+      su2double g[3][3], S[4][4];
+      const su2double size = fabs(P1Simplex::ShapeGradients(2, xc, g));
+      ptg::Stiffness(2, size, g, S);
+      su2double k[3], w[3], zero[3] = {0.0, 0.0, 0.0}, F1[3] = {0.0, 0.0, 0.0}, rho[3] = {1.0, 1.0, 1.0};
+      for (int a = 0; a < 3; ++a) {
+        k[a] = b[0] * xc[a][0] + b[1] * xc[a][1];
+        w[a] = 10.0 + cw[0] * xc[a][0] + cw[1] * xc[a][1];
+      }
+      const auto C = ptg::MakeSSTCoefficients(3, zero, zero, F1, rho, w);
+      CHECK(C.lambda == Approx(2.0 * ptg::sigma_om2));
+      su2double rK[3], rW[3];
+      ptg::SSTResidual(3, S, k, w, C, true, rK, rW);
+      cross += rW[ac];
+      volume += size / 3.0;
+    }
+    const su2double omega_c = 10.0 + cw[0] * x[c][0] + cw[1] * x[c][1];
+    const su2double expected = -volume * 2.0 * ptg::sigma_om2 / omega_c * (b[0] * cw[0] + b[1] * cw[1]);
+    CHECK(cross == Approx(expected).epsilon(1e-4));
+  }
+}
+
+TEST_CASE("TURB_VISC_P1_GALERKIN: SA coefficient is positive, Jacobian vs finite differences", "[P1Flux]") {
+  std::mt19937 gen(6262);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  /*--- D > 0: standard SA with nu_tilde >= 0, SA-neg for any chi (fn of Allmaras, Johnson & Spalart). ---*/
+  for (int draw = 0; draw < 200; ++draw) {
+    const su2double nu[3] = {1e-3, 1.2e-3, 0.9e-3};
+    const su2double t = 50.0 * u(gen);
+    const su2double nuTilde[3] = {t * 1e-3, 0.8 * t * 1e-3, 1.1 * t * 1e-3};
+    su2double dD = 0.0;
+    if (t >= 0.0) CHECK(ptg::SADiffusivity(3, nu, nuTilde, false, dD) > 0.0);
+    CHECK(ptg::SADiffusivity(3, nu, nuTilde, true, dD) > 0.0);
+    /*--- dD/dnu_tilde_b against finite differences (same for every b). ---*/
+    for (const bool neg : {false, true}) {
+      su2double plus[3], minus[3], d0 = 0.0, dummy = 0.0;
+      ptg::SADiffusivity(3, nu, nuTilde, neg, d0);
+      std::copy(nuTilde, nuTilde + 3, plus);
+      std::copy(nuTilde, nuTilde + 3, minus);
+      const su2double step = 1e-9;
+      plus[1] += step;
+      minus[1] -= step;
+      const su2double fd = (ptg::SADiffusivity(3, nu, plus, neg, dummy) - ptg::SADiffusivity(3, nu, minus, neg, dummy)) /
+                           (2 * step);
+      CHECK(d0 == Approx(fd).margin(1e-6 * (1.0 + fabs(fd))));
+    }
+  }
+  for (int nDim : {2, 3}) {
+    const unsigned short nNodes = nDim + 1;
+    for (int trial = 0; trial < 50; ++trial) {
+      su2double x[4][3], g[4][3], S[4][4];
+      TurbGalerkinSimplex(gen, nDim, 1.0, x);
+      const su2double size = fabs(P1Simplex::ShapeGradients(nDim, x, g));
+      ptg::Stiffness(nDim, size, g, S);
+      su2double nu[4] = {}, nt[4] = {};
+      for (int a = 0; a < nNodes; ++a) {
+        nu[a] = 1e-3 * exp(0.2 * u(gen));
+        nt[a] = 1e-2 * exp(u(gen));
+      }
+      auto residual = [&](const su2double* v, su2double* r) {
+        su2double dD = 0.0;
+        const su2double D = ptg::SADiffusivity(nNodes, nu, v, false, dD);
+        ptg::SAResidual(nDim, size, g, S, v, D, r);
+      };
+      su2double dD = 0.0;
+      const su2double D = ptg::SADiffusivity(nNodes, nu, nt, false, dD);
+      su2double jacA[4][4], jacP[4][4];
+      ptg::SAJacobian(nDim, size, g, S, nt, D, dD, true, jacA);
+      ptg::SAJacobian(nDim, size, g, S, nt, D, dD, false, jacP);
+      for (int b = 0; b < nNodes; ++b) {
+        su2double vp[4], vm[4], rp[4], rm[4];
+        std::copy(nt, nt + 4, vp);
+        std::copy(nt, nt + 4, vm);
+        const su2double step = 1e-6 * nt[b];
+        vp[b] += step;
+        vm[b] -= step;
+        residual(vp, rp);
+        residual(vm, rm);
+        for (int a = 0; a < nNodes; ++a) {
+          const su2double fd = (rp[a] - rm[a]) / (2 * step);
+          CHECK(jacA[a][b] == Approx(fd).margin(1e-6 * (1.0 + fabs(fd))));
+          CHECK(jacP[a][b] == D * S[a][b]);
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("TURB_VISC_P1_GALERKIN: off by default, the edge options are unchanged when off", "[P1Flux]") {
+  auto makeConfig = [](const std::string& model, const std::string& extra) {
+    std::stringstream options;
+    options << "SOLVER= RANS\nKIND_TURB_MODEL= " << model << "\nMACH_NUMBER= 0.3\nREYNOLDS_NUMBER= 1e6\n" << extra;
+    return std::make_unique<CConfig>(options, SU2_COMPONENT::SU2_CFD, false);
+  };
+  /*--- The two flags of ScalarFluxOptions that the switch can touch. ---*/
+  struct Flags {
+    bool viscous = true;
+    bool convective = true;
+  };
+  for (const std::string model : {"SST", "SA"}) {
+    const auto configOff = makeConfig(model, "");
+    const auto configOn = makeConfig(model, "TURB_VISC_P1_GALERKIN= YES\n");
+    CHECK_FALSE(configOff->GetTurb_Visc_P1_Galerkin());
+    CHECK(configOn->GetTurb_Visc_P1_Galerkin());
+
+    Flags off, coarse, on;
+    CHECK_FALSE(ptg::ElementDiffusionReplacesEdges(*configOff, MESH_0, off));
+    CHECK(off.viscous);
+    CHECK(off.convective);
+    CHECK_FALSE(ptg::ElementDiffusionReplacesEdges(*configOn, MESH_0 + 1, coarse));
+    CHECK(coarse.viscous);
+    CHECK(ptg::ElementDiffusionReplacesEdges(*configOn, MESH_0, on));
+    CHECK_FALSE(on.viscous);
+    CHECK(on.convective);
   }
 }

@@ -103,6 +103,14 @@ private:
   void BoundaryFlux(CGeometry* geometry, CSolver** solver_container, CConfig* config, const ScalarFluxOptions& opt,
                     unsigned short val_marker);
 
+  /*!
+   * \brief TURB_VISC_P1_GALERKIN (TURB_GALERKIN_DIFFUSION.md): the P1 Galerkin diffusion of nu_tilde on the simplices
+   *        (and the split averages of EDGE_FORM_P1_MIXED) instead of the edge diffusion: (1/sigma) div((nu + fn nu_tilde)
+   *        grad nu_tilde) with the element means and the cb2 term as a lumped source (P1TurbGalerkin::SAResidual).
+   *        The Langevin equations of stochastic backscatter have no diffusion.
+   */
+  void P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config);
+
 public:
   /*!
    * \brief Constructor.

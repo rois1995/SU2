@@ -89,6 +89,14 @@ private:
   void P1KineDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config);
 
   /*!
+   * \brief TURB_VISC_P1_GALERKIN (TURB_GALERKIN_DIFFUSION.md): the P1 Galerkin diffusion of k and omega and the cross
+   *        diffusion with the element gradient of k, on the simplices (and the split averages of EDGE_FORM_P1_MIXED),
+   *        instead of the edge diffusion. The k row is left to P1KineDiffusion when that runs (SST_ENERGY_CONSISTENT
+   *        with VISC_P1_ENTROPY). Jacobian with the coefficients frozen (P1TurbGalerkin::SSTJacobian).
+   */
+  void P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config);
+
+  /*!
    * \brief JST_ENTROPY_BUDGET with the matched form: the k of the mass flux of the JST correction of each edge
    *        (CEulerSolver::JSTEntropyResidual), k_up(m_c) m_c, the same numbers as the energy row (M1).
    */

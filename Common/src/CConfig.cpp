@@ -1863,6 +1863,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EULER_WALL_CREASE_NORMALS", Euler_Wall_Crease_Normals, false);
   /*!\brief VISC_P1_ENTROPY \n DESCRIPTION: Viscous residual of the flow equations from the P1 Galerkin operator in entropy variables: on each simplex F_T = K(wbar_T) grad(w_h), evaluated with the stress tensor and heat flux of the effective gradients grad(v) = (G_m - v* G_theta)/theta*, grad(T) = -G_theta/(R theta*^2), theta = rho/p, mean of the nodal entropy variables, mean mu + mu_t (mu_t >= 0) and conductivity. Replaces the edge viscous flux and its Jacobian (Picard element Jacobian, frozen K). Triangles and tetrahedra. Entropy dissipative for any state. \ingroup Config \default false */
   addBoolOption("VISC_P1_ENTROPY", Visc_P1_Entropy, false);
+  /*!\brief TURB_VISC_P1_GALERKIN \n DESCRIPTION: Diffusion of the turbulence equations from the P1 Galerkin operator (TURB_GALERKIN_DIFFUSION.md): on each simplex R_a = D sum_b |T| (g_a.g_b) phi_b with D the vertex mean of the edge coefficient, i.e. the dual-face flux of the element gradient (cotangent Laplacian, compact, zero weight across the diagonal of a right-angle split). SST: k and omega with mu + sigma(F1) mu_t, and the cross diffusion of SU2's divergence form with the element gradient of k, lambda (1 - omega_a/omega_T); SA: (1/sigma) div((nu + fn nu_tilde) grad nu_tilde) with the element means and (cb2/sigma)|grad nu_tilde|^2 as a lumped source. Replaces the edge diffusion of the fine grid; Jacobian with the coefficients frozen (plus their derivatives with USE_ACCURATE_TURB_JACOBIANS, not for SA-neg). Simplices, or EDGE_FORM_P1_MIXED for other cells. \ingroup Config \default false */
+  addBoolOption("TURB_VISC_P1_GALERKIN", Turb_Visc_P1_Galerkin, false);
   /*!\brief BC_WALL_ENTROPY_P1 \n DESCRIPTION: Weak no-slip walls (HEAT_FLUX with zero heat flux, ISOTHERMAL): closure C with the pressure flux, plus the SIPG penalty in entropy variables with the K of the wall element, sigma_f = 5/2 (1+s)^2 d m_T/(4 h_f), s = 1, h_f = d|T|/A_f. Needs VISC_P1_ENTROPY and BC_WEAK_P1. \ingroup Config \default false */
   addBoolOption("BC_WALL_ENTROPY_P1", BC_Wall_Entropy_P1, false);
   /*!\brief JST_WEAK_WALL_DISSIPATION \n DESCRIPTION: JST and JST_MAT: eps4 = 0 and eps2 = 0 on every edge with exactly one end on a weak no-slip wall of BC_WALL_ENTROPY_P1, in the residual and in the Jacobian; edges along the wall and all other edges are unchanged (P1_WALL_DISSIPATION.md; the eps2 part drives the wall-node slip, T6 study). The wall node Laplacian has only boundary neighbours, so on such an edge eps4 lam (L_k - L_s) is a first or second difference that competes with the no-slip penalty (backward slip); setting it to zero is the continuation L_s = L_k on that edge. Needs BC_WALL_ENTROPY_P1, no periodic boundaries. Fine grid only. \ingroup Config \default false */
@@ -6385,6 +6387,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Diss_Projected) active.push_back("EDGE_DISS_PROJECTED");
   if (Edge_Form_TeCNO) active.push_back("EDGE_FORM_TECNO");
   if (Visc_P1_Entropy) active.push_back("VISC_P1_ENTROPY");
+  if (Turb_Visc_P1_Galerkin) active.push_back("TURB_VISC_P1_GALERKIN");
   if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
   if (JST_Weak_Wall_Diss) active.push_back("JST_WEAK_WALL_DISSIPATION");
   if (SST_Energy_Consistent) active.push_back("SST_ENERGY_CONSISTENT");
@@ -6736,6 +6739,28 @@ void CConfig::CheckP1FluxOptions() const {
     if (Wall_Functions) SU2_MPI::Error(name + "not available with wall functions.", CURRENT_FUNCTION);
     if (quantized && (Kind_TimeIntScheme_Flow == EULER_IMPLICIT))
       SU2_MPI::Error(name + "not available with the quantized preconditioners Q_*, they drop the element Jacobian blocks.", CURRENT_FUNCTION);
+  }
+  if (Turb_Visc_P1_Galerkin) {
+    /*--- TURB_GALERKIN_DIFFUSION.md: the element operator covers the interior dual faces; the boundaries keep their
+     * fluxes, which have no diffusion except at turbomachinery and fluid-interface markers (one-sided edge diffusion,
+     * not derived with it). The quantized matrices drop added off-diagonal blocks. With SST_ENERGY_CONSISTENT the energy
+     * row holds a copy of the k diffusion: the element one with VISC_P1_ENTROPY, else the edge one, which this option
+     * removes from the k row. ---*/
+    const string name = "TURB_VISC_P1_GALERKIN: ";
+    if ((Kind_Turb_Model != TURB_MODEL::SST) && (Kind_Turb_Model != TURB_MODEL::SA))
+      SU2_MPI::Error(name + "needs KIND_TURB_MODEL= SST or SA.", CURRENT_FUNCTION);
+    if (SST_Energy_Consistent && !Visc_P1_Entropy)
+      SU2_MPI::Error(name + "with SST_ENERGY_CONSISTENT it needs VISC_P1_ENTROPY= YES (the energy row copies the k "
+                     "diffusion).", CURRENT_FUNCTION);
+    if (GetBoolTurbomachinery() || GetBoolMixingPlaneInterface() || (nMarker_Fluid_InterfaceBound > 0))
+      SU2_MPI::Error(name + "not available with turbomachinery, mixing-plane or fluid-interface markers (diffusive "
+                     "boundary fluxes).", CURRENT_FUNCTION);
+    if (Axisymmetric) SU2_MPI::Error(name + "not available for axisymmetric problems.", CURRENT_FUNCTION);
+    if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
+    if ((Kind_Linear_Solver_Prec == Q_LU_SGS) || (Kind_Linear_Solver_Prec == Q_JACOBI) ||
+        (Kind_Linear_Solver_Prec == Q_IDENTITY))
+      SU2_MPI::Error(name + "not available with the quantized preconditioners Q_*, they drop the element Jacobian blocks.",
+                     CURRENT_FUNCTION);
   }
   if (Visc_P1_Entropy_Moved) {
     /*--- The moved viscous element form is indefinite whenever Y_T != 0 (P1_VISCOUS_MOVED.md, Theorem MV3), so the

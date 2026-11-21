@@ -29,6 +29,7 @@
 
 #include "../scalar/scalar_edge_flux.hpp"
 #include "sst_energy.hpp"
+#include "p1_turb_galerkin.hpp"
 
 /*!
  * \class CScalarFlux_SST
@@ -65,6 +66,8 @@ class CScalarFlux_SST
   static constexpr passivedouble sigma_om2 = 0.856;
   static_assert(sigma_k1 == SSTEnergy::sigma_k1 && sigma_k2 == SSTEnergy::sigma_k2,
                 "SST_ENERGY_CONSISTENT copies the k diffusion of this row (sst_energy.hpp).");
+  static_assert(sigma_om1 == P1TurbGalerkin::sigma_om1 && sigma_om2 == P1TurbGalerkin::sigma_om2,
+                "TURB_VISC_P1_GALERKIN copies the omega and cross diffusion of this row (p1_turb_galerkin.hpp).");
   const bool elementKine = false; /*!< \brief P1 element k diffusion instead of the edge one (constructor). */
 
  public:
