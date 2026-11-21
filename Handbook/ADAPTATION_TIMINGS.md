@@ -2,6 +2,15 @@
 
 ## Fast path stage 2
 
+### FP2-A corrected surface steps and default proof, build627
+
+| G5 mode | Event 1 native (s) | Event 2 native (s) | Minimum timer coverage, events 1 / 2 |
+| --- | ---: | ---: | ---: |
+| OFF | 1,779.827 | 1,023.870 | 99.004% / 99.530% |
+| CORE | 1,512.056 | 369.654 | 99.045% / 98.654% |
+
+Serial LAB-S spent 1.472 s in surface length and 10.797 s in surface distance, accepting 2,416 and 15,158 splits. Strict proof took 105.313 s mesh-to-model and 42.131 s model-to-mesh. K1 and K3 finished in 126.387 s and 114.542 s, with maximum post-surface stars of 168 and no alarm under Correction 4. S1 event 1 ended incomplete at 5,430.854 native seconds after the repair counts plateaued. S2 is unevaluated. [FP2-A report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_A/reports/FP2_A_627.md) · [Per-rank Part C timings](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_A/reports/FP2_A_627_C_rows.md)
+
 ### FP2-0b feature-edge split measurement, build620
 
 | Measurement | Seconds | Result |

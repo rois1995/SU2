@@ -1104,3 +1104,15 @@ FP2-A build627 CORE event 2 passed terminal proof and timers. Native max 369.654
 FP2-A build627 CORE full workflow passed two events, transfer and continued CFD. All six payloads match accepted FP1 ON exactly. The six rank logs contain zero surface pass and state rows. The isolated restart is running.
 
 FP2-A Part C default proven on build627. G5 OFF and CORE passed both events and isolated restart and each matched its six adopted payloads. Correction 4 opens §11.3 after the default checkpoint. Next: S1 and S2 on this same binary.
+
+FP2-A C default-proven checkpoint pushed as 36d41fc3c3. Both default jobs and their isolated restarts ended. Starting §11.3 S1 on the same pinned build627 solver. S2 follows only if S1 passes its standing gates.
+
+FP2-A S1 launched with the surface-enabled configuration SHA256 07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382. The active case config matches the pinned file and enables both options.
+
+FP2-A build627 S1 event 1 stage 0 completed both surface passes and installed the verified state on all six ranks. It accepted 18,120 surface splits and rebuilt 85,194 faces, 42,599 points and 748 traces (revision 2). Native engine construction is next.
+
+FP2-A S1 event 1 remains in native repair. At 20:30 CET (2,850 s workflow elapsed) the latest full per-rank windows still sum to five q failures, one J failure and nineteen geometry failures. The native event has exceeded the 1,587.659 s purpose threshold and remains under its separate 5,400 s standing limit. All six owned ranks remain active.
+
+FP2-A S1 FAILED event 1. First standing failure complete=0 on all ranks against 1. Maximum 5,430.853544 s against 5,400 s. Existing controller stopped the rejected workflow and all recorded handles are terminal. The one read-only R5 diagnosis found unchanged final counts of 5 q, 1 J and 19 geometry failures for at least 3,759 s, then the native geometry/private-work deadline. No wiring error established. S2, second-event qualification, isolated restart and repeat identity are unevaluated. Default proof stays accepted at 36d41fc3c3. Closing reports, archive and terminal audit follow.
+
+FP2-A §11.3 closed. FP2-A ON FAILED in S1. The build627 default qualification stays passed. Terminal audit verified 363 owned identities. Reports and handoff updated. Stop and wait for the user after the closing checkpoint.
