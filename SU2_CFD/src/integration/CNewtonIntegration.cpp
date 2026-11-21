@@ -453,8 +453,13 @@ double CNewtonIntegration::Evaluate(double step, const char* phase) {
         }
       END_SU2_OMP_FOR
     }
-  /*--- Most assembled full steps are accepted: assemble their matrices now for the next base. ---*/
-  const bool implicit = assembledOperator && step == 1;
+  /*--- Most assembled full steps are accepted: assemble their matrices now for the next base. Only a group that
+   *    owns every equation can reuse them; otherwise another group updates its state first and the outer refresh
+   *    assembles again. ---*/
+  bool ownsAll = true;
+  for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+    if (solvers[config->GetContainerPosition(runtime)] && !IsNewtonEquation(runtime)) ownsAll = false;
+  const bool implicit = assembledOperator && step == 1 && ownsAll;
   Residual(implicit);
   SU2_OMP_SAFE_GLOBAL_ACCESS(implicitTrial = implicit;)
   const double physical = Merit();
