@@ -1042,3 +1042,19 @@ FP2-A build626 OFF event 2 passed terminal proof and timers. Native max 1,040.04
 FP2-A build626 OFF full workflow passed both event validations and continued CFD. All six payloads are byte-identical to N21 W. The isolated restart has started. Neither local-core option is enabled and neither surface marker appears in the full run. Superseded build626 evidence will be kept separate from the corrected qualification.
 
 FP2-A build626 G5 OFF sealed PASSED. Both full events, their six exact payloads, continued CFD and isolated restart passed. Full wrapper 3,201.354 s, restart wrapper 234.563 s. Re-verified the sealed receipt and owned handles on the real host, then applied Correction 3. Its surface sweep printing adds a surface-only call to the existing solver sink printer in NativeRemeshRun.inc, so the pre-correction OFF proof falls outside the file-list exception. Build627 solver and test driver are compiling. Next: serial fixtures and LAB-S, then K1 and conditional K3.
+
+FP2-A build626 historical default checkpoint pushed as 4d1d2ea579. Build627 source manifest differs in three production files (core surface declarations, surface sweeps, and the existing solver print sink) and two test translation units. Correction 3 serial checks will start after the build controller is terminal.
+
+FP2-A Correction 3 build627 passed in 98.945 s without a new warning. Running the §3.1 serial fixtures and LAB-S before the rank checks.
+
+FP2-A Correction 3 build627 box and cylinder gate passed, including refusal of the longest edge without fallback and both ordinary and feature length floors. The pinned IN1 geometry fixture is running.
+
+FP2-A Correction 3 build627 IN1 passed in 77.004 s, with 84,086 faces, 42,045 points, 731 traces and 17,566 prototype splits, matching the pinned fixture. LAB-S is running on the saved volume.
+
+FP2-A Correction 3 build627 LAB-S completed the core pass with 554,558 exactly positive cells. Surface L/D accepted 2,416 / 15,158 splits in 7 / 8 nonempty sweeps and finished with 84,102 faces. Zero long edges or above-limit sampled faces remain. The post-surface maximum star is 168 with zero above 1,000. Both correction-1 alarm values are inside their bounds. State build and strict proof are running.
+
+FP2-A Correction 3 serial gates passed on build627. LAB-S took 285.266 s, all four strict geometry entities accepted, Classify flagged 0 of 84,102 faces, and both correction-1 alarms were clear. All serial controllers terminal. Starting K1 on 2 ranks, retaining the verified build626 K2 receipt and making K3 conditional on K1.
+
+FP2-A Correction 3 K1 ended in 126.387 s with both ranks completing both passes, exact positivity and the state/Snapshot checks. First post-surface stars are 168 and 124 (build626 first-volume observations 65,654 and 98,388). Correction 3 raised no alarm on either pass. K3 has launched at six ranks.
+
+FP2-A rank check stopped before 11.3 on build627. K3 completed both passes and every mesh/Snapshot check in 114.542 s, with max rank pass 26.570 s and max post-surface star 168. Its first qualification alarm is rank 4 pass 1 faces_out=19,559 > 18,101.061 (faces_in=5,269). No star or sweep-limit alarm. Build626 K2 retained. All rank-check controllers terminal. Preserving the rank alarm checkpoint before the required default tests.

@@ -1,4 +1,4 @@
-"""Render FP2-A Correction 2 results from the rank-check runner receipts."""
+"""Render the FP2-A rank checks from complete and partial receipts."""
 
 from argparse import ArgumentParser
 import json
@@ -36,38 +36,53 @@ def row_section(title, rows):
 
 def render(root):
     summary = read_json(root / 'rank_check_summary.json')
-    runs = {name: read_json(root / name / 'rank_check_receipt.json') for name in RUNS}
-    order = ('K2', 'K1', 'K3') if runs['K2'].get('ended') is False else tuple(RUNS)
-    lines = ['# FP2-A Correction 2 rank check', '', f'Evidence directory `{root}`.', '',
+    results = summary.get('results', {})
+    runs = {}
+    for name in RUNS:
+        result = results.get(name, {})
+        receipt = (Path(result['receipt']) if 'reused_from_build' in result
+                   else root / name / 'rank_check_receipt.json')
+        runs[name] = read_json(receipt)
+    order = summary.get('progress_order') or (('K2', 'K1', 'K3') if runs['K2'].get('ended') is False else tuple(RUNS))
+    correction = summary.get('correction', 2)
+    lines = [f'# FP2-A Correction {correction} rank check', '', f'Evidence directory `{root}`.', '',
              'Times are seconds. Pass time covers the meeting through writeback on that rank. '
-             'The star observation after the first completed volume sweep is the post-surface fallback. '
-             'A dash marks a missing observation.', '']
+             'The corrected active runs record stars after the surface steps. The earlier runs use the '
+             'first completed volume sweep as the post-surface fallback. A dash marks a missing observation.', '']
     if summary.get('proceed_11_3') is True:
-        lines += ['All three runs ended and K3 had no pass above 600 s. Continue with §11.2 and then §11.3.', '']
+        lines += ['All three checks ended and no alarm fired. '
+                  'Continue with §11.2 and then §11.3.', '']
     elif summary.get('proceed_11_3') is False:
         lines += ['Continue with §11.2 and stop before §11.3.', '']
 
     for name in order:
         ranks, surface = RUNS[name]
         receipt = runs[name]
-        result = summary.get('results', {}).get(name, {})
+        result = results.get(name, {})
         state = receipt.get('state', result.get('state'))
         ended = receipt.get('ended', result.get('ended'))
         lines += [f'## {name} · {ranks} ranks · surface {surface}', '']
         if state == 'skipped_k1_did_not_end':
-            lines += ['Skipped because K1 did not end within its limit.', '']
+            lines += ['Skipped because K1 did not meet its completion conditions.', '']
             continue
         if not receipt:
             lines += ['No run receipt has been recorded.', '']
             continue
+        if 'reused_from_build' in result:
+            lines += [f'Retained from build {result["reused_from_build"]}. '
+                      f'Receipt SHA256 `{result["receipt_sha256"]}`.', '']
         outcome = {True: 'Ended', False: 'Did not end', None: 'Outcome unavailable'}[ended]
         lines += [f'**{outcome}.**' + (f' Receipt state `{state}`.' if state else ''), '']
         if receipt.get('wait') is not None:
             lines += [f'Launcher exit evidence `{json.dumps(receipt["wait"], ensure_ascii=False)}`.', '']
         if difference := receipt.get('first_difference'):
             lines += [f'First observed difference `{json.dumps(difference, ensure_ascii=False)}`.', '']
-        if alarms := receipt.get('alarm_over_600'):
-            lines += row_section('Passes above the 600 s alarm', [row_text('ALARM', row) for row in alarms])
+        time_alarms = receipt.get('alarm_over_600', [])
+        if time_alarms:
+            lines += row_section('Passes above the 600 s alarm', [row_text('ALARM', row) for row in time_alarms])
+        surface_alarms = receipt.get('surface_alarms', [])
+        if surface_alarms:
+            lines += row_section('Post-surface alarms', [row_text('ALARM', row) for row in surface_alarms])
 
         by_rank = receipt.get('by_rank', {})
         times, stars, surfaces, exact, final = [], [], [], [], []
@@ -92,6 +107,19 @@ def render(root):
                         'First volume sweep'), stars)
         lines += row_section('Section 9 surface rows', surfaces)
         lines += row_section('Exact positivity and section 8 evidence', exact + final)
+
+        alarm_passes = sorted({(row['rank'], row['pass']) for row in [*surface_alarms, *time_alarms]})
+        for rank, pass_number in alarm_passes:
+            seen = by_rank.get(rank, {})
+            per_pass = lambda rows: [row for row in seen.get(rows, []) if row.get('pass') == pass_number]
+            distance = [row_text('NATIVE3D_LOCAL_SWEEP', row) for row in per_pass('sweeps')
+                        if row.get('kind') == 'surface_distance']
+            lines += row_section(f'Rank {rank} pass {pass_number} distance sweep diagnostics',
+                                 distance or ['— no surface distance sweep observed'])
+            stars = [row_text('FP2_A RANK_STAR', row) for row in per_pass('largest_stars')]
+            edges = [row_text('FP2_A RANK_STAR_EDGE', row) for row in per_pass('star_edges')]
+            lines += row_section(f'Rank {rank} pass {pass_number} largest post-surface stars and refused edges',
+                                 stars + (edges or ['— no refused incident edges observed']))
 
         if ended is not True:
             last = receipt.get('last_sweep_by_rank', {})
@@ -139,6 +167,23 @@ def self_check():
         assert '### Five longest observed sweeps' in output
         (root / 'rank_check_summary.json').unlink()
         assert 'No run receipt has been recorded.' in render(root)
+        receipts['K1']['surface_alarms'] = [{'rank': '0', 'pass': '1', 'field': 'star_max', 'observed': 1024}]
+        seen = receipts['K1']['by_rank']['0']
+        seen['sweeps'].append({'rank': '0', 'pass': '1', 'kind': 'surface_distance', 'refused_walk': '1'})
+        seen['largest_stars'] = [{'rank': '0', 'pass': '1', 'place': '1', 'point': '10', 'x': '0', 'y': '0', 'z': '0',
+                                  'surface': '1', 'border': '0', 'incident': '1024'}]
+        seen['star_edges'] = [{'rank': '0', 'pass': '1', 'point': '10', 'endpoint_a': '10', 'endpoint_b': '11',
+                               'reason': 'walk'}]
+        k2 = root / 'K2' / 'rank_check_receipt.json'
+        previous = k2.with_name('historical_rank_check_receipt.json')
+        k2.rename(previous)
+        (root / 'K1/rank_check_receipt.json').write_text(json.dumps(receipts['K1']))
+        (root / 'rank_check_summary.json').write_text(json.dumps({'correction': 3, 'proceed_11_3': False,
+            'results': {'K2': {'reused_from_build': 626, 'receipt': str(previous), 'receipt_sha256': 'abc'}}}))
+        output = render(root)
+        assert 'Correction 3' in output and 'Retained from build 626' in output
+        assert 'Rank 0 pass 1 distance sweep diagnostics' in output and 'refused_walk=1' in output
+        assert 'largest post-surface stars and refused edges' in output and 'endpoint_b=11 reason=walk' in output
     print('FP2-A rank-check report self-check passed.')
 
 

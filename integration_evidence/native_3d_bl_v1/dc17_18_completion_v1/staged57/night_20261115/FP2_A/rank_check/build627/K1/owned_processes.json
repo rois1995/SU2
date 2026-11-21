@@ -1,0 +1,62 @@
+{
+  "all_observed_terminal": true,
+  "identities": [
+    {
+      "pid": 234918,
+      "start_ticks": 76950545
+    },
+    {
+      "pid": 234919,
+      "state": "S",
+      "ppid": 234918,
+      "pgid": 234919,
+      "sid": 234918,
+      "start_ticks": 76950545,
+      "comm": "timeout"
+    },
+    {
+      "pid": 234920,
+      "state": "S",
+      "ppid": 234919,
+      "pgid": 234919,
+      "sid": 234918,
+      "start_ticks": 76950545,
+      "comm": "mpirun"
+    },
+    {
+      "pid": 234923,
+      "state": "R",
+      "ppid": 234920,
+      "pgid": 234923,
+      "sid": 234918,
+      "start_ticks": 76950548,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 234924,
+      "state": "R",
+      "ppid": 234920,
+      "pgid": 234924,
+      "sid": 234918,
+      "start_ticks": 76950548,
+      "comm": "test_driver"
+    }
+  ],
+  "sigkill_sent_to": [],
+  "sampled_rank_peak_lower_bound_bytes": 2105495552,
+  "sampled_rank_peaks_bytes": [
+    {
+      "pid": 234923,
+      "start_ticks": 76950548,
+      "peak_rss_bytes": 884342784
+    },
+    {
+      "pid": 234924,
+      "start_ticks": 76950548,
+      "peak_rss_bytes": 1221152768
+    }
+  ],
+  "child_returncode": 0,
+  "elapsed_seconds": 126.17674045695458,
+  "stop": null
+}
