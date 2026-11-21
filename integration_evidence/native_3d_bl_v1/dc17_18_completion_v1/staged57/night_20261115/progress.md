@@ -1116,3 +1116,29 @@ FP2-A S1 event 1 remains in native repair. At 20:30 CET (2,850 s workflow elapse
 FP2-A S1 FAILED event 1. First standing failure complete=0 on all ranks against 1. Maximum 5,430.853544 s against 5,400 s. Existing controller stopped the rejected workflow and all recorded handles are terminal. The one read-only R5 diagnosis found unchanged final counts of 5 q, 1 J and 19 geometry failures for at least 3,759 s, then the native geometry/private-work deadline. No wiring error established. S2, second-event qualification, isolated restart and repeat identity are unevaluated. Default proof stays accepted at 36d41fc3c3. Closing reports, archive and terminal audit follow.
 
 FP2-A §11.3 closed. FP2-A ON FAILED in S1. The build627 default qualification stays passed. Terminal audit verified 363 owned identities. Reports and handoff updated. Stop and wait for the user after the closing checkpoint.
+
+FP2-B0 order archived and SHA256 verified. Completed the whole-item source check at 852e566d17. Test-only measurement will reproduce the frozen one- and six-rank passes, observe c1–c4, and execute bounded fixture V operations. No FP2-A qualification state changes.
+
+FP2-B0 build628 stopped on one test-only name ambiguity (Incidence). Its controller is terminal. Renamed the helper to LiveIncidence and starting build629, with the solver binary still pinned.
+
+FP2-B0 build629 passed without a new warning in 21.795 s. The production audit found zero SHA256 differences outside UnitTests and the solver binary is unchanged. Running the serial surface fixtures, then H1, H0, H6, H6off, X1, X2, X3, and the selected X6 in sequence.
+
+FP2-B0 build629 serial surface fixtures passed 675 assertions in four cases. The new frozen H1 measurement is running.
+
+FP2-B0 R3. The serial gate passed, but JSON receipt equality rejected tuple-vs-list representation before H1 launched. Preserved the original runner and passing receipt, fixed normalization and verified the completed cohort on resume. Build629 remains pinned.
+
+FP2-B0 H1 completed on build629 in 108.761 s. It reproduced the LAB-S cells and faces exactly (554,558 / 84,102) and measured 11,296 c3 bad cells with no free-count discrepancy. H0 is running.
+
+FP2-B0 H0 completed in 80.033 s, with 422,857 cells, 48,954 faces and 2,836 c3 bad cells. H6 is running with unit weights and the frozen K3 inputs.
+
+FP2-B0 H6 completed in 76.362 s. It reproduced K3 exactly at 549,519 cells after the higher shift and 84,124 / 84,184 summed faces by pass. The last c3 census found 11,099 bad cells, with no class (d) mismatch. H6off is running.
+
+FP2-B0 H6off completed in 67.064 s, with 419,732 cells, 48,954 owned physical faces and 2,538 c3 bad cells. H6 and H6off had no c3 class (d) discrepancy. X1 is running the serial V-split trial.
+
+FP2-B0 X1 completed in 116.968 s. Its five rounds accepted 1,180 V-splits with a zero-operation terminating round. It reached 4,393 c4 bad cells and 562,386 exactly positive cells with the surface fixed. X2 is running.
+
+FP2-B0 X2 completed in 122.049 s with 145 V-collapses in four rounds. It reached 10,645 c4 bad cells and 553,451 exactly positive cells with the surface fixed. X3 follows.
+
+FP2-B0 X3 completed in 124.055 s. Seven rounds of collapse then split reached 3,756 c4 bad cells and 561,067 exactly positive cells with the surface fixed. The pinned X6 choice is X3 (both), the smallest c4 count among X1/X2/X3 (4,393 / 10,645 / 3,756). X6 is running.
+
+FP2-B0 completed on build629. Hand-over counts: H6off 2,538 / H6 11,099 / X6 3,741 / H0 2,836 / H1 11,296 / X1 4,393 / X2 10,645 / X3 3,756. X6 selected X3. All exact positivity checks passed. The production SHA256 audit found zero differences across 1,624 paths, and 63 witnessed owned process identities were terminal. Report and handoff updated. Closing checkpoint and post-push verification follow.

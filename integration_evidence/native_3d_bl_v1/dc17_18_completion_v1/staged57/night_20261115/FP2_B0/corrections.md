@@ -1,0 +1,3 @@
+
+- Build628 failed while compiling the new lab fixture. Its helper name `Incidence` collided with `SU2Native3D::Incidence` in a scope importing both namespaces. Renamed the test helper to `LiveIncidence`. The failed build receipt and console log are preserved. Retrying the unit-test target as build629.
+- The first build629 runner invocation completed the serial surface cohort with exit 0 and wrote its passing receipt, then failed a JSON round-trip assertion. Catch summaries were tuples in memory and arrays in JSON. The runner now normalizes them to lists. It verifies the existing serial receipt and the archived original driver digest before reusing that completed execution. No hand-over job had started and the test binary is unchanged.

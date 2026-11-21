@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "TransferTestCase.hpp"
+#include "../../Common/adaptation/native_local_fixture_access.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalSurface3D.hpp"
@@ -785,3 +786,7 @@ TEST_CASE("FP2-A rank check on the frozen M6 event 1 volume", "[.][NativeLocalCo
       << " peak_rss=" << ProcessPeakRSS3D() << '\n';
   std::cout << row.str() << std::flush;
 }
+
+#include "fixtures/native_handover.inc"
+#include "fixtures/native_handover_quality.inc"
+#include "fixtures/native_handover_volume.inc"

@@ -1,5 +1,7 @@
 # Work order status
 
+FP2-B0 completed on test-only build629. At six ranks, the frozen lab measured 2,538 bad cells with surface splits off and 11,099 with them on. X6 replayed the best serial variant (X3) and measured 3,741 bad cells at c4. The production source pins and solver hash match build627. FP2-A ON remains failed and the surface option defaults to NO. [FP2-B0 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B0/reports/FP2_B0_629.md)
+
 FP2-A Parts A and B and the full Part C default passed on build627. The surface option defaults to NO. S1 failed the native deadline with unresolved quality and geometry. S2 is unevaluated. [FP2-A report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_A/reports/FP2_A_627.md)
 
 FP2-0b measured the feature-edge split prototype on test-only build620. P3 accepted its 84,478 faces and P4 accepted all four entities in 56.148 s. Strict Classify flagged zero final faces. G1 matched 375 / 114 / 228 records. [FP2-0b report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0B/reports/FP2_0B_620.md) · [Earlier FP2-0 measurement](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_0/reports/FP2_0_619.md)

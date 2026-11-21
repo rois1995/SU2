@@ -1,0 +1,56 @@
+{
+  "build": 629,
+  "binary_sha256": "558c75339f0e0afe495011b08894993778ea51cd24bc6e576d4af131ede3bbc9",
+  "test_binary_sha256": "91d735255cfa8a3b0d7296f0b462df4fa7beb9b6f47f932d657fefc8fee6e747",
+  "source_pins_sha256": "4dea4ffd67a836cf77441eb6d0c781d337e768ba1d8fbbb1911f9b8e81848ca1",
+  "passed": true,
+  "catch_summaries": [
+    [
+      [
+        "24",
+        "1"
+      ]
+    ]
+  ],
+  "case": "H1",
+  "ranks": 1,
+  "surface": true,
+  "extra": "none",
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 778252,
+      "start_ticks": 79053850
+    },
+    "returncode": 0,
+    "elapsed_seconds": 108.76102614402771,
+    "terminal": true
+  },
+  "sampled_rank_peak_lower_bound_bytes": 1189453824,
+  "time_peak_bytes": 1189453824,
+  "stop": null,
+  "measurement": {
+    "handover_bad": 11296,
+    "handover_checkpoint": "c3",
+    "handover_cells": 554558,
+    "post_shift_cells": 554558,
+    "faces_out_by_pass": [
+      84102
+    ],
+    "problems": [],
+    "sanity_differences": [],
+    "bad_out_free_differences": []
+  },
+  "artifacts": {
+    "command.json": "57c3b00443cadba37a81680c0400949972c5b20a69355ea15fb079059956489e",
+    "owned_processes.json": "091e3e61d7b752f2ddcf225e486148df633bdf91a95bd3a947f41713c3d8b228",
+    "pins.json": "bd7d08b9a5e3faf1a47102b85815f9b98becec82a2804a1f80e5950103e8b684",
+    "provenance.json": "3a7c5c50091ac5bba01413d975b80e5751ca1b8298488d37be61737262ae3f89",
+    "resources.jsonl": "a7d08b26eabf37ca3ea00d82dea0cd84b108346b4b5af3316dd0bf9654e47c4f",
+    "test_host_preflight.json": "11e2103fc3a20fb48733938a6701fdede7953dbe550f5caca4b8185a15eaed82",
+    "test_launch.json": "f38a242497bea3ac332f1d60158f2b06939580ea2fc099e27dbc4bbbe6fef3ef",
+    "test_outer.log": "6ef1e94a0dacdcad8d38def9f030401e74d74dde976da2b1765629586005eae3",
+    "test_wait.json": "0830dd697af60f5e0b01e96ffad10e4ede162910b270342df7b50d452c16c793",
+    "time.txt": "130963d0787a0caea327ae2be0f3b915863c73f9b06f39aca3d3d935a2b0dd06"
+  }
+}
