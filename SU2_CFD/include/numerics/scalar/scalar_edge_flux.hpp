@@ -492,14 +492,24 @@ class CUpwScalarBase : public CUpwScalarFlux<Double_, Derived, FlowIndices, nDim
         }
 
         /*--- A face value outside the bounds of the variable (e.g. a negative k or omega next to a wall,
-         * where omega varies by orders of magnitude) falls back to the value of its point. ---*/
+         * where omega varies by orders of magnitude) moves back towards the value of its point. With the
+         * room c between the point value and the bound and the increment d, |d| > c, the face takes
+         * point + sign(d) c^2/|d|: equal to the bound at |d| = c, so the residual stays continuous (Newton
+         * line searches), and the point value (first order) for |d| >> c. ---*/
         if (opt.lowerLimit) {
+          auto bound = [](const Double& point, const Double& face, su2double lo, su2double hi) {
+            const Double d = face - point, below = face < lo, above = face > hi;
+            /*--- Room capped by |d|: finite for the unbounded default limits; exact where the face is out. ---*/
+            const Double roomLo = fmin(fmax(point - lo, 0.0), fmax(-d, 0.0));
+            const Double roomHi = fmin(fmax(hi - point, 0.0), fmax(d, 0.0));
+            const Double down = point - roomLo * (roomLo / (fmax(-d, 0.0) + 1e-300));
+            const Double up = point + roomHi * (roomHi / (fmax(d, 0.0) + 1e-300));
+            return below * down + above * up + (1 - below - above) * face;
+          };
           for (size_t iVar = 0; iVar < res.nVar; ++iVar) {
             const su2double lo = opt.lowerLimit[iVar], hi = opt.upperLimit[iVar];
-            const Double out_i = fmax(phi.i.all(iVar) < lo, phi.i.all(iVar) > hi);
-            const Double out_j = fmax(phi.j.all(iVar) < lo, phi.j.all(iVar) > hi);
-            phi.i.all(iVar) = out_i * phi1st.i.all(iVar) + (1 - out_i) * phi.i.all(iVar);
-            phi.j.all(iVar) = out_j * phi1st.j.all(iVar) + (1 - out_j) * phi.j.all(iVar);
+            phi.i.all(iVar) = bound(phi1st.i.all(iVar), phi.i.all(iVar), lo, hi);
+            phi.j.all(iVar) = bound(phi1st.j.all(iVar), phi.j.all(iVar), lo, hi);
           }
         }
       }
