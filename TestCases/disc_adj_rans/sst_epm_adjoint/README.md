@@ -91,7 +91,7 @@ linear in the adjoint, so the tolerance between two runs is the sum of their two
 It is measured, not fixed, because `CONV_RESIDUAL_MINVAL= -10` bounds the absolute rms
 only: the omega adjoint starts near `2e-11` in 3D, and the 3D 2-rank restart stops only
 3.7 decades below that (level `1.8e-4`) while `rms[A_Rho]` is 6 decades below. On cluster
-job 664789 the observed errors were 0.002 to 0.09 of this tolerance (2D: restarted
+job 664831 the observed errors were 0.002 to 0.09 of this tolerance (2D: restarted
 `8.4e-8` of `2.6e-6`, vs serial `2.1e-7` of `2.3e-6`; 3D: restarted `3.1e-6` of `1.9e-4`,
 vs serial `2.5e-8` of `1.6e-5`). Real bugs are O(1) (a halo double count is a factor 2;
 a missing site fails the site-set check). A tolerance above `1e-3` fails the run as not
@@ -115,8 +115,7 @@ floor of `1e-10` times the column's max norm. (Field files up to `bc43d43` store
 orientation: the 2-rank files of job 664770 have opposite normals on 27 of 28 (2D) and 169
 of 174 (3D) shared edges, and the reader now rejects them.)
 
-Cluster result. On CFDHub, job 664789 (binaries built from `d7fbb0c`, scripts at
-`d1fc118`) passes the serial and the 2-rank runs in 2D and 3D. On 2 ranks, the
+Cluster result. On CFDHub, job 664831 (build 8b, commit `b486566`, SGE build job 664828) passes the serial and the 2-rank runs in 2D and 3D. On 2 ranks, the
 `extract_only` run from the 2-rank restart and the `mpi_extract_field` run from the serial
 adjoint were both rejected by the guard, as expected above. So extract-only on 2 ranks has
 not been positively verified. The recorded values are in

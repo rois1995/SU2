@@ -218,7 +218,7 @@ replayed. So the serial adjoint is not a converged adjoint of the 2-rank iterati
   convergence tolerance derived from the adjoint histories.
 
 The §9.3 check (serial adjoint into 2 ranks, `1e-10` against serial) is a guard-decided diagnostic. The runner
-enforces it if the guard accepts and records the guard values if it rejects. On CFDHub (job 664789) the guard
+enforces it if the guard accepts and records the guard values if it rejects. On CFDHub (job 664831) the guard
 rejected it in 2D and 3D, and all other checks passed. Details: parent spec, Section 1, "MPI result".
 
 **(c) Final review fixes (2026-11-21).** The stored `EDGE` normal now points from `key_a` to `key_b` on every rank

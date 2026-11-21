@@ -16,12 +16,12 @@ This is not an implementation of a probabilistic uncertainty interval or a guara
 
 **Implementation status (2026-11-21):** branch `rois1995/SU2:feature_UQ` starts at the upstream commit below. Reference corrections and experimental 2D/3D extraction are implemented. Extraction has two modes, set by `SST_EPM_EXTRACTION`. `FIELD` (default) records every evaluation site once and writes per-site sensitivity files. `SCALAR_REPLAY` is the earlier scalar-amplitude replay; it is kept as the reference. `SST_EPM_EXTRACT_ONLY= YES` re-extracts from saved restarts. Field-sensitivity design: [design spec](superpowers/specs/2026-11-20-epm-field-sensitivity-design.md).
 
-What passed on CFDHub (verify job 664789, 2026-11-20; binaries built from `d7fbb0c`; test scripts at `d1fc118`; no C++ change since `d7fbb0c`):
+What passed on CFDHub (verify job 664831, 2026-11-21; reference build 8b, SGE job 664828, commit `b486566`, built with `CXXFLAGS` kept in `cpp_args`, see the build warning in Section 12.1):
 
-- The `[EPM],[EPMExtraction],[EPMField]` unit tests: 944 assertions in 15 passive cases, 1024 in 17 reverse-AD cases.
+- The `[EPM],[EPMExtraction],[EPMField]` unit tests: 983 assertions in 17 passive cases, 1323 in 20 reverse-AD cases.
 - The tiny 2D and 3D smoke tests, serial and on 2 MPI ranks. All primal and adjoint residuals are below `1e-10`. The adjoint history is unchanged with extraction on, in both modes. Interior-edge and source coverage, restart agreement and unchanged primal/adjoint restarts are checked.
-- Serial: `FIELD` equals `SCALAR_REPLAY` row by row (largest difference `4.1e-20` in 2D and `5.2e-21` in 3D, on gradients of order `1e-5` and `1e-6`). Extract-only from the saved serial adjoint reproduces the end-of-run CSV and field files exactly (difference 0). The field reader reproduces the CSV from the field files.
-- The serial `FIELD` gradients match the pre-feature scalar replay (commit `8f12d50`, job 664628) to `7e-15` relative. The primal restart is bitwise identical to the one written by that binary.
+- Serial: `FIELD` equals `SCALAR_REPLAY` row by row (largest difference `4.1e-20` in 2D and `5.1e-21` in 3D, on gradients of order `1e-5` and `1e-6`). Extract-only from the saved serial adjoint reproduces the end-of-run CSV and field files exactly (difference 0). The field reader reproduces the CSV from the field files.
+- The serial `FIELD` gradients matched the pre-feature scalar replay (commit `8f12d50`, job 664628) to `7e-15` relative in the earlier job 664831 (build `d7fbb0c`); that comparison was not repeated in job 664831. The primal restart is bitwise identical to the one written by that binary.
 - 2 ranks: see "MPI result" below.
 
 Values, binary SHA-256s and timings are in [smoke_results.json](../TestCases/disc_adj_rans/sst_epm_adjoint/smoke_results.json). Earlier local serial checks (GCC 13.3, O0) are kept there as superseded. No production runs occurred. Nonlinear Taylor checks, nonlinear continuation and wide SIMD/OpenMP extraction remain pending.
@@ -88,9 +88,9 @@ The extraction scalar is internal; setting it to nonzero in a local test verifie
 
 Guard: the run performs one adjoint iteration from the loaded adjoint, measures its residual and discards the update. Each `CONV_FIELD` residual must meet `CONV_RESIDUAL_MINVAL`. If it does not, extraction stops with an error. The replay is seeded with the loaded adjoint, not the updated one. The guard values go to the screen and, in `FIELD` mode, to `extract_only_residuals` in the field JSON. With more than one rank, the guard measures the residual of the total adjoint: the owned value plus all its halo copies, summed by the reverse halo exchange.
 
-Verified: serial extract-only from a serial adjoint restart reproduces the end-of-run CSV and field files exactly (2D and 3D, CFDHub job 664789).
+Verified: serial extract-only from a serial adjoint restart reproduces the end-of-run CSV and field files exactly (2D and 3D, CFDHub job 664831).
 
-In practice extract-only works serial-into-serial only: a serial run loading a serial adjoint restart. Both multi-rank inputs tried in job 664789 were rejected by the guard, as designed: an adjoint restart written by a multi-rank run (lossy, see below), and a serial adjoint loaded on several ranks (not a fixed point of the multi-rank iteration, see the MPI result). For multi-rank re-extraction use the short re-converge below.
+In practice extract-only works serial-into-serial only: a serial run loading a serial adjoint restart. Both multi-rank inputs tried in job 664831 were rejected by the guard, as designed: an adjoint restart written by a multi-rank run (lossy, see below), and a serial adjoint loaded on several ranks (not a fixed point of the multi-rank iteration, see the MPI result). For multi-rank re-extraction use the short re-converge below.
 
 To watch in the first campaign comparison: extract-only records its replay at `InnerIter = 0` (its single iteration), while a normal run records it at its last inner iteration. In the supported configurations (fixed CFL, no ramping, no iteration-dependent options) the recorded iteration should not depend on the iteration counter; the smoke tests agree exactly, but a campaign case with an iteration-dependent option would show it as an extract-only vs end-of-run mismatch.
 
@@ -103,7 +103,7 @@ Adjoint restarts written by MPI runs (user ruling, 2026-11-20). With more than o
 - `sst_epm_field_<OBJ>_rank<r>.bin`, one per rank: raw float64 records in the host byte order (little-endian on the cluster), one per site, without padding. All sites are written, including sites with `uses == 0`.
 - `sst_epm_field_<OBJ>.json`, written by the master. It is the source of truth for the layout: column names and order, `dtype`, `byte_order` (`little` or `big`, from the host), `record_bytes`, the per-rank file names and record counts, `nDim`, objective, `delta_b`, `urlx`, gap tolerance, rank count, SU2 version, `source_commit`, `ref_dimensionalization`, case names, kind codes, the `S_tau` and normal conventions (`S_tau_note`, `normal_note`), and `extract_only_residuals` (null in a normal run).
 
-Today a record has 100 columns (800 bytes), so a file grows linearly with the number of sites. The 2D smoke case has 347 sites (277,600 bytes); the 3D case has 1313 (1,050,400 bytes). Files written before `byte_order` was added have no such key; the reader then assumes little-endian (they all come from CFDHub). `source_commit` is `unknown` unless the build defines `SU2_EPM_COMMIT`; it was `unknown` in the cluster runs so far. For campaign builds pass it at meson setup, e.g. `-Dcpp_args=-DSU2_EPM_COMMIT=$(git rev-parse HEAD)` (on an existing build directory, `meson configure <build> -Dcpp_args=...`, which rebuilds everything). A value given as a string literal (`'-DSU2_EPM_COMMIT="<sha>"'`) loses its quotes, and any other quote, backslash or control character is escaped, so the JSON stays valid. Keep the build identity (`BUILT_FROM`) next to the files anyway.
+Today a record has 100 columns (800 bytes), so a file grows linearly with the number of sites. The 2D smoke case has 347 sites (277,600 bytes); the 3D case has 1313 (1,050,400 bytes). Files written before `byte_order` was added have no such key; the reader then assumes little-endian (they all come from CFDHub). `source_commit` is `unknown` unless the build defines `SU2_EPM_COMMIT`; it was `unknown` in the cluster runs so far. For campaign builds pass it at meson setup, e.g. `-Dcpp_args="$CXXFLAGS -DSU2_EPM_COMMIT=$(git rev-parse HEAD)"` (keep `$CXXFLAGS`, see the warning in Section 12.1) (on an existing build directory, `meson configure <build> -Dcpp_args=...`, which rebuilds everything). A value given as a string literal (`'-DSU2_EPM_COMMIT="<sha>"'`) loses its quotes, and any other quote, backslash or control character is escaped, so the JSON stays valid. Keep the build identity (`BUILT_FROM`) next to the files anyway.
 
 Reader: `python3 TestCases/disc_adj_rans/sst_epm_adjoint/read_epm_field.py sst_epm_field_DRAG.json --csv sst_epm_sensitivities.csv`. It loads all ranks and merges halo copies by `(kind, key_a, key_b)`. It sums the `S_*` columns over copies and keeps the other columns from the first evaluated copy. The `dtau_*` and `normal_*` columns of evaluated copies must agree to `1e-10` relative, with a floor of `1e-10` times the column's max norm (copies agree to round-off, not bitwise, because ranks orient an edge by local numbering). It reads the byte order from the JSON. It then recomputes the five canonical `g_m` from the files and compares them with the CSV (`1e-10` relative or `1e-14` absolute). It needs only numpy.
 
@@ -123,7 +123,7 @@ State columns that do not apply to a kind are NaN; sensitivity and correction co
 
 #### MPI result
 
-CFDHub job 664789 ran the 2D and 3D smoke tests on 2 ranks against the serial runs of the same job. The primal restart is shared. Everything listed below passed.
+CFDHub job 664831 ran the 2D and 3D smoke tests on 2 ranks against the serial runs of the same job. The primal restart is shared. Everything listed below passed.
 
 | Check (2 ranks) | 2D | 3D | Tolerance |
 |---|---:|---:|---:|
@@ -138,7 +138,7 @@ CFDHub job 664789 ran the 2D and 3D smoke tests on 2 ranks against the serial ru
 
 The convergence tolerance is derived from the adjoint histories. For each run, the level is the worst adjoint component of `10^(final rms - first rms of the run started from zero)`. The tolerance between two runs is the sum of their levels. A tolerance above `1e-3` fails the run. The [test README](../TestCases/disc_adj_rans/sst_epm_adjoint/README.md) gives the derivation.
 
-Option A for the 2-rank checks (user ruling, 2026-11-20). The adjoint fixed point depends on the partition. The transposed linear solves of the recorded iteration stop at a finite accuracy (`1e-10` relative residual, reached in at most 14 iterations in these runs), and the ILU preconditioner is rank-local. `dJ/da` and the `S_*` depend only on the adjoint of the residual, and only when the loaded adjoint is the fixed point of the same map that is replayed. So the serial adjoint loaded on 2 ranks is not a converged adjoint of the 2-rank iteration. The guard rejects it: the worst total-adjoint residual was `10^-6.09` (2D) and `10^-7.72` (3D), above the `1e-10` criterion. The accepted checks are: field vs scalar replay on the same run to `1e-10`; the converged 2-rank run vs serial, and the 2-rank restarted re-extraction vs the end-of-run fields, at the history-derived convergence tolerance. The strict check of design spec §9.3 (serial adjoint into 2 ranks, `1e-10` against serial) is a guard-decided diagnostic. If the guard accepts, the runner enforces `1e-10`; if it rejects, the runner records the guard values. In job 664789 it rejected in 2D and 3D. So extract-only on 2 ranks has not been positively verified.
+Option A for the 2-rank checks (user ruling, 2026-11-20). The adjoint fixed point depends on the partition. The transposed linear solves of the recorded iteration stop at a finite accuracy (`1e-10` relative residual, reached in at most 14 iterations in these runs), and the ILU preconditioner is rank-local. `dJ/da` and the `S_*` depend only on the adjoint of the residual, and only when the loaded adjoint is the fixed point of the same map that is replayed. So the serial adjoint loaded on 2 ranks is not a converged adjoint of the 2-rank iteration. The guard rejects it: the worst total-adjoint residual was `10^-6.09` (2D) and `10^-7.72` (3D), above the `1e-10` criterion. The accepted checks are: field vs scalar replay on the same run to `1e-10`; the converged 2-rank run vs serial, and the 2-rank restarted re-extraction vs the end-of-run fields, at the history-derived convergence tolerance. The strict check of design spec §9.3 (serial adjoint into 2 ranks, `1e-10` against serial) is a guard-decided diagnostic. If the guard accepts, the runner enforces `1e-10`; if it rejects, the runner records the guard values. In job 664831 it rejected in 2D and 3D. So extract-only on 2 ranks has not been positively verified.
 
 A guard rejection counts as expected only if every guard residual is at most `1e-5`; the largest observed was `10^-5.46` (2D, lossy restart, k adjoint). A zero or wrongly loaded adjoint leaves the first-iteration residual (`rms[A_Rho]` near `10^-3.5` in 2D and `10^-4.1` in 3D) and fails the runner.
 
@@ -146,7 +146,7 @@ A guard rejection counts as expected only if every guard residual is at most `1e
 
 Use [the smoke-test runner and commands](../TestCases/disc_adj_rans/sst_epm_adjoint/README.md). It creates its own 117-point 2D rectangle or 315-point 3D box with spanwise flow, uses a coupled drag adjoint, and limits each solver invocation to 2,000 iterations and 300 seconds. The test compares feature-disabled/enabled adjoint histories and requires their final adjoint restarts to be bitwise equal (also against `SCALAR_REPLAY`), checks every equation's convergence, verifies stress evaluations cover all interior mesh edges, extracts all five sensitivities, reloads the saved adjoint, and checks the primal restart checksum. It also compares `FIELD` with `SCALAR_REPLAY`, runs extract-only and three option rejections, and checks the field files with the reader, their byte order, one use per site, and the normal convention on every copy (`EDGE` from `key_a` to `key_b`, `BOUNDARY` outward). Configs, logs, histories, restarts, CSVs and field files remain in the selected test directory.
 
-[Recorded smoke-test evidence](../TestCases/disc_adj_rans/sst_epm_adjoint/smoke_results.json) contains the CFDHub results (job 664789): binary checksums and commits, residuals, timings, sensitivities, error metrics, field sizes and site counts, for 1 and 2 ranks. These coarse meshes are not physically resolved validation cases. The table below is from the earlier local serial run; the CFDHub serial runs give the same adjoint history rows and evaluation counts.
+[Recorded smoke-test evidence](../TestCases/disc_adj_rans/sst_epm_adjoint/smoke_results.json) contains the CFDHub results (job 664831): binary checksums and commits, residuals, timings, sensitivities, error metrics, field sizes and site counts, for 1 and 2 ranks. These coarse meshes are not physically resolved validation cases. The table below is from the earlier local serial run; the CFDHub serial runs give the same adjoint history rows and evaluation counts.
 
 | Case | Points | Primal history rows | Adjoint history rows | Stress/source evaluations per canonical replay |
 |---|---:|---:|---:|---:|
@@ -157,7 +157,7 @@ The end-to-end audit identified a necessary integration correction: `USE_VECTORI
 
 Full builds also require the corrected relative includes in `CMixingPlaneInterface.hpp/.cpp` and `CFlowTractionInterface.cpp`; their old paths could resolve SU2 headers from an unrelated neighbouring checkout through a dependency include directory. The lightweight local build used available CoDiPack, Eigen and MEL headers, without changing that neighbouring source checkout. Exact dependency revisions were not independently verified against pinned gitlinks.
 
-For MPI, the runner uses `mpirun --bind-to none -np 2` (adding `--host localhost` outside an SGE parallel environment), reuses the matching serial primal, and runs the 2-rank checks of the MPI result above. They pass on CFDHub (job 664789). The earlier local sandbox could not launch MPI. CFDHub is now the selected campaign destination; follow the storage and runtime-location policy in the execution contract above.
+For MPI, the runner uses `mpirun --bind-to none -np 2` (adding `--host localhost` outside an SGE parallel environment), reuses the matching serial primal, and runs the 2-rank checks of the MPI result above. They pass on CFDHub (job 664831). The earlier local sandbox could not launch MPI. CFDHub is now the selected campaign destination; follow the storage and runtime-location policy in the execution contract above.
 
 ### Inspected source
 
@@ -723,7 +723,7 @@ python3 meson.py setup build-epm \
   -Denable-autodiff=true \
   -Dwith-mpi=enabled \
   -Dwith-omp=false \
-  -Dcpp_args="-DSU2_EPM_COMMIT=$(git rev-parse HEAD)"
+  -Dcpp_args="$CXXFLAGS -DSU2_EPM_COMMIT=$(git rev-parse HEAD)"
 
 ./ninja -C build-epm install
 
@@ -731,9 +731,11 @@ EPM_PRIMAL="$EPM_INSTALL_PREFIX/bin/SU2_CFD"
 EPM_ADJOINT="$EPM_INSTALL_PREFIX/bin/SU2_CFD_AD"
 ```
 
+**Warning: keep `$CXXFLAGS` in `-Dcpp_args`.** On CFDHub the shell profile sets `CXXFLAGS=-march=native -mtune=native -O2 -pipe -fPIC`. Meson copies the environment `CXXFLAGS` into `cpp_args` only when no `-Dcpp_args` is given, so an explicit `-Dcpp_args=-DSU2_EPM_COMMIT=...` drops `-O2 -fPIC` and the rest. That build runs at release `-O3`, and the 3D AD run segfaulted while recording MESH COORDINATES in upstream `CADTElemClass::Dist2ToQuadrilateral` (gcc 10.2.0, jobs 664806/7, 664825/6); the EPM code is not the cause. The recipe above (build 8b, job 664828, verified by job 664831) passes all tests in 3D on 1 and 2 ranks. A build without `-Dcpp_args` (8a) also passes but records `source_commit` as `unknown`.
+
 If an installation already exists, inspect and reuse a compatible build directory or choose a new one; do not overwrite unrelated build settings. If MPI is unavailable, use `-Dwith-mpi=disabled` and report MPI verification as pending. Start with one process and no OpenMP, then verify two MPI ranks.
 
-Record source commit, patch/diff identity, compiler, build configuration, executable paths, MPI library, and process count in the campaign manifest. `SU2_EPM_COMMIT` is only read by the EPM field writer (`source_commit` in the field JSON); without it the value is `unknown`. It is fixed at configure time, so reconfigure (`meson configure build-epm -Dcpp_args=...`, a full rebuild) when the source commit changes. Building a forward-mode/direct-differentiation executable is unnecessary for this workflow.
+Record source commit, patch/diff identity, compiler, build configuration, executable paths, MPI library, and process count in the campaign manifest. `SU2_EPM_COMMIT` is only read by the EPM field writer (`source_commit` in the field JSON); without it the value is `unknown`. It is fixed at configure time, so reconfigure (`meson configure build-epm -Dcpp_args="$CXXFLAGS -DSU2_EPM_COMMIT=..."`, a full rebuild) when the source commit changes. Building a forward-mode/direct-differentiation executable is unnecessary for this workflow.
 
 Sources: [build options](https://github.com/su2code/SU2/blob/f4b67d23deaac22948cc8d2a2c0da3138ae804f6/meson_options.txt), [CFD executable targets](https://github.com/su2code/SU2/blob/f4b67d23deaac22948cc8d2a2c0da3138ae804f6/SU2_CFD/src/meson.build), [build wrapper](https://github.com/su2code/SU2/blob/f4b67d23deaac22948cc8d2a2c0da3138ae804f6/meson.py).
 
@@ -862,7 +864,7 @@ For the future CFDHub campaign, after qualifying the meshes and execution enviro
 
 A zero exit code and the 20,000-iteration cap are not convergence certificates. Apply Section 12.9 to every primal and coupled adjoint, including tighter-solve noise checks. Reuse a compatible saved primal only after Section 12.3's checks. Count baseline, adjoint convergence, tape/replays and nonlinear reference costs separately. Do not silently launch validation cases when requesting an estimate.
 
-The tiny `check_extraction.py --ranks 2 --reference ...` is the MPI verification path. It passes on CFDHub (job 664789; Section 1, MPI result). It covers 2 ranks on tiny meshes only. Do not use extract-only on adjoint restarts written by MPI runs: the guard rejects them. Re-extract those with a short re-converge (Section 1, extract-only re-extraction).
+The tiny `check_extraction.py --ranks 2 --reference ...` is the MPI verification path. It passes on CFDHub (job 664831; Section 1, MPI result). It covers 2 ranks on tiny meshes only. Do not use extract-only on adjoint restarts written by MPI runs: the guard rejects them. Re-extract those with a short re-converge (Section 1, extract-only re-extraction).
 
 ### 12.6 Exactly how the sensitivity result is obtained
 
@@ -1130,7 +1132,7 @@ A successful Taylor check establishes derivative correctness under the stated re
 
 ## 13. Completion checklist
 
-Current branch (2026-11-21): corrected classical targets and scalar/fused-edge extraction in 2D/3D are implemented, in `FIELD` (default) and `SCALAR_REPLAY` modes, with extract-only re-extraction. On CFDHub (job 664789) the passive and reverse-AD unit tests and the tiny 2D/3D smoke tests pass, serial and on 2 MPI ranks (Section 1). Extract-only is verified serially; on 2 ranks the guard rejected both inputs it was given, so it has not been positively verified there. Wide SIMD/OpenMP extraction, broader boundary/physics coverage, nonlinear CFD Taylor checks, nonlinear continuation and full-endpoint accuracy remain unverified. Tiny-case sensitivity files are infrastructure evidence, not validated uncertainty bounds or a speed-up result.
+Current branch (2026-11-21): corrected classical targets and scalar/fused-edge extraction in 2D/3D are implemented, in `FIELD` (default) and `SCALAR_REPLAY` modes, with extract-only re-extraction. On CFDHub (job 664831) the passive and reverse-AD unit tests and the tiny 2D/3D smoke tests pass, serial and on 2 MPI ranks (Section 1). Extract-only is verified serially; on 2 ranks the guard rejected both inputs it was given, so it has not been positively verified there. Wide SIMD/OpenMP extraction, broader boundary/physics coverage, nonlinear CFD Taylor checks, nonlinear continuation and full-endpoint accuracy remain unverified. Tiny-case sensitivity files are infrastructure evidence, not validated uncertainty bounds or a speed-up result.
 
 Reproduce the lightweight tests without building or running a CFD executable, from the repository root. This Bash snippet requires the normal external headers, including CoDiPack for reverse mode. `CODI_INCLUDE` can point to an existing local CoDiPack include directory. During these local checks, the available sibling checkout's headers were used; their exact revision was not independently verified against the pinned submodule.
 
