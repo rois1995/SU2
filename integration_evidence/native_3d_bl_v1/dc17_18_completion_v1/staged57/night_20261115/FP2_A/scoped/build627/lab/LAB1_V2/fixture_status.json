@@ -1,0 +1,221 @@
+{
+  "passed": true,
+  "catch_summaries": [
+    [
+      [
+        "27",
+        "1"
+      ]
+    ]
+  ],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 225353,
+      "start_ticks": 76914308
+    },
+    "returncode": 0,
+    "elapsed_seconds": 285.2663826942444,
+    "terminal": true
+  },
+  "measurement": {
+    "passed": true,
+    "rows": {
+      "NATIVE3D_LOCAL_SURFACE": [
+        {
+          "line": 208,
+          "text": "NATIVE3D_LOCAL_SURFACE rank=0 stage=0 pass=1 applicable=1 faces_in=48954 faces_out=84102 points_in=24479 points_out=42053 splits_length=2416 splits_distance=15158 splits_feature=75 sweeps_length=7 sweeps_distance=8 left_long=0 left_border=0 left_distance=0 left_all_feature=0 left_refused=0 left_limit=0 left_short=0 star_max=168 star_gt100=72 star_gt1000=0 refused_walk=150 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_size=0 refused_valid=0 refused_topology=0 refused_memory=0 refused_entity=0 chord_unknown=0 samples=457672 samples_unconverged=9431 outward_max=2.1320851362276744e-05 seconds_length=1.471983950000002 seconds_distance=10.797270422000004 seconds_samples=3.48613777900038 seconds_place=0.51430805800013957 seconds_entity=6.887617557999917",
+          "fields": {
+            "rank": "0",
+            "stage": "0",
+            "pass": "1",
+            "applicable": "1",
+            "faces_in": "48954",
+            "faces_out": "84102",
+            "points_in": "24479",
+            "points_out": "42053",
+            "splits_length": "2416",
+            "splits_distance": "15158",
+            "splits_feature": "75",
+            "sweeps_length": "7",
+            "sweeps_distance": "8",
+            "left_long": "0",
+            "left_border": "0",
+            "left_distance": "0",
+            "left_all_feature": "0",
+            "left_refused": "0",
+            "left_limit": "0",
+            "left_short": "0",
+            "star_max": "168",
+            "star_gt100": "72",
+            "star_gt1000": "0",
+            "refused_walk": "150",
+            "refused_protected": "0",
+            "refused_feature": "0",
+            "refused_trace": "0",
+            "refused_duplicate": "0",
+            "refused_outward": "0",
+            "refused_size": "0",
+            "refused_valid": "0",
+            "refused_topology": "0",
+            "refused_memory": "0",
+            "refused_entity": "0",
+            "chord_unknown": "0",
+            "samples": "457672",
+            "samples_unconverged": "9431",
+            "outward_max": "2.1320851362276744e-05",
+            "seconds_length": "1.471983950000002",
+            "seconds_distance": "10.797270422000004",
+            "seconds_samples": "3.48613777900038",
+            "seconds_place": "0.51430805800013957",
+            "seconds_entity": "6.887617557999917"
+          }
+        }
+      ],
+      "FP2_A LAB_S": [
+        {
+          "line": 209,
+          "text": "FP2_A LAB_S cells_in=303359 cells_out=554558 bad_in=15008 bad_out=11296 seconds_load=10.379611746 seconds_setup=30.043499813 seconds_build=0.38267153600000003 seconds_pass=65.016838483000001 seconds_write=0.189945954",
+          "fields": {
+            "cells_in": "303359",
+            "cells_out": "554558",
+            "bad_in": "15008",
+            "bad_out": "11296",
+            "seconds_load": "10.379611746",
+            "seconds_setup": "30.043499813",
+            "seconds_build": "0.38267153600000003",
+            "seconds_pass": "65.016838483000001",
+            "seconds_write": "0.189945954"
+          }
+        }
+      ],
+      "FP1_LAB exact": [
+        {
+          "line": 210,
+          "text": "FP1_LAB exact cells=554558 nonpositive=0 first_nonpositive=0",
+          "fields": {
+            "cells": "554558",
+            "nonpositive": "0",
+            "first_nonpositive": "0"
+          }
+        }
+      ],
+      "NATIVE3D_LOCAL_SURFACE_STATE": [
+        {
+          "line": 211,
+          "text": "NATIVE3D_LOCAL_SURFACE_STATE rank=0 stage=0 splits_all=17574 faces=84102 points=42053 traces=749 revision=2 seconds_exchange=0 seconds_gather=0.21372968099998957 seconds_build=29.662779399000001 seconds_check=0.12867158800000311 modeled_peak=7776545116 rss_before=599355392 rss_after=600195072",
+          "fields": {
+            "rank": "0",
+            "stage": "0",
+            "splits_all": "17574",
+            "faces": "84102",
+            "points": "42053",
+            "traces": "749",
+            "revision": "2",
+            "seconds_exchange": "0",
+            "seconds_gather": "0.21372968099998957",
+            "seconds_build": "29.662779399000001",
+            "seconds_check": "0.12867158800000311",
+            "modeled_peak": "7776545116",
+            "rss_before": "599355392",
+            "rss_after": "600195072"
+          }
+        }
+      ],
+      "FP2_A LAB_S_EXACT": [
+        {
+          "line": 212,
+          "text": "FP2_A LAB_S_EXACT seconds=0.052180172000000004",
+          "fields": {
+            "seconds": "0.052180172000000004"
+          }
+        }
+      ],
+      "FP2_A LAB_S_ENTITY": [
+        {
+          "line": 213,
+          "text": "FP2_A LAB_S_ENTITY body=0 sheet=0 marker=0 mesh_to_model=5.9002792345363484e-14 model_to_mesh=9.5858962086559768e-05 accepted=1",
+          "fields": {
+            "body": "0",
+            "sheet": "0",
+            "marker": "0",
+            "mesh_to_model": "5.9002792345363484e-14",
+            "model_to_mesh": "9.5858962086559768e-05",
+            "accepted": "1"
+          }
+        },
+        {
+          "line": 214,
+          "text": "FP2_A LAB_S_ENTITY body=0 sheet=2060 marker=1 mesh_to_model=9.9938566627711959e-05 model_to_mesh=9.9608477538714829e-05 accepted=1",
+          "fields": {
+            "body": "0",
+            "sheet": "2060",
+            "marker": "1",
+            "mesh_to_model": "9.9938566627711959e-05",
+            "model_to_mesh": "9.9608477538714829e-05",
+            "accepted": "1"
+          }
+        },
+        {
+          "line": 215,
+          "text": "FP2_A LAB_S_ENTITY body=0 sheet=10154 marker=2 mesh_to_model=9.9997144525582675e-05 model_to_mesh=9.99991607790709e-05 accepted=1",
+          "fields": {
+            "body": "0",
+            "sheet": "10154",
+            "marker": "2",
+            "mesh_to_model": "9.9997144525582675e-05",
+            "model_to_mesh": "9.99991607790709e-05",
+            "accepted": "1"
+          }
+        },
+        {
+          "line": 216,
+          "text": "FP2_A LAB_S_ENTITY body=0 sheet=27868 marker=2 mesh_to_model=2.5759970305665014e-05 model_to_mesh=2.5759970305665126e-05 accepted=1",
+          "fields": {
+            "body": "0",
+            "sheet": "27868",
+            "marker": "2",
+            "mesh_to_model": "2.5759970305665014e-05",
+            "model_to_mesh": "2.5759970305665126e-05",
+            "accepted": "1"
+          }
+        }
+      ],
+      "FP2_A LAB_S_PROOF": [
+        {
+          "line": 217,
+          "text": "FP2_A LAB_S_PROOF entities=4 classified=84102 classify_above_tol=0 accepted=1 qualified=1 classify_left_refused=0 classify_left_short=0 classify_left_border=0 classify_left_limit=0 classify_unexplained=0 seconds_mesh_to_model=105.313472859 seconds_model_to_mesh=42.131281180000002 seconds_classify=0.35693754800000005 work=83731633 modeled_peak=5372448612",
+          "fields": {
+            "entities": "4",
+            "classified": "84102",
+            "classify_above_tol": "0",
+            "accepted": "1",
+            "qualified": "1",
+            "classify_left_refused": "0",
+            "classify_left_short": "0",
+            "classify_left_border": "0",
+            "classify_left_limit": "0",
+            "classify_unexplained": "0",
+            "seconds_mesh_to_model": "105.313472859",
+            "seconds_model_to_mesh": "42.131281180000002",
+            "seconds_classify": "0.35693754800000005",
+            "work": "83731633",
+            "modeled_peak": "5372448612"
+          }
+        }
+      ]
+    }
+  },
+  "peak_rss_kib": 2212268,
+  "provenance_sha256": "c0990241b5c611accec925597c4ffe42448e73ef3d39e6cbe1783a654b46c6ae",
+  "artifacts": {
+    "command.json": "05c5b708027df1d0a67fb62a9fa121f4aabde3eb88094a82b8ce79bc3b8d01aa",
+    "owned_processes.json": "eb0dbc74c3fa0ea3b0f6e583c5ac0c5050ba3cc591420b4b284ece7102737847",
+    "resources.jsonl": "52f77daeac4f0cdb7cbeffeadcad5cec2711d596e00e8657d9ceba937dee6ef9",
+    "test_host_preflight.json": "35d6ef54e019b9c5951b40b228d6e845ed64957c9372994a9570673323cf11a9",
+    "test_launch.json": "69ee28114136913a0a850ef2f441f8a11e18de3238456372d6b1ff3ef75a478a",
+    "test_outer.log": "766946e95ee9a98c88a32e378a4bd287312a3f534d1d25d52e45e7502bb4048e",
+    "test_wait.json": "2f7c8784cef52874e25f21ad808be7be90590b9efbcb5ca722e87c63e36f67c4",
+    "time.txt": "65875ed3d11541fdbf082d99893b04a1f284fe82bd20de26f6470a4223c4a691"
+  }
+}

@@ -22,6 +22,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <set>
 #include <sstream>
@@ -229,14 +230,16 @@ void ReportStrict(const Owned& owned) {
   REQUIRE(measured == owned.size());
 }
 
+using SurfaceReasons = std::map<Face, local::SurfaceRemaining>;
+
 struct LabEntityCensus {
-  size_t faces = 0, above = 0;
+  size_t faces = 0, above = 0, left_refused = 0, left_short = 0, left_border = 0, left_limit = 0, unexplained = 0;
 };
 
-LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2NativeGeometry::AtlasBudget& budget) {
+LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2NativeGeometry::AtlasBudget& budget,
+                                   const SurfaceReasons& remaining) {
   LabEntityCensus census;
   for (const auto& [key, face] : state.Surface()) {
-    (void)key;
     std::array<SU2NativeGeometry::SurfaceBinding, 3> bindings;
     std::array<Point, 3> points;
     for (size_t k = 0; k < 3; ++k) {
@@ -246,14 +249,26 @@ LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2Nativ
     }
     const double bound = state.EntityFaceError(face.facet, bindings, points, &budget,
                                                SU2NativeGeometry::SurfaceQueryNeed::Classify());
-    census.above += bound > state.GeometryTolerance();
     ++census.faces;
+    if (!(bound > state.GeometryTolerance())) continue;
+    ++census.above;
+    const auto reason = remaining.find(key);
+    if (reason == remaining.end()) {
+      ++census.unexplained;
+      continue;
+    }
+    switch (reason->second) {
+      case local::SurfaceRemaining::Refused: ++census.left_refused; break;
+      case local::SurfaceRemaining::Short: ++census.left_short; break;
+      case local::SurfaceRemaining::Border: ++census.left_border; break;
+      case local::SurfaceRemaining::Limit: ++census.left_limit; break;
+    }
   }
   return census;
 }
 
 void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t ceiling, size_t caller,
-                     Clock::time_point deadline_start) {
+                     Clock::time_point deadline_start, const SurfaceReasons& remaining) {
   auto budget = native_fp2_fixture::Budget(cells, caller, deadline_start, 5400, ceiling);
   std::vector<SurfaceFace> faces;
   faces.reserve(state.Surface().size());
@@ -286,14 +301,21 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
     accepted &= valid;
   }
   const auto classify_start = Clock::now();
-  const auto census = ClassifyLabSurface(state, budget);
+  const auto census = ClassifyLabSurface(state, budget, remaining);
+  const bool reason_accounting = census.above == census.left_refused + census.left_short + census.left_border +
+                                                 census.left_limit;
+  const bool qualified = (accepted || reason_accounting) && census.unexplained == 0;
   std::cout << "FP2_A LAB_S_PROOF entities=" << keys.size() << " classified=" << census.faces
-            << " classify_above_tol=" << census.above << " accepted=" << accepted
+            << " classify_above_tol=" << census.above << " accepted=" << accepted << " qualified=" << qualified
+            << " classify_left_refused=" << census.left_refused << " classify_left_short=" << census.left_short
+            << " classify_left_border=" << census.left_border << " classify_left_limit=" << census.left_limit
+            << " classify_unexplained=" << census.unexplained
             << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
             << " seconds_classify=" << Seconds(classify_start) << " work=" << budget.work
             << " modeled_peak=" << budget.peak_bytes << std::endl;
   REQUIRE(census.faces == state.Surface().size());
-  REQUIRE(accepted);
+  REQUIRE(census.unexplained == 0);
+  REQUIRE(qualified);
 }
 
 void ReportRankSweep(const local::Mesh& mesh, const local::SweepRow& sweep, int rank, unsigned pass, bool first) {
@@ -320,19 +342,98 @@ void ReportRankSweep(const local::Mesh& mesh, const local::SweepRow& sweep, int 
   std::ostringstream row;
   row << std::setprecision(17) << "NATIVE3D_LOCAL_SWEEP rank=" << rank << " stage=0 pass=" << pass;
   local::PrintSweepFields(row, sweep);
+  local::PrintSurfaceSweepFields(row, sweep);
   row << " max_star=" << largest << " star_gt100=" << over100 << " star_gt1000=" << over1000
       << " unresolved_points=" << unresolved << " blocked_cells=" << blocked << " first_volume_sweep=" << first
       << '\n';
   std::cout << row.str() << std::flush;
 }
 
+struct RankRefusedEdge {
+  const char* kind;
+  local::SurfaceEdge edge;
+  local::SurfaceRefusal reason;
+};
+
+const char* RankRefusalName(local::SurfaceRefusal reason) {
+  switch (reason) {
+    case local::SurfaceRefusal::Border: return "border";
+    case local::SurfaceRefusal::Ineligible: return "ineligible";
+    case local::SurfaceRefusal::Walk: return "walk";
+    case local::SurfaceRefusal::Protected: return "protected";
+    case local::SurfaceRefusal::Feature: return "feature";
+    case local::SurfaceRefusal::Trace: return "trace";
+    case local::SurfaceRefusal::Duplicate: return "duplicate";
+    case local::SurfaceRefusal::Outward: return "outward";
+    case local::SurfaceRefusal::Size: return "size";
+    case local::SurfaceRefusal::Validity: return "validity";
+    case local::SurfaceRefusal::Topology: return "topology";
+    case local::SurfaceRefusal::Memory: return "memory";
+    case local::SurfaceRefusal::Entity: return "entity";
+    case local::SurfaceRefusal::None: return "none";
+  }
+  throw std::logic_error("Unknown surface refusal in the rank check.");
+}
+
+void ReportRankSurface(const World& world, unsigned pass, bool active, const local::SurfaceCounters& surface,
+                       const local::Mesh& mesh, const std::vector<RankRefusedEdge>& refused) {
+  std::ostringstream row;
+  row << std::setprecision(17) << "NATIVE3D_LOCAL_SURFACE rank=" << world.rank << " stage=0 pass=" << pass
+      << " applicable=" << active;
+  local::PrintSurfaceFields(row, surface);
+  if (active) {
+    // Keep the post-surface data even if a later sweep or pass reaches the wrapper limit.
+    const auto& points = mesh.Points();
+    std::vector<size_t> incident(points.size());
+    size_t blocked = 0, unresolved = 0;
+    for (const auto& cell : mesh.Cells()) {
+      if (!cell.live) continue;
+      bool touches_unresolved = false;
+      for (auto slot : cell.vertices) {
+        ++incident[slot];
+        touches_unresolved |= points[slot].unresolved;
+      }
+      blocked += touches_unresolved;
+    }
+    std::vector<size_t> slots;
+    for (size_t slot = 0; slot < points.size(); ++slot) {
+      if (points[slot].removed) continue;
+      unresolved += points[slot].unresolved;
+      if (incident[slot]) slots.push_back(slot);
+    }
+    row << " unresolved_points=" << unresolved << " blocked_cells=" << blocked << '\n';
+    const auto count = std::min(size_t{5}, slots.size());
+    std::partial_sort(slots.begin(), slots.begin() + count, slots.end(), [&](size_t a, size_t b) {
+      if (incident[a] != incident[b]) return incident[a] > incident[b];
+      return points[a].node.id < points[b].node.id;
+    });
+    for (size_t i = 0; i < count; ++i) {
+      const auto slot = slots[i];
+      const auto& point = points[slot];
+      const auto id = point.node.id;
+      const auto& position = point.node.p;
+      row << "FP2_A RANK_STAR rank=" << world.rank << " pass=" << pass << " place=" << i + 1
+          << " point=" << id << " incident=" << incident[slot]
+          << " x=" << position.x << " y=" << position.y << " z=" << position.z
+          << " surface=" << point.surface << " border=" << point.border << '\n';
+      for (const auto& refusal : refused) {
+        const auto& edge = refusal.edge;
+        if (edge[0] != id && edge[1] != id) continue;
+        row << "FP2_A RANK_STAR_EDGE rank=" << world.rank << " pass=" << pass << " point=" << id
+            << " endpoint_a=" << edge[0] << " endpoint_b=" << edge[1]
+            << " kind=" << refusal.kind << " reason=" << RankRefusalName(refusal.reason) << '\n';
+      }
+    }
+  } else {
+    row << '\n';
+  }
+  std::cout << row.str() << std::flush;
+}
+
 void ReportRankPass(const World& world, unsigned pass, bool surface, const local::PassStats& stats,
                     double elapsed, double run_seconds, double meeting_seconds) {
   std::ostringstream row;
-  row << std::setprecision(17) << "NATIVE3D_LOCAL_SURFACE rank=" << world.rank << " stage=0 pass=" << pass
-      << " applicable=" << surface;
-  local::PrintSurfaceFields(row, stats.surface);
-  row << '\n' << "FP2_A RANK_PASS rank=" << world.rank << " pass=" << pass << " surface=" << surface
+  row << std::setprecision(17) << "FP2_A RANK_PASS rank=" << world.rank << " pass=" << pass << " surface=" << surface
       << " cells_in=" << stats.cells_in << " cells_out=" << stats.cells_out
       << " surface_splits=" << stats.surface.splits_length + stats.surface.splits_distance
       << " seconds_pass=" << elapsed << " seconds_run_pass=" << run_seconds
@@ -374,11 +475,18 @@ double RunSurfaceWorkerPasses(World& world, LabInput& input, local::StateSurface
       mesh.MarkBorderSurface(meeting);
       if (surface) surface->SetCallerBytes(transfer_memory::Add(reference_bytes, owned_bytes));
       bool first = true;
+      std::vector<RankRefusedEdge> refused;
       local::PassStats stats;
       stats.report = true;
       stats.sink = [&](const local::SweepRow& sweep) {
-        // RunPass exposes the first volume sweep as the earliest post-surface observation.
-        ReportRankSweep(mesh, sweep, world.rank, pass, std::exchange(first, false));
+        const bool volume = std::strcmp(sweep.kind, "surface_length") && std::strcmp(sweep.kind, "surface_distance");
+        ReportRankSweep(mesh, sweep, world.rank, pass, volume && std::exchange(first, false));
+      };
+      stats.surface_refusal_sink = [&](const char* kind, const local::SurfaceEdge& edge, local::SurfaceRefusal reason) {
+        refused.push_back({kind, edge, reason});
+      };
+      stats.surface_sink = [&](const local::SurfaceCounters& counts) {
+        ReportRankSurface(world, pass, true, counts, mesh, refused);
       };
       const auto run_start = Clock::now();
       stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, surface);
@@ -388,6 +496,7 @@ double RunSurfaceWorkerPasses(World& world, LabInput& input, local::StateSurface
       stats.seconds_build = build_seconds;
       stats.seconds_write = Seconds(write_start);
       // Keep local completion evidence even when another rank has not reached the vote.
+      if (!surface) ReportRankSurface(world, pass, false, stats.surface, mesh, refused);
       ReportRankPass(world, pass, surface != nullptr, stats, Seconds(pass_start), run_seconds, meeting_seconds);
     });
     if (surface) {
@@ -533,14 +642,19 @@ TEST_CASE("FP2-A LAB-S on the frozen M6 event 1 volume", "[.][NativeLocalCoreSur
   auto options = Variant("V2");
   options.surface_splits = true;
   local::IdSequence point_ids(input.point_base), cell_ids(input.cell_base);
+  SurfaceReasons remaining;
   local::PassStats stats;
+  stats.surface_remaining_sink = [&](Face face, local::SurfaceRemaining reason) {
+    std::sort(face.begin(), face.end());
+    REQUIRE(remaining.emplace(face, reason).second);
+  };
   double build_seconds = 0, pass_seconds = 0, write_seconds = 0;
   {
     const auto build_start = Clock::now();
     local::Mesh mesh(input.cells, false, options);
     build_seconds = Seconds(build_start);
     const auto pass_start = Clock::now();
-    stats = mesh.RunPass(point_ids, cell_limit, true, options, &surface);
+    stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, &surface);
     pass_seconds = Seconds(pass_start);
     std::cout << std::setprecision(17) << "NATIVE3D_LOCAL_SURFACE rank=0 stage=0 pass=1 applicable=1";
     local::PrintSurfaceFields(std::cout, stats.surface);
@@ -573,10 +687,12 @@ TEST_CASE("FP2-A LAB-S on the frozen M6 event 1 volume", "[.][NativeLocalCoreSur
             << " modeled_peak=" << result.modeled_peak << " rss_before=" << rss_before << " rss_after=" << rss_after
             << std::endl;
   std::cout << "FP2_A LAB_S_EXACT seconds=" << exact_seconds << std::endl;
+  const auto reasons_bytes =
+      transfer_memory::Mul(remaining.size(), sizeof(SurfaceReasons::value_type) + 4 * sizeof(void*));
   const auto proof_live =
-      transfer_memory::Add(caller, surface.ResidentBytes(), result.state->ResidentBytes(),
+      transfer_memory::Add(caller, surface.ResidentBytes(), result.state->ResidentBytes(), reasons_bytes,
                            transfer_memory::Mul(result.state->Surface().size(), sizeof(SurfaceFace)));
-  ProveLabSurface(*result.state, stats.cells_in, input.ceiling, proof_live, start);
+  ProveLabSurface(*result.state, stats.cells_in, input.ceiling, proof_live, start, remaining);
 }
 
 TEST_CASE("FP2-A rank check on the frozen M6 event 1 volume", "[.][NativeLocalCoreSurfaceRankCheck]") {

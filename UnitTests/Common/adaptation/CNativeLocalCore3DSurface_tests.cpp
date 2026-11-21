@@ -225,6 +225,37 @@ class FlatGeometry : public local::SurfaceGeometry {
   std::map<Id, Point> nodes_;
 };
 
+class DistanceBoxGeometry : public FlatGeometry {
+ public:
+  DistanceBoxGeometry(const Owned& owned, double tolerance, bool feature)
+      : FlatGeometry(owned), tolerance_(tolerance), feature_(feature) {}
+
+  double Tolerance() const override { return tolerance_; }
+  bool Feature(const Edge& edge) const override { return feature_ && edge == BoxDiagonal; }
+  local::SurfaceSamples Samples(const SurfaceFace& candidate) override {
+    return Key(candidate.v) == Face{0, 1, 2} ? local::SurfaceSamples{{2 * Limit(), 0, 0, 0}, 0}
+                                              : local::SurfaceSamples{};
+  }
+  std::optional<double> Chord(const std::array<Node, 2>& edge) override {
+    return Feature(EdgeKey(edge)) ? std::optional<double>{2 * Limit()} : std::nullopt;
+  }
+  local::SurfacePlacement Place(const std::array<Node, 2>& nodes, const std::array<SurfaceFace, 2>& parents,
+                                Id id) override {
+    const auto edge = EdgeKey(nodes);
+    attempts.push_back(edge);
+    if (edge != BoxDiagonal) return FlatGeometry::Place(nodes, parents, id);
+    local::SurfacePlacement result;
+    result.refusal = local::SurfaceRefusal::Walk;
+    return result;
+  }
+
+  std::vector<Edge> attempts;
+
+ private:
+  double tolerance_;
+  bool feature_;
+};
+
 class CylinderGeometry : public FlatGeometry {
  public:
   explicit CylinderGeometry(const Owned& owned) : FlatGeometry(owned) {
@@ -306,7 +337,7 @@ void CheckChildBindings(const Owned& initial, const local::Mesh& split, Id midpo
 struct PassResult {
   std::vector<char> bytes;
   local::PassStats stats;
-  size_t left_distance = 0;
+  std::map<Face, local::SurfaceRemaining> remaining;
 };
 
 PassResult Run(Owned owned, FlatGeometry& geometry, bool work_list) {
@@ -317,7 +348,13 @@ PassResult Run(Owned owned, FlatGeometry& geometry, bool work_list) {
   Id last_id = 0;
   for (const auto& point : mesh.Points()) last_id = std::max(last_id, point.node.id);
   local::IdSequence points(last_id), cells(owned.rbegin()->first);
-  auto stats = mesh.RunPass(points, SIZE_MAX, true, options, &geometry);
+  std::map<Face, local::SurfaceRemaining> remaining;
+  local::PassStats report;
+  report.surface_remaining_sink = [&](Face face, local::SurfaceRemaining reason) {
+    REQUIRE(remaining.emplace(Key(face), reason).second);
+  };
+  auto stats = mesh.RunPass(points, SIZE_MAX, std::move(report), options, &geometry);
+  stats.surface_remaining_sink = {};
   REQUIRE_NOTHROW(mesh.Check());
   for (const auto& [id, node] : geometry.created) {
     const auto& actual = mesh.Points()[SlotOf(mesh, id)];
@@ -327,16 +364,19 @@ PassResult Run(Owned owned, FlatGeometry& geometry, bool work_list) {
   size_t left = 0;
   for (const auto& face : Surface(mesh)) {
     const auto samples = geometry.Samples(face).distances;
-    left += *std::max_element(samples.begin(), samples.end()) > geometry.Limit();
+    if (*std::max_element(samples.begin(), samples.end()) <= geometry.Limit()) continue;
+    ++left;
+    CHECK(remaining.count(Key(face.v)) == 1);
   }
+  CHECK(remaining.size() == left);
   mesh.WriteBack(owned, cells);
-  return {OwnedBytes(owned), std::move(stats), left};
+  return {OwnedBytes(owned), std::move(stats), std::move(remaining)};
 }
 
 auto Counts(const local::SurfaceCounters& row) {
   return std::tie(row.faces_in, row.faces_out, row.points_in, row.points_out, row.splits_length, row.splits_distance,
                   row.splits_feature, row.sweeps_length, row.sweeps_distance, row.left_long, row.left_border,
-                  row.left_distance, row.left_all_feature, row.left_refused, row.left_limit, row.feature_dominated,
+                  row.left_distance, row.left_refused, row.left_limit, row.left_short,
                   row.refused_walk, row.refused_protected, row.refused_feature, row.refused_trace, row.refused_duplicate,
                   row.refused_outward, row.refused_size, row.refused_valid, row.refused_topology, row.refused_memory,
                   row.refused_entity, row.chord_unknown, row.samples, row.samples_unconverged);
@@ -416,14 +456,41 @@ TEST_CASE("Cylinder surface length and distance steps repeat and account for eve
   CHECK(stats.sweeps_distance <= 40);
   CHECK((Counts(stats) == Counts(b.stats.surface)));
   CHECK((a.bytes == b.bytes));
-  REQUIRE(a.left_distance > 0);
-  CHECK(a.left_distance == stats.left_distance);
-  CHECK(stats.left_distance == stats.left_all_feature + stats.left_refused + stats.left_limit + stats.feature_dominated);
+  REQUIRE_FALSE(a.remaining.empty());
+  CHECK(a.remaining == b.remaining);
+  CHECK(a.remaining.size() == stats.left_distance);
+  CHECK(stats.left_distance == stats.left_refused + stats.left_limit + stats.left_short);
   CHECK(stats.left_refused > 0);
   CHECK(stats.left_border == 0);
   std::cout << "FP2A_FIXTURE surface_cylinder splits_length=" << stats.splits_length
             << " splits_distance=" << stats.splits_distance << " left_distance=" << stats.left_distance
-            << " left_refused=" << stats.left_refused << '\n';
+            << " left_refused=" << stats.left_refused << " left_short=" << stats.left_short << '\n';
+}
+
+TEST_CASE("Distance splits never fall back from the longest edge or cut below the length floor",
+          "[.][NativeLocalCoreSurfaceA]") {
+  const auto rows = Box();
+  using local::SurfaceRemaining;
+  const Face target{0, 1, 2};
+
+  DistanceBoxGeometry refused(rows, .02, false);
+  const auto attempt = Run(rows, refused, true);
+  REQUIRE((refused.attempts == std::vector<Edge>{BoxDiagonal}));
+  REQUIRE(attempt.remaining.size() == 1);
+  CHECK(attempt.remaining.at(target) == SurfaceRemaining::Refused);
+  CHECK(attempt.stats.surface.left_refused == 1);
+  CHECK(attempt.stats.surface.splits_distance == 0);
+
+  for (const bool feature : {false, true}) {
+    CAPTURE(feature);
+    DistanceBoxGeometry short_edge(rows, 1.25, feature);
+    const auto skipped = Run(rows, short_edge, true);
+    CHECK(short_edge.attempts.empty());
+    REQUIRE(skipped.remaining.size() == 1);
+    CHECK(skipped.remaining.at(target) == SurfaceRemaining::Short);
+    CHECK(skipped.stats.surface.left_short == 1);
+    CHECK(skipped.stats.surface.splits_distance == 0);
+  }
 }
 
 namespace {

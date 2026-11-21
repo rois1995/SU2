@@ -13,6 +13,7 @@
 #include <functional>
 #include <iosfwd>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -96,21 +97,28 @@ struct SweepCounters {
   size_t evaluated_collapse = 0, evaluated_split = 0, evaluated_quality = 0;
 };
 
+using SurfaceSweepOutcomes = std::array<size_t, static_cast<size_t>(SurfaceRefusal::Entity) + 1>;
+
+enum class SurfaceRemaining { Limit, Border, Refused, Short };
+
 struct SweepRow {
   const char* kind;
   unsigned round, sweep;
   size_t candidates, live_cells, bad_listed;
   double seconds;
   SweepCounters counters;
+  std::optional<SurfaceSweepOutcomes> surface = std::nullopt;
 };
 
 void PrintSweepFields(std::ostream& output, const SweepRow& row);
+void PrintSurfaceSweepFields(std::ostream&, const SweepRow&);
 
 struct SurfaceCounters {
   size_t faces_in = 0, faces_out = 0, points_in = 0, points_out = 0;
   size_t splits_length = 0, splits_distance = 0, splits_feature = 0, sweeps_length = 0, sweeps_distance = 0;
   size_t left_long = 0, left_border = 0, left_distance = 0, left_all_feature = 0, left_refused = 0, left_limit = 0;
-  size_t feature_dominated = 0, chord_unknown = 0, samples = 0, samples_unconverged = 0;
+  size_t left_short = 0, chord_unknown = 0, samples = 0, samples_unconverged = 0;
+  size_t star_max = 0, star_gt100 = 0, star_gt1000 = 0;
   size_t refused_walk = 0, refused_protected = 0, refused_feature = 0, refused_trace = 0, refused_duplicate = 0;
   size_t refused_outward = 0, refused_size = 0, refused_valid = 0, refused_topology = 0, refused_memory = 0;
   size_t refused_entity = 0;
@@ -134,6 +142,9 @@ struct PassStats : SweepCounters {
   bool limit = false;
   bool report = true;
   std::function<void(const SweepRow&)> sink;
+  std::function<void(const SurfaceCounters&)> surface_sink;
+  std::function<void(const std::array<Id, 3>&, SurfaceRemaining)> surface_remaining_sink;
+  std::function<void(const char*, const std::array<Id, 2>&, SurfaceRefusal)> surface_refusal_sink;
 
   template <class CountType>
   void Increment(CountType& value) {

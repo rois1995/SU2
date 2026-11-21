@@ -40,7 +40,9 @@ constexpr std::pair<const char*, size_t SurfaceCounters::*> Counts[] = {
     {"sweeps_distance", &SurfaceCounters::sweeps_distance}, {"left_long", &SurfaceCounters::left_long},
     {"left_border", &SurfaceCounters::left_border}, {"left_distance", &SurfaceCounters::left_distance},
     {"left_all_feature", &SurfaceCounters::left_all_feature}, {"left_refused", &SurfaceCounters::left_refused},
-    {"left_limit", &SurfaceCounters::left_limit}, {"feature_dominated", &SurfaceCounters::feature_dominated},
+    {"left_limit", &SurfaceCounters::left_limit}, {"left_short", &SurfaceCounters::left_short},
+    {"star_max", &SurfaceCounters::star_max}, {"star_gt100", &SurfaceCounters::star_gt100},
+    {"star_gt1000", &SurfaceCounters::star_gt1000},
     {"refused_walk", &SurfaceCounters::refused_walk}, {"refused_protected", &SurfaceCounters::refused_protected},
     {"refused_feature", &SurfaceCounters::refused_feature}, {"refused_trace", &SurfaceCounters::refused_trace},
     {"refused_duplicate", &SurfaceCounters::refused_duplicate}, {"refused_outward", &SurfaceCounters::refused_outward},
@@ -69,6 +71,43 @@ Counter RefusalCount(SurfaceRefusal refusal) {
   }
   return nullptr;
 }
+
+size_t OutcomeIndex(SurfaceRefusal refusal) { return static_cast<size_t>(refusal); }
+
+struct SurfaceSweepWatch {
+  SurfaceSweepWatch(const PassStats& stats, const char* kind, unsigned sweep)
+      : row{kind, 0, sweep, 0, 0, 0, 0., {}}, start(ReportClock(stats.report && bool(stats.sink))) {
+    if (stats.report && stats.sink) row.surface.emplace();
+  }
+
+  void Record(const PassStats& stats, const SurfaceEdge& edge, SurfaceRefusal refusal) {
+    if (row.surface) ++(*row.surface)[OutcomeIndex(refusal)];
+    if (stats.report && stats.surface_refusal_sink && refusal != SurfaceRefusal::None)
+      stats.surface_refusal_sink(row.kind, edge, refusal);
+  }
+
+  void Defer() {
+    if (row.surface) ++row.counters.deferred;
+  }
+
+  void Emit(const PassStats& stats, size_t candidates, size_t live_cells) {
+    if (!row.surface) return;
+    const auto count = [&](SurfaceRefusal reason) { return (*row.surface)[OutcomeIndex(reason)]; };
+    row.candidates = candidates;
+    row.live_cells = live_cells;
+    row.counters.splits = count(SurfaceRefusal::None);
+    row.counters.evaluated_split = candidates - row.counters.deferred;
+    row.counters.refused_valid = count(SurfaceRefusal::Validity);
+    row.counters.refused_size = count(SurfaceRefusal::Size);
+    row.counters.refused_topology = count(SurfaceRefusal::Topology);
+    row.counters.refused_memory = count(SurfaceRefusal::Memory);
+    row.seconds = ReportClock(true) - start;
+    stats.sink(row);
+  }
+
+  SweepRow row;
+  double start;
+};
 
 struct Candidate {
   EdgeUse use;
@@ -104,17 +143,26 @@ V Replace(V vertices, P old, P next) {
   return vertices;
 }
 
-enum class Remaining { Limit, Border, Refused, AllFeature, FeatureDominated };
-
 struct SampleRow {
   SurfaceSamples measured;
-  Remaining reason = Remaining::Limit;
+  SurfaceRemaining reason = SurfaceRemaining::Limit;
 };
 
 struct DistanceMark {
-  Remaining reason = Remaining::Limit;
+  SurfaceRemaining reason = SurfaceRemaining::Limit;
 };
 }  // namespace
+
+void PrintSurfaceSweepFields(std::ostream& out, const SweepRow& row) {
+  if (!row.surface) return;
+  const std::pair<const char*, SurfaceRefusal> fields[] = {
+      {"border_edges", SurfaceRefusal::Border}, {"refused_ineligible", SurfaceRefusal::Ineligible},
+      {"refused_walk", SurfaceRefusal::Walk}, {"refused_protected", SurfaceRefusal::Protected},
+      {"refused_feature", SurfaceRefusal::Feature}, {"refused_trace", SurfaceRefusal::Trace},
+      {"refused_duplicate", SurfaceRefusal::Duplicate}, {"refused_outward", SurfaceRefusal::Outward},
+      {"refused_entity", SurfaceRefusal::Entity}};
+  for (const auto& [name, reason] : fields) out << ' ' << name << '=' << (*row.surface)[OutcomeIndex(reason)];
+}
 
 void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
   for (const auto& field : Counts) out << ' ' << field.first << '=' << s.*field.second;
@@ -275,6 +323,7 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
   std::vector<Edge> deferred;
   EdgeSet refused, border;
   for (unsigned sweep = 0; sweep < SurfaceLengthLimit; ++sweep) {
+    SurfaceSweepWatch watch(stats, "surface_length", sweep + 1);
     ++sweep_;
     std::vector<EdgeUse> uses;
     if (work_list && sweep) {
@@ -295,7 +344,10 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
       if (length > LongEdge && EdgeRing(use.edge, use.cell).surface)
         candidates.push_back({use, ids, -length});
     }
-    if (candidates.empty()) break;
+    if (candidates.empty()) {
+      watch.Emit(stats, 0, live_cells_);
+      break;
+    }
     stats.Increment(stats.surface.sweeps_length);
     deferred.clear();
     work_points_.clear();
@@ -306,16 +358,19 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
       const auto& [edge, seed] = candidate.use;
       const auto& row = cells_[seed];
       if (!row.live || row.stamp == sweep_ || !Has(row.vertices, edge[0]) || !Has(row.vertices, edge[1])) {
+        watch.Defer();
         if (work_list) deferred.push_back(edge);
         continue;
       }
       const auto ring = EdgeRing(edge, seed);
       if (std::any_of(ring.cells.begin(), ring.cells.end(), [this](Slot c) { return cells_[c].stamp == sweep_; })) {
+        watch.Defer();
         if (work_list) deferred.push_back(edge);
         continue;
       }
       const auto result = SplitSurface(edge, seed, geometry, point_ids, sweep_, cell_limit, stats.surface, false,
                                        stats.report);
+      watch.Record(stats, candidate.ids, result);
       if (result == SurfaceRefusal::None) {
         ++accepted;
         stats.Increment(stats.surface.splits_length);
@@ -324,6 +379,7 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
       }
     }
     work_start_ = 0;
+    watch.Emit(stats, candidates.size(), live_cells_);
     if (!accepted) break;
   }
   if (stats.report) stats.surface.seconds_length = ReportClock(true) - begin;
@@ -332,6 +388,9 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
 void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
   const auto begin = ReportClock(stats.report);
   const double limit = geometry.Limit();
+  // At smallest principal radius R, the face and chord bounds are l^2/(6 R) and l^2/(4 R).
+  // Below 2 * limit, a face above the limit needs R < 2 * limit / 3, a detail too small to resolve by splitting.
+  const double floor = 2 * limit;
   EdgeSet refused, border;
   std::map<SurfaceEdge, std::optional<double>> chords;
   std::map<SurfaceFaceKey, SampleRow> samples;
@@ -356,6 +415,7 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
   };
 
   for (unsigned sweep = 0; sweep < SurfaceDistanceLimit; ++sweep) {
+    SurfaceSweepWatch watch(stats, "surface_distance", sweep + 1);
     ++sweep_;
     const auto faces = PhysicalFaces();
     EdgeUses edges;
@@ -372,56 +432,54 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
         where->second = geometry.Chord({points_[use.edge[0]].node, points_[use.edge[1]].node});
         if (!where->second) stats.Increment(stats.surface.chord_unknown);
       }
-      if (where->second && *where->second > limit && !refused.count(ids) && !border.count(ids))
+      if (where->second && *where->second > limit && !refused.count(ids) && !border.count(ids) &&
+          length(use.edge) >= floor)
         marks.try_emplace(ids);
     }
     std::vector<std::pair<SampleRow*, SurfaceEdge>> chosen;
     for (const auto parent : faces) {
       const auto face = SurfaceFaceAt(parent);
       auto& row = sample(face, face.v);
-      const auto& values = row.measured.distances;
-      if (!above(values)) continue;
+      if (!above(row.measured.distances)) continue;
       const auto uses = FaceEdges(OrientedFace(cells_[parent.cell].vertices, parent.face));
-      std::array<SurfaceEdge, 3> ids{Ids(points_, uses[0]), Ids(points_, uses[1]), Ids(points_, uses[2])};
-      bool chord = false, dominated = false, all_feature = true;
-      const auto high_samples = std::count_if(values.begin(), values.end(), [limit](double v) { return v > limit; });
-      std::optional<SurfaceEdge> best;
-      double longest = 0;
-      for (size_t k = 0; k < ids.size(); ++k) {
-        if (geometry.Feature(ids[k])) {
-          const auto value = chords.at(ids[k]);
-          if (value && *value > limit) {
-            if (border.count(ids[k])) row.reason = Remaining::Border;
-            else if (refused.count(ids[k])) row.reason = Remaining::Refused;
-            else chosen.emplace_back(&row, ids[k]);
-            chord = true;
-            break;
-          }
-          dominated |= high_samples == 1 && values[k + 1] > limit;
-        } else {
-          all_feature = false;
-          if (refused.count(ids[k])) continue;
-          const auto measure = length(uses[k]);
-          if (!best || measure > longest || (measure == longest && ids[k] < *best)) {
-            best = ids[k];
-            longest = measure;
-          }
+      size_t selected = 0;
+      double selected_length = 0;
+      bool feature_chord = false;
+      for (size_t k = 0; k < uses.size(); ++k) {
+        const auto ids = Ids(points_, uses[k]);
+        const double measure = length(uses[k]);
+        const auto chord = geometry.Feature(ids) ? chords.at(ids) : std::nullopt;
+        if (chord && *chord > limit) {
+          selected = k;
+          selected_length = measure;
+          feature_chord = true;
+          break;
+        }
+        if (k == 0 || measure > selected_length ||
+            (measure == selected_length && ids < Ids(points_, uses[selected]))) {
+          selected = k;
+          selected_length = measure;
         }
       }
 
-      if (chord) continue;
-      if (dominated) {
-        row.reason = Remaining::FeatureDominated;
-      } else if (!best) {
-        row.reason = all_feature ? Remaining::AllFeature : Remaining::Refused;
-      } else if (border.count(*best)) {
-        row.reason = Remaining::Border;
+      // Longest-edge bisection bounds the smallest angle and avoids the fan made by repeatedly cutting a short side.
+      // Leave a face whose longest edge cannot split for pass 2 or the engine.
+      const auto ids = Ids(points_, uses[selected]);
+      if (refused.count(ids)) {
+        row.reason = SurfaceRemaining::Refused;
+      } else if (border.count(ids)) {
+        row.reason = SurfaceRemaining::Border;
+      } else if (selected_length < floor) {
+        row.reason = SurfaceRemaining::Short;
       } else {
-        marks.try_emplace(*best);
-        chosen.emplace_back(&row, *best);
+        if (!feature_chord) marks.try_emplace(ids);
+        chosen.emplace_back(&row, ids);
       }
     }
-    if (marks.empty()) break;
+    if (marks.empty()) {
+      watch.Emit(stats, 0, live_cells_);
+      break;
+    }
     stats.Increment(stats.surface.sweeps_distance);
     std::vector<Candidate> ordered;
     for (const auto& entry : marks) {
@@ -432,23 +490,30 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
     for (const auto& candidate : ordered) {
       const auto& [edge, seed] = candidate.use;
       const auto& row = cells_[seed];
-      if (!row.live || row.stamp == sweep_ || !Has(row.vertices, edge[0]) || !Has(row.vertices, edge[1])) continue;
-      const auto ring = EdgeRing(edge, seed);
-      if (std::any_of(ring.cells.begin(), ring.cells.end(), [this](Slot c) { return cells_[c].stamp == sweep_; }))
+      if (!row.live || row.stamp == sweep_ || !Has(row.vertices, edge[0]) || !Has(row.vertices, edge[1])) {
+        watch.Defer();
         continue;
+      }
+      const auto ring = EdgeRing(edge, seed);
+      if (std::any_of(ring.cells.begin(), ring.cells.end(), [this](Slot c) { return cells_[c].stamp == sweep_; })) {
+        watch.Defer();
+        continue;
+      }
       const auto result = SplitSurface(edge, seed, geometry, point_ids, sweep_, cell_limit, stats.surface, false,
                                        stats.report);
+      watch.Record(stats, candidate.ids, result);
       if (result == SurfaceRefusal::None) {
         stats.Increment(stats.surface.splits_distance);
       } else if (result == SurfaceRefusal::Border) {
         border.insert(candidate.ids);
-        marks.at(candidate.ids).reason = Remaining::Border;
+        marks.at(candidate.ids).reason = SurfaceRemaining::Border;
       } else {
         refused.insert(candidate.ids);
-        marks.at(candidate.ids).reason = Remaining::Refused;
+        marks.at(candidate.ids).reason = SurfaceRemaining::Refused;
       }
     }
     for (const auto& entry : chosen) entry.first->reason = marks.at(entry.second).reason;
+    watch.Emit(stats, ordered.size(), live_cells_);
   }
 
   if (stats.report) {
@@ -458,12 +523,12 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
       if (!above(row.measured.distances)) continue;
       ++stats.surface.left_distance;
       switch (row.reason) {
-        case Remaining::Limit: ++stats.surface.left_limit; break;
-        case Remaining::Refused: ++stats.surface.left_refused; break;
-        case Remaining::AllFeature: ++stats.surface.left_all_feature; break;
-        case Remaining::FeatureDominated: ++stats.surface.feature_dominated; break;
-        case Remaining::Border: break;
+        case SurfaceRemaining::Limit: ++stats.surface.left_limit; break;
+        case SurfaceRemaining::Refused: ++stats.surface.left_refused; break;
+        case SurfaceRemaining::Short: ++stats.surface.left_short; break;
+        case SurfaceRemaining::Border: break;
       }
+      if (stats.surface_remaining_sink) stats.surface_remaining_sink(face.v, row.reason);
     }
     stats.surface.seconds_distance = ReportClock(true) - begin;
   }
@@ -495,6 +560,16 @@ void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t 
       for (const auto edge : FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face)))
         if (Length(edge) > LongEdge) long_edges.insert(Ids(points_, edge));
     stats.surface.left_long = long_edges.size();
+    std::vector<size_t> incidence(points_.size());
+    for (const auto& cell : cells_)
+      if (cell.live)
+        for (const auto point : cell.vertices) ++incidence[point];
+    for (const auto count : incidence) {
+      stats.surface.star_max = std::max(stats.surface.star_max, count);
+      stats.surface.star_gt100 += count > 100;
+      stats.surface.star_gt1000 += count > 1000;
+    }
+    if (stats.surface_sink) stats.surface_sink(stats.surface);
   }
 }
 }  // namespace SU2NativeLocal3D

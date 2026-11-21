@@ -1,4 +1,4 @@
-"""Run the FP2-A Correction 2 MPI rank checks and preserve terminal or partial evidence."""
+"""Repeat the FP2-A rank checks with Correction 3 and verify the retained K2 result."""
 
 from argparse import ArgumentParser
 from decimal import Decimal, InvalidOperation
@@ -20,14 +20,19 @@ RUNS = {'K1': (2, True), 'K2': (2, False), 'K3': (6, True)}
 WALL = 1200
 PASS_ALARM = Decimal(600)
 SELECTOR = '[.][NativeLocalCoreSurfaceRankCheck]'
-ORDER = a.HERE / 'inputs/FP2_A_CORRECTION_2.md'
-ORDER_SHA = 'bf671f5646c4414a817692e8c30ceed88a42171b414db0bdd371e2b2c20fd94a'
+ORDERS = {
+    a.HERE / 'inputs/FP2_A_CORRECTION_2.md': 'bf671f5646c4414a817692e8c30ceed88a42171b414db0bdd371e2b2c20fd94a',
+    a.HERE / 'inputs/FP2_A_CORRECTION_3.md': '01d871b7e2999e820d18529271b7a7050f3471f50983c552acd88e775406d758',
+}
+HISTORICAL = a.HERE / 'rank_check/build626/rank_check_summary.json'
+HISTORICAL_SHA = '5ec18f62d224f44ee5f06a00ed6919c3eb43a0d03061c9798d3da214742cea0e'
 REPLAY = a.FP1 / 'resume4/run_replay.py'
 HOUSE = a.FP1.parents[1] / 'p7p8_r3_20261115/run_full_workflow.py'
 DEADLINE = 'timeout: sending signal KILL to command '
 MARKERS = {
     'FP2_A RANK_PASS': 'passes', 'NATIVE3D_LOCAL_SURFACE': 'surface', 'NATIVE3D_LOCAL_SWEEP': 'sweeps',
     'FP2_A RANK_EXACT': 'exact', 'FP2_A RANK_CHECK': 'final_state',
+    'FP2_A RANK_STAR': 'largest_stars', 'FP2_A RANK_STAR_EDGE': 'star_edges',
 }
 ROW = re.compile(r'(?P<marker>' + '|'.join(map(re.escape, MARKERS)) + r') (?P<fields>.*)$')
 GLOBAL = ('splits', 'total_owned_faces', 'faces', 'points', 'traces', 'revision', 'snapshot_bytes', 'state_rebuilt')
@@ -145,6 +150,25 @@ def rows_by_rank(logs, ranks):
     return by_rank
 
 
+def local_alarms(by_rank):
+    alarms = []
+    for rows in by_rank.values():
+        for row in rows['surface']:
+            fields = ('faces_in', 'faces_out', 'sweeps_distance', 'star_max')
+            if any(not row.get(key, '').isdecimal() for key in fields):
+                continue
+            faces_in, faces_out, sweeps, star = (int(row[key]) for key in fields)
+            identity = {key: row[key] for key in ('rank', 'pass')}
+            if star > 1000:
+                alarms.append({**identity, 'field': 'star_max', 'observed': star, 'limit': 1000})
+            if faces_out * 48954 > 2 * faces_in * 84088:
+                alarms.append({**identity, 'field': 'faces_out', 'observed': faces_out,
+                               'limit_numerator': 2 * faces_in * 84088, 'limit_denominator': 48954})
+            if sweeps == 40:
+                alarms.append({**identity, 'field': 'sweeps_distance', 'observed': sweeps, 'limit': 40})
+    return alarms
+
+
 def first_difference(by_rank, ranks, surface, input_cells, wait, stop):
     if stop:
         return {'field': stop, 'wrapper_seconds_limit': WALL}
@@ -157,9 +181,28 @@ def first_difference(by_rank, ranks, surface, input_cells, wait, stop):
         for row in data['passes']:
             if row.get('surface') != str(int(surface)) or any(number(row, field) is None for field in TIMES):
                 return {'rank': rank, 'field': 'pass_fields', 'row': row}
+        surface_fields = ('faces_in', 'faces_out', 'sweeps_length', 'sweeps_distance', 'star_max', 'star_gt100',
+                          'star_gt1000', 'samples_unconverged', 'left_short',
+                          'unresolved_points', 'blocked_cells')
         if [row.get('pass') for row in data['surface']] != ['1', '2'] or any(
-                row.get('stage') != '0' or row.get('applicable') != str(int(surface)) for row in data['surface']):
+                row.get('stage') != '0' or row.get('applicable') != str(int(surface))
+                or (surface and any(not row.get(key, '').isdecimal() for key in surface_fields))
+                for row in data['surface']):
             return {'rank': rank, 'field': 'surface_rows', 'rows': data['surface']}
+        if surface:
+            for record in data['surface']:
+                pass_number = record['pass']
+                stars = [row for row in data['largest_stars'] if row.get('pass') == pass_number]
+                if [row.get('place') for row in stars] != ['1', '2', '3', '4', '5'] or (
+                        stars[0].get('incident') != record['star_max']):
+                    return {'rank': rank, 'pass': pass_number, 'field': 'largest_stars', 'rows': stars}
+                for name in ('length', 'distance'):
+                    sweeps = [row for row in data['sweeps'] if row.get('pass') == pass_number
+                              and row.get('kind') == f'surface_{name}']
+                    nonempty = sum(bool(number(row, 'candidates')) for row in sweeps)
+                    if nonempty != int(record[f'sweeps_{name}']):
+                        return {'rank': rank, 'pass': pass_number, 'field': f'sweeps_{name}_rows',
+                                'observed': nonempty, 'expected': int(record[f'sweeps_{name}'])}
         if len(data['exact']) != 1 or len(data['final_state']) != 1:
             return {'rank': rank, 'field': 'final_rows', 'exact': data['exact'], 'final_state': data['final_state']}
         exact, state = data['exact'][0], data['final_state'][0]
@@ -199,7 +242,9 @@ def first_difference(by_rank, ranks, surface, input_cells, wait, stop):
 
 def assess(logs, ranks, surface, input_cells, wait, stop, alarm):
     by_rank = rows_by_rank(logs, ranks)
-    first = first_difference(by_rank, ranks, surface, input_cells, wait, stop)
+    failure = first_difference(by_rank, ranks, surface, input_cells, wait, stop)
+    surface_alarms = local_alarms(by_rank) if surface else []
+    first = next(iter(surface_alarms), failure)
     timed = [row for data in by_rank.values() for row in data['sweeps'] if number(row, 'seconds') is not None]
     longest = sorted(timed, key=lambda row: number(row, 'seconds'), reverse=True)[:5]
     alarms = []
@@ -209,8 +254,10 @@ def assess(logs, ranks, surface, input_cells, wait, stop, alarm):
                 seconds = number(row, 'seconds_pass')
                 if seconds is not None and seconds > PASS_ALARM:
                     alarms.append({key: row.get(key) for key in ('rank', 'pass', 'seconds_pass')})
-    return {'ended': first is None, 'state': stop or ('ended' if first is None else 'did_not_end'),
-            'first_difference': first, 'ranks': ranks, 'surface': surface, 'by_rank': by_rank,
+    return {'ended': first is None, 'state': 'surface_alarm' if surface_alarms else
+            (stop or ('ended' if first is None else 'did_not_end')),
+            'first_difference': first, 'completion_difference': failure,
+            'surface_alarms': surface_alarms, 'ranks': ranks, 'surface': surface, 'by_rank': by_rank,
             'last_sweep_by_rank': {rank: data['sweeps'][-1] if data['sweeps'] else None
                                    for rank, data in by_rank.items()},
             'five_slowest_sweeps': longest, 'alarm_over_600': alarms}
@@ -246,16 +293,43 @@ def run_case(case, binary, lab1, base_pins, original):
     return receipt
 
 
+def historical_k2(lab1):
+    assert a.sha(HISTORICAL) == HISTORICAL_SHA
+    history = a.cut.read(HISTORICAL)
+    assert history['build'] == 626
+    prior = history['results']['K2']
+    case = HISTORICAL.parent / 'K2'
+    receipt_path = case / 'rank_check_receipt.json'
+    assert Path(prior['receipt']) == receipt_path and a.sha(receipt_path) == prior['receipt_sha256']
+    receipt = a.cut.read(receipt_path)
+    assert prior['ended'] and receipt['ended'] and not receipt['surface'] and receipt['ranks'] == 2
+    assert receipt['wait']['terminal'] and receipt['wait']['returncode'] == 0
+    assert receipt['owned_processes']['all_observed_terminal']
+    for name, digest in receipt['artifacts'].items():
+        assert a.sha(case / name) == digest, name
+    assert (case / 'run.cfg').read_bytes() == rank_input(lab1, 2)[0]
+    _, sensor, files, pins, _ = lab1
+    assert a.sha(sensor) == pins[str(sensor)]
+    for name, digest in files.items():
+        assert a.sha(case / name.name) == digest, str(name)
+    assert 'SU2_FP2_A_RANK_SURFACE=0' in a.cut.read(case / 'command.json')['argv']
+    return {**prior, 'reused_from_build': history['build'], 'history': str(HISTORICAL),
+            'history_sha256': HISTORICAL_SHA}, receipt
+
+
 def prepare(build):
     status, manifest = build / 'build_status.json', build / 'source_pins.json'
     receipt = a.cut.read(status)
     binary, source_sha = a.verify_build(receipt, manifest)
     assert not receipt['new_warnings']
-    assert ORDER.with_suffix('.sha256').read_text().split() == [ORDER_SHA, ORDER.name]
     original, _, pins, _, lab1, _ = a.evidence_inputs()
-    scripts = (Path(__file__).resolve(), REPLAY, HOUSE, ORDER.with_suffix('.sha256'))
+    for order, digest in ORDERS.items():
+        checksum = order.with_suffix('.sha256')
+        assert checksum.read_text().split() == [digest, order.name]
+        pins[str(order)], pins[str(checksum)] = digest, a.sha(checksum)
+    scripts = (Path(__file__).resolve(), REPLAY, HOUSE, HISTORICAL)
     pins.update({str(path): a.sha(path) for path in scripts})
-    pins.update({str(ORDER): ORDER_SHA, str(status): a.sha(status), str(manifest): source_sha,
+    pins.update({str(status): a.sha(status), str(manifest): source_sha,
                  str(binary): receipt['test_binary_sha256']})
     original['verify'](pins)
     return receipt, binary, original, lab1, pins
@@ -274,10 +348,16 @@ def run(build, output, verify_only):
     receipt, binary, original, lab1, pins = prepare(build)
     label = receipt['build']
     output = output or a.HERE / 'rank_check' / f'build{label}'
+    assert label != 626
+    k2, historical = historical_k2(lab1)
+    pins[k2['receipt']] = k2['receipt_sha256']
     if verify_only:
-        return {'verified': True, 'launched': False, 'build': label, 'output': str(output)}
+        return {'verified': True, 'launched': False, 'build': label, 'output': str(output),
+                'reused_k2': k2}
     assert Path('/proc/1/comm').read_text().strip() == 'systemd'
     assert receipt['wait']['terminal'] and a.cut.terminal(receipt['wait']['controller'])
+    assert a.cut.terminal(historical['wait']['controller'])
+    assert all(a.cut.terminal(row) for row in historical['owned_processes']['identities'])
     for key in tuple(os.environ):
         if key.startswith(('SU2_FP1_', 'SU2_FP2_', 'SU2_NATIVE_')):
             del os.environ[key]
@@ -285,18 +365,18 @@ def run(build, output, verify_only):
     fingerprints = {name: receipt[name] for name in ('build', 'binary_sha256', 'test_binary_sha256', 'source_pins_sha256')}
     provenance = {**fingerprints, 'pins': pins, 'seconds_limit': WALL, 'selector': SELECTOR}
     a.sealed(output / 'provenance.json', provenance)
-    results = {}
-    for name in RUNS:
+    results = {'K2': k2}
+    for name in ('K1', 'K3'):
         if name == 'K3' and not results['K1']['ended']:
             results[name] = {'ended': False, 'state': 'skipped_k1_did_not_end'}
             assert not (output / name).exists()
             continue
         result = run_case(output / name, binary, lab1, pins, original)
         path = output / name / 'rank_check_receipt.json'
-        fields = ('ended', 'state', 'first_difference', 'alarm_over_600')
+        fields = ('ended', 'state', 'first_difference', 'alarm_over_600', 'surface_alarms')
         results[name] = {**{key: result[key] for key in fields}, 'receipt': str(path), 'receipt_sha256': a.sha(path)}
     original['verify'](pins)
-    outcome = {**fingerprints, **summary(results), 'results': results}
+    outcome = {**fingerprints, **summary(results), 'correction': 3, 'results': results}
     a.sealed(output / 'rank_check_summary.json', outcome)
     return outcome
 
@@ -306,11 +386,17 @@ def self_check():
         rows = []
         for index in (1, 2):
             rows.extend((
-                f'\x1b[0mNATIVE3D_LOCAL_SWEEP rank={rank} stage=0 pass={index} seconds={15 * index + rank} max_star=101',
-                f'NATIVE3D_LOCAL_SURFACE rank={rank} stage=0 pass={index} applicable=1',
+                f'NATIVE3D_LOCAL_SWEEP rank={rank} pass={index} kind=surface_distance candidates=2 seconds=1',
+                f'NATIVE3D_LOCAL_SWEEP rank={rank} pass={index} kind=surface_distance candidates=0 seconds=1',
+                f'NATIVE3D_LOCAL_SURFACE rank={rank} stage=0 pass={index} applicable=1 faces_in=1000 '
+                'faces_out=3000 sweeps_distance=1 star_max=1000 sweeps_length=0 star_gt100=2 star_gt1000=0 '
+                'samples_unconverged=0 left_short=0 unresolved_points=1 blocked_cells=2',
                 f'FP2_A RANK_PASS rank={rank} pass={index} surface=1 seconds_pass=600 seconds_surface_length=1 '
                 'seconds_surface_distance=2 seconds_length_work=3 seconds_quality_work=4',
+                f'\x1b[0mNATIVE3D_LOCAL_SWEEP rank={rank} stage=0 pass={index} seconds={15 * index + rank} max_star=101',
             ))
+            rows.extend(f'FP2_A RANK_STAR rank={rank} pass={index} place={place} incident=1000'
+                        for place in range(1, 6))
         rows.extend((
             f'FP2_A RANK_EXACT rank={rank} cells=6 nonpositive=0',
             f'FP2_A RANK_CHECK rank={rank} ranks=2 surface=1 input_cells=5 output_cells=6 splits=2 owned_faces=5 '
@@ -322,18 +408,32 @@ def self_check():
     logs = {0: stream(0), 1: stream(1)}
     wait = {'returncode': 0}
     report = assess(logs, 2, True, 10, wait, None, True)
-    assert report['ended'] and not report['alarm_over_600']
+    assert report['ended'] and not report['alarm_over_600'] and not report['surface_alarms']
+    runaway = {0: logs[0].replace('faces_out=3000 sweeps_distance=1 star_max=1000',
+                                 'faces_out=3436 sweeps_distance=40 star_max=1001', 1), 1: logs[1]}
+    alarms = assess(runaway, 2, True, 10, wait, None, False)
+    assert not alarms['ended'] and alarms['state'] == 'surface_alarm'
+    assert alarms['completion_difference']['field'] == 'largest_stars'
+    assert [row['field'] for row in alarms['surface_alarms']] == ['star_max', 'faces_out', 'sweeps_distance']
+    threshold = {0: runaway[0].replace('faces_out=3436', 'faces_out=3435'), 1: logs[1]}
+    assert [row['field'] for row in assess(threshold, 2, True, 10, wait, None, False)['surface_alarms']] == [
+        'star_max', 'sweeps_distance']
     assert report['five_slowest_sweeps'][0]['seconds'] == '31' and report['last_sweep_by_rank']['0']['seconds'] == '30'
     late = {**logs, 1: logs[1].replace('seconds_pass=600', 'seconds_pass=600.001', 1)}
     assert assess(late, 2, True, 10, wait, None, True)['alarm_over_600'][0]['rank'] == '1'
-    stopped = assess({0: logs[0].splitlines(keepends=True)[0]}, 2, True, 10, {'returncode': 137},
+    partial = next(row for row in logs[0].splitlines(keepends=True) if 'max_star=101' in row)
+    stopped = assess({0: partial}, 2, True, 10, {'returncode': 137},
                      'wrapper_time_limit', False)
     assert not stopped['ended'] and stopped['last_sweep_by_rank']['0']['max_star'] == '101'
     decision = summary({'K1': report, 'K2': stopped, 'K3': report})
     assert not decision['proceed_11_3'] and decision['progress_order'][0] == 'K2'
     _, _, _, _, lab, _ = a.evidence_inputs()
     assert b'ADAP_NATIVE_RANKS= 6\n' in rank_input(lab, 6)[0]
-    assert a.sha(ORDER) == ORDER_SHA
+    assert all(a.sha(order) == digest for order, digest in ORDERS.items())
+    previous, _ = historical_k2(lab)
+    assert previous['reused_from_build'] == 626
+    assert summary({'K1': report, 'K2': previous, 'K3': report})['proceed_11_3']
+    assert not summary({'K1': alarms, 'K2': previous, 'K3': report})['proceed_11_3']
 
 
 if __name__ == '__main__':
@@ -349,7 +449,7 @@ if __name__ == '__main__':
         raise SystemExit(owned(args.owned.resolve()))
     if args.self_check:
         self_check()
-        print('Rank-check inputs, complete/partial rows, time alarm and stop ordering verified.')
+        print('Rank-check inputs, prior K2, complete/partial rows, alarms and stop ordering verified.')
     elif args.build:
         result = run(args.build.resolve(), args.output.resolve() if args.output else None, args.verify_only)
         print(json.dumps(result, indent=2))

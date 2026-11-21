@@ -757,6 +757,7 @@ struct RemeshRun {
     std::cout << "NATIVE3D_LOCAL_SWEEP rank=" << rank << " stage=" << stats.normalization_stages - 1
               << " pass=" << pass;
     SU2NativeLocal3D::PrintSweepFields(std::cout, row);
+    if (row.surface) SU2NativeLocal3D::PrintSurfaceSweepFields(std::cout, row);
     std::cout << std::endl;
   }
 

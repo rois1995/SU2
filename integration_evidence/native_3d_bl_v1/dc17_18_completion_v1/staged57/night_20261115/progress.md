@@ -1058,3 +1058,9 @@ FP2-A Correction 3 serial gates passed on build627. LAB-S took 285.266 s, all fo
 FP2-A Correction 3 K1 ended in 126.387 s with both ranks completing both passes, exact positivity and the state/Snapshot checks. First post-surface stars are 168 and 124 (build626 first-volume observations 65,654 and 98,388). Correction 3 raised no alarm on either pass. K3 has launched at six ranks.
 
 FP2-A rank check stopped before 11.3 on build627. K3 completed both passes and every mesh/Snapshot check in 114.542 s, with max rank pass 26.570 s and max post-surface star 168. Its first qualification alarm is rank 4 pass 1 faces_out=19,559 > 18,101.061 (faces_in=5,269). No star or sweep-limit alarm. Build626 K2 retained. All rank-check controllers terminal. Preserving the rank alarm checkpoint before the required default tests.
+
+FP2-A build627 rank-alarm evidence pushed as 5814de1d8b. Starting the same-binary Part B MPI fixtures, all 18 FP1 fixture cohorts and G1. Their receipts also satisfy §11.2.1.
+
+FP2-A Correction 3 build627 passed both Part B MPI state comparisons and all 18 inherited FP1 fixture cohorts. G1 serial is running. The correction checkpoint follows G1 identity, then §11.2.2.
+
+FP2-A Correction 3 §3.3 passed on build627. G1 matched 375 / 114 / 228 adopted records. Part B and all inherited FP1 fixtures passed on the same binary. The correction checkpoint excludes the still-unqualified Part C integration. Next: §11.2.2 default prefix and safeguard checks.

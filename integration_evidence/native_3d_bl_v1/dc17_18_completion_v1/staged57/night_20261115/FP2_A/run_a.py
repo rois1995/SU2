@@ -129,7 +129,7 @@ def summarize_in1(log, measurements):
             'json_rows': rows, 'rows': native, 'missing_json_rows': missing, 'malformed_json_rows': malformed}
 
 
-def summarize_lab(log, counts):
+def summarize_lab(log, counts, correction3=False):
     native = observed_rows(log.splitlines(keepends=True))
     surface = expect_one(native, 'NATIVE3D_LOCAL_SURFACE')
     state = expect_one(native, 'NATIVE3D_LOCAL_SURFACE_STATE')
@@ -138,15 +138,24 @@ def summarize_lab(log, counts):
     proof = expect_one(native, 'FP2_A LAB_S_PROOF')
     entities = native.get('FP2_A LAB_S_ENTITY', ())
     keys = {tuple(row['fields'].get(key) for key in ('body', 'sheet', 'marker')) for row in entities}
-    accepted = (len(entities) == len(keys) == 4 and all(None not in key for key in keys) and
-                all(row['fields'].get('accepted') == '1' for row in entities))
+    complete = len(entities) == len(keys) == 4 and all(None not in key for key in keys)
+    truth = [row['fields'].get('accepted') for row in entities]
+    accepted = all(value == '1' for value in truth)
+    qualified = proof.get('accepted') == '1' and accepted
+    if correction3 or 'qualified' in proof:
+        fields = ('classify_left_refused', 'classify_left_short', 'classify_left_border', 'classify_left_limit')
+        observed = [proof.get(key, '') for key in ('classify_above_tol', *fields)]
+        reasons_match = all(value.isdigit() for value in observed) and int(observed[0]) == sum(map(int, observed[1:]))
+        qualified = (proof.get('qualified') == '1' and proof.get('accepted') == str(int(accepted)) and
+                     proof.get('classify_unexplained') == '0' and reasons_match and
+                     all(value in ('0', '1') for value in truth))
     labels = {'rank': '0', 'stage': '0', 'pass': '1', 'applicable': '1'}
     return {'passed': (all(surface.get(key) == value for key, value in labels.items()) and
                        state.get('faces') is not None and
                        volume.get('cells_in') == str(counts['cells']) and exact.get('nonpositive') == '0' and
                        exact.get('cells') == volume.get('cells_out') and
-                       proof.get('accepted') == '1' and proof.get('entities') == str(len(entities)) and
-                       proof.get('classified') == state['faces'] and accepted),
+                       qualified and proof.get('entities') == str(len(entities)) and
+                       proof.get('classified') == state['faces'] and complete),
             'rows': native}
 
 
@@ -281,6 +290,15 @@ def self_check():
     assert not summarize_lab(raw.rstrip(), {'cells': 10})['passed']
     assert not summarize_lab(raw.replace('nonpositive=0', 'nonpositive=1'), {'cells': 10})['passed']
     assert not summarize_lab(raw.replace('classified=8', 'classified=7'), {'cells': 10})['passed']
+    assert not summarize_lab(raw, {'cells': 10}, correction3=True)['passed']
+    corrected = raw.replace('accepted=1', 'accepted=0').replace(
+        'classify_above_tol=1', 'qualified=1 classify_above_tol=1 classify_left_refused=1 classify_left_short=0 '
+        'classify_left_border=0 classify_left_limit=0 classify_unexplained=0')
+    assert summarize_lab(corrected, {'cells': 10}, correction3=True)['passed']
+    assert not summarize_lab(corrected.replace('classify_unexplained=0', 'classify_unexplained=1'),
+                             {'cells': 10}, correction3=True)['passed']
+    assert not summarize_lab(corrected.replace('classify_left_refused=1', 'classify_left_refused=0'),
+                             {'cells': 10}, correction3=True)['passed']
     assert setup_lab(HERE)['WALL'] == WALL
     _, _, _, in1, lab, parity = evidence_inputs()
     assert Path(parity).exists() and in1['SU2_FP2_SENSOR']['path'] == str(lab[1])
