@@ -436,6 +436,23 @@ double CNewtonIntegration::Merit(double step) const {
 
 double CNewtonIntegration::Evaluate(double step, const char* phase) {
   Perturb(direction, step);
+  /*--- Base and native endpoint satisfy the scalar clip bounds, so every step in (0,1] does in exact arithmetic.
+   *    Clamp the rounding of the rescaled update, which can land one ulp outside a bound. ---*/
+  if (step > 0 && step <= 1)
+    for (const auto& block : equations->GetBlocks()) {
+      if (block.slot == FLOW_SOL) continue;
+      auto* nodes = block.solver->GetNodes();
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < block.variables; ++v) {
+          if (!IsFree(block, p, v)) continue;
+          const auto bounds = block.solver->GetSolutionBounds(v);
+          const auto value = nodes->GetSolution(p, v);
+          if (value < bounds.first) nodes->SetSolution(p, v, bounds.first);
+          else if (value > bounds.second) nodes->SetSolution(p, v, bounds.second);
+        }
+      END_SU2_OMP_FOR
+    }
   /*--- Most assembled full steps are accepted: assemble their matrices now for the next base. ---*/
   const bool implicit = assembledOperator && step == 1;
   Residual(implicit);
