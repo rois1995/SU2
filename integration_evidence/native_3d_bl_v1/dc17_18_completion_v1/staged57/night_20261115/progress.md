@@ -1334,3 +1334,15 @@ FX2 F0 passed on build644 with c843610249 production source and the unchanged bu
 FX2 build645 compiled both targets without new warnings. F1–F5 passed exact budget, exception, digest and timer-call comparison against F0. B1 constructor 25.968 → 10.285 s (15.683 s saved), unchanged work and modeled peak. The M6 memo is estimated at 1,583,080 bytes for one live entry. The inherited fixture cohort and G1 are now running on the same candidate.
 
 FX2 §4.1 passed on build645. All 18 FP1 cohorts, the build640 fixture cohort and the separate sheet fixture passed. G1 matched 375 / 114 / 228 case records in 744.981 / 10.089 / 9.820 s. Commit and push the fixture checkpoint. Next G2/GQ, G3/G4 and executed safeguards.
+
+FX2 §4.1 checkpoint pushed as `f5660817e6`. Host audit found 52 FX2 process identities terminal. Build645 is pinned for §4.2.
+
+FX2 G2 passed on build645 in 242.847 s with the exact rows and scheduling check. GQ is running on the pinned binary.
+
+FX2 GQ passed on build645 in 666.349 s with the exact rows and scheduling check. G3 is running on the same binary.
+
+FX2 G3 passed on build645 in 601.474 s. The fixture accepted 1,543 splits with 1,113 common edits exact and observer-adjusted entry work 5,113 on both runs. G4 and the saved safeguards follow.
+
+FX2 G4 passed its executed native 2D BL/no-BL checks at 1/2/4 ranks in 36.303 s. merit481 passed in 120.642 s. The saved481 and current saved-state checks follow.
+
+FX2 §4.2 passed on build645. G2/GQ exact rows and scheduling, G3 physical/common prefix, G4 native 2D at 1/2/4 ranks, and merit481/saved481/saved_current all passed. The three saved safeguards took 120.642 / 114.147 / 113.228 s. Checkpoint before running N1 and N6P.

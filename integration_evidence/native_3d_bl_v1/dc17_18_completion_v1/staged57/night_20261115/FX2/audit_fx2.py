@@ -15,7 +15,7 @@ from audit_b import cut, identity_rows
 def audit():
     prior = audit_prior()
     receipts, seen = [], set()
-    kinds = ("launch", "wait", "status", "receipt", "process", "preflight", "measurement")
+    kinds = ("launch", "wait", "status", "receipt", "process", "preflight", "measurement", "case_paths")
     for path in sorted(HERE.rglob("*.json")):
         if not any(kind in path.stem for kind in kinds):
             continue
