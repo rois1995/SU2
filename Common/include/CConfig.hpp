@@ -9767,6 +9767,13 @@ public:
    */
   CEPMExtraction& GetEPMExtraction() const { return epmExtraction; }
 
+  /*!
+   * \brief Check the EPM direct mode (SST_EPM_DIRECT) against the supported configuration.
+   * \return An empty string if the direct mode is off or supported, otherwise the error message, which
+   *         SetPostprocessing raises with SU2_MPI::Error.
+   */
+  string GetEPMDirectError() const;
+
   su2double GetUQ_Delta_B(void) const { return uq_delta_b; }
 
   /*!

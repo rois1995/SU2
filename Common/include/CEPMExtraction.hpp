@@ -36,7 +36,8 @@
  *         CEPMExtraction (a member of CConfig) stays usable while the type is incomplete. */
 class CEPMFieldSites;
 
-/* Rank-local runtime state for post-convergence classical EPM parameter recordings. */
+/* Rank-local runtime state for post-convergence classical EPM parameter recordings, and for the EPM direct mode
+ * (SST_EPM_DIRECT: a primal run with the hooks of the scalar-amplitude replay active at a fixed amplitude). */
 struct CEPMExtraction {
   /*! \brief Extraction strategy. FIELD records every site once; SCALAR_REPLAY keeps the scalar-amplitude replay. */
   using Mode = EPM_EXTRACTION_MODE;
@@ -52,6 +53,9 @@ struct CEPMExtraction {
   bool enabled = false;
   Mode mode = Mode::FIELD;
   bool extract_only = false;
+  /*! \brief EPM direct mode (SST_EPM_DIRECT): CConfig sets mode = SCALAR_REPLAY, active, the case and amplitude. */
+  bool direct = false;
+  su2double direct_amplitude = 0.0; /*!< \brief SST_EPM_DIRECT_AMPLITUDE, copied to amplitude in direct mode. */
   Cursor cursor;
   std::shared_ptr<CEPMFieldSites> field;
   bool active = false;

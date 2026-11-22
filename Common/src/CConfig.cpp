@@ -3255,6 +3255,13 @@ void CConfig::SetConfig_Options() {
   /* DESCRIPTION: Run only the EPM extraction from a converged restart and adjoint restart (no adjoint updates). */
   addBoolOption("SST_EPM_EXTRACT_ONLY", epmExtraction.extract_only, false);
 
+  /* DESCRIPTION: EPM direct mode: primal run with the residual of the classical EPM case (UQ_COMPONENT, UQ_PERMUTE)
+   * blended at a fixed amplitude, on the path the EPM extraction linearizes. */
+  addBoolOption("SST_EPM_DIRECT", epmExtraction.direct, false);
+
+  /* DESCRIPTION: Amplitude A in [-1, 1] of the EPM direct mode: F0 + A (Fm - F0), S0 + A (clip(Pm) - clip(P0)). */
+  addDoubleOption("SST_EPM_DIRECT_AMPLITUDE", epmExtraction.direct_amplitude, 0.0);
+
   /* DESCRIPTION: Number of calls to 'Build' that trigger re-factorization (0 means only once). */
   addUnsignedLongOption("PASTIX_FACTORIZATION_FREQUENCY", pastix_fact_freq, 1);
 
@@ -6139,6 +6146,23 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
   }
 
+  /*--- EPM direct mode: the scalar-replay hooks stay active for the whole primal run at the fixed amplitude, so the
+   *    residual is F0 + A (Fm - F0) and S0 + A (clip(Pm) - clip(P0)), whose A-derivative at 0 the extraction gives. ---*/
+  if (epmExtraction.direct) {
+    /*--- No default amplitude: A = 0 would silently be the baseline. ---*/
+    if (!OptionIsSet("SST_EPM_DIRECT_AMPLITUDE"))
+      SU2_MPI::Error("SST_EPM_DIRECT= YES requires SST_EPM_DIRECT_AMPLITUDE.", CURRENT_FUNCTION);
+    const string error = GetEPMDirectError();
+    if (!error.empty()) SU2_MPI::Error(error, CURRENT_FUNCTION);
+    epmExtraction.mode = CEPMExtraction::Mode::SCALAR_REPLAY;
+    epmExtraction.component = eig_val_comp;
+    epmExtraction.permute = uq_permute;
+    epmExtraction.angle = 0.0;
+    epmExtraction.probe_pair = 3;
+    epmExtraction.amplitude = epmExtraction.direct_amplitude;
+    epmExtraction.active = true;
+  }
+
   if (epmExtraction.enabled) {
 #ifndef CODI_REVERSE_TYPE
     SU2_MPI::Error("SST_EPM_POSTPROCESS requires SU2_CFD_AD (reverse AD build).", CURRENT_FUNCTION);
@@ -6192,6 +6216,58 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   }
 
 
+}
+
+string CConfig::GetEPMDirectError() const {
+  const auto& epm = epmExtraction;
+  if (!epm.direct) return "";
+  if (epm.enabled)
+    return "SST_EPM_DIRECT= YES (primal) and SST_EPM_POSTPROCESS= YES (adjoint extraction) are exclusive.";
+  if (epm.extract_only || OptionIsSet("SST_EPM_EXTRACTION"))
+    return "SST_EPM_EXTRACTION and SST_EPM_EXTRACT_ONLY belong to SST_EPM_POSTPROCESS, not to SST_EPM_DIRECT.";
+#ifdef HAVE_OMP
+  constexpr bool openmp = true;
+#else
+  constexpr bool openmp = false;
+#endif
+  /*--- The hooks count evaluations in this (shared) config. ---*/
+  if (openmp) return "SST_EPM_DIRECT currently requires a build without OpenMP.";
+  if (GetDiscrete_Adjoint() || GetContinuous_Adjoint() || GetTime_Domain() || GetMultizone_Problem() ||
+      GetnZone() != 1 || Kind_Solver != MAIN_SOLVER::RANS || Kind_Turb_Model != TURB_MODEL::SST ||
+      sstParsedOptions.version != SST_OPTIONS::V2003 || !sstParsedOptions.modified ||
+      sstParsedOptions.production != SST_OPTIONS::NONE || sstParsedOptions.sust || sstParsedOptions.dll ||
+      sstParsedOptions.uq)
+    return "SST_EPM_DIRECT requires MATH_PROBLEM= DIRECT, steady single-zone RANS and SST_OPTIONS= V2003m without UQ "
+           "(the case comes from UQ_COMPONENT and UQ_PERMUTE).";
+  /*--- UQ_URLX (default 0.1) is not used by the direct mode; it may be left unset or set to 1. ---*/
+  if (uq_delta_b != 1.0 || (OptionIsSet("UQ_URLX") && uq_urlx != 1.0))
+    return "SST_EPM_DIRECT requires UQ_DELTA_B= 1 and UQ_URLX= 1 or unset (the full classical target); its amplitude "
+           "is SST_EPM_DIRECT_AMPLITUDE.";
+  if (eig_val_comp < 1 || eig_val_comp > 3 || (eig_val_comp == 3 && uq_permute))
+    return "SST_EPM_DIRECT runs one of the five EPM cases: UQ_COMPONENT= 1, 2 or 3, with UQ_PERMUTE= YES only for 1 "
+           "and 2.";
+  const passivedouble amplitude = SU2_TYPE::GetValue(epm.direct_amplitude);
+  if (!(amplitude >= -1.0 && amplitude <= 1.0))
+    return "SST_EPM_DIRECT_AMPLITUDE must be a finite value in [-1, 1].";
+  /*--- The configuration of the EPM extraction (CConfig::SetPostprocessing), so that d J / d A at A = 0 of these
+   *    runs is the extracted dJ/da of the same discretization. ---*/
+  if (GetUseVectorization() || GetnMGLevels() || GetCFL_Adapt() || GetNewtonKrylov() || GetMUSCL_Turb() ||
+      GetMUSCLRamp() || GetnMarker_Periodic() ||
+      GetKind_TimeIntScheme_Flow() != EULER_IMPLICIT || GetKind_TimeIntScheme_Turb() != EULER_IMPLICIT ||
+      GetKind_SlopeLimit_Flow() != LIMITER::NONE)
+    return "SST_EPM_DIRECT requires scalar fluxes, MGLEVEL=0, fixed CFL, implicit Euler flow/turbulence and "
+           "SLOPE_LIMITER_FLOW=NONE (the configuration of the EPM extraction).";
+  if (GetGrid_Movement() || GetDeform_Mesh() || GetnMarker_Moving() || GetAxisymmetric() ||
+      GetWall_Functions() || GetnRoughWall() || GetFixed_CL_Mode() || GetBoolTurbomachinery() ||
+      GetKind_Trans_Model() != TURB_TRANS_MODEL::NONE || GetKind_Species_Model() != SPECIES_MODEL::NONE ||
+      GetWeakly_Coupled_Heat() || AddRadiation() || GetBody_Force() || GetGravityForce() || GetWind_Gust() ||
+      GetRampMotionFrame() || GetRampOutflow() ||
+      GetnMarker_EngineInflow() || GetnMarker_EngineExhaust() || GetnMarker_ActDiskInlet() ||
+      GetnMarker_ActDiskOutlet() || GetnMarker_ZoneInterface() ||
+      GetSBSParam().StochasticBackscatter || (GetKind_FluidModel() != STANDARD_AIR && GetKind_FluidModel() != IDEAL_GAS))
+    return "SST_EPM_DIRECT supports only stationary smooth-wall ideal-gas SST without additional physics or "
+           "fixed-lift control.";
+  return "";
 }
 
 void CConfig::SetMarkers(SU2_COMPONENT val_software) {
@@ -6863,6 +6939,12 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
               default:
                 cout << " with no production modification";
                 break;
+            }
+
+            if (epmExtraction.direct) {
+              cout << "\nEPM direct mode: case " << eig_val_comp << "C"
+                   << (eig_val_comp == 3 ? "" : (uq_permute ? "_SWAP" : "_KEEP")) << " at amplitude "
+                   << epmExtraction.direct_amplitude << " (blend of the clipped endpoints)";
             }
 
             if (sstParsedOptions.dll){
