@@ -19,6 +19,8 @@ namespace local = SU2NativeLocal3D;
 using Tet = std::array<size_t, 4>;
 
 constexpr Edge BoxDiagonal{0, 2};
+constexpr Face AskingFace{0, 1, 2}, LockedFace{0, 2, 3};
+constexpr Edge LockedSide{2, 3};
 
 bool Holds(const Face& face, Id id) { return std::find(face.begin(), face.end(), id) != face.end(); }
 
@@ -63,9 +65,19 @@ Owned BoundMesh(const std::vector<Point>& points, const std::vector<Tet>& tets, 
   return owned;
 }
 
-Owned Box(double metric = 1) {
-  return BoundMesh({{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {0, 0, 1}, {1, 0, 1}, {1, 1, 1}, {0, 1, 1}},
+Owned Box(double metric = 1, double corner_x = 0) {
+  return BoundMesh({{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {corner_x, 1, 0}, {0, 0, 1}, {1, 0, 1}, {1, 1, 1}, {0, 1, 1}},
                    {{0, 6, 1, 2}, {0, 6, 2, 3}, {0, 6, 3, 7}, {0, 6, 7, 4}, {0, 6, 4, 5}, {0, 6, 5, 1}}, metric);
+}
+
+Owned SkewedBox(bool border) {
+  auto rows = Box(1, -1);
+  if (border) {
+    auto& row = rows.at(2);
+    for (unsigned f = 0; f < 4; ++f)
+      if (Key(FaceAt(row.cell, f)) == Face{2, 3, 6}) row.physical[f] = {};
+  }
+  return rows;
 }
 
 constexpr double CylinderHeight = 1.25;
@@ -224,6 +236,34 @@ class DistanceBoxGeometry : public FlatGeometry {
   bool feature_;
 };
 
+class LockedBoxGeometry : public FlatGeometry {
+ public:
+  LockedBoxGeometry(const Owned& owned, bool feature) : FlatGeometry(owned), feature_(feature) {}
+
+  bool Feature(const Edge& edge) const override { return feature_ && edge == BoxDiagonal; }
+  local::SurfaceSamples Samples(const SurfaceFace& candidate) override {
+    const auto face = Key(candidate.v);
+    return face == AskingFace || face == LockedFace ? local::SurfaceSamples{{2 * Limit(), 0, 0, 0}, 0}
+                                                    : local::SurfaceSamples{};
+  }
+  std::optional<double> Chord(const std::array<Node, 2>& edge) override {
+    REQUIRE(Feature(EdgeKey(edge)));
+    ++chord_queries;
+    return 2 * Limit();
+  }
+  local::SurfacePlacement Place(const std::array<Node, 2>& nodes, const std::array<SurfaceFace, 2>& parents,
+                                Id id) override {
+    attempts.push_back(EdgeKey(nodes));
+    return FlatGeometry::Place(nodes, parents, id);
+  }
+
+  std::vector<Edge> attempts;
+  size_t chord_queries = 0;
+
+ private:
+  bool feature_;
+};
+
 class CylinderGeometry : public FlatGeometry {
  public:
   explicit CylinderGeometry(const Owned& owned) : FlatGeometry(owned) {
@@ -341,10 +381,22 @@ PassResult Run(Owned owned, FlatGeometry& geometry, bool work_list) {
   return {OwnedBytes(owned), std::move(stats), std::move(remaining)};
 }
 
+local::SurfaceCounters RunDistance(local::Mesh& mesh, LockedBoxGeometry& geometry,
+                                   std::map<Face, local::SurfaceRemaining>& remaining) {
+  local::IdSequence ids(7);
+  local::PassStats report;
+  report.surface_remaining_sink = [&](Face face, local::SurfaceRemaining reason) {
+    REQUIRE(remaining.emplace(Key(face), reason).second);
+  };
+  local::SurfaceFixtureAccess::DistanceWork(mesh, geometry, ids, report);
+  REQUIRE_NOTHROW(mesh.Check());
+  return report.surface;
+}
+
 auto Counts(const local::SurfaceCounters& row) {
   return std::tie(row.faces_in, row.faces_out, row.points_in, row.points_out, row.splits_length, row.splits_distance,
                   row.splits_feature, row.sweeps_length, row.sweeps_distance, row.left_long, row.left_border,
-                  row.left_distance, row.left_refused, row.left_limit, row.left_short,
+                  row.left_distance, row.left_refused, row.left_limit, row.left_short, row.left_neighbor_locked,
                   row.refused_walk, row.refused_protected, row.refused_feature, row.refused_trace, row.refused_duplicate,
                   row.refused_outward, row.refused_size, row.refused_valid, row.refused_topology, row.refused_memory,
                   row.refused_entity, row.chord_unknown, row.samples, row.samples_unconverged);
@@ -427,7 +479,7 @@ TEST_CASE("Cylinder surface length and distance steps repeat and account for eve
   REQUIRE_FALSE(a.remaining.empty());
   CHECK(a.remaining == b.remaining);
   CHECK(a.remaining.size() == stats.left_distance);
-  CHECK(stats.left_distance == stats.left_refused + stats.left_limit + stats.left_short);
+  CHECK(stats.left_distance == stats.left_refused + stats.left_limit + stats.left_short + stats.left_neighbor_locked);
   CHECK(stats.left_refused > 0);
   CHECK(stats.left_border == 0);
   std::cout << "FP2A_FIXTURE surface_cylinder splits_length=" << stats.splits_length
@@ -459,6 +511,63 @@ TEST_CASE("Distance splits never fall back from the longest edge or cut below th
     CHECK(skipped.stats.surface.left_short == 1);
     CHECK(skipped.stats.surface.splits_distance == 0);
   }
+}
+
+TEST_CASE("Distance splitting leaves a shorter side of a border-locked face intact",
+          "[.][NativeLocalCoreSurfaceB]") {
+  using local::SurfaceRemaining;
+  const auto bordered = SkewedBox(true);
+  local::Mesh partition(bordered, true);
+  LockedBoxGeometry locked(bordered, false);
+  std::map<Face, SurfaceRemaining> remaining;
+  const auto stats = RunDistance(partition, locked, remaining);
+  CHECK(stats.left_neighbor_locked == 1);
+  CHECK(stats.left_border == 1);
+  CHECK(stats.splits_distance == 0);
+  REQUIRE(remaining.size() == 2);
+  CHECK(remaining.at(AskingFace) == SurfaceRemaining::NeighborLocked);
+  CHECK(remaining.at(LockedFace) == SurfaceRemaining::Border);
+  CHECK(locked.attempts.empty());
+
+  const auto complete = SkewedBox(false);
+  local::Mesh mesh(complete);
+  LockedBoxGeometry unlocked(complete, false);
+  remaining.clear();
+  CHECK(RunDistance(mesh, unlocked, remaining).left_neighbor_locked == 0);
+  CHECK(remaining.empty());
+  CHECK((unlocked.attempts == std::vector<Edge>{LockedSide, BoxDiagonal}));
+  REQUIRE(unlocked.created.size() == 2);
+  CHECK(unlocked.created.at(9).p.x == .5);
+  CHECK(unlocked.created.at(9).p.y == .5);
+  CHECK(unlocked.created.at(9).p.z == 0);
+}
+
+TEST_CASE("A known refused longest edge suppresses its neighbor's distance request",
+          "[.][NativeLocalCoreSurfaceB]") {
+  const auto rows = SkewedBox(false);
+  const local::Mesh mesh(rows);
+  LockedBoxGeometry geometry(rows, false);
+  const auto refused = local::SurfaceFixtureAccess::DistanceChoice(mesh, geometry, AskingFace, {LockedSide});
+  CHECK(refused.second == local::SurfaceRemaining::NeighborLocked);
+  const auto allowed = local::SurfaceFixtureAccess::DistanceChoice(mesh, geometry, AskingFace, {});
+  CHECK(allowed.first == BoxDiagonal);
+  CHECK_FALSE(allowed.second.has_value());
+}
+
+TEST_CASE("An above-limit feature chord beside a locked longest edge is not marked",
+          "[.][NativeLocalCoreSurfaceB]") {
+  const auto rows = SkewedBox(true);
+  local::Mesh mesh(rows, true);
+  LockedBoxGeometry geometry(rows, true);
+  std::map<Face, local::SurfaceRemaining> remaining;
+  const auto stats = RunDistance(mesh, geometry, remaining);
+  CHECK(geometry.chord_queries == 1);
+  CHECK(geometry.attempts.empty());
+  CHECK(stats.sweeps_distance == 0);
+  CHECK(stats.left_neighbor_locked == 2);
+  REQUIRE(remaining.size() == 2);
+  CHECK(remaining.at(AskingFace) == local::SurfaceRemaining::NeighborLocked);
+  CHECK(remaining.at(LockedFace) == local::SurfaceRemaining::NeighborLocked);
 }
 
 namespace {
@@ -684,7 +793,7 @@ TEST_CASE("Surface exchanges elect duplicate ids and child-trace keys", "[.][Nat
 }
 
 TEST_CASE("Native local V-split preserves the physical boundary and rolls back a non-improving trial",
-          "[NativeLocalCoreVolumeB]") {
+          "[.][NativeLocalCoreVolumeB]") {
   bool improve = true;
   SECTION("stretched internal edge") { improve = true; }
   SECTION("short internal edge") { improve = false; }
@@ -714,7 +823,7 @@ TEST_CASE("Native local V-split preserves the physical boundary and rolls back a
   }
 }
 
-TEST_CASE("Native local V-collapse keeps fixed surface nodal values bit-equal", "[NativeLocalCoreVolumeB]") {
+TEST_CASE("Native local V-collapse keeps fixed surface nodal values bit-equal", "[.][NativeLocalCoreVolumeB]") {
   const auto owned = BoundMesh({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {.02, .03, .04}},
                                {{4, 1, 2, 3}, {0, 4, 2, 3}, {0, 1, 4, 3}, {0, 1, 2, 4}}, 1);
   local::Mesh mesh(owned);
@@ -735,7 +844,7 @@ TEST_CASE("Native local V-collapse keeps fixed surface nodal values bit-equal", 
 }
 
 TEST_CASE("Native local V rounds run quality once when empty and respect the surface option",
-          "[NativeLocalCoreVolumeB]") {
+          "[.][NativeLocalCoreVolumeB]") {
   const auto owned = BoundMesh({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}}, {{0, 1, 2, 3}}, 1);
   FlatGeometry geometry(owned);
   for (const bool enabled : {false, true}) {

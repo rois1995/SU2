@@ -1152,3 +1152,9 @@ FP2-B build630 E1 execution completed in 124.093 s. All raw Gate E rows exactly 
 FP2-B A1 serial fixtures passed on build630 (105 assertions in three cases). V-split acceptance and rollback, unchanged boundary nodal values after V-collapse, and the ON/OFF empty-round counters are verified. Next E6 after E1 receipt verification.
 
 FP2-B A1 Gate E passed on build630. The E1 read-only verification authenticated the archived original helper and all artifacts. E6 matched 49 rank/pass/round rows in 77.353 s, 3,741 final bad cells, 556,192 cells after the higher shift, 84,124 / 84,184 pass face sums, 209 V-collapses and 1,237 V-splits. Before-V sums 11,644 / 3,843. All A1 jobs are terminal. Checkpoint A1 as default path not yet proven, then apply A2.
+
+FP2-B A1 pushed as 51647d8ecf. Host audit found 21 A1 identities terminal. Added A2 Step D guards and the A3 hand-over fixtures. Starting build631 for both the solver and test driver, then the A2 serial fixtures.
+
+FP2-B build631 stopped at compile time. The A2 feature guard used EdgeUse.seed instead of its existing EdgeUse.cell field. The build handle is terminal. Corrected the seed wiring, preserving the same ring and guards. Starting build632.
+
+FP2-B build632 compiled both binaries in 39.337 s with no new warnings. Solver SHA256 8098ac047727496492dc8888f12fe8f42315bff1ec76da19eb7643527bb2a942, test driver SHA256 54a7646e4d661a6024b34c38283912f22174019e496f143c037597b28eccb8e0. A2 serial fixtures passed (134 assertions in three cases). Checkpoint A2, then N1 and N6 on build632 before any full run.

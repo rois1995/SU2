@@ -100,7 +100,7 @@ struct SweepCounters {
 
 using SurfaceSweepOutcomes = std::array<size_t, static_cast<size_t>(SurfaceRefusal::Entity) + 1>;
 
-enum class SurfaceRemaining { Limit, Border, Refused, Short };
+enum class SurfaceRemaining { Limit, Border, Refused, Short, NeighborLocked };
 
 struct SweepRow {
   const char* kind;
@@ -118,7 +118,7 @@ struct SurfaceCounters {
   size_t faces_in = 0, faces_out = 0, points_in = 0, points_out = 0;
   size_t splits_length = 0, splits_distance = 0, splits_feature = 0, sweeps_length = 0, sweeps_distance = 0;
   size_t left_long = 0, left_border = 0, left_distance = 0, left_all_feature = 0, left_refused = 0, left_limit = 0;
-  size_t left_short = 0, chord_unknown = 0, samples = 0, samples_unconverged = 0;
+  size_t left_short = 0, left_neighbor_locked = 0, chord_unknown = 0, samples = 0, samples_unconverged = 0;
   size_t star_max = 0, star_gt100 = 0, star_gt1000 = 0;
   size_t refused_walk = 0, refused_protected = 0, refused_feature = 0, refused_trace = 0, refused_duplicate = 0;
   size_t refused_outward = 0, refused_size = 0, refused_valid = 0, refused_topology = 0, refused_memory = 0;
@@ -256,6 +256,13 @@ class Mesh {
     Slot cell;
     unsigned face;
   };
+  using SurfaceEdgeSet = std::set<SU2Native3D::Edge>;
+  using SurfaceChords = std::map<SU2Native3D::Edge, std::optional<double>>;
+  struct DistanceChoice {
+    Edge edge;
+    bool feature_chord;
+    std::optional<SurfaceRemaining> reason;
+  };
   struct ReplacedFace {
     Slot cell;
     unsigned face;
@@ -323,6 +330,12 @@ class Mesh {
   size_t SplitSweeps(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   std::vector<PhysicalFace> PhysicalFaces() const;
   SU2Native3D::SurfaceFace SurfaceFaceAt(PhysicalFace face) const;
+  std::pair<Edge, double> LongestSurfaceEdge(const std::array<Edge, 3>& edges) const;
+  bool LockedLongestEdge(PhysicalFace face, Edge except, const SurfaceEdgeSet& refused,
+                         const SurfaceEdgeSet& border) const;
+  DistanceChoice ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
+                                    const SurfaceChords& chords, const SurfaceEdgeSet& refused,
+                                    const SurfaceEdgeSet& border) const;
   void SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);

@@ -41,6 +41,7 @@ constexpr std::pair<const char*, size_t SurfaceCounters::*> Counts[] = {
     {"left_border", &SurfaceCounters::left_border}, {"left_distance", &SurfaceCounters::left_distance},
     {"left_all_feature", &SurfaceCounters::left_all_feature}, {"left_refused", &SurfaceCounters::left_refused},
     {"left_limit", &SurfaceCounters::left_limit}, {"left_short", &SurfaceCounters::left_short},
+    {"left_neighbor_locked", &SurfaceCounters::left_neighbor_locked},
     {"star_max", &SurfaceCounters::star_max}, {"star_gt100", &SurfaceCounters::star_gt100},
     {"star_gt1000", &SurfaceCounters::star_gt1000},
     {"refused_walk", &SurfaceCounters::refused_walk}, {"refused_protected", &SurfaceCounters::refused_protected},
@@ -121,6 +122,10 @@ SurfaceEdge Ids(const std::vector<PointRow>& points, Edge edge) {
 }
 
 double Distance(Point a, Point b) { return std::hypot(a.x - b.x, a.y - b.y, a.z - b.z); }
+
+double Distance(const std::vector<PointRow>& points, Edge edge) {
+  return Distance(points[edge[0]].node.p, points[edge[1]].node.p);
+}
 
 std::array<Edge, 3> FaceEdges(Face face) {
   return {{{face[0], face[1]}, {face[1], face[2]}, {face[2], face[0]}}};
@@ -403,14 +408,67 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
   if (stats.report) stats.surface.seconds_length = ReportClock(true) - begin;
 }
 
+std::pair<Edge, double> Mesh::LongestSurfaceEdge(const std::array<Edge, 3>& edges) const {
+  auto longest = edges.front();
+  double length = Distance(points_, longest);
+  for (size_t k = 1; k < edges.size(); ++k) {
+    const auto edge = edges[k];
+    const double measure = Distance(points_, edge);
+    if (measure > length || (measure == length && Ids(points_, edge) < Ids(points_, longest))) {
+      longest = edge;
+      length = measure;
+    }
+  }
+  return {ById(longest), length};
+}
+
+bool Mesh::LockedLongestEdge(PhysicalFace face, Edge except, const SurfaceEdgeSet& refused,
+                             const SurfaceEdgeSet& border) const {
+  // A neighbor's split on a shorter side leaves a locked face's longest edge in place. Repeated cuts halve
+  // the shorter edge toward one end (18 edges below metric 1e-2 on rank 4 in FP2-B0).
+  // Leave the request for pass 2 (a shift can remove the border) or the engine.
+  const auto longest = LongestSurfaceEdge(FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face))).first;
+  if (longest == except) return false;
+  const auto ids = Ids(points_, longest);
+  return refused.count(ids) || border.count(ids) || EdgeRing(longest, face.cell).border;
+}
+
+Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
+                                             const SurfaceChords& chords, const SurfaceEdgeSet& refused,
+                                             const SurfaceEdgeSet& border) const {
+  const auto edges = FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face));
+  const auto feature = std::find_if(edges.begin(), edges.end(), [&](Edge edge) {
+    const auto ids = Ids(points_, edge);
+    const auto chord = geometry.Feature(ids) ? chords.at(ids) : std::nullopt;
+    return chord && *chord > limit;
+  });
+  const bool feature_chord = feature != edges.end();
+  const auto [edge, length] = feature_chord ? std::make_pair(ById(*feature), Distance(points_, *feature))
+                                           : LongestSurfaceEdge(edges);
+  const auto ids = Ids(points_, edge);
+  if (refused.count(ids)) return {edge, feature_chord, SurfaceRemaining::Refused};
+  if (border.count(ids)) return {edge, feature_chord, SurfaceRemaining::Border};
+  if (length < 2 * limit) return {edge, feature_chord, SurfaceRemaining::Short};
+
+  if (!feature_chord) {
+    const auto parents = SurfaceParents(edge, EdgeRing(edge, face.cell));
+    if (parents.size() == 2) {
+      const auto& first = parents.front();
+      const auto& other = first.cell == face.cell && first.face == face.face ? parents.back() : first;
+      if (LockedLongestEdge(other, edge, refused, border)) return {edge, false, SurfaceRemaining::NeighborLocked};
+    }
+  }
+  return {edge, feature_chord, std::nullopt};
+}
+
 void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
   const auto begin = ReportClock(stats.report);
   const double limit = geometry.Limit();
   // At smallest principal radius R, the face and chord bounds are l^2/(6 R) and l^2/(4 R).
   // Below 2 * limit, a face above the limit needs R < 2 * limit / 3, a detail too small to resolve by splitting.
   const double floor = 2 * limit;
-  EdgeSet refused, border;
-  std::map<SurfaceEdge, std::optional<double>> chords;
+  SurfaceEdgeSet refused, border;
+  SurfaceChords chords;
   std::map<SurfaceFaceKey, SampleRow> samples;
   const auto sample = [&](const SurfaceFace& face, const SurfaceFaceKey& key) -> SampleRow& {
     auto [it, inserted] = samples.try_emplace(key);
@@ -424,9 +482,6 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
       }
     }
     return it->second;
-  };
-  const auto length = [&](Edge edge) {
-    return Distance(points_[edge[0]].node.p, points_[edge[1]].node.p);
   };
   const auto above = [limit](const auto& distances) {
     return *std::max_element(distances.begin(), distances.end()) > limit;
@@ -451,46 +506,28 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
         if (!where->second) stats.Increment(stats.surface.chord_unknown);
       }
       if (where->second && *where->second > limit && !refused.count(ids) && !border.count(ids) &&
-          length(use.edge) >= floor)
+          Distance(points_, use.edge) >= floor) {
+        const auto parents = SurfaceParents(use.edge, EdgeRing(use.edge, use.cell));
+        if (std::any_of(parents.begin(), parents.end(), [&, edge = use.edge](PhysicalFace parent) {
+              return LockedLongestEdge(parent, edge, refused, border);
+            }))
+          continue;
         marks.try_emplace(ids);
+      }
     }
     std::vector<std::pair<SampleRow*, SurfaceEdge>> chosen;
     for (const auto parent : faces) {
       const auto face = SurfaceFaceAt(parent);
       auto& row = sample(face, face.v);
       if (!above(row.measured.distances)) continue;
-      const auto uses = FaceEdges(OrientedFace(cells_[parent.cell].vertices, parent.face));
-      size_t selected = 0;
-      double selected_length = 0;
-      bool feature_chord = false;
-      for (size_t k = 0; k < uses.size(); ++k) {
-        const auto ids = Ids(points_, uses[k]);
-        const double measure = length(uses[k]);
-        const auto chord = geometry.Feature(ids) ? chords.at(ids) : std::nullopt;
-        if (chord && *chord > limit) {
-          selected = k;
-          selected_length = measure;
-          feature_chord = true;
-          break;
-        }
-        if (k == 0 || measure > selected_length ||
-            (measure == selected_length && ids < Ids(points_, uses[selected]))) {
-          selected = k;
-          selected_length = measure;
-        }
-      }
-
-      // Longest-edge bisection bounds the smallest angle and avoids the fan made by repeatedly cutting a short side.
-      // Leave a face whose longest edge cannot split for pass 2 or the engine.
-      const auto ids = Ids(points_, uses[selected]);
-      if (refused.count(ids)) {
-        row.reason = SurfaceRemaining::Refused;
-      } else if (border.count(ids)) {
-        row.reason = SurfaceRemaining::Border;
-      } else if (selected_length < floor) {
-        row.reason = SurfaceRemaining::Short;
+      const auto choice = ChooseDistanceEdge(parent, geometry, limit, chords, refused, border);
+      const auto ids = Ids(points_, choice.edge);
+      if (choice.reason) {
+        row.reason = *choice.reason;
+      } else if (choice.feature_chord && !marks.count(ids)) {
+        row.reason = SurfaceRemaining::NeighborLocked;
       } else {
-        if (!feature_chord) marks.try_emplace(ids);
+        if (!choice.feature_chord) marks.try_emplace(ids);
         chosen.emplace_back(&row, ids);
       }
     }
@@ -502,7 +539,7 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
     std::vector<Candidate> ordered;
     for (const auto& entry : marks) {
       const auto use = edges.at(entry.first);
-      ordered.push_back({use, entry.first, -length(use.edge)});
+      ordered.push_back({use, entry.first, -Distance(points_, use.edge)});
     }
     std::sort(ordered.begin(), ordered.end());
     for (const auto& candidate : ordered) {
@@ -544,6 +581,7 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
         case SurfaceRemaining::Limit: ++stats.surface.left_limit; break;
         case SurfaceRemaining::Refused: ++stats.surface.left_refused; break;
         case SurfaceRemaining::Short: ++stats.surface.left_short; break;
+        case SurfaceRemaining::NeighborLocked: ++stats.surface.left_neighbor_locked; break;
         case SurfaceRemaining::Border: break;
       }
       if (stats.surface_remaining_sink) stats.surface_remaining_sink(face.v, row.reason);

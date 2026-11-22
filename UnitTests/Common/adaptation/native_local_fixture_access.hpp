@@ -51,6 +51,25 @@ struct SurfaceFixtureAccess {
     return plan.refusal;
   }
 
+  static void DistanceWork(Mesh& mesh, SurfaceGeometry& geometry, IdSequence& ids, PassStats& report) {
+    mesh.SurfaceDistance(geometry, ids, SIZE_MAX, report);
+  }
+
+  static auto DistanceChoice(const Mesh& mesh, const SurfaceGeometry& geometry, SU2Native3D::Face face,
+                             const std::set<SU2Native3D::Edge>& refused) {
+    const auto parents = mesh.PhysicalFaces();
+    const auto parent = std::find_if(parents.begin(), parents.end(), [&](auto candidate) {
+      auto vertices = mesh.SurfaceFaceAt(candidate).v;
+      std::sort(vertices.begin(), vertices.end());
+      return vertices == face;
+    });
+    REQUIRE(parent != parents.end());
+    const auto choice = mesh.ChooseDistanceEdge(*parent, geometry, geometry.Limit(), {}, refused, {});
+    const auto edge = mesh.ById(choice.edge);
+    return std::make_pair(SU2Native3D::Edge{mesh.points_[edge[0]].node.id, mesh.points_[edge[1]].node.id},
+                          choice.reason);
+  }
+
   static unsigned BadClass(const Mesh&, const Vertices&, Id point_base);
   static bool HandoverBlocked(const Mesh& mesh, Vertices v) { return mesh.Blocked(v); }
   static std::vector<Slot> AcceptedSplitStar(const Mesh&, const Node&);
