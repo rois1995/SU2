@@ -7,6 +7,7 @@
 
 namespace {
 enum class SurfaceObservation { None, Invariant, Diagnosis };
+enum class ProductionPartition { None, Event1, Event2 };
 
 void ReportVolumeShortEdges(std::ostream& out, const local::Mesh& mesh, int rank, unsigned pass) {
   for (const auto& use : mesh.Edges()) {
@@ -165,37 +166,87 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
   REQUIRE_FALSE(world.maximum(!qualified));
 }
 
-void RunVolumeHandover(bool parallel, bool handover = false,
-                       SurfaceObservation observation = SurfaceObservation::None) {
-  const auto start = Clock::now();
-  World world;
-  REQUIRE(world.size == (parallel ? 6 : 1));
-  ReferenceState reference;
-  auto input = LoadMesh(&reference, parallel);
-  const auto global_cells = world.reduce<uint64_t>(input.cells.size(), CPassiveComm::Op::SUM);
-  REQUIRE(global_cells == 303359);
-  REQUIRE((reference.marker_names == std::vector<std::string>{"FARFIELD", "SYMMETRY", "WING3D"}));
-  REQUIRE(reference.original->Parameters()->Mobility().identity == 0);
-  REQUIRE_FALSE(reference.original->Parameters()->EntityGeometry());
-  CheckLabStep(world, [&] { native_fp2_fixture::PrepareIN1(reference, input.ceiling, OwnedStorageBytes(input.cells)); });
-  const auto& original = *reference.original->Parameters();
-  REQUIRE(original.Surface().size() == 48954);
-  REQUIRE(original.Records().size() == 24479);
+size_t PartitionHandover(World& world, LabInput& input, const ReferenceState& reference,
+                         PartitionStats& routing, bool production) {
+  std::string reason;
   const auto reference_bytes = reference.original->ResidentBytes();
-
-  PartitionStats routing;
-  if (parallel) {
-    std::string reason;
+  if (!production) {
     const std::vector<uint32_t> weights(input.cells.size(), 1);
     const auto partitioned = Repartition(world, input.cells, weights, world.size, routing, reason, input.ceiling,
                                          transfer_memory::Add(reference_bytes, transfer_memory::Bytes(weights)));
     INFO(reason);
     REQUIRE(partitioned);
+    return routing.maximum_native_bytes;
+  }
+
+  DonorImport source(world, true);
+  const auto held = ReferenceStorageBytes(reference);
+  const auto source_bytes = transfer_memory::Bytes(input.original);
+  const auto built = source.Build(input.original, reason, input.ceiling,
+                                  transfer_memory::Add(held, OwnedStorageBytes(input.cells)));
+  INFO(reason);
+  REQUIRE(built);
+  std::vector<uint32_t> weights, geometry_weights;
+  BridgeStats stats;
+  const auto weighted = WorkingWeights(world, input.cells, source, weights, reason, stats, {}, input.ceiling,
+                                       transfer_memory::Add(held, source_bytes), true, reference.original.get(),
+                                       input.tolerance, &geometry_weights, PartitionWorkPhase::Coarsening);
+  INFO(reason);
+  REQUIRE(weighted);
+  const auto partitioned = Repartition(world, input.cells, weights, world.size, routing, reason, input.ceiling,
+                                       transfer_memory::Add(held, source_bytes, source.ResidentBytes()),
+                                       geometry_weights);
+  INFO(reason);
+  REQUIRE(partitioned);
+  REQUIRE(input.cells.size() == routing.cells_after.at(world.rank));
+  std::ostringstream row;
+  row << "FP2_B partition rank=" << world.rank << " cells_before=" << routing.cells_before.at(world.rank)
+      << " cells_after=" << routing.cells_after.at(world.rank) << '\n';
+  std::cout << row.str() << std::flush;
+  std::vector<DonorCell>().swap(input.original);
+  return std::max({routing.maximum_native_bytes, source.Statistics().maximum_work_bytes, stats.maximum_native_bytes});
+}
+
+void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation observation = SurfaceObservation::None,
+                       ProductionPartition partition = ProductionPartition::None) {
+  const auto start = Clock::now();
+  World world;
+  REQUIRE(world.size == (parallel ? 6 : 1));
+  const bool production = partition != ProductionPartition::None;
+  const bool event2 = partition == ProductionPartition::Event2;
+  ReferenceState reference;
+  auto input = LoadMesh(&reference, parallel, production);
+  const auto global_cells = world.reduce<uint64_t>(input.cells.size(), CPassiveComm::Op::SUM);
+  REQUIRE(global_cells == (event2 ? 552946 : 303359));
+  REQUIRE((reference.marker_names == std::vector<std::string>{"FARFIELD", "SYMMETRY", "WING3D"}));
+  if (event2) {
+    // The published adapted sidecar already has the policy and tolerance Production prepares at event 1.
+    const auto& state = *reference.original->Parameters();
+    REQUIRE(state.Mobility().identity != 0);
+    REQUIRE(state.Mobility().angle == 60);
+    REQUIRE((state.Mobility().roles == std::map<int, int>{{0, 2}, {1, 0}, {2, 2}}));
+    REQUIRE(state.EntityGeometry());
+    REQUIRE(state.GeometryTolerance() == input.tolerance);
+  } else {
+    REQUIRE(reference.original->Parameters()->Mobility().identity == 0);
+    REQUIRE_FALSE(reference.original->Parameters()->EntityGeometry());
+    const auto retained = transfer_memory::Add(OwnedStorageBytes(input.cells), transfer_memory::Bytes(input.original));
+    CheckLabStep(world, [&] { native_fp2_fixture::PrepareIN1(reference, input.ceiling, retained); });
+  }
+  const auto& original = *reference.original->Parameters();
+  REQUIRE(original.Surface().size() == (event2 ? 76126 : 48954));
+  REQUIRE(original.Records().size() == (event2 ? 38065 : 24479));
+  const auto reference_bytes = reference.original->ResidentBytes();
+
+  PartitionStats routing;
+  size_t partition_peak = 0;
+  if (parallel) {
+    partition_peak = PartitionHandover(world, input, reference, routing, production);
     REQUIRE_FALSE(world.maximum(input.cells.empty()));
   }
 
   constexpr auto owned_row_bytes = sizeof(Owned::value_type) + 4 * sizeof(void*);
-  local::MemoryBudget memory{input.ceiling, reference_bytes, owned_row_bytes, routing.maximum_native_bytes};
+  local::MemoryBudget memory{input.ceiling, reference_bytes, owned_row_bytes, partition_peak};
   std::unique_ptr<local::StateSurfaceGeometry> surface;
   CheckLabStep(world, [&] {
     const auto serial_mesh = parallel ? 0 : local::Mesh::ArrayBytes(input.cells.size());
@@ -328,6 +379,7 @@ void RunVolumeHandover(bool parallel, bool handover = false,
       const local::Mesh mesh(input.cells, parallel, options);
       std::ostringstream region;
       region << std::setprecision(17);
+      if (production) fp2_b0::ReportEdges(region, mesh, point_base, world.rank, 0, "shifted");
       fp2_b0::ReportRegion(region, mesh, point_base, world.rank, [&](Id id) { return surface->Find(id) != nullptr; });
       std::cout << region.str() << std::flush;
     });
@@ -354,6 +406,14 @@ TEST_CASE("FP2-B production volume hand-over and proof on one rank", "[.][Native
 
 TEST_CASE("FP2-B production volume hand-over and proof on six ranks", "[.][NativeLocalCoreVolumeHandoverMPI]") {
   RunVolumeHandover(true, true);
+}
+
+TEST_CASE("FP2-B event-1 production-partition hand-over", "[.][NativeLocalCoreVolumeHandoverProduction1]") {
+  RunVolumeHandover(true, true, SurfaceObservation::None, ProductionPartition::Event1);
+}
+
+TEST_CASE("FP2-B event-2 production-partition hand-over", "[.][NativeLocalCoreVolumeHandoverProduction2]") {
+  RunVolumeHandover(true, true, SurfaceObservation::None, ProductionPartition::Event2);
 }
 
 TEST_CASE("FP2-B accepted distance splits bisect both parents' longest edges",

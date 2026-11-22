@@ -227,3 +227,13 @@ Does A2's exactly-two shortcut or the correction's ordered first nonmatching fac
 ## 2026-11-22T08:32:38+01:00 · FP2-B D1 · R4
 
 How should the report cover all edges with five ranked rows, and which label applies to the closing commit? Used the exact bins and visible pairs with omitted counts. Used the temporary diagnosis label for the code checkpoint and the explicit section 6 label for the restoration. Base `240ca96db8`.
+
+## 2026-11-22 10:15 CET, FP2-B correction 2, source check
+
+- Which census anchors the exact shifted edge comparison? P1 is measured by the core and P4 by the engine, with a last-digit difference in the rank-2 event-1 minimum. Use P1 for exact core equality and report P4 beside it. See `6415b6dab9`.
+- Does the event-2 lab rebuild the loaded geometry? Its v9 sidecar already has the configuration's prepared mobility and geometry tolerance. Use the loaded state after verifying those values, as production `PrepareMobility` does. See `6415b6dab9`.
+- What index and batch size belong in an orientation exception before the donor vector is filled? Use the count of successful predecessors and size of the input cell batch. See `6415b6dab9`.
+
+## 2026-11-22 10:32 CET, FP2-B correction 2, baseline comparison
+
+- Do unlisted census values disqualify N6P? Use the exact minimum and IDs and the named short bins from §5.2. Carry the additional values and their differences as measurements. The D1-source baseline is based on `6415b6dab9`.

@@ -91,9 +91,11 @@ struct LabInput {
   Owned cells;
   size_t ceiling;
   Id point_base, cell_base;
+  std::vector<DonorCell> original;
+  double tolerance;
 };
 
-LabInput LoadMesh(ReferenceState* kept = nullptr, bool parallel = false) {
+LabInput LoadMesh(ReferenceState* kept = nullptr, bool parallel = false, bool keep_donors = false) {
   const auto ranks = SU2_MPI::GetSize();
   REQUIRE((parallel ? (ranks == 2 || ranks == 6) : ranks == 1));
   const char* config = std::getenv("SU2_NATIVE_FROZEN_CONFIG");
@@ -116,6 +118,7 @@ LabInput LoadMesh(ReferenceState* kept = nullptr, bool parallel = false) {
   bool loaded = false;
   size_t reference_bytes = 0;
   const auto ceiling = driver.Config().GetAdap_Native_MemoryLimit();
+  const auto tolerance = SU2_TYPE::GetValue(driver.Config().GetAdap_Hausd());
   const auto path = driver.Config().GetMesh_FileName() + ".native_ref";
   const auto restored = LoadReference(path, reference, loaded, reason, ceiling, 0, reference_bytes);
   INFO(reason);
@@ -137,7 +140,8 @@ LabInput LoadMesh(ReferenceState* kept = nullptr, bool parallel = false) {
   for (const auto& donor : imported.original) visit(donor.cell);
   driver.Finalize();
   if (kept) *kept = std::move(reference);
-  return {std::move(imported.cells), ceiling, point_base, cell_base};
+  return {std::move(imported.cells), ceiling, point_base, cell_base,
+          keep_donors ? std::move(imported.original) : std::vector<DonorCell>{}, tolerance};
 }
 
 local::CoreOptions Variant(const std::string& variant) {
