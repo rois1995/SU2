@@ -223,3 +223,7 @@ Does the reference to FP2-A 11.2 also repeat the old LAB-S and rank check after 
 ## 2026-11-22 · FP2-B correction 1 · R4
 
 Does A2's exactly-two shortcut or the correction's ordered first nonmatching face govern the path, and how should the diagnosis cover more than 20 short edges? Used the explicit corrected traversal and a separate diagnostic census alongside the original 20 shortest rows. Base commit `457822008c`.
+
+## 2026-11-22T08:32:38+01:00 · FP2-B D1 · R4
+
+How should the report cover all edges with five ranked rows, and which label applies to the closing commit? Used the exact bins and visible pairs with omitted counts. Used the temporary diagnosis label for the code checkpoint and the explicit section 6 label for the restoration. Base `240ca96db8`.

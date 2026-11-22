@@ -1198,3 +1198,9 @@ FP2-B correction 1 S1 event 1 physical/transfer/continuation gate and timer gate
 FP2-B correction 1 S1 FAILED at event 2. First standing failure complete=0 on all six ranks versus 1 after an incomplete quality-refresh measurement. Rank 0 exited with shape_complete=0 and measured 107,960 of 108,211 cells. The timer supervisor stopped because event 2 had no quality-window or quality-exit rows. Named coverage still cleared 95%. All 109 observed process identities were terminal. The one read-only R5 diagnosis and event 1 comparison have been captured. Restoring FP2-B code and test files to the pre-item tree, rebuilding, and closing in one revert commit.
 
 FP2-B correction 1 closure. Build634 rebuilt both binaries without a new warning. 1,624 build627 production SHA256 pins match, production and pre-FP2-B test diffs are empty, and both binary hashes match their baselines (solver 627, test driver 629). Terminal audit verified 111 identities. FP2-B ON FAILED. S2 and corrected default proof unevaluated. Commit and push the single revert, then verify terminal handles again.
+
+FP2-B D1 archived the order and verified SHA256 78b34a13b5f7050ea8935b93ac023ba7fc6549c481088e38f64dfcf6b001d320. R4 sealed before any source edit. Prior host audit found 111 FP2-B identities terminal. Restore exactly the build633 code paths for the print-only diagnosis.
+
+D1 restored the nine build633 paths exactly and added P1–P4 in the five scoped production files. Their output uses only local data under the existing report switches. Starting build635 for both binaries.
+
+D1 build635 compiled both binaries in 69.213 s with no new warnings. The three corrected path cases, cylinder invariant (27 checked, zero violations), and three A1 cases passed once. Checkpoint the diagnosis-only code and start the single S1 on the unchanged controller.

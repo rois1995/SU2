@@ -10,6 +10,7 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
+#include <tuple>
 
 namespace SU2NativeLocal3D {
 namespace {
@@ -23,6 +24,15 @@ Vertices Replace(Vertices vertices, Slot from, Slot to) {
 Tensor Midpoint(const Tensor& a, const Tensor& b) {
   return {0.5 * (a.xx + b.xx), 0.5 * (a.xy + b.xy), 0.5 * (a.xz + b.xz),
           0.5 * (a.yy + b.yy), 0.5 * (a.yz + b.yz), 0.5 * (a.zz + b.zz)};
+}
+
+template <class Action>
+void EachVolumeEdge(const Vertices& vertices, Action action) {
+  for (unsigned i = 0; i < 4; ++i)
+    for (unsigned j = i + 1; j < 4; ++j) {
+      const auto a = vertices[i], b = vertices[j];
+      action(Edge{std::min(a, b), std::max(a, b)});
+    }
 }
 }  // namespace
 
@@ -311,6 +321,128 @@ double Mesh::Worst(const std::vector<Slot>& cells) const {
   double margin = std::numeric_limits<double>::infinity();
   for (auto slot : cells) margin = std::min(margin, Margin(cells_[slot].vertices));
   return margin;
+}
+
+bool Mesh::EditableVolumeCavity(const std::vector<Slot>& old) const {
+  return !old.empty() && !Blocked(old) &&
+         std::none_of(old.begin(), old.end(), [this](Slot cell) { return cells_[cell].stamp == sweep_; });
+}
+
+std::set<Edge> Mesh::VolumeEdges(const std::vector<Slot>& cells) const {
+  std::set<Edge> edges;
+  for (auto cell : cells)
+    EachVolumeEdge(cells_[cell].vertices, [&](Edge edge) { edges.insert(edge); });
+  return edges;
+}
+
+std::optional<double> Mesh::ImprovedVolumeMargin(const std::vector<Slot>& old, const std::vector<Vertices>& fresh,
+                                                const std::set<Edge>& edges, double worst_old,
+                                                size_t cell_limit) const {
+  if (fresh.empty() || !Fits(old.size(), fresh.size(), cell_limit)) return std::nullopt;
+  double worst_new = std::numeric_limits<double>::infinity();
+  std::set<Edge> checked;
+  for (const auto& vertices : fresh) {
+    bool short_enough = true;
+    EachVolumeEdge(vertices, [&](Edge edge) {
+      if (short_enough && !edges.count(edge) && checked.insert(edge).second && !(Length(edge) <= LongEdge))
+        short_enough = false;
+    });
+    if (!short_enough) return std::nullopt;
+    worst_new = std::min(worst_new, Margin(vertices));
+    // Each edit raises the worst margin of the cells it replaces, so a round cannot cycle.
+    if (!(worst_new > worst_old)) return std::nullopt;
+  }
+  return worst_new;
+}
+
+bool Mesh::SplitInside(Slot seed, IdSequence& point_ids, size_t cell_limit) {
+  std::vector<std::tuple<double, std::array<Id, 2>, Edge>> edges;
+  EachVolumeEdge(cells_[seed].vertices, [&](Edge edge) {
+    edge = ById(edge);
+    const auto& a = points_[edge[0]].node;
+    const auto& b = points_[edge[1]].node;
+    edges.emplace_back(-std::hypot(a.p.x - b.p.x, a.p.y - b.p.y, a.p.z - b.p.z),
+                       std::array<Id, 2>{a.id, b.id}, edge);
+  });
+  std::sort(edges.begin(), edges.end());
+  for (const auto& option : edges) {
+    const auto& edge = std::get<2>(option);
+    auto ring = EdgeRing(edge, seed);
+    if (!ring.Closed() || !EditableVolumeCavity(ring.cells)) continue;
+    std::sort(ring.cells.begin(), ring.cells.end(),
+              [this](Slot a, Slot b) { return Key(cells_[a].vertices) < Key(cells_[b].vertices); });
+    if (points_.size() == NoSlot) throw std::length_error("Too many native local core points.");
+    const auto middle = static_cast<Slot>(points_.size());
+    const auto& a = points_[edge[0]];
+    const auto& b = points_[edge[1]];
+    const Point p{0.5 * (a.node.p.x + b.node.p.x), 0.5 * (a.node.p.y + b.node.p.y),
+                  0.5 * (a.node.p.z + b.node.p.z)};
+    std::vector<Vertices> fresh;
+    fresh.reserve(2 * ring.cells.size());
+    for (auto cell : ring.cells)
+      for (auto end : edge) fresh.push_back(Replace(cells_[cell].vertices, end, middle));
+
+    const auto edges_before = VolumeEdges(ring.cells);
+    const auto worst_before = Worst(ring.cells);
+    points_.push_back({{point_ids.Peek(), p}, Midpoint(a.tensor, b.tensor)});
+    Plan plan;
+    try {
+      if (ImprovedVolumeMargin(ring.cells, fresh, edges_before, worst_before, cell_limit))
+        plan = Prepare(ring.cells, fresh);
+      if (plan.Accepted() && !ExactlyPositive(plan)) plan.refusal = Refusal::Validity;
+    } catch (...) {
+      points_.pop_back();
+      throw;
+    }
+    if (plan.Accepted()) {
+      Commit(plan, sweep_);
+      point_ids.Take();
+      return true;
+    }
+    points_.pop_back();
+  }
+  return false;
+}
+
+bool Mesh::CollapseNear(Slot seed, size_t cell_limit) {
+  auto vertices = cells_[seed].vertices;
+  std::sort(vertices.begin(), vertices.end(),
+            [this](Slot a, Slot b) { return points_[a].node.id < points_[b].node.id; });
+  for (auto remove : vertices) {
+    const auto& point = points_[remove];
+    // The local core runs without wall heights, so removing a wall-near free point is allowed here.
+    if (!point.Free() || !point.wall_near) continue;
+    const auto old = Star(remove);
+    if (!EditableVolumeCavity(old)) continue;
+    std::set<Slot> neighbors;
+    for (auto cell : old)
+      for (auto neighbor : cells_[cell].vertices)
+        if (neighbor != remove) neighbors.insert(neighbor);
+    const auto make_fresh = [&](Slot keep) {
+      std::vector<Vertices> fresh;
+      fresh.reserve(old.size());
+      for (auto cell : old) {
+        const auto& row = cells_[cell].vertices;
+        if (!Contains(row, keep)) fresh.push_back(Replace(row, remove, keep));
+      }
+      return fresh;
+    };
+    const auto edges_before = VolumeEdges(old);
+    const auto worst_before = Worst(old);
+    std::vector<std::tuple<double, Id, Slot>> keeps;
+    for (auto keep : neighbors) {
+      const auto score = ImprovedVolumeMargin(old, make_fresh(keep), edges_before, worst_before, cell_limit);
+      if (score) keeps.emplace_back(-*score, points_[keep].node.id, keep);
+    }
+    std::sort(keeps.begin(), keeps.end());
+    for (const auto& choice : keeps) {
+      const auto plan = Prepare(old, make_fresh(std::get<2>(choice)));
+      if (!plan.Accepted() || !ExactlyPositive(plan)) continue;
+      Commit(plan, sweep_);
+      return true;
+    }
+  }
+  return false;
 }
 
 Mesh::Plan Mesh::RemoveEdgePlan(Edge edge, Slot seed, size_t cell_limit) const {
