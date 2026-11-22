@@ -9,6 +9,62 @@ namespace {
 enum class SurfaceObservation { None, Invariant, Diagnosis };
 enum class ProductionPartition { None, Event1, Event2 };
 
+void ReportCollapseCore(std::ostream& out, const local::PassStats& stats, int rank, unsigned pass) {
+  out << "FP2_C core rank=" << rank << " pass=" << pass
+      << " cells_in=" << stats.cells_in << " cells_out=" << stats.cells_out
+      << " points_in=" << stats.points_in << " points_out=" << stats.points_out
+      << " surface_points=" << stats.surface_points << " border_points=" << stats.border_points
+      << " wall_near_points=" << stats.wall_near_points << " collapses=" << stats.collapses
+      << " splits=" << stats.splits << " edge_removals=" << stats.edge_removals << " face_swaps=" << stats.face_swaps
+      << " moves=" << stats.moves << " deferred=" << stats.deferred << " skipped_memory=" << stats.skipped_memory
+      << " evaluated_collapse=" << stats.evaluated_collapse << " refused_valid=" << stats.refused_valid
+      << " refused_size=" << stats.refused_size << " refused_topology=" << stats.refused_topology
+      << " refused_shape=" << stats.refused_shape << " refused_exact=" << stats.refused_exact
+      << " blocked=" << stats.blocked << " short_out=" << stats.short_out << " edges_out=" << stats.edges_out
+      << " bad_in=" << stats.bad_in << " bad_out=" << stats.bad_out << " sweeps_collapse=" << stats.sweeps_collapse
+      << " sweeps_split=" << stats.sweeps_split << " sweeps_quality=" << stats.sweeps_quality
+      << " rounds=" << stats.rounds << " limit=" << stats.limit << " round_changes=" << stats.round_changes
+      << " seconds_collapse=" << stats.seconds_collapse << " seconds_split=" << stats.seconds_split
+      << " seconds_quality=" << stats.seconds_quality << '\n';
+}
+
+void ReportCellDigest(std::ostream& out, const Owned& owned, int rank) {
+  struct OrderedCell {
+    std::array<Id, 4> ids;
+    std::array<const Node*, 4> nodes;
+  };
+  std::vector<OrderedCell> cells;
+  cells.reserve(owned.size());
+  for (const auto& row : owned) {
+    OrderedCell cell;
+    const auto& vertices = row.second.cell.v;
+    for (unsigned i = 0; i < 4; ++i) cell.nodes[i] = &vertices[i];
+    std::sort(cell.nodes.begin(), cell.nodes.end(), [](const Node* a, const Node* b) { return a->id < b->id; });
+    for (unsigned i = 0; i < 4; ++i) cell.ids[i] = cell.nodes[i]->id;
+    cells.push_back(cell);
+  }
+  std::sort(cells.begin(), cells.end(), [](const OrderedCell& a, const OrderedCell& b) { return a.ids < b.ids; });
+  uint64_t digest = 14695981039346656037ULL;
+  const auto append = [&](uint64_t word) {
+    for (unsigned byte = 0; byte < 8; ++byte) {
+      digest ^= (word >> (8 * byte)) & 0xff;
+      digest *= 1099511628211ULL;
+    }
+  };
+  for (const auto& cell : cells) {
+    for (const auto id : cell.ids) append(id);
+    for (const auto* node : cell.nodes) {
+      append(node->id);
+      for (double coordinate : {node->p.x, node->p.y, node->p.z}) {
+        uint64_t bits;
+        std::memcpy(&bits, &coordinate, sizeof(bits));
+        append(bits);
+      }
+    }
+  }
+  out << "FP2_C cells rank=" << rank << " cells=" << cells.size() << " digest=" << digest << '\n';
+}
+
 void ReportVolumeShortEdges(std::ostream& out, const local::Mesh& mesh, int rank, unsigned pass) {
   for (const auto& use : mesh.Edges()) {
     const auto metric = mesh.Length(use.edge);
@@ -364,7 +420,9 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         row << "NATIVE3D_LOCAL_SURFACE rank=" << world.rank << " stage=0 pass=" << pass
             << " applicable=1";
         local::PrintSurfaceFields(row, stats.surface);
-        std::cout << row.str() << '\n' << std::flush;
+        row << '\n';
+        ReportCollapseCore(row, stats, world.rank, pass);
+        std::cout << row.str() << std::flush;
         if (!walk_probe_matches) throw std::logic_error("Tolerance placement counts or accepted split differ.");
         bool bad_matches = true;
         if (handover) {
@@ -440,6 +498,11 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
       FAIL(error.message);
     }
   }
+  CheckLabStep(world, [&] {
+    std::ostringstream digest;
+    ReportCellDigest(digest, input.cells, world.rank);
+    std::cout << digest.str() << std::flush;
+  });
 }
 }  // namespace
 

@@ -247,3 +247,9 @@ How should the report cover all edges with five ranked rows, and which label app
 
 - How should F1 report the reservation owned by FromPayload? Considered exposing it through a production test hook or recording only observable public results. Used explicit unavailable fields for the internal reservation, with exact bytes, exception and timer-call comparison. Base c843610249.
 - Are F5's integer RSS samples part of the identity gate? Considered comparing sampled RSS exactly or reporting it beside the exact modeled bytes and logical fields. Used the observation reading from the order's full state-row rule. Base c843610249.
+
+## 2026-11-22 22:57 CET · FP2-C1 · R4
+
+- The pass-1 sweep equality rule includes rows whose printer adds an elapsed-seconds field. Used exact comparison of all non-clock fields, applying the timing exclusion of the neighboring pass-1 surface rule. S0 `7e6953e721`.
+- The earlier correction-3 controller also has an above-tolerance count alarm and a post-shift edge census. Used the C1 §4 list as the gate and retain the older measurements alongside it. S0 `7e6953e721`.
+- The engine emits the collapse elapsed clock from entry and prints rounds at the boundary. Used that elapsed clock with setup included, since a separate exclusive collapse clock is unavailable. S0 `7e6953e721`.

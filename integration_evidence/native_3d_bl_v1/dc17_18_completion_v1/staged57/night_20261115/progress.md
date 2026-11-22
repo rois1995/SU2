@@ -1372,3 +1372,11 @@ FX2 G5 S event 1's three published files matched the accepted FP2-B S reference.
 FX2 §4.5 passed on build645. S matched its six accepted FP2-B hashes and had zero exact differences in all 16 snapshots, 69 storage rows and two surface-state rows per rank. Both events, continued CFD and isolated restart passed. Construction / transfer replay maxima were 8.633 / 2.728 µs. Main controller 1,341.171 s and isolated restart 170.981 s.
 
 FX2 §4.6–8 accepted on build645. Native times OFF 1,735.398 / 1,016.311 s and S 614.463 / 410.522 s. The minimum named coverage was 98.158%. Reports, handoff and timing handbook updated. Commit and push FX2: accepted, verify all owned jobs terminal, then wait for the user.
+
+FP2-C1 S0 is `7e6953e721` (`FX2: accepted`), build645. The new order and SHA256 are verified and archived. The actual-host audit found all 163 FX2 identities terminal. Preparing the test-only rows for the S0 N1/N6/N6P reference before any production edit. FP2-C2 step 0 is queued after C1 closure.
+
+FP2-C1 R4 source check recorded before the production edit. Baseline build646 compiled only the test driver in 25.833 s, with the accepted solver SHA unchanged and no new warning. S0 N1 passed in 298.522 s with 565,931 cells, 87,814 faces and zero donor/proof unexplained issues. N6 and N6P follow on the same baseline binary.
+
+FP2-C1 S0 N6 passed in 319.515 s with 560,663 owned cells, 87,802 final surface faces, zero donor rejections and zero unexplained classifications. N6P is active on build646.
+
+FP2-C1 §5.1 passed. S0 N6P was valid and passed in 276.280 s with 556,553 cells, 86,252 final surface faces, no donor rejection or unexplained classification, and exact production partition pins. All three references are sealed on build646. Checkpoint the test-only baseline, then apply the reviewed production and fixture edits.
