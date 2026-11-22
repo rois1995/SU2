@@ -1158,3 +1158,9 @@ FP2-B A1 pushed as 51647d8ecf. Host audit found 21 A1 identities terminal. Added
 FP2-B build631 stopped at compile time. The A2 feature guard used EdgeUse.seed instead of its existing EdgeUse.cell field. The build handle is terminal. Corrected the seed wiring, preserving the same ring and guards. Starting build632.
 
 FP2-B build632 compiled both binaries in 39.337 s with no new warnings. Solver SHA256 8098ac047727496492dc8888f12fe8f42315bff1ec76da19eb7643527bb2a942, test driver SHA256 54a7646e4d661a6024b34c38283912f22174019e496f143c037597b28eccb8e0. A2 serial fixtures passed (134 assertions in three cases). Checkpoint A2, then N1 and N6 on build632 before any full run.
+
+FP2-B A2 pushed as 535d311882 with the default path pending. Host audit verified 27 process identities terminal before launching the pinned build632 N1 lab.
+
+FP2-B build632 N1 passed in 294.076 s. Handover 3,474 bad cells (1,905 / 1,450 / 0 / 119 by class), zero metric edges below 0.01, minimum 0.023404202387000857, all 559,193 cells exactly positive, 82,968 owned faces and four strict entities accepted. Classify above tolerance and unexplained both zero. N1 terminal. Starting N6.
+
+FP2-B build632 N6 terminal in 305.821 s. Lab FAILED the last-pass edge gate: first rank 2 had four rows below metric 0.01 vs zero, with eight rows total and seven distinct edges. Smallest 0.00075945199938384203. The 3,420 bad cells, exact positivity, geometry, 27,167,880-byte snapshot agreement, qualified proof (20 refused, one neighbor-locked, zero unexplained), and rank alarms passed. The one read-only R5 diagnosis traced all short edges to Step D. Six distinct edges survived pass 1 and one new edge came from pass 2. A1 51647d8ecf and A2 535d311882 retained, default path not yet proven. Remaining fixtures, G1, S1, the default proof and S2 unevaluated. Close with the lab stop evidence checkpoint and host audit.

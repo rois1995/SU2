@@ -1,5 +1,7 @@
 # Native adaptation handoff
 
+FP2-B stopped at the build632 hand-over gate. Gate E and the focused fixtures passed. N6 had 3,420 bad cells, exact positivity and matching snapshots, but retained seven distinct physical edges below metric length 0.01 (eight rank-local rows). A1 and A2 are retained with the default path not yet proven. S1 and S2 are unevaluated. [FP2-B report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/reports/FP2_B_632.md)
+
 FP2-B0 completed on test-only build629. At six ranks, the frozen lab measured 2,538 bad cells with surface splits off and 11,099 with them on. X6 replayed the best serial variant (X3) and measured 3,741 bad cells at c4. The production source pins and solver hash match build627. FP2-A ON remains failed and the surface option defaults to NO. [FP2-B0 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B0/reports/FP2_B0_629.md)
 
 FP2-A Parts A and B and the full Part C default passed on build627. The surface option defaults to NO. S1 failed the native deadline with unresolved quality and geometry. S2 is unevaluated. [FP2-A report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_A/reports/FP2_A_627.md)
