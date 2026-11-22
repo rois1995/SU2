@@ -243,6 +243,19 @@ double ChildNormalDot(const State& state, Id side, const BoundaryPoint& corner, 
 
 #include "fixtures/native_fast_path_stage2_strict.inc"
 #include "fixtures/native_fast_path_stage2_split.inc"
+
+void PrintSheetPlacement(const char* kind, const Edge& edge, Point query, const BoundaryPoint& point) {
+  const auto p = point.node.p;
+  const auto& binding = point.binding;
+  const auto xyz = CoordinateBits(p);
+  const auto uv = CoordinateBits({binding.u, binding.v, 0.});
+  std::cout << std::setprecision(17) << "FP2_B_C3 " << kind << " {\"edge\":[" << edge[0] << ',' << edge[1]
+            << "],\"q\":[" << query.x << ',' << query.y << ',' << query.z << "],\"p\":[" << p.x << ',' << p.y
+            << ',' << p.z << "],\"p_bits\":[" << xyz[0] << ',' << xyz[1] << ',' << xyz[2]
+            << "],\"binding\":{\"dimension\":" << binding.dimension << ",\"feature\":" << binding.feature
+            << ",\"version\":" << binding.version << ",\"u\":" << binding.u << ",\"v\":" << binding.v
+            << ",\"uv_bits\":[" << uv[0] << ',' << uv[1] << "]}}" << std::endl;
+}
 }  // namespace
 
 TEST_CASE("FP2-0 surface state rebuild and exact local checks", "[.][NativeFastPathStage2][NativeFastPathStage2Bounds]") {
@@ -268,6 +281,36 @@ TEST_CASE("FP2-0 input surface split and strict proof", "[.][NativeFastPathStage
 TEST_CASE("FP2-A production surface geometry on IN1", "[.][NativeFastPathStage2Surface]") {
   auto reference = LoadSurface(false);
   CheckProductionSurface(reference);
+}
+
+TEST_CASE("FP2-B correction 3 IN1 sheet-placement baseline", "[.][NativeFastPathStage2SheetPlacement]") {
+  auto reference = LoadSurface(false);
+  PrepareInput(reference);
+  auto budget = Fp2Budget(726442, reference.original->ResidentBytes(), Clock::now(), 5400);
+  local::StateSurfaceGeometry surface(reference.original, budget);
+  const auto& state = surface.State();
+  const Id fresh = state.Records().rbegin()->first + 1;
+  std::map<Edge, std::vector<SurfaceFace>> incident;
+  for (const auto& entry : state.Surface())
+    for (const auto& edge : FaceEdges(entry.second)) incident[edge].push_back(entry.second);
+
+  size_t tested = 0, accepted = 0, refused_walk = 0;
+  for (const auto& [edge, faces] : incident) {
+    if (faces.size() != 2 || surface.Feature(edge)) continue;
+    ++tested;
+    const auto& a = surface.Find(edge[0])->node;
+    const auto& b = surface.Find(edge[1])->node;
+    const auto placement = surface.Place({a, b}, {faces[0], faces[1]}, fresh);
+    if (placement.Accepted()) {
+      if (++accepted <= 3) PrintSheetPlacement("baseline_accepted", edge, Midpoint(a.p, b.p), placement.point);
+    } else if (placement.refusal == local::SurfaceRefusal::Walk) {
+      ++refused_walk;
+      std::cout << "FP2_B_C3 baseline_walk {\"edge\":[" << edge[0] << ',' << edge[1] << "]}" << std::endl;
+    }
+  }
+  std::cout << "FP2_B_C3 baseline_counts {\"tested\":" << tested << ",\"accepted\":" << accepted
+            << ",\"refused_walk\":" << refused_walk << "}" << std::endl;
+  REQUIRE(accepted >= 3);
 }
 
 #if defined(__GNUC__) && !defined(__clang__)

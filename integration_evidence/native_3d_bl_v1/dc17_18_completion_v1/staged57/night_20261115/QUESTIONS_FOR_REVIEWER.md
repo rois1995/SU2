@@ -237,3 +237,8 @@ How should the report cover all edges with five ranked rows, and which label app
 ## 2026-11-22 10:32 CET, FP2-B correction 2, baseline comparison
 
 - Do unlisted census values disqualify N6P? Use the exact minimum and IDs and the named short bins from §5.2. Carry the additional values and their differences as measurements. The D1-source baseline is based on `6415b6dab9`.
+
+## 2026-11-22 13:34 CET, FP2-B correction 3, source check
+
+- How can the pre-edit fixture identify converged placements without a walk field? Build638 refuses every unconverged sheet walk before it can return Accepted. Use the first three accepted nonfeature edges as the converged pins. See `4ba64e9f8b`.
+- Can the before-V class history and construction geometry bins be reproduced from the build638 logs? Those logs have before-V totals and the construction geometry count. Mark their missing breakdowns unavailable. In the corrected lab use the existing quality-sweep sink for the before-V classes, and in S1 use the existing geometry-repair entry histogram. See `4ba64e9f8b`.
