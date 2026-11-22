@@ -1350,3 +1350,15 @@ FX2 §4.2 passed on build645. G2/GQ exact rows and scheduling, G3 physical/commo
 FX2 §4.2 checkpoint pushed as `7b2eca2059`. The host audit found 110 FX2 process identities terminal before the labs. N1 then passed on build645 with no exact field differences. Surface-state build 29.858 → 14.439 s. N6P is running on the same binary.
 
 FX2 §4.3 passed on build645. N1 and N6P matched all required fields, with build times reported separately. N1 took 302.635 s under supervision and N6P took 279.543 s. Push the lab checkpoint, then run G5 OFF against N21 W and build640 OFF.
+
+FX2 lab checkpoint pushed as `d5fba11a48`. OFF preflight stopped before launching a job because the saved Python comparator receipt encodes rank keys as JSON strings, while the in-memory self-check uses integers. R3 corrected the representation check to compare the same JSON form. The comparator and all gates are unchanged.
+
+FX2 §4.4 started G5 OFF on the pinned build645 solver after a terminal audit of 127 FX2 identities. Its run.cfg matches build640 OFF (both options NO), with the N21 W six-file gate and the self-checked full-stream comparator.
+
+FX2 G5 OFF event 1 reached remesh final and passed its proof/resource and timer receipts. Owned proof faces summed to 61,906, and the job peak equals the process-peak sum at 14,043,447,296 bytes. Transfer mobility replay was below 8 µs on all six ranks. The full controller is still active.
+
+FX2 G5 OFF event 1's three published files were independently hashed and matched N21 W. Event 2 is active in native construction.
+
+FX2 G5 OFF event 2 reached remesh final and passed its proof/resource and timer receipts. Owned proof faces summed to 58,260, and job peak equals the process-peak sum at 16,787,030,016 bytes. Transfer mobility replay took below 3 µs on all ranks. Output, final workflow validation and the isolated restart follow in the same supervised sequence.
+
+FX2 §4.4 G5 OFF passed on build645. Both events, continued CFD, and the isolated restart passed. All six SHA256 values match N21 W. The full comparison has zero exact differences in 19 snapshots and 297 storage rows per rank. Every transfer mobility replay was below 8 µs. Main controller 3,149.267 s, isolated restart 246.790 s. Next push OFF proof and run S.

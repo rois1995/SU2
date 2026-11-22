@@ -1,6 +1,7 @@
 """Run FX2 OFF and S with the inherited FP2-B full and isolated-restart gates."""
 
 from argparse import ArgumentParser
+import json
 from pathlib import Path
 import runpy
 import subprocess
@@ -114,7 +115,7 @@ def run(build_dir, mode):
                     build_dir / 'build_status.json', build_dir / 'source_pins.json',
                     scoped / 'scoped.json', scoped / 'safeguards.json', *lab_proofs]
     source_paths += [path for order in BASE['ORDERS'] for path in (order, order.with_suffix('.sha256'))]
-    assert cut.read(HERE / 'compare_full_self_check.json') == self_check()
+    assert cut.read(HERE / 'compare_full_self_check.json') == json.loads(json.dumps(self_check()))
     reference_run = reference_case(mode)
     reference_receipt = reference_run.parent / 'run_receipt.json'
     pinned_reference = cut.read(reference_receipt)
