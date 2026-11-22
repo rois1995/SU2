@@ -1,0 +1,821 @@
+{
+  "verified_at": "2026-11-22T22:27:38.489346+01:00",
+  "actual_host_proc": true,
+  "prior_fp2_b_identities_checked": 486,
+  "prior_d1_identities_checked": 19,
+  "receipts": [
+    "G5/build645/OFF/disk_restart_full645_run1_event2/cpu_process_audit.json",
+    "G5/build645/OFF/disk_restart_full645_run1_event2_controller_launch.json",
+    "G5/build645/OFF/full645_run1/status.json",
+    "G5/build645/OFF/full_launch.json",
+    "G5/build645/OFF/full_wait.json",
+    "G5/build645/OFF/restart_launch.json",
+    "G5/build645/OFF/restart_wait.json",
+    "G5/build645/S/disk_restart_full645_run1_event2/cpu_process_audit.json",
+    "G5/build645/S/disk_restart_full645_run1_event2_controller_launch.json",
+    "G5/build645/S/full645_run1/status.json",
+    "G5/build645/S/full_launch.json",
+    "G5/build645/S/full_wait.json",
+    "G5/build645/S/restart_launch.json",
+    "G5/build645/S/restart_wait.json",
+    "build641/build_launch.json",
+    "build641/build_status.json",
+    "build641/build_wait.json",
+    "build642/build_launch.json",
+    "build642/build_status.json",
+    "build642/build_wait.json",
+    "build643/build_launch.json",
+    "build643/build_status.json",
+    "build643/build_wait.json",
+    "build644/build_launch.json",
+    "build644/build_status.json",
+    "build644/build_wait.json",
+    "build645/build_launch.json",
+    "build645/build_status.json",
+    "build645/build_wait.json",
+    "build645/primary_terminal_receipt.json",
+    "cases/build645/N1/measurement.json",
+    "cases/build645/N1/owned_processes.json",
+    "cases/build645/N1/test_launch.json",
+    "cases/build645/N1/test_wait.json",
+    "cases/build645/N6P/measurement.json",
+    "cases/build645/N6P/owned_processes.json",
+    "cases/build645/N6P/test_launch.json",
+    "cases/build645/N6P/test_wait.json",
+    "fixtures/build641/F1-F4/test_launch.json",
+    "fixtures/build641/F1-F4/test_wait.json",
+    "fixtures/build642/F1-F4/test_launch.json",
+    "fixtures/build642/F1-F4/test_wait.json",
+    "fixtures/build643/F1-F4/test_launch.json",
+    "fixtures/build643/F1-F4/test_wait.json",
+    "fixtures/build644/F1-F4/test_launch.json",
+    "fixtures/build644/F1-F4/test_wait.json",
+    "fixtures/build644/F5/test_launch.json",
+    "fixtures/build644/F5/test_wait.json",
+    "fixtures/build645/F1-F4/test_launch.json",
+    "fixtures/build645/F1-F4/test_wait.json",
+    "fixtures/build645/F5/test_launch.json",
+    "fixtures/build645/F5/test_wait.json",
+    "scoped/build645/FP1/A/rank1/fixture_status.json",
+    "scoped/build645/FP1/A/rank1/test_launch.json",
+    "scoped/build645/FP1/A/rank1/test_wait.json",
+    "scoped/build645/FP1/B/rank2/fixture_status.json",
+    "scoped/build645/FP1/B/rank2/test_launch.json",
+    "scoped/build645/FP1/B/rank2/test_wait.json",
+    "scoped/build645/FP1/B/rank4/fixture_status.json",
+    "scoped/build645/FP1/B/rank4/test_launch.json",
+    "scoped/build645/FP1/B/rank4/test_wait.json",
+    "scoped/build645/FP1/C/rank1/fixture_status.json",
+    "scoped/build645/FP1/C/rank1/test_launch.json",
+    "scoped/build645/FP1/C/rank1/test_wait.json",
+    "scoped/build645/FP1/C/rank2/fixture_status.json",
+    "scoped/build645/FP1/C/rank2/test_launch.json",
+    "scoped/build645/FP1/C/rank2/test_wait.json",
+    "scoped/build645/FP1/C/rank4/fixture_status.json",
+    "scoped/build645/FP1/C/rank4/test_launch.json",
+    "scoped/build645/FP1/C/rank4/test_wait.json",
+    "scoped/build645/FP1/FA/rank1/fixture_status.json",
+    "scoped/build645/FP1/FA/rank1/test_launch.json",
+    "scoped/build645/FP1/FA/rank1/test_wait.json",
+    "scoped/build645/FP1/FB/rank2/fixture_status.json",
+    "scoped/build645/FP1/FB/rank2/test_launch.json",
+    "scoped/build645/FP1/FB/rank2/test_wait.json",
+    "scoped/build645/FP1/FB/rank4/fixture_status.json",
+    "scoped/build645/FP1/FB/rank4/test_launch.json",
+    "scoped/build645/FP1/FB/rank4/test_wait.json",
+    "scoped/build645/FP1/FC/rank1/fixture_status.json",
+    "scoped/build645/FP1/FC/rank1/test_launch.json",
+    "scoped/build645/FP1/FC/rank1/test_wait.json",
+    "scoped/build645/FP1/FC/rank2/fixture_status.json",
+    "scoped/build645/FP1/FC/rank2/test_launch.json",
+    "scoped/build645/FP1/FC/rank2/test_wait.json",
+    "scoped/build645/FP1/FC/rank4/fixture_status.json",
+    "scoped/build645/FP1/FC/rank4/test_launch.json",
+    "scoped/build645/FP1/FC/rank4/test_wait.json",
+    "scoped/build645/FP1/FR/rank1/fixture_status.json",
+    "scoped/build645/FP1/FR/rank1/test_launch.json",
+    "scoped/build645/FP1/FR/rank1/test_wait.json",
+    "scoped/build645/FP1/G/rank1/fixture_status.json",
+    "scoped/build645/FP1/G/rank1/test_launch.json",
+    "scoped/build645/FP1/G/rank1/test_wait.json",
+    "scoped/build645/FP1/H/rank1/fixture_status.json",
+    "scoped/build645/FP1/H/rank1/test_launch.json",
+    "scoped/build645/FP1/H/rank1/test_wait.json",
+    "scoped/build645/FP1/H6/rank1/fixture_status.json",
+    "scoped/build645/FP1/H6/rank1/test_launch.json",
+    "scoped/build645/FP1/H6/rank1/test_wait.json",
+    "scoped/build645/FP1/HB/rank2/fixture_status.json",
+    "scoped/build645/FP1/HB/rank2/test_launch.json",
+    "scoped/build645/FP1/HB/rank2/test_wait.json",
+    "scoped/build645/FP1/HO/rank1/fixture_status.json",
+    "scoped/build645/FP1/HO/rank1/test_launch.json",
+    "scoped/build645/FP1/HO/rank1/test_wait.json",
+    "scoped/build645/G1/mpi2/test_launch.json",
+    "scoped/build645/G1/mpi2/test_wait.json",
+    "scoped/build645/G1/mpi4/test_launch.json",
+    "scoped/build645/G1/mpi4/test_wait.json",
+    "scoped/build645/G1/serial/test_launch.json",
+    "scoped/build645/G1/serial/test_wait.json",
+    "scoped/build645/IN1/fixture_status.json",
+    "scoped/build645/IN1/test_launch.json",
+    "scoped/build645/IN1/test_wait.json",
+    "scoped/build645/box/fixture_status.json",
+    "scoped/build645/box/test_launch.json",
+    "scoped/build645/box/test_wait.json",
+    "scoped/build645/exchange/rank2/fixture_status.json",
+    "scoped/build645/exchange/rank2/test_launch.json",
+    "scoped/build645/exchange/rank2/test_wait.json",
+    "scoped/build645/exchange/rank4/fixture_status.json",
+    "scoped/build645/exchange/rank4/test_launch.json",
+    "scoped/build645/exchange/rank4/test_wait.json",
+    "scoped/build645/g3/G3_launch.json",
+    "scoped/build645/g3/G3_wait.json",
+    "scoped/build645/g3/build645_status.json",
+    "scoped/build645/g3/cases/FP1F_G3_20261122T193339_2859252/g3_terminal_receipt.json",
+    "scoped/build645/g3/g3_primary_launch_identity.json",
+    "scoped/build645/g4/G4_launch.json",
+    "scoped/build645/g4/G4_wait.json",
+    "scoped/build645/g4/g4_case_paths.json",
+    "scoped/build645/locked/fixture_status.json",
+    "scoped/build645/locked/test_launch.json",
+    "scoped/build645/locked/test_wait.json",
+    "scoped/build645/prefix/G2_launch.json",
+    "scoped/build645/prefix/G2_wait.json",
+    "scoped/build645/prefix/GQ_launch.json",
+    "scoped/build645/prefix/GQ_wait.json",
+    "scoped/build645/prefix/cases/G2/status.json",
+    "scoped/build645/prefix/cases/GQ/status.json",
+    "scoped/build645/safeguards/build645_status.json",
+    "scoped/build645/safeguards/cases/curved505_current_target_surface_corrections_serial_20261122T194848_2887725/safeguard_process_receipt.json",
+    "scoped/build645/safeguards/cases/curved505_saved_surface_corrections_serial_20261122T194642_2883721/safeguard_process_receipt.json",
+    "scoped/build645/safeguards/cases/geometry_merit505_serial_20261122T194436_2879818/safeguard_process_receipt.json",
+    "scoped/build645/safeguards/merit481_launch.json",
+    "scoped/build645/safeguards/merit481_wait.json",
+    "scoped/build645/safeguards/saved481_launch.json",
+    "scoped/build645/safeguards/saved481_wait.json",
+    "scoped/build645/safeguards/saved_current_launch.json",
+    "scoped/build645/safeguards/saved_current_wait.json",
+    "scoped/build645/sheet/fixture_status.json",
+    "scoped/build645/sheet/test_launch.json",
+    "scoped/build645/sheet/test_wait.json",
+    "scoped/build645/volume/fixture_status.json",
+    "scoped/build645/volume/test_launch.json",
+    "scoped/build645/volume/test_wait.json"
+  ],
+  "all_owned_handles_terminal": true,
+  "identities": [
+    {
+      "pid": 2763852,
+      "start_ticks": 86530119
+    },
+    {
+      "pid": 2764059,
+      "start_ticks": 86530668
+    },
+    {
+      "pid": 2765894,
+      "start_ticks": 86535887
+    },
+    {
+      "pid": 2766196,
+      "start_ticks": 86536591
+    },
+    {
+      "pid": 2767365,
+      "start_ticks": 86539928
+    },
+    {
+      "pid": 2767366,
+      "start_ticks": 86539929
+    },
+    {
+      "pid": 2767605,
+      "start_ticks": 86540476
+    },
+    {
+      "pid": 2768829,
+      "start_ticks": 86544368
+    },
+    {
+      "pid": 2770061,
+      "start_ticks": 86547985
+    },
+    {
+      "pid": 2770062,
+      "start_ticks": 86547986
+    },
+    {
+      "pid": 2770271,
+      "start_ticks": 86548533
+    },
+    {
+      "pid": 2771552,
+      "start_ticks": 86552424
+    },
+    {
+      "pid": 2774444,
+      "start_ticks": 86561344
+    },
+    {
+      "pid": 2774445,
+      "start_ticks": 86561345
+    },
+    {
+      "pid": 2774653,
+      "start_ticks": 86561894
+    },
+    {
+      "pid": 2776054,
+      "start_ticks": 86565819
+    },
+    {
+      "pid": 2776395,
+      "start_ticks": 86566624
+    },
+    {
+      "pid": 2780952,
+      "start_ticks": 86579378
+    },
+    {
+      "pid": 2780962,
+      "start_ticks": 86579379
+    },
+    {
+      "pid": 2781118,
+      "start_ticks": 86579828
+    },
+    {
+      "pid": 2795994,
+      "start_ticks": 86626632
+    },
+    {
+      "pid": 2796185,
+      "start_ticks": 86627234
+    },
+    {
+      "pid": 2796513,
+      "start_ticks": 86628058
+    },
+    {
+      "pid": 2799394,
+      "start_ticks": 86636928
+    },
+    {
+      "pid": 2800751,
+      "start_ticks": 86641313
+    },
+    {
+      "pid": 2800868,
+      "start_ticks": 86641654
+    },
+    {
+      "pid": 2800992,
+      "start_ticks": 86641998
+    },
+    {
+      "pid": 2802997,
+      "start_ticks": 86648542
+    },
+    {
+      "pid": 2803111,
+      "start_ticks": 86648884
+    },
+    {
+      "pid": 2803213,
+      "start_ticks": 86649241
+    },
+    {
+      "pid": 2803362,
+      "start_ticks": 86649591
+    },
+    {
+      "pid": 2803514,
+      "start_ticks": 86650029
+    },
+    {
+      "pid": 2803627,
+      "start_ticks": 86650381
+    },
+    {
+      "pid": 2803748,
+      "start_ticks": 86650736
+    },
+    {
+      "pid": 2803872,
+      "start_ticks": 86651087
+    },
+    {
+      "pid": 2803996,
+      "start_ticks": 86651442
+    },
+    {
+      "pid": 2804103,
+      "start_ticks": 86651793
+    },
+    {
+      "pid": 2804230,
+      "start_ticks": 86652171
+    },
+    {
+      "pid": 2804387,
+      "start_ticks": 86652517
+    },
+    {
+      "pid": 2804500,
+      "start_ticks": 86652872
+    },
+    {
+      "pid": 2804631,
+      "start_ticks": 86653227
+    },
+    {
+      "pid": 2804761,
+      "start_ticks": 86653618
+    },
+    {
+      "pid": 2804879,
+      "start_ticks": 86654001
+    },
+    {
+      "pid": 2805026,
+      "start_ticks": 86654381
+    },
+    {
+      "pid": 2805142,
+      "start_ticks": 86654725
+    },
+    {
+      "pid": 2805256,
+      "start_ticks": 86655074
+    },
+    {
+      "pid": 2805384,
+      "start_ticks": 86655520
+    },
+    {
+      "pid": 2805502,
+      "start_ticks": 86655863
+    },
+    {
+      "pid": 2805525,
+      "start_ticks": 86655896
+    },
+    {
+      "pid": 2805682,
+      "start_ticks": 86656383
+    },
+    {
+      "pid": 2830738,
+      "start_ticks": 86731549
+    },
+    {
+      "pid": 2831251,
+      "start_ticks": 86733217
+    },
+    {
+      "pid": 2833249,
+      "start_ticks": 86739284
+    },
+    {
+      "pid": 2833694,
+      "start_ticks": 86740535
+    },
+    {
+      "pid": 2833803,
+      "start_ticks": 86740887
+    },
+    {
+      "pid": 2833804,
+      "start_ticks": 86740887
+    },
+    {
+      "pid": 2833805,
+      "start_ticks": 86740887
+    },
+    {
+      "pid": 2833808,
+      "start_ticks": 86740890
+    },
+    {
+      "pid": 2833809,
+      "start_ticks": 86740890
+    },
+    {
+      "pid": 2833810,
+      "start_ticks": 86740890
+    },
+    {
+      "pid": 2833811,
+      "start_ticks": 86740890
+    },
+    {
+      "pid": 2833812,
+      "start_ticks": 86740890
+    },
+    {
+      "pid": 2833814,
+      "start_ticks": 86740890
+    },
+    {
+      "pid": 2840486,
+      "start_ticks": 86765133
+    },
+    {
+      "pid": 2840624,
+      "start_ticks": 86765483
+    },
+    {
+      "pid": 2840625,
+      "start_ticks": 86765483
+    },
+    {
+      "pid": 2840626,
+      "start_ticks": 86765484
+    },
+    {
+      "pid": 2840640,
+      "start_ticks": 86765486
+    },
+    {
+      "pid": 2840641,
+      "start_ticks": 86765486
+    },
+    {
+      "pid": 2840642,
+      "start_ticks": 86765487
+    },
+    {
+      "pid": 2840643,
+      "start_ticks": 86765487
+    },
+    {
+      "pid": 2840644,
+      "start_ticks": 86765487
+    },
+    {
+      "pid": 2840646,
+      "start_ticks": 86765487
+    },
+    {
+      "pid": 2859252,
+      "start_ticks": 86832216
+    },
+    {
+      "pid": 2859436,
+      "start_ticks": 86832804
+    },
+    {
+      "pid": 2859437,
+      "start_ticks": 86832804
+    },
+    {
+      "pid": 2859438,
+      "start_ticks": 86832804
+    },
+    {
+      "pid": 2859439,
+      "start_ticks": 86832805
+    },
+    {
+      "pid": 2878033,
+      "start_ticks": 86892676
+    },
+    {
+      "pid": 2878361,
+      "start_ticks": 86893557
+    },
+    {
+      "pid": 2878362,
+      "start_ticks": 86893557
+    },
+    {
+      "pid": 2878363,
+      "start_ticks": 86893557
+    },
+    {
+      "pid": 2878364,
+      "start_ticks": 86893558
+    },
+    {
+      "pid": 2878617,
+      "start_ticks": 86894383
+    },
+    {
+      "pid": 2878618,
+      "start_ticks": 86894383
+    },
+    {
+      "pid": 2878619,
+      "start_ticks": 86894383
+    },
+    {
+      "pid": 2878622,
+      "start_ticks": 86894386
+    },
+    {
+      "pid": 2878623,
+      "start_ticks": 86894386
+    },
+    {
+      "pid": 2878889,
+      "start_ticks": 86895210
+    },
+    {
+      "pid": 2878890,
+      "start_ticks": 86895210
+    },
+    {
+      "pid": 2878891,
+      "start_ticks": 86895210
+    },
+    {
+      "pid": 2878895,
+      "start_ticks": 86895213
+    },
+    {
+      "pid": 2878896,
+      "start_ticks": 86895213
+    },
+    {
+      "pid": 2878897,
+      "start_ticks": 86895213
+    },
+    {
+      "pid": 2878898,
+      "start_ticks": 86895213
+    },
+    {
+      "pid": 2879818,
+      "start_ticks": 86897964
+    },
+    {
+      "pid": 2879970,
+      "start_ticks": 86898416
+    },
+    {
+      "pid": 2879971,
+      "start_ticks": 86898416
+    },
+    {
+      "pid": 2879972,
+      "start_ticks": 86898416
+    },
+    {
+      "pid": 2879975,
+      "start_ticks": 86898417
+    },
+    {
+      "pid": 2883721,
+      "start_ticks": 86910518
+    },
+    {
+      "pid": 2883947,
+      "start_ticks": 86911186
+    },
+    {
+      "pid": 2883948,
+      "start_ticks": 86911186
+    },
+    {
+      "pid": 2883949,
+      "start_ticks": 86911186
+    },
+    {
+      "pid": 2883950,
+      "start_ticks": 86911187
+    },
+    {
+      "pid": 2887725,
+      "start_ticks": 86923071
+    },
+    {
+      "pid": 2887921,
+      "start_ticks": 86923739
+    },
+    {
+      "pid": 2887922,
+      "start_ticks": 86923739
+    },
+    {
+      "pid": 2887923,
+      "start_ticks": 86923739
+    },
+    {
+      "pid": 2887924,
+      "start_ticks": 86923740
+    },
+    {
+      "pid": 2892718,
+      "start_ticks": 86939057
+    },
+    {
+      "pid": 2893075,
+      "start_ticks": 86939804
+    },
+    {
+      "pid": 2893448,
+      "start_ticks": 86940958
+    },
+    {
+      "pid": 2893453,
+      "start_ticks": 86940974
+    },
+    {
+      "pid": 2893454,
+      "start_ticks": 86940974
+    },
+    {
+      "pid": 2893455,
+      "start_ticks": 86940974
+    },
+    {
+      "pid": 2893456,
+      "start_ticks": 86940975
+    },
+    {
+      "pid": 2903179,
+      "start_ticks": 86972663
+    },
+    {
+      "pid": 2903190,
+      "start_ticks": 86972679
+    },
+    {
+      "pid": 2903191,
+      "start_ticks": 86972679
+    },
+    {
+      "pid": 2903192,
+      "start_ticks": 86972679
+    },
+    {
+      "pid": 2903196,
+      "start_ticks": 86972682
+    },
+    {
+      "pid": 2903197,
+      "start_ticks": 86972682
+    },
+    {
+      "pid": 2903198,
+      "start_ticks": 86972682
+    },
+    {
+      "pid": 2903199,
+      "start_ticks": 86972682
+    },
+    {
+      "pid": 2903200,
+      "start_ticks": 86972682
+    },
+    {
+      "pid": 2903201,
+      "start_ticks": 86972683
+    },
+    {
+      "pid": 2911555,
+      "start_ticks": 87007211
+    },
+    {
+      "pid": 2911806,
+      "start_ticks": 87008201
+    },
+    {
+      "pid": 2911900,
+      "start_ticks": 87008472
+    },
+    {
+      "pid": 2911901,
+      "start_ticks": 87008472
+    },
+    {
+      "pid": 2911902,
+      "start_ticks": 87008472
+    },
+    {
+      "pid": 2911905,
+      "start_ticks": 87008475
+    },
+    {
+      "pid": 2911906,
+      "start_ticks": 87008475
+    },
+    {
+      "pid": 2911907,
+      "start_ticks": 87008475
+    },
+    {
+      "pid": 2911908,
+      "start_ticks": 87008475
+    },
+    {
+      "pid": 2911909,
+      "start_ticks": 87008475
+    },
+    {
+      "pid": 2911911,
+      "start_ticks": 87008475
+    },
+    {
+      "pid": 2989340,
+      "start_ticks": 87323503
+    },
+    {
+      "pid": 2989344,
+      "start_ticks": 87323549
+    },
+    {
+      "pid": 2989452,
+      "start_ticks": 87324030
+    },
+    {
+      "pid": 2989453,
+      "start_ticks": 87324030
+    },
+    {
+      "pid": 2989454,
+      "start_ticks": 87324030
+    },
+    {
+      "pid": 2989456,
+      "start_ticks": 87324030
+    },
+    {
+      "pid": 2989458,
+      "start_ticks": 87324030
+    },
+    {
+      "pid": 2989461,
+      "start_ticks": 87324031
+    },
+    {
+      "pid": 2996945,
+      "start_ticks": 87353009
+    },
+    {
+      "pid": 2997671,
+      "start_ticks": 87354992
+    },
+    {
+      "pid": 2997755,
+      "start_ticks": 87355256
+    },
+    {
+      "pid": 2997756,
+      "start_ticks": 87355256
+    },
+    {
+      "pid": 2997757,
+      "start_ticks": 87355256
+    },
+    {
+      "pid": 2997760,
+      "start_ticks": 87355259
+    },
+    {
+      "pid": 2997761,
+      "start_ticks": 87355259
+    },
+    {
+      "pid": 2997762,
+      "start_ticks": 87355259
+    },
+    {
+      "pid": 2997763,
+      "start_ticks": 87355260
+    },
+    {
+      "pid": 2997764,
+      "start_ticks": 87355260
+    },
+    {
+      "pid": 2997765,
+      "start_ticks": 87355260
+    },
+    {
+      "pid": 3027594,
+      "start_ticks": 87489468
+    },
+    {
+      "pid": 3027605,
+      "start_ticks": 87489508
+    },
+    {
+      "pid": 3027741,
+      "start_ticks": 87489967
+    },
+    {
+      "pid": 3027742,
+      "start_ticks": 87489967
+    },
+    {
+      "pid": 3027743,
+      "start_ticks": 87489968
+    },
+    {
+      "pid": 3027748,
+      "start_ticks": 87489968
+    }
+  ],
+  "unrecorded_live_matches": []
+}

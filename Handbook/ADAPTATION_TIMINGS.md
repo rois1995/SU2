@@ -2,6 +2,17 @@
 
 ## Fast path stage 2
 
+### FX2 mobility-policy replay, build645
+
+| G5 mode | Event 1 native s, build640 → build645 | Event 2 native s, build640 → build645 | Build645 minimum coverage, events 1 / 2 |
+|---|---:|---:|---:|
+| OFF | 1,757.338 → 1,735.398 | 1,017.567 → 1,016.311 | 99.006% / 99.527% |
+| S | 649.954 → 614.463 | 446.547 → 410.522 | 98.158% / 98.853% |
+
+The M6 fixture constructor took 10.285 s versus 25.968 s with the same modeled peak, reservation work and serialized state. N1 surface-state construction took 14.439 s versus 29.858 s. N6P measured 16.166–16.361 s per rank versus 32.821–32.875 s.
+
+Transfer mobility replay took at most 7.804 µs in OFF and 2.728 µs in S. Construction mobility replay in S took at most 8.633 µs. The first preparation build still took about 17 s, and rank 0 spent about 18 s per event building the fresh output policy. These operation clocks are exclusive. The total native clocks also reflect the other phases and run-to-run variation. Timer coverage, phase clocks and unattributed time remain in the per-rank receipts. [FX2 timing and validation evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FX2/reports/FX2_645.md)
+
 ### FP2-B accepted surface path, build640
 
 | G5 mode | Event 1 native (s) | Event 2 native (s) | Minimum timer coverage, events 1 / 2 |

@@ -1362,3 +1362,13 @@ FX2 G5 OFF event 1's three published files were independently hashed and matched
 FX2 G5 OFF event 2 reached remesh final and passed its proof/resource and timer receipts. Owned proof faces summed to 58,260, and job peak equals the process-peak sum at 16,787,030,016 bytes. Transfer mobility replay took below 3 µs on all ranks. Output, final workflow validation and the isolated restart follow in the same supervised sequence.
 
 FX2 §4.4 G5 OFF passed on build645. Both events, continued CFD, and the isolated restart passed. All six SHA256 values match N21 W. The full comparison has zero exact differences in 19 snapshots and 297 storage rows per rank. Every transfer mobility replay was below 8 µs. Main controller 3,149.267 s, isolated restart 246.790 s. Next push OFF proof and run S.
+
+FX2 OFF checkpoint pushed as `8388ba721b`. The host audit found 146 FX2 identities terminal before S. FX2 §4.5 is running on build645 with both options YES and the pinned build640 S1 config, SHA256 07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382.
+
+FX2 G5 S event 1 reached remesh final and passed its proof/resource and timer receipts. Owned proof faces summed to 80,650. The job peak equals the process-peak sum at 12,603,252,736 bytes. Construction and transfer mobility replay each took under 3 µs on every rank. The rank-0 surface-state clock was 15.599 s versus 32.702 s on build640. The controller continues to event 2.
+
+FX2 G5 S event 1's three published files matched the accepted FP2-B S reference. Event 2 passed its proof/resource and timer receipts with 79,274 owned proof faces and a job/process-peak sum of 13,036,724,224 bytes. Output and the isolated restart are still in the supervised sequence.
+
+FX2 §4.5 passed on build645. S matched its six accepted FP2-B hashes and had zero exact differences in all 16 snapshots, 69 storage rows and two surface-state rows per rank. Both events, continued CFD and isolated restart passed. Construction / transfer replay maxima were 8.633 / 2.728 µs. Main controller 1,341.171 s and isolated restart 170.981 s.
+
+FX2 §4.6–8 accepted on build645. Native times OFF 1,735.398 / 1,016.311 s and S 614.463 / 410.522 s. The minimum named coverage was 98.158%. Reports, handoff and timing handbook updated. Commit and push FX2: accepted, verify all owned jobs terminal, then wait for the user.
