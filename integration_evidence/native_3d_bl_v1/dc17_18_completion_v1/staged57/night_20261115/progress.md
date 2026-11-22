@@ -1294,3 +1294,25 @@ FP2-B correction 3 S1 event 1 reached quality improvement on build640. The 12 su
 FP2-B correction 3 S1 event 1 finished with q/J/geometry 0 / 0 / 0; event-1 resource/proof and timer receipts passed. Maximum remesh timer about 650 s versus build638's 4,109 s, proof faces 80,650, summed peak 12,618,448,896 B. Rank 0 first geometry repair ran from engine elapsed 414.454 to 438.765 s; final engine exit 503.283 s. Event 2 completed both local surface passes and remains active.
 
 FP2-B correction 3 S1 PASSED on build640. Both complete no-BL adaptation events and the isolated restart passed. Native maxima 649.954 / 446.547 s, minimum named coverage 98.2433% / 98.9311%, final cells 550,027 / 575,733, proof faces 80,650 / 79,274. Peaks 12,618,448,896 / 13,027,512,320 B equaled per-rank sums. No shifted or seed edges below 0.01, no near-placement or metric-rejection rows, 262 / 24 tolerance placements and no Walk refusals. First geometry repair dropped from 2,538.204 s to 24.311 s. Main run 1,411.953 s, restart wrapper 160.970 s. S1 evidence and handoff close this order with build640 retained; default proof and S2 are pending.
+
+FP2-B continuation 1 archived with verified SHA256 50c3c7a7fc8a62959a424473deadd36b13ada8ca92f27b4a7398c25d87bc8bb9. Common/SU2_CFD/UnitTests match ecaed957db; both build640 binary SHA256 values, the CORE config, the fixtures/G1 and the four hand-over receipts were verified. Actual-host audit found 378 FP2-B and 19 D1 identities terminal. Reusing S1 and the passing fixtures; starting the required build640 scoped default proof before OFF and CORE.
+
+FP2-B continuation 1 R3. The generic scoped entry stopped at the sealed fixture-provenance comparison before launching any check. Build640 includes the correction 3 sheet and order pins, so the scoped entry now supplies those exact existing pins through the same controller. No source, fixture, or gate values changed.
+
+FP2-B continuation 1 R3. A temporary launcher located a similarly named draft in /tmp. The read-only provenance comparison matched after resolving the committed wrappers from the evidence directory. Retrying the launcher with Python's safe path option, preserving the sealed fixture provenance. Both earlier attempts ended in preflight, with no gate run.
+
+FP2-B continuation 1 G2 passed on build640 in 237.768 s. The exact-row comparator accepted the inherited reference. GQ is active on the same binary.
+
+FP2-B continuation 1 GQ passed on build640 in 656.293 s with the inherited scheduling and exact-row checks. G3 is active.
+
+FP2-B continuation 1 G3 passed its physical and identity checks on build640. The controller ended in 613.799 s. G4 is active, followed by the saved shared-engine checks.
+
+FP2-B continuation 1 scoped default proof passed on build640. G4 executed the 1/2/4-rank 2D cases in a 36.251 s controller, and merit481, saved481 and saved_current passed in 121.473, 144.338 and 143.402 s. Starting G5 OFF on the same build, with both options NO and the N21 W six-file gate.
+
+FP2-B continuation 1 OFF event 1 reached native exit with q/J/geometry 0/0/0. Its proof/resource and F3b timer receipts are present. Event 2 continues under the same supervised controller.
+
+FP2-B continuation 1 OFF passed both adaptation events, the isolated restart, and all six N21 W on-disk SHA256 comparisons. Main controller 3,169.556 s and isolated restart wrapper 238.061 s. Starting CORE on the same build640 with the pinned FP1 run.cfg and six-file reference.
+
+FP2-B continuation 1 CORE event 1 reached native exit with q/J/geometry 0/0/0. Its proof/resource and timer receipts passed. Event 2 is proceeding under the same controller.
+
+FP2-B continuation 1 CORE passed both adaptation events, the isolated restart, and all six FP1 on-disk SHA256 comparisons. Main controller 2,171.547 s and isolated restart wrapper 148.863 s. Native maxima 1,509.433 / 371.336 s. The same-build event-1 time limit for S1 and S2 is 1,584.90509065035 s. The full default proof passed. Commit and push the required default-proof checkpoint before S2.

@@ -1,0 +1,658 @@
+{
+  "part": "C",
+  "gate": "G2",
+  "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/cases/N14_G2_552",
+  "candidate": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/scoped/build640/prefix/cases/G2",
+  "decisions_changed": false,
+  "same_decisions": true,
+  "decisions": {
+    "rank_output/1/rank.0/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.1/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.2/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.3/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.4/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    },
+    "rank_output/1/rank.5/stdout": {
+      "equal": true,
+      "changed_decisions": [],
+      "reference": [],
+      "candidate": []
+    }
+  },
+  "fixedstorage": 4120,
+  "passed": true,
+  "integer_rows": {
+    "passed": true,
+    "first_difference": null,
+    "streams": [
+      "rank_output/1/rank.0/stdout",
+      "rank_output/1/rank.1/stdout",
+      "rank_output/1/rank.2/stdout",
+      "rank_output/1/rank.3/stdout",
+      "rank_output/1/rank.4/stdout",
+      "rank_output/1/rank.5/stdout"
+    ]
+  },
+  "timer_rows": {
+    "rank_output/1/rank.0/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "0"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "0"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "scheduling_calls": {
+            "snapshot": "length_collapse_exit",
+            "rank": 0,
+            "reference_calls": 8136,
+            "calls": 8137,
+            "delta": 1,
+            "expected_delta": 1
+          },
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "inclusive_call_seconds": "84.479565737999948",
+                "exclusive_seconds": "83.123574185999857"
+              },
+              "construction": {
+                "calls": 340843,
+                "inclusive_call_seconds": "104.38055290901509",
+                "exclusive_seconds": "102.04639048701479"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 251,
+                "inclusive_call_seconds": "4.3952067110000002",
+                "exclusive_seconds": "3.1745870200000015"
+              },
+              "construction": {
+                "calls": 333799,
+                "inclusive_call_seconds": "86.745691990016468",
+                "exclusive_seconds": "85.472563476016632"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.1/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "1"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "1"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "scheduling_calls": {
+            "snapshot": "length_collapse_exit",
+            "rank": 1,
+            "reference_calls": 8136,
+            "calls": 8137,
+            "delta": 1,
+            "expected_delta": 1
+          },
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "inclusive_call_seconds": "91.458426235000474",
+                "exclusive_seconds": "90.180569233000355"
+              },
+              "construction": {
+                "calls": 340843,
+                "inclusive_call_seconds": "113.1109780640154",
+                "exclusive_seconds": "110.56336595201562"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 251,
+                "inclusive_call_seconds": "10.564948016000001",
+                "exclusive_seconds": "9.339577739000001"
+              },
+              "construction": {
+                "calls": 333799,
+                "inclusive_call_seconds": "93.797314784021935",
+                "exclusive_seconds": "92.45635934801993"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.2/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "2"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "2"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "scheduling_calls": {
+            "snapshot": "length_collapse_exit",
+            "rank": 2,
+            "reference_calls": 8136,
+            "calls": 8137,
+            "delta": 1,
+            "expected_delta": 1
+          },
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "inclusive_call_seconds": "89.208508934000179",
+                "exclusive_seconds": "87.893588669000025"
+              },
+              "construction": {
+                "calls": 340843,
+                "inclusive_call_seconds": "110.96277733402495",
+                "exclusive_seconds": "108.1471766760248"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 251,
+                "inclusive_call_seconds": "8.8128525140000011",
+                "exclusive_seconds": "7.5650111849999986"
+              },
+              "construction": {
+                "calls": 333799,
+                "inclusive_call_seconds": "92.637641821024388",
+                "exclusive_seconds": "91.003512074024371"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.3/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "3"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "3"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "scheduling_calls": {
+            "snapshot": "length_collapse_exit",
+            "rank": 3,
+            "reference_calls": 8136,
+            "calls": 8137,
+            "delta": 1,
+            "expected_delta": 1
+          },
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "inclusive_call_seconds": "89.114503999000206",
+                "exclusive_seconds": "87.718582822000016"
+              },
+              "construction": {
+                "calls": 340843,
+                "inclusive_call_seconds": "116.3313390140258",
+                "exclusive_seconds": "113.36173525602548"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 251,
+                "inclusive_call_seconds": "8.1788821230000028",
+                "exclusive_seconds": "6.9038076970000013"
+              },
+              "construction": {
+                "calls": 333799,
+                "inclusive_call_seconds": "97.048034136025777",
+                "exclusive_seconds": "95.265850670023752"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.4/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "4"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "4"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "scheduling_calls": {
+            "snapshot": "length_collapse_exit",
+            "rank": 4,
+            "reference_calls": 8136,
+            "calls": 8137,
+            "delta": 1,
+            "expected_delta": 1
+          },
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "inclusive_call_seconds": "97.204547581999776",
+                "exclusive_seconds": "95.919472646999807"
+              },
+              "construction": {
+                "calls": 340843,
+                "inclusive_call_seconds": "105.47521702101763",
+                "exclusive_seconds": "103.09795566001661"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 251,
+                "inclusive_call_seconds": "15.770027562999999",
+                "exclusive_seconds": "14.568999059999999"
+              },
+              "construction": {
+                "calls": 333799,
+                "inclusive_call_seconds": "87.856468893020661",
+                "exclusive_seconds": "86.555258262019066"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rank_output/1/rank.5/stdout": {
+      "passed": true,
+      "snapshots": [
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "metric",
+            "final",
+            "5"
+          ],
+          "reference_census_calls": 0,
+          "candidate_census_calls": 0,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 0,
+          "communication": {
+            "reference": {},
+            "candidate": {}
+          }
+        },
+        {
+          "passed": true,
+          "difference": null,
+          "key": [
+            "remesh",
+            "length_collapse_exit",
+            "5"
+          ],
+          "reference_census_calls": 1625,
+          "candidate_census_calls": 1625,
+          "reference_wall_law_lines_before": 0,
+          "candidate_wall_law_lines_before": 0,
+          "expected_candidate_census_calls": 1625,
+          "scheduling_calls": {
+            "snapshot": "length_collapse_exit",
+            "rank": 5,
+            "reference_calls": 8136,
+            "calls": 8137,
+            "delta": 1,
+            "expected_delta": 1
+          },
+          "communication": {
+            "reference": {
+              "preparation": {
+                "calls": 33986,
+                "inclusive_call_seconds": "87.094583091999837",
+                "exclusive_seconds": "85.80797084599989"
+              },
+              "construction": {
+                "calls": 340843,
+                "inclusive_call_seconds": "100.3961856510162",
+                "exclusive_seconds": "97.88569284101645"
+              }
+            },
+            "candidate": {
+              "preparation": {
+                "calls": 251,
+                "inclusive_call_seconds": "6.9043070920000016",
+                "exclusive_seconds": "5.5225540770000006"
+              },
+              "construction": {
+                "calls": 333799,
+                "inclusive_call_seconds": "82.424047617013045",
+                "exclusive_seconds": "81.094405447012619"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "scheduling_calls": [
+    {
+      "snapshot": "length_collapse_exit",
+      "rank": 0,
+      "reference_calls": 8136,
+      "calls": 8137,
+      "delta": 1,
+      "expected_delta": 1,
+      "case": "G2"
+    },
+    {
+      "snapshot": "length_collapse_exit",
+      "rank": 1,
+      "reference_calls": 8136,
+      "calls": 8137,
+      "delta": 1,
+      "expected_delta": 1,
+      "case": "G2"
+    },
+    {
+      "snapshot": "length_collapse_exit",
+      "rank": 2,
+      "reference_calls": 8136,
+      "calls": 8137,
+      "delta": 1,
+      "expected_delta": 1,
+      "case": "G2"
+    },
+    {
+      "snapshot": "length_collapse_exit",
+      "rank": 3,
+      "reference_calls": 8136,
+      "calls": 8137,
+      "delta": 1,
+      "expected_delta": 1,
+      "case": "G2"
+    },
+    {
+      "snapshot": "length_collapse_exit",
+      "rank": 4,
+      "reference_calls": 8136,
+      "calls": 8137,
+      "delta": 1,
+      "expected_delta": 1,
+      "case": "G2"
+    },
+    {
+      "snapshot": "length_collapse_exit",
+      "rank": 5,
+      "reference_calls": 8136,
+      "calls": 8137,
+      "delta": 1,
+      "expected_delta": 1,
+      "case": "G2"
+    }
+  ],
+  "modeled_storage_equal": true,
+  "storage_differences": {},
+  "first_difference": null,
+  "scheduling_reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/resume6/scheduling_calls_reference.json",
+  "report_only_integer_fields": {
+    "rank_output/1/rank.0/stdout": [
+      {
+        "row": 19,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.285883392004763",
+          "election_calls": "262459",
+          "election_seconds": "175.08978095400875"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "11.146718785002719",
+          "election_calls": "227393",
+          "election_seconds": "70.462742340000375"
+        }
+      }
+    ],
+    "rank_output/1/rank.1/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.4500770149983708",
+          "election_calls": "262459",
+          "election_seconds": "190.28086384099592"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "16.572753481004312",
+          "election_calls": "227393",
+          "election_seconds": "78.214833312999403"
+        }
+      }
+    ],
+    "rank_output/1/rank.2/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.2240883969906662",
+          "election_calls": "262459",
+          "election_seconds": "185.6630483149909"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "17.56630567799624",
+          "election_calls": "227393",
+          "election_seconds": "73.915725367994455"
+        }
+      }
+    ],
+    "rank_output/1/rank.3/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.4402479559914951",
+          "election_calls": "262459",
+          "election_seconds": "190.49679170699073"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "17.337914163001713",
+          "election_calls": "227393",
+          "election_seconds": "77.868242748999478"
+        }
+      }
+    ],
+    "rank_output/1/rank.4/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.4013921080001666",
+          "election_calls": "262459",
+          "election_seconds": "188.39623374298358"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "23.201545669000268",
+          "election_calls": "227393",
+          "election_seconds": "70.862682082999569"
+        }
+      }
+    ],
+    "rank_output/1/rank.5/stdout": [
+      {
+        "row": 1,
+        "marker": "NATIVE3D_STAGE",
+        "reference": {
+          "collective_calls": "120046",
+          "collective_seconds": "2.2975122629969178",
+          "election_calls": "262459",
+          "election_seconds": "173.11326486599887"
+        },
+        "candidate": {
+          "collective_calls": "114332",
+          "collective_seconds": "13.15604550500494",
+          "election_calls": "227393",
+          "election_seconds": "66.394964460992384"
+        }
+      }
+    ]
+  }
+}
