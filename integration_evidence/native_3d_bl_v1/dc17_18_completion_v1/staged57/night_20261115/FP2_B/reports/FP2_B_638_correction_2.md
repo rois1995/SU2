@@ -64,3 +64,7 @@ S1 passed both adaptation events and the isolated restart on build638. The main 
 | 2 | 423.776 | 114,484 | 566,001 | 77,958 | 98.8869% | 7.935e-14 |
 
 The reported job peak and sum of process peaks both equal 13,995,974,656 B. Both events had zero coordinate error. Every rank reported zero edges below 0.01 after the core's final shift and at engine seeding. Event 2 rank 0's shifted minimum was `0.020951597058329163` versus D1's `1.616941326830997e-09`. S1 printed no P2 near split, P3 metric rejection or enriched donor exception. [S1 diagnostics beside build633 and D1](FP2_B_638_correction_2_s1.md)
+
+## Default-proof boundary
+
+The scoped default checks passed on build638. These include G2 and GQ exact rows, G3, G4, and the three saved shared-engine checks. The last active check, `saved_current`, reached its natural terminal status in 144.086 s. Correction 3 arrived during that check. As ordered, the full default OFF and CORE workflows and the S2 repeat were withheld. The default proof remains incomplete. The build638 sources match `da8088eae2`, and the host audit found all 286 recorded FP2-B identities terminal. [Scoped receipt](../scoped/build638/scoped.json) · [Correction 3 order](../inputs/FP2_B_CORRECTION_3.md)

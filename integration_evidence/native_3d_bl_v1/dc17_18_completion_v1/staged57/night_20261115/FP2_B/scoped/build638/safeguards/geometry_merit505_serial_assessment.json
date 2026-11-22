@@ -1,0 +1,66 @@
+{
+  "schema": "geometry_merit481_serial_check_v1",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/scoped/build638/safeguards/cases/geometry_merit505_serial_20261122T121952_2165252",
+  "build": "build638",
+  "exit_code": 0,
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 117.89250683784485,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 64274432,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal_handles": {
+    "actual_host_proc": true,
+    "all_owned_handles_terminal": true,
+    "sampled_identities": [
+      {
+        "pid": 2165388,
+        "start_ticks": 84230089
+      },
+      {
+        "pid": 2165389,
+        "start_ticks": 84230089
+      },
+      {
+        "pid": 2165390,
+        "start_ticks": 84230089
+      },
+      {
+        "pid": 2165391,
+        "start_ticks": 84230090
+      }
+    ],
+    "live_owned_handles": [],
+    "wrapper_excluded": {
+      "pid": 2165252,
+      "start_ticks": 84229640
+    },
+    "checked_unix": 1795350110.82864
+  },
+  "focused_tags": [
+    "NativeGeometryBackend3D",
+    "NativeGuidanceReuse3D",
+    "NativeSurfaceMemo3D",
+    "NativeFirstLayer3D",
+    "NativeWallReconstruction3D",
+    "NativeJointGeometry3D",
+    "NativeHeightOptimization3D",
+    "NativeCurvedFirstChild3D",
+    "NativeBLDirectionInvalidation3D",
+    "NativeFirstRowSurfaceFeedback3D",
+    "NativeCurvedTransaction3D"
+  ],
+  "filter": "[NativeGeometryBackend3D],[NativeGuidanceReuse3D],[NativeSurfaceMemo3D],[NativeFirstLayer3D],[NativeWallReconstruction3D],[NativeJointGeometry3D],[NativeHeightOptimization3D],[NativeCurvedFirstChild3D],[NativeBLDirectionInvalidation3D],[NativeFirstRowSurfaceFeedback3D],[NativeCurvedTransaction3D]",
+  "ranks": 1,
+  "timeout_seconds": 600,
+  "available_memory_at_launch_bytes": 48546877440,
+  "build481_status_sha256": "d14a7c427e554f97acb12c2d7072baa030486844a3441fddccf9499f5dbb8c9a",
+  "build481_observed_handles_sha256": "024ff2e21f8504172f30b1958dfdcbe8a3da3830e3a988cca245f7a56bcac797",
+  "build481_source_pins_sha256": "9716d107b9389deada99867b11da30a097eb0f64f5fb565c25eed75abe19525e",
+  "runtime_pins_sha256": "e2daaed3b3b33a648db277ce13f2172d51eb919f5f36e1c95456fe42af6357d7",
+  "check_script_sha256": "10c9e28373fab13227ad190133531d58980970a39ae60979c0225750d14d37c7",
+  "scope": "Focused serial regressions only; no complete M6 capability, publication, mesh acceptance, or production qualification is claimed."
+}

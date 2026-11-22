@@ -1256,3 +1256,13 @@ FP2-B correction 2 S1 event 1 finished with q/J/geometry 0 / 0 / 0. Native root 
 FP2-B correction 2 S1 event 2 is active. All 12 core surface rows and six shifted/seed rows are present. Every rank reports zero edges below 0.01 after the shift and at seeding. Event-2 rank 0 shifted minimum is 0.020951597058329163 versus D1's 1.616941326830997e-09; lowest shifted minimum across ranks is 0.010819175121351721 on rank 5. No P2 or P3 row observed in these checkpoints. Event-1 restart published.
 
 FP2-B correction 2 S1 PASSED on build638. Both full adaptation events and the isolated restart passed. Max native seconds 4,108.976 / 423.776, minimum named coverage 99.7120% / 98.8869%, final cells 537,985 / 566,001, proof faces 73,784 / 77,958, exact summed peak 13,995,974,656 B. No P2 near, P3 reject or enriched donor exception. Both events had no sub-0.01 edges at shifted hand-over and seed. Main run 4,845.646 s and isolated restart 158.658 s. Push S1 evidence, then run the default proof before S2.
+
+FP2-B correction 2 S1 checkpoint pushed as `da8088eae2`. All 244 witnessed FP2-B identities terminal. Starting the default proof on the same build638, first the scoped G2/GQ/G3/G4 and shared-engine safeguards.
+
+FP2-B correction 2 default proof G2 passed on build638 in 242.894 s with its inherited exact-row comparison. GQ is active on the same binary.
+
+FP2-B correction 2 default GQ exact-row comparison passed on build638 in 661.731 s. G3 is running on the same binary.
+
+FP2-B correction 2 default G3 and G4 passed on build638. Controllers were terminal in 616.080 and 36.416 s respectively. The shared safeguards are in sequence, beginning with merit481 (terminal in 120.591 s) and saved481.
+
+FP2-B correction 3 arrived during build638 saved_current, the last check of the scoped default campaign. The child finished naturally in 144.086 s and the scoped receipt passed (G2, GQ, G3, G4, merit481, saved481 and saved_current). OFF, CORE and S2 were never launched. Actual-host audit found 286 FP2-B identities terminal and Common/SU2_CFD/UnitTests equal to da8088eae2. The correction 3 order is archived with verified SHA256 2b305d1c1fcd00aa5f4c59c1ca437068aee33a21095843fc344ac73d09e9adc4. Next whole-item source check and test-only pins before production edits.
