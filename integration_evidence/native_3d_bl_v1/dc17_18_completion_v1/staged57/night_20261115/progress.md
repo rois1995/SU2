@@ -1276,3 +1276,13 @@ FP2-B correction 3 pre-edit baseline pushed as `ef9b508f6a`; actual-host audit f
 FP2-B correction 3 build640 compiled both binaries in 47.174 s with zero new warnings. Solver ce93af9ef95c3b5aa5295a850bb4f74f92facdb00e93e5ef8fa27cee57b48b07, test driver 9319873b17e14ec9956d666798ee76e110e24ae7909b67ea424f886dff7879a4. Gate E sources match build633. The corrected IN1 fixture passed 50 assertions and counted 69,436 ordinary and 3,321 rescued placements, with no Far, NoStart or Exception outcomes. The first three rescued placements passed all checks and all three ordinary bindings/coordinates matched their pins bit for bit. Requested inherited fixtures passed and G1 serial is running.
 
 FP2-B correction 3 item 2 passed on build640. Required C1/C2, A1, FP1 and FP2-A fixture cohorts passed. G1 matched 375 / 114 / 228 records in 754.356 / 9.849 / 10.555 s. Push the fixtures checkpoint, then N1, N1Invariant with j, N6, and N6P.
+
+FP2-B correction 3 fixtures checkpoint pushed as `cc21031eff`. Host audit found all 322 recorded owned identities terminal before starting N1 on the same build640.
+
+FP2-B correction 3 N1 passed on build640 in 312.863 s. Exactly positive hand-over 565,931 cells, 87,814 faces, 3,846 bad (report), zero edges below 0.01 and donor rejects. Proof accepted four entities, with zero above tolerance versus build638's 1,204. Walk counters 0 refused, 253 tolerance, 0 Far/NoStart/Exception. Starting N1Invariant with the tolerance outcome reconciliation.
+
+FP2-B correction 3 N1Invariant passed at 311.701 s with zero longest-edge violations and exact integer/bad-out agreement. The 253 tolerance placements reconciled as a=0 direct refusals, b=253 accepted, c=0 later split refusals. N6 is active on build640.
+
+FP2-B correction 3 N6 passed on build640 in 337.949 s. Final cells 560,663, bad 3,693 (report), face sums 87,570 / 87,802, snapshots agreed at 27,535,600 bytes. Walk counts 255 tolerance and zero refused; donor rejects 0. Four faces above tolerance versus 1,203, two refused and two border, zero unexplained. Starting N6P and its shifted spatial-longest-edge border report.
+
+FP2-B correction 3 N6P valid and passed on build640 in 293.813 s. Every partition cell/face pair matched. Final positive cells 556,553, bad 3,604 (report), zero short edges below 0.01 and donor rejects. Face sums 80,972 / 86,252. Walk counts 262 tolerance and 0 refused. Proof above tolerance 319 vs 1,365, all explained; shifted longest-edge rings 2 border / 317 nonborder. All item 3 gates passed. Push the lab checkpoint and start one S1 on this binary.

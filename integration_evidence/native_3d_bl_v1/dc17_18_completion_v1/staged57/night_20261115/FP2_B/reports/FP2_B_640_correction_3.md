@@ -28,3 +28,19 @@ The pre-edit fixture wrapper encountered a missing output-root field after the t
 ## Fixtures and G1
 
 The correction 1 and 2 fixtures and A1 passed on build640. The requested FP2-A fixtures and all 18 FP1 cohorts passed as well. G1 matched all 375 serial, 114 two-rank and 228 four-rank records in 754.356, 9.849 and 10.555 s. [Fixture cohort receipt](../scoped/build640/fixtures.json) · [Serial G1](../scoped/build640/G1/serial/comparison.json) · [MPI2 G1](../scoped/build640/G1/mpi2/comparison.json) · [MPI4 G1](../scoped/build640/G1/mpi4/comparison.json)
+
+## Hand-over gates
+
+| Case | Seconds | Exactly positive hand-over cells | Bad cells, report only | Faces by pass | Above tolerance, build640 / build638 | Tolerance placements | Walk refusals | Donor rejects |
+|---|---:|---:|---:|---|---|---:|---:|---:|
+| N1 | 312.863 | 565,931 | 3,846 | 87,814 | 0 / 1,204 | 253 | 0 | 0 |
+| N6 | 337.949 | 560,663 | 3,693 | 87,570 / 87,802 | 4 / 1,203 | 255 | 0 | 0 |
+| N6P | 293.813 | 556,553 | 3,604 | 80,972 / 86,252 | 319 / 1,365 | 262 | 0 | 0 |
+
+N1, N6 and valid N6P passed. Both six-rank runs had equal snapshots and passed their owned geometry checks. Each final edge census had zero metric edges below 0.01, each donor scan was clear, and all pass time, star and V-round alarms passed. The identity and proof receipts preserve the partition criteria and the per-rank numerical checks. N6P matched all six build638 partition cell counts and all six pass-1 face counts. [N1](../cases/build640/N1/measurement.json) · [N6](../cases/build640/N6/measurement.json) · [N6P](../cases/build640/N6P/measurement.json)
+
+The independent N1 invariant passed in 311.701 s with zero longest-edge violations. Its integer surface fields and bad-cell count match unwrapped N1 exactly. The probe reconciled all 253 tolerance placements as zero placement refusals, 253 accepted splits and zero later split refusals. [N1 invariant and probe](../cases/build640/N1Invariant/measurement.json)
+
+The strict N1 proof accepted all four entities. N6 qualified all four above-tolerance faces, two refused and two border. N6P qualified all 319, including 25 refused, 127 border and 167 neighbor-locked. Each proof had zero unexplained faces. The N6P shifted longest-edge scan found two of the 319 faces with a border ring and 317 without one. Their five excess bins were 1 / 0 / 1 / 0 / 0 and 6 / 28 / 104 / 100 / 79 respectively. These are measurements of the shifted mesh. The proof's existing reason labels come from pass 2. [Excess bins and rank detail](FP2_B_640_correction_3_lab.md)
+
+Every corrected lab surface row satisfied `walk_far + walk_no_start + walk_exception = refused_walk`. The rank and sweep report places the reason counts, surface decisions, timing, and before/after V classes beside build638. The saved build638 data recorded before-V totals and after-V classes. Its before-V class splits and regular sweep details are marked unavailable. [Rank and sweep comparison](FP2_B_640_correction_3_lab.md)
