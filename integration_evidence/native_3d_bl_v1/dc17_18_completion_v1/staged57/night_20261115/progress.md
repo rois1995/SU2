@@ -1346,3 +1346,7 @@ FX2 G3 passed on build645 in 601.474 s. The fixture accepted 1,543 splits with 1
 FX2 G4 passed its executed native 2D BL/no-BL checks at 1/2/4 ranks in 36.303 s. merit481 passed in 120.642 s. The saved481 and current saved-state checks follow.
 
 FX2 §4.2 passed on build645. G2/GQ exact rows and scheduling, G3 physical/common prefix, G4 native 2D at 1/2/4 ranks, and merit481/saved481/saved_current all passed. The three saved safeguards took 120.642 / 114.147 / 113.228 s. Checkpoint before running N1 and N6P.
+
+FX2 §4.2 checkpoint pushed as `7b2eca2059`. The host audit found 110 FX2 process identities terminal before the labs. N1 then passed on build645 with no exact field differences. Surface-state build 29.858 → 14.439 s. N6P is running on the same binary.
+
+FX2 §4.3 passed on build645. N1 and N6P matched all required fields, with build times reported separately. N1 took 302.635 s under supervision and N6P took 279.543 s. Push the lab checkpoint, then run G5 OFF against N21 W and build640 OFF.
