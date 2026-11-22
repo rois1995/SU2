@@ -77,7 +77,8 @@ Every prepared case contains:
 |---|---|---|
 | `baseline` | Ordinary SST-2003m direct solve | Checked mesh and physical setup |
 | `adjoint_drag`, `adjoint_lift` | Fresh, fully coupled adjoints; `SST_EPM_POSTPROCESS=YES` | Same converged baseline restart |
-| `nonlinear/1C_KEEP`, `1C_SWAP`, `2C_KEEP`, `2C_SWAP`, `3C` | Ordinary direct classical EPM, `(V2003m,UQ)`, both strength controls=1 | Baseline restart as initial guess |
+| `nonlinear_urlx<A>/1C_KEEP`, `1C_SWAP`, `2C_KEEP`, `2C_SWAP`, `3C` | Ordinary direct classical EPM, `(V2003m,UQ)`, `UQ_DELTA_B=1`, `UQ_URLX=A` (`--strengths`, default 0.1 0.25 0.5) | Baseline restart as initial guess |
+| `direct_spec/A<A>/<mode>` (only with `--direct-amplitudes`) | Plain `V2003m` with `SST_EPM_DIRECT=YES`, `SST_EPM_DIRECT_AMPLITUDE=A` in `[-1, 1]`: the path the extraction linearizes | Baseline restart as initial guess |
 
 Each directory has `run.cfg`; paths are relative to that job's working directory.
 All output restarts are local, so endpoint and adjoint runs cannot overwrite the
@@ -86,7 +87,8 @@ nonlinear endpoints use `RESTART_SOL=YES` with the baseline as an initial guess.
 Each adjoint writes its own `sst_epm_sensitivities.csv`.
 
 Future CFDHub execution uses the cluster-built reverse-AD binary without
-OpenMP in each job directory: `SU2_CFD_AD run.cfg > run.log 2>&1`. Solve and qualify
+OpenMP in each job directory: `SU2_CFD_AD run.cfg > run.log 2>&1` (the primal
+`SU2_CFD` of the same build also runs the `baseline`, `nonlinear_*` and `direct_spec` jobs). Solve and qualify
 the baseline first. Each endpoint supplies both CD and CL; do not duplicate primal
 solves per objective. MPI campaigns require the still-pending runtime verification.
 There is intentionally no automatic solver/cluster launcher in this directory.
@@ -216,8 +218,11 @@ does not fill the separated NASA-hump slot in this matrix.
    estimator errors being interpreted. Retain failed/oscillatory cases as failures;
    the iteration limit of 20,000 is a stop cap, not convergence evidence.
 2. Validate coupled-adjoint derivatives before claiming they are correct. The
-   planned h=0.005, 0.01, 0.02 one-sided CFD Taylor checks require a nonlinear
-   continuation interface that is **not implemented**. No such configs are emitted.
+   continuation is the EPM direct mode (`--direct-amplitudes`, `direct_spec/`):
+   `(J(A) - J0)/A` must tend to `dJ_da_at_zero` as `A -> 0` for every mode, and the
+   central difference of `A = +-h` must match it. The classical `nonlinear_urlx<A>`
+   sweep is not this path: it clips the production after the blend, so its SWAP
+   secants need not tend to `dJ_da_at_zero` (CFDHub pilot, 2026-11-22: ratio ~1.8).
    Neither lowering `UQ_DELTA_B` nor relabeling the endpoint as a derivative replaces
    that check. Record ambiguity/probe spread; retain `frozen_forcing_unverified`
    until the relevant mathematical/numerical qualifications are established.

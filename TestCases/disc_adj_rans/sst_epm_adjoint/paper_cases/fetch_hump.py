@@ -83,7 +83,7 @@ def main():
             "archive_source": str(archive.resolve()),
             "levels": records, "status": "converted_and_prepared_not_simulated",
         }, indent=2) + "\n")
-        print(f"Converted {len(records)} NASA grids and prepared {8*len(records)} configurations. No solver launched.")
+        print(f"Converted {len(records)} NASA grids and prepared {sum(r['jobs'] for r in records)} configurations. No solver launched.")
     except (OSError, ValueError, zipfile.BadZipFile) as error:
         parser.exit(1, f"NASA setup failed: {error}\nIncomplete artifacts are retained; no success manifest was written.\n")
 
