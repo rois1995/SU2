@@ -24,6 +24,12 @@ void ReportCollapseCore(std::ostream& out, const local::PassStats& stats, int ra
       << " bad_in=" << stats.bad_in << " bad_out=" << stats.bad_out << " sweeps_collapse=" << stats.sweeps_collapse
       << " sweeps_split=" << stats.sweeps_split << " sweeps_quality=" << stats.sweeps_quality
       << " rounds=" << stats.rounds << " limit=" << stats.limit << " round_changes=" << stats.round_changes
+      << " collapses_wall_near=" << stats.collapses_wall_near
+      << " refused_size_wall=" << stats.refused_size_wall << " refused_shape_wall=" << stats.refused_shape_wall
+      << " refused_topology_wall=" << stats.refused_topology_wall << " refused_valid_wall=" << stats.refused_valid_wall
+      << " blocked_wall=" << stats.blocked_wall << " four_surface_cells=" << stats.four_surface_cells
+      << " short_free=" << stats.short_free << " short_wall_near=" << stats.short_wall_near
+      << " short_border=" << stats.short_border << " short_surface=" << stats.short_surface
       << " seconds_collapse=" << stats.seconds_collapse << " seconds_split=" << stats.seconds_split
       << " seconds_quality=" << stats.seconds_quality << '\n';
 }
@@ -335,6 +341,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
   local::IdSequence point_ids(point_base, world.rank, world.size), cell_ids(cell_base, world.rank, world.size);
   auto options = Variant("V2");
   options.surface_splits = true;
+  options.wall_collapses = true;
   const unsigned pass_count = parallel ? local::PassCount : 1;
   local::BorderMeeting previous;
   SurfaceReasons remaining;

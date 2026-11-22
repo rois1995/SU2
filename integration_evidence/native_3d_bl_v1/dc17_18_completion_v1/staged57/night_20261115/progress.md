@@ -1380,3 +1380,9 @@ FP2-C1 R4 source check recorded before the production edit. Baseline build646 co
 FP2-C1 S0 N6 passed in 319.515 s with 560,663 owned cells, 87,802 final surface faces, zero donor rejections and zero unexplained classifications. N6P is active on build646.
 
 FP2-C1 §5.1 passed. S0 N6P was valid and passed in 276.280 s with 556,553 cells, 86,252 final surface faces, no donor rejection or unexplained classification, and exact production partition pins. All three references are sealed on build646. Checkpoint the test-only baseline, then apply the reviewed production and fixture edits.
+
+FP2-C1 S0 reference pushed as `671858086e`. The audit found all 30 C1 identities terminal before the edit. The ordered length-collapse option, print counters and five hidden fixtures are applied. Build647 and the §5.2 fixture gates are next.
+
+FP2-C1 build647 compiled both targets in 46.662 s with no new warnings. All five wall fixtures passed (1,021 assertions). The narrow first-layer x pair was accepted. The S0 regression fixtures and G1 follow.
+
+FP2-C1 §5.2 passed on build647. The wall, FX2, inherited and all 18 FP1 fixture cohorts passed. G1 matched 375 / 114 / 228 records in 744.323 / 9.914 / 11.621 s. Checkpoint before the two trials each of N1, N6 and N6P.

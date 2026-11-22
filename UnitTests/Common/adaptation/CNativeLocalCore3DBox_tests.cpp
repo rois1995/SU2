@@ -297,6 +297,41 @@ Owned RunPass(Owned rows) {
   mesh.WriteBack(rows, cell_ids);
   return rows;
 }
+
+local::Slot BoxSlot(const local::Mesh& mesh, Point target) {
+  const auto& points = mesh.Points();
+  const auto found = std::find_if(points.begin(), points.end(), [&](const auto& row) {
+    const auto p = row.node.p;
+    return p.x == target.x && p.y == target.y && p.z == target.z;
+  });
+  REQUIRE(found != points.end());
+  return static_cast<local::Slot>(found - points.begin());
+}
+
+local::Edge MarkedBoxEdge(local::Mesh& mesh, Point remove, Point keep) {
+  mesh.MarkWallNear();
+  const local::Edge edge{BoxSlot(mesh, remove), BoxSlot(mesh, keep)};
+  REQUIRE(mesh.Points()[edge[0]].Free());
+  REQUIRE(mesh.Points()[edge[0]].wall_near);
+  REQUIRE(mesh.Length(edge) < local::ShortEdge);
+  return edge;
+}
+
+std::vector<char> Snapshot(const local::Mesh& mesh) {
+  std::vector<char> bytes;
+  RecordStream stream(bytes);
+  auto points = mesh.Points().size(), cells = mesh.Cells().size();
+  stream(points, cells);
+  for (auto p : mesh.Points())
+    stream(p.node, p.tensor, p.incident, p.surface, p.border, p.removed, p.wall_near, p.unresolved, p.changed_at);
+  for (local::Slot i = 0; i < cells; ++i) {
+    auto row = mesh.Cells()[i];
+    auto bindings = mesh.Bindings(i);
+    stream(row.vertices, row.neighbors, row.id, row.version, row.binding, row.stamp, row.live, row.changed,
+           row.failed_at, bindings);
+  }
+  return bytes;
+}
 }  // namespace
 
 TEST_CASE("Local tetrahedral box measures agree with production current nodal measures",
@@ -430,5 +465,87 @@ TEST_CASE("Local tetrahedral box collapse does not change cells touching the wal
       continue;
     REQUIRE(rows.count(id) == 1);
     CHECK(Payload(rows.at(id)) == Payload(row));
+  }
+}
+
+
+TEST_CASE("FP2-C1 first-layer collapse preserves the oriented wall faces", "[.][NativeFP2C1]") {
+  const auto initial = Box();
+  for (bool wall_collapses : {false, true}) {
+    CAPTURE(wall_collapses);
+    auto rows = initial;
+    local::CoreOptions options;
+    options.wall_collapses = wall_collapses;
+    local::Mesh mesh(rows, false, options);
+    const auto edge = MarkedBoxEdge(mesh, {.375, .125, .375}, {.375, .125, .5});
+    REQUIRE(mesh.Points()[edge[1]].Free());
+    REQUIRE(mesh.Points()[edge[1]].wall_near);
+    size_t wall_faces = 0;
+    for (const auto& cell : mesh.Cells()) {
+      if (std::find(cell.vertices.begin(), cell.vertices.end(), edge[0]) == cell.vertices.end()) continue;
+      for (unsigned f = 0; f < 4; ++f) {
+        if (cell.neighbors[f] != local::Physical) continue;
+        const auto face = local::OrientedFace(cell.vertices, f);
+        wall_faces += std::all_of(face.begin(), face.end(), [&](local::Slot p) { return mesh.Points()[p].node.p.y == 0; });
+      }
+    }
+    REQUIRE(wall_faces == 2);
+
+    local::PassStats stats;
+    const auto result = mesh.Collapse(edge, 1, stats);
+    CHECK(stats.collapses_wall_near == size_t(wall_collapses));
+    if (!wall_collapses) {
+      CHECK(result == local::Refusal::Ineligible);
+      continue;
+    }
+    REQUIRE(result == local::Refusal::None);
+    CHECK(mesh.Points()[edge[0]].removed);
+    REQUIRE_NOTHROW(mesh.Check());
+    local::IdSequence ids{rows.rbegin()->first};
+    mesh.WriteBack(rows, ids);
+    CHECK(Surface(rows) == Surface(initial));
+  }
+
+  local::CoreOptions options;
+  options.wall_collapses = true;
+  local::Mesh narrow(initial, false, options);
+  const auto edge = MarkedBoxEdge(narrow, {.25, .125, .375}, {.25 + 1. / 128., .125, .375});
+  local::PassStats stats;
+  const auto result = narrow.Collapse(edge, 1, stats);
+  const std::map<local::Refusal, const char*> reasons{{local::Refusal::None, "None"},
+      {local::Refusal::Ineligible, "Ineligible"}, {local::Refusal::Validity, "Validity"},
+      {local::Refusal::Size, "Size"}, {local::Refusal::Topology, "Topology"}, {local::Refusal::Memory, "Memory"},
+      {local::Refusal::Numeric, "Numeric"}, {local::Refusal::Shape, "Shape"}, {local::Refusal::Blocked, "Blocked"}};
+  std::cout << "FP2_C1 narrow_box_collapse accepted=" << (result == local::Refusal::None)
+            << " reason=" << reasons.at(result) << '\n';
+}
+
+TEST_CASE("FP2-C1 wall collapse refuses a flat replacement atomically", "[.][NativeFP2C1]") {
+  local::CoreOptions options;
+  options.wall_collapses = true;
+  local::Mesh mesh(Box(), false, options);
+  const auto edge = MarkedBoxEdge(mesh, {.375, .125, .375}, {.375, 0, .25});
+  REQUIRE(mesh.Points()[edge[1]].surface);
+  const auto before = Snapshot(mesh);
+  local::PassStats stats;
+  CHECK(mesh.Collapse(edge, 1, stats) == local::Refusal::Validity);
+  CHECK(stats.refused_valid_wall == 1);
+  CHECK(Snapshot(mesh) == before);
+}
+
+TEST_CASE("FP2-C1 wall collapse counts each size refusal", "[.][NativeFP2C1]") {
+  const auto rows = Box();
+  for (bool wall_collapses : {false, true}) {
+    CAPTURE(wall_collapses);
+    local::CoreOptions options;
+    options.wall_collapses = wall_collapses;
+    local::Mesh mesh(rows, false, options);
+    const auto edge = MarkedBoxEdge(mesh, {.5, .375, .375}, {.5, .375, .5});
+    REQUIRE(mesh.Points()[edge[1]].Free());
+    REQUIRE(mesh.Points()[edge[1]].wall_near);
+    local::PassStats stats;
+    const auto expected = wall_collapses ? local::Refusal::Size : local::Refusal::Ineligible;
+    CHECK(mesh.Collapse(edge, 1, stats) == expected);
+    CHECK(stats.refused_size_wall == (wall_collapses ? 2 : 0));
   }
 }
