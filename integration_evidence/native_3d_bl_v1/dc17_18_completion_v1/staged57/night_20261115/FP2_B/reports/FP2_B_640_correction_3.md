@@ -44,3 +44,20 @@ The independent N1 invariant passed in 311.701 s with zero longest-edge violatio
 The strict N1 proof accepted all four entities. N6 qualified all four above-tolerance faces, two refused and two border. N6P qualified all 319, including 25 refused, 127 border and 167 neighbor-locked. Each proof had zero unexplained faces. The N6P shifted longest-edge scan found two of the 319 faces with a border ring and 317 without one. Their five excess bins were 1 / 0 / 1 / 0 / 0 and 6 / 28 / 104 / 100 / 79 respectively. These are measurements of the shifted mesh. The proof's existing reason labels come from pass 2. [Excess bins and rank detail](FP2_B_640_correction_3_lab.md)
 
 Every corrected lab surface row satisfied `walk_far + walk_no_start + walk_exception = refused_walk`. The rank and sweep report places the reason counts, surface decisions, timing, and before/after V classes beside build638. The saved build638 data recorded before-V totals and after-V classes. Its before-V class splits and regular sweep details are marked unavailable. [Rank and sweep comparison](FP2_B_640_correction_3_lab.md)
+
+## S1 on build640
+
+The single S1 passed both adaptation events and the isolated restart. The main workflow controller finished in 1,411.953 s and the isolated restart controller in 160.970 s. Both events passed the physical, transfer, continued CFD, proof coverage, timer and resource checks. [S1 receipt and six payload hashes](../G5/build640/S1/run_receipt.json) · [Isolated restart](../G5/build640/S1/disk_restart_full640_run1_event2/disk_restart_validation.json)
+
+| Event | Native seconds, build640 / build638 | Points | Cells | Owned proof faces | Minimum named timer coverage | Maximum transfer residual | Job peak B |
+|---|---|---:|---:|---:|---:|---:|---:|
+| 1 | 649.954 / 4,108.976 | 113,007 | 550,027 | 80,650 | 98.2433% | 8.610e-14 | 12,618,448,896 |
+| 2 | 446.547 / 423.776 | 116,342 | 575,733 | 79,274 | 98.9311% | 8.005e-14 | 13,027,512,320 |
+
+Each reported job peak equaled the sum of process peaks. Both events and the isolated restart had zero coordinate error. All six ranks reported zero edges below 0.01 after the core shift and at engine seeding in both events. S1 recorded 262 and 24 tolerance placements in events 1 and 2 respectively. All Walk, Far, NoStart and Exception counts were zero, and each row satisfied the walk counter equation. No P2 near split, P3 metric rejection or donor exception printed on build640. [P rows, surface and engine detail](FP2_B_640_correction_3_s1.md)
+
+At event-1 length-collapse exit, the six ranks had 300 geometry failures in total, versus 1,344 on build638. At the first geometry repair entry they had 140, versus 1,488. The first geometry repair took a maximum of 24.311 s versus 2,538.204 s on build638. Per-rank construction, quality, and geometry spans, first-repair excess bins, and the history beside build638 are in the detailed report. The construction-end rows provide per-rank counts and have no geometry histogram. [Phase and bin comparisons](FP2_B_640_correction_3_s1.md#event-1-engine-timing-and-geometry-census)
+
+## Closure
+
+Build640 remains the candidate source state. The default proof and S2 are pending under the correction 3 order. The scoped build638 checks are historical evidence. Actual-host process verification accompanies this checkpoint. [Terminal audit](../terminal_audit_correction_3.json)

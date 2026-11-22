@@ -1,0 +1,186 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/G5/build640/S1/full640_run1",
+  "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/G5/build640/S1/full640_run1/accepted_reference_payloads.json",
+  "reference_sha256": "8b1987dc20701c82b3547f004196f5f629b8f77a7ec761a515f64da3aa62ca83",
+  "hashes": {
+    "adapted_mesh_adap_00001.su2": "3921de24a4d140bb9b984fab26d747b39e3e089dfc90d6428a14460931c21022",
+    "adapted_mesh_adap_00001.su2.native_ref": "84e7061179b76950e29bc02c2cd9dadd819628c310cd8475d3cf679bfe36e443",
+    "restart_flow_adap_00001.dat": "81ffece34fb918cc2eb36236d664622712163a42a51113fea0179168d969a14d",
+    "adapted_mesh_adap_00002.su2": "30aff45d3607e4ec23b6142094263095e76c7d42ad3641b8d39a955919c86bc1",
+    "adapted_mesh_adap_00002.su2.native_ref": "9929f0ac60cdb4dd7568bcbd19d1b77bf4bfea77b425b5ff0ce861aeb887618a",
+    "restart_flow_adap_00002.dat": "a12195c09fb8f82471d9d9bef82a09ff105c25ced9f1e606d37f61b07f8a4ee4"
+  },
+  "mismatches": {},
+  "passed": true,
+  "workflow_gates_passed": true,
+  "timer_and_wall_report": {
+    "timer_summary_count": 96,
+    "all_fixedstorage_4120": true,
+    "wall_law_row_count": 12,
+    "wall_law_rows": [
+      {
+        "file": "rank_output/1/rank.0/stdout",
+        "line": 1191,
+        "rank": "0",
+        "boundary": "exit",
+        "faces": "20841",
+        "edge_incidences": "62523",
+        "need_incidences": "1282",
+        "unsupported_incidences": "0",
+        "max_ratio": "3.9937768006521548",
+        "seconds": "26.667893551999999"
+      },
+      {
+        "file": "rank_output/1/rank.0/stdout",
+        "line": 2022,
+        "rank": "0",
+        "boundary": "exit",
+        "faces": "11519",
+        "edge_incidences": "34557",
+        "need_incidences": "636",
+        "unsupported_incidences": "0",
+        "max_ratio": "3.1328838255664229",
+        "seconds": "10.925610899"
+      },
+      {
+        "file": "rank_output/1/rank.1/stdout",
+        "line": 876,
+        "rank": "1",
+        "boundary": "exit",
+        "faces": "16205",
+        "edge_incidences": "48615",
+        "need_incidences": "1596",
+        "unsupported_incidences": "0",
+        "max_ratio": "2.8232079309184357",
+        "seconds": "17.578311011"
+      },
+      {
+        "file": "rank_output/1/rank.1/stdout",
+        "line": 1413,
+        "rank": "1",
+        "boundary": "exit",
+        "faces": "12574",
+        "edge_incidences": "37722",
+        "need_incidences": "1012",
+        "unsupported_incidences": "0",
+        "max_ratio": "5.4830456337291942",
+        "seconds": "10.306618934999999"
+      },
+      {
+        "file": "rank_output/1/rank.2/stdout",
+        "line": 890,
+        "rank": "2",
+        "boundary": "exit",
+        "faces": "10309",
+        "edge_incidences": "30927",
+        "need_incidences": "2318",
+        "unsupported_incidences": "0",
+        "max_ratio": "9.7074217861696432",
+        "seconds": "8.2511216849999993"
+      },
+      {
+        "file": "rank_output/1/rank.2/stdout",
+        "line": 1419,
+        "rank": "2",
+        "boundary": "exit",
+        "faces": "10390",
+        "edge_incidences": "31170",
+        "need_incidences": "6249",
+        "unsupported_incidences": "0",
+        "max_ratio": "4924.9832181650645",
+        "seconds": "9.8046588579999998"
+      },
+      {
+        "file": "rank_output/1/rank.3/stdout",
+        "line": 915,
+        "rank": "3",
+        "boundary": "exit",
+        "faces": "7612",
+        "edge_incidences": "22836",
+        "need_incidences": "5508",
+        "unsupported_incidences": "0",
+        "max_ratio": "4924.9832181650645",
+        "seconds": "6.7324919000000003"
+      },
+      {
+        "file": "rank_output/1/rank.3/stdout",
+        "line": 1415,
+        "rank": "3",
+        "boundary": "exit",
+        "faces": "12420",
+        "edge_incidences": "37260",
+        "need_incidences": "5064",
+        "unsupported_incidences": "0",
+        "max_ratio": "4074.9471804781547",
+        "seconds": "13.021706133"
+      },
+      {
+        "file": "rank_output/1/rank.4/stdout",
+        "line": 831,
+        "rank": "4",
+        "boundary": "exit",
+        "faces": "15768",
+        "edge_incidences": "47304",
+        "need_incidences": "1960",
+        "unsupported_incidences": "0",
+        "max_ratio": "9.8417948451855288",
+        "seconds": "17.889717151999999"
+      },
+      {
+        "file": "rank_output/1/rank.4/stdout",
+        "line": 1364,
+        "rank": "4",
+        "boundary": "exit",
+        "faces": "18022",
+        "edge_incidences": "54066",
+        "need_incidences": "2220",
+        "unsupported_incidences": "0",
+        "max_ratio": "8.6888833944584629",
+        "seconds": "20.878959742999999"
+      },
+      {
+        "file": "rank_output/1/rank.5/stdout",
+        "line": 821,
+        "rank": "5",
+        "boundary": "exit",
+        "faces": "9915",
+        "edge_incidences": "29745",
+        "need_incidences": "5156",
+        "unsupported_incidences": "0",
+        "max_ratio": "4118.1666917838184",
+        "seconds": "7.8259666829999999"
+      },
+      {
+        "file": "rank_output/1/rank.5/stdout",
+        "line": 1338,
+        "rank": "5",
+        "boundary": "exit",
+        "faces": "14349",
+        "edge_incidences": "43047",
+        "need_incidences": "2370",
+        "unsupported_incidences": "0",
+        "max_ratio": "1887.6473711074318",
+        "seconds": "15.172050953999999"
+      }
+    ],
+    "wall_law_rank_coverage": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "wall_law_required": false,
+    "wall_law_seconds_sum": 165.055107505
+  },
+  "workflow_receipt_sha256": "45b9717a0819815dfde7ff96358e59dc1a0464787cb304afc77708f6c6be2682",
+  "rank_stdout_sha256": {
+    "rank_output/1/rank.0/stdout": "6e81d871db5c29c8d3d41574da3e8b69bde11562b8cd96fec19ca4abb1275a08",
+    "rank_output/1/rank.1/stdout": "30b82ecef729bf4e0516dc3b3a46ee84171cf2c61a31308579a216566d1cd4dd",
+    "rank_output/1/rank.2/stdout": "8b1b719d8206bc1c6154e83cd67c9b91125be2abad047bb486066c993ed996c6",
+    "rank_output/1/rank.3/stdout": "0ddec2d5c8133c4de4ddc3b2b4534b14e73ed419d72634d7e514069be8f06f57",
+    "rank_output/1/rank.4/stdout": "ccad6682e59a5179861ca949fc8662133caab281dce42caf0de40412488b1ffb",
+    "rank_output/1/rank.5/stdout": "2903984b26c1c0e219ebb16e600dfe5a5f2fe95805f9c988f291df3eff5ac35a"
+  }
+}

@@ -1,6 +1,6 @@
 # Work order status
 
-FP2-B D1 reproduced the event-2 degenerate metric donor exception. Production is restored to build627. [D1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B_D1/reports/FP2_B_D1_635.md)
+FP2-B correction 3 passed the hand-over labs and the single S1 on build640, including both adaptation events and the isolated restart. Native event times were 649.954 and 446.547 s. Build640 remains the candidate. The default proof and S2 are pending. The scoped build638 checks were retained when correction 3 arrived. [Correction 3 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/reports/FP2_B_640_correction_3.md) · [Build638 proof boundary](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/reports/FP2_B_638_correction_2.md#default-proof-boundary)
 
 FP2-B ON failed S1 on build633 after the corrected lab passed. Event 1 passed and published all three artifacts. Event 2 rejected incomplete quality-refresh edge measurements. The item was reverted to build627 production sources and the pre-FP2-B test tree. Both rebuilt binaries matched their baseline hashes. S2 and the corrected default proof are unevaluated. [FP2-B correction 1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/reports/FP2_B_633_correction_1.md)
 
