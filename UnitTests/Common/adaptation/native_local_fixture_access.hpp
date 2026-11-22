@@ -14,16 +14,6 @@
 
 namespace SU2NativeLocal3D {
 struct SurfaceFixtureAccess {
-  static bool SplitInside(Mesh& mesh, Slot seed, IdSequence& ids) {
-    ++mesh.sweep_;
-    return mesh.SplitInside(seed, ids, SIZE_MAX);
-  }
-  static bool CollapseNear(Mesh& mesh, Slot seed) {
-    ++mesh.sweep_;
-    mesh.MarkWallNear();
-    return mesh.CollapseNear(seed, SIZE_MAX);
-  }
-
   static Refusal PrepareSplit(Mesh mesh, Edge edge, Slot seed, SurfaceGeometry& geometry, bool both) {
     const auto ring = mesh.EdgeRing(edge, seed);
     const auto parents = mesh.SurfaceParents(edge, ring);
@@ -49,28 +39,6 @@ struct SurfaceFixtureAccess {
     const auto plan = mesh.Prepare(ring.cells, fresh, replaced);
     if (plan.Accepted()) CHECK(mesh.ExactlyPositive(plan));
     return plan.refusal;
-  }
-
-  static void DistanceWork(Mesh& mesh, SurfaceGeometry& geometry, IdSequence& ids, PassStats& report) {
-    mesh.SurfaceDistance(geometry, ids, SIZE_MAX, report);
-  }
-
-  static auto DistanceChoice(const Mesh& mesh, const SurfaceGeometry& geometry, SU2Native3D::Face face,
-                             const std::set<SU2Native3D::Edge>& refused) {
-    const auto parents = mesh.PhysicalFaces();
-    const auto parent = std::find_if(parents.begin(), parents.end(), [&](auto candidate) {
-      auto vertices = mesh.SurfaceFaceAt(candidate).v;
-      std::sort(vertices.begin(), vertices.end());
-      return vertices == face;
-    });
-    REQUIRE(parent != parents.end());
-    const auto choice = mesh.ChooseDistanceEdge(*parent, geometry, geometry.Limit(), {}, refused, {}, parents.size());
-    std::optional<SU2Native3D::Edge> mark;
-    if (!choice.reason) {
-      const auto edge = mesh.ById(choice.edge);
-      mark = SU2Native3D::Edge{mesh.points_[edge[0]].node.id, mesh.points_[edge[1]].node.id};
-    }
-    return std::make_pair(mark, choice.reason);
   }
 
   static unsigned BadClass(const Mesh&, const Vertices&, Id point_base);

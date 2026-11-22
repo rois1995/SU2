@@ -1184,3 +1184,17 @@ FP2-B correction 1 N1 passed in 292.431 s on build633. 548,127 exactly positive 
 FP2-B correction 1 N1 invariant passed in 288.250 s. Zero longest-edge violations and identical NATIVE3D_LOCAL_SURFACE integer fields and bad_out to unwrapped N1 on build633. Starting unwrapped N6.
 
 FP2-B correction 1 hand-over PASSED on build633. N6 320.498 s, 2,512 bad cells, zero metric edges below 0.01, minimum 0.027364967690064603, face sums 76,612 / 76,772 against 95,305 / 95,422, exact cells and snapshots, no unexplained proof faces. N1 invariant passed separately. Save and push the lab checkpoint, then run S1 first on this same build633.
+
+FP2-B correction 1 lab passed checkpoint pushed as ccd9d60593. Host audit found 98 prior identities terminal. S1 launched first on pinned build633 using the exact surface-enabled recipe SHA256 07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382. Native standing gates and isolated restart are pending.
+
+FP2-B correction 1 S1 event 1 stage 0 completed both local passes on all ranks and installed the shared state with 76,940 faces, revision 2. Native engine repair is now running.
+
+FP2-B correction 1 S1 event 1 entered native quality improvement at 05:44 CET. Core state installed on all six ranks with 76,940 faces and 13,993 surface splits. At the quality entry the recorded job peak was 12,300,984,320 B. S1 remains live.
+
+FP2-B correction 1 S1 event 1 finished the native remesh on all six ranks with complete=1 and zero q/J/geometry debt. Native root maximum 1667.955 s, minimum named coverage 99.2429%. Transfer, physical validation and continued CFD still pending. Same-binary CORE timing comparison follows only after S1 passes.
+
+FP2-B correction 1 S1 event 1 physical/transfer/continuation gate and timer gate passed. Event 1 published its mesh, geometry sidecar, and restart. Event 2 is in native construction.
+
+FP2-B correction 1 S1 FAILED at event 2. First standing failure complete=0 on all six ranks versus 1 after an incomplete quality-refresh measurement. Rank 0 exited with shape_complete=0 and measured 107,960 of 108,211 cells. The timer supervisor stopped because event 2 had no quality-window or quality-exit rows. Named coverage still cleared 95%. All 109 observed process identities were terminal. The one read-only R5 diagnosis and event 1 comparison have been captured. Restoring FP2-B code and test files to the pre-item tree, rebuilding, and closing in one revert commit.
+
+FP2-B correction 1 closure. Build634 rebuilt both binaries without a new warning. 1,624 build627 production SHA256 pins match, production and pre-FP2-B test diffs are empty, and both binary hashes match their baselines (solver 627, test driver 629). Terminal audit verified 111 identities. FP2-B ON FAILED. S2 and corrected default proof unevaluated. Commit and push the single revert, then verify terminal handles again.
