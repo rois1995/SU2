@@ -1386,3 +1386,17 @@ FP2-C1 S0 reference pushed as `671858086e`. The audit found all 30 C1 identities
 FP2-C1 build647 compiled both targets in 46.662 s with no new warnings. All five wall fixtures passed (1,021 assertions). The narrow first-layer x pair was accepted. The S0 regression fixtures and G1 follow.
 
 FP2-C1 §5.2 passed on build647. The wall, FX2, inherited and all 18 FP1 fixture cohorts passed. G1 matched 375 / 114 / 228 records in 744.323 / 9.914 / 11.621 s. Checkpoint before the two trials each of N1, N6 and N6P.
+
+FP2-C1 fixture checkpoint pushed as `8e3f1ce081`. A host audit found 65 C1 identities terminal before the lab campaign. The pinned build647 solver and test driver are being used for two separate trials of each hand-over scenario, one supervised job at a time.
+
+FP2-C1 N1 trial 1 passed in 332.144 s. It handed over 475,815 cells versus 565,931 on S0, with the same 87,814 surface faces, zero donor rejections and minimum edge 0.02488. The bad-cell count after V was 4,481 versus 3,846. Trial 2 is active.
+
+FP2-C1 N1 trial 2 passed in 331.178 s. The N1 comparator matched both trials and the S0 pass-1 surface rows. Both trial digests are 15904394763081022199. N1 made 16,846 wall-near length collapses. N6 trial 1 is running.
+
+FP2-C1 N6 trial 1 passed in 326.657 s with 470,940 owned cells, 87,796 final surface faces, zero donor rejections, and minimum edge 0.02668. Bad cells after V were 4,155 versus 3,693 on S0. Trial 2 is active.
+
+FP2-C1 N6 trial 2 passed in 326.576 s. The two trials and S0 pass-1 surface rows matched. N6 made 17,413 wall-near length collapses across both passes. N6P trial 1 is active.
+
+FP2-C1 N6P trial 1 passed in 286.470 s with valid production partition pins, 468,571 owned cells, 86,210 final surface faces, zero donor rejections, and minimum edge 0.02040. Bad cells after V were 4,072 versus 3,604 on S0. Trial 2 is active.
+
+FP2-C1 §5.3 passed on build647. N6P trial 2 passed in 285.423 s; the comparator matched the required integer rows and digests for N1/N6/N6P and the pass-1 surface rows against S0. Counts of wall-near collapses per trial were 16,846 / 17,413 / 16,974. Next push the lab checkpoint, then start the single G5 S.
