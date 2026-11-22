@@ -12,11 +12,18 @@
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "CNativePredicates3D_internal.hpp"
 #include <algorithm>
+#include <cfenv>
 #include <chrono>
 #include <functional>
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <mutex>
+#include <new>
+#include <optional>
+#if defined(__SSE2__)
+#include <xmmintrin.h>
+#endif
 namespace SU2Native3D {
 namespace {
 using State=BoundaryParameterState;
@@ -221,6 +228,116 @@ void DecodeBoundaryAtlas(const std::vector<char>& bytes,BoundaryCoverage& covera
     if(!c.faces.emplace(face,std::move(cover)).second)throw std::invalid_argument("Duplicate atlas coverage.");}
   if(!in.End())throw std::invalid_argument("Trailing atlas descriptor bytes.");coverage=std::move(c);policy=std::move(p);
 }
+
+namespace {
+struct PolicyEnvironment {
+  int rounding;
+  unsigned sse_control;
+};
+
+PolicyEnvironment CurrentPolicyEnvironment() {
+  unsigned sse_control = 0;
+#if defined(__SSE2__)
+  sse_control = _mm_getcsr() & 0xFFC0u;
+#endif
+  return {std::fegetround(), sse_control};
+}
+
+struct PolicyMemoEntry {
+  const MappedFacetReference* object;
+  double angle;
+  std::map<int, int> roles;
+  int rounding;
+  unsigned sse_control;
+  std::vector<char> encoded;
+  size_t work;
+
+  bool Matches(const MappedFacetReference* authority, const MobilityPolicy& policy, PolicyEnvironment env) const {
+    return object == authority && EqualDouble(angle, policy.angle) && roles == policy.roles &&
+           rounding == env.rounding && sse_control == env.sse_control;
+  }
+};
+
+struct PolicyMemo {
+  std::mutex mutex;
+  std::map<std::weak_ptr<const MappedFacetReference>, std::vector<PolicyMemoEntry>, std::owner_less<>> entries;
+
+  void PruneExpired() {
+    for (auto it = entries.begin(); it != entries.end();) {
+      if (it->first.expired())
+        it = entries.erase(it);
+      else
+        ++it;
+    }
+  }
+};
+
+PolicyMemo& MobilityPolicyMemo() {
+  static PolicyMemo memo;
+  return memo;
+}
+
+void RecordMobilityPolicy(const std::shared_ptr<const MappedFacetReference>& geometry,
+                          const MobilityPolicy& policy, PolicyEnvironment env, size_t work) {
+  if (geometry.use_count() == 0) return;
+  try {
+    PolicyMemoEntry entry{geometry.get(), policy.angle, policy.roles, env.rounding, env.sse_control,
+                          EncodeBoundaryAtlas({}, policy), work};
+    auto& memo = MobilityPolicyMemo();
+    std::lock_guard<std::mutex> lock(memo.mutex);
+    memo.PruneExpired();
+    auto owner = memo.entries.find(geometry);
+    if (owner == memo.entries.end()) {
+      std::vector<PolicyMemoEntry> entries;
+      entries.push_back(std::move(entry));
+      memo.entries.emplace(geometry, std::move(entries));
+      return;
+    }
+    for (auto& cached : owner->second) {
+      if (cached.Matches(geometry.get(), policy, env)) {
+        cached = std::move(entry);
+        return;
+      }
+    }
+    owner->second.push_back(std::move(entry));
+  } catch (...) {
+    // Memo population must not affect a successful build.
+  }
+}
+
+struct PolicyReplay {
+  size_t work;
+  std::vector<char> encoded;
+};
+
+// The policy is derived from the immutable authority, angle and roles in this FP environment.
+// Replay charges the original build's storage and work. A budget that could stop the build
+// takes the original path to preserve the failure and its accounting.
+std::optional<PolicyReplay> FindMobilityPolicyReplay(const std::shared_ptr<const MappedFacetReference>& geometry,
+                                                     const MobilityPolicy& policy, const AtlasBudget& budget) {
+  auto& memo = MobilityPolicyMemo();
+  std::lock_guard<std::mutex> lock(memo.mutex);
+  memo.PruneExpired();
+  if (budget.within_time || budget.time_exhausted || budget.work_exhausted || budget.work > budget.maximum_work)
+    return std::nullopt;
+  const auto owner = memo.entries.find(geometry);
+  if (owner == memo.entries.end()) return std::nullopt;
+  const auto bytes = transfer_memory::Add(budget.caller_bytes, geometry->MobilityPolicyStorageBytes());
+  if (bytes == SIZE_MAX || bytes > budget.maximum_bytes) return std::nullopt;
+  const auto env = CurrentPolicyEnvironment();
+  for (const auto& entry : owner->second) {
+    if (entry.work <= budget.maximum_work - budget.work && entry.Matches(geometry.get(), policy, env)) {
+      try {
+        return PolicyReplay{entry.work, entry.encoded};
+      } catch (const std::bad_alloc&) {
+        return std::nullopt;
+      }
+    }
+  }
+  return std::nullopt;
+}
+}
+
 BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> authority,
     const BoundaryPoints& points,const std::vector<SurfaceFace>& surface,uint64_t epoch,size_t ceiling,size_t caller,
     const BoundaryCoverage& descriptors,const MobilityPolicy& policy,AtlasBudget* reservation,double tolerance)
@@ -248,9 +365,20 @@ BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGe
     throw std::invalid_argument("Atlas boundary omits a genuine physical corner/branch.");
   SU2NativeGeometry::MappedSurfaceAudit audit;std::string reason;
   if(mobility.identity) {
-    auto& budget=*reservation;MobilityPolicy expected;
-    if(!geometry->BuildMobilityPolicy(mobility.angle,mobility.roles,expected,budget,reason) ||
-       EncodeBoundaryAtlas({},expected)!=EncodeBoundaryAtlas({},mobility))throw std::invalid_argument("Boundary mobility policy differs from immutable geometry/configuration.");
+    auto& budget = *reservation;
+    bool mismatch;
+    if (const auto replay = FindMobilityPolicyReplay(geometry, mobility, budget)) {
+      mismatch = !geometry->ChargeMobilityPolicy(replay->work, budget, reason) ||
+                 replay->encoded != EncodeBoundaryAtlas({}, mobility);
+    } else {
+      MobilityPolicy expected;
+      const auto env = CurrentPolicyEnvironment();
+      const size_t before = budget.work;
+      const bool built = geometry->BuildMobilityPolicy(mobility.angle, mobility.roles, expected, budget, reason);
+      if (built && !budget.within_time) RecordMobilityPolicy(geometry, expected, env, budget.work - before);
+      mismatch = !built || EncodeBoundaryAtlas({}, expected) != EncodeBoundaryAtlas({}, mobility);
+    }
+    if (mismatch) throw std::invalid_argument("Boundary mobility policy differs from immutable geometry/configuration.");
   } else if(!mobility.roles.empty()||!mobility.features.empty()||!mobility.corners.empty()||!mobility.bodies.empty()||!mobility.sheets.empty())
     throw std::invalid_argument("Inactive mobility policy retains nonlegacy declarations.");
   if(EntityGeometry()) {
@@ -589,7 +717,10 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithMobilityPoli
   const auto live=transfer_memory::Add(caller,geometry->ResidentBytes(),ResidentBytes());
   if(live==SIZE_MAX||live>ceiling)throw std::length_error("Boundary mobility policy setup exceeds storage admission.");
   AtlasStorage scope(&reservation,live,ceiling);MobilityPolicy policy;std::string reason;
+  const auto env = CurrentPolicyEnvironment();
+  const size_t before = reservation.work;
   if(!geometry->BuildMobilityPolicy(angle,roles,policy,reservation,reason))throw std::invalid_argument(reason);
+  if (!reservation.within_time) RecordMobilityPolicy(geometry, policy, env, reservation.work - before);
   if(mobility.identity&&(mobility.version!=policy.version||mobility.identity!=policy.identity||
       !EqualDouble(mobility.angle,policy.angle)||mobility.roles!=policy.roles||mobility.features!=policy.features||
       mobility.corners!=policy.corners||mobility.bodies!=policy.bodies||mobility.sheets!=policy.sheets))

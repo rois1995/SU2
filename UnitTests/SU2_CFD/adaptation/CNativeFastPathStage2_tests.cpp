@@ -12,6 +12,8 @@
 #include "../../../Common/include/adaptation/CNativeLocalSurface3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
+#include "../../../Common/include/adaptation/CNativeTimerTree3D.hpp"
+#include "../../Common/adaptation/fixtures/native_fx2_memo_report.hpp"
 #include "fixtures/native_fast_path_stage2_setup.hpp"
 #include <algorithm>
 #include <array>
@@ -32,6 +34,7 @@
 #include <set>
 #include <string>
 #include <tuple>
+#include <typeinfo>
 #include <unordered_map>
 #include <vector>
 

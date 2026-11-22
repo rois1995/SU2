@@ -39,6 +39,22 @@ std::vector<SurfaceFace> AcceptedFaces(const State& state) {
   return faces;
 }
 
+size_t PolicyMemoEntryBytes(const State& state) {
+  // Match the private memo entry layout without exposing test hooks in the authority.
+  struct EntryLayout {
+    const StrictGeometry* object;
+    double angle;
+    std::map<int, int> roles;
+    int rounding;
+    unsigned sse_control;
+    std::vector<char> encoded;
+    size_t work;
+  };
+  using Role = decltype(EntryLayout::roles)::value_type;
+  const auto& policy = state.Mobility();
+  return BoundaryAtlasBytes({}, policy) + sizeof(EntryLayout) + policy.roles.size() * (sizeof(Role) + 4 * sizeof(void*));
+}
+
 void MeasureBulk(const State& state) {
   BoundaryPoints points;
   for (const auto& row : state.Records()) points.emplace(row.first, row.second.point);
@@ -46,16 +62,25 @@ void MeasureBulk(const State& state) {
   auto [live, reservation] = BulkReservation(state, points.size(), faces.size(), state.Coverage());
   auto policy_budget = reservation;
   const auto rss_before = CurrentRSS3D();
-  auto start = Clock::now();
   std::unique_ptr<State> rebuilt;
   std::string error, snapshot_error, policy_error;
-  try {
-    rebuilt = BuildSurface(state, points, faces, state.Coverage(), live, reservation);
-  } catch (const std::exception& e) {
-    error = e.what();
+  const char* exception = "none";
+  double constructor;
+  {
+    namespace timing = SU2NativeTiming3D;
+    timing::Session session(true, "FX2_M6_B1", 0, 1, timing::Phase::Construction);
+    const auto start = Clock::now();
+    try {
+      rebuilt = BuildSurface(state, points, faces, state.Coverage(), live, reservation);
+    } catch (const std::exception& e) {
+      exception = typeid(e).name();
+      error = e.what();
+    }
+    constructor = Seconds(start);
   }
-  const double constructor = Seconds(start);
   const auto rss_after = CurrentRSS3D();
+  std::cout << "FX2_MEMO case=F5 "
+            << NativeFX2Fixture::CallRow(&reservation, exception, error, rebuilt.get()) << '\n';
   std::optional<bool> equal;
   if (rebuilt) {
     try {
@@ -66,7 +91,7 @@ void MeasureBulk(const State& state) {
     rebuilt.reset();
   }
   SU2NativeGeometry::MobilityPolicy policy;
-  start = Clock::now();
+  const auto start = Clock::now();
   try {
     if (!state.Geometry().BuildMobilityPolicy(state.Mobility().angle, state.Mobility().roles, policy,
                                                policy_budget, policy_error) && policy_error.empty())
@@ -82,6 +107,8 @@ void MeasureBulk(const State& state) {
   JsonNumber(error.empty() && policy_error.empty() ? constructor - policy_seconds
                                                    : std::numeric_limits<double>::quiet_NaN());
   std::cout << ",\"modeled_peak_bytes\":" << reservation.peak_bytes
+            << ",\"reservation_work\":" << reservation.work
+            << ",\"memo_entry_bytes\":" << PolicyMemoEntryBytes(state)
             << ",\"policy_modeled_peak_bytes\":" << policy_budget.peak_bytes
             << ",\"rss_before_bytes\":" << rss_before << ",\"rss_after_bytes\":" << rss_after
             << ",\"rss_change_bytes\":" << int64_t(rss_after) - int64_t(rss_before)

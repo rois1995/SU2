@@ -1322,3 +1322,15 @@ FP2-B continuation 1 default proof pushed as `6a37f55fe7`. The host audit found 
 FP2-B continuation 1 S2 event 1 reached native exit with q/J/geometry 0/0/0 and passing proof/resource/timer receipts. The on-disk event-1 mesh and sidecar already match S1. Event 2 continues within the same controller.
 
 FP2-B continuation 1 S2 PASSED on build640. Main run 1,411.584 s and restart wrapper 167.837 s. The independently rehashed six files from each of S1 and S2 agree with the published ON reference. Native event maxima S1 649.954 / 446.547 s, S2 649.993 / 444.120 s, CORE 1,509.433 / 371.336 s. Both S1 and S2 passed the 1,584.905 s event-1 timing rule. FP2-B accepted; default proof was pushed at 6a37f55fe7. Close with the report, timings, handoff and terminal verification. No source or binary changes.
+
+FX2 order archived and SHA256 verified. Whole-item source check recorded in FX2/source_check.md against c843610249. No production authority assignment or live-object replacement found. Prior FP2-B and D1 jobs verified terminal on the host (486 and 19 identities). Preparing F0 fixtures on unchanged production before the first production edit.
+
+FX2 F0 R3. Builds 641 and 642 kept production unchanged. The F1 signed-zero test first used std::signbit under the test target's fast-math options. Comparing the raw bits then exposed that this test translation unit had folded the argument to +0.0. The fixture now uses the precise-arithmetic options already used for FP2's exact tests and checks the raw bits. All other F0 cases reached their expected outcomes in both attempts. The failed fixture logs are preserved.
+
+FX2 F0 R3 follow-up. Build643 still folded the constant negative-zero argument in an interprocedural FX2Policy clone. Disassembly showed the same argument-less specialized wrapper used at both call sites. The fixture reads the same pinned bits through volatile integer storage at runtime and verifies that the policy retained them. Build644 F1–F4 passed 121 assertions across 4 cases. F5 is running on the unchanged production source.
+
+FX2 F0 passed on build644 with c843610249 production source and the unchanged build640 solver SHA. F1–F4 passed 121 assertions. The B1 baseline constructor took 25.968 s, with work 19,049,655, modeled peak 3,992,061,856 bytes and snapshot equality. Both fixture jobs ended. The ordered production edit is applied for build645; F1–F5, the inherited fixture cohort and G1 are next.
+
+FX2 build645 compiled both targets without new warnings. F1–F5 passed exact budget, exception, digest and timer-call comparison against F0. B1 constructor 25.968 → 10.285 s (15.683 s saved), unchanged work and modeled peak. The M6 memo is estimated at 1,583,080 bytes for one live entry. The inherited fixture cohort and G1 are now running on the same candidate.
+
+FX2 §4.1 passed on build645. All 18 FP1 cohorts, the build640 fixture cohort and the separate sheet fixture passed. G1 matched 375 / 114 / 228 case records in 744.981 / 10.089 / 9.820 s. Commit and push the fixture checkpoint. Next G2/GQ, G3/G4 and executed safeguards.

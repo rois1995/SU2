@@ -269,8 +269,10 @@ class MappedFacetReference {
    * Boundary arcs, chart gluing and vertex fan are certified, never replaced by corner chords. */
   bool CertifyEmbedding(const std::vector<CoveragePiece>& region,Point normal,AtlasBudget&,
                         std::string& reason)const;
+  size_t MobilityPolicyStorageBytes() const;
   bool BuildMobilityPolicy(double angle,const std::map<int,int>& roles,MobilityPolicy&,
                            AtlasBudget&,std::string& reason)const;
+  bool ChargeMobilityPolicy(size_t work, AtlasBudget&, std::string& reason) const;
   unsigned MobilityDimension(const SurfaceBinding&,const MobilityPolicy&)const;
   /*! Physical displacement from the original flat facet, including realization error. */
   double EnvelopeError(Id facet)const;

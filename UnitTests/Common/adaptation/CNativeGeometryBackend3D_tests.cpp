@@ -1355,3 +1355,5 @@ TEST_CASE("T4 MPI shares join to the same entity certificates", "[.][NativeOwned
   const auto& reference = expected.state->GeometryCertificates(reference_budget, true, &expected.bounds);
   CheckProofCertificates(joined, reference);
 }
+
+#include "fixtures/native_fx2_memo_tests.inc"

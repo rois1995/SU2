@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "call_rows": [
+    "FX2_MEMO case=F5 work=19049655 work_exhausted=0 time_exhausted=0 next_time_check=0 caller_bytes=3895283792 maximum_bytes=12884901888 peak_bytes=3992061856 peak_over_maximum=0 exception=none message=\"\" snapshot_sha256=cf1b6d29446148c995e318bd20397a3a937b08da555aead57907bc4d58a093d7 payload_sha256=448ed4f5c58c70ee3861fd1580ad09be2c451c742bdcb44e2891ad163828b83c"
+  ],
+  "timer_rows": [
+    "NATIVE3D_TIMER root=FX2_M6_B1 boundary=final rank=0 phase=construction operation=mobility_policy calls=1 inclusive_call_seconds=6.8999999999999996e-07 exclusive_seconds=6.8999999999999996e-07",
+    "NATIVE3D_TIMER_SUMMARY root=FX2_M6_B1 boundary=final rank=0 ranks=1 root_seconds=10.284951543 sumexclusive=10.284951543 unattributed=10.284950853 coverage=6.7088308327233223e-08 fixedstorage=4120"
+  ],
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FX2/fixtures/build645/F5",
+  "log_sha256": "2442875625301e487221bce20d8a3f9389791757831d3156feea4815c0f64e8b",
+  "test_seconds": 65.88595342636108,
+  "pins": {
+    "build": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FX2/build645/build_status.json",
+    "build_sha256": "af1c39f619b4b54504c7ec86c9454a19ba78c14c3ab012f672c8863d396b638a",
+    "source_pins_sha256": "56b995a383d97c85d03786fc3b3e2954730c4a62bcf682160c4a5582028c37fc",
+    "binary_sha256": "abdd26035c5dfb849640527c45ee0649f267520b1f73b58309714f4f495f3322",
+    "selector": "[.][NativeFastPathStage2Bounds]",
+    "inputs": {
+      "SU2_FP2_OUT": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/adapted_mesh_adap_00001.su2.native_ref",
+        "sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9"
+      }
+    }
+  },
+  "B1": {
+    "points": 33587,
+    "faces": 67170,
+    "constructor_seconds": 10.284951025,
+    "policy_seconds": 15.73484468,
+    "constructor_minus_policy_seconds": -5.449893655,
+    "modeled_peak_bytes": 3992061856,
+    "reservation_work": 19049655,
+    "memo_entry_bytes": 1583080,
+    "policy_modeled_peak_bytes": 3957944912,
+    "rss_before_bytes": 236339200,
+    "rss_after_bytes": 287793152,
+    "rss_change_bytes": 51453952,
+    "snapshot_equal": true,
+    "traces": 733
+  }
+}

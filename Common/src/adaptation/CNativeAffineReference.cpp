@@ -1459,11 +1459,14 @@ bool MappedFacetReference::PhysicalSupport(const SurfaceBinding& binding)const {
   CheckBinding(binding);if(!components)return binding.dimension<2;
   std::set<Id> roots;ForFacets(binding,[&](Id id){roots.insert(Canonical(id));});return roots.size()>1;
 }
+size_t MappedFacetReference::MobilityPolicyStorageBytes() const {
+  return transfer_memory::Mul(reference->Facets().size() + edges.size(), 512);
+}
 bool MappedFacetReference::BuildMobilityPolicy(double angle,const std::map<int,int>& roles,MobilityPolicy& result,
     AtlasBudget& budget,std::string& reason)const {
   SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::MobilityPolicy);
   try {
-    AtlasOps op{budget,__func__};op.Storage(transfer_memory::Mul(reference->Facets().size()+edges.size(),512));
+    AtlasOps op{budget,__func__};op.Storage(MobilityPolicyStorageBytes());
     if(!(std::isfinite(angle)&&angle>=0&&angle<=180))throw std::invalid_argument("Invalid geometry feature angle.");
     MobilityPolicy policy;policy.angle=angle;policy.roles=roles;policy.bodies=body_roots;
     for(const auto& f:reference->Facets()) {
@@ -1527,6 +1530,19 @@ bool MappedFacetReference::BuildMobilityPolicy(double angle,const std::map<int,i
     for(Id v:policy.corners)word(v);for(const auto& row:policy.sheets){word(row.first);word(row.second);}
     policy.identity=hash?hash:1;result=std::move(policy);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::ChargeMobilityPolicy(size_t work, AtlasBudget& budget, std::string& reason) const {
+  SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::MobilityPolicy);
+  try {
+    AtlasOps op{budget, "BuildMobilityPolicy"};
+    op.Storage(MobilityPolicyStorageBytes());
+    op.Work(work);
+    reason.clear();
+    return true;
+  } catch (const std::exception& error) {
+    reason = error.what();
+    return false;
+  }
 }
 unsigned MappedFacetReference::MobilityDimension(const SurfaceBinding& binding,const MobilityPolicy& policy)const {
   CheckBinding(binding);if(!policy.identity)return binding.dimension;

@@ -242,3 +242,8 @@ How should the report cover all edges with five ranked rows, and which label app
 
 - How can the pre-edit fixture identify converged placements without a walk field? Build638 refuses every unconverged sheet walk before it can return Accepted. Use the first three accepted nonfeature edges as the converged pins. See `4ba64e9f8b`.
 - Can the before-V class history and construction geometry bins be reproduced from the build638 logs? Those logs have before-V totals and the construction geometry count. Mark their missing breakdowns unavailable. In the corrected lab use the existing quality-sweep sink for the before-V classes, and in S1 use the existing geometry-repair entry histogram. See `4ba64e9f8b`.
+
+## 2026-11-22 19:50 CET · FX2 · R4
+
+- How should F1 report the reservation owned by FromPayload? Considered exposing it through a production test hook or recording only observable public results. Used explicit unavailable fields for the internal reservation, with exact bytes, exception and timer-call comparison. Base c843610249.
+- Are F5's integer RSS samples part of the identity gate? Considered comparing sampled RSS exactly or reporting it beside the exact modeled bytes and logical fields. Used the observation reading from the order's full state-row rule. Base c843610249.
