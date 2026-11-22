@@ -1244,3 +1244,15 @@ FP2-B correction 2 item 4 passed. H6off also produced a complete zero-rejection 
 FP2-B correction 2 N6P valid and passed on build638 in 303.939 s. All six partition/face pairs were exact. The shifted rank-2 minimum moved from 3.9070055295542924e-10 to 0.038049534891454399, with zero metric edges below 0.01 on all ranks before and after the final shift. The donor scan rejected zero of 538,657 cells. Bad count 2,501, face sums 72,920 / 75,964 and qualified proof 1,365 above tolerance with zero unexplained. N7P corrected rerun started.
 
 FP2-B correction 2 item 5 complete. N7P build638 ended in 452.839 s and remained report-only. Rank 0 metric weight 5,716,288 equals D1; geometry weight 380,291 vs 395,176 with an empty prepared-facet cache. N7P measured 0 donor rejects, 1,739 bad and 84,790 / 85,310 faces on that different partition. The earlier valid N6P gate and frozen hand-over gate passed. Commit and push lab evidence before S1 on the exact same build.
+
+FP2-B correction 2 lab checkpoint pushed as `6b0fc2812f`. Actual-host audit found all 222 FP2-B identities terminal. Starting S1 first on that same build638, with the pinned production controller and both options YES.
+
+FP2-B correction 2 S1 event 1 entered engine quality improvement on build638. All 12 core surface rows are present; the six shifted and six seed short-edge censuses have zero edges below 0.01. Rank 2 shifted minimum 0.038049534891454399 matches N6P. No P2 or P3 rows observed through entry. The original standing gates are pending.
+
+FP2-B correction 2 S1 event 1 remained live through 2,697.433 s of engine work with q/J counts 0 / 0 and geometry count 405 (from 741 at 1,280.566 s). Recorded peak 13,995,974,656 B. Event 1 had yet to publish its payloads. The pinned controller continues under the standing limits.
+
+FP2-B correction 2 S1 event 1 finished with q/J/geometry 0 / 0 / 0. Native root maximum 4,109.014 s, minimum coverage 99.7120%. P7/P8 and F3b event-1 receipts passed. The reported job peak equals the sum of process peaks at 13,995,974,656 B. The event-1 mesh and reference sidecar are published, and the run continues toward event 2.
+
+FP2-B correction 2 S1 event 2 is active. All 12 core surface rows and six shifted/seed rows are present. Every rank reports zero edges below 0.01 after the shift and at seeding. Event-2 rank 0 shifted minimum is 0.020951597058329163 versus D1's 1.616941326830997e-09; lowest shifted minimum across ranks is 0.010819175121351721 on rank 5. No P2 or P3 row observed in these checkpoints. Event-1 restart published.
+
+FP2-B correction 2 S1 PASSED on build638. Both full adaptation events and the isolated restart passed. Max native seconds 4,108.976 / 423.776, minimum named coverage 99.7120% / 98.8869%, final cells 537,985 / 566,001, proof faces 73,784 / 77,958, exact summed peak 13,995,974,656 B. No P2 near, P3 reject or enriched donor exception. Both events had no sub-0.01 edges at shifted hand-over and seed. Main run 4,845.646 s and isolated restart 158.658 s. Push S1 evidence, then run the default proof before S2.

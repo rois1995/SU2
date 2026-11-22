@@ -53,3 +53,14 @@ Corrected N6P matched all six partition cell counts and pass-1 face counts, so i
 Corrected N7P completed in 452.839 s and remains report-only. The first mismatched partition pair stayed 95,994 / 95,408 on rank 0. That rank's pre-partition metric weight and geometry scale equal D1 at 5,716,288 and 1,626.5383245273117. Its geometry weight is 380,291 versus 395,176. With zero prepared facet entries before weighting, its geometry work estimate is 604,517,893.53717875 versus 628,721,553.31817293. The observed 13,519 boundary faces and 11,079 cross-chart faces are exact. The data confirm the partition's geometry-weight input differed even with matching metric weight and face inventory. Corrected N7P observed 1,739 bad cells, 84,790 / 85,310 face sums, zero final edges below 0.01 and zero donor rejects among 589,718 cells. D1 S1 measured 1,704 bad cells and 85,180 / 85,422 faces on its different partition. [N7P receipt](../cases/build638/N7P/measurement.json) · [Partition pairs](FP2_B_638_correction_2_partition.md) · [Weight comparison](FP2_B_638_partition_weights.json)
 
 The frozen hand-over gate and the valid production-partition gate passed. The report-only N7P evidence does not establish the event-2 production result. The next qualified test is S1 on the same build638.
+
+## S1 with both options enabled
+
+S1 passed both adaptation events and the isolated restart on build638. The main controller completed in 4,845.646 s and the isolated restart controller in 158.658 s. Both events passed physical validation, transfer, continued CFD, ownership and resource checks. [S1 receipt](../G5/build638/S1/run_receipt.json) · [Isolated restart](../G5/build638/S1/disk_restart_full638_run1_event2/disk_restart_validation.json)
+
+| Event | Native max (s) | Points | Cells | Owned proof faces | Minimum named coverage | Largest transfer residual |
+|---|---:|---:|---:|---:|---:|---:|
+| 1 | 4,108.976 | 109,136 | 537,985 | 73,784 | 99.7120% | 8.603e-14 |
+| 2 | 423.776 | 114,484 | 566,001 | 77,958 | 98.8869% | 7.935e-14 |
+
+The reported job peak and sum of process peaks both equal 13,995,974,656 B. Both events had zero coordinate error. Every rank reported zero edges below 0.01 after the core's final shift and at engine seeding. Event 2 rank 0's shifted minimum was `0.020951597058329163` versus D1's `1.616941326830997e-09`. S1 printed no P2 near split, P3 metric rejection or enriched donor exception. [S1 diagnostics beside build633 and D1](FP2_B_638_correction_2_s1.md)
