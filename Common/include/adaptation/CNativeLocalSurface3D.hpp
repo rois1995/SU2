@@ -24,12 +24,15 @@ struct SurfaceSamples {
   size_t unconverged = 0;
 };
 
+enum class SurfaceWalk { None, Tolerance, Far, NoStart, Exception };
+
 struct SurfacePlacement {
   BoundaryPoint point;
   std::optional<SurfaceEdge> parent;
   std::map<SurfaceEdge, SU2NativeGeometry::EdgeTrace> children;
   SurfaceRefusal refusal = SurfaceRefusal::None;
   std::string reason;
+  SurfaceWalk walk = SurfaceWalk::None;
   bool Accepted() const { return refusal == SurfaceRefusal::None; }
 };
 

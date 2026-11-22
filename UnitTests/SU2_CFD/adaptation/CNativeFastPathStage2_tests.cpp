@@ -244,6 +244,24 @@ double ChildNormalDot(const State& state, Id side, const BoundaryPoint& corner, 
 #include "fixtures/native_fast_path_stage2_strict.inc"
 #include "fixtures/native_fast_path_stage2_split.inc"
 
+struct SheetPlacementPin {
+  Edge edge;
+  Bits position, parameters;
+  Id feature;
+  uint64_t version;
+  unsigned dimension;
+};
+
+// Build638 used the same ordered IN1 sweep before the projector bound was added.
+constexpr std::array<SheetPlacementPin, 3> SheetPlacementPins{{
+    {{0, 834}, {13827030213679295113ULL, 4396545604192088565ULL, 13859865237332765445ULL},
+     {4602678819172646894ULL, 0ULL, 0ULL}, 2, 18, 1},
+    {{0, 1095}, {4613790540759143725ULL, 4397073084710767572ULL, 13859920413322671983ULL},
+     {4602678819172646917ULL, 0ULL, 0ULL}, 3, 18, 1},
+    {{0, 13978}, {4394268158308896713ULL, 4617203892881609772ULL, 13860092385972589726ULL},
+     {4602678819172646912ULL, 0ULL, 0ULL}, 4, 18, 1},
+}};
+
 void PrintSheetPlacement(const char* kind, const Edge& edge, Point query, const BoundaryPoint& point) {
   const auto p = point.node.p;
   const auto& binding = point.binding;
@@ -283,7 +301,7 @@ TEST_CASE("FP2-A production surface geometry on IN1", "[.][NativeFastPathStage2S
   CheckProductionSurface(reference);
 }
 
-TEST_CASE("FP2-B correction 3 IN1 sheet-placement baseline", "[.][NativeFastPathStage2SheetPlacement]") {
+TEST_CASE("FP2-B correction 3 IN1 sheet-placement bound", "[.][NativeFastPathStage2SheetPlacement]") {
   auto reference = LoadSurface(false);
   PrepareInput(reference);
   auto budget = Fp2Budget(726442, reference.original->ResidentBytes(), Clock::now(), 5400);
@@ -294,23 +312,67 @@ TEST_CASE("FP2-B correction 3 IN1 sheet-placement baseline", "[.][NativeFastPath
   for (const auto& entry : state.Surface())
     for (const auto& edge : FaceEdges(entry.second)) incident[edge].push_back(entry.second);
 
-  size_t tested = 0, accepted = 0, refused_walk = 0;
+  using Walk = local::SurfaceWalk;
+  std::array<size_t, 5> walks{};
+  size_t accepted_ordinary = 0, accepted_tolerance = 0;
   for (const auto& [edge, faces] : incident) {
     if (faces.size() != 2 || surface.Feature(edge)) continue;
-    ++tested;
     const auto& a = surface.Find(edge[0])->node;
     const auto& b = surface.Find(edge[1])->node;
     const auto placement = surface.Place({a, b}, {faces[0], faces[1]}, fresh);
-    if (placement.Accepted()) {
-      if (++accepted <= 3) PrintSheetPlacement("baseline_accepted", edge, Midpoint(a.p, b.p), placement.point);
-    } else if (placement.refusal == local::SurfaceRefusal::Walk) {
-      ++refused_walk;
-      std::cout << "FP2_B_C3 baseline_walk {\"edge\":[" << edge[0] << ',' << edge[1] << "]}" << std::endl;
+    ++walks[static_cast<size_t>(placement.walk)];
+    const auto query = Midpoint(a.p, b.p);
+    if (placement.walk == Walk::Far) {
+      CAPTURE(edge);
+      CHECK(placement.refusal == local::SurfaceRefusal::Walk);
+      std::cout << std::setprecision(17) << "FP2_B_C3 far {\"edge\":[" << edge[0] << ',' << edge[1]
+                << "],\"q\":[" << query.x << ',' << query.y << ',' << query.z << "]}" << std::endl;
+    }
+    if (!placement.Accepted()) continue;
+    const auto& binding = placement.point.binding;
+    const auto point = placement.point.node.p;
+    if (placement.walk == Walk::None) {
+      const auto ordinal = accepted_ordinary++;
+      if (ordinal >= SheetPlacementPins.size()) continue;
+      const auto& pin = SheetPlacementPins[ordinal];
+      CAPTURE(edge);
+      CHECK(edge == pin.edge);
+      CHECK(CoordinateBits(point) == pin.position);
+      CHECK(CoordinateBits({binding.u, binding.v, 0.}) == pin.parameters);
+      CHECK(binding.feature == pin.feature);
+      CHECK(binding.version == pin.version);
+      CHECK(binding.dimension == pin.dimension);
+      PrintSheetPlacement("ordinary", edge, query, placement.point);
+    } else if (placement.walk == Walk::Tolerance) {
+      if (++accepted_tolerance > 3) continue;
+      CAPTURE(edge);
+      const auto& model = state.Geometry();
+      const auto foot = model.Realize(binding);
+      CHECK(CoordinateBits(point) == CoordinateBits(foot));
+      const auto distance = std::hypot(static_cast<long double>(query.x) - point.x,
+                                       static_cast<long double>(query.y) - point.y,
+                                       static_cast<long double>(query.z) - point.z);
+      const auto upper = std::nextafter(static_cast<double>(distance + model.ErrorBound(binding, point)),
+                                       std::numeric_limits<double>::infinity());
+      CHECK(upper <= surface.Tolerance() / 8);
+      CHECK(model.MobilityDimension(binding, state.Mobility()) == 2);
+      for (const auto& parent : faces)
+        for (Id end : edge) {
+          auto child = parent;
+          *std::find(child.v.begin(), child.v.end(), end) = fresh;
+          CHECK(surface.OnEntity(child, placement.point));
+        }
+      PrintSheetPlacement("tolerance", edge, query, placement.point);
     }
   }
-  std::cout << "FP2_B_C3 baseline_counts {\"tested\":" << tested << ",\"accepted\":" << accepted
-            << ",\"refused_walk\":" << refused_walk << "}" << std::endl;
-  REQUIRE(accepted >= 3);
+  std::cout << "FP2_B_C3 counts {\"walk_none\":" << walks[static_cast<size_t>(Walk::None)]
+            << ",\"walk_tol8\":" << walks[static_cast<size_t>(Walk::Tolerance)]
+            << ",\"walk_far\":" << walks[static_cast<size_t>(Walk::Far)]
+            << ",\"walk_no_start\":" << walks[static_cast<size_t>(Walk::NoStart)]
+            << ",\"walk_exception\":" << walks[static_cast<size_t>(Walk::Exception)]
+            << ",\"accepted_ordinary\":" << accepted_ordinary
+            << ",\"accepted_tolerance\":" << accepted_tolerance << "}" << std::endl;
+  REQUIRE(accepted_ordinary >= SheetPlacementPins.size());
 }
 
 #if defined(__GNUC__) && !defined(__clang__)

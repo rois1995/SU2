@@ -19,40 +19,44 @@ void ReportVolumeShortEdges(std::ostream& out, const local::Mesh& mesh, int rank
   }
 }
 
-size_t ReportVolumeBad(std::ostream& out, const local::Mesh& mesh, Id point_base, int rank, unsigned pass) {
+size_t ReportVolumeBad(std::ostream& out, const local::Mesh& mesh, Id point_base, int rank, unsigned pass,
+                       const char* checkpoint = "bad") {
   std::array<size_t, 4> classes{};
   for (const auto& cell : mesh.Cells()) {
     if (!cell.live || !(mesh.Margin(cell.vertices) < local::BadMargin)) continue;
     ++classes[local::SurfaceFixtureAccess::BadClass(mesh, cell.vertices, point_base)];
   }
   const auto total = classes[0] + classes[1] + classes[2] + classes[3];
-  out << "FP2_B bad rank=" << rank << " pass=" << pass << " bad=" << total << " bad_a=" << classes[0]
+  out << "FP2_B " << checkpoint << " rank=" << rank << " pass=" << pass << " bad=" << total
+      << " bad_a=" << classes[0]
       << " bad_b=" << classes[1] << " bad_c=" << classes[2] << " bad_d=" << classes[3] << '\n';
   return total;
 }
 
-SurfaceReasons GatherVolumeReasons(const World& world, const SurfaceReasons& remaining) {
-  using PackedReason = std::array<Id, 4>;
+template <class Value>
+std::map<Face, Value> GatherVolumeFaces(const World& world, const std::map<Face, Value>& local_faces,
+                                        const char* duplicate) {
+  using PackedFace = std::array<Id, 4>;
   std::vector<char> packed;
   CheckLabStep(world, [&] {
-    packed.resize(remaining.size() * sizeof(PackedReason));
+    packed.resize(local_faces.size() * sizeof(PackedFace));
     size_t offset = 0;
-    for (const auto& [face, reason] : remaining) {
-      const PackedReason row{face[0], face[1], face[2], static_cast<Id>(reason)};
+    for (const auto& [face, value] : local_faces) {
+      const PackedFace row{face[0], face[1], face[2], static_cast<Id>(value)};
       std::memcpy(packed.data() + offset, row.data(), sizeof(row));
       offset += sizeof(row);
     }
   });
 
-  SurfaceReasons gathered;
+  std::map<Face, Value> gathered;
   for (int rank = 0; rank < world.size; ++rank) {
     auto rows = world.rank == rank ? std::move(packed) : std::vector<char>{};
     CPassiveComm::BcastRounds(rows, rank, world.comm);
     CheckLabStep(world, [&] {
       if (world.rank != 0) return;
-      for (const auto& row : CPassiveComm::FromBytes<PackedReason>(rows)) {
-        if (!gathered.emplace(Face{row[0], row[1], row[2]}, static_cast<local::SurfaceRemaining>(row[3])).second)
-          throw std::runtime_error("FP2-B final surface reason has duplicate rank ownership.");
+      for (const auto& row : CPassiveComm::FromBytes<PackedFace>(rows)) {
+        if (!gathered.emplace(Face{row[0], row[1], row[2]}, static_cast<Value>(row[3])).second)
+          throw std::runtime_error(duplicate);
       }
     });
   }
@@ -60,7 +64,7 @@ SurfaceReasons GatherVolumeReasons(const World& world, const SurfaceReasons& rem
 }
 
 bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size_t ceiling, size_t caller,
-                         Clock::time_point start, const SurfaceReasons& remaining) {
+                         Clock::time_point start, const SurfaceReasons& remaining, const SurfaceFaceBorders* borders) {
   auto budget = native_fp2_fixture::Budget(cells, caller, start, 5400, ceiling);
   std::vector<SurfaceFace> faces;
   faces.reserve(state.Surface().size());
@@ -95,7 +99,7 @@ bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size
   }
 
   const auto classify_start = Clock::now();
-  const auto census = ClassifyLabSurface(state, budget, remaining);
+  const auto census = ClassifyLabSurface(state, budget, remaining, borders);
   const auto accounted = census.left_refused + census.left_short + census.left_border + census.left_limit +
                          census.left_neighbor_locked;
   const bool qualified = complete && census.faces == state.Surface().size() && census.unexplained == 0 &&
@@ -105,8 +109,9 @@ bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size
       << " classify_left_refused=" << census.left_refused << " classify_left_short=" << census.left_short
       << " classify_left_border=" << census.left_border << " classify_left_limit=" << census.left_limit
       << " classify_left_neighbor_locked=" << census.left_neighbor_locked
-      << " classify_unexplained=" << census.unexplained
-      << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
+      << " classify_unexplained=" << census.unexplained;
+  PrintLabExcessBins(out, census, borders != nullptr);
+  out << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
       << " seconds_classify=" << Seconds(classify_start) << " work=" << budget.work
       << " modeled_peak=" << budget.peak_bytes << '\n';
   std::cout << out.str() << std::flush;
@@ -115,7 +120,8 @@ bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size
 
 void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const ReferenceState& reference,
                                  const local::StateSurfaceGeometry& surface, local::MemoryBudget& memory,
-                                 size_t global_cells, const SurfaceReasons& remaining, Clock::time_point start) {
+                                 size_t global_cells, const SurfaceReasons& remaining, Clock::time_point start,
+                                 const SurfaceFaceBorders* borders) {
   const auto caller = transfer_memory::Add(reference.original->ResidentBytes(), OwnedStorageBytes(input.cells));
   const auto result = local::BuildSurfaceState(world, input.cells, surface, memory, caller);
   REQUIRE_FALSE(world.maximum(!result.state || result.splits == 0));
@@ -155,13 +161,20 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
     return;
   }
 
-  const auto global_reasons = GatherVolumeReasons(world, remaining);
+  const auto global_reasons = GatherVolumeFaces(world, remaining, "FP2-B final surface reason has duplicate rank ownership.");
+  const auto global_borders =
+      borders ? GatherVolumeFaces(world, *borders, "FP2-B longest-edge ring has duplicate rank ownership.") :
+                SurfaceFaceBorders{};
   bool qualified = world.rank != 0;
   CheckLabStep(world, [&] {
     if (world.rank != 0) return;
     const auto retained = transfer_memory::Mul(remaining.size(), sizeof(SurfaceReasons::value_type) + 4 * sizeof(void*));
+    constexpr auto border_row_bytes = sizeof(SurfaceFaceBorders::value_type) + 4 * sizeof(void*);
+    const auto border_bytes = borders ? transfer_memory::Mul(
+        transfer_memory::Add(borders->size(), global_borders.size()), border_row_bytes) : 0;
     qualified = ProveVolumeHandover(state, global_cells, input.ceiling,
-                                    transfer_memory::Add(proof_live(global_reasons), retained), start, global_reasons);
+                                    transfer_memory::Add(proof_live(global_reasons), retained, border_bytes),
+                                    start, global_reasons, borders ? &global_borders : nullptr);
   });
   REQUIRE_FALSE(world.maximum(!qualified));
 }
@@ -304,16 +317,40 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           };
         }
         std::optional<local::SurfaceLongestEdgeProbe> probe;
-        if (observation != SurfaceObservation::None) {
-          const bool trace = observation == SurfaceObservation::Diagnosis;
-          probe.emplace(mesh, *surface, trace);
-          if (trace)
-            stats.sink = [&](const local::SweepRow& row) { probe->ReportSweep(std::cout, row, world.rank, pass); };
+        const bool trace = observation == SurfaceObservation::Diagnosis;
+        const bool invariant = observation == SurfaceObservation::Invariant;
+        if (observation != SurfaceObservation::None) probe.emplace(mesh, *surface, trace);
+        if (invariant)
+          stats.surface_refusal_sink = [&](const char*, const local::SurfaceEdge& edge, local::SurfaceRefusal refusal) {
+            probe->RefusedAfterPlace(edge, refusal);
+          };
+        double measurement_seconds = 0;
+        std::optional<size_t> bad_before_v;
+        if (handover) {
+          stats.sink = [&](const local::SweepRow& sweep) {
+            if (trace) probe->ReportSweep(std::cout, sweep, world.rank, pass);
+            const auto measurement_start = Clock::now();
+            std::ostringstream out;
+            if (sweep.surface) {
+              out << std::setprecision(17) << "FP2_B sweep rank=" << world.rank << " pass=" << pass;
+              local::PrintSweepFields(out, sweep);
+              local::PrintSurfaceSweepFields(out, sweep);
+              out << '\n';
+            } else if (!bad_before_v && std::strcmp(sweep.kind, "quality") == 0) {
+              const auto& changes = sweep.counters;
+              // Initial QualityWork ends on a zero-edit sweep or at QualitySweepLimit (20).
+              if (changes.edge_removals + changes.face_swaps + changes.moves == 0 || sweep.sweep == 20)
+                bad_before_v = ReportVolumeBad(out, mesh, point_base, world.rank, pass, "bad_before_v");
+            }
+            std::cout << out.str();
+            measurement_seconds += Seconds(measurement_start);
+          };
         }
         const auto pass_begin = Clock::now();
         local::SurfaceGeometry* geometry = probe ? &*probe : static_cast<local::SurfaceGeometry*>(surface.get());
         stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, geometry);
-        const auto run_seconds = Seconds(pass_begin);
+        const auto run_seconds = Seconds(pass_begin) - measurement_seconds;
+        bool walk_probe_matches = true;
         std::ostringstream row;
         row << std::setprecision(17);
         if (probe) {
@@ -322,23 +359,25 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           violations = probe->Violations();
           row << "FP2_B invariant rank=" << world.rank << " pass=" << pass << " violations=" << violations
               << " point_base=" << point_base << '\n';
+          if (invariant) walk_probe_matches = probe->ReportTolerance(row, world.rank, pass, stats.surface.walk_tol8);
         }
         row << "NATIVE3D_LOCAL_SURFACE rank=" << world.rank << " stage=0 pass=" << pass
             << " applicable=1";
         local::PrintSurfaceFields(row, stats.surface);
         std::cout << row.str() << '\n' << std::flush;
+        if (!walk_probe_matches) throw std::logic_error("Tolerance placement counts or accepted split differ.");
         bool bad_matches = true;
-        double measurement_seconds = 0;
         if (handover) {
           const auto measurement_start = Clock::now();
           row.str("");
-          bad_matches = ReportVolumeBad(row, mesh, point_base, world.rank, pass) == stats.bad_out;
+          const auto bad_after_v = ReportVolumeBad(row, mesh, point_base, world.rank, pass);
+          bad_matches = bad_after_v == stats.bad_out && bad_before_v == stats.surface.bad_before_v;
           fp2_b0::ReportEdges(row, mesh, point_base, world.rank, pass, "out");
           if (observation == SurfaceObservation::Diagnosis && pass == pass_count)
             ReportVolumeShortEdges(row, mesh, world.rank, pass);
           if (pass == pass_count) fp2_b0::ReportStars(row, mesh, point_base, world.rank, pass, "out", true);
           std::cout << row.str() << std::flush;
-          measurement_seconds = Seconds(measurement_start);
+          measurement_seconds += Seconds(measurement_start);
         }
         size_t faces_out = 0;
         for (const auto& cell : mesh.Cells())
@@ -383,16 +422,20 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
   if (handover) {
     if (observation == SurfaceObservation::None)
       CheckLabStep(world, [&] { ReportHandoverDonors(input.cells, world.rank); });
+    const bool classify_border = partition == ProductionPartition::Event1;
+    SurfaceFaceBorders borders;
     CheckLabStep(world, [&] {
       const local::Mesh mesh(input.cells, parallel, options);
       std::ostringstream region;
       region << std::setprecision(17);
       if (production) fp2_b0::ReportEdges(region, mesh, point_base, world.rank, 0, "shifted");
+      if (classify_border) borders = local::SurfaceFixtureAccess::LongestEdgeBorders(mesh);
       fp2_b0::ReportRegion(region, mesh, point_base, world.rank, [&](Id id) { return surface->Find(id) != nullptr; });
       std::cout << region.str() << std::flush;
     });
     try {
-      CheckVolumeHandoverGeometry(world, input, reference, *surface, memory, global_cells, remaining, start);
+      CheckVolumeHandoverGeometry(world, input, reference, *surface, memory, global_cells, remaining, start,
+                                 classify_border ? &borders : nullptr);
     } catch (const CElectedFailure& error) {
       FAIL(error.message);
     }

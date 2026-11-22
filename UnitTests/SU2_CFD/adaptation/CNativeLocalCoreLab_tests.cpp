@@ -238,14 +238,31 @@ void ReportStrict(const Owned& owned) {
 }
 
 using SurfaceReasons = std::map<Face, local::SurfaceRemaining>;
+using SurfaceFaceBorders = std::map<Face, bool>;
+using ExcessBins = std::array<size_t, 5>;
 
 struct LabEntityCensus {
   size_t faces = 0, above = 0, left_refused = 0, left_short = 0, left_border = 0, left_limit = 0;
   size_t left_neighbor_locked = 0, unexplained = 0;
+  ExcessBins excess{}, border{}, no_border{};
 };
 
+void PrintLabExcessBins(std::ostream& out, const LabEntityCensus& census, bool classify_border = false) {
+  const auto print = [&](const char* field, const ExcessBins& bins) {
+    out << ' ' << field << '=' << bins[0];
+    for (size_t i = 1; i < bins.size(); ++i) out << ',' << bins[i];
+  };
+  print("classify_excess_bins", census.excess);
+  if (classify_border) {
+    print("classify_border_bins", census.border);
+    print("classify_no_border_bins", census.no_border);
+  }
+}
+
 LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2NativeGeometry::AtlasBudget& budget,
-                                   const SurfaceReasons& remaining) {
+                                   const SurfaceReasons& remaining, const SurfaceFaceBorders* borders = nullptr) {
+  constexpr std::array<double, 4> cutoffs{.01, .1, 1., 10.};
+  const auto tolerance = state.GeometryTolerance();
   LabEntityCensus census;
   for (const auto& [key, face] : state.Surface()) {
     std::array<SU2NativeGeometry::SurfaceBinding, 3> bindings;
@@ -258,8 +275,16 @@ LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2Nativ
     const double bound = state.EntityFaceError(face.facet, bindings, points, &budget,
                                                SU2NativeGeometry::SurfaceQueryNeed::Classify());
     ++census.faces;
-    if (!(bound > state.GeometryTolerance())) continue;
+    if (!(bound > tolerance)) continue;
     ++census.above;
+    const auto excess = bound / tolerance - 1.;
+    const auto bin = std::upper_bound(cutoffs.begin(), cutoffs.end(), excess) - cutoffs.begin();
+    ++census.excess[bin];
+    if (borders) {
+      const auto border = borders->find(key);
+      if (border == borders->end()) throw std::runtime_error("FP2-B classified face is missing its longest-edge ring.");
+      ++(border->second ? census.border : census.no_border)[bin];
+    }
     const auto reason = remaining.find(key);
     if (reason == remaining.end()) {
       ++census.unexplained;
@@ -319,8 +344,9 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
             << " classify_left_refused=" << census.left_refused << " classify_left_short=" << census.left_short
             << " classify_left_border=" << census.left_border << " classify_left_limit=" << census.left_limit
             << " classify_left_neighbor_locked=" << census.left_neighbor_locked
-            << " classify_unexplained=" << census.unexplained
-            << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
+            << " classify_unexplained=" << census.unexplained;
+  PrintLabExcessBins(std::cout, census);
+  std::cout << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
             << " seconds_classify=" << Seconds(classify_start) << " work=" << budget.work
             << " modeled_peak=" << budget.peak_bytes << std::endl;
   REQUIRE(census.faces == state.Surface().size());

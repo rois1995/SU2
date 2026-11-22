@@ -55,6 +55,8 @@ constexpr std::pair<const char*, size_t SurfaceCounters::*> Counts[] = {
     {"refused_size", &SurfaceCounters::refused_size}, {"refused_valid", &SurfaceCounters::refused_valid},
     {"refused_topology", &SurfaceCounters::refused_topology}, {"refused_memory", &SurfaceCounters::refused_memory},
     {"refused_entity", &SurfaceCounters::refused_entity}, {"refused_near", &SurfaceCounters::refused_near},
+    {"walk_tol8", &SurfaceCounters::walk_tol8}, {"walk_far", &SurfaceCounters::walk_far},
+    {"walk_no_start", &SurfaceCounters::walk_no_start}, {"walk_exception", &SurfaceCounters::walk_exception},
     {"chord_unknown", &SurfaceCounters::chord_unknown},
     {"samples", &SurfaceCounters::samples}, {"samples_unconverged", &SurfaceCounters::samples_unconverged}};
 
@@ -318,7 +320,16 @@ SurfaceRefusal Mesh::SplitSurface(Edge edge, Slot seed, SurfaceGeometry& geometr
   const std::array<SurfaceFace, 2> old_faces{SurfaceFaceAt(parents[0]), SurfaceFaceAt(parents[1])};
   const double place_start = ReportClock(report);
   auto placement = geometry.Place(ends, old_faces, point_ids.Peek());
-  if (report) stats.seconds_place += ReportClock(report) - place_start;
+  if (report) {
+    stats.seconds_place += ReportClock(report) - place_start;
+    switch (placement.walk) {
+      case SurfaceWalk::None: break;
+      case SurfaceWalk::Tolerance: ++stats.walk_tol8; break;
+      case SurfaceWalk::Far: ++stats.walk_far; break;
+      case SurfaceWalk::NoStart: ++stats.walk_no_start; break;
+      case SurfaceWalk::Exception: ++stats.walk_exception; break;
+    }
+  }
   if (!placement.Accepted()) {
     if (report && placement.refusal == SurfaceRefusal::Feature && stats.first_feature_reason.empty())
       stats.first_feature_reason = placement.reason;

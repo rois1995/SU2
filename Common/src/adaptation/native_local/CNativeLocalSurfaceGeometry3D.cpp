@@ -581,22 +581,47 @@ struct StateSurfaceGeometry::Impl {
     return result;
   }
 
+  double ProjectorBound(Point query, const SurfaceBinding& binding) const {
+    // As in the engine's projector, a model foot within its tol/8 accuracy needs no further
+    // optimality proof. Distance plus the realization error bounds the distance to a model point.
+    const auto& geometry = state.Geometry();
+    const auto point = geometry.Realize(binding);
+    const long double distance = std::hypot(static_cast<long double>(query.x) - point.x,
+                                            static_cast<long double>(query.y) - point.y,
+                                            static_cast<long double>(query.z) - point.z);
+    return std::nextafter(double(distance + geometry.ErrorBound(binding, point)), INFINITY);
+  }
+
   SurfacePlacement PlaceOnSheet(const std::array<Node, 2>& ends, const std::array<SurfaceFace, 2>& parents, Id id) {
     const auto& first = FaceKey(parents[0].v) < FaceKey(parents[1].v) ? parents[0] : parents[1];
     const auto corner = [&](Id vertex) { return std::find(first.v.begin(), first.v.end(), vertex) - first.v.begin(); };
     const auto query = Midpoint(ends[0].p, ends[1].p);
+    const auto refused = [](SurfaceRefusal reason, SurfaceWalk walk, std::string message = {}) {
+      auto result = Refused(reason, std::move(message));
+      result.walk = walk;
+      return result;
+    };
     try {
       const auto hit = walker.Run(query, walker.EdgeStart(first, Corners(first), corner(ends[0].id),
                                                           corner(ends[1].id), query));
-      if (!hit.converged) return Refused(SurfaceRefusal::Walk);
+      if (hit.facet == UINT64_MAX) return refused(SurfaceRefusal::Walk, SurfaceWalk::NoStart);
       const auto binding = walker.Binding(hit);
+      auto walk = SurfaceWalk::None;
+      if (!hit.converged) {
+        const double upper = ProjectorBound(query, binding);
+        if (!std::isfinite(upper)) return refused(SurfaceRefusal::Walk, SurfaceWalk::Exception);
+        if (upper > state.GeometryTolerance() / 8) return refused(SurfaceRefusal::Walk, SurfaceWalk::Far);
+        walk = SurfaceWalk::Tolerance;
+      }
       if (state.Geometry().MobilityDimension(binding, state.Mobility()) != 2)
-        return Refused(SurfaceRefusal::Protected);
+        return refused(SurfaceRefusal::Protected, walk);
       SurfacePlacement result;
       result.point = {{id, state.Geometry().Realize(binding)}, binding};
-      return Duplicate(result.point) ? Refused(SurfaceRefusal::Duplicate) : result;
+      if (Duplicate(result.point)) return refused(SurfaceRefusal::Duplicate, walk);
+      result.walk = walk;
+      return result;
     } catch (const std::exception& e) {
-      return Refused(SurfaceRefusal::Walk, e.what());
+      return refused(SurfaceRefusal::Walk, SurfaceWalk::Exception, e.what());
     }
   }
 

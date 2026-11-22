@@ -11,6 +11,8 @@
 
 #include <algorithm>
 #include <iosfwd>
+#include <map>
+#include <stdexcept>
 
 namespace SU2NativeLocal3D {
 struct SurfaceFixtureAccess {
@@ -75,6 +77,18 @@ struct SurfaceFixtureAccess {
       mark = SU2Native3D::Edge{mesh.points_[edge[0]].node.id, mesh.points_[edge[1]].node.id};
     }
     return std::make_pair(mark, choice.reason);
+  }
+
+  static std::map<SU2Native3D::Face, bool> LongestEdgeBorders(const Mesh& mesh) {
+    std::map<SU2Native3D::Face, bool> borders;
+    for (const auto face : mesh.PhysicalFaces()) {
+      auto vertices = mesh.SurfaceFaceAt(face).v;
+      std::sort(vertices.begin(), vertices.end());
+      const auto edge = mesh.LongestSurfaceEdge(face);
+      if (!borders.emplace(vertices, mesh.EdgeRing(edge, face.cell).border).second)
+        throw std::runtime_error("FP2-B duplicate physical face in the shifted mesh.");
+    }
+    return borders;
   }
 
   static unsigned BadClass(const Mesh&, const Vertices&, Id point_base);

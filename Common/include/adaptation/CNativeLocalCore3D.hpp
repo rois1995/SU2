@@ -125,6 +125,7 @@ struct SurfaceCounters {
   size_t refused_walk = 0, refused_protected = 0, refused_feature = 0, refused_trace = 0, refused_duplicate = 0;
   size_t refused_outward = 0, refused_size = 0, refused_valid = 0, refused_topology = 0, refused_memory = 0;
   size_t refused_entity = 0, refused_near = 0;
+  size_t walk_tol8 = 0, walk_far = 0, walk_no_start = 0, walk_exception = 0;
   double outward_max = 0, seconds_length = 0, seconds_distance = 0, seconds_samples = 0, seconds_place = 0;
   double seconds_entity = 0;
   std::string first_feature_reason, first_trace_reason;

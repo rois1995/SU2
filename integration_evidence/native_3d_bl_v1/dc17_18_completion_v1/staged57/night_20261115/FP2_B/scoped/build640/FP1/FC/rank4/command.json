@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "env",
+    "-C",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/scoped/build640/FP1/FC/rank4",
+    "OMP_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "OMPI_MCA_osc=pt2pt",
+    "TMPDIR=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/scoped/build640/FP1/FC/rank4/time.txt",
+    "timeout",
+    "5400",
+    "mpirun",
+    "--bind-to",
+    "none",
+    "-n",
+    "4",
+    "--output-filename",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/scoped/build640/FP1/FC/rank4/rank_output",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[NativeLocalCore3DResumeOption]"
+  ],
+  "ranks": 4,
+  "selector": "[NativeLocalCore3DResumeOption]",
+  "seconds_limit": 5400
+}
