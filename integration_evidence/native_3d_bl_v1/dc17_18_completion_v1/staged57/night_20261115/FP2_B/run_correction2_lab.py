@@ -166,6 +166,11 @@ def baseline_reference(name):
             'seed': {'metric': seed.fields['e0_metric'], 'a': seed.fields['e0_a'], 'b': seed.fields['e0_b'],
                      **{key: seed.fields['lt_0_1' if key == 'lt_01' else key] for key in BINS}},
         }
+        if name == 'N6P' and rank == 3:
+            end = next(row for row in rows['NATIVE3D_LOCAL_SHORT']
+                       if row.event == 1 and row.stage == 0 and row.rank == 3 and row.fields.get('pass') == '1'
+                       and row.fields.get('checkpoint') == 'end' and row.fields.get('order') == '1')
+            result[str(rank)]['pass1_end'] = {key: end.fields[key] for key in EDGE_FIELDS}
     return result, pins
 
 
@@ -184,9 +189,12 @@ def fields_for_pass(log, kind, phase):
     return one([row for row in log.get(kind, ()) if row.get('pass') == str(phase)])
 
 
-def shifted(log):
-    bins = one([row for row in log.get('edge_bins', ()) if row['checkpoint'] == 'shifted'])
-    edges = [row for row in log.get('edge', ()) if row['checkpoint'] == 'shifted']
+def measured_edge(log, checkpoint, phase):
+    def at_checkpoint(row):
+        return row['checkpoint'] == checkpoint and row['pass'] == str(phase)
+
+    bins = one([row for row in log.get('edge_bins', ()) if at_checkpoint(row)])
+    edges = [row for row in log.get('edge', ()) if at_checkpoint(row)]
     if not bins or not edges:
         return None
     edge = min(edges, key=lambda row: Decimal(row['metric']))
@@ -194,9 +202,27 @@ def shifted(log):
     return {'metric': edge['metric'], 'a': str(lo), 'b': str(hi), **{key: bins[key] for key in BINS}}
 
 
+def shifted(log):
+    return measured_edge(log, 'shifted', 0)
+
+
 def edge_matches(actual, expected):
     return (actual is not None and Decimal(actual['metric']) == Decimal(expected['metric'])
             and all(actual[field] == expected[field] for field in EDGE_FIELDS if field != 'metric'))
+
+
+def listed_reproduction(name, pairs):
+    for rank in REFERENCE_RANKS[name]:
+        pair = pairs[str(rank)]
+        actual, expected = pair['observed'], pair['shifted']
+        if actual is None or actual['lt_1e_2'] != expected['lt_1e_2']:
+            return False
+        if name == 'N6P' and rank == 3:
+            continue
+        if (Decimal(actual['metric']) != Decimal(expected['metric'])
+                or any(actual[field] != expected[field] for field in ('a', 'b', 'lt_1e_6'))):
+            return False
+    return True
 
 
 def partition_pairs(name, data):
@@ -249,12 +275,19 @@ def evaluate(name, data, expected, reference, baseline, baseline_receipt, invari
                 and row['pass1_faces_in'] == row['faces_expected'] for row in pairs)
     comparisons = {}
     for rank, rows in reference.items():
-        actual = shifted(data.get(int(rank), {}))
+        log = data.get(int(rank), {})
+        actual = shifted(log)
         comparisons[rank] = {**rows, 'observed': actual, 'equal_shifted': edge_matches(actual, rows['shifted'])}
-    reproduced = valid and all(row['equal_shifted'] for row in comparisons.values())
-    applies = not baseline and valid and baseline_receipt is not None and baseline_receipt['measurement']['reproduced']
+        if 'pass1_end' in rows:
+            comparisons[rank]['observed_pass1_end'] = measured_edge(log, 'out', 1)
+    reproduced = valid and listed_reproduction(name, comparisons)
+    full_equality = valid and all(row['equal_shifted'] for row in comparisons.values())
+    prior_measurement = baseline_receipt['measurement'] if baseline_receipt is not None else None
+    baseline_reproduced = None if prior_measurement is None else (
+        prior_measurement['valid'] and listed_reproduction(name, prior_measurement['shifted_pairs']))
+    applies = not baseline and valid and baseline_reproduced is True
     evidence = {'valid': valid, 'partition_pairs': pairs, 'shifted_pairs': comparisons,
-                'reproduced': reproduced, 'gate_applies': applies}
+                'reproduced': reproduced, 'full_shifted_equality': full_equality, 'gate_applies': applies}
     if baseline:
         return {**evidence, 'problems': [], 'failed_limits': []}
     pass_rows = {rank: {**log, 'edge_bins': [row for row in log.get('edge_bins', ())
@@ -275,7 +308,10 @@ def evaluate(name, data, expected, reference, baseline, baseline_receipt, invari
         result['report_only_findings'] = {key: result.pop(key) for key in ('problems', 'failed_limits')}
         result.update(problems=[], failed_limits=[])
     return {**result, **evidence, 's1_report_reference': S1_OUTPUT[name],
-            'baseline_reproduced': baseline_receipt['measurement']['reproduced'] if baseline_receipt else None}
+            'baseline_reproduced': baseline_reproduced,
+            'baseline_full_shifted_equality': (
+                prior_measurement.get('full_shifted_equality', prior_measurement['reproduced'])
+                if prior_measurement is not None else None)}
 
 
 def run(build, name, baseline, baseline_build, verify_only):
@@ -325,6 +361,13 @@ def self_check():
     assert (event2['0']['shifted']['a'], event2['0']['shifted']['b']) == ('115118', '115130')
     assert not edge_matches(event2['0']['seed'], event2['0']['shifted'])
     assert edge_matches(event2['0']['shifted'], event2['0']['shifted'])
+    assert event1['3']['pass1_end']['metric'] == '5.4527443514081957e-10'
+    altered = {rank: {**rows, 'observed': {**rows['shifted'], 'lt_01': '0'}} for rank, rows in event1.items()}
+    altered['3']['observed']['metric'] = '0.02'
+    assert listed_reproduction('N6P', altered)
+    assert not edge_matches(altered['2']['observed'], event1['2']['shifted'])
+    altered['2']['observed']['lt_1e_6'] = '0'
+    assert not listed_reproduction('N6P', altered)
 
 
 def main():

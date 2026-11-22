@@ -516,7 +516,29 @@ PassStats SurfaceFixtureAccess::HandoverPass(std::ostream& out, Mesh& mesh, IdSe
 }  // namespace SU2NativeLocal3D
 
 namespace {
-void RunHandover(bool parallel) {
+void ReportHandoverDonors(const Owned& owned, int rank) {
+  size_t rejected = 0;
+  std::ostringstream out;
+  out << std::setprecision(17);
+  for (const auto& entry : owned) {
+    const auto& cell = entry.second.cell;
+    try {
+      MetricAffineWeights(cell, Centroid(cell));
+    } catch (const std::invalid_argument& error) {
+      if (++rejected > 5) continue;
+      out << "FP2_B donor_reject rank=" << rank << " cell=" << cell.id;
+      for (size_t i = 0; i < cell.v.size(); ++i) {
+        const auto& v = cell.v[i];
+        out << " v" << i << '=' << v.id << '@' << v.p.x << ',' << v.p.y << ',' << v.p.z;
+      }
+      out << " reason=" << std::quoted(error.what()) << '\n';
+    }
+  }
+  out << "FP2_B donor_scan rank=" << rank << " cells=" << owned.size() << " rejected=" << rejected << '\n';
+  std::cout << out.str() << std::flush;
+}
+
+void RunHandover(bool parallel, bool scan_donors = false) {
   const auto* label = std::getenv("SU2_FP2_B0_RUN");
   const auto* setting = std::getenv("SU2_FP2_B0_EXTRA");
   REQUIRE(label);
@@ -530,6 +552,7 @@ void RunHandover(bool parallel) {
   World world;
   REQUIRE(world.size == (parallel ? 6 : 1));
   const bool active = run != "H0" && run != "H6off";
+  if (scan_donors) REQUIRE(run == "H6off");
   ReferenceState reference;
   auto input = LoadMesh(&reference, parallel);
   const auto global_cells = world.reduce<uint64_t>(input.cells.size(), CPassiveComm::Op::SUM);
@@ -625,6 +648,7 @@ void RunHandover(bool parallel) {
     out << "FP2_B0 exact rank=" << world.rank << " cells=" << input.cells.size() << " nonpositive=" << exact.nonpositive
         << " first_nonpositive=" << exact.first << '\n' << std::flush;
     REQUIRE_FALSE(world.maximum(exact.nonpositive != 0));
+    if (scan_donors) CheckLabStep(world, [&] { ReportHandoverDonors(input.cells, world.rank); });
     if (active || parallel) {
       CheckLabStep(world, [&] {
         const local::Mesh mesh(input.cells, parallel, options);
@@ -644,3 +668,7 @@ void RunHandover(bool parallel) {
 TEST_CASE("FP2-B0 frozen one-rank core hand-over", "[.][NativeLocalCoreHandoverSerial]") { RunHandover(false); }
 
 TEST_CASE("FP2-B0 frozen six-rank core hand-over", "[.][NativeLocalCoreHandoverMPI]") { RunHandover(true); }
+
+TEST_CASE("FP2-B hand-over donor scan without surface splits", "[.][NativeLocalCoreVolumeHandoverOff]") {
+  RunHandover(true, true);
+}

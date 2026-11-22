@@ -985,7 +985,6 @@ struct RemeshRun {
         const auto build_seconds = report ? workers.seconds() - build_start : 0.0;
         pass_mesh.MarkBorderSurface(meeting);
         if (report) {
-          PrintLocalShort(pass_mesh, workers.rank, stage, pass, "c0", input_point_base);
           try {
             if (surface)
               counts.surface_sink = [&](const auto&) {
@@ -1017,7 +1016,6 @@ struct RemeshRun {
         counts.surface_sink = {};
         counts.surface_near_sink = {};
         if (report) {
-          PrintLocalShort(pass_mesh, workers.rank, stage, pass, "end", input_point_base);
           try {
             std::ostringstream out;
             out << "NATIVE3D_LOCAL_NEAR_LEFT rank=" << workers.rank << " stage=" << stage << " pass=" << pass

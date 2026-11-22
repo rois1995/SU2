@@ -12,6 +12,7 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <set>
 #include <tuple>
 
 namespace {
@@ -605,6 +606,156 @@ TEST_CASE("Both faces of an above-limit feature chord wait for their terminal sp
   CHECK(stats.path_splits == 2);
   CHECK(remaining.empty());
   CHECK(geometry.chord_queries == 1);
+}
+
+namespace {
+const std::vector<Point> ChainPoints{{0, 0, 0}, {3, 0, 0}, {2, .1, 0}, {1, .9, 0}, {1.5, .3, .8}};
+const std::vector<Tet> ChainTets{{0, 1, 2, 4}, {0, 2, 3, 4}};
+constexpr Edge ChainLongest{0, 1}, ChainNeighbor{0, 2};
+
+void CheckAltitudeSplit(const Owned& rows, bool distance, bool refuse) {
+  local::Mesh mesh(rows);
+  LockedBoxGeometry geometry(rows, false);
+  const auto before = Snapshot(mesh);
+  local::IdSequence ids(4);
+  local::PassStats stats;
+  size_t sweep_refusals = 0;
+  stats.sink = [&](const local::SweepRow& row) {
+    REQUIRE(row.surface.has_value());
+    sweep_refusals += (*row.surface)[static_cast<size_t>(local::SurfaceRefusal::Near)];
+  };
+  if (distance)
+    local::SurfaceFixtureAccess::DistanceWork(mesh, geometry, ids, stats);
+  else
+    local::SurfaceFixtureAccess::LengthStep(mesh, geometry, ids, stats);
+  REQUIRE((geometry.attempts == std::vector<Edge>{ChainLongest}));
+  CHECK(stats.surface.refused_near == (refuse ? 1U : 0U));
+  CHECK(sweep_refusals == stats.surface.refused_near);
+  CHECK(stats.surface.splits_length + stats.surface.splits_distance == (refuse ? 0U : 1U));
+  if (refuse) {
+    CHECK(Snapshot(mesh) == before);
+    CHECK(ids.Peek() == 5);
+    CHECK(geometry.created.empty());
+  } else {
+    REQUIRE(geometry.created.size() == 1);
+    CHECK(ids.Peek() == 6);
+  }
+  CHECK_NOTHROW(mesh.Check());
+}
+}  // namespace
+
+TEST_CASE("Length splits leave a shorter edge of a face with a locked longest edge",
+          "[.][NativeLocalCoreSurfaceB]") {
+  for (const bool border : {false, true}) {
+    CAPTURE(border);
+    auto rows = BoundMesh(ChainPoints, ChainTets, 1);
+    if (border) {
+      auto& row = rows.at(1);
+      for (unsigned f = 0; f < 4; ++f)
+        if (Key(FaceAt(row.cell, f)) == Face{0, 1, 4}) row.physical[f] = {};
+    }
+    local::Mesh mesh(rows, border);
+    LockedBoxGeometry geometry(rows, false);
+    local::IdSequence ids(4);
+    local::PassStats stats;
+    std::vector<local::SweepRow> sweeps;
+    stats.sink = [&](const local::SweepRow& row) {
+      if (row.candidates) sweeps.push_back(row);
+    };
+    local::SurfaceFixtureAccess::LengthStep(mesh, geometry, ids, stats);
+    CHECK(stats.surface.waits_length == 0);
+    CHECK_NOTHROW(mesh.Check());
+
+    if (border) {
+      CHECK(stats.surface.splits_length == 0);
+      CHECK(stats.surface.sweeps_length == 1);
+      CHECK(stats.surface.left_long_neighbor == 1);
+      CHECK(stats.surface.left_border == 1);
+      CHECK(geometry.attempts.empty());
+      CHECK(geometry.created.empty());
+      CHECK(ids.Peek() == 5);
+      REQUIRE(sweeps.size() == 1);
+      CHECK(sweeps.front().counters.blocked == 1);
+      CHECK(sweeps.front().counters.evaluated_split == 1);
+
+      std::set<Edge> long_edges;
+      for (const auto& face : Surface(mesh)) {
+        for (unsigned i = 0; i < 3; ++i) {
+          const auto a = face.v[i], b = face.v[(i + 1) % 3];
+          if (mesh.Length({SlotOf(mesh, a), SlotOf(mesh, b)}) > local::LongEdge)
+            long_edges.insert({std::min(a, b), std::max(a, b)});
+        }
+      }
+      CHECK((long_edges == std::set<Edge>{ChainLongest, ChainNeighbor}));
+    } else {
+      CHECK(stats.surface.splits_length == 2);
+      CHECK(stats.surface.sweeps_length == 2);
+      CHECK(stats.surface.left_long_neighbor == 0);
+      CHECK((geometry.attempts == std::vector<Edge>{ChainLongest, ChainNeighbor}));
+      REQUIRE(sweeps.size() == 2);
+      CHECK(sweeps.front().counters.deferred == 1);
+      CHECK(sweeps.front().counters.splits == 1);
+      CHECK(sweeps.back().counters.splits == 1);
+    }
+  }
+}
+
+TEST_CASE("Length splits wait when the longer neighbor's ring was changed earlier in the sweep",
+          "[.][NativeLocalCoreSurfaceB]") {
+  auto points = ChainPoints;
+  auto tets = ChainTets;
+  points.push_back({-1, -.3, 0});
+  tets.push_back({0, 1, 5, 4});
+  const auto rows = BoundMesh(points, tets, 1);
+  local::Mesh mesh(rows);
+  LockedBoxGeometry geometry(rows, false);
+  local::IdSequence ids(5);
+  local::PassStats stats;
+  std::vector<size_t> attempts_by_sweep;
+  stats.sink = [&](const local::SweepRow& row) {
+    if (row.candidates) attempts_by_sweep.push_back(geometry.attempts.size());
+  };
+  local::SurfaceFixtureAccess::LengthStep(mesh, geometry, ids, stats);
+  CHECK(stats.surface.waits_length >= 1);
+  CHECK_NOTHROW(mesh.Check());
+
+  constexpr Edge first{1, 5};
+  REQUIRE(attempts_by_sweep.size() >= 3);
+  REQUIRE(attempts_by_sweep[0] == 1);
+  CHECK(geometry.attempts[0] == first);
+  REQUIRE(attempts_by_sweep[1] > attempts_by_sweep[0]);
+  CHECK(geometry.attempts[attempts_by_sweep[0]] == ChainLongest);
+  const auto after_second = geometry.attempts.begin() + attempts_by_sweep[1];
+  CHECK(std::find(geometry.attempts.begin(), after_second, ChainNeighbor) == after_second);
+  CHECK(std::find(after_second, geometry.attempts.end(), ChainNeighbor) != geometry.attempts.end());
+  for (const auto& edge : {first, ChainLongest, ChainNeighbor}) {
+    const auto midpoint = Midpoint(points[edge[0]], points[edge[1]]);
+    CHECK(std::any_of(geometry.created.begin(), geometry.created.end(), [&](const auto& point) {
+      return Bytes(point.second.p) == Bytes(midpoint);
+    }));
+  }
+}
+
+TEST_CASE("Both surface steps refuse children thinner than the geometry limit", "[.][NativeLocalCoreSurfaceB]") {
+  for (const double h : {.01, .05}) {
+    const auto rows = BoundMesh({{0, 0, 0}, {3, 0, 0}, {1.5, h, 0}, {1.5, -.8, 0}, {1.5, 0, .8}},
+                                {{0, 1, 2, 4}, {0, 3, 1, 4}}, 1);
+    for (const bool distance : {false, true}) {
+      CAPTURE(h, distance);
+      CheckAltitudeSplit(rows, distance, h == .01);
+    }
+  }
+}
+
+TEST_CASE("Distance rejects thin children even when all new edges clear the geometry limit",
+          "[.][NativeLocalCoreSurfaceB]") {
+  constexpr double limit = .014;
+  for (const double h : {1.25 * limit, 2 * limit}) {
+    CAPTURE(h);
+    const auto rows = BoundMesh({{0, 0, 0}, {4, 0, 0}, {1, h, 0}, {2, -.8, 0}, {2, 0, .8}},
+                                {{0, 1, 2, 4}, {0, 3, 1, 4}}, 1);
+    CheckAltitudeSplit(rows, true, h < 2 * limit);
+  }
 }
 
 namespace {

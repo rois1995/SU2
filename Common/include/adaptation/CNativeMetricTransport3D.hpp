@@ -8,8 +8,10 @@
 #include "CNativeDonor3D.hpp"
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 #include <map>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 
 namespace SU2Native3D {
@@ -41,6 +43,16 @@ inline std::array<long double, 4> MetricAffineWeights(const Cell& cell, Point p)
 inline bool SameMetric(const Tensor& a, const Tensor& b) {
   return a.xx == b.xx && a.xy == b.xy && a.xz == b.xz && a.yy == b.yy && a.yz == b.yz && a.zz == b.zz;
 }
+inline std::string MetricDonorError(const char* reason, const char* site, const Cell& cell, size_t index, size_t count) {
+  std::ostringstream text;
+  text << reason << " site=" << site << " donor_cell=" << cell.id << " donor_index=" << index << " donors=" << count
+       << std::setprecision(17);
+  for (size_t i = 0; i < cell.v.size(); ++i) {
+    const auto& vertex = cell.v[i];
+    text << " v" << i << '=' << vertex.id << '@' << vertex.p.x << ',' << vertex.p.y << ',' << vertex.p.z;
+  }
+  return text.str();
+}
 inline std::vector<DonorCell> MetricDonors(const std::vector<Cell>& cells, const std::map<Id, Tensor>& metrics) {
   if (cells.empty() || metrics.empty()) throw std::invalid_argument("Empty metric transport cavity.");
   std::vector<DonorCell> donors;
@@ -58,7 +70,9 @@ inline std::vector<DonorCell> MetricDonors(const std::vector<Cell>& cells, const
       donor.sensor[i] = found->second;
     }
     const auto volume = Orientation(cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p);
-    if (!std::isfinite(volume) || volume == 0) throw std::invalid_argument("Degenerate metric donor.");
+    if (!std::isfinite(volume) || volume == 0)
+      throw std::invalid_argument(MetricDonorError("Degenerate metric donor.", "orientation",
+                                                   cell, donors.size(), cells.size()));
     donors.push_back(donor);
   }
   return donors;
@@ -80,7 +94,12 @@ inline DonorSample EvaluateCavitySample(const std::vector<DonorCell>& donors, Po
   std::array<long double, 4> selected{};
   for (size_t i = 0; i < donors.size(); ++i) {
     for (const auto& tensor : donors[i].sensor) ValidateTensor(tensor);
-    const auto w = MetricAffineWeights(donors[i].cell, p);
+    std::array<long double, 4> w;
+    try {
+      w = MetricAffineWeights(donors[i].cell, p);
+    } catch (const std::invalid_argument& error) {
+      throw std::invalid_argument(MetricDonorError(error.what(), "affine", donors[i].cell, i, donors.size()));
+    }
     for (auto value : w) if (!std::isfinite(value)) throw std::invalid_argument("Nonfinite metric sample weights.");
     const auto score = *std::min_element(w.begin(), w.end());
     if (score > minimum || (score == minimum && donors[i].Key() < donors[best].Key())) {

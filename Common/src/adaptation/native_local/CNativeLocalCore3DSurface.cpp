@@ -46,6 +46,7 @@ constexpr std::pair<const char*, size_t SurfaceCounters::*> Counts[] = {
     {"left_neighbor_locked", &SurfaceCounters::left_neighbor_locked},
     {"waits_neighbor", &SurfaceCounters::waits_neighbor}, {"path_splits", &SurfaceCounters::path_splits},
     {"path_max", &SurfaceCounters::path_max},
+    {"left_long_neighbor", &SurfaceCounters::left_long_neighbor}, {"waits_length", &SurfaceCounters::waits_length},
     {"star_max", &SurfaceCounters::star_max}, {"star_gt100", &SurfaceCounters::star_gt100},
     {"star_gt1000", &SurfaceCounters::star_gt1000},
     {"refused_walk", &SurfaceCounters::refused_walk}, {"refused_protected", &SurfaceCounters::refused_protected},
@@ -53,7 +54,8 @@ constexpr std::pair<const char*, size_t SurfaceCounters::*> Counts[] = {
     {"refused_duplicate", &SurfaceCounters::refused_duplicate}, {"refused_outward", &SurfaceCounters::refused_outward},
     {"refused_size", &SurfaceCounters::refused_size}, {"refused_valid", &SurfaceCounters::refused_valid},
     {"refused_topology", &SurfaceCounters::refused_topology}, {"refused_memory", &SurfaceCounters::refused_memory},
-    {"refused_entity", &SurfaceCounters::refused_entity}, {"chord_unknown", &SurfaceCounters::chord_unknown},
+    {"refused_entity", &SurfaceCounters::refused_entity}, {"refused_near", &SurfaceCounters::refused_near},
+    {"chord_unknown", &SurfaceCounters::chord_unknown},
     {"samples", &SurfaceCounters::samples}, {"samples_unconverged", &SurfaceCounters::samples_unconverged}};
 
 using Counter = size_t SurfaceCounters::*;
@@ -71,6 +73,7 @@ Counter RefusalCount(SurfaceRefusal refusal) {
     case SurfaceRefusal::Validity: return &SurfaceCounters::refused_valid;
     case SurfaceRefusal::Memory: return &SurfaceCounters::refused_memory;
     case SurfaceRefusal::Entity: return &SurfaceCounters::refused_entity;
+    case SurfaceRefusal::Near: return &SurfaceCounters::refused_near;
     case SurfaceRefusal::Ineligible:
     case SurfaceRefusal::Topology: return &SurfaceCounters::refused_topology;
   }
@@ -101,7 +104,7 @@ struct SurfaceSweepWatch {
     row.candidates = candidates;
     row.live_cells = live_cells;
     row.counters.splits = count(SurfaceRefusal::None);
-    row.counters.evaluated_split = candidates - row.counters.deferred;
+    row.counters.evaluated_split = candidates - row.counters.deferred - row.counters.blocked;
     row.counters.refused_valid = count(SurfaceRefusal::Validity);
     row.counters.refused_size = count(SurfaceRefusal::Size);
     row.counters.refused_topology = count(SurfaceRefusal::Topology);
@@ -133,6 +136,12 @@ double Distance(const std::vector<PointRow>& points, Edge edge) {
 
 std::array<Edge, 3> FaceEdges(Face face) {
   return {{{face[0], face[1]}, {face[1], face[2]}, {face[2], face[0]}}};
+}
+
+double SmallestAltitude(Point a, Point b, Point c) {
+  const Point ab{b.x - a.x, b.y - a.y, b.z - a.z}, ac{c.x - a.x, c.y - a.y, c.z - a.z};
+  const Point cross{ab.y * ac.z - ab.z * ac.y, ab.z * ac.x - ab.x * ac.z, ab.x * ac.y - ab.y * ac.x};
+  return std::hypot(cross.x, cross.y, cross.z) / std::max({Distance(a, b), Distance(a, c), Distance(b, c)});
 }
 
 double Height(Point a, Point b, Point c, Point m) {
@@ -170,7 +179,7 @@ void PrintSurfaceSweepFields(std::ostream& out, const SweepRow& row) {
       {"refused_walk", SurfaceRefusal::Walk}, {"refused_protected", SurfaceRefusal::Protected},
       {"refused_feature", SurfaceRefusal::Feature}, {"refused_trace", SurfaceRefusal::Trace},
       {"refused_duplicate", SurfaceRefusal::Duplicate}, {"refused_outward", SurfaceRefusal::Outward},
-      {"refused_entity", SurfaceRefusal::Entity}};
+      {"refused_entity", SurfaceRefusal::Entity}, {"refused_near", SurfaceRefusal::Near}};
   for (const auto& [name, reason] : fields) out << ' ' << name << '=' << (*row.surface)[OutcomeIndex(reason)];
 }
 
@@ -273,8 +282,10 @@ void Mesh::WriteSurfaceNear(Edge edge, Slot slot, const SurfaceGeometry& geometr
     point("m", slot);
     out << " feature=" << feature << ' ';
     point("nearest", nearest);
+    const auto nearest_id = points_[nearest].node.id;
+    const bool nearest_in_parents = Has(old_faces[0].v, nearest_id) || Has(old_faces[1].v, nearest_id);
     out << " nearest_surface=" << points_[nearest].surface << " nearest_border=" << points_[nearest].border
-        << " distance=" << distance << " limit=" << limit
+        << " nearest_in_parents=" << nearest_in_parents << " distance=" << distance << " limit=" << limit
         << " ab_space=" << Distance(points_, edge) << " ab_metric=" << Length(edge) << " min_metric=" << min_metric;
     for (size_t i = 0; i < old_faces.size(); ++i) {
       const auto& face = old_faces[i];
@@ -326,6 +337,22 @@ SurfaceRefusal Mesh::SplitSurface(Edge edge, Slot seed, SurfaceGeometry& geometr
     if (!std::isfinite(h)) return refuse(SurfaceRefusal::Validity);
     if (h < -geometry.Tolerance()) return refuse(SurfaceRefusal::Outward);
     outward = std::max(outward, -h);
+  }
+
+  // Rule 2 keeps physical children resolved. A child thinner than the resolution is a line to geometry.
+  // Longest-edge splitting prevents repeated flattening. An already flat parent stays for the engine
+  // when its children cannot be resolved.
+  const double resolution = geometry.Limit();
+  for (const auto& parent : parents) {
+    const auto face = OrientedFace(cells_[parent.cell].vertices, parent.face);
+    const auto third = std::find_if(face.begin(), face.end(), [&](Slot vertex) {
+      return vertex != edge[0] && vertex != edge[1];
+    });
+    const Point c = points_[*third].node.p;
+    const double first = SmallestAltitude(a.node.p, point.node.p, c);
+    const double second = SmallestAltitude(point.node.p, b.node.p, c);
+    if (!std::isfinite(first) || !std::isfinite(second) || first < resolution || second < resolution)
+      return refuse(SurfaceRefusal::Near);
   }
 
   PointRow middle{point.node, Mean(a.tensor, b.tensor)};
@@ -405,11 +432,43 @@ SurfaceRefusal Mesh::SplitSurface(Edge edge, Slot seed, SurfaceGeometry& geometr
   return SurfaceRefusal::None;
 }
 
+Mesh::LengthChoice Mesh::ChooseLengthEdge(Edge edge, const Ring& ring, const SurfaceEdgeSet& refused,
+                                         const SurfaceEdgeSet& border, const SurfaceEdgeSet& neighbor_locked) const {
+  // Rule 1 cuts each physical face on its longest edge. Cutting beside a locked longest edge instead leaves
+  // 2/3 of its length and drives new points to the 1/3 and 2/3 positions (D1 separations down to 1.2e-9).
+  if (ring.border) return LengthChoice::Split;
+  const auto ids = Ids(points_, edge);
+  const double length = Length(edge);
+  bool waiting = false, locked = false;
+  for (const auto parent : SurfaceParents(edge, ring)) {
+    auto longest = edge;
+    auto longest_ids = ids;
+    double longest_length = length;
+    const auto face = OrientedFace(cells_[parent.cell].vertices, parent.face);
+    for (const auto side : FaceEdges(face)) {
+      const auto side_ids = Ids(points_, side);
+      const double side_length = Length(side);
+      if (side_length > longest_length || (side_length == longest_length && side_ids < longest_ids)) {
+        longest = side;
+        longest_ids = side_ids;
+        longest_length = side_length;
+      }
+    }
+    if (longest_ids == ids) continue;
+    waiting = true;
+    if (refused.count(longest_ids) || border.count(longest_ids) || neighbor_locked.count(longest_ids) ||
+        EdgeRing(longest, parent.cell).border)
+      locked = true;
+  }
+  if (locked) return LengthChoice::Locked;
+  return waiting ? LengthChoice::Wait : LengthChoice::Split;
+}
+
 void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
   const auto begin = ReportClock(stats.report);
   const bool work_list = options_.work_list && options_.memory;
   std::vector<Edge> deferred;
-  EdgeSet refused, border;
+  EdgeSet refused, border, neighbor_locked;
   for (unsigned sweep = 0; sweep < SurfaceLengthLimit; ++sweep) {
     SurfaceSweepWatch watch(stats, "surface_length", sweep + 1);
     ++sweep_;
@@ -427,7 +486,7 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
     std::vector<Candidate> candidates;
     for (const auto& use : uses) {
       const auto ids = Ids(points_, use.edge);
-      if (refused.count(ids) || border.count(ids)) continue;
+      if (refused.count(ids) || border.count(ids) || neighbor_locked.count(ids)) continue;
       const double length = Length(use.edge);
       if (length > LongEdge && EdgeRing(use.edge, use.cell).surface)
         candidates.push_back({use, ids, -length});
@@ -456,6 +515,18 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
         if (work_list) deferred.push_back(edge);
         continue;
       }
+      const auto choice = ChooseLengthEdge(edge, ring, refused, border, neighbor_locked);
+      if (choice == LengthChoice::Locked) {
+        neighbor_locked.insert(candidate.ids);
+        if (watch.row.surface) ++watch.row.counters.blocked;
+        continue;
+      }
+      if (choice == LengthChoice::Wait) {
+        watch.Defer();
+        if (work_list) deferred.push_back(edge);
+        stats.Increment(stats.surface.waits_length);
+        continue;
+      }
       std::string near_row;
       const auto result = SplitSurface(edge, seed, geometry, point_ids, sweep_, cell_limit, stats.surface, false,
                                        stats.report, stats.report && stats.surface_near_sink ? &near_row : nullptr);
@@ -477,7 +548,10 @@ void Mesh::SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_
     watch.Emit(stats, candidates.size(), live_cells_);
     if (!accepted) break;
   }
-  if (stats.report) stats.surface.seconds_length = ReportClock(true) - begin;
+  if (stats.report) {
+    stats.surface.left_long_neighbor = neighbor_locked.size();
+    stats.surface.seconds_length = ReportClock(true) - begin;
+  }
 }
 
 std::pair<Edge, double> Mesh::LongestSurfaceEdge(const std::array<Edge, 3>& edges) const {

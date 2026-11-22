@@ -188,6 +188,7 @@ size_t PartitionHandover(World& world, LabInput& input, const ReferenceState& re
   REQUIRE(built);
   std::vector<uint32_t> weights, geometry_weights;
   BridgeStats stats;
+  const auto facet_entries = reference.original->Parameters()->Geometry().GeometryStatsSnapshot().facet_entries;
   const auto weighted = WorkingWeights(world, input.cells, source, weights, reason, stats, {}, input.ceiling,
                                        transfer_memory::Add(held, source_bytes), true, reference.original.get(),
                                        input.tolerance, &geometry_weights, PartitionWorkPhase::Coarsening);
@@ -200,8 +201,13 @@ size_t PartitionHandover(World& world, LabInput& input, const ReferenceState& re
   REQUIRE(partitioned);
   REQUIRE(input.cells.size() == routing.cells_after.at(world.rank));
   std::ostringstream row;
-  row << "FP2_B partition rank=" << world.rank << " cells_before=" << routing.cells_before.at(world.rank)
-      << " cells_after=" << routing.cells_after.at(world.rank) << '\n';
+  row << std::setprecision(17) << "FP2_B partition rank=" << world.rank
+      << " cells_before=" << routing.cells_before.at(world.rank) << " cells_after=" << routing.cells_after.at(world.rank)
+      << " metric_before=" << routing.work_before.at(world.rank)
+      << " geometry_before=" << routing.geometry_before.at(world.rank)
+      << " geometry_weight_scale=" << stats.geometry_weight_scale << " prepared_facet_entries=" << facet_entries
+      << " original_geometry_work=" << stats.geometry_work << " original_boundary_faces=" << stats.geometry_faces
+      << " original_cross_chart_faces=" << stats.geometry_cross_chart_faces << '\n';
   std::cout << row.str() << std::flush;
   std::vector<DonorCell>().swap(input.original);
   return std::max({routing.maximum_native_bytes, source.Statistics().maximum_work_bytes, stats.maximum_native_bytes});
@@ -375,6 +381,8 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
   REQUIRE_FALSE(world.maximum(exact.nonpositive != 0));
 
   if (handover) {
+    if (observation == SurfaceObservation::None)
+      CheckLabStep(world, [&] { ReportHandoverDonors(input.cells, world.rank); });
     CheckLabStep(world, [&] {
       const local::Mesh mesh(input.cells, parallel, options);
       std::ostringstream region;

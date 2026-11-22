@@ -82,7 +82,7 @@ struct EdgeUse {
 
 enum class Refusal { None, Ineligible, Validity, Size, Topology, Memory, Numeric, Shape, Blocked };
 enum class SurfaceRefusal {
-  None, Border, Ineligible, Walk, Protected, Feature, Trace, Duplicate, Outward, Size, Validity, Topology, Memory, Entity
+  None, Border, Ineligible, Walk, Protected, Feature, Trace, Duplicate, Outward, Size, Validity, Topology, Memory, Entity, Near
 };
 
 bool SampleMovedTensor(const std::vector<DonorCell>& donors, Point point, Tensor& tensor);
@@ -98,7 +98,7 @@ struct SweepCounters {
   size_t evaluated_collapse = 0, evaluated_split = 0, evaluated_quality = 0;
 };
 
-using SurfaceSweepOutcomes = std::array<size_t, static_cast<size_t>(SurfaceRefusal::Entity) + 1>;
+using SurfaceSweepOutcomes = std::array<size_t, static_cast<size_t>(SurfaceRefusal::Near) + 1>;
 
 enum class SurfaceRemaining { Limit, Border, Refused, Short, NeighborLocked };
 
@@ -120,10 +120,11 @@ struct SurfaceCounters {
   size_t left_long = 0, left_border = 0, left_distance = 0, left_all_feature = 0, left_refused = 0, left_limit = 0;
   size_t left_short = 0, left_neighbor_locked = 0, chord_unknown = 0, samples = 0, samples_unconverged = 0;
   size_t waits_neighbor = 0, path_splits = 0, path_max = 0;
+  size_t left_long_neighbor = 0, waits_length = 0;
   size_t star_max = 0, star_gt100 = 0, star_gt1000 = 0;
   size_t refused_walk = 0, refused_protected = 0, refused_feature = 0, refused_trace = 0, refused_duplicate = 0;
   size_t refused_outward = 0, refused_size = 0, refused_valid = 0, refused_topology = 0, refused_memory = 0;
-  size_t refused_entity = 0;
+  size_t refused_entity = 0, refused_near = 0;
   double outward_max = 0, seconds_length = 0, seconds_distance = 0, seconds_samples = 0, seconds_place = 0;
   double seconds_entity = 0;
   std::string first_feature_reason, first_trace_reason;
@@ -348,6 +349,9 @@ class Mesh {
   void WriteSurfaceNear(Edge edge, Slot slot, const SurfaceGeometry& geometry,
                         const std::array<SU2Native3D::SurfaceFace, 2>& old_faces, bool feature,
                         std::string& row) const noexcept;
+  enum class LengthChoice { Split, Wait, Locked };
+  LengthChoice ChooseLengthEdge(Edge edge, const Ring& ring, const SurfaceEdgeSet& refused,
+                                const SurfaceEdgeSet& border, const SurfaceEdgeSet& neighbor_locked) const;
   void SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);

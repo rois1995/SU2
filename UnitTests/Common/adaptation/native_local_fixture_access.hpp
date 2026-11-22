@@ -51,6 +51,10 @@ struct SurfaceFixtureAccess {
     return plan.refusal;
   }
 
+  static void LengthStep(Mesh& m, SurfaceGeometry& g, IdSequence& ids, PassStats& r) {
+    m.SurfaceLength(g, ids, SIZE_MAX, r);
+  }
+
   static void DistanceWork(Mesh& mesh, SurfaceGeometry& geometry, IdSequence& ids, PassStats& report) {
     mesh.SurfaceDistance(geometry, ids, SIZE_MAX, report);
   }

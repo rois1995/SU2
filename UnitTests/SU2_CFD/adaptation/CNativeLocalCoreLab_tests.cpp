@@ -10,6 +10,7 @@
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalSurface3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
@@ -379,6 +380,7 @@ const char* RankRefusalName(local::SurfaceRefusal reason) {
     case local::SurfaceRefusal::Topology: return "topology";
     case local::SurfaceRefusal::Memory: return "memory";
     case local::SurfaceRefusal::Entity: return "entity";
+    case local::SurfaceRefusal::Near: return "near";
     case local::SurfaceRefusal::None: return "none";
   }
   throw std::logic_error("Unknown surface refusal in the rank check.");
