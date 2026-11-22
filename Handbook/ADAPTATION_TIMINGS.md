@@ -2,6 +2,19 @@
 
 ## Fast path stage 2
 
+### FP2-B accepted surface path, build640
+
+| G5 mode | Event 1 native (s) | Event 2 native (s) | Minimum timer coverage, events 1 / 2 |
+| --- | ---: | ---: | ---: |
+| OFF | 1,757.338 | 1,017.567 | 98.9954% / 99.5266% |
+| CORE | 1,509.433 | 371.336 | 99.0551% / 98.6725% |
+| S1 | 649.954 | 446.547 | 98.2433% / 98.8869% |
+| S2 | 649.993 | 444.120 | 98.2632% / 98.9130% |
+
+S1 and S2 published the same six files and passed the event-1 timing rule of 1,584.905 s. On each event-1 maximum-time rank, S2 spent 210.527 s in engine construction and 235.038 s in engine quality, compared with 501.144 and 852.831 s for CORE. The first S2 engine geometry repair took 24.401 s. Event 2 took 444.120 s in S2 and 371.336 s in CORE. These are elapsed comparisons on the same binary. [Continuation report and per-rank phase accounting](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/reports/FP2_B_640_continue_1.md)
+
+FP2-B's `seconds_quality` includes the V rounds when they run. FP2-A's field covers its ordinary core quality work. The timing breakdown counts final proof separately by subtracting its exclusive ledger time from the terminal engine span. Surface sampling and placement are included in the surface-step clocks.
+
 ### FP2-A corrected surface steps and default proof, build627
 
 | G5 mode | Event 1 native (s) | Event 2 native (s) | Minimum timer coverage, events 1 / 2 |

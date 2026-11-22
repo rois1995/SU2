@@ -1316,3 +1316,9 @@ FP2-B continuation 1 OFF passed both adaptation events, the isolated restart, an
 FP2-B continuation 1 CORE event 1 reached native exit with q/J/geometry 0/0/0. Its proof/resource and timer receipts passed. Event 2 is proceeding under the same controller.
 
 FP2-B continuation 1 CORE passed both adaptation events, the isolated restart, and all six FP1 on-disk SHA256 comparisons. Main controller 2,171.547 s and isolated restart wrapper 148.863 s. Native maxima 1,509.433 / 371.336 s. The same-build event-1 time limit for S1 and S2 is 1,584.90509065035 s. The full default proof passed. Commit and push the required default-proof checkpoint before S2.
+
+FP2-B continuation 1 default proof pushed as `6a37f55fe7`. The host audit found 464 FP2-B identities terminal. Starting the single S2 on build640, using the S1 config, six-file identity gate and same-binary CORE time comparison.
+
+FP2-B continuation 1 S2 event 1 reached native exit with q/J/geometry 0/0/0 and passing proof/resource/timer receipts. The on-disk event-1 mesh and sidecar already match S1. Event 2 continues within the same controller.
+
+FP2-B continuation 1 S2 PASSED on build640. Main run 1,411.584 s and restart wrapper 167.837 s. The independently rehashed six files from each of S1 and S2 agree with the published ON reference. Native event maxima S1 649.954 / 446.547 s, S2 649.993 / 444.120 s, CORE 1,509.433 / 371.336 s. Both S1 and S2 passed the 1,584.905 s event-1 timing rule. FP2-B accepted; default proof was pushed at 6a37f55fe7. Close with the report, timings, handoff and terminal verification. No source or binary changes.
