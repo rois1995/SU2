@@ -1230,3 +1230,17 @@ FP2-B correction 2 build638 compiled both binaries in 329.406 s without a new wa
 FP2-B correction 2 build638 focused fixtures passed. Existing A1 had 105 assertions in 3 cases. The box/cylinder cohort passed 797 assertions and the cylinder counted 27 accepted Step D splits with 0 violations. The corrected path cohort passed 351 assertions in 7 cases, including e, the optional f wait branch, g and g2. The remaining inherited cohorts and G1 are in sequence.
 
 FP2-B correction 2 item 3 passed on build638. All 18 inherited FP1 cohorts and requested FP2-A cases passed. G1 identity was 375 / 114 / 228 in 752.544 / 9.769 / 10.812 s. Checkpoint the fixtures, then N1, the existing longest-edge observer on N1, N6 and H6off donor scan.
+
+FP2-B correction 2 fixtures pushed as `4a0b746d57`. The actual-host audit found all 166 recorded FP2-B process identities terminal. Starting unwrapped N1 on the same build638.
+
+FP2-B correction 2 N1 passed on build638 in 280.055 s. It had 546,565 exactly positive hand-over cells, 2,706 bad, 76,518 faces, zero edges below 0.01 and zero donor rejects. The strict proof had 1,204 above-tolerance faces fully assigned to causes. L accepted 2,307 splits in 9 sweeps with 653 longest-edge waits and no Near refusals. Starting the independent N1 invariant.
+
+FP2-B correction 2 build638 N1Invariant passed with zero longest-edge violations and exact surface integer and bad-out agreement. Starting unwrapped six-rank N6 on the same binary.
+
+FP2-B correction 2 N6 passed in 311.162 s on build638. It had 541,410 exactly positive cells, 2,511 bad, zero short edges below 0.01 and zero donor rejects. Face sums were 76,394 and 76,554. All snapshots agreed at 26,680,752 bytes and 1,203 above-tolerance faces had reasons with zero unexplained. Starting H6off for the report-only donor comparison.
+
+FP2-B correction 2 item 4 passed. H6off also produced a complete zero-rejection donor scan, as a report. Item 5 starts with corrected N6P compared against the archived D1 baseline.
+
+FP2-B correction 2 N6P valid and passed on build638 in 303.939 s. All six partition/face pairs were exact. The shifted rank-2 minimum moved from 3.9070055295542924e-10 to 0.038049534891454399, with zero metric edges below 0.01 on all ranks before and after the final shift. The donor scan rejected zero of 538,657 cells. Bad count 2,501, face sums 72,920 / 75,964 and qualified proof 1,365 above tolerance with zero unexplained. N7P corrected rerun started.
+
+FP2-B correction 2 item 5 complete. N7P build638 ended in 452.839 s and remained report-only. Rank 0 metric weight 5,716,288 equals D1; geometry weight 380,291 vs 395,176 with an empty prepared-facet cache. N7P measured 0 donor rejects, 1,739 bad and 84,790 / 85,310 faces on that different partition. The earlier valid N6P gate and frozen hand-over gate passed. Commit and push lab evidence before S1 on the exact same build.

@@ -31,3 +31,25 @@ Both binaries built in 329.406 s with zero new warnings. [Build receipt](../buil
 - The box/cylinder cohort passed 797 assertions in four cases. The existing cylinder observer counted 27 Step D splits with zero violations. A1 passed 105 assertions in three cases. [Box and cylinder](../scoped/build638/box/fixture_status.json) · [A1](../scoped/build638/volume/fixture_status.json)
 - All 18 inherited FP1 cohorts and the requested FP2-A fixtures passed, including frozen IN1 and the two-rank and four-rank exchange. [Fixture cohort receipt](../scoped/build638/fixtures.json)
 - G1 identity passed at 375, 114 and 228 case records in 752.544, 9.769 and 10.812 s. [Serial](../scoped/build638/G1/serial/comparison.json) · [MPI2](../scoped/build638/G1/mpi2/comparison.json) · [MPI4](../scoped/build638/G1/mpi4/comparison.json)
+
+## Frozen hand-over gate
+
+| Case | Seconds | Exactly positive cells after pass or shift | Bad cells by class (a/b/c/d) | Short edges below 0.01 | Donor rejects | Faces by pass |
+|---|---:|---:|---|---:|---:|---|
+| N1 | 280.055 | 546,565 | 2,706 (1,142/1,449/0/115) | 0 | 0 | 76,518 |
+| N6 | 311.162 | 541,410 | 2,511 (1,168/1,324/6/13) | 0 | 0 | 76,394 / 76,554 |
+| H6off | 66.116 | 419,732 | Report-only scan | — | 0 | — |
+
+The smallest final metric edge was `0.027364967690064603` in N1 and N6, matching build633. Maximum star size was 162 in both. The most Step D sweeps was 23. Maximum pass time was 69.595 s for N1 and 26.543 s for N6, with `v_limit=0` throughout.
+
+N1 and N6 each accepted 2,307 Step L splits versus 2,416 on build633. N1 and N6 rank 3 pass 1 each recorded 653 longest-edge waits in nine sweeps. Both runs had zero `left_long_neighbor`, `refused_near` and `left_long` on all ranks and passes. The separate N1 distance invariant had zero violations in 280.123 s and reproduced every integer surface field and the bad-cell count. [Invariant receipt](../cases/build638/N1Invariant/measurement.json)
+
+All ranks agreed on the N6 snapshot size of 26,680,752 bytes. N1 qualified all 1,204 above-tolerance faces (100 refused, 1,104 neighbor-locked). N6 qualified all 1,203 (100 refused, five border, 1,098 neighbor-locked). Both recorded zero unexplained faces. [N1](../cases/build638/N1/measurement.json) · [N6](../cases/build638/N6/measurement.json) · [H6off](../cases/build638/H6off/measurement.json) · [Rank measurements beside B0](FP2_B_638_correction_2_handover.md)
+
+## Production-partition hand-over
+
+Corrected N6P matched all six partition cell counts and pass-1 face counts, so its gates applied. It passed in 303.939 s. The rank-2 shifted minimum was `0.038049534891454399` versus `3.9070055295542924e-10` on D1, and every rank had zero edges below 0.01 at the final pass and shift. There were zero donor rejects among 538,657 exactly positive cells. The equal snapshots and owned geometry proof qualified all 1,365 above-tolerance faces with 102 refused, 106 border, 1,157 neighbor-locked and zero unexplained. Largest star was 136, maximum pass time 23.443 s and `v_limit=0` throughout. Step L accepted 2,302 splits and counted 43 locked neighbors and 651 waits. Both steps recorded zero `Near` refusals. Final bad count was 2,501 versus D1 S1's 4,126. Face counts were 72,920 / 75,964 versus 73,962 / 76,940. [N6P receipt](../cases/build638/N6P/measurement.json)
+
+Corrected N7P completed in 452.839 s and remains report-only. The first mismatched partition pair stayed 95,994 / 95,408 on rank 0. That rank's pre-partition metric weight and geometry scale equal D1 at 5,716,288 and 1,626.5383245273117. Its geometry weight is 380,291 versus 395,176. With zero prepared facet entries before weighting, its geometry work estimate is 604,517,893.53717875 versus 628,721,553.31817293. The observed 13,519 boundary faces and 11,079 cross-chart faces are exact. The data confirm the partition's geometry-weight input differed even with matching metric weight and face inventory. Corrected N7P observed 1,739 bad cells, 84,790 / 85,310 face sums, zero final edges below 0.01 and zero donor rejects among 589,718 cells. D1 S1 measured 1,704 bad cells and 85,180 / 85,422 faces on its different partition. [N7P receipt](../cases/build638/N7P/measurement.json) · [Partition pairs](FP2_B_638_correction_2_partition.md) · [Weight comparison](FP2_B_638_partition_weights.json)
+
+The frozen hand-over gate and the valid production-partition gate passed. The report-only N7P evidence does not establish the event-2 production result. The next qualified test is S1 on the same build638.
