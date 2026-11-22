@@ -682,3 +682,71 @@ TEST_CASE("Surface exchanges elect duplicate ids and child-trace keys", "[.][Nat
                 << " kind=" << (duplicate_id ? "point" : "trace") << '\n';
   }
 }
+
+TEST_CASE("Native local V-split preserves the physical boundary and rolls back a non-improving trial",
+          "[NativeLocalCoreVolumeB]") {
+  bool improve = true;
+  SECTION("stretched internal edge") { improve = true; }
+  SECTION("short internal edge") { improve = false; }
+  const double height = improve ? 1.25 : .375;
+  const std::vector<Point> points{{0, 0, -height}, {0, 0, height}, {.5, 0, 0}, {-.25, .5, 0}, {-.25, -.5, 0}};
+  const std::vector<Tet> ring{{0, 1, 2, 3}, {0, 1, 3, 4}, {0, 1, 4, 2}};
+  local::Mesh mesh(BoundMesh(points, ring, .25));
+  const auto boundary = [&] {
+    std::map<Face, Id> faces;
+    for (const auto& face : Surface(mesh)) REQUIRE(faces.emplace(Key(face.v), face.facet).second);
+    return faces;
+  };
+  const auto before = boundary();
+  const auto rows_before = Snapshot(mesh);
+  const auto edge = local::Edge{SlotOf(mesh, 0), SlotOf(mesh, 1)};
+  REQUIRE(mesh.ClosedRing(edge, 0));
+  local::IdSequence ids(4);
+  REQUIRE(local::SurfaceFixtureAccess::SplitInside(mesh, 0, ids) == improve);
+  CHECK(ids.Peek() == (improve ? 6 : 5));
+  REQUIRE_NOTHROW(mesh.Check());
+  CHECK(boundary() == before);
+  if (improve) {
+    CHECK(mesh.Points().size() == points.size() + 1);
+    CHECK(Bytes(mesh.Points().back().node) == Bytes(Node{5, {0, 0, 0}}));
+  } else {
+    CHECK(Snapshot(mesh) == rows_before);
+  }
+}
+
+TEST_CASE("Native local V-collapse keeps fixed surface nodal values bit-equal", "[NativeLocalCoreVolumeB]") {
+  const auto owned = BoundMesh({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {.02, .03, .04}},
+                               {{4, 1, 2, 3}, {0, 4, 2, 3}, {0, 1, 4, 3}, {0, 1, 2, 4}}, 1);
+  local::Mesh mesh(owned);
+  const auto free = SlotOf(mesh, 4);
+  REQUIRE(mesh.Points()[free].Free());
+  std::map<Id, std::vector<char>> fixed;
+  for (const auto& p : mesh.Points())
+    if (p.surface) fixed.emplace(p.node.id, Bytes(p.node, p.tensor));
+  REQUIRE(fixed.size() == 4);
+  REQUIRE(local::SurfaceFixtureAccess::CollapseNear(mesh, 0));
+  CHECK(mesh.Points()[free].removed);
+  REQUIRE_NOTHROW(mesh.Check());
+  CHECK(std::count_if(mesh.Cells().begin(), mesh.Cells().end(), [](const auto& row) { return row.live; }) == 1);
+  for (const auto& [id, bytes] : fixed) {
+    const auto& p = mesh.Points()[SlotOf(mesh, id)];
+    CHECK(Bytes(p.node, p.tensor) == bytes);
+  }
+}
+
+TEST_CASE("Native local V rounds run quality once when empty and respect the surface option",
+          "[NativeLocalCoreVolumeB]") {
+  const auto owned = BoundMesh({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}}, {{0, 1, 2, 3}}, 1);
+  FlatGeometry geometry(owned);
+  for (const bool enabled : {false, true}) {
+    CAPTURE(enabled);
+    local::CoreOptions options;
+    options.surface_splits = enabled;
+    local::Mesh mesh(owned, false, options);
+    local::IdSequence ids(3);
+    const auto stats = mesh.RunPass(ids, SIZE_MAX, true, options, &geometry);
+    CHECK(stats.surface.v_rounds == (enabled ? 1 : 0));
+    CHECK(stats.surface.v_changes == (enabled ? "c0s0q1" : ""));
+    CHECK(stats.sweeps_quality == (enabled ? 2 : 1));
+  }
+}

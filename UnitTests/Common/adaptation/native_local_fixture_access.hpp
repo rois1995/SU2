@@ -14,6 +14,16 @@
 
 namespace SU2NativeLocal3D {
 struct SurfaceFixtureAccess {
+  static bool SplitInside(Mesh& mesh, Slot seed, IdSequence& ids) {
+    ++mesh.sweep_;
+    return mesh.SplitInside(seed, ids, SIZE_MAX);
+  }
+  static bool CollapseNear(Mesh& mesh, Slot seed) {
+    ++mesh.sweep_;
+    mesh.MarkWallNear();
+    return mesh.CollapseNear(seed, SIZE_MAX);
+  }
+
   static Refusal PrepareSplit(Mesh mesh, Edge edge, Slot seed, SurfaceGeometry& geometry, bool both) {
     const auto ring = mesh.EdgeRing(edge, seed);
     const auto parents = mesh.SurfaceParents(edge, ring);

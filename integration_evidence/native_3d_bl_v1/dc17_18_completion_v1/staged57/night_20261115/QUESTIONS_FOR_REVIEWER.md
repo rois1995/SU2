@@ -211,3 +211,11 @@ The corrected Part A and Part B test campaigns have one exact pinned source mani
 
 - 2026-11-21 16:40 CET, FP2-A Correction 3, step D. Does a feature edge with an unknown chord count as a candidate when an above-limit face selects it as its longest edge? The options were to exclude it everywhere under the old feature-chord wording or exclude it from chord marking only. The latter follows the new item 2, which selects the longest edge of any kind and lists its three tests. An above-limit feature chord blocked by the length floor retains priority and supplies reason `short`. Base `e056028b0a`.
 - 2026-11-21 16:40 CET, FP2-A Correction 3, sweep output and build626 OFF. The existing sink printer formats only volume refusal fields. The options were to omit the new detailed fields from solver sweep rows or to append them at that printer for surface rows. Use the second option to record all requested reasons via the existing sink. Its call site in `NativeRemeshRun.inc` is outside the allowed old-OFF diff, so the old run remains historical and OFF repeats on the corrected build. Base `e056028b0a`.
+
+## 2026-11-22 · FP2-B · A1 source check
+
+Should the V sweep comparator and validation follow only the prose keys and successive checks, or B0's full tuple and per-cell early checks? Used the B0 tuple with slot as the final tie and kept the interleaved checks, as ordered for exact Gate E. Base commit `bb352600c5`.
+
+## 2026-11-22 · FP2-B · default proof source check
+
+Does the reference to FP2-A 11.2 also repeat the old LAB-S and rank check after S1? Used the FP2-B §5 replacements and the same-binary scoped fixture and G1 receipts. This keeps the original default prefix and workflow checks and follows §5's explicit replacement. Base commit `bb352600c5`.

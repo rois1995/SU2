@@ -169,6 +169,9 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
   out << " outward_max=" << s.outward_max << " seconds_length=" << s.seconds_length
       << " seconds_distance=" << s.seconds_distance << " seconds_samples=" << s.seconds_samples
       << " seconds_place=" << s.seconds_place << " seconds_entity=" << s.seconds_entity;
+  out << " v_rounds=" << s.v_rounds << " v_limit=" << s.v_limit << " v_collapses=" << s.v_collapses
+      << " v_splits=" << s.v_splits << " v_changes=" << s.v_changes << " bad_before_v=" << s.bad_before_v
+      << " seconds_v=" << s.seconds_v;
   if (!s.first_feature_reason.empty()) out << " first_feature_reason=" << std::quoted(s.first_feature_reason);
   if (!s.first_trace_reason.empty()) out << " first_trace_reason=" << std::quoted(s.first_trace_reason);
 }

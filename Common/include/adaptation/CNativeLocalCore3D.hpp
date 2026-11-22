@@ -14,6 +14,7 @@
 #include <iosfwd>
 #include <map>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -125,6 +126,9 @@ struct SurfaceCounters {
   double outward_max = 0, seconds_length = 0, seconds_distance = 0, seconds_samples = 0, seconds_place = 0;
   double seconds_entity = 0;
   std::string first_feature_reason, first_trace_reason;
+  size_t v_rounds = 0, v_limit = 0, v_collapses = 0, v_splits = 0, bad_before_v = 0;
+  double seconds_v = 0;
+  std::string v_changes;
 };
 
 void PrintSurfaceFields(std::ostream&, const SurfaceCounters&);
@@ -300,6 +304,13 @@ class Mesh {
   bool CanCollapse(Slot point) const;
   bool Fits(size_t old, size_t fresh, size_t cell_limit) const;
   double Worst(const std::vector<Slot>& cells) const;
+  bool EditableVolumeCavity(const std::vector<Slot>& old) const;
+  std::set<Edge> VolumeEdges(const std::vector<Slot>& cells) const;
+  std::optional<double> ImprovedVolumeMargin(const std::vector<Slot>& old, const std::vector<Vertices>& fresh,
+                                             const std::set<Edge>& edges, double worst_old, size_t cell_limit) const;
+  bool SplitInside(Slot seed, IdSequence& point_ids, size_t cell_limit);
+  bool CollapseNear(Slot seed, size_t cell_limit);
+  void RepairRounds(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
 
   Plan Prepare(const std::vector<Slot>& old, const std::vector<Vertices>& fresh,
                const std::vector<ReplacedFace>& replaced = {}) const;

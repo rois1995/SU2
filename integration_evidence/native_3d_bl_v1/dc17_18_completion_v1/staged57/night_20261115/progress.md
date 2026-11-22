@@ -1142,3 +1142,13 @@ FP2-B0 X2 completed in 122.049 s with 145 V-collapses in four rounds. It reached
 FP2-B0 X3 completed in 124.055 s. Seven rounds of collapse then split reached 3,756 c4 bad cells and 561,067 exactly positive cells with the surface fixed. The pinned X6 choice is X3 (both), the smallest c4 count among X1/X2/X3 (4,393 / 10,645 / 3,756). X6 is running.
 
 FP2-B0 completed on build629. Hand-over counts: H6off 2,538 / H6 11,099 / X6 3,741 / H0 2,836 / H1 11,296 / X1 4,393 / X2 10,645 / X3 3,756. X6 selected X3. All exact positivity checks passed. The production SHA256 audit found zero differences across 1,624 paths, and 63 witnessed owned process identities were terminal. Report and handoff updated. Closing checkpoint and post-push verification follow.
+
+FP2-B order archived and verified. Whole-item R4 source check sealed at bb352600c5. Prior host audit matched all 1,624 production pins and found all 63 FP2-B0 identities terminal. Next A1 implementation, small fixtures and Gate E on an A1-only build.
+
+FP2-B A1 build630 passed in 45.867 s with no new warnings. Solver SHA256 unchanged at build627. Test driver SHA256 26402da296b71347f49a8eb331727acba8e4dc8f1da13c1920d91310a1fe716c. Starting Gate E on the A1-only binary.
+
+FP2-B build630 E1 execution completed in 124.093 s. All raw Gate E rows exactly match X3 (3,756 bad, 561,067 cells, 84,102 faces, 11,296 before V, 172 V-collapses, 1,175 V-splits, seven exact rounds). R3: the result file was written, but tool readback compared JSON rank keys against Python integers. Preserving the initial helper and binding the existing receipt without rerunning E1. Running the focused A1 serial fixture next.
+
+FP2-B A1 serial fixtures passed on build630 (105 assertions in three cases). V-split acceptance and rollback, unchanged boundary nodal values after V-collapse, and the ON/OFF empty-round counters are verified. Next E6 after E1 receipt verification.
+
+FP2-B A1 Gate E passed on build630. The E1 read-only verification authenticated the archived original helper and all artifacts. E6 matched 49 rank/pass/round rows in 77.353 s, 3,741 final bad cells, 556,192 cells after the higher shift, 84,124 / 84,184 pass face sums, 209 V-collapses and 1,237 V-splits. Before-V sums 11,644 / 3,843. All A1 jobs are terminal. Checkpoint A1 as default path not yet proven, then apply A2.

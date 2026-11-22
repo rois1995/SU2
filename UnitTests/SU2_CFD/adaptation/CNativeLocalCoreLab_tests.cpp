@@ -790,3 +790,4 @@ TEST_CASE("FP2-A rank check on the frozen M6 event 1 volume", "[.][NativeLocalCo
 #include "fixtures/native_handover.inc"
 #include "fixtures/native_handover_quality.inc"
 #include "fixtures/native_handover_volume.inc"
+#include "fixtures/native_volume_handover.inc"
