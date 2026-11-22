@@ -197,45 +197,6 @@ void EngineCensus::MeasureCell(EngineContext& context, Id id, bool seed, FrozenF
     strict = metric.maximum_length <= MaximumMetricEdge;
   } else {
     const bool metric_valid = ValidateMetricPatch({cell}, field, metric, reason, &counted, &reuse);
-    if (options.timings && !metric_valid &&
-        (metric.edges.size() != 6 || !std::isfinite(metric.maximum_length))) {
-      try {
-        const auto cached_cell = selection.census.cells.find(id);
-        if (cached_cell != selection.census.cells.end()) {
-          std::ostringstream row;
-          row << std::setprecision(17) << "NATIVE3D_METRIC_REJECT rank=" << context.world.rank
-              << " phase=" << (phase == Phase::Improvement ? "improvement" : "construction") << " cell=" << id;
-          const auto xyz = [&row](Point point) { row << point.x << ',' << point.y << ',' << point.z; };
-          for (size_t k = 0; k < cell.v.size(); ++k) {
-            row << " v" << k << '=' << cell.v[k].id << " v" << k << "_xyz=";
-            xyz(cell.v[k].p);
-          }
-          row << " centroid=";
-          xyz(Centroid(cell));
-          row << " measured_edges=" << metric.edges.size() << " maximum_length=" << metric.maximum_length;
-          const auto& edges = cached_cell->second.edges;
-          const auto node = [&cell](Id vertex) {
-            return std::find_if(cell.v.begin(), cell.v.end(), [vertex](const Node& n) { return n.id == vertex; });
-          };
-          for (size_t k = 0; k < edges.size(); ++k) {
-            const auto& key = edges[k];
-            const auto a = node(key[0]);
-            const auto b = node(key[1]);
-            const double space = a != cell.v.end() && b != cell.v.end()
-                                     ? std::hypot(a->p.x - b->p.x, a->p.y - b->p.y, a->p.z - b->p.z)
-                                     : -1;
-            const auto cached = selection.census.edges.find(key);
-            row << " e" << k << "_a=" << key[0] << " e" << k << "_b=" << key[1]
-                << " e" << k << "_space=" << space << " e" << k << "_metric="
-                << (cached == selection.census.edges.end() ? -1 : cached->second.measure.length);
-          }
-          row << " reason=" << std::quoted(reason) << '\n';
-          std::cout << row.str();
-        }
-      } catch (...) {
-        // Keep the original refresh failure even when its diagnostic cannot be printed.
-      }
-    }
     std::string height_reason;
     height_valid = EngineTrial::HeightCheck(context, GeometryPatch(Imported{{working.at(id)}, true, {}}, &geometry),
                                             height_reason, false, &height);

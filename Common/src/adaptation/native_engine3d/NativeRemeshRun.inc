@@ -766,94 +766,6 @@ struct RemeshRun {
     std::cout << std::endl;
   }
 
-  void PrintLocalShort(const SU2NativeLocal3D::Mesh& mesh, int rank, size_t stage, unsigned pass,
-                       const char* checkpoint, Id input_point_base) noexcept {
-    namespace core = SU2NativeLocal3D;
-    const auto prefix = [&](std::ostream& out) -> std::ostream& {
-      return out << "NATIVE3D_LOCAL_SHORT rank=" << rank << " stage=" << stage << " pass=" << pass
-                 << " checkpoint=" << checkpoint << " input_point_base=" << input_point_base;
-    };
-    const auto error = [&](const char* reason) {
-      try {
-        std::ostringstream out;
-        prefix(out) << " error=" << std::quoted(reason) << '\n';
-        std::cout << out.str() << std::flush;
-      } catch (...) {}
-    };
-    try {
-      struct ShortEdge {
-        double metric;
-        std::array<Id, 2> ids;
-        core::Edge edge;
-        bool physical = false;
-        bool operator<(const ShortEdge& other) const {
-          return std::tie(metric, ids) < std::tie(other.metric, other.ids);
-        }
-      };
-      constexpr size_t shortest_count = 5;
-      std::array<size_t, 4> bins{};
-      std::vector<ShortEdge> shortest;
-      shortest.reserve(shortest_count + 1);
-      const auto& points = mesh.Points();
-      for (const auto& use : mesh.Edges()) {
-        const auto metric = mesh.Length(use.edge);
-        bins[0] += metric < 1e-6;
-        bins[1] += metric < 1e-4;
-        bins[2] += metric < 1e-2;
-        bins[3] += metric < .1;
-        auto edge = use.edge;
-        if (points[edge[0]].node.id > points[edge[1]].node.id) std::swap(edge[0], edge[1]);
-        const ShortEdge candidate{metric, {points[edge[0]].node.id, points[edge[1]].node.id}, edge};
-        if (shortest.size() == shortest_count && !(candidate < shortest.back())) continue;
-        shortest.insert(std::lower_bound(shortest.begin(), shortest.end(), candidate), candidate);
-        if (shortest.size() > shortest_count) shortest.pop_back();
-      }
-
-      for (const auto& cell : mesh.Cells()) {
-        if (!cell.live) continue;
-        for (unsigned k = 0; k < 4; ++k) {
-          if (cell.neighbors[k] != core::Physical) continue;
-          const auto face = core::OrientedFace(cell.vertices, k);
-          for (auto& edge : shortest)
-            if (!edge.physical && std::find(face.begin(), face.end(), edge.edge[0]) != face.end() &&
-                std::find(face.begin(), face.end(), edge.edge[1]) != face.end())
-              edge.physical = true;
-        }
-      }
-
-      std::ostringstream out;
-      const auto counts = [&]() -> std::ostream& {
-        return prefix(out) << " lt_1e_6=" << bins[0] << " lt_1e_4=" << bins[1] << " lt_1e_2=" << bins[2]
-                           << " lt_01=" << bins[3];
-      };
-      const auto endpoint = [&](const char* name, const core::PointRow& point) {
-        const auto& node = point.node;
-        out << ' ' << name << '=' << node.id << ' ' << name << "_xyz=" << node.p.x << ',' << node.p.y << ','
-            << node.p.z << ' ' << name << "_surface=" << point.surface << ' ' << name << "_border=" << point.border
-            << ' ' << name << "_new=" << (node.id > input_point_base);
-      };
-      out << std::setprecision(17);
-      if (shortest.empty()) counts() << '\n';
-      for (size_t i = 0; i < shortest.size(); ++i) {
-        const auto& edge = shortest[i];
-        const auto& a = points[edge.edge[0]];
-        const auto& b = points[edge.edge[1]];
-        const auto& p = a.node.p;
-        const auto& q = b.node.p;
-        counts() << " order=" << i + 1 << " metric=" << edge.metric
-                 << " space=" << std::hypot(p.x - q.x, p.y - q.y, p.z - q.z);
-        endpoint("a", a);
-        endpoint("b", b);
-        out << " physical=" << edge.physical << '\n';
-      }
-      std::cout << out.str() << std::flush;
-    } catch (const std::exception& e) {
-      error(e.what());
-    } catch (...) {
-      error("Unknown local edge probe error");
-    }
-  }
-
   void PrintLocalShift(int rank, bool lower, const SU2NativeLocal3D::ShiftStats& shift, double seconds) {
     std::cout << "NATIVE3D_LOCAL_SHIFT rank=" << rank << " stage=" << stats.normalization_stages - 1
               << " direction=" << (lower ? "lower" : "higher")
@@ -949,15 +861,13 @@ struct RemeshRun {
     };
     for (const auto& entry : working) visit(entry.second.cell);
     for (const auto& donor : *mesh.worker_source) visit(donor.cell);
-    const auto input_point_base = workers.reduce<uint64_t>(point_base, CPassiveComm::Op::MAX);
-    core::IdSequence point_ids(input_point_base, workers.rank, workers.size);
+    core::IdSequence point_ids(workers.reduce<uint64_t>(point_base, CPassiveComm::Op::MAX), workers.rank, workers.size);
     core::IdSequence cell_ids(workers.reduce<uint64_t>(cell_base, CPassiveComm::Op::MAX), workers.rank, workers.size);
 
     constexpr size_t owned_row_bytes = sizeof(Owned::value_type) + 4 * sizeof(void*);
     core::MemoryBudget budget{kernel.memory_ceiling, kernel.caller_bytes, owned_row_bytes};
     const unsigned passes = workers.size == 1 ? 1 : core::PassCount;
     const bool report = control.timings;
-    const auto stage = stats.normalization_stages - 1;
     double exchange_seconds = 0;
     core::BorderMeeting previous;
     for (unsigned pass = 1; pass <= passes; ++pass) {
@@ -977,35 +887,12 @@ struct RemeshRun {
       core::PassStats counts;
       counts.report = report;
       if (report) counts.sink = [this, rank = workers.rank, pass](const auto& row) { PrintLocalSweep(rank, pass, row); };
-      size_t near_printed = 0, near_left_out = 0;
       CLocalFailure local;
       try {
         const auto build_start = report ? workers.seconds() : 0.0;
         core::Mesh pass_mesh(working, workers.size > 1);
         const auto build_seconds = report ? workers.seconds() - build_start : 0.0;
         pass_mesh.MarkBorderSurface(meeting);
-        if (report) {
-          PrintLocalShort(pass_mesh, workers.rank, stage, pass, "c0", input_point_base);
-          try {
-            if (surface)
-              counts.surface_sink = [&](const auto&) {
-                PrintLocalShort(pass_mesh, workers.rank, stage, pass, "c1", input_point_base);
-              };
-            counts.surface_near_sink = [&](char step, const std::string& row) noexcept {
-              if (near_printed >= 50) {
-                ++near_left_out;
-                return;
-              }
-              try {
-                std::ostringstream out;
-                out << "NATIVE3D_LOCAL_NEAR rank=" << workers.rank << " stage=" << stage << " pass=" << pass
-                    << " step=" << step << ' ' << row << '\n';
-                std::cout << out.str() << std::flush;
-                ++near_printed;
-              } catch (...) {}
-            };
-          } catch (...) {}
-        }
         if (surface) {
           surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
           core::CoreOptions options;
@@ -1013,17 +900,6 @@ struct RemeshRun {
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get());
         } else {
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));
-        }
-        counts.surface_sink = {};
-        counts.surface_near_sink = {};
-        if (report) {
-          PrintLocalShort(pass_mesh, workers.rank, stage, pass, "end", input_point_base);
-          try {
-            std::ostringstream out;
-            out << "NATIVE3D_LOCAL_NEAR_LEFT rank=" << workers.rank << " stage=" << stage << " pass=" << pass
-                << " printed=" << near_printed << " left_out=" << near_left_out << '\n';
-            std::cout << out.str() << std::flush;
-          } catch (...) {}
         }
         const auto write_start = report ? workers.seconds() : 0.0;
         pass_mesh.WriteBack(working, cell_ids);
@@ -1063,25 +939,6 @@ struct RemeshRun {
         stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
         if (report) PrintLocalShift(workers.rank, lower, shift, workers.seconds() - shift_begin);
         if (lower) previous.rendezvous = std::move(meeting.rendezvous);
-      }
-    }
-    if (report) {
-      const auto error = [&](const char* reason) {
-        try {
-          std::ostringstream out;
-          out << "NATIVE3D_LOCAL_SHORT rank=" << workers.rank << " stage=" << stage
-              << " pass=0 checkpoint=shifted input_point_base=" << input_point_base
-              << " error=" << std::quoted(reason) << '\n';
-          std::cout << out.str() << std::flush;
-        } catch (...) {}
-      };
-      try {
-        const core::Mesh probe(working, workers.size > 1);
-        PrintLocalShort(probe, workers.rank, stage, 0, "shifted", input_point_base);
-      } catch (const std::exception& e) {
-        error(e.what());
-      } catch (...) {
-        error("Unknown shifted mesh probe error");
       }
     }
     return surface && InstallLocalSurface(preparation, working, trial, *surface, budget, exchange_seconds);

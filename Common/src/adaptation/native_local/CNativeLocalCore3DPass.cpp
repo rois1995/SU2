@@ -383,54 +383,6 @@ void Mesh::QualityWork(IdSequence& point_ids, size_t cell_limit, PassStats& stat
   if (stats.report) stats.limit = true;
 }
 
-void Mesh::RepairRounds(IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
-  // The measured runs needed at most nine rounds. This limit only bounds a fault.
-  constexpr unsigned VolumeRoundLimit = 10;
-  const auto start = ReportClock(stats);
-  auto& report = stats.surface;
-  if (stats.report)
-    for (const auto& row : cells_)
-      if (row.live && Margin(row.vertices) < BadMargin) ++report.bad_before_v;
-
-  const auto sweep = [&](const auto& operation) {
-    std::vector<std::tuple<double, std::array<Id, 4>, Slot>> candidates;
-    for (Slot cell = 0; cell < cells_.size(); ++cell) {
-      const auto& row = cells_[cell];
-      if (!row.live || row.stamp == sweep_) continue;
-      const auto touching_boundary = [this](Slot p) { return points_[p].surface || points_[p].border; };
-      if (std::none_of(row.vertices.begin(), row.vertices.end(), touching_boundary)) continue;
-      const double margin = Margin(row.vertices);
-      if (margin < BadMargin) candidates.emplace_back(margin, Key(row.vertices), cell);
-    }
-    std::sort(candidates.begin(), candidates.end());
-    size_t accepted = 0;
-    for (const auto& candidate : candidates) {
-      const auto cell = std::get<2>(candidate);
-      if (cells_[cell].live && cells_[cell].stamp != sweep_) accepted += operation(cell);
-    }
-    return accepted;
-  };
-  for (unsigned round = 1; round <= VolumeRoundLimit; ++round) {
-    ++sweep_;
-    MarkWallNear();
-    const auto collapsed = sweep([&](Slot cell) { return CollapseNear(cell, cell_limit); });
-    const auto split = sweep([&](Slot cell) { return SplitInside(cell, point_ids, cell_limit); });
-    const auto previous_quality = stats.report ? stats.sweeps_quality : 0;
-    QualityWork(point_ids, cell_limit, stats);
-    if (stats.report) {
-      ++report.v_rounds;
-      report.v_collapses += collapsed;
-      report.v_splits += split;
-      report.v_limit = round == VolumeRoundLimit && (collapsed != 0 || split != 0);
-      if (!report.v_changes.empty()) report.v_changes += ',';
-      report.v_changes += "c" + std::to_string(collapsed) + "s" + std::to_string(split) + "q" +
-                          std::to_string(stats.sweeps_quality - previous_quality);
-    }
-    if (collapsed == 0 && split == 0) break;
-  }
-  if (stats.report) report.seconds_v = ReportClock(stats) - start;
-}
-
 void Mesh::ReportResult(PassStats& stats) const {
   stats.cells_out = live_cells_;
   for (const auto& point : points_) {
@@ -479,7 +431,6 @@ PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stat
   LengthWork(point_ids, cell_limit, stats);
   const auto quality_start = ReportClock(stats);
   QualityWork(point_ids, cell_limit, stats);
-  if (options.surface_splits && surface) RepairRounds(point_ids, cell_limit, stats);
   const auto check_start = ReportClock(stats);
   Check();
   if (stats.report) {

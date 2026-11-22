@@ -1204,3 +1204,13 @@ FP2-B D1 archived the order and verified SHA256 78b34a13b5f7050ea8935b93ac023ba7
 D1 restored the nine build633 paths exactly and added P1–P4 in the five scoped production files. Their output uses only local data under the existing report switches. Starting build635 for both binaries.
 
 D1 build635 compiled both binaries in 69.213 s with no new warnings. The three corrected path cases, cylinder invariant (27 checked, zero violations), and three A1 cases passed once. Checkpoint the diagnosis-only code and start the single S1 on the unchanged controller.
+
+D1 temporary checkpoint 873eaf5a9e pushed. The single S1 was launched from build635 with config SHA256 07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382 and controller source byte-identical to build633. Actual-host preflight found no active owned workload. Wait for the inherited controller.
+
+D1 S1 event 1 captured all local checkpoints. The 12 LOCAL_SURFACE rank/pass integer rows already match build633. Rank 2 pass 1 first gains its near-zero edges by c1; the minimum physical edge 64572–64650 (3.9070055295542924e-10) also appears at engine seeding, with the same coordinates and metric to precision. Both point IDs are within the first-pass Step L allocation range. The first engine LENGTH minimum 5.4527443514081955e-10 matches historical event 1 on rank 2. Native improvement is active.
+
+D1 event 1 completed and all three payloads match S1 of build633 byte-for-byte. Event 2 seeded the core-generated rank-0 edges 115118–115130 (1.6169413268309967e-09) and 115112–115124 (3.4973302189904171e-09). Await the first LENGTH row and captured P3 reason.
+
+D1 build635 S1 ended under the inherited controller after 2096.810 s. Event 1 integer rows and three payloads matched build633. Event 2 rejected rank 0 cell 21740526 with original reason "Degenerate metric donor. at native 3D metric cell 21740526." Its cached metric edge minimum was 0.88835203236367702. The near-zero event-2 LENGTH minimum was already in seed from a Step L sheet split. All handles terminal. Restoring 240ca96db8 source and test trees and rebuilding both binaries.
+
+D1 closed. Build636 rebuilt both binaries without new warnings and matched the build634 binary hashes. All 1,624 build627 production pins matched. Scoped diffs against 240ca96db8 and 852e566d17 were empty. Report completed, 19 owned D1 identities terminal. Push the single restoration commit and verify terminal handles again.

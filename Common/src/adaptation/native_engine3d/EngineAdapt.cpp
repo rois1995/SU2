@@ -261,45 +261,6 @@ struct EngineRun {
       if (!ready) return Finish();
     } while (surface_target && !world.maximum(selection.census.construction_invalid != 0) &&
              world.maximum(seed_slot < initial.size()));
-    if (context.options.timings) {
-      try {
-        const auto& edges = selection.census.edges;
-        using EdgeRow = std::decay_t<decltype(edges)>::value_type;
-        std::array<const EdgeRow*, 5> shortest{};
-        std::array<size_t, 4> bins{};
-        for (const auto& edge : edges) {
-          const auto length = edge.second.measure.length;
-          bins[0] += length < 1e-6L;
-          bins[1] += length < 1e-4L;
-          bins[2] += length < 1e-2L;
-          bins[3] += length < .1L;
-          // Map iteration breaks equal lengths by increasing edge key.
-          const auto place = std::find_if(shortest.begin(), shortest.end(), [length](const EdgeRow* prior) {
-            return !prior || length < prior->second.measure.length;
-          });
-          if (place == shortest.end()) continue;
-          std::move_backward(place, shortest.end() - 1, shortest.end());
-          *place = &edge;
-        }
-        std::ostringstream row;
-        row << std::setprecision(17) << "NATIVE3D_SEED_SHORT rank=" << world.rank << " cells=" << working.size()
-            << " measured=" << selection.census.cells.size() << " edges=" << edges.size()
-            << " lt_1e_6=" << bins[0] << " lt_1e_4=" << bins[1] << " lt_1e_2=" << bins[2] << " lt_0_1=" << bins[3];
-        for (size_t k = 0; k < shortest.size() && shortest[k]; ++k) {
-          const auto& [key, state] = *shortest[k];
-          const auto& a = state.measure.a;
-          const auto& b = state.measure.b;
-          row << " e" << k << "_a=" << key[0] << " e" << k << "_b=" << key[1]
-              << " e" << k << "_metric=" << state.measure.length
-              << " e" << k << "_a_xyz=" << a.x << ',' << a.y << ',' << a.z
-              << " e" << k << "_b_xyz=" << b.x << ',' << b.y << ',' << b.z;
-        }
-        row << '\n';
-        std::cout << row.str();
-      } catch (...) {
-        // Seeding and rounds must continue when the diagnostic cannot be printed.
-      }
-    }
     return RunRounds(setup_finish);
   }
 
