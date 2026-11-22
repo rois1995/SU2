@@ -123,3 +123,37 @@ not been positively verified. The recorded values are in
 
 Passing this test verifies infrastructure. It does not establish nonlinear EPM
 endpoint accuracy, resolve eigenvector degeneracy, or validate uncertainty bounds.
+
+## EPM direct mode check (`SST_EPM_DIRECT`)
+
+`SST_EPM_DIRECT= YES` with `SST_EPM_DIRECT_AMPLITUDE= A` runs plain SST (`MATH_PROBLEM= DIRECT`,
+`SST_OPTIONS= V2003m`) on the path the extraction linearizes: the viscous stress is
+`tau0 + A (tau_m - tau0)` and the SST production `clip(P0) + A (clip(P_m) - clip(P0))` (omega
+production alike), for the case of `UQ_COMPONENT` / `UQ_PERMUTE`. So `dJ/dA` at `A = 0` is the
+extracted `dJ_da_at_zero` of that case, SWAP included. The classical solver (`SST_OPTIONS` UQ,
+`UQ_URLX= A`) clips the production after the blend and keeps `(1-A) 2/3 rho k` in the stress; its
+SWAP secants need not tend to `dJ_da_at_zero`. Both agree at `A = 1`.
+
+After a serial `check_extraction.py` run (its `baseline` restart and `enabled` CSV are the reference):
+
+```bash
+python3 TestCases/disc_adj_rans/sst_epm_adjoint/check_direct.py \
+  /path/to/SU2_CFD build-epm-local/direct-2d --reference build-epm-local/check-2d
+python3 TestCases/disc_adj_rans/sst_epm_adjoint/check_direct.py \
+  /path/to/SU2_CFD build-epm-local/direct-2d-mpi --reference build-epm-local/check-2d --ranks 2
+```
+
+Either binary works (`SU2_CFD` or `SU2_CFD_AD`, no OpenMP). The script restarts from the
+reference primal and checks:
+
+- `A = 0` against a plain restart run: equal histories (all non-timing columns) and an equal
+  restart file after 5 iterations;
+- seven rejections at configuration time (classical UQ, adjoint, extraction, amplitude out of
+  `[-1, 1]` or missing, `UQ_URLX != 1`, 3C with permutation);
+- per case, converged runs at `A = +h` and `-h` (`--step`, default `0.01`): the central
+  difference must equal the reference `dJ_da_at_zero` to `2e-3` relative (`--rel-tol`). The
+  forward and backward secants are recorded too.
+- with `--endpoints`, `A = 1` against the classical `UQ_URLX= 1` run of each case (`1e-8`
+  relative when both converge; recorded only otherwise).
+
+It writes `summary.json`. Not run yet: it needs the cluster build.
