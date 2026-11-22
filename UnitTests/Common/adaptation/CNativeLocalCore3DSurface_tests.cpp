@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "native_local_fixture_access.hpp"
+#include "native_local_surface_probe.hpp"
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 
 #include <algorithm>
@@ -20,7 +21,7 @@ using Tet = std::array<size_t, 4>;
 
 constexpr Edge BoxDiagonal{0, 2};
 constexpr Face AskingFace{0, 1, 2}, LockedFace{0, 2, 3};
-constexpr Edge LockedSide{2, 3};
+constexpr Edge LockedSide{2, 3}, FirstTerminal{3, 6};
 
 bool Holds(const Face& face, Id id) { return std::find(face.begin(), face.end(), id) != face.end(); }
 
@@ -243,8 +244,9 @@ class LockedBoxGeometry : public FlatGeometry {
   bool Feature(const Edge& edge) const override { return feature_ && edge == BoxDiagonal; }
   local::SurfaceSamples Samples(const SurfaceFace& candidate) override {
     const auto face = Key(candidate.v);
-    return face == AskingFace || face == LockedFace ? local::SurfaceSamples{{2 * Limit(), 0, 0, 0}, 0}
-                                                    : local::SurfaceSamples{};
+    return face == AskingFace || (feature_ && face == LockedFace)
+               ? local::SurfaceSamples{{2 * Limit(), 0, 0, 0}, 0}
+               : local::SurfaceSamples{};
   }
   std::optional<double> Chord(const std::array<Node, 2>& edge) override {
     REQUIRE(Feature(EdgeKey(edge)));
@@ -348,7 +350,7 @@ struct PassResult {
   std::map<Face, local::SurfaceRemaining> remaining;
 };
 
-PassResult Run(Owned owned, FlatGeometry& geometry, bool work_list) {
+PassResult Run(Owned owned, FlatGeometry& geometry, bool work_list, bool check_longest = false) {
   local::CoreOptions options;
   options.surface_splits = true;
   options.work_list = work_list;
@@ -361,7 +363,16 @@ PassResult Run(Owned owned, FlatGeometry& geometry, bool work_list) {
   report.surface_remaining_sink = [&](Face face, local::SurfaceRemaining reason) {
     REQUIRE(remaining.emplace(Key(face), reason).second);
   };
-  auto stats = mesh.RunPass(points, SIZE_MAX, std::move(report), options, &geometry);
+  std::optional<local::SurfaceLongestEdgeProbe> probe;
+  if (check_longest) probe.emplace(mesh, geometry);
+  local::SurfaceGeometry* surface = probe ? &*probe : static_cast<local::SurfaceGeometry*>(&geometry);
+  auto stats = mesh.RunPass(points, SIZE_MAX, std::move(report), options, surface);
+  if (probe) {
+    CHECK(probe->Checked() == stats.surface.splits_distance);
+    CHECK(probe->Violations() == 0);
+    std::cout << "FP2_B cylinder_invariant checked=" << probe->Checked() << " violations=" << probe->Violations()
+              << '\n';
+  }
   stats.surface_remaining_sink = {};
   REQUIRE_NOTHROW(mesh.Check());
   for (const auto& [id, node] : geometry.created) {
@@ -381,22 +392,48 @@ PassResult Run(Owned owned, FlatGeometry& geometry, bool work_list) {
   return {OwnedBytes(owned), std::move(stats), std::move(remaining)};
 }
 
-local::SurfaceCounters RunDistance(local::Mesh& mesh, LockedBoxGeometry& geometry,
-                                   std::map<Face, local::SurfaceRemaining>& remaining) {
+using SplitAndWaitCounts = std::pair<size_t, size_t>;
+
+struct DistanceRun {
+  local::SurfaceCounters counts;
+  std::map<Face, local::SurfaceRemaining> remaining;
+  std::vector<SplitAndWaitCounts> sweeps;
+};
+
+DistanceRun RunDistance(local::Mesh& mesh, LockedBoxGeometry& geometry) {
   local::IdSequence ids(7);
   local::PassStats report;
+  DistanceRun result;
   report.surface_remaining_sink = [&](Face face, local::SurfaceRemaining reason) {
-    REQUIRE(remaining.emplace(Key(face), reason).second);
+    REQUIRE(result.remaining.emplace(Key(face), reason).second);
+  };
+  report.sink = [&](const local::SweepRow& row) {
+    if (row.candidates) result.sweeps.emplace_back(row.counters.splits, report.surface.waits_neighbor);
   };
   local::SurfaceFixtureAccess::DistanceWork(mesh, geometry, ids, report);
   REQUIRE_NOTHROW(mesh.Check());
-  return report.surface;
+  result.counts = report.surface;
+  return result;
+}
+
+double ShortestSpatialEdge(const local::Mesh& mesh) {
+  const auto edges = mesh.Edges();
+  REQUIRE_FALSE(edges.empty());
+  const auto& points = mesh.Points();
+  const auto length = [&](local::Edge edge) {
+    const auto a = points[edge[0]].node.p, b = points[edge[1]].node.p;
+    return std::hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  };
+  double shortest = length(edges.front().edge);
+  for (const auto& use : edges) shortest = std::min(shortest, length(use.edge));
+  return shortest;
 }
 
 auto Counts(const local::SurfaceCounters& row) {
   return std::tie(row.faces_in, row.faces_out, row.points_in, row.points_out, row.splits_length, row.splits_distance,
                   row.splits_feature, row.sweeps_length, row.sweeps_distance, row.left_long, row.left_border,
                   row.left_distance, row.left_refused, row.left_limit, row.left_short, row.left_neighbor_locked,
+                  row.waits_neighbor, row.path_splits, row.path_max,
                   row.refused_walk, row.refused_protected, row.refused_feature, row.refused_trace, row.refused_duplicate,
                   row.refused_outward, row.refused_size, row.refused_valid, row.refused_topology, row.refused_memory,
                   row.refused_entity, row.chord_unknown, row.samples, row.samples_unconverged);
@@ -467,7 +504,7 @@ TEST_CASE("Cylinder surface length and distance steps repeat and account for eve
           "[.][NativeLocalCoreSurfaceA]") {
   const auto rows = Cylinder();
   CylinderGeometry first(rows), second(rows);
-  const auto a = Run(rows, first, true), b = Run(rows, second, true);
+  const auto a = Run(rows, first, true, true), b = Run(rows, second, true);
   const auto& stats = a.stats.surface;
   REQUIRE(stats.splits_length > 0);
   REQUIRE(stats.splits_distance > 0);
@@ -513,61 +550,61 @@ TEST_CASE("Distance splits never fall back from the longest edge or cut below th
   }
 }
 
-TEST_CASE("Distance splitting leaves a shorter side of a border-locked face intact",
+TEST_CASE("Distance splitting bisects each terminal edge before returning to the asking face",
+          "[.][NativeLocalCoreSurfaceB]") {
+  const auto rows = SkewedBox(false);
+  local::Mesh mesh(rows);
+  LockedBoxGeometry geometry(rows, false);
+  const auto shortest_before = ShortestSpatialEdge(mesh);
+  const auto [stats, remaining, sweeps] = RunDistance(mesh, geometry);
+  CHECK((geometry.attempts == std::vector<Edge>{FirstTerminal, LockedSide, BoxDiagonal}));
+  CHECK((sweeps == std::vector<SplitAndWaitCounts>{{1, 1}, {1, 2}, {1, 2}}));
+  CHECK(stats.path_splits == 2);
+  CHECK(stats.waits_neighbor == 2);
+  CHECK(stats.path_max == 2);
+  CHECK(stats.sweeps_distance == 3);
+  CHECK(stats.left_neighbor_locked == 0);
+  CHECK(remaining.empty());
+  CHECK(ShortestSpatialEdge(mesh) >= .5 * shortest_before);
+}
+
+TEST_CASE("A border or known refusal locks the longest-edge path",
           "[.][NativeLocalCoreSurfaceB]") {
   using local::SurfaceRemaining;
   const auto bordered = SkewedBox(true);
   local::Mesh partition(bordered, true);
   LockedBoxGeometry locked(bordered, false);
-  std::map<Face, SurfaceRemaining> remaining;
-  const auto stats = RunDistance(partition, locked, remaining);
+  const auto [stats, remaining, sweeps] = RunDistance(partition, locked);
   CHECK(stats.left_neighbor_locked == 1);
-  CHECK(stats.left_border == 1);
-  CHECK(stats.splits_distance == 0);
-  REQUIRE(remaining.size() == 2);
-  CHECK(remaining.at(AskingFace) == SurfaceRemaining::NeighborLocked);
-  CHECK(remaining.at(LockedFace) == SurfaceRemaining::Border);
+  CHECK(stats.sweeps_distance == 0);
   CHECK(locked.attempts.empty());
+  CHECK(sweeps.empty());
+  REQUIRE(remaining.size() == 1);
+  CHECK(remaining.at(AskingFace) == SurfaceRemaining::NeighborLocked);
 
-  const auto complete = SkewedBox(false);
-  local::Mesh mesh(complete);
-  LockedBoxGeometry unlocked(complete, false);
-  remaining.clear();
-  CHECK(RunDistance(mesh, unlocked, remaining).left_neighbor_locked == 0);
-  CHECK(remaining.empty());
-  CHECK((unlocked.attempts == std::vector<Edge>{LockedSide, BoxDiagonal}));
-  REQUIRE(unlocked.created.size() == 2);
-  CHECK(unlocked.created.at(9).p.x == .5);
-  CHECK(unlocked.created.at(9).p.y == .5);
-  CHECK(unlocked.created.at(9).p.z == 0);
-}
-
-TEST_CASE("A known refused longest edge suppresses its neighbor's distance request",
-          "[.][NativeLocalCoreSurfaceB]") {
   const auto rows = SkewedBox(false);
   const local::Mesh mesh(rows);
   LockedBoxGeometry geometry(rows, false);
   const auto refused = local::SurfaceFixtureAccess::DistanceChoice(mesh, geometry, AskingFace, {LockedSide});
-  CHECK(refused.second == local::SurfaceRemaining::NeighborLocked);
+  CHECK_FALSE(refused.first.has_value());
+  CHECK(refused.second == SurfaceRemaining::NeighborLocked);
   const auto allowed = local::SurfaceFixtureAccess::DistanceChoice(mesh, geometry, AskingFace, {});
-  CHECK(allowed.first == BoxDiagonal);
+  CHECK(allowed.first == FirstTerminal);
   CHECK_FALSE(allowed.second.has_value());
 }
 
-TEST_CASE("An above-limit feature chord beside a locked longest edge is not marked",
+TEST_CASE("Both faces of an above-limit feature chord wait for their terminal splits",
           "[.][NativeLocalCoreSurfaceB]") {
-  const auto rows = SkewedBox(true);
-  local::Mesh mesh(rows, true);
+  const auto rows = SkewedBox(false);
+  local::Mesh mesh(rows);
   LockedBoxGeometry geometry(rows, true);
-  std::map<Face, local::SurfaceRemaining> remaining;
-  const auto stats = RunDistance(mesh, geometry, remaining);
+  const auto [stats, remaining, sweeps] = RunDistance(mesh, geometry);
+  CHECK((geometry.attempts == std::vector<Edge>{FirstTerminal, LockedSide, BoxDiagonal}));
+  // Only the two faces at the chord can wait, so two new waits in a sweep cover both faces.
+  CHECK((sweeps == std::vector<SplitAndWaitCounts>{{1, 2}, {1, 4}, {1, 4}}));
+  CHECK(stats.path_splits == 2);
+  CHECK(remaining.empty());
   CHECK(geometry.chord_queries == 1);
-  CHECK(geometry.attempts.empty());
-  CHECK(stats.sweeps_distance == 0);
-  CHECK(stats.left_neighbor_locked == 2);
-  REQUIRE(remaining.size() == 2);
-  CHECK(remaining.at(AskingFace) == local::SurfaceRemaining::NeighborLocked);
-  CHECK(remaining.at(LockedFace) == local::SurfaceRemaining::NeighborLocked);
 }
 
 namespace {

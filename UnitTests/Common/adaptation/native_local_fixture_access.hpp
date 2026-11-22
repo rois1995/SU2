@@ -64,10 +64,13 @@ struct SurfaceFixtureAccess {
       return vertices == face;
     });
     REQUIRE(parent != parents.end());
-    const auto choice = mesh.ChooseDistanceEdge(*parent, geometry, geometry.Limit(), {}, refused, {});
-    const auto edge = mesh.ById(choice.edge);
-    return std::make_pair(SU2Native3D::Edge{mesh.points_[edge[0]].node.id, mesh.points_[edge[1]].node.id},
-                          choice.reason);
+    const auto choice = mesh.ChooseDistanceEdge(*parent, geometry, geometry.Limit(), {}, refused, {}, parents.size());
+    std::optional<SU2Native3D::Edge> mark;
+    if (!choice.reason) {
+      const auto edge = mesh.ById(choice.edge);
+      mark = SU2Native3D::Edge{mesh.points_[edge[0]].node.id, mesh.points_[edge[1]].node.id};
+    }
+    return std::make_pair(mark, choice.reason);
   }
 
   static unsigned BadClass(const Mesh&, const Vertices&, Id point_base);

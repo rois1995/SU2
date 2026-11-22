@@ -1,6 +1,7 @@
 """Run FP2-B G5 in the required order S1, default scope, OFF, CORE, S2."""
 
 from argparse import ArgumentParser
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 import runpy
 import subprocess
@@ -8,9 +9,11 @@ import sys
 
 sys.dont_write_bytecode = True
 import run_lab as lab
-import run_scoped as scope
 
 HERE = lab.HERE
+SCOPED = spec_from_file_location('fp2_b_scope', HERE / 'run_scoped.py')
+scope = module_from_spec(SCOPED)
+SCOPED.loader.exec_module(scope)
 FP2_A = HERE.parent / 'FP2_A'
 INHERITED = FP2_A / 'run_g5.py'
 BASE = runpy.run_path(str(INHERITED))
@@ -150,6 +153,14 @@ def run(build_dir, mode):
     scope.verify_fixtures(scoped, fingerprints)
     source_paths.append(scoped / 'fixtures.json')
     source_paths += [HERE / 'cases' / f'build{label}' / name / 'measurement.json' for name in ('N1', 'N6')]
+    correction = HERE / 'inputs/FP2_B_CORRECTION_1.md'
+    fixture_pins = cut.read(scoped / 'provenance.json')['pins']
+    if str(correction) in fixture_pins:
+        import run_correction1
+        assert sha(correction) == fixture_pins[str(correction)] == run_correction1.ORDER_SHA
+        invariant = run_correction1.verify_handover(fingerprints)[-1]
+        source_paths += [run_correction1.DRIVER, run_correction1.SOURCE_CHECK, correction,
+                         correction.with_suffix('.sha256'), invariant]
     default_proof = scoped / 'scoped.json'
     if mode != 'S1':
         scope.verified(default_proof, fingerprints)

@@ -31,9 +31,12 @@ def main():
 
     def source_pins():
         pins = original_pins()
-        path = cut.REPO / 'UnitTests/SU2_CFD/adaptation/fixtures/native_volume_handover.inc'
-        if path.is_file():
-            pins[str(path)] = build.sha(path)
+        files = ('UnitTests/SU2_CFD/adaptation/fixtures/native_volume_handover.inc',
+                 'UnitTests/Common/adaptation/native_local_surface_probe.hpp')
+        for name in files:
+            path = cut.REPO / name
+            if path.is_file():
+                pins[str(path)] = build.sha(path)
         return pins
 
     build.source_pins = source_pins

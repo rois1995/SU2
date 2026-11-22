@@ -6,6 +6,18 @@
  */
 
 namespace {
+enum class SurfaceObservation { None, Invariant, Diagnosis };
+
+void ReportVolumeShortEdges(std::ostream& out, const local::Mesh& mesh, int rank, unsigned pass) {
+  for (const auto& use : mesh.Edges()) {
+    const auto metric = mesh.Length(use.edge);
+    if (!(metric < 1e-2)) continue;
+    const auto a = mesh.Points()[use.edge[0]].node.id, b = mesh.Points()[use.edge[1]].node.id;
+    out << "FP2_B short_edge rank=" << rank << " pass=" << pass << " a=" << std::min(a, b)
+        << " b=" << std::max(a, b) << " metric=" << metric << '\n';
+  }
+}
+
 size_t ReportVolumeBad(std::ostream& out, const local::Mesh& mesh, Id point_base, int rank, unsigned pass) {
   std::array<size_t, 4> classes{};
   for (const auto& cell : mesh.Cells()) {
@@ -153,7 +165,8 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
   REQUIRE_FALSE(world.maximum(!qualified));
 }
 
-void RunVolumeHandover(bool parallel, bool handover = false) {
+void RunVolumeHandover(bool parallel, bool handover = false,
+                       SurfaceObservation observation = SurfaceObservation::None) {
   const auto start = Clock::now();
   World world;
   REQUIRE(world.size == (parallel ? 6 : 1));
@@ -217,6 +230,7 @@ void RunVolumeHandover(bool parallel, bool handover = false) {
 
       ExactCounts exact;
       bool census_matches = false;
+      size_t violations = 0;
       CheckLabStep(world, [&] {
         local::Mesh mesh(input.cells, parallel, options);
         if (parallel) {
@@ -232,11 +246,27 @@ void RunVolumeHandover(bool parallel, bool handover = false) {
               throw std::runtime_error("FP2-B final surface reason was recorded twice on one rank.");
           };
         }
+        std::optional<local::SurfaceLongestEdgeProbe> probe;
+        if (observation != SurfaceObservation::None) {
+          const bool trace = observation == SurfaceObservation::Diagnosis;
+          probe.emplace(mesh, *surface, trace);
+          if (trace)
+            stats.sink = [&](const local::SweepRow& row) { probe->ReportSweep(std::cout, row, world.rank, pass); };
+        }
         const auto pass_begin = Clock::now();
-        stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, surface.get());
+        local::SurfaceGeometry* geometry = probe ? &*probe : static_cast<local::SurfaceGeometry*>(surface.get());
+        stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, geometry);
         const auto run_seconds = Seconds(pass_begin);
         std::ostringstream row;
-        row << std::setprecision(17) << "NATIVE3D_LOCAL_SURFACE rank=" << world.rank << " stage=0 pass=" << pass
+        row << std::setprecision(17);
+        if (probe) {
+          if (probe->Checked() != stats.surface.splits_distance)
+            throw std::logic_error("Surface probe did not observe each accepted distance split.");
+          violations = probe->Violations();
+          row << "FP2_B invariant rank=" << world.rank << " pass=" << pass << " violations=" << violations
+              << " point_base=" << point_base << '\n';
+        }
+        row << "NATIVE3D_LOCAL_SURFACE rank=" << world.rank << " stage=0 pass=" << pass
             << " applicable=1";
         local::PrintSurfaceFields(row, stats.surface);
         std::cout << row.str() << '\n' << std::flush;
@@ -247,6 +277,8 @@ void RunVolumeHandover(bool parallel, bool handover = false) {
           row.str("");
           bad_matches = ReportVolumeBad(row, mesh, point_base, world.rank, pass) == stats.bad_out;
           fp2_b0::ReportEdges(row, mesh, point_base, world.rank, pass, "out");
+          if (observation == SurfaceObservation::Diagnosis && pass == pass_count)
+            ReportVolumeShortEdges(row, mesh, world.rank, pass);
           if (pass == pass_count) fp2_b0::ReportStars(row, mesh, point_base, world.rank, pass, "out", true);
           std::cout << row.str() << std::flush;
           measurement_seconds = Seconds(measurement_start);
@@ -268,6 +300,7 @@ void RunVolumeHandover(bool parallel, bool handover = false) {
       });
       REQUIRE_FALSE(world.maximum(exact.nonpositive != 0));
       REQUIRE_FALSE(world.maximum(!census_matches));
+      if (observation == SurfaceObservation::Invariant) REQUIRE(violations == 0);
       memory.maximum_bytes = std::max(memory.maximum_bytes, surface->PeakBytes());
       if (parallel) {
         surface->Exchange(world, memory, transfer_memory::Add(retained, OwnedStorageBytes(input.cells)));
@@ -321,4 +354,14 @@ TEST_CASE("FP2-B production volume hand-over and proof on one rank", "[.][Native
 
 TEST_CASE("FP2-B production volume hand-over and proof on six ranks", "[.][NativeLocalCoreVolumeHandoverMPI]") {
   RunVolumeHandover(true, true);
+}
+
+TEST_CASE("FP2-B accepted distance splits bisect both parents' longest edges",
+          "[.][NativeLocalCoreVolumeHandoverInvariant]") {
+  RunVolumeHandover(false, true, SurfaceObservation::Invariant);
+}
+
+TEST_CASE("FP2-B trace accepted surface splits in the six-rank hand-over",
+          "[.][NativeLocalCoreVolumeHandoverDiagnosis]") {
+  RunVolumeHandover(true, true, SurfaceObservation::Diagnosis);
 }

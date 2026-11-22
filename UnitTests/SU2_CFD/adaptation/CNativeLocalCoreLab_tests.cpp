@@ -6,6 +6,7 @@
  */
 #include "TransferTestCase.hpp"
 #include "../../Common/adaptation/native_local_fixture_access.hpp"
+#include "../../Common/adaptation/native_local_surface_probe.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalSurface3D.hpp"

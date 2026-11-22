@@ -1164,3 +1164,15 @@ FP2-B A2 pushed as 535d311882 with the default path pending. Host audit verified
 FP2-B build632 N1 passed in 294.076 s. Handover 3,474 bad cells (1,905 / 1,450 / 0 / 119 by class), zero metric edges below 0.01, minimum 0.023404202387000857, all 559,193 cells exactly positive, 82,968 owned faces and four strict entities accepted. Classify above tolerance and unexplained both zero. N1 terminal. Starting N6.
 
 FP2-B build632 N6 terminal in 305.821 s. Lab FAILED the last-pass edge gate: first rank 2 had four rows below metric 0.01 vs zero, with eight rows total and seven distinct edges. Smallest 0.00075945199938384203. The 3,420 bad cells, exact positivity, geometry, 27,167,880-byte snapshot agreement, qualified proof (20 refused, one neighbor-locked, zero unexplained), and rank alarms passed. The one read-only R5 diagnosis traced all short edges to Step D. Six distinct edges survived pass 1 and one new edge came from pass 2. A1 51647d8ecf and A2 535d311882 retained, default path not yet proven. Remaining fixtures, G1, S1, the default proof and S2 unevaluated. Close with the lab stop evidence checkpoint and host audit.
+
+FP2-B correction 1 order archived with SHA256 b735b39ea86da2b780d8108e79782466f9d8eb5f492b570b87c9b3b160455b45. R4 sealed at 457822008c before production edits and 44 prior process identities terminal. Next implement the Step D path and fixtures. S1 is conditional on the corrected hand-over gate.
+
+FP2-B correction 1 Step D and test observers are ready. Changes.cpp and Pass.cpp match build632 pins. The production diff since 535d311882 is confined to Step D and its print fields in Core.hpp and Surface. Gate E remains at build630. Starting build633 for SU2_CFD and test_driver.
+
+FP2-B correction 1 build633 compiled the solver and test driver in 46.863 s without new warnings. Running correction fixtures a–d (cylinder), A1, inherited FP1/FP2-A fixtures and G1 before the corrected lab.
+
+FP2-B correction 1 R3. The first fixture command stopped before launching a workload because imported FP1 tools moved a same-named runner ahead of FP2-B on the Python path. Restored local runner precedence. Resuming fixtures on the same pinned build633.
+
+FP2-B correction 1 scoped fixture cohorts passed on build633. The revised box fixtures matched the expected split order and the cylinder checked 27 accepted D splits with zero violations. A1 and the inherited FP1 and FP2-A cohorts passed. G1 serial is active, then MPI2 and MPI4.
+
+FP2-B correction 1 fixtures and G1 passed on build633. A1 and all 18 FP1 cohorts, the requested FP2-A cohorts, and the new three box cases passed. Cylinder probe checked 27 accepted D splits with zero violations. G1 identity 375 / 114 / 228 in 761.056 / 10.138 / 9.797 s. All fixture jobs ended. Checkpoint and push, then run N1 on the same binary.
