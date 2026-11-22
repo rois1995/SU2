@@ -1176,3 +1176,11 @@ FP2-B correction 1 R3. The first fixture command stopped before launching a work
 FP2-B correction 1 scoped fixture cohorts passed on build633. The revised box fixtures matched the expected split order and the cylinder checked 27 accepted D splits with zero violations. A1 and the inherited FP1 and FP2-A cohorts passed. G1 serial is active, then MPI2 and MPI4.
 
 FP2-B correction 1 fixtures and G1 passed on build633. A1 and all 18 FP1 cohorts, the requested FP2-A cohorts, and the new three box cases passed. Cylinder probe checked 27 accepted D splits with zero violations. G1 identity 375 / 114 / 228 in 761.056 / 10.138 / 9.797 s. All fixture jobs ended. Checkpoint and push, then run N1 on the same binary.
+
+FP2-B correction 1 fixture checkpoint pushed as beb1374ff8. Host audit verified 75 prior identities terminal. Starting unwrapped N1 on build633, then the separate N1 invariant and unwrapped N6.
+
+FP2-B correction 1 N1 passed in 292.431 s on build633. 548,127 exactly positive cells, 2,705 bad, 76,736 faces against 95,413, zero metric edges below 0.01, minimum 0.027364967690064603. Proof qualified by accounting for all 1,204 above-tolerance faces (100 refused, 1,104 neighbor-locked). Starting the independent wrapped N1 check on the same build.
+
+FP2-B correction 1 N1 invariant passed in 288.250 s. Zero longest-edge violations and identical NATIVE3D_LOCAL_SURFACE integer fields and bad_out to unwrapped N1 on build633. Starting unwrapped N6.
+
+FP2-B correction 1 hand-over PASSED on build633. N6 320.498 s, 2,512 bad cells, zero metric edges below 0.01, minimum 0.027364967690064603, face sums 76,612 / 76,772 against 95,305 / 95,422, exact cells and snapshots, no unexplained proof faces. N1 invariant passed separately. Save and push the lab checkpoint, then run S1 first on this same build633.

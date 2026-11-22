@@ -34,3 +34,14 @@ Both binaries built in 46.863 s with zero new warnings.
 - G1 matched 375, 114 and 228 records in 761.056, 10.138 and 9.797 s for one, two and four ranks. [Serial](../scoped/build633/G1/serial/comparison.json) · [MPI2](../scoped/build633/G1/mpi2/comparison.json) · [MPI4](../scoped/build633/G1/mpi4/comparison.json)
 
 R3. An inherited Python import had already cached a different `run_scoped` module. The first fixture attempt exited before any workload. Loaded the existing FP2-B scoped runner by its exact path, then used the original build633 binaries and pinned the corrected runner in the fixture receipt.
+
+## Corrected hand-over gate
+
+| Run | Seconds | Cells after pass or shift | Bad cells by class (a/b/c/d) | Bad total | Edges below 0.01 | Smallest metric edge | Pass face sums and limits |
+|---|---:|---:|---|---:|---:|---:|---|
+| N1 | 292.431 | 548,127 | 1,142 / 1,449 / 0 / 114 | 2,705 | 0 | 0.027364967690064603 | 76,736 ≤ 95,413 |
+| N6 | 320.498 | 542,867 | 1,168 / 1,324 / 6 / 14 | 2,512 | 0 | 0.027364967690064603 | 76,612 ≤ 95,305 / 76,772 ≤ 95,422 |
+
+All cells were exactly positive and the owned-geometry checks passed. The six N6 snapshots agreed at 26,697,320 bytes. Geometry qualified by reason accounting in both runs. N1 accounted for 1,204 above-tolerance faces (100 refused, 1,104 locked-neighbor). N6 accounted for 1,203 (100 refused, 5 border, 1,098 locked-neighbor). Both had zero unexplained faces. N6's largest post-surface star was 162, the most distance sweeps was 23, and the longest rank pass took 27.068 s. The V-round limit was clear on every rank and pass.
+
+The separate N1 observer passed in 288.250 s with zero longest-edge violations and exactly reproduced the unwrapped N1 integer surface fields and `bad_out`. The corrected six-rank run showed no subthreshold edges, so the conditional diagnostic replay was unnecessary. [Comparison with build632](FP2_B_633_correction_1_lab.md) · [Historical hand-over comparisons](FP2_B_633_lab.md) · [N1 invariant receipt](../cases/build633/N1Invariant/measurement.json)
