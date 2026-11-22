@@ -1214,3 +1214,5 @@ D1 event 1 completed and all three payloads match S1 of build633 byte-for-byte. 
 D1 build635 S1 ended under the inherited controller after 2096.810 s. Event 1 integer rows and three payloads matched build633. Event 2 rejected rank 0 cell 21740526 with original reason "Degenerate metric donor. at native 3D metric cell 21740526." Its cached metric edge minimum was 0.88835203236367702. The near-zero event-2 LENGTH minimum was already in seed from a Step L sheet split. All handles terminal. Restoring 240ca96db8 source and test trees and rebuilding both binaries.
 
 D1 closed. Build636 rebuilt both binaries without new warnings and matched the build634 binary hashes. All 1,624 build627 production pins matched. Scoped diffs against 240ca96db8 and 852e566d17 were empty. Report completed, 19 owned D1 identities terminal. Push the single restoration commit and verify terminal handles again.
+
+FP2-B correction 2 order archived and verified. Whole-item R4 check recorded against D1 `873eaf5a9e` before restoring production. Actual-host audit confirmed 111 FP2-B and 19 D1 identities terminal. Next restore the exact D1 tree, then the test-only production-partition lab.

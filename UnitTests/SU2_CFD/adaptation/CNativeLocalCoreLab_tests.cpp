@@ -6,6 +6,7 @@
  */
 #include "TransferTestCase.hpp"
 #include "../../Common/adaptation/native_local_fixture_access.hpp"
+#include "../../Common/adaptation/native_local_surface_probe.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalSurface3D.hpp"
@@ -234,7 +235,8 @@ void ReportStrict(const Owned& owned) {
 using SurfaceReasons = std::map<Face, local::SurfaceRemaining>;
 
 struct LabEntityCensus {
-  size_t faces = 0, above = 0, left_refused = 0, left_short = 0, left_border = 0, left_limit = 0, unexplained = 0;
+  size_t faces = 0, above = 0, left_refused = 0, left_short = 0, left_border = 0, left_limit = 0;
+  size_t left_neighbor_locked = 0, unexplained = 0;
 };
 
 LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2NativeGeometry::AtlasBudget& budget,
@@ -263,6 +265,7 @@ LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2Nativ
       case local::SurfaceRemaining::Short: ++census.left_short; break;
       case local::SurfaceRemaining::Border: ++census.left_border; break;
       case local::SurfaceRemaining::Limit: ++census.left_limit; break;
+      case local::SurfaceRemaining::NeighborLocked: ++census.left_neighbor_locked; break;
     }
   }
   return census;
@@ -304,12 +307,13 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
   const auto classify_start = Clock::now();
   const auto census = ClassifyLabSurface(state, budget, remaining);
   const bool reason_accounting = census.above == census.left_refused + census.left_short + census.left_border +
-                                                 census.left_limit;
+                                                 census.left_limit + census.left_neighbor_locked;
   const bool qualified = (accepted || reason_accounting) && census.unexplained == 0;
   std::cout << "FP2_A LAB_S_PROOF entities=" << keys.size() << " classified=" << census.faces
             << " classify_above_tol=" << census.above << " accepted=" << accepted << " qualified=" << qualified
             << " classify_left_refused=" << census.left_refused << " classify_left_short=" << census.left_short
             << " classify_left_border=" << census.left_border << " classify_left_limit=" << census.left_limit
+            << " classify_left_neighbor_locked=" << census.left_neighbor_locked
             << " classify_unexplained=" << census.unexplained
             << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
             << " seconds_classify=" << Seconds(classify_start) << " work=" << budget.work
@@ -790,3 +794,4 @@ TEST_CASE("FP2-A rank check on the frozen M6 event 1 volume", "[.][NativeLocalCo
 #include "fixtures/native_handover.inc"
 #include "fixtures/native_handover_quality.inc"
 #include "fixtures/native_handover_volume.inc"
+#include "fixtures/native_volume_handover.inc"
