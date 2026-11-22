@@ -1,6 +1,8 @@
 # Work order status
 
-FX2 is accepted on build645. The mobility-policy constructor replays the original budget charge for the same authority and compares the recorded policy bytes. The fixtures, scoped regressions and N1/N6P labs passed. G5 OFF and S passed both adaptation events and the isolated restart, with all six files per mode matching their accepted references and zero exact timer/storage differences. The lowest timer coverage was 98.158%. The surface option defaults to NO. [FX2 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FX2/reports/FX2_645.md)
+FP2-C1 S passed on build647. Its five wall-collapse fixtures, the G1 identity check, and two trials of each hand-over case passed. Both full S events and isolated restart passed. Native times were 606.213 and 387.779 s with 467,139 and 464,565 final cells. The default proof and full repeat are pending. [FP2-C1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/reports/FP2_C1.md)
+
+FX2 remains the accepted reference at build645. Its G5 OFF and S workflows passed both events and isolated restart with matching payload hashes and exact timer/storage counts. The surface option defaults to NO. [FX2 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FX2/reports/FX2_645.md)
 
 Build640 established the accepted FP2-B surface-on reference with identical S1 and S2 payloads. [FP2-B acceptance report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/reports/FP2_B_640_continue_1.md) · [Surface-on reference](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/on_surface_reference.json)
 

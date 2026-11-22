@@ -1400,3 +1400,11 @@ FP2-C1 N6 trial 2 passed in 326.576 s. The two trials and S0 pass-1 surface rows
 FP2-C1 N6P trial 1 passed in 286.470 s with valid production partition pins, 468,571 owned cells, 86,210 final surface faces, zero donor rejections, and minimum edge 0.02040. Bad cells after V were 4,072 versus 3,604 on S0. Trial 2 is active.
 
 FP2-C1 §5.3 passed on build647. N6P trial 2 passed in 285.423 s; the comparator matched the required integer rows and digests for N1/N6/N6P and the pass-1 surface rows against S0. Counts of wall-near collapses per trial were 16,846 / 17,413 / 16,974. Next push the lab checkpoint, then start the single G5 S.
+
+FP2-C1 lab checkpoint pushed as `a3457575aa`. The actual-host audit found all 121 C1 identities terminal. The single G5 S is running on build647 with the pinned surface-on configuration and changed-mesh standing gates.
+
+FP2-C1 G5 S event 1 reached native exit with q/J/size/geometry bad counts zero. The proof and timer receipts passed. Owned proof faces summed to 79,996 and the job peak was 11,388,039,168 bytes, equal to the process-peak sum. Its three payloads were published. Event 2 follows under the same supervisor.
+
+FP2-C1 G5 S event 2 reached native exit and passed its proof and timer receipts. Owned proof faces summed to 77,370. Job peak 11,620,970,496 bytes equals the process-peak sum. The supervisor continues through workflow validation and the isolated restart.
+
+FP2-C1 §5.4–5 passed on build647. The single G5 S ran both events and the isolated restart under unchanged limits. Native times 606.213 / 387.779 s, final cells 467,139 / 464,565, proof faces 79,996 / 77,370, minimum coverage 98.092%. All six candidate file hashes independently verified. Close S with default path pending, verify terminal jobs, then proceed to the queued C2 step 0.

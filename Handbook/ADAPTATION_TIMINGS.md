@@ -2,6 +2,15 @@
 
 ## Fast path stage 2
 
+### FP2-C1 wall-near length collapse, build647 S
+
+| Event | FX2 → C1 native s | FX2 → C1 final cells | FX2 → C1 engine construction s | FX2 → C1 engine quality s |
+|---|---:|---:|---:|---:|
+| 1 | 614.463 → 606.213 | 550,027 → 467,139 | 210.259 → 201.092 | 267.667 → 257.030 |
+| 2 | 410.522 → 387.779 | 575,733 → 464,565 | 212.803 → 187.658 | 136.275 → 134.143 |
+
+The engine phase clocks are the maximum per-rank sums of its measured spans. The collapse boundary clock includes setup and lies within construction. Wall-near length collapse committed 16,970 and 10,221 core edits. The engine accepted 3,936 and 3,884 collapses. Minimum named coverage was 98.092% and 98.785%. The default proof and full repeat are pending. [Per-rank stage and repair clocks](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/G5/build647/S/S_report.md)
+
 ### FX2 mobility-policy replay, build645
 
 | G5 mode | Event 1 native s, build640 → build645 | Event 2 native s, build640 → build645 | Build645 minimum coverage, events 1 / 2 |
