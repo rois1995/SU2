@@ -1,5 +1,7 @@
 # Work order status
 
+FP2-D continuation 1 build657 passed both N1 trials in seven marked sweeps. N6 trial 1 failed the metric-edge gate at rank 4, pass 2, with five edges below 1e-2. The candidate is held at the lab failure. The S checkpoint required for FP2-C3 is unproven. [FP2-D continuation 1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_657.md)
+
 FP2-D build656 failed N1 trial 1 at 40 marked step-D sweeps against a maximum of 39. The fixture checkpoint passed. The R5 diagnosis found no wiring error. The candidate is held at the failed lab gate. N6, N6P, N1Invariant, S and the default proof are unevaluated. [FP2_D_656](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_656.md)
 
 FP2-C2 S passed both remesh events and isolated restart on the build654 solver with test driver build655. Its native maxima were 598.347 / 416.655 s and minimum timer coverage was 98.037% / 98.943%. All six lab trials passed. The candidate carries the same production pins as build654. The default path is unproven. [C2 S report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C2/reports/FP2_C2_655.md)

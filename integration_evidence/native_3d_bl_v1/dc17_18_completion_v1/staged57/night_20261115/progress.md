@@ -1616,3 +1616,15 @@ FP2-D continuation 1 build657 directional fixtures PASSED 15 cases and 1,641 ass
 FP2-D continuation 1 build657 cylinder (a) used 15 directional splits in one marked sweep versus 27 with the option off, with one Refused residual. The corrected C2 serial/border/exchange cohorts matched S0, and all 18 FP1 cohorts passed. G1 serial started. Next seal option-off and G1, push the fixtures checkpoint, then start the ordered lab.
 
 FP2-D continuation 1 build657 fixture gates PASSED. All 15 FP2-D cases, exact option-off coverage including corrected C2 cohorts, 18 FP1 cohorts and G1 375 / 114 / 228 passed. Serial G1 took 751.223 s. FP2_D/fixtures/build657/d_acceptance.json is sealed. Commit and push the fixtures checkpoint, then start lab N1 trial 1.
+
+FP2-D continuation 1 fixture checkpoint pushed as 4fcbf45d0b. All fixture controllers are terminal. Start the build657 lab at N1 trial 1.
+
+FP2-D continuation 1 build657 N1 trial 1 passed in 365.029 s, strict_checked=59476, unexplained=0, model_gap_entities=0. Receipt FP2_D/cases/build657/N1/measurement.json. Next run N1 trial 2.
+
+FP2-D continuation 1 build657 N1 trial 2 passed in 361.054 s, strict_checked=59476, unexplained=0, model_gap_entities=0. Receipt FP2_D/repeat2/cases/build657/N1/measurement.json. Next run N6 trial 1.
+
+FP2-D continuation 1 build657 N6 trial 1 failed in 509.264 s, first recorded difference={'rank': 4, 'pass': 2, 'field': 'lt_1e_2', 'observed': 5, 'maximum': 0}. Receipt FP2_D/cases/build657/N6/measurement.json. Next stop for gate disposition.
+
+FP2-D continuation 1 build657 lab FAILED. Both N1 trials (365.029 / 361.054 s) passed and matched exactly. N1 had 7 marked sweeps, 8,636 D splits, 92 waits, path_max=1, no residual and 59,476 strict-checked faces with zero above tolerance. N6 trial 1 (509.264 s) sole failure was rank 4 pass 2 lt_1e_2=5 versus 0. Two short physical edges survived from pass 1 and three more were below the threshold in the pass-2 census. The shortest metric length was 0.0025017691612903318. The single read-only diagnosis confirmed the physical seed and altitude gates do not supply a metric-edge lower bound, and found no wiring error in the ordered rule. Keep the candidate with no retry. N6 repeat 2, N6P, N1Invariant, the alarm, S, the default proof and FP2-C3 are unevaluated. Next terminal audit, commit and push the failed lab checkpoint, then stop per the user order.
+
+FP2-D continuation 1 terminal audit sealed at FP2_D/continuation1_terminal_657.json. No owned job is running. The failed lab checkpoint includes completed N1 and N6 trial receipts and the R5 diagnosis. FP2-C3 remains gated on the exact FP2-D S-passed label.

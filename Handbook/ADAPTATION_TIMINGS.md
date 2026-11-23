@@ -2,6 +2,10 @@
 
 ## Fast path stage 2
 
+### FP2-D continuation 1 lab, build657
+
+N1 completed its two matching trials in 365.029 and 361.054 s. The first pass took 175.827 s at a starting one-minute load of 1.21. Step D completed seven marked sweeps with 8,636 splits, down from 40 marked sweeps in build656. N6 took 509.264 s and failed the metric-edge gate after pass 2. Its slowest pass took 48.238 s. S remains unevaluated. [FP2-D continuation 1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_657.md)
+
 ### FP2-D lab, build656
 
 N1 trial 1 took 322.010 s end to end at a starting one-minute host load of 1.82. The production pass took 155.507 s. Step D used 40 marked sweeps and made 3,926 splits. The S0 pass used 23 sweeps and made 17,123 splits. Build656 failed the sweep gate and stopped before S. [N1 evidence and diagnosis](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_656.md)
