@@ -928,7 +928,8 @@ struct RemeshRun {
     if (report) {
       const auto& state = result.state ? *result.state : surface.State();
       std::cout << "NATIVE3D_LOCAL_SURFACE_STATE rank=" << workers.rank << " stage=" << stats.normalization_stages - 1
-                << " splits_all=" << result.splits << " faces=" << state.Surface().size()
+                << " splits_all=" << result.splits << " removals_all=" << result.removals
+                << " faces=" << state.Surface().size()
                 << " points=" << state.Records().size() << " traces=" << state.Coverage().traces.size()
                 << " revision=" << state.Revision() << " seconds_exchange=" << exchange_seconds
                 << " seconds_gather=" << result.seconds_gather << " seconds_build=" << result.seconds_build
@@ -1016,6 +1017,7 @@ struct RemeshRun {
           core::CoreOptions options;
           options.surface_splits = true;
           options.wall_collapses = true;
+          options.surface_collapses = true;
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get());
         } else {
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));

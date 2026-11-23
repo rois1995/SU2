@@ -29,6 +29,7 @@ class SurfaceLongestEdgeProbe final : public SurfaceGeometry {
 
   double Tolerance() const override { return geometry_.Tolerance(); }
   bool Feature(const SurfaceEdge& edge) const override { return geometry_.Feature(edge); }
+  unsigned Dimension(Id id) const override { return geometry_.Dimension(id); }
   SurfaceSamples Samples(const SurfaceFace& face) override {
     distance_ = true;
     return geometry_.Samples(face);
@@ -79,6 +80,13 @@ class SurfaceLongestEdgeProbe final : public SurfaceGeometry {
 
   bool OnEntity(const SurfaceFace& face, const BoundaryPoint& middle) override {
     return geometry_.OnEntity(face, middle);
+  }
+
+  bool OnEntityFace(const SurfaceFace& face) const override { return geometry_.OnEntityFace(face); }
+
+  void Remove(Id id) override {
+    geometry_.Remove(id);
+    slots_.erase(id);
   }
 
   void Accept(SurfacePlacement&& placement) override {

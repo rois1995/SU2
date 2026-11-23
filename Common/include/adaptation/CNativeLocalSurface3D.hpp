@@ -47,6 +47,9 @@ class SurfaceGeometry {
   virtual SurfacePlacement Place(const std::array<Node, 2>&, const std::array<SurfaceFace, 2>&, Id) = 0;
   virtual bool OnEntity(const SurfaceFace&, const BoundaryPoint& middle) = 0;
   virtual void Accept(SurfacePlacement&&) = 0;
+  virtual unsigned Dimension(Id) const = 0;
+  virtual void Remove(Id) = 0;
+  virtual bool OnEntityFace(const SurfaceFace&) const = 0;
 };
 
 struct SurfaceEdits {
@@ -57,7 +60,7 @@ struct SurfaceEdits {
 
 struct SurfaceStateResult {
   std::shared_ptr<SU2Native3D::BoundaryParameterState> state;
-  size_t splits = 0, modeled_peak = 0;
+  size_t splits = 0, removals = 0, modeled_peak = 0;
   double seconds_gather = 0, seconds_build = 0, seconds_check = 0;
 };
 
@@ -73,12 +76,16 @@ class StateSurfaceGeometry final : public SurfaceGeometry {
   SurfacePlacement Place(const std::array<Node, 2>&, const std::array<SurfaceFace, 2>&, Id) override;
   bool OnEntity(const SurfaceFace&, const BoundaryPoint&) override;
   void Accept(SurfacePlacement&&) override;
+  unsigned Dimension(Id) const override;
+  void Remove(Id) override;
+  bool OnEntityFace(const SurfaceFace&) const override;
   const BoundaryPoint* Find(Id) const;
   const SU2NativeGeometry::EdgeTrace* FindTrace(const SurfaceEdge&) const;
   size_t ResidentBytes() const;
   size_t PeakBytes() const;
   void SetCallerBytes(size_t);
   size_t Splits() const;
+  size_t Removals() const;
   void Exchange(World&, MemoryBudget&, size_t caller);
   const SU2Native3D::BoundaryParameterState& State() const;
   SurfaceEdits GatherEdits(const std::vector<SurfaceFace>&) const;

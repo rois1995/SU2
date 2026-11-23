@@ -16,6 +16,14 @@
 
 namespace SU2NativeLocal3D {
 struct SurfaceFixtureAccess {
+  static const auto& Frozen(const Mesh& mesh) { return mesh.frozen_; }
+
+  static double SmallestAltitude(Point a, Point b, Point c) { return Mesh::SmallestAltitude(a, b, c); }
+
+  static void SurfaceCollapseWork(Mesh& mesh, SurfaceGeometry& geometry, PassStats& stats) {
+    mesh.SurfaceCollapseWork(geometry, stats);
+  }
+
   static bool SplitInside(Mesh& mesh, Slot seed, IdSequence& ids) {
     ++mesh.sweep_;
     return mesh.SplitInside(seed, ids, SIZE_MAX);

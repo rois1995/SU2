@@ -206,22 +206,25 @@ Mesh::Plan Mesh::CollapsePlan(Slot remove, Slot keep) const {
   if (incident.empty()) return {};
   auto plan = Prepare(old, fresh);
   if (!plan.Accepted()) return plan;
+  MeasureCollapse(plan, keep, incident);
+  return plan;
+}
 
+void Mesh::MeasureCollapse(Plan& plan, Slot keep, const std::vector<Slot>& incident, double longest_child) const {
   // An existing edge used by a valid replacement is in the old cavity or on its fixed boundary.
-  for (const auto& vertices : fresh) {
-    for (auto p : vertices) {
+  for (const auto& cell : plan.fresh) {
+    for (auto p : cell.vertices) {
       if (std::find(incident.begin(), incident.end(), p) != incident.end()) continue;
       plan.score = std::max(plan.score, Length({keep, p}));
     }
   }
-  if (plan.score > LongEdge) {
+  if (plan.score > LongEdge || longest_child > LongEdge) {
     plan.refusal = Refusal::Size;
   } else if (options_.shape_test) {
     double worst_new = std::numeric_limits<double>::infinity();
     for (const auto& cell : plan.fresh) worst_new = std::min(worst_new, Margin(cell.vertices));
     if (worst_new < BadMargin && worst_new < Worst(plan.old)) plan.refusal = Refusal::Shape;
   }
-  return plan;
 }
 
 namespace {

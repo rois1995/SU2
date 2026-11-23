@@ -6,6 +6,7 @@
  */
 #include "native_local_fixture_access.hpp"
 #include "native_local_surface_probe.hpp"
+#include "../../../Common/include/adaptation/CNativeCurvedReference.hpp"
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 
 #include <algorithm>
@@ -13,6 +14,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <stdexcept>
 #include <tuple>
 
 namespace {
@@ -174,6 +176,7 @@ class FlatGeometry : public local::SurfaceGeometry {
 
   double Tolerance() const override { return .02; }
   bool Feature(const Edge&) const override { return false; }
+  unsigned Dimension(Id) const override { throw std::logic_error("Unexpected dimension query on flat fixture."); }
   local::SurfaceSamples Samples(const SurfaceFace&) override { return {}; }
   std::optional<double> Chord(const std::array<Node, 2>&) override { return std::nullopt; }
   local::SurfacePlacement Place(const std::array<Node, 2>& nodes, const std::array<SurfaceFace, 2>& parents,
@@ -183,11 +186,15 @@ class FlatGeometry : public local::SurfaceGeometry {
     return Placement(point, id, parents[0].facet);
   }
   bool OnEntity(const SurfaceFace&, const BoundaryPoint&) override { return accept_entity_; }
+  bool OnEntityFace(const SurfaceFace&) const override {
+    throw std::logic_error("Unexpected entity query on flat fixture.");
+  }
   void Accept(local::SurfacePlacement&& placement) override {
     const auto node = placement.point.node;
     REQUIRE(nodes_.emplace(node.id, node.p).second);
     REQUIRE(created.emplace(node.id, node).second);
   }
+  void Remove(Id) override { throw std::logic_error("Unexpected removal on flat fixture."); }
 
   std::map<Id, Node> created;
 
@@ -780,7 +787,7 @@ Owned TwoCubes() {
 
 SU2NativeGeometry::AtlasBudget AtlasBudget() { return {size_t(1) << 29, ExchangeCeiling, 4096}; }
 
-std::shared_ptr<const PlanarReference> EntityReference(const Owned& rows) {
+std::shared_ptr<const PlanarReference> EntityReference(const Owned& rows, bool two_cubes = true) {
   const auto surface = Surface(rows);
   std::map<Id, Node> nodes;
   for (const auto& entry : rows)
@@ -802,8 +809,10 @@ std::shared_ptr<const PlanarReference> EntityReference(const Owned& rows) {
   for (const auto& [id, node] : nodes) points.emplace(id, BoundaryPoint{node, mapped->Vertex(id)});
   const BoundaryParameterState initial(mapped, points, surface, 1, ExchangeCeiling, 0, {}, policy, &budget);
   const auto entity = initial.WithEntityGeometry(1e-4, budget, ExchangeCeiling);
-  REQUIRE(entity->Coverage().traces.count(LowerCrease) == 1);
-  REQUIRE(entity->Coverage().traces.count(UpperCrease) == 1);
+  if (two_cubes) {
+    REQUIRE(entity->Coverage().traces.count(LowerCrease) == 1);
+    REQUIRE(entity->Coverage().traces.count(UpperCrease) == 1);
+  }
   return PlanarReference::WithParameters(definition, entity);
 }
 
@@ -1047,3 +1056,5 @@ TEST_CASE("Native local V rounds run quality once when empty and respect the sur
     CHECK(stats.sweeps_quality == (enabled ? 2 : 1));
   }
 }
+
+#include "native_local_surface_collapse_fixtures.inc"

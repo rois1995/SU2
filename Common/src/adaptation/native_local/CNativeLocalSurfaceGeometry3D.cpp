@@ -357,6 +357,13 @@ struct CreatedRecord {
   void Fields(Stream& stream) { stream(point, source); }
 };
 
+struct RemovedRecord {
+  Id id = 0;
+  uint64_t source = 0;
+  template <class Stream>
+  void Fields(Stream& stream) { stream(id, source); }
+};
+
 struct ErasedRecord {
   SurfaceEdge edge;
   template <class Stream>
@@ -474,6 +481,7 @@ struct StateSurfaceGeometry::Impl {
   }
 
   const BoundaryPoint* Find(Id id) const {
+    if (removed.count(id)) return nullptr;
     const auto found = created.find(id);
     return found == created.end() ? state.Find(id) : &found->second;
   }
@@ -511,10 +519,10 @@ struct StateSurfaceGeometry::Impl {
   }
 
   size_t ResidentBytes() const {
-    return Add(sizeof(*this), walker.ResidentBytes(), MapBytes(created), MapBytes(erased), MapBytes(supports),
-               MapBytes(coordinates), SU2Native3D::BoundaryCoverageBytes(overlay),
-               transfer_memory::Bytes(pending_points), transfer_memory::Bytes(pending_traces),
-               transfer_memory::Bytes(pending_erased));
+    return Add(sizeof(*this), walker.ResidentBytes(), MapBytes(created), MapBytes(removed), MapBytes(erased),
+               MapBytes(supports), MapBytes(coordinates), SU2Native3D::BoundaryCoverageBytes(overlay),
+               transfer_memory::Bytes(pending_points), transfer_memory::Bytes(pending_removed),
+               transfer_memory::Bytes(pending_traces), transfer_memory::Bytes(pending_erased));
   }
 
   void CheckBudget() {
@@ -631,12 +639,13 @@ struct StateSurfaceGeometry::Impl {
   AtlasBudget budget;
   size_t caller_bytes;
   BoundaryPoints created;
+  std::set<Id> removed;
   BoundaryCoverage overlay;
   std::set<SurfaceEdge> erased;
   std::set<BoundaryState::Coordinate> coordinates;
   std::set<BoundaryState::Support> supports;
-  size_t local_splits = 0;
-  std::vector<Id> pending_points;
+  size_t local_splits = 0, local_removals = 0;
+  std::vector<Id> pending_points, pending_removed;
   std::vector<SurfaceEdge> pending_traces, pending_erased;
 };
 
@@ -655,6 +664,7 @@ const SU2Native3D::BoundaryParameterState& StateSurfaceGeometry::State() const {
 size_t StateSurfaceGeometry::ResidentBytes() const { return Add(sizeof(*this), impl_->ResidentBytes()); }
 size_t StateSurfaceGeometry::PeakBytes() const { return impl_->budget.peak_bytes; }
 size_t StateSurfaceGeometry::Splits() const { return impl_->local_splits; }
+size_t StateSurfaceGeometry::Removals() const { return impl_->local_removals; }
 
 void StateSurfaceGeometry::SetCallerBytes(size_t caller) {
   impl_->caller_bytes = caller;
@@ -698,7 +708,7 @@ bool StateSurfaceGeometry::OnEntity(const SurfaceFace& face, const BoundaryPoint
 
 void StateSurfaceGeometry::Accept(SurfacePlacement&& placement) {
   auto& geometry = *impl_;
-  if (!placement.Accepted() || geometry.Duplicate(placement.point) ||
+  if (!placement.Accepted() || geometry.removed.count(placement.point.node.id) || geometry.Duplicate(placement.point) ||
       !geometry.created.emplace(placement.point.node.id, placement.point).second)
     throw std::invalid_argument("Native local surface attempted a duplicate or refused publication.");
   geometry.AddKeys(placement.point);
@@ -714,28 +724,61 @@ void StateSurfaceGeometry::Accept(SurfacePlacement&& placement) {
   }
 }
 
+unsigned StateSurfaceGeometry::Dimension(Id id) const {
+  return impl_->state.Geometry().MobilityDimension(impl_->At(id).binding, impl_->state.Mobility());
+}
+
+void StateSurfaceGeometry::Remove(Id id) {
+  auto& g = *impl_;
+  if (g.removed.count(id))
+    throw std::invalid_argument("Native local surface point was already removed.");
+  const auto created = g.created.find(id);
+  if (created == g.created.end() && !g.state.Find(id))
+    throw std::invalid_argument("Native local surface removed point has no persistent association.");
+  const auto pending = std::find(g.pending_points.begin(), g.pending_points.end(), id);
+  if (pending != g.pending_points.end()) {
+    const auto& point = g.created.at(id);
+    g.supports.erase(BindingKey(point));
+    g.coordinates.erase(Values(point.node.p));
+    g.pending_points.erase(pending);
+  } else {
+    g.pending_removed.push_back(id);
+  }
+  if (created != g.created.end()) g.created.erase(created);
+  g.removed.insert(id);
+  ++g.local_removals;
+}
+
+bool StateSurfaceGeometry::OnEntityFace(const SurfaceFace& face) const {
+  return impl_->state.ContainsEntityFace(face.facet, impl_->Corners(face));
+}
+
 void StateSurfaceGeometry::Exchange(World& world, MemoryBudget& budget, size_t caller) {
   if (world.size == 1) return;
   auto& g = *impl_;
   const auto baseline = Add(caller, ResidentBytes());
   std::vector<CreatedRecord> local_points;
+  std::vector<RemovedRecord> local_removed;
   std::vector<ErasedRecord> local_erased;
   std::vector<AtlasPage> local_pages;
   budget.Require(world, Add(baseline, Mul(2, SU2Native3D::BoundaryCoverageBytes(g.overlay)),
                             Mul(g.pending_points.size(), sizeof(CreatedRecord)),
+                            Mul(g.pending_removed.size(), sizeof(RemovedRecord)),
                             Mul(g.pending_erased.size(), sizeof(ErasedRecord))),
                  "Native local surface overlay send preparation exceeds working-storage admission.");
   LocalStep(world, [&] {
     local_points.reserve(g.pending_points.size());
     for (Id id : g.pending_points) local_points.push_back({g.created.at(id), static_cast<uint64_t>(world.rank)});
+    local_removed.reserve(g.pending_removed.size());
+    for (Id id : g.pending_removed) local_removed.push_back({id, static_cast<uint64_t>(world.rank)});
     local_erased.reserve(g.pending_erased.size());
     for (const auto& edge : g.pending_erased) local_erased.push_back({edge});
     BoundaryCoverage recent;
     // An edge created and split again in one pass is already absent from the outgoing live traces.
     for (const auto& edge : g.pending_traces)
       if (const auto* trace = g.Trace(edge)) recent.traces.emplace(edge, *trace);
-    const auto live = Add(baseline, transfer_memory::Bytes(local_points), transfer_memory::Bytes(local_erased),
-                          SU2Native3D::BoundaryCoverageBytes(recent));
+    const auto live = Add(baseline, transfer_memory::Bytes(local_points), transfer_memory::Bytes(local_removed),
+                          transfer_memory::Bytes(local_erased), SU2Native3D::BoundaryCoverageBytes(recent));
     const auto encoded = recent.traces.empty() ? 0 : SU2Native3D::BoundaryAtlasBytes(recent, {});
     const auto peak = Add(live, Mul(4, encoded));
     if (peak == SIZE_MAX || peak > budget.ceiling)
@@ -743,15 +786,19 @@ void StateSurfaceGeometry::Exchange(World& world, MemoryBudget& budget, size_t c
     budget.maximum_bytes = std::max(budget.maximum_bytes, peak);
     local_pages = EncodePages(recent, g.state, world.rank, budget.ceiling, live);
   });
-  const auto send_live = Add(baseline, transfer_memory::Bytes(local_points), transfer_memory::Bytes(local_erased),
-                             transfer_memory::Bytes(local_pages));
+  const auto send_live = Add(baseline, transfer_memory::Bytes(local_points), transfer_memory::Bytes(local_removed),
+                             transfer_memory::Bytes(local_erased), transfer_memory::Bytes(local_pages));
   auto points = SendEverywhere(world, local_points, budget, send_live);
-  auto erased = SendEverywhere(world, local_erased, budget, Add(send_live, transfer_memory::Bytes(points)));
-  const auto lists = Add(send_live, transfer_memory::Bytes(points), transfer_memory::Bytes(erased));
+  const auto points_live = Add(send_live, transfer_memory::Bytes(points));
+  auto removed = SendEverywhere(world, local_removed, budget, points_live);
+  const auto removals_live = Add(points_live, transfer_memory::Bytes(removed));
+  auto erased = SendEverywhere(world, local_erased, budget, removals_live);
+  const auto lists = Add(removals_live, transfer_memory::Bytes(erased));
   auto pages = SendEverywhere(world, local_pages, budget, lists);
   const auto decode_base = Add(lists, transfer_memory::Bytes(pages));
   const auto merge_bound = Add(decode_base, Mul(4, transfer_memory::Bytes(pages)),
-                               Mul(points.size(), 512), Mul(erased.size(), 128));
+                               Mul(points.size(), 512), Mul(removed.size(), sizeof(Id) + 4 * sizeof(void*)),
+                               Mul(erased.size(), 128));
   budget.Require(world, merge_bound, "Native local surface overlay merge exceeds working-storage admission.");
 
   LocalStep(world, [&] {
@@ -771,6 +818,8 @@ void StateSurfaceGeometry::Exchange(World& world, MemoryBudget& budget, size_t c
       const auto id = row.point.node.id;
       if (i && points[i - 1].point.node.id == id)
         throw std::invalid_argument("Duplicate native local surface point id from workers.");
+      if (g.removed.count(id))
+        throw std::invalid_argument("Removed native local surface point id from workers.");
       if (row.source >= static_cast<uint64_t>(world.size))
         throw std::invalid_argument("Invalid native local surface point source.");
       if (row.source == static_cast<uint64_t>(world.rank)) {
@@ -785,6 +834,16 @@ void StateSurfaceGeometry::Exchange(World& world, MemoryBudget& budget, size_t c
       }
     }
 
+    for (const auto& row : removed) {
+      if (row.source >= static_cast<uint64_t>(world.size))
+        throw std::invalid_argument("Invalid native local surface removal source.");
+      if (row.source == static_cast<uint64_t>(world.rank)) continue;
+      if (!g.Find(row.id))
+        throw std::invalid_argument("Duplicate or unknown native local surface removal from workers.");
+      g.created.erase(row.id);
+      g.removed.insert(row.id);
+    }
+
     for (const auto& edge : own_traces) incoming.traces.erase(edge);
     g.overlay.traces.merge(incoming.traces);
     if (!incoming.traces.empty()) throw std::invalid_argument("Native local surface child edge was already stored.");
@@ -793,6 +852,7 @@ void StateSurfaceGeometry::Exchange(World& world, MemoryBudget& budget, size_t c
       g.overlay.traces.erase(row.edge);
     }
     g.pending_points.clear();
+    g.pending_removed.clear();
     g.pending_traces.clear();
     g.pending_erased.clear();
   });
@@ -848,6 +908,7 @@ SurfaceStateResult BuildSurfaceState(const StateSurfaceGeometry& geometry, const
       state.Authority(), edits.points, edits.faces, state.Revision() + 1, ceiling, live, edits.coverage,
       state.Mobility(), &reservation, state.GeometryTolerance());
   result.splits = geometry.Splits();
+  result.removals = geometry.Removals();
   result.modeled_peak = std::max(bound, reservation.peak_bytes);
   result.seconds_build = Clock(report) - start;
   return result;
@@ -857,7 +918,9 @@ SurfaceStateResult BuildSurfaceState(World& world, const Owned& owned, const Sta
                                      MemoryBudget& budget, size_t caller, bool report) {
   const auto splits = world.size == 1 ? geometry.Splits()
                                       : world.reduce<uint64_t>(geometry.Splits(), CPassiveComm::Op::SUM);
-  if (!splits) return {};
+  const auto removals = world.size == 1 ? geometry.Removals()
+                                       : world.reduce<uint64_t>(geometry.Removals(), CPassiveComm::Op::SUM);
+  if (!splits && !removals) return {};
   const auto begin = Clock(report);
   const auto baseline = Add(caller, geometry.ResidentBytes());
   std::vector<SurfaceFace> local;
@@ -897,6 +960,7 @@ SurfaceStateResult BuildSurfaceState(World& world, const Owned& owned, const Sta
   });
   budget.maximum_bytes = std::max(result.modeled_peak, budget.maximum_bytes);
   result.splits = splits;
+  result.removals = removals;
   result.modeled_peak = budget.maximum_bytes;
   result.seconds_gather = gather;
   result.seconds_check = Clock(report) - check;

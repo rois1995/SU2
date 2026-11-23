@@ -190,8 +190,9 @@ Mesh::Plan Mesh::Prepare(const std::vector<Slot>& old, const std::vector<Vertice
     }
   }
 
-  // The four children of the two parents keep the parents' border edges. Match the new cavity's
-  // oriented boundary after replacing both parents, so each child inherits its own parent's binding.
+  // Match the new oriented boundary. A split replaces each end in turn, and a collapse replaces
+  // only the removed end. A collapse parent on the edge disappears with its cell.
+  bool collapse_faces = false;
   for (const auto& edit : replaced) {
     if (!std::binary_search(old_slots.begin(), old_slots.end(), edit.cell) || edit.face >= 4 ||
         cells_[edit.cell].neighbors[edit.face] != Physical || edit.a == edit.b)
@@ -201,7 +202,10 @@ Mesh::Plan Mesh::Prepare(const std::vector<Slot>& old, const std::vector<Vertice
     if (entry == outer.end() || entry->second.cell != Physical || entry->second.sign != FaceSign(parent)) return plan;
     const auto binding = entry->second.binding;
     outer.erase(entry);
+    collapse_faces |= edit.a == NoSlot || edit.b == NoSlot;
+    if (std::find(parent.begin(), parent.end(), edit.m) != parent.end()) continue;
     for (auto end : {edit.a, edit.b}) {
+      if (end == NoSlot) continue;
       auto child = parent;
       const auto vertex = std::find(child.begin(), child.end(), end);
       if (vertex == child.end()) return plan;
@@ -216,7 +220,7 @@ Mesh::Plan Mesh::Prepare(const std::vector<Slot>& old, const std::vector<Vertice
     if (std::any_of(vertices.begin(), vertices.end(),
                     [this](Slot point) { return point >= points_.size() || points_[point].removed; }))
       return plan;
-    if (!TrialPositive(vertices)) {
+    if (!(collapse_faces ? FloatPositive(vertices) : TrialPositive(vertices))) {
       plan.refusal = Refusal::Validity;
       return plan;
     }

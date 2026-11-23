@@ -17,7 +17,7 @@
 
 namespace SU2NativeLocal3D {
 namespace {
-constexpr unsigned SurfaceLengthLimit = 50, SurfaceDistanceLimit = 40;
+constexpr unsigned SurfaceLengthLimit = 50, SurfaceDistanceLimit = 40, SurfaceCollapseLimit = 50;
 using EdgeSet = std::set<SurfaceEdge>;
 using EdgeUses = std::map<SurfaceEdge, EdgeUse>;
 
@@ -140,12 +140,6 @@ std::array<Edge, 3> FaceEdges(Face face) {
   return {{{face[0], face[1]}, {face[1], face[2]}, {face[2], face[0]}}};
 }
 
-double SmallestAltitude(Point a, Point b, Point c) {
-  const Point ab{b.x - a.x, b.y - a.y, b.z - a.z}, ac{c.x - a.x, c.y - a.y, c.z - a.z};
-  const Point cross{ab.y * ac.z - ab.z * ac.y, ab.z * ac.x - ab.x * ac.z, ab.x * ac.y - ab.y * ac.x};
-  return std::hypot(cross.x, cross.y, cross.z) / std::max({Distance(a, b), Distance(a, c), Distance(b, c)});
-}
-
 double Height(Point a, Point b, Point c, Point m) {
   const Point ab{b.x - a.x, b.y - a.y, b.z - a.z}, ac{c.x - a.x, c.y - a.y, c.z - a.z};
   const Point n{ab.y * ac.z - ab.z * ac.y, ab.z * ac.x - ab.x * ac.z, ab.x * ac.y - ab.y * ac.x};
@@ -174,6 +168,12 @@ struct DistanceMark {
 };
 }  // namespace
 
+double Mesh::SmallestAltitude(Point a, Point b, Point c) {
+  const Point ab{b.x - a.x, b.y - a.y, b.z - a.z}, ac{c.x - a.x, c.y - a.y, c.z - a.z};
+  const Point cross{ab.y * ac.z - ab.z * ac.y, ab.z * ac.x - ab.x * ac.z, ab.x * ac.y - ab.y * ac.x};
+  return std::hypot(cross.x, cross.y, cross.z) / std::max({Distance(a, b), Distance(a, c), Distance(b, c)});
+}
+
 void PrintSurfaceSweepFields(std::ostream& out, const SweepRow& row) {
   if (!row.surface) return;
   const std::pair<const char*, SurfaceRefusal> fields[] = {
@@ -193,6 +193,16 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
   out << " v_rounds=" << s.v_rounds << " v_limit=" << s.v_limit << " v_collapses=" << s.v_collapses
       << " v_splits=" << s.v_splits << " v_changes=" << s.v_changes << " bad_before_v=" << s.bad_before_v
       << " seconds_v=" << s.seconds_v;
+  out << " collapses_surface=" << s.collapses_surface << " c_sweeps=" << s.c_sweeps
+      << " c_candidates=" << s.c_candidates << " c_deferred=" << s.c_deferred;
+  constexpr std::array<const char*, static_cast<size_t>(SurfaceCollapseRefusal::Entity)> reasons = {
+      "protected", "border", "ineligible", "border_keeper", "feature_chord", "link", "near", "outward",
+      "reverse", "topology", "size", "shape", "validity", "distance", "entity"};
+  for (size_t i = 0; i < reasons.size(); ++i) out << " c_refused_" << reasons[i] << '=' << s.c_refusals[i + 1];
+  out << " c_reverse_max=" << s.c_reverse_max << " seconds_c=" << s.seconds_c
+      << " seconds_c_samples=" << s.seconds_c_samples << " seconds_c_entity=" << s.seconds_c_entity
+      << " faces_before_c=" << s.faces_before_c << " points_before_c=" << s.points_before_c;
+  if (!s.c_changes.empty()) out << " c_changes=" << std::quoted(s.c_changes);
   if (!s.first_feature_reason.empty()) out << " first_feature_reason=" << std::quoted(s.first_feature_reason);
   if (!s.first_trace_reason.empty()) out << " first_trace_reason=" << std::quoted(s.first_trace_reason);
 }
@@ -807,6 +817,82 @@ void Mesh::MarkUnresolved() {
         for (auto vertex : edge) points_[vertex].unresolved = true;
 }
 
+void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats) {
+  // The distance step has released its tables. Reuse the surface reservation for
+  // the edge list, candidate/refusal tables and the temporary collapse plans.
+  const auto begin = ReportClock(stats.report);
+  const bool work_list = options_.work_list && options_.memory;
+  const auto removable = [&](Slot point) {
+    const auto& row = points_[point];
+    return row.surface && !row.removed && !row.border && geometry.Dimension(row.node.id) == 2;
+  };
+  std::vector<Edge> deferred;
+  std::map<SurfaceEdge, uint64_t> refused;
+  for (unsigned sweep = 0; sweep < SurfaceCollapseLimit; ++sweep) {
+    ++sweep_;
+    std::vector<EdgeUse> uses;
+    if (work_list && sweep) {
+      uses = NextEdges(deferred);
+    } else {
+      EdgeUses physical;
+      for (const auto face : PhysicalFaces())
+        for (auto edge : FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face)))
+          physical.try_emplace(Ids(points_, edge), EdgeUse{ById(edge), face.cell});
+      for (const auto& entry : physical) uses.push_back(entry.second);
+    }
+    std::vector<Candidate> candidates;
+    for (const auto& use : uses) {
+      const auto length = Length(use.edge);
+      if (length >= options_.short_edge || !EdgeRing(use.edge, use.cell).surface) continue;
+      if (removable(use.edge[0]) || removable(use.edge[1]))
+        candidates.push_back({use, Ids(points_, use.edge), length});
+    }
+    if (candidates.empty()) break;
+    stats.Increment(stats.surface.c_sweeps);
+    if (stats.report) stats.surface.c_candidates += candidates.size();
+    deferred.clear();
+    work_points_.clear();
+    work_start_ = work_list ? change_ : 0;
+    std::sort(candidates.begin(), candidates.end());
+    size_t accepted = 0;
+    for (const auto& candidate : candidates) {
+      const auto& [edge, seed] = candidate.use;
+      if (points_[edge[0]].removed || points_[edge[1]].removed) continue;
+      const auto stamped = [&](Slot point) {
+        if (!removable(point)) return false;
+        const auto star = Star(point);
+        return std::any_of(star.begin(), star.end(), [&](Slot cell) { return cells_[cell].stamp == sweep_; });
+      };
+      const auto& row = cells_[seed];
+      if (!row.live || row.stamp == sweep_ || !Has(row.vertices, edge[0]) || !Has(row.vertices, edge[1]) ||
+          stamped(edge[0]) || stamped(edge[1])) {
+        stats.Increment(stats.surface.c_deferred);
+        if (work_list) deferred.push_back(edge);
+        continue;
+      }
+      if (options_.memory) {
+        const auto remembered = refused.find(candidate.ids);
+        if (remembered != refused.end() && remembered->second >= points_[edge[0]].changed_at &&
+            remembered->second >= points_[edge[1]].changed_at) continue;
+      }
+      if (CollapseSurface(edge, seed, geometry, sweep_, stats.surface, stats.report,
+                          stats.surface_collapse_sink) == SurfaceCollapseRefusal::None) {
+        ++accepted;
+      } else if (options_.memory) {
+        refused.insert_or_assign(candidate.ids, change_);
+      }
+      if (refused.size() > 6 * live_cells_) refused.clear();
+    }
+    work_start_ = 0;
+    if (stats.report) {
+      if (!stats.surface.c_changes.empty()) stats.surface.c_changes += ',';
+      stats.surface.c_changes += std::to_string(accepted);
+    }
+    if (!accepted) break;
+  }
+  if (stats.report) stats.surface.seconds_c = ReportClock(true) - begin;
+}
+
 void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
   const auto report = [&](size_t& faces, size_t& points) {
     if (!stats.report) return;
@@ -816,6 +902,8 @@ void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t 
   report(stats.surface.faces_in, stats.surface.points_in);
   SurfaceLength(geometry, point_ids, cell_limit, stats);
   SurfaceDistance(geometry, point_ids, cell_limit, stats);
+  report(stats.surface.faces_before_c, stats.surface.points_before_c);
+  if (options_.surface_collapses) SurfaceCollapseWork(geometry, stats);
   MarkUnresolved();
   report(stats.surface.faces_out, stats.surface.points_out);
   if (stats.report) {

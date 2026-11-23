@@ -54,6 +54,7 @@ struct CoreOptions {
   double short_edge = ShortEdge;
   bool surface_splits = false;
   bool wall_collapses = false;
+  bool surface_collapses = false;
 };
 
 struct PointRow {
@@ -84,6 +85,10 @@ struct EdgeUse {
 enum class Refusal { None, Ineligible, Validity, Size, Topology, Memory, Numeric, Shape, Blocked };
 enum class SurfaceRefusal {
   None, Border, Ineligible, Walk, Protected, Feature, Trace, Duplicate, Outward, Size, Validity, Topology, Memory, Entity, Near
+};
+enum class SurfaceCollapseRefusal {
+  None, Protected, Border, Ineligible, BorderKeeper, FeatureChord, Link, Near, Outward, Reverse, Topology,
+  Size, Shape, Validity, Distance, Entity
 };
 
 bool SampleMovedTensor(const std::vector<DonorCell>& donors, Point point, Tensor& tensor);
@@ -133,6 +138,11 @@ struct SurfaceCounters {
   size_t v_rounds = 0, v_limit = 0, v_collapses = 0, v_splits = 0, bad_before_v = 0;
   double seconds_v = 0;
   std::string v_changes;
+  size_t collapses_surface = 0, c_sweeps = 0, c_candidates = 0, c_deferred = 0;
+  std::array<size_t, static_cast<size_t>(SurfaceCollapseRefusal::Entity) + 1> c_refusals{};
+  double c_reverse_max = 0, seconds_c = 0, seconds_c_samples = 0, seconds_c_entity = 0;
+  size_t faces_before_c = 0, points_before_c = 0;
+  std::string c_changes;
 };
 
 void PrintSurfaceFields(std::ostream&, const SurfaceCounters&);
@@ -159,6 +169,7 @@ struct PassStats : SweepCounters {
   std::function<void(char step, const std::string& row)> surface_near_sink;
   std::function<void(const std::array<Id, 3>&, SurfaceRemaining)> surface_remaining_sink;
   std::function<void(const char*, const std::array<Id, 2>&, SurfaceRefusal)> surface_refusal_sink;
+  std::function<void(const SU2Native3D::SurfaceFace&)> surface_collapse_sink;
 
   template <class CountType>
   void Increment(CountType& value) {
@@ -244,6 +255,9 @@ class Mesh {
   SurfaceRefusal SplitSurface(Edge edge, Slot seed, SurfaceGeometry& geometry, IdSequence& point_ids,
                               uint32_t stamp, size_t cell_limit, SurfaceCounters& stats, bool progress_test,
                               bool report = true, std::string* near_row = nullptr);
+  SurfaceCollapseRefusal CollapseSurface(
+      Edge edge, Slot seed, SurfaceGeometry& geometry, uint32_t stamp, SurfaceCounters& counters, bool report,
+      const std::function<void(const SU2Native3D::SurfaceFace&)>& sink = {});
   Refusal RemoveEdge(Edge edge, Slot seed, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal SwapFace(Slot cell, unsigned face, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& stats, bool* exact_refusal = nullptr);
@@ -282,6 +296,7 @@ class Mesh {
   struct ReplacedFace {
     Slot cell;
     unsigned face;
+    // Replace each present end with m. A parent already containing m has no child.
     Slot a, b, m;
   };
   struct Ring {
@@ -308,6 +323,14 @@ class Mesh {
     Refusal refusal = Refusal::Ineligible;
     double score = 0;
     bool Accepted() const { return refusal == Refusal::None; }
+  };
+
+  struct SurfaceCollapseTrial {
+    Plan plan;
+    std::vector<SU2Native3D::SurfaceFace> children;
+    double reverse_max = 0;
+    SurfaceCollapseRefusal refusal = SurfaceCollapseRefusal::None;
+    unsigned failure_order = 0;
   };
 
   void BuildFaces(bool allow_border);
@@ -338,6 +361,11 @@ class Mesh {
   Plan Prepare(const std::vector<Slot>& old, const std::vector<Vertices>& fresh,
                const std::vector<ReplacedFace>& replaced = {}) const;
   Plan CollapsePlan(Slot remove, Slot keep) const;
+  void MeasureCollapse(Plan& plan, Slot keep, const std::vector<Slot>& incident, double longest_child = 0.) const;
+  static double SmallestAltitude(Point a, Point b, Point c);
+  SurfaceCollapseTrial PrepareSurfaceCollapse(Edge direction, const Ring& ring,
+                                              const std::vector<PhysicalFace>& parents,
+                                              const SurfaceGeometry& geometry) const;
   Plan RemoveEdgePlan(Edge edge, Slot seed, size_t cell_limit) const;
   Plan SwapFacePlan(Slot cell, unsigned face, size_t cell_limit) const;
   void Commit(const Plan& plan, uint32_t stamp);
@@ -361,6 +389,7 @@ class Mesh {
                                 const SurfaceEdgeSet& border, const SurfaceEdgeSet& neighbor_locked) const;
   void SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
+  void SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats);
   void SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void MarkUnresolved();
   bool QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
