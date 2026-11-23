@@ -3255,6 +3255,22 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
   double tangentialAnchor=replay?replay->family->tangential_anchor:0;
   su2double evaluatedLogScale = std::numeric_limits<passivedouble>::quiet_NaN();
+  /*--- What ADAP_COMPLEXITY targets. Two orders of operations exist in this function:
+   *    Native remesher (NATIVE_CAVITY, 2D and 3D): for each trial factor the sensor metric is scaled and
+   *      bounded and then graded; the factor is solved so that the complexity (the integral of the metric
+   *      density) of the GRADED metric meets ADAP_COMPLEXITY, within the tolerance of the solve and where the
+   *      metric bounds permit it (see the warnings below). So the target counts the graded metric, and the
+   *      gradation decides how much of the target the sensor gets. Observed on ONERA M6 (Mach sensor, norm 2,
+   *      ADAP_HMIN 3 mm): with ADAP_HGRAD 1.3 the sensor metric held 9.8k of 50k at the first adaptation and
+   *      2.7k of 50k at the second; with ADAP_HGRAD 1.6 it held 27k and 18k. So the size that the sensor asks,
+   *      for example across a shock, depends strongly on ADAP_HGRAD.
+   *    MMG remesher: the factor solve targets ADAP_COMPLEXITY for the bounded, UNGRADED sensor metric, subject
+   *      to the metric bounds and the convergence of the solve; MMG applies its own gradation after that, which
+   *      can make the mesh larger than the target.
+   *    ADAP_COMPLEXITY is a metric complexity, not a point count.
+   *    Both orders are in use in other codes. Decision of 2026-11-23: the native remesher keeps the first
+   *      order, so that the target holds for the metric that the mesh follows. Do not change one order into
+   *      the other without a new decision. ---*/
   auto complexityError = [&](su2double logScale) {
     ++complexityTrials;
     integrationUncertainty=0;

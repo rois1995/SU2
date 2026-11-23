@@ -12,8 +12,10 @@
 #include <cmath>
 #include <cstring>
 #include <iterator>
+#include <map>
 #include <ostream>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 
 namespace SU2NativeLocal3D {
@@ -183,5 +185,130 @@ class SurfaceLongestEdgeProbe final : public SurfaceGeometry {
   size_t checked_ = 0, violations_ = 0;
   size_t tolerance_protected_ = 0, tolerance_duplicate_ = 0, tolerance_accepted_ = 0;
   SurfaceSweepOutcomes tolerance_after_{};
+};
+
+template <class Visit>
+void VisitLivePhysicalFaces(const Mesh& mesh, Visit visit) {
+  constexpr unsigned order[4][3]{{1, 2, 3}, {0, 3, 2}, {0, 1, 3}, {0, 2, 1}};
+  for (Slot slot = 0; slot < mesh.Cells().size(); ++slot) {
+    const auto& cell = mesh.Cells()[slot];
+    if (!cell.live || cell.binding < 0) continue;
+    const auto bindings = mesh.Bindings(slot);
+    for (unsigned face = 0; face < 4; ++face) {
+      if (cell.neighbors[face] != Physical) continue;
+      std::array<Node, 3> nodes;
+      for (unsigned k = 0; k < 3; ++k) nodes[k] = mesh.Points()[cell.vertices[order[face][k]]].node;
+      visit(SurfaceFace{{nodes[0].id, nodes[1].id, nodes[2].id}, bindings[face].facet}, nodes);
+    }
+  }
+}
+
+class SurfaceChosenEdgeProbe final : public SurfaceGeometry {
+ public:
+  using SplitSink = std::function<void(const std::array<Node, 2>&, const std::array<SurfaceFace, 2>&, bool)>;
+
+  SurfaceChosenEdgeProbe(const Mesh& mesh, SurfaceGeometry& geometry, SplitSink split = {})
+      : mesh_(mesh), geometry_(geometry), split_(std::move(split)) {}
+
+  double Tolerance() const override { return geometry_.Tolerance(); }
+  bool Feature(const SurfaceEdge& edge) const override { return geometry_.Feature(edge); }
+  unsigned Dimension(Id id) const override { return geometry_.Dimension(id); }
+  SurfaceSamples Samples(const SurfaceFace& face) override {
+    const auto samples = geometry_.Samples(face);
+    if (!finished_) {
+      recording_ = true;
+      samples_.insert_or_assign(face.v, samples.distances);
+    }
+    return samples;
+  }
+  std::optional<double> Chord(const std::array<Node, 2>& ends) override { return geometry_.Chord(ends); }
+  bool OnEntity(const SurfaceFace& face, const BoundaryPoint& middle) override {
+    return geometry_.OnEntity(face, middle);
+  }
+  bool OnEntityFace(const SurfaceFace& face) const override { return geometry_.OnEntityFace(face); }
+  bool WithinTolerance(const SurfaceFace& face) override { return geometry_.WithinTolerance(face); }
+  void Remove(Id id) override { geometry_.Remove(id); }
+
+  SurfacePlacement Place(const std::array<Node, 2>& ends, const std::array<SurfaceFace, 2>& faces, Id id) override {
+    if (recording_) {
+      if (!pooled_) Rebuild();
+      const auto edge = Key(ends[0].id, ends[1].id);
+      pending_ = {ends, faces, errors_.count(edge) != 0,
+                  chosen_.at(faces[0].v) != edge || chosen_.at(faces[1].v) != edge};
+    }
+    return geometry_.Place(ends, faces, id);
+  }
+
+  void Accept(SurfacePlacement&& placement) override {
+    geometry_.Accept(std::move(placement));
+    if (!recording_) return;
+    ++checked_;
+    violations_ += pending_.violation;
+    if (split_) split_(pending_.ends, pending_.faces, pending_.error);
+  }
+
+  void EndSweep(const SweepRow& row) {
+    if (std::strcmp(row.kind, "surface_distance") != 0) return;
+    pooled_ = false;
+    if (row.candidates == 0 || row.sweep == 40) {
+      recording_ = false;
+      finished_ = true;
+      samples_.clear();
+      errors_.clear();
+      chosen_.clear();
+    }
+  }
+
+  size_t Checked() const { return checked_; }
+  size_t Violations() const { return violations_; }
+
+ private:
+  static SurfaceEdge Key(Id a, Id b) { return {std::min(a, b), std::max(a, b)}; }
+
+  void Rebuild() {
+    errors_.clear();
+    chosen_.clear();
+    VisitLivePhysicalFaces(mesh_, [&](const SurfaceFace& face, const auto&) {
+      const auto& values = samples_.at(face.v);
+      for (unsigned k = 0; k < 3; ++k) {
+        const double value = values[k + 1];
+        if (!std::isfinite(value) || value <= Limit()) continue;
+        auto& maximum = errors_[Key(face.v[k], face.v[(k + 1) % 3])];
+        maximum = std::max(maximum, value);
+      }
+    });
+    VisitLivePhysicalFaces(mesh_, [&](const SurfaceFace& face, const auto& nodes) {
+      auto best = std::tuple<bool, double, double>{};
+      SurfaceEdge selected{};
+      for (unsigned k = 0; k < 3; ++k) {
+        const auto& a = nodes[k];
+        const auto& b = nodes[(k + 1) % 3];
+        const auto edge = Key(a.id, b.id);
+        const auto error = errors_.find(edge);
+        const auto key = std::make_tuple(error != errors_.end(), error == errors_.end() ? 0.0 : error->second,
+                                         std::hypot(a.p.x - b.p.x, a.p.y - b.p.y, a.p.z - b.p.z));
+        if (key > best || (key == best && edge < selected)) {
+          best = key;
+          selected = edge;
+        }
+      }
+      chosen_.emplace(face.v, selected);
+    });
+    pooled_ = true;
+  }
+
+  const Mesh& mesh_;
+  SurfaceGeometry& geometry_;
+  SplitSink split_;
+  bool recording_ = false, finished_ = false, pooled_ = false;
+  std::map<SurfaceFaceKey, decltype(SurfaceSamples::distances)> samples_;
+  std::map<SurfaceEdge, double> errors_;
+  std::map<SurfaceFaceKey, SurfaceEdge> chosen_;
+  struct {
+    std::array<Node, 2> ends{};
+    std::array<SurfaceFace, 2> faces{};
+    bool error = false, violation = false;
+  } pending_{};
+  size_t checked_ = 0, violations_ = 0;
 };
 }  // namespace SU2NativeLocal3D

@@ -258,3 +258,5 @@ How should the report cover all edges with five ranked rows, and which label app
 
 - The inherited `FP2_B pass` row uses the post-writeback exact cell count. Considered moving that row or leaving it at its established boundary. Kept it in place and ran the dry probe after the pre-writeback rows, excluding the probe interval from `seconds_pass`. C1 base `4730bd59ec`.
 - The strict-query order spans two captured passes on a production-partition rank. Used the same ascending metric length and ID-pair order across those records, preserving that order within each pass. The one-in-ten sample ordinal is pass-local. C1 base `4730bd59ec`.
+
+- 2026-11-23 20:35 CET, FP2-D section 4, S0 `240330d3aa`. Which fixture draft should the build use after the shared checkout gained a second writer's cylinder setup and directional fixture include? Options were to keep the observed implementation or overwrite it with a duplicate fixture. Used the observed implementation with its unchanged pins through build656 and verified that its pinned derivations and cases satisfy section 4. No concurrent solver, test or build ran at launch.

@@ -974,13 +974,13 @@ struct RemeshRun {
       auto bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working), previous.Bytes(),
                                         meeting.Bytes(), core::Mesh::ArrayBytes(working.size()));
       if (surface)
-        bytes = transfer_memory::Add(bytes, surface->ResidentBytes(), core::Mesh::SurfaceArrayBytes(working.size()));
+        bytes = transfer_memory::Add(bytes, surface->ResidentBytes(), core::Mesh::SurfaceArrayBytes(working.size(), true));
       budget.Require(workers, bytes, "Native local core arrays exceed working-storage admission.");
       stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
       auto cell_limit = (kernel.memory_ceiling - kernel.caller_bytes) / (owned_row_bytes + core::Mesh::BytesPerCell);
       if (surface)
         cell_limit = (kernel.memory_ceiling - budget.caller_bytes) /
-                     (owned_row_bytes + core::Mesh::BytesPerCell + core::Mesh::SurfaceArrayBytes(1));
+                     (owned_row_bytes + core::Mesh::BytesPerCell + core::Mesh::SurfaceArrayBytes(1, true));
       core::PassStats counts;
       counts.report = report;
       if (report) counts.sink = [this, rank = workers.rank, pass](const auto& row) { PrintLocalSweep(rank, pass, row); };
@@ -1018,6 +1018,7 @@ struct RemeshRun {
           options.surface_splits = true;
           options.wall_collapses = true;
           options.surface_collapses = true;
+          options.distance_error_cut = true;
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get());
         } else {
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));

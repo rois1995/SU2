@@ -689,12 +689,12 @@ double RunSurfaceWorkerPasses(World& world, LabInput& input, local::StateSurface
     const auto meeting_seconds = Seconds(pass_start);
     const auto retained = transfer_memory::Add(reference_bytes, previous.Bytes(), meeting.Bytes());
     const auto owned_bytes = OwnedStorageBytes(input.cells);
-    const auto extra_bytes = surface ? local::Mesh::SurfaceArrayBytes(input.cells.size()) : 0;
+    const auto extra_bytes = surface ? local::Mesh::SurfaceArrayBytes(input.cells.size(), options.distance_error_cut) : 0;
     const auto mesh_bytes = transfer_memory::Add(local::Mesh::ArrayBytes(input.cells.size()), extra_bytes);
     const auto bytes = transfer_memory::Add(retained, owned_bytes, mesh_bytes, surface ? surface->ResidentBytes() : 0);
     memory.Require(world, bytes, "FP2-A rank check core admission.");
     const auto bytes_per_cell = memory.owned_row_bytes + local::Mesh::BytesPerCell +
-                                (surface ? local::Mesh::SurfaceArrayBytes(1) : 0);
+                                (surface ? local::Mesh::SurfaceArrayBytes(1, options.distance_error_cut) : 0);
     const auto cell_limit = (input.ceiling - memory.caller_bytes) / bytes_per_cell;
     CheckLabStep(world, [&] {
       const auto build_start = Clock::now();

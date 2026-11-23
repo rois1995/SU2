@@ -14,6 +14,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <tuple>
 
@@ -86,21 +87,25 @@ Owned SkewedBox(bool border) {
 
 constexpr double CylinderHeight = 1.25;
 
-Owned Cylinder() {
-  constexpr size_t sides = 8, top = sides + 1;
+Owned Cylinder(size_t layers = 1, double layer_height = CylinderHeight) {
+  constexpr size_t sides = 8, stride = sides + 1;
   const double angle = 2 * std::acos(-1.) / sides;
   std::vector<Point> points;
-  for (const double z : {0., CylinderHeight}) {
+  for (size_t layer = 0; layer <= layers; ++layer) {
+    const double z = layer_height * layer;
     points.push_back({0, 0, z});
     for (size_t i = 0; i < sides; ++i) points.push_back({std::cos(angle * i), std::sin(angle * i), z});
   }
   std::vector<Tet> tets;
-  for (size_t i = 1; i <= sides; ++i) {
-    const auto next = i % sides + 1;
-    const auto a = std::min(i, next), b = std::max(i, next);
-    tets.push_back({0, a, b, b + top});
-    tets.push_back({0, a, a + top, b + top});
-    tets.push_back({0, top, a + top, b + top});
+  for (size_t layer = 0; layer < layers; ++layer) {
+    const auto bottom = layer * stride, top = bottom + stride;
+    for (size_t i = 1; i <= sides; ++i) {
+      const auto next = i % sides + 1;
+      const auto a = std::min(i, next), b = std::max(i, next);
+      tets.push_back({bottom, bottom + a, bottom + b, top + b});
+      tets.push_back({bottom, bottom + a, top + a, top + b});
+      tets.push_back({bottom, top, top + a, top + b});
+    }
   }
   return BoundMesh(points, tets, 2.25);
 }
@@ -279,7 +284,8 @@ class LockedBoxGeometry : public FlatGeometry {
 
 class CylinderGeometry : public FlatGeometry {
  public:
-  explicit CylinderGeometry(const Owned& owned) : FlatGeometry(owned) {
+  explicit CylinderGeometry(const Owned& owned, double cap_height = CylinderHeight, bool refuse_rim = true)
+      : FlatGeometry(owned), cap_height_(cap_height), refuse_rim_(refuse_rim) {
     for (const auto& face : Surface(owned)) {
       const auto p = At(face.v[0]), q = At(face.v[1]), r = At(face.v[2]);
       const int cap = p.z == q.z && p.z == r.z ? (p.z == 0 ? 0 : 1) : -1;
@@ -290,7 +296,7 @@ class CylinderGeometry : public FlatGeometry {
   double Tolerance() const override { return .1; }
   bool Feature(const Edge& edge) const override {
     const auto a = At(edge[0]), b = At(edge[1]);
-    return a.z == b.z && (a.z == 0 || a.z == CylinderHeight) && OnCylinder(a) && OnCylinder(b);
+    return a.z == b.z && (a.z == 0 || a.z == cap_height_) && OnCylinder(a) && OnCylinder(b);
   }
   local::SurfaceSamples Samples(const SurfaceFace& face) override {
     if (caps_.at(face.facet) >= 0) return {};
@@ -304,7 +310,7 @@ class CylinderGeometry : public FlatGeometry {
   local::SurfacePlacement Place(const std::array<Node, 2>& edge, const std::array<SurfaceFace, 2>& parents,
                                 Id id) override {
     const auto key = EdgeKey(edge);
-    if (key == Edge{1, 2}) {
+    if (refuse_rim_ && key == Edge{1, 2}) {
       // Leave one measurable feature error so the final reason accounting has a nonzero case.
       local::SurfacePlacement result;
       result.refusal = local::SurfaceRefusal::Feature;
@@ -324,7 +330,7 @@ class CylinderGeometry : public FlatGeometry {
     const auto cap = caps_.at(face.facet);
     return std::all_of(face.v.begin(), face.v.end(), [&](Id id) {
       const auto p = id == middle.node.id ? middle.node.p : At(id);
-      return cap < 0 ? OnCylinder(p) : p.z == (cap == 0 ? 0 : CylinderHeight);
+      return cap < 0 ? OnCylinder(p) : p.z == (cap == 0 ? 0 : cap_height_);
     });
   }
 
@@ -332,6 +338,8 @@ class CylinderGeometry : public FlatGeometry {
   static double Radius(Point point) { return std::hypot(point.x, point.y); }
   static double Error(Point point) { return std::abs(1 - Radius(point)); }
   static bool OnCylinder(Point point) { return Error(point) < 1e-12; }
+  double cap_height_;
+  bool refuse_rim_;
   std::map<Id, int> caps_;
 };
 
@@ -1061,3 +1069,4 @@ TEST_CASE("Native local V rounds run quality once when empty and respect the sur
 }
 
 #include "native_local_surface_collapse_fixtures.inc"
+#include "native_local_distance_fixtures.inc"

@@ -1,0 +1,11 @@
+# FP2-D build656 fixtures
+
+S0 is `240330d3aa` (build655 test driver and build654 solver). The remote matched S0 before the item started. The signed REV2 digest is `69178513638b8741ae412cd689c50bc0b2396676c3395d867bb3ba868a27d8f1`. [REV2](../inputs/FAST_PATH_STAGE2_D1_REV2.md) · [R4 whole-item source check and readings used](../source_check.md)
+
+Step D pools finite edge midpoint errors for the duration of a sweep and follows the resulting shared edge order. The asking-face rule and feature-chord priority stay as on S0. Length is checked at each visited lock site under the option. The table reservation adds 672 bytes per input cell (12 keys at 24-byte entries plus 32-byte modeled links). The two production admissions charge it when the surface branch is active. The serial lab reserves only the 672-byte increment and the parallel lab reserves the full surface arrays with the increment.
+
+The CSolver, CConfig and configuration template changes consist entirely of comment lines. Shared-engine regression gates for those comment edits are outside REV2's requirements.
+
+SU2_CFD and UnitTests/test_driver built without a warning in 86.29 s. Their pre-build source pins were unchanged at the terminal receipt. The directional suite passed 12 cases and 1,358 assertions on the first launch. The two-layer cylinder confirms both the diagonal sweep and the across-edge sweep. The skewed-box fixture confirms the three successive pooled terminals and the unchanged lock outcomes. The test source records the hand derivations. [Build656](../build656/build_status.json) · [Directional fixtures](../fixtures/build656/distance/attempt1/result.json)
+
+The option-off comparison matched every S0 fixture result it compared. The corrected C2 cohorts matched 3,991 serial assertions over eight tests, 271 / 255 border assertions and 1,721 / 1,073 exchange assertions. They include the pinned Bound refusal and unchanged snapshots, followed by wrapped removals-only exchange. No option-off cohort emitted a NATIVE3D_LOCAL_SURFACE row. All 18 FP1 cohorts passed. G1 matched the adopted 375 / 114 / 228 records in 791.667 / 9.347 / 10.536 s. [Acceptance receipt](../fixtures/build656/d_acceptance.json) · [Option-off comparison](../fixtures/build656/off_comparison.json)

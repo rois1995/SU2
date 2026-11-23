@@ -469,8 +469,124 @@ size_t PartitionHandover(World& world, LabInput& input, const ReferenceState& re
   return std::max({routing.maximum_native_bytes, source.Statistics().maximum_work_bytes, stats.maximum_native_bytes});
 }
 
+Point Difference(Point a, Point b) { return {a.x - b.x, a.y - b.y, a.z - b.z}; }
+double VectorLength(Point p) { return std::hypot(p.x, p.y, p.z); }
+double DotProduct(Point a, Point b) { return a.x*b.x + a.y*b.y + a.z*b.z; }
+Point CrossProduct(Point a, Point b) {
+  return {a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x};
+}
+Point UnitVector(Point p) {
+  const double n = VectorLength(p);
+  return {p.x/n, p.y/n, p.z/n};
+}
+
+void ReportDistanceGeometry(std::ostream& out, const local::Mesh& mesh, int rank, unsigned pass, double limit) {
+  double shortest = INFINITY, altitude = INFINITY, angle = INFINITY;
+  size_t faces = 0;
+  local::VisitLivePhysicalFaces(mesh, [&](const auto&, const auto& nodes) {
+    ++faces;
+    std::array<Point, 3> edges;
+    std::array<double, 3> lengths;
+    for (unsigned k = 0; k < 3; ++k) {
+      edges[k] = Difference(nodes[(k + 1) % 3].p, nodes[k].p);
+      lengths[k] = VectorLength(edges[k]);
+    }
+    const double area2 = VectorLength(CrossProduct(edges[0], edges[1]));
+    shortest = std::min(shortest, *std::min_element(lengths.begin(), lengths.end()));
+    altitude = std::min(altitude, area2 / *std::max_element(lengths.begin(), lengths.end()));
+    for (unsigned k = 0; k < 3; ++k)
+      angle = std::min(angle, std::atan2(area2, -DotProduct(edges[k], edges[(k + 1) % 3])));
+  });
+  out << "FP2_D altitude rank=" << rank << " pass=" << pass << " faces=" << faces
+      << " shortest_edge=" << shortest << " angle_deg=" << angle * 180 / std::acos(-1.)
+      << " altitude=" << altitude << " limit=" << limit << '\n';
+}
+
+class WingDistanceRegions {
+ public:
+  explicit WingDistanceRegions(const BoundaryParameterState& state) : state_(state) {}
+
+  void Split(const std::array<Node, 2>& ends, const std::array<SurfaceFace, 2>& parents, bool error) {
+    if (!Wing(parents[0]) && !Wing(parents[1])) return;
+    const auto a = ends[0].p, b = ends[1].p;
+    const auto [eta, chord] = Planform({(a.x+b.x)/2, (a.y+b.y)/2, (a.z+b.z)/2});
+    if (const auto bin = Bin(eta, chord)) ++(error ? bins_[*bin].error : bins_[*bin].longest);
+  }
+
+  void Report(std::ostream& out, const local::Mesh& mesh, const SurfaceReasons& remaining,
+              const std::map<Face, SurfaceFace>& collapsed) {
+    local::VisitLivePhysicalFaces(mesh, [&](const SurfaceFace& face, const std::array<Node, 3>& nodes) {
+      if (!Wing(face)) return;
+      const auto a = nodes[0].p, b = nodes[1].p, c = nodes[2].p;
+      const auto [eta, chord] = Planform({(a.x+b.x+c.x)/3, (a.y+b.y+c.y)/3, (a.z+b.z+c.z)/3});
+      if (const auto bin = Bin(eta, chord)) {
+        auto& counts = bins_[*bin];
+        ++counts.faces;
+        const auto key = CollapseFaceKey(face.v);
+        if (remaining.count(key) && !collapsed.count(key)) ++counts.left;
+      }
+      if (chord >= .005) return;
+      const std::array<Point, 3> edges{Difference(b,a), Difference(c,b), Difference(a,c)};
+      const auto normal = UnitVector(CrossProduct(edges[0], edges[1]));
+      const Point direction{.5, std::sqrt(.75), 0};
+      const double dot = DotProduct(direction, normal);
+      const auto along = UnitVector(Difference(direction, {dot*normal.x, dot*normal.y, dot*normal.z}));
+      const auto across = CrossProduct(normal, along);
+      double along_size = 0, across_size = 0;
+      for (const auto& edge : edges) {
+        along_size = std::max(along_size, std::abs(DotProduct(edge, along)));
+        across_size = std::max(across_size, std::abs(DotProduct(edge, across)));
+      }
+      for (auto& station : stations_) {
+        if (std::abs(eta - station.eta) >= .03) continue;
+        station.along.push_back(along_size);
+        station.across.push_back(across_size);
+      }
+    });
+    for (size_t i = 0; i < bins_.size(); ++i) {
+      const auto& row = bins_[i];
+      out << "FP2_D region rank=0 bin=" << i << " faces=" << row.faces << " error=" << row.error
+          << " longest=" << row.longest << " left=" << row.left << '\n';
+    }
+    for (auto& station : stations_)
+      out << "FP2_D station rank=0 eta=" << station.eta << " faces=" << station.along.size()
+          << " along=" << Median(station.along) << " across=" << Median(station.across) << '\n';
+  }
+
+ private:
+  bool Wing(const SurfaceFace& face) const { return std::get<2>(state_.Entity(face.facet)) == 2; }
+
+  static std::pair<double, double> Planform(Point p) {
+    const auto pi = std::acos(-1.);
+    const double leading = p.y * std::tan(pi / 6), trailing = .8059 + p.y * std::tan(15.8 * pi / 180);
+    return {p.y / 1.1963, (p.x - leading) / (trailing - leading)};
+  }
+
+  static std::optional<size_t> Bin(double eta, double chord) {
+    if (eta >= .98) return 4;
+    if (chord < .005) return 0;
+    if (chord < .02) return 1;
+    if (chord < .10) return 2;
+    if (chord > .90) return 3;
+    return std::nullopt;
+  }
+
+  static double Median(std::vector<double>& values) {
+    if (values.empty()) return NAN;
+    std::sort(values.begin(), values.end());
+    return .5 * (values[values.size()/2] + values[(values.size()-1)/2]);
+  }
+
+  const BoundaryParameterState& state_;
+  struct BinCounts { size_t faces = 0, error = 0, longest = 0, left = 0; };
+  std::array<BinCounts, 5> bins_{};
+  struct Station { double eta; std::vector<double> along, across; };
+  std::array<Station, 3> stations_{{{.2, {}, {}}, {.5, {}, {}}, {.8, {}, {}}}};
+};
+
 void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation observation = SurfaceObservation::None,
-                       ProductionPartition partition = ProductionPartition::None, bool surface_collapses = false) {
+                       ProductionPartition partition = ProductionPartition::None, bool surface_collapses = false,
+                       bool distance_error_cut = false, bool chosen_invariant = false) {
   const auto start = Clock::now();
   World world;
   REQUIRE(world.size == (parallel ? 6 : 1));
@@ -524,6 +640,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
   options.surface_splits = true;
   options.wall_collapses = true;
   options.surface_collapses = surface_collapses;
+  options.distance_error_cut = distance_error_cut;
   const unsigned pass_count = parallel ? local::PassCount : 1;
   local::BorderMeeting previous;
   SurfaceReasons remaining;
@@ -536,12 +653,16 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
       local::BorderMeeting meeting;
       if (parallel) meeting = local::MeetBorderPoints(world, input.cells, memory, previous.Bytes());
       const auto retained = transfer_memory::Add(reference_bytes, previous.Bytes(), meeting.Bytes());
-      const auto extra_bytes = parallel ? local::Mesh::SurfaceArrayBytes(input.cells.size()) : 0;
+      const auto surface_bytes = [&](size_t cells) {
+        return local::Mesh::SurfaceArrayBytes(cells, options.distance_error_cut) -
+               (parallel ? 0 : local::Mesh::SurfaceArrayBytes(cells));
+      };
+      const auto extra_bytes = surface_bytes(input.cells.size());
       const auto admitted = transfer_memory::Add(memory.caller_bytes, previous.Bytes(), meeting.Bytes(), owned,
                                                 local::Mesh::ArrayBytes(input.cells.size()), extra_bytes);
       memory.Require(world, admitted, "FP2-B frozen core admission.");
       const auto bytes_per_cell = owned_row_bytes + local::Mesh::BytesPerCell +
-                                  (parallel ? local::Mesh::SurfaceArrayBytes(1) : 0);
+                                  surface_bytes(1);
       const auto cell_limit = (input.ceiling - memory.caller_bytes) / bytes_per_cell;
 
       ExactCounts exact;
@@ -569,6 +690,13 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           };
         }
         std::optional<local::SurfaceLongestEdgeProbe> probe;
+        WingDistanceRegions regions(original);
+        std::optional<local::SurfaceChosenEdgeProbe> chosen_probe;
+        if (chosen_invariant)
+          chosen_probe.emplace(mesh, *surface,
+                               [&](const auto& ends, const auto& parents, bool error) {
+                                 regions.Split(ends, parents, error);
+                               });
         const bool trace = observation == SurfaceObservation::Diagnosis;
         const bool invariant = observation == SurfaceObservation::Invariant;
         if (observation != SurfaceObservation::None) probe.emplace(mesh, *surface, trace);
@@ -582,6 +710,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           stats.sink = [&](const local::SweepRow& sweep) {
             if (trace) probe->ReportSweep(std::cout, sweep, world.rank, pass);
             const auto measurement_start = Clock::now();
+            if (chosen_probe) chosen_probe->EndSweep(sweep);
             std::ostringstream out;
             if (sweep.surface) {
               out << std::setprecision(17) << "FP2_B sweep rank=" << world.rank << " pass=" << pass;
@@ -600,6 +729,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         }
         const auto pass_begin = Clock::now();
         local::SurfaceGeometry* geometry = probe ? &*probe : static_cast<local::SurfaceGeometry*>(surface.get());
+        if (chosen_probe) geometry = &*chosen_probe;
         std::optional<LabBoundObserver> bound_observer;
         if (surface_collapses) {
           bound_observer.emplace(mesh, *geometry, surface->State());
@@ -610,6 +740,13 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         bool walk_probe_matches = true;
         std::ostringstream row;
         row << std::setprecision(17);
+        if (options.distance_error_cut) ReportDistanceGeometry(row, mesh, world.rank, pass, surface->Limit());
+        if (chosen_probe) {
+          row << "FP2_D invariant rank=" << world.rank << " pass=" << pass
+              << " checked=" << chosen_probe->Checked() << " splits_distance=" << stats.surface.splits_distance
+              << " violations=" << chosen_probe->Violations() << '\n';
+          regions.Report(row, mesh, remaining, pass_collapse_faces);
+        }
         if (probe) {
           if (probe->Checked() != stats.surface.splits_distance)
             throw std::logic_error("Surface probe did not observe each accepted distance split.");
@@ -625,6 +762,10 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         if (bound_observer) bound_observer->Report(row, world.rank, pass);
         ReportCollapseCore(row, stats, world.rank, pass);
         std::cout << row.str() << std::flush;
+        if (chosen_probe) {
+          REQUIRE(chosen_probe->Checked() == stats.surface.splits_distance);
+          REQUIRE(chosen_probe->Violations() == 0);
+        }
         if (!walk_probe_matches) throw std::logic_error("Tolerance placement counts or accepted split differ.");
         bool bad_matches = true;
         if (handover) {
@@ -765,4 +906,20 @@ TEST_CASE("FP2-C2 production surface collapse hand-over on six ranks", "[.][Nati
 TEST_CASE("FP2-C2 production surface collapse hand-over on the event-1 production partition",
           "[.][NativeFP2C2LabProduction1]") {
   RunVolumeHandover(true, true, SurfaceObservation::None, ProductionPartition::Event1, true);
+}
+
+TEST_CASE("FP2-D production hand-over on one rank", "[.][NativeFP2DLabSerial]") {
+  RunVolumeHandover(false, true, SurfaceObservation::None, ProductionPartition::None, true, true);
+}
+
+TEST_CASE("FP2-D production hand-over on six ranks", "[.][NativeFP2DLabMPI]") {
+  RunVolumeHandover(true, true, SurfaceObservation::None, ProductionPartition::None, true, true);
+}
+
+TEST_CASE("FP2-D hand-over on the event-1 production partition", "[.][NativeFP2DLabProduction1]") {
+  RunVolumeHandover(true, true, SurfaceObservation::None, ProductionPartition::Event1, true, true);
+}
+
+TEST_CASE("FP2-D accepted splits cut both parents' chosen edges", "[.][NativeFP2DLabInvariant]") {
+  RunVolumeHandover(false, true, SurfaceObservation::None, ProductionPartition::None, true, true, true);
 }

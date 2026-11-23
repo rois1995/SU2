@@ -55,6 +55,7 @@ struct CoreOptions {
   bool surface_splits = false;
   bool wall_collapses = false;
   bool surface_collapses = false;
+  bool distance_error_cut = false;
 };
 
 struct PointRow {
@@ -143,6 +144,7 @@ struct SurfaceCounters {
   double c_reverse_max = 0, seconds_c = 0, seconds_c_samples = 0, seconds_c_entity = 0, seconds_c_bound = 0;
   size_t c_bound_queries = 0, query_scratch_max = 0;
   size_t faces_before_c = 0, points_before_c = 0;
+  size_t d_error_edges = 0, d_marks_error = 0, d_marks_longest = 0, d_centroid_only = 0, d_nonfinite = 0;
   std::string c_changes;
 };
 
@@ -272,7 +274,7 @@ class Mesh {
                     SurfaceGeometry* surface = nullptr);
 
   static size_t ArrayBytes(size_t cells);
-  static size_t SurfaceArrayBytes(size_t cells);
+  static size_t SurfaceArrayBytes(size_t cells, bool error_table = false);
   static const size_t BytesPerCell;
 
  private:
@@ -283,6 +285,7 @@ class Mesh {
   };
   using SurfaceEdgeSet = std::set<SU2Native3D::Edge>;
   using SurfaceChords = std::map<SU2Native3D::Edge, std::optional<double>>;
+  using SurfaceErrors = std::map<SU2Native3D::Edge, double>;
   struct DistanceChoice {
     Edge edge;
     bool feature_chord;
@@ -377,11 +380,13 @@ class Mesh {
   SU2Native3D::SurfaceFace SurfaceFaceAt(PhysicalFace face) const;
   std::pair<Edge, double> LongestSurfaceEdge(const std::array<Edge, 3>& edges) const;
   Edge LongestSurfaceEdge(PhysicalFace face) const;
+  std::pair<Edge, double> ChosenSurfaceEdge(PhysicalFace face, const SurfaceErrors& errors) const;
   DistancePath FollowDistancePath(Edge edge, PhysicalFace face, const SurfaceEdgeSet& refused,
-                                  const SurfaceEdgeSet& border, size_t face_count, bool check_first) const;
+                                  const SurfaceEdgeSet& border, const SurfaceErrors& errors, double floor,
+                                  size_t face_count, bool check_first) const;
   DistanceChoice ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
                                     const SurfaceChords& chords, const SurfaceEdgeSet& refused,
-                                    const SurfaceEdgeSet& border, size_t face_count) const;
+                                    const SurfaceEdgeSet& border, const SurfaceErrors& errors, size_t face_count) const;
   void WriteSurfaceNear(Edge edge, Slot slot, const SurfaceGeometry& geometry,
                         const std::array<SU2Native3D::SurfaceFace, 2>& old_faces, bool feature,
                         std::string& row) const noexcept;

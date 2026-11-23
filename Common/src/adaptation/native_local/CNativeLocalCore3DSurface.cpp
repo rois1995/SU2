@@ -203,12 +203,15 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
       << " seconds_c_samples=" << s.seconds_c_samples << " seconds_c_entity=" << s.seconds_c_entity
       << " seconds_c_bound=" << s.seconds_c_bound << " c_bound_queries=" << s.c_bound_queries
       << " faces_before_c=" << s.faces_before_c << " points_before_c=" << s.points_before_c;
+  out << " d_error_edges=" << s.d_error_edges << " d_marks_error=" << s.d_marks_error
+      << " d_marks_longest=" << s.d_marks_longest << " d_centroid_only=" << s.d_centroid_only
+      << " d_nonfinite=" << s.d_nonfinite;
   if (!s.c_changes.empty()) out << " c_changes=" << std::quoted(s.c_changes);
   if (!s.first_feature_reason.empty()) out << " first_feature_reason=" << std::quoted(s.first_feature_reason);
   if (!s.first_trace_reason.empty()) out << " first_trace_reason=" << std::quoted(s.first_trace_reason);
 }
 
-size_t Mesh::SurfaceArrayBytes(size_t cells) {
+size_t Mesh::SurfaceArrayBytes(size_t cells, bool error_table) {
   using transfer_memory::Add;
   using transfer_memory::Mul;
   constexpr size_t links = 4 * sizeof(void*);
@@ -220,7 +223,8 @@ size_t Mesh::SurfaceArrayBytes(size_t cells) {
                           sizeof(std::pair<const SurfaceEdge, std::optional<double>>) + links +
                           sizeof(std::pair<const SurfaceEdge, DistanceMark>) + links +
                           3 * (sizeof(Candidate) + sizeof(EdgeUse) + sizeof(Edge));
-  return Mul(cells, Add(Mul(4, face), Mul(12, edge)));
+  const size_t error = error_table ? sizeof(SurfaceErrors::value_type) + links : 0;
+  return Mul(cells, Add(Mul(4, face), Mul(12, Add(edge, error))));
 }
 
 std::vector<Mesh::PhysicalFace> Mesh::SurfaceParents(Edge edge, const Ring& ring) const {
@@ -594,24 +598,52 @@ Edge Mesh::LongestSurfaceEdge(PhysicalFace face) const {
   return LongestSurfaceEdge(FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face))).first;
 }
 
+std::pair<Edge, double> Mesh::ChosenSurfaceEdge(PhysicalFace face, const SurfaceErrors& errors) const {
+  const auto edges = FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face));
+  if (errors.empty()) return LongestSurfaceEdge(edges);
+
+  // Across a singly curved surface, the edge with the greatest midpoint error drives the cut.
+  // A longer edge in the straight direction can leave that error unchanged. Centroid and chord tests still apply.
+  auto chosen = edges.front();
+  double length = 0;
+  std::tuple<bool, double, double> best{};
+  auto best_ids = Ids(points_, chosen);
+  for (const auto edge : edges) {
+    const auto ids = Ids(points_, edge);
+    const auto error = errors.find(ids);
+    const double measure = Distance(points_, edge);
+    const auto key = std::make_tuple(error != errors.end(), error == errors.end() ? 0.0 : error->second, measure);
+    if (key > best || (key == best && ids < best_ids)) {
+      chosen = edge;
+      length = measure;
+      best = key;
+      best_ids = ids;
+    }
+  }
+  return {ById(chosen), length};
+}
+
 Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const SurfaceEdgeSet& refused,
-                                            const SurfaceEdgeSet& border, size_t face_count, bool check_first) const {
-  // Follow increasing longest edges to avoid a chain of cuts on a shorter side. A locked face cannot advance.
-  // Every accepted D split bisects the longest edge of each incident physical face. Changed rings defer.
+                                            const SurfaceEdgeSet& border, const SurfaceErrors& errors, double floor,
+                                            size_t face_count, bool check_first) const {
+  // Both faces at an edge use the same key. Each advance goes to a strictly larger key, so no edge
+  // or face repeats and the path terminates before the guard.
   size_t steps = 0;
   for (;;) {
     const auto ring = EdgeRing(edge, face.cell);
     if (steps != 0 || check_first) {
       const auto ids = Ids(points_, edge);
       if (refused.count(ids) || border.count(ids) || ring.border) return {edge, steps, true};
+      // The error key can lead to a shorter edge, so apply the floor at each lock check.
+      if (options_.distance_error_cut && Distance(points_, edge) < floor) return {edge, steps, true};
     }
     bool advanced = false;
     for (const auto next : SurfaceParents(edge, ring)) {
       if (next.cell == face.cell && next.face == face.face) continue;
-      const auto longest = LongestSurfaceEdge(next);
-      if (longest == edge) continue;
+      const auto chosen = ChosenSurfaceEdge(next, errors).first;
+      if (chosen == edge) continue;
       face = next;
-      edge = longest;
+      edge = chosen;
       if (++steps >= face_count) throw std::logic_error("Native local surface longest-edge path did not terminate.");
       advanced = true;
       break;
@@ -622,7 +654,8 @@ Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const 
 
 Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
                                              const SurfaceChords& chords, const SurfaceEdgeSet& refused,
-                                             const SurfaceEdgeSet& border, size_t face_count) const {
+                                             const SurfaceEdgeSet& border, const SurfaceErrors& errors,
+                                             size_t face_count) const {
   const auto edges = FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face));
   const auto feature = std::find_if(edges.begin(), edges.end(), [&](Edge edge) {
     const auto ids = Ids(points_, edge);
@@ -631,14 +664,14 @@ Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGe
   });
   const bool feature_chord = feature != edges.end();
   const auto [edge, length] = feature_chord ? std::make_pair(ById(*feature), Distance(points_, *feature))
-                                           : LongestSurfaceEdge(edges);
+                                           : ChosenSurfaceEdge(face, errors);
   const auto ids = Ids(points_, edge);
   if (refused.count(ids)) return {edge, feature_chord, SurfaceRemaining::Refused};
   if (border.count(ids)) return {edge, feature_chord, SurfaceRemaining::Border};
   if (length < 2 * limit) return {edge, feature_chord, SurfaceRemaining::Short};
 
   if (feature_chord) return {edge, true, std::nullopt};
-  const auto path = FollowDistancePath(edge, face, refused, border, face_count, false);
+  const auto path = FollowDistancePath(edge, face, refused, border, errors, 2 * limit, face_count, false);
   if (path.locked) return {edge, false, SurfaceRemaining::NeighborLocked, path.steps};
   return {path.edge, false, std::nullopt, path.steps};
 }
@@ -679,6 +712,26 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
         edge = ById(edge);
         edges.try_emplace(Ids(points_, edge), EdgeUse{edge, face.cell});
       }
+    SurfaceErrors errors;
+    if (options_.distance_error_cut) {
+      // Walks start from each face's own facet, so their midpoint samples may differ. Pool the maximum
+      // to give both faces the same edge key. A face still asks using its own samples.
+      for (const auto parent : faces) {
+        const auto face = SurfaceFaceAt(parent);
+        const auto& measured = sample(face, face.v).measured.distances;
+        for (size_t k = 0; k < face.v.size(); ++k) {
+          const double error = measured[k + 1];
+          if (!std::isfinite(error)) {
+            stats.Increment(stats.surface.d_nonfinite);
+          } else if (error > limit) {
+            const auto ids = Sorted(SurfaceEdge{face.v[k], face.v[(k + 1) % face.v.size()]});
+            auto [it, inserted] = errors.try_emplace(ids, error);
+            if (!inserted) it->second = std::max(it->second, error);
+          }
+        }
+      }
+      if (stats.report) stats.surface.d_error_edges += errors.size();
+    }
     std::map<SurfaceEdge, DistanceMark> marks;
     SurfaceEdgeSet feature_waiting;
     const auto mark_direct = [&](const SurfaceEdge& ids) {
@@ -700,9 +753,9 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
         std::vector<Edge> terminals;
         bool locked = false;
         for (const auto parent : SurfaceParents(use.edge, EdgeRing(use.edge, use.cell))) {
-          const auto longest = LongestSurfaceEdge(parent);
-          if (longest == use.edge) continue;
-          const auto path = FollowDistancePath(longest, parent, refused, border, faces.size(), true);
+          const auto chosen = ChosenSurfaceEdge(parent, errors).first;
+          if (chosen == use.edge) continue;
+          const auto path = FollowDistancePath(chosen, parent, refused, border, errors, floor, faces.size(), true);
           report_path(path.steps);
           if (path.locked) locked = true;
           else terminals.push_back(path.edge);
@@ -721,7 +774,13 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
       const auto face = SurfaceFaceAt(parent);
       auto& row = sample(face, face.v);
       if (!above(row.measured.distances)) continue;
-      const auto choice = ChooseDistanceEdge(parent, geometry, limit, chords, refused, border, faces.size());
+      if (stats.report && options_.distance_error_cut) {
+        const auto face_edges = FaceEdges(OrientedFace(cells_[parent.cell].vertices, parent.face));
+        if (std::none_of(face_edges.begin(), face_edges.end(),
+                         [&](const auto& edge) { return errors.count(Ids(points_, edge)); }))
+          ++stats.surface.d_centroid_only;
+      }
+      const auto choice = ChooseDistanceEdge(parent, geometry, limit, chords, refused, border, errors, faces.size());
       const auto ids = Ids(points_, choice.edge);
       report_path(choice.steps);
       if (choice.reason) {
@@ -771,6 +830,10 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
       watch.Record(stats, candidate.ids, result);
       if (result == SurfaceRefusal::None) {
         stats.Increment(stats.surface.splits_distance);
+        if (stats.report && options_.distance_error_cut) {
+          if (errors.count(candidate.ids)) ++stats.surface.d_marks_error;
+          else ++stats.surface.d_marks_longest;
+        }
         if (stats.report && marks.at(candidate.ids).path_only) ++stats.surface.path_splits;
         if (!near_row.empty()) {
           try {

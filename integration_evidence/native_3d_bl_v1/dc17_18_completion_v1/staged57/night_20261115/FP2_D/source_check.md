@@ -1,0 +1,16 @@
+# FP2-D REV2 whole-item source check
+
+Checked against S0 `240330d3aa` before the first production edit. FP2-C2 build655's lab acceptance and S receipts passed. The shortfall is at the M6 leading edge, where step D splits the physical longest edge even when the midpoint along that edge does not carry the distance error. Acceptance requires fixture and off-path identity, repeatable qualified lab remeshes with zero invariant violations, the N6P alarm, and one standing-gate S workflow.
+
+- `CNativeLocalCore3DSurface.cpp`: the three D choices are the asking face, the neighbor path and the feature-chord parent loop. D shares the oriented face key with the sample cache. SurfaceFaceAt preserves the same order as FaceEdges. The new table can be local to each sweep and pooled before both marking loops. The chord path checks its first lock; the ordinary request already tests the first length floor. The split order, stamps, refusals, rule 2 and residual sink can stay.
+- `CNativeLocalCore3D.hpp`, `NativeRemeshRun.inc`: RunPass stores its CoreOptions before surface work. The surface-enabled branch is the only production site setting the new option; both modeled reservations there need the table. Native hand-over uses the default bytes argument. Step L and the longest-edge fixture diagnostics retain the old function.
+- `CNativeLocalCoreLab_tests.cpp`, `native_volume_handover.inc`: use the C2 hand-over selectors and production RunPass. The donor scan runs in the None observation path, so the new invariant must have its own flag and preserve that path. The old state proof gives the strict census and C sink adjustment. Measure physical geometry before WriteBack and N1 regions after C. The independent probe needs the oriented keys and the sweep completion rows. Keep the old selectors unchanged.
+- `CNativeLocalCore3DSurface_tests.cpp`: reuse the existing cylinder, skewed box, direct DistanceChoice and rule-2 fixtures with dedicated hidden cases. The corrected C2 serial, border, exchange, FP1 and G1 harnesses supply the off-path checks.
+- The three authorized comment sites precede metric normalization or document ADAP_COMPLEXITY. They require no executable change.
+- FP2-C2's acceptance artifacts, the pinned lab runner/comparator and S launcher provide the ordered hand-over input, comparisons, resource gates and watchdog handling. Keep snapshot, cell-digest and strict-classification predicates and use S0 for provenance and reporting.
+
+## Contradictions and readings used
+
+- The directive to stop probe recording at the zero-candidate row or sweep 40 omits the all-refused final sweep only if such a sweep can exit immediately. The current D loop emits a row and continues until a zero-candidate row or sweep 40. Read the directive literally. Final report-only Samples calls after either row are ignored.
+- The existing SplitSurface comment refers to longest-edge splitting. Its code only enforces the altitude floor, and REV2 limits changes to the D choice and path. Reading used: keep SplitSurface, including its comment, unchanged.
+- The user asks for scoped clean source. The tracked paths are clean and two preexisting untracked .orig backups date to October 28. The general status also encounters a stale unrelated externals/eigen worktree backlink. Read the requested scoped status as the source check.
