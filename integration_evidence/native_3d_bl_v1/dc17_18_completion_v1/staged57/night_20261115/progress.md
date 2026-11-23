@@ -1422,3 +1422,15 @@ FP2-C2 step 0 N6P printed the original proof and all six owned-cell digests. The
 FP2-C2 step 0 complete on test-driver build648. N6P ended in 991.403 s with zero sanity differences and all 167,814 scheduled T12 directions evaluated across both passes. N1 / N6P pass 2 whole-chain counts were 66,380 / 71,085 and one-sweep estimates were 9,578 / 9,766 points. Omitting T8 gave 66,407 / 71,113, and substituting T8m gave 66,397 / 71,104. N1 stopped T12 at the 25-minute cap after 88.5% of scheduled directions. The required report and handoff updates are ready. Production sources and the solver match C1; only the two dry labs ran. Commit, push, audit and wait.
 
 RCFD1 §2.1–2 prepared. Test-only restoration committed as `f2781622a5`. Build649 compiled only test_driver in 25.604 s. Both active binary hashes match build647. All 1,829 live source pins matched; the initial byte-hash difference came from set order in the manifest writer. Both serializations and the original build receipt are preserved; the verified build647 ordering restores the required manifest hash. Both base configs matched their pins and received the four exact replacements and the history line. Next verify the runner and start R-S.
+
+RCFD1 preparation pushed as `051c62f4f0`. R-S launched on build647 under its actual-host supervisor. Preflight found 49,703,236 kB available and no competing owned heavy process. Seed CFD wrote cycle 0 restart and ParaView output, and event 1 entered native adaptation. R-OFF follows after R-S and its isolated restart end.
+
+RCFD1 R-S event 1 passed F3b and P7/P8. Maximum remesh timer root 732.174 s, minimum coverage 97.943%, job peak and process-peak sum both 11,406,061,568 bytes, and 79,996 owned proof faces. Cycle 1 is executing on the published event 1 mesh.
+
+RCFD1 R-S event 1 mesh and native reference sidecar are byte-identical to build647 C1 S. Cycle 1 completed all 500 history rows, ending at rms[Rho] −3.95795. Event 2 metric and native adaptation follow.
+
+RCFD1 R-S event 2 passed F3b and P7/P8 on the evolved cycle 1 flow. Maximum remesh timer root 488.832 s, minimum coverage 98.488%, job peak and process-peak sum both 11,711,254,528 bytes, and 78,222 owned proof faces. Cycle 2 CFD is executing.
+
+RCFD1 R-S full workflow exited successfully in 1,884.516 s. Cycle counts were 1/500/500. Cycle 2 ended at rms[Rho] −5.590929. The solver wrote all three cycle ParaView files. The isolated disk restart is active.
+
+RCFD1 R-S passed both remesh events, both 500-iteration continued CFD cycles and isolated disk restart on build647. The full and isolated supervisors are terminal. The first event mesh and sidecar matched C1 S. Checkpoint the R-S evidence and proceed to R-OFF.
