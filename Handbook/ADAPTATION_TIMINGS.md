@@ -2,6 +2,10 @@
 
 ## Fast path stage 2
 
+### FP2-C2 S, build655
+
+Run S passed both remesh events in 598.347 and 416.655 native seconds, with 446,509 and 435,746 cells. The corresponding build647 S events were 606.213 and 387.779 s. The per-rank report includes the Bound and modeled scratch observations. Isolated restart took 112.807 s. [S timings and receipts](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C2/reports/FP2_C2_655.md)
+
 ### FP2-C2 continuation 1
 
 The test-only build653 N1 diagnostic ran for 567.114 s at a one-minute starting host load of 7.00. The initial geometry proof and the extra facet localization are both included in the elapsed time. Build654 closed at the MPI removals-only fixture, so there is no new lab or S timing. [Continuation report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C2/reports/FP2_C2_continue1_654.md)

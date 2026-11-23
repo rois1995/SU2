@@ -1584,3 +1584,7 @@ FP2-C2 build655 N6P trial 1 passed in 383.921 s. Across passes and ranks C accep
 FP2-C2 build655 N6P trial 2 passed in 385.153 s. Across passes and ranks C accepted 7,027 collapses and returned 2 Bound refusals.
 
 FP2-C2 build655 lab PASSED all six trials. Repeat comparisons exact for N1/N6/N6P; final strict face counts 75,954 / 73,618 / 72,208 with zero mismatches, zero sink mismatches, zero unexplained and zero model gap entities. The comparator writer initially compared a tuple to its JSON list and failed post-write sealing. Normalized the list and verified the same completed evidence; no trial repeat. Next commit and push lab, then start S on the build654 solver.
+
+FP2-C2 build655 lab passed was pushed as a38be6c805. Start the single ordered S workflow and its isolated restart on the pinned build654 solver.
+
+FP2-C2: S passed; default path not yet proven. Both build655 S events passed with native maxima 598.347 / 416.655 s and timer coverage at least 98.037% / 98.943%. Owned proof faces 67,512 / 62,802; job peaks equal summed process peaks. Isolated restart passed in 112.807 s and six payload hashes sealed. Production pins still match build654. Commit and push the S-passed label, audit, then start FP2-D.
