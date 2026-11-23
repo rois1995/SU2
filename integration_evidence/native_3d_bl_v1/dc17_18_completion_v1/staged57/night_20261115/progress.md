@@ -1482,3 +1482,15 @@ RCFD2 R-SM passed and pushed as `15ea00574c`. R-SG event 1 F3b and P7/P8 passed 
 RCFD2 R-SG event 1 published 97,480 points and 465,829 cells. Its mesh and native reference sidecar both differ from R-S and R-SM. Cycle 1 completed 500 rows, ending at rms[Rho] −5.08759. The second metric reported density 3.7037e+07 and a fixed point after 42 gradation sweeps.
 
 RCFD2 completed. R-SM passed 500/500 continued CFD and isolated restart. R-SG FAILED event 2 at complete=0 vs 1 following 500 iterations in cycle 1; rank 1 exit q_bad=2 and j_bad=1. Cycle 2 and isolated restart did not run. Event-1 mesh and sidecar hashes differ in all three comparisons. The read-only diagnosis is complete. Push both results; resume C1 §1.2(b) OFF.
+
+RCFD2 closed and pushed as `bcaf43dddc`. Post-push host audit found all 65 RCFD identities terminal. C1 continuation resumed at §1.2(b), verified 199 prior identities terminal, and launched the default OFF proof under build647.
+
+FP2-C1 continuation OFF preflight found 45,801,776 kB available and no competing owned heavy process. Event 1 first collapse passed with the six ranks' exact P6c work of 90,809,869, matching counts and zero upper refinements.
+
+FP2-C1 continuation OFF event 1 F3b and P7/P8 passed. Job peak and process-peak sum both 14,043,414,528 bytes, owned proof faces 61,906, minimum timer coverage 99.004%. The workflow is publishing the first mesh and proceeding to event 2.
+
+FP2-C1 continuation OFF event 1 wrote all three payloads with the expected N21 W hashes. Event 2 is in quality repair under the same build647 run.
+
+FP2-C1 continuation OFF event 2 F3b and P7/P8 passed with 58,260 certified faces, 99.483% minimum timer coverage, and both reported memory values 16,794,025,984 bytes. Continued CFD, isolated restart and OFF identity checks follow.
+
+FP2-C1 continuation OFF passed all standing gates, two accepted remeshes and isolated restart. Both events match all six N21 W payload hashes. FX2 build645 OFF comparison found zero exact differences. Native maxima 1,801.488 / 1,070.726 s. CORE follows the OFF checkpoint.
