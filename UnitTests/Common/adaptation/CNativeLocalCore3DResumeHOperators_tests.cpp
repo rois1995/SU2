@@ -59,22 +59,19 @@ local::Slot SlotOf(const local::Mesh& mesh, Id id) {
   return static_cast<local::Slot>(found - points.begin());
 }
 
-Owned LayeredBipyramid(double height, bool with_outer = true) {
+Owned LayeredBipyramid(double height) {
   std::vector<Point> points{{.625, 0, 0}, {-.25, .5, 0}, {-.25, -.5, 0}, {0, 0, .75},
                             {0, 0, -1. / 64.}, {0, 0, height}};
   constexpr unsigned outer = 6;
-  if (with_outer) {
-    for (size_t i = 0; i < 5; ++i) {
-      const auto p = points[i];
-      points.push_back({2 * p.x, 2 * p.y, 2 * p.z - .25});
-    }
+  for (size_t i = 0; i < 5; ++i) {
+    const auto p = points[i];
+    points.push_back({2 * p.x, 2 * p.y, 2 * p.z - .25});
   }
   std::vector<Tet> cells;
   for (const size_t tip : {3U, 4U})
     for (size_t i = 0; i < 3; ++i) {
       const size_t a = i, b = (i + 1) % 3;
       cells.push_back({5, a, b, tip});
-      if (!with_outer) continue;
       const size_t lo = std::min(a, b), hi = std::max(a, b);
       // Ordering the radial frusta by point id makes their diagonals agree on every radial face.
       cells.push_back({lo, hi, tip, tip + outer});
@@ -192,21 +189,6 @@ std::vector<DonorCell> DonorStar(Point center) {
     donors.push_back(donor);
   }
   return donors;
-}
-
-std::map<Face, Id> BoundFaces(const Owned& rows) {
-  std::map<Face, Id> boundary;
-  for (const auto& entry : rows) {
-    const auto& row = entry.second;
-    for (unsigned f = 0; f < 4; ++f) {
-      if (!row.physical[f].present) continue;
-      const auto order = local::OrientedFace({0, 1, 2, 3}, f);
-      Face face{row.cell.v[order[0]].id, row.cell.v[order[1]].id, row.cell.v[order[2]].id};
-      std::rotate(face.begin(), std::min_element(face.begin(), face.end()), face.end());
-      REQUIRE(boundary.emplace(face, row.physical[f].facet).second);
-    }
-  }
-  return boundary;
 }
 }  // namespace
 
@@ -408,65 +390,4 @@ TEST_CASE("Float moved-tensor samples agree with the production cavity sampler",
   CHECK(separated < samples);
   std::cout << "FP1_FIXTURE h_float_sampler samples=" << samples << " separated=" << separated
             << " max_relative_error=" << largest_relative_error << '\n';
-}
-
-
-TEST_CASE("FP2-C1 wall collapse preserves all four faces of a tetrahedron", "[.][NativeFP2C1]") {
-  const auto initial = BoundMesh({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {.125, .125, .125}},
-                                 {{4, 0, 1, 2}, {4, 0, 1, 3}, {4, 0, 2, 3}, {4, 1, 2, 3}});
-  const auto boundary = BoundFaces(initial);
-  REQUIRE(boundary.size() == 4);
-  for (bool wall_collapses : {false, true}) {
-    CAPTURE(wall_collapses);
-    auto rows = initial;
-    local::CoreOptions options;
-    options.wall_collapses = wall_collapses;
-    local::Mesh mesh(rows, false, options);
-    mesh.MarkWallNear();
-    const local::Edge edge{SlotOf(mesh, 4), SlotOf(mesh, 0)};
-    REQUIRE(mesh.Points()[edge[0]].Free());
-    REQUIRE(mesh.Points()[edge[0]].wall_near);
-    REQUIRE(mesh.Points()[edge[1]].surface);
-    local::PassStats stats;
-    const auto result = mesh.Collapse(edge, 1, stats);
-    CHECK(stats.collapses_wall_near == size_t(wall_collapses));
-    if (!wall_collapses) {
-      CHECK(result == local::Refusal::Ineligible);
-      continue;
-    }
-    REQUIRE(result == local::Refusal::None);
-    REQUIRE_NOTHROW(mesh.Check());
-    local::IdSequence ids{rows.rbegin()->first};
-    mesh.WriteBack(rows, ids);
-    REQUIRE(rows.size() == 1);
-    auto vertices = rows.begin()->second.cell.v;
-    std::sort(vertices.begin(), vertices.end(), [](const Node& a, const Node& b) { return a.id < b.id; });
-    for (Id id = 0; id < vertices.size(); ++id) CHECK(vertices[id].id == id);
-    CHECK(BoundFaces(rows) == boundary);
-  }
-}
-
-TEST_CASE("FP2-C1 wall collapse refuses newly worse bad shape atomically", "[.][NativeFP2C1]") {
-  const auto rows = LayeredBipyramid(.25, false);
-  REQUIRE(rows.size() == 6);
-  for (bool wall_collapses : {false, true}) {
-    CAPTURE(wall_collapses);
-    local::CoreOptions options;
-    options.surface_first = false;
-    options.float_trials = false;
-    options.wall_collapses = wall_collapses;
-    local::Mesh mesh(rows, false, options);
-    mesh.MarkWallNear();
-    for (Id id = 0; id < 5; ++id) REQUIRE(mesh.Points()[SlotOf(mesh, id)].surface);
-    const local::Edge edge{SlotOf(mesh, 5), SlotOf(mesh, 0)};
-    REQUIRE(mesh.Points()[edge[0]].Free());
-    REQUIRE(mesh.Points()[edge[0]].wall_near);
-    REQUIRE(mesh.Length(edge) < local::ShortEdge);
-    const auto before = Snapshot(mesh);
-    local::PassStats stats;
-    const auto expected = wall_collapses ? local::Refusal::Shape : local::Refusal::Ineligible;
-    CHECK(mesh.Collapse(edge, 1, stats) == expected);
-    CHECK(stats.refused_shape_wall == size_t(wall_collapses));
-    CHECK(Snapshot(mesh) == before);
-  }
 }

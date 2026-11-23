@@ -180,11 +180,7 @@ void Mesh::MarkWallNear() {
   }
 }
 
-bool Mesh::CanCollapse(Slot point) const {
-  // The surface steps ran first and the core runs without wall heights.
-  // A free point is on no physical face. Prepare preserves the star's oriented physical faces and bindings.
-  return points_[point].Free() && (options_.wall_collapses || !points_[point].wall_near);
-}
+bool Mesh::CanCollapse(Slot point) const { return points_[point].Free() && !points_[point].wall_near; }
 
 bool Mesh::Fits(size_t old, size_t fresh, size_t cell_limit) const {
   return fresh <= old || (live_cells_ <= cell_limit && fresh - old <= cell_limit - live_cells_);
@@ -224,45 +220,26 @@ Mesh::Plan Mesh::CollapsePlan(Slot remove, Slot keep) const {
   return plan;
 }
 
-namespace {
-void CountWallCollapseRefusal(PassStats& stats, Refusal refusal) {
-  switch (refusal) {
-    case Refusal::Size: stats.Increment(stats.refused_size_wall); break;
-    case Refusal::Shape: stats.Increment(stats.refused_shape_wall); break;
-    case Refusal::Topology: stats.Increment(stats.refused_topology_wall); break;
-    case Refusal::Validity: stats.Increment(stats.refused_valid_wall); break;
-    case Refusal::Blocked: stats.Increment(stats.blocked_wall); break;
-    default: break;
-  }
-}
-}  // namespace
-
 Refusal Mesh::Collapse(Edge edge, uint32_t stamp, PassStats& stats, bool apply) {
   edge = ById(edge);
   if (points_[edge[0]].removed || points_[edge[1]].removed || Length(edge) >= options_.short_edge)
     return Refusal::Ineligible;
   auto lower = CollapsePlan(edge[0], edge[1]);
   auto higher = CollapsePlan(edge[1], edge[0]);
-  if (stats.report && points_[edge[0]].wall_near) CountWallCollapseRefusal(stats, lower.refusal);
-  if (stats.report && points_[edge[1]].wall_near) CountWallCollapseRefusal(stats, higher.refusal);
   if (lower.refusal != Refusal::Blocked) stats.Count(lower.refusal);
   if (higher.refusal != Refusal::Blocked) stats.Count(higher.refusal);
   if ((lower.refusal == Refusal::Blocked && (higher.refusal == Refusal::Blocked || higher.refusal == Refusal::Ineligible)) ||
       (higher.refusal == Refusal::Blocked && lower.refusal == Refusal::Ineligible)) stats.Increment(stats.blocked);
   const auto& best = lower.Accepted() && (!higher.Accepted() || lower.score < higher.score) ? lower : higher;
   if (!best.Accepted()) return best.refusal == Refusal::Ineligible ? lower.refusal : best.refusal;
-  const auto removed = (&best == &lower) ? edge[0] : edge[1];
-  const bool wall_near = stats.report && points_[removed].wall_near;
   if (options_.float_trials && !ExactlyPositive(best)) {
     stats.CountExact();
-    if (wall_near) stats.Increment(stats.refused_valid_wall);
     return Refusal::Validity;
   }
   if (apply) {
     RememberWorkPoints(best);
     Commit(best, stamp);
     stats.Increment(stats.collapses);
-    if (wall_near) stats.Increment(stats.collapses_wall_near);
   }
   return Refusal::None;
 }

@@ -441,10 +441,7 @@ void Mesh::ReportResult(PassStats& stats) const {
     stats.wall_near_points += point.wall_near;
   }
   for (const auto& row : cells_) {
-    if (!row.live) continue;
-    if (std::all_of(row.vertices.begin(), row.vertices.end(), [this](Slot p) { return points_[p].surface; }))
-      stats.Increment(stats.four_surface_cells);
-    if (Margin(row.vertices) >= BadMargin) continue;
+    if (!row.live || Margin(row.vertices) >= BadMargin) continue;
     ++stats.bad_out;
     if (std::all_of(row.vertices.begin(), row.vertices.end(), [this](Slot p) { return points_[p].Free(); }))
       ++stats.bad_out_free;
@@ -452,19 +449,7 @@ void Mesh::ReportResult(PassStats& stats) const {
   for (const auto& use : Edges()) {
     ++stats.edges_out;
     const auto length = Length(use.edge);
-    if (length < options_.short_edge) {
-      ++stats.short_out;
-      const auto& a = points_[use.edge[0]];
-      const auto& b = points_[use.edge[1]];
-      if ((a.Free() && !a.wall_near) || (b.Free() && !b.wall_near))
-        stats.Increment(stats.short_free);
-      else if (a.Free() || b.Free())
-        stats.Increment(stats.short_wall_near);
-      else if (a.border || b.border)
-        stats.Increment(stats.short_border);
-      else
-        stats.Increment(stats.short_surface);
-    }
+    stats.short_out += length < options_.short_edge;
     if (length > LongEdge) {
       const auto ring = EdgeRing(use.edge, use.cell);
       stats.long_left_surface += ring.surface;

@@ -755,13 +755,7 @@ struct RemeshRun {
               << " bad_out=" << p.bad_out << " bad_out_free=" << p.bad_out_free
               << " sweeps_collapse=" << p.sweeps_collapse << " sweeps_split=" << p.sweeps_split
               << " sweeps_quality=" << p.sweeps_quality << " rounds=" << p.rounds << " limit=" << p.limit
-              << " seconds=" << seconds << " bytes=" << bytes
-              << " collapses_wall_near=" << p.collapses_wall_near
-              << " refused_size_wall=" << p.refused_size_wall << " refused_shape_wall=" << p.refused_shape_wall
-              << " refused_topology_wall=" << p.refused_topology_wall << " refused_valid_wall=" << p.refused_valid_wall
-              << " blocked_wall=" << p.blocked_wall << " four_surface_cells=" << p.four_surface_cells
-              << " short_free=" << p.short_free << " short_wall_near=" << p.short_wall_near
-              << " short_border=" << p.short_border << " short_surface=" << p.short_surface << std::endl;
+              << " seconds=" << seconds << " bytes=" << bytes << std::endl;
   }
 
   void PrintLocalSweep(int rank, unsigned pass, const SU2NativeLocal3D::SweepRow& row) {
@@ -1015,7 +1009,6 @@ struct RemeshRun {
           surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
           core::CoreOptions options;
           options.surface_splits = true;
-          options.wall_collapses = true;
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get());
         } else {
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));

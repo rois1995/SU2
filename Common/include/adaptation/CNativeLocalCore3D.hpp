@@ -53,7 +53,6 @@ struct CoreOptions {
   bool split_progress = true;
   double short_edge = ShortEdge;
   bool surface_splits = false;
-  bool wall_collapses = false;
 };
 
 struct PointRow {
@@ -146,11 +145,6 @@ struct PassStats : SweepCounters {
   std::string round_changes, quality_changes;
   size_t long_left_surface = 0, long_left_border = 0, short_out = 0, edges_out = 0;
   size_t bad_in = 0, bad_out = 0, bad_out_free = 0;
-  size_t collapses_wall_near = 0;
-  size_t refused_size_wall = 0, refused_shape_wall = 0, refused_topology_wall = 0, refused_valid_wall = 0,
-         blocked_wall = 0;
-  size_t four_surface_cells = 0;
-  size_t short_free = 0, short_wall_near = 0, short_border = 0, short_surface = 0;
   unsigned sweeps_collapse = 0, sweeps_split = 0, sweeps_quality = 0, rounds = 0;
   bool limit = false;
   bool report = true;
