@@ -1,5 +1,7 @@
 # Work order status
 
+RCFD1 passed on build647. R-S and R-OFF each ran 500 flow iterations after both remeshes and passed isolated restart. Both event-1 meshes and sidecars matched their references. Final cell counts were 476,618 in R-S and 840,371 in R-OFF. The measurement accepted no mesh. [RCFD1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/RCFD1/reports/RCFD1.md)
+
 FP2-C2 step 0 is complete on test-driver build648. N1 and N6P had zero sanity differences against C1. The observed whole-chain counts were 66,380 in N1 and 71,085 in N6P pass 2, with dry one-sweep estimates of 9,578 and 9,766 removed points. N1 evaluated 88.5% of scheduled strict queries at the time cap. N6P evaluated all of them. Production and the solver still match C1. [FP2-C2 step 0 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C2_0/reports/FP2_C2_0_648.md)
 
 FP2-C1 S passed on build647. Its five wall-collapse fixtures, the G1 identity check, and two trials of each hand-over case passed. Both full S events and isolated restart passed. Native times were 606.213 and 387.779 s with 467,139 and 464,565 final cells. The default proof and full repeat are pending. [FP2-C1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/reports/FP2_C1.md)

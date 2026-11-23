@@ -1434,3 +1434,21 @@ RCFD1 R-S event 2 passed F3b and P7/P8 on the evolved cycle 1 flow. Maximum reme
 RCFD1 R-S full workflow exited successfully in 1,884.516 s. Cycle counts were 1/500/500. Cycle 2 ended at rms[Rho] −5.590929. The solver wrote all three cycle ParaView files. The isolated disk restart is active.
 
 RCFD1 R-S passed both remesh events, both 500-iteration continued CFD cycles and isolated disk restart on build647. The full and isolated supervisors are terminal. The first event mesh and sidecar matched C1 S. Checkpoint the R-S evidence and proceed to R-OFF.
+
+RCFD1 R-S passed and pushed as `75f93240e0`. Native maxima were 732.093 / 488.784 s. The isolated restart passed in 136.003 s and wrote flow.vtu. After all 18 R-S identities were terminal, R-OFF launched with 47,428,812 kB available and no competing owned heavy process.
+
+RCFD1 R-OFF event 1 first-collapse gate passed. All six rows, the P6c counts, zero upper refinements and the exact work sum of 90,809,869 matched. The limit remains 108,459,426. The full event is still running.
+
+RCFD1 R-OFF event 1 passed F3b and P7/P8. Minimum coverage 98.970%, job peak and process-peak sum both 14,009,892,864 bytes, and 61,906 owned proof faces. The workflow is publishing the event 1 mesh for cycle 1.
+
+RCFD1 R-OFF event 1 mesh and native reference sidecar are byte-identical to the N21 W reference. Cycle 1 is executing on the published mesh.
+
+RCFD1 R-OFF cycle 1 completed all 500 history rows, ending at rms[Rho] −3.98157. Event 2 metric and native adaptation follow. The event 1 identity checks passed for both modes.
+
+RCFD1 R-OFF event 2 passed F3b and P7/P8. Minimum coverage 99.331%, job peak and process-peak sum both 17,392,070,656 bytes, and 56,060 owned proof faces. Cycle 2 CFD is executing.
+
+RCFD1 R-OFF cycle counts were 1/500/500. Cycle 2 ended at rms[Rho] −4.85661. Final output, workflow sealing and isolated restart follow.
+
+RCFD1 R-OFF full workflow passed and was terminal in 4,323.849 s. The isolated restart preflight returned 1 before writing a launch receipt because PID 51464 (SU2_CFD, start ticks 92229855) was active. It was outside the sealed full run and the identity had ended when checked. Preserve the preflight failure and launch only the pending isolated restart under the same preflight and validators.
+
+RCFD1 passed both build647 full workflows, all four 500-iteration continued CFD cycles and both isolated restarts. R-OFF native maxima 1,961.595 / 1,372.908 s. The isolated restart ran once in 215.844 s after the earlier host preflight returned before launch. All eight ParaView files are present. The terminal audit found 37 RCFD1 identities terminal. Commit and push the evidence, then read FP2-C1 continuation 1. RCFD1 accepted no mesh.

@@ -2,6 +2,15 @@
 
 ## Fast path stage 2
 
+### RCFD1 real CFD, build647
+
+| Mode | Native seconds, events 1 / 2 | Solve seconds, cycles 0 / 1 / 2 | Adapt seconds, cycles 0 / 1 |
+| --- | ---: | ---: | ---: |
+| R-S | 732.093 / 488.784 | 35.062 / 267.748 / 235.075 | 789.996 / 540.600 |
+| R-OFF | 1,961.595 / 1,372.908 | 35.699 / 320.953 / 503.145 | 2,013.050 / 1,433.120 |
+
+Solve includes metric generation. Mean history time per nonzero iteration was 0.443 / 0.359 s on the two R-S meshes and 0.532 / 0.782 s on the two R-OFF meshes. The minimum named coverage across the four remeshes was 97.94%. These were sequential full workflows on build647 with cycle counts of 1 / 500 / 500. The two modes produced different mesh sizes and the results are measurements. [RCFD1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/RCFD1/reports/RCFD1.md)
+
 ### FP2-C1 wall-near length collapse, build647 S
 
 | Event | FX2 → C1 native s | FX2 → C1 final cells | FX2 → C1 engine construction s | FX2 → C1 engine quality s |
