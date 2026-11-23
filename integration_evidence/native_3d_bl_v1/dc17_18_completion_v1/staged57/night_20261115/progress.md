@@ -1476,3 +1476,9 @@ RCFD2 R-SM event 2 F3b and P7/P8 passed. Minimum timer coverage 98.767%, identic
 RCFD2 R-SM cycle counts 1/500/500. Cycle 2 ended at rms[Rho] −7.06138. All remesh gates passed; final output sealing and isolated restart follow.
 
 RCFD2 R-SM passed both remeshes, 500/500 post-remesh iterations and isolated restart. Native maxima 648.383 / 363.454 s. Last cycle ends on 88,424 points and 423,547 cells. After 54 recorded RCFD identities were terminal, R-SG launched with 46,070,344 kB available and no competing owned heavy process.
+
+RCFD2 R-SM passed and pushed as `15ea00574c`. R-SG event 1 F3b and P7/P8 passed with 98.553% minimum coverage, job peak and process-peak sum of 8,429,637,632 bytes, and 78,274 owned proof faces. Effective gradation 1.6 was printed by the native requirements row. Cycle 1 follows.
+
+RCFD2 R-SG event 1 published 97,480 points and 465,829 cells. Its mesh and native reference sidecar both differ from R-S and R-SM. Cycle 1 completed 500 rows, ending at rms[Rho] −5.08759. The second metric reported density 3.7037e+07 and a fixed point after 42 gradation sweeps.
+
+RCFD2 completed. R-SM passed 500/500 continued CFD and isolated restart. R-SG FAILED event 2 at complete=0 vs 1 following 500 iterations in cycle 1; rank 1 exit q_bad=2 and j_bad=1. Cycle 2 and isolated restart did not run. Event-1 mesh and sidecar hashes differ in all three comparisons. The read-only diagnosis is complete. Push both results; resume C1 §1.2(b) OFF.

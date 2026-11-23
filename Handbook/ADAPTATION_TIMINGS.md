@@ -2,6 +2,10 @@
 
 ## Fast path stage 2
 
+### RCFD2 metric settings, build647
+
+R-SM completed events 1 and 2 in 648.383 and 363.454 native seconds. R-SG reached native exit for event 2 in 506.927 s with incomplete quality. Its second CFD cycle and isolated restart are unavailable. Metric logs record three computations for R-SM and two for R-SG. The first metric took 59 gradation sweeps in R-SM and 48 in R-SG. [RCFD2 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/RCFD1/reports/RCFD2.md)
+
 ### RCFD1 real CFD, build647
 
 | Mode | Native seconds, events 1 / 2 | Solve seconds, cycles 0 / 1 / 2 | Adapt seconds, cycles 0 / 1 |
