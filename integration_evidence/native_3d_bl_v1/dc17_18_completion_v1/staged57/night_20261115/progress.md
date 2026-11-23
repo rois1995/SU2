@@ -1462,3 +1462,7 @@ FP2-C1 continuation GQ passed exact decision, modeled storage, timer and schedul
 FP2-C1 exact G2 and GQ prefix evidence pushed as `7544a2659f`. G3 passed in 639.650 s with 1,148 accepted edits and the first 1,113 matching N14. G4 completed with exit 0 in 39.167 s. The scoped supervisor is advancing through saved-state safeguards before the RCFD2 boundary.
 
 FP2-C1 continuation §1.2(a) passed on build647. G2 and GQ exact, G3 1,148 splits with 1,113 exact common edits, G4 passed, and merit481 / saved481 / saved_current passed in 130.296 / 123.339 / 122.834 s. The scoped supervisor is terminal. Checkpoint this evidence, then execute RCFD2. Resume C1 at §1.2(b) OFF after RCFD2.
+
+FP2-C1 §1.2(a) evidence pushed as `142f3e8751` after 199 process identities were confirmed terminal. RCFD2 configs and copied runner passed source-only checks on the existing build647 binary. R-SM and R-SG differ by exactly the ordered gradation line. Execute R-SM, then R-SG. C1 resumes at full OFF.
+
+RCFD2 R-SM launched after the scoped proof checkpoint using build647. The run preflight found 44,913,376 kB available and no competing owned heavy process. R-SG follows after R-SM ends.

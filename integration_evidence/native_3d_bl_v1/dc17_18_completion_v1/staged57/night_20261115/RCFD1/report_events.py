@@ -1,4 +1,4 @@
-"""Report RCFD1 remesh events and payload hashes, including failed runs."""
+"""Report real-CFD remesh events and payload hashes, including failed runs."""
 
 from argparse import ArgumentParser
 import gzip
@@ -22,7 +22,12 @@ EVENTS = (1, 2)
 CORE = 'NATIVE3D_LOCAL_CORE'
 SURFACE = 'NATIVE3D_LOCAL_SURFACE'
 MESH = 'adapted_mesh_adap_00001.su2'
-EXPECTED_PREFIXES = {'S': ('fbe2c11411d2', 'b13ca887e6c0'), 'OFF': ('104591aecdbc', '4fb162414013')}
+EXPECTED_PREFIXES = {
+    'S': ('fbe2c11411d2', 'b13ca887e6c0'),
+    'OFF': ('104591aecdbc', '4fb162414013'),
+    'SM': ('fbe2c11411d2', 'b13ca887e6c0'),
+    'SG': ('fbe2c11411d2', 'b13ca887e6c0'),
+}
 
 
 def read(path):
@@ -35,7 +40,7 @@ def sha(path):
 
 
 def reference(mode):
-    if mode == 'S':
+    if mode in ('S', 'SM', 'SG'):
         path = C1_S / 'run_receipt.json'
         issue = read(path)
         assert issue['passed'] and issue['build'] == 647 and issue['mode'] == 'S', path
@@ -172,14 +177,42 @@ def collect_run(work, mode, build):
 
 
 def collect():
-    return {mode: collect_run(HERE / 'G5/build647' / mode, mode, 647) for mode in ('S', 'OFF')}
+    return {mode: collect_run(HERE / 'G5/build647' / mode, mode, 647) for mode in ('S', 'OFF', 'SM', 'SG')}
+
+
+def variant_identity(report):
+    if not {'SM', 'SG'} <= report.keys():
+        return {}
+    sm = report['SM']['event1_identity']
+    sg = report['SG']['event1_identity']
+    result = {}
+    for name in (MESH, MESH + '.native_ref'):
+        actual, expected = sg[name]['actual'], sm[name]['actual']
+        result[name] = {'actual': actual, 'expected': expected,
+                        'equal': actual == expected if actual and expected else None}
+    return result
 
 
 def identity_findings(report):
-    return [f'R-{mode} event 1 `{name}` SHA256 was `{row["actual"]}`. '
-            f'The reference SHA256 is `{row["expected"]}`.'
-            for mode, run in report.items() for name, row in run['event1_identity'].items()
-            if row['equal'] is False]
+    findings = []
+    for mode, run in report.items():
+        for name, row in run['event1_identity'].items():
+            if mode in ('SM', 'SG'):
+                if row['equal'] is True:
+                    findings.append(f'R-{mode} event 1 `{name}` matched R-S at SHA256 `{row["actual"]}`.')
+            elif row['equal'] is False:
+                findings.append(f'R-{mode} event 1 `{name}` SHA256 was `{row["actual"]}`. '
+                                f'The reference SHA256 is `{row["expected"]}`.')
+    for name, row in variant_identity(report).items():
+        if row['equal'] is True:
+            findings.append(f'R-SG event 1 `{name}` matched R-SM at SHA256 `{row["actual"]}`.')
+    return findings
+
+
+def identity_result(equal, changed):
+    if changed:
+        return {True: 'equal (finding)', False: 'different (by design)', None: 'unavailable'}[equal]
+    return {True: 'equal', False: 'different', None: 'unavailable'}[equal]
 
 
 def table(header, rows):
@@ -219,7 +252,7 @@ def markdown(report):
             for rank, rows in event['ranks'].items():
                 last = rows['last_collapse'] or {}
                 collapse_rows.append((label, number, rank, last.get('collapse_accepted')))
-            if mode == 'S':
+            if mode != 'OFF':
                 rows = sorted((int(rank), row['line'], row['raw']) for rank, measurements in event['ranks'].items()
                               for key in ('core', 'surface') for row in measurements[key])
                 raw.extend([f'<details><summary>{label} event {number} local core and surface rows</summary>', '',
@@ -231,11 +264,14 @@ def markdown(report):
                 raw.extend([f'{label} event {number} recorded {core} local core rows and {surface} local surface rows.',
                             ''])
         for name, row in run['event1_identity'].items():
-            result = {True: 'equal', False: 'different', None: 'unavailable'}[row['equal']]
-            ref_label = 'C1 S' if mode == 'S' else 'N21 W'
+            result = identity_result(row['equal'], mode in ('SM', 'SG'))
+            ref_label = 'C1 S (= R-S event 1)' if mode != 'OFF' else 'N21 W'
             identity_rows.append((label, f'`{name}`', row['actual'], row['expected'], link(row['reference'], ref_label),
                                   result))
         hash_rows.extend((label, f'`{name}`', digest, run['hash_sources'][name]) for name, digest in run['hashes'].items())
+    for name, row in variant_identity(report).items():
+        identity_rows.append(('R-SG', f'`{name}`', row['actual'], row['expected'], 'R-SM event 1',
+                              identity_result(row['equal'], True)))
     lines += table(('Run', 'Event', 'Native maximum s', 'Job peak bytes', 'Sum of process peaks bytes',
                     'Lowest timer coverage', 'Owned proof faces', 'Surface faces', 'F3b', 'P7/P8'), event_rows)
     lines += ['### Last engine collapse row by rank', '',

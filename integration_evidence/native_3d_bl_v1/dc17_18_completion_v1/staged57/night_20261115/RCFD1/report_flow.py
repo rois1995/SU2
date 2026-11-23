@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Print RCFD1 flow-history, restart, force and ParaView report sections."""
+"""Print real CFD flow-history, restart, force and ParaView report sections."""
+from argparse import ArgumentParser
 import csv
 import gzip
 import math
@@ -11,6 +12,7 @@ from statistics import fmean
 
 HERE = Path(__file__).resolve().parent
 SEED = HERE.parents[1] / "m6_inputs/euler_original_force_seed_v1/m6.su2"
+MODES = ("S", "OFF", "SM", "SG")
 RMS = ("rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]")
 FINAL = (*RMS, "CL", "CD", "Avg CFL")
 SUMMARY_ROW = re.compile(
@@ -123,9 +125,9 @@ def files_row(mode, stage, path):
     return mode, stage, f"[`{path.name}`]({relative})", "present" if path.stat().st_size else "empty"
 
 
-def print_report(g5_directory):
+def print_report(g5_directory, modes=MODES):
     cycles, final_rows, restart_rows, force_rows, paraview_rows = [], [], [], [], []
-    for mode in ("S", "OFF"):
+    for mode in modes:
         name = f"R-{mode}"
         work = g5_directory / mode
         case = work / "full647_run1"
@@ -169,10 +171,14 @@ def print_report(g5_directory):
     table(("Run", "Stage", "Inner_Iter", RMS[0], "CL", "CD"), restart_rows)
     print("## Aerodynamic coefficients and mesh size\n")
     table(("Run", "Points", "Cells", "CL", "CD"),
-          [*reversed(force_rows), ("Original converged seed", *mesh_size(SEED), "0.269535", "0.0135359")])
+          [*sorted(force_rows, key=lambda row: row[0] != "R-OFF"),
+           ("Original converged seed", *mesh_size(SEED), "0.269535", "0.0135359")])
     print("## ParaView artifacts\n")
     table(("Run", "Stage", "File", "Status"), paraview_rows)
 
 
 if __name__ == "__main__":
-    print_report(HERE / "G5/build647")
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument("--modes", nargs="+", choices=MODES, default=MODES,
+                        help="Select which runs to report, such as S SM SG for RCFD2.")
+    print_report(HERE / "G5/build647", parser.parse_args().modes)
