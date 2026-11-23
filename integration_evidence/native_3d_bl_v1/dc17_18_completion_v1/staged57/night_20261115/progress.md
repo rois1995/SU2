@@ -1512,3 +1512,7 @@ FP2-C1 default-proof failure evidence pushed as `935fa3ff9a`. The source rollbac
 FP2-D is queued behind the specific FP2-C2 S-passed label. The C1 continuation failure leaves the C2 and D prerequisites unmet; their production orders have not been opened.
 
 FP2-C1 reverted; production sources = build645. The two-target rebuild finished in 433.180 s. Every one of the 1,829 FX2 source pins holds on disk, and both rebuilt binaries match their exact build645 hashes. All C1, RCFD and C2 step 0 owned identities are terminal. The C1 continuation closed at the failed default proof. S2, FP2-C2 production and FP2-D did not start.
+
+FP2-C1 continuation 2 order verified and archived. The previous rollback rebuild had already finished with both build645 hashes matching and all owned handles terminal. The six CORE files and passed pre-watchdog checks remain evidence. The new order supersedes the watchdog failure label. Exact C1 production and tests restored in `c62fe7f22e`. Both targets are rebuilding as build650 under `FP2_C1/restored647`. The new helper-watchdog rule applies to the remainder of the queue. Build preflight recorded load 15.36 and 38,346,628 kB available.
+
+FP2-C1 continuation 2 §1.1 passed. Build650 finished in 71.828 s with both exact build647 binary hashes and all 1,829 build647 source pins. The post-build convenience assertion initially iterated the verification dictionary's keys. The saved per-binary equality values both verify independently. Next launch only the CORE isolated restart with the 1,800 s helper watchdog.

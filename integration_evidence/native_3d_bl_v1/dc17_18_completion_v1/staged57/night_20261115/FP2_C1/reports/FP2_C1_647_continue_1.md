@@ -97,3 +97,7 @@ Each event uses the rank with the largest native time in the sealed summaries. M
 | test_driver | `abdd26035c5dfb849640527c45ee0649f267520b1f73b58309714f4f495f3322` | `abdd26035c5dfb849640527c45ee0649f267520b1f73b58309714f4f495f3322` |
 
 The C1 test and production commits and the C2 step 0 test commit remain in history. The audit found no owned workloads. The continuation ended with the rollback label. S2 did not run, and the prerequisites for C2 and D remain unmet. [Build receipt](../restored645/build_status.json) · [Source and binary verification](../restored645/restoration_verification.json) · [Terminal audit](../restored645/terminal_audit.json)
+
+## Continuation 2 restoration
+
+The prior rebuild of the rollback tree matched both FX2 build645 binary hashes listed above. Continuation 2 supersedes the default-proof failure label and rollback because the only incomplete check ended at the helper's 600 s watchdog. All evaluated checks had passed. The C1 production and test tree from `4730bd59ec` was restored in `c62fe7f22e`. Build650 rebuilt both targets in 71.828 s, and both hashes match their build647 references. All 1,829 original build647 source pins matched on disk before and after the rebuild. Subsequent checks use the build647 receipts. [Continuation 2 order](../inputs/FP2_C1_CONTINUE_2.md) · [Restoration verification](../restored647/restoration_verification.json)
