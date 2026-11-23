@@ -1,0 +1,83 @@
+{
+  "time": 1795434483.5430512,
+  "disk_restart_verified": true,
+  "adapted_points": 88424,
+  "adapted_cells": 423547,
+  "ranks": 6,
+  "standalone_qualified_cfd": true,
+  "seconds": 82.82619833946228,
+  "source_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/RCFD1/G5/build647/SM/full647_run1",
+  "source_event": 2,
+  "source_event_receipt_sha256": "7072a897f0bafc0df2d38c112c9b9b0e6ff867426275b59028be50851a9e210c",
+  "coordinate_maximum_error": 0.0,
+  "all_output_fields_finite": true,
+  "minimum_density": 0.5889946510130563,
+  "minimum_internal_energy_density": 93616.71506273696,
+  "precision": "Float64",
+  "continued_cfd": {
+    "rms_rho": -6.521539,
+    "CL": 0.287165,
+    "CD": 0.013575
+  },
+  "continued_history": [
+    {
+      "Time_Iter": "0",
+      "Outer_Iter": "0",
+      "Inner_Iter": "0",
+      "Time(sec)": "0.281702986",
+      "rms[Rho]": "-6.521538718",
+      "rms[RhoU]": "-4.339863489",
+      "rms[RhoV]": "-4.204644802",
+      "rms[RhoW]": "-4.526850536",
+      "rms[RhoE]": "-1.008259392",
+      "Linear_Solver_Iterations": "3",
+      "LinSolRes": "-5.800510789",
+      "Min DT": "4.43263634e-08",
+      "Max DT": "0.007097953493",
+      "Min CFL": "1.25",
+      "Max CFL": "1.25",
+      "Avg CFL": "1.25",
+      "RefForce": "37650.12",
+      "CD": "0.01357452188",
+      "CL": "0.2871653407",
+      "CSF": "0.01322132818",
+      "CMx": "0.2350710005",
+      "CMy": "-0.09924625233",
+      "CMz": "0.02008508668",
+      "CFx": "-0.001774204054",
+      "CFy": "0.01322132818",
+      "CFz": "0.2874805259",
+      "CEff": "21.15472966"
+    }
+  ],
+  "conservative_field_changes": {
+    "Density": 0.010077335102760099,
+    "Momentum_x": 0.5698748187385263,
+    "Momentum_y": 0.9013575093956341,
+    "Momentum_z": 0.6496015152694952,
+    "Energy": 3009.750490738981
+  },
+  "all_inputs_and_pins_unchanged": true,
+  "pin_count": 2076,
+  "validation_helpers": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/RCFD1/G5/build647/SM/validate_restart647.py": "2ed8549a16e42775ec02a85489390195d1c87227090e8fc8a7b210f0b8b0e479",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/TestCases/adaptation/capability/capcheck.py": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92"
+  },
+  "artifact_sha256": {
+    "accepted508.su2": "4ee4baaa6e65a96fbdaf2a90e68df82d61a9ba7bd8fd3fcc63783a294be69fe2",
+    "accepted508.su2.native_ref": "6160728d1c06fe11543bbd18bba4497bdacb1a5f50cf3a9f6a9cc6c7ba8f010f",
+    "accepted508_input.dat": "2de5bd81099be7c981600ffaae3f52120d9e10e23bfa7e7d10e4bfe76caec3cb",
+    "continued508_restart.dat": "9b8ab37256e4f41578b3c167386b7b3dcc50fc7563733b0c57b022639f17228d",
+    "run.cfg": "3bedee836c7a99ef73a46f010137368162dc5ae0c35b2e7baf7aba41ec8550d2",
+    "run.log": "c098c0fb846ebfd047ae1334c653d821c5b5ece33b5c8d58245ff6386a27b6a6",
+    "continued508_history.csv": "6cfb1237bb5a75a92faa728943d86c89b0367784a79feada79a6ae0ebaea0ff7",
+    "status.json": "1405b021bf4758d1d0eed60a7ebc375453af824395bd281a713fe87a0d5cabdc",
+    "terminal_handles.json": "6997ed3bd187dcc82acf7b90d1cfb1fc10a81b7d023a879f08de76381e037eeb",
+    "post_terminal_handles.json": "7dda892dae4d249abd4709007ea2cfe0d4d05cdb320c31454eceb91610043656",
+    "loaded_runtime_startup.json": "00e56fd936a9b552db664278d2a756f201492fae4f6b765f2a0caa7b1805b905",
+    "resource_peak_receipt.json": "f68a449241afa9ce84aedde71e309c7c9b6b9a3c34d41b5e515d2279780f9f55",
+    "cpu_process_audit.json": "313a4fb393a7d4dd704944eb7ce038c6beb851cf8a3ecc8cb34ef0601267f904",
+    "resource_proof_receipt.json": "2ee80dd8c0e529d02ae095c5f0d54311df6dee09769c1252da739743128fc3c2"
+  },
+  "scope": "Actual isolated steady CFD disk restart on R3 P7/P8 accepted second adapted mesh and matching event-two restart state. One further CFD iteration; not convergence qualification, adaptation resume, or full-goal completion."
+}

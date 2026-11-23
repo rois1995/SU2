@@ -1466,3 +1466,13 @@ FP2-C1 continuation §1.2(a) passed on build647. G2 and GQ exact, G3 1,148 split
 FP2-C1 §1.2(a) evidence pushed as `142f3e8751` after 199 process identities were confirmed terminal. RCFD2 configs and copied runner passed source-only checks on the existing build647 binary. R-SM and R-SG differ by exactly the ordered gradation line. Execute R-SM, then R-SG. C1 resumes at full OFF.
 
 RCFD2 R-SM launched after the scoped proof checkpoint using build647. The run preflight found 44,913,376 kB available and no competing owned heavy process. R-SG follows after R-SM ends.
+
+RCFD2 inputs and runner pushed as `7776367be0`. R-SM event 1 F3b and P7/P8 passed. Minimum timer coverage 98.176%, job peak and process-peak sum both 7,950,757,888 bytes, and 77,130 owned proof faces. The effective minimum size and norm printed as 0.003 and 2. Cycle 1 follows.
+
+RCFD2 R-SM event 1 published 91,345 points and 429,478 cells. Both event-1 mesh hashes differ from R-S. Cycle 1 completed 500 rows and the event-2 metric still reports the ordered minimum size and norm.
+
+RCFD2 R-SM event 2 F3b and P7/P8 passed. Minimum timer coverage 98.767%, identical reported job peak and process-peak sum of 9,586,515,968 bytes, and 72,946 owned proof faces. Cycle 2 is executing.
+
+RCFD2 R-SM cycle counts 1/500/500. Cycle 2 ended at rms[Rho] −7.06138. All remesh gates passed; final output sealing and isolated restart follow.
+
+RCFD2 R-SM passed both remeshes, 500/500 post-remesh iterations and isolated restart. Native maxima 648.383 / 363.454 s. Last cycle ends on 88,424 points and 423,547 cells. After 54 recorded RCFD identities were terminal, R-SG launched with 46,070,344 kB available and no competing owned heavy process.
