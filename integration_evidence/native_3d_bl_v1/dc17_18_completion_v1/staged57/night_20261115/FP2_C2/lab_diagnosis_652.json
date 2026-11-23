@@ -1,0 +1,192 @@
+{
+  "diagnosed_at": "2026-11-23T17:18:29.533895+01:00",
+  "build": 652,
+  "case": "N1",
+  "trial": 1,
+  "passed": false,
+  "first_result_gate_difference": {
+    "field": "classify_unexplained",
+    "expected": 0,
+    "observed": 4
+  },
+  "disposition": "Specified trial screens passed. The final absolute geometry proof did not qualify.",
+  "wiring_error_found": false,
+  "reran_failing_trial": false,
+  "order_sha256": "fdd678fed866cb0fb9171316ca1f8e534ea848357918fb1956d95bdbb2bf7cae",
+  "identical_input_sha256": {
+    "m6.su2": {
+      "build647": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+      "build652": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b"
+    },
+    "m6.su2.native_ref": {
+      "build647": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "build652": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+    },
+    "baseline_euler_seed.dat": {
+      "build647": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
+      "build652": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880"
+    },
+    "restart_flow_adap_00000.dat": {
+      "build647": "61ebd3b0cd3a00889784772378ce7897ec6245c517f2ee382492288c43dbafd4",
+      "build652": "61ebd3b0cd3a00889784772378ce7897ec6245c517f2ee382492288c43dbafd4"
+    },
+    "run.cfg": {
+      "build647": "cf91cae2dd4d1207606b42e65f483393fdffe8d427c0eaa286ecaf2748df3bec",
+      "build652": "cf91cae2dd4d1207606b42e65f483393fdffe8d427c0eaa286ecaf2748df3bec"
+    }
+  },
+  "matched_split_sweep_rows": {
+    "surface_length": 10,
+    "surface_distance": 24
+  },
+  "build647": {
+    "receipt_sha256": "c08523921a3d89b5aaae6ab9a1f5fd2a89fe5e3057ff20699c03327f53897b02",
+    "proof": {
+      "entities": "4",
+      "classified": "87814",
+      "classify_above_tol": "0",
+      "accepted": "1",
+      "qualified": "1",
+      "classify_left_refused": "0",
+      "classify_left_short": "0",
+      "classify_left_border": "0",
+      "classify_left_limit": "0",
+      "classify_left_neighbor_locked": "0",
+      "classify_unexplained": "0",
+      "classify_excess_bins": "0,0,0,0,0",
+      "seconds_mesh_to_model": "110.41186036600001",
+      "seconds_model_to_mesh": "42.293716396000001",
+      "seconds_classify": "0.41810052200000003",
+      "work": "88123597",
+      "modeled_peak": "5362150576"
+    },
+    "entity_rows": [
+      {
+        "body": "0",
+        "sheet": "0",
+        "marker": "0",
+        "mesh_to_model": "5.9002792345363484e-14",
+        "model_to_mesh": "9.5858962086559768e-05",
+        "accepted": "1"
+      },
+      {
+        "body": "0",
+        "sheet": "2060",
+        "marker": "1",
+        "mesh_to_model": "9.9708778430457166e-05",
+        "model_to_mesh": "9.9601673297922594e-05",
+        "accepted": "1"
+      },
+      {
+        "body": "0",
+        "sheet": "10154",
+        "marker": "2",
+        "mesh_to_model": "9.9997144525582675e-05",
+        "model_to_mesh": "9.99991607790709e-05",
+        "accepted": "1"
+      },
+      {
+        "body": "0",
+        "sheet": "27868",
+        "marker": "2",
+        "mesh_to_model": "2.5759970305665014e-05",
+        "model_to_mesh": "2.5759970305665126e-05",
+        "accepted": "1"
+      }
+    ]
+  },
+  "build652": {
+    "receipt_sha256": "780873de71023055c592f667c3f5e01ecbba1989f7f27e660a2cc241840b7a5d",
+    "proof": {
+      "entities": "4",
+      "classified": "75940",
+      "classify_above_tol": "4",
+      "accepted": "0",
+      "qualified": "0",
+      "classify_left_refused": "0",
+      "classify_left_short": "0",
+      "classify_left_border": "0",
+      "classify_left_limit": "0",
+      "classify_left_neighbor_locked": "0",
+      "classify_unexplained": "4",
+      "classify_excess_bins": "0,2,1,0,1",
+      "seconds_mesh_to_model": "82.891460269000007",
+      "seconds_model_to_mesh": "45.358255739000001",
+      "seconds_classify": "67.936827128000004",
+      "work": "98046309",
+      "modeled_peak": "5361245416"
+    },
+    "entity_rows": [
+      {
+        "body": "0",
+        "sheet": "0",
+        "marker": "0",
+        "mesh_to_model": "5.9002792345363484e-14",
+        "model_to_mesh": "8.1141076494035838e-05",
+        "accepted": "1"
+      },
+      {
+        "body": "0",
+        "sheet": "2060",
+        "marker": "1",
+        "mesh_to_model": "9.9993037620716888e-05",
+        "model_to_mesh": "9.9709792273031974e-05",
+        "accepted": "1"
+      },
+      {
+        "body": "0",
+        "sheet": "10154",
+        "marker": "2",
+        "mesh_to_model": "0.0001037109946751164",
+        "model_to_mesh": "0.011241014094757805",
+        "accepted": "0"
+      },
+      {
+        "body": "0",
+        "sheet": "27868",
+        "marker": "2",
+        "mesh_to_model": "9.9606084456153003e-05",
+        "model_to_mesh": "9.8822832347230985e-05",
+        "accepted": "1"
+      }
+    ],
+    "step_c": {
+      "collapses_surface": "5937",
+      "c_sweeps": "25",
+      "c_candidates": "212288",
+      "c_deferred": "53316",
+      "c_refused_protected": "7018",
+      "c_refused_border": "0",
+      "c_refused_ineligible": "0",
+      "c_refused_border_keeper": "0",
+      "c_refused_feature_chord": "2043",
+      "c_refused_link": "2773",
+      "c_refused_near": "33857",
+      "c_refused_outward": "212798",
+      "c_refused_reverse": "1822",
+      "c_refused_topology": "0",
+      "c_refused_size": "1743",
+      "c_refused_shape": "2595",
+      "c_refused_validity": "10785",
+      "c_refused_distance": "707",
+      "c_refused_entity": "0",
+      "c_reverse_max": "6.8473406943106457e-05",
+      "seconds_c": "25.504418434000002",
+      "seconds_c_samples": "5.3243955579998783",
+      "seconds_c_entity": "3.7770590489996749",
+      "faces_before_c": "87814",
+      "points_before_c": "43909",
+      "c_changes": "\"1977,1329,837,625,427,251,160,87,55,46,36,27,22,17,11,8,4,3,3,3,3,2,3,1,0\""
+    },
+    "probe": {
+      "rank": "0",
+      "pass": "1",
+      "reported": "19153",
+      "surviving": "8800",
+      "distance": "0",
+      "near": "0",
+      "entity": "0",
+      "size": "0"
+    }
+  }
+}

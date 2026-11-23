@@ -2,6 +2,10 @@
 
 ## Fast path stage 2
 
+### FP2-C2 inside-only surface collapse, build652 N1
+
+Step C accepted 5,937 surface collapses in 25.504 s, including 5.324 s of forward samples and 3.777 s of entity checks. The N1 pass took 176.668 s and the lab ended in 441.308 s at a starting host load of 3.87. Build647 on the same frozen input took 120.920 s for the pass and 332.144 s for the lab. The strict proof logged four unexplained faces above tolerance. S is unevaluated. [Fixture and lab evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C2/reports/FP2_C2_652.md)
+
 ### RCFD2 metric settings, build647
 
 R-SM completed events 1 and 2 in 648.383 and 363.454 native seconds. R-SG reached native exit for event 2 in 506.927 s with incomplete quality. Its second CFD cycle and isolated restart are unavailable. Metric logs record three computations for R-SM and two for R-SG. The first metric took 59 gradation sweeps in R-SM and 48 in R-SG. [RCFD2 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/RCFD1/reports/RCFD2.md)

@@ -1544,3 +1544,9 @@ FP2-C2 R3 changed only the fixture (i) first section's initial cell ownership. B
 FP2-C2 build652 passed all three dedicated fixture groups. Serial 2,716 assertions; two-rank border 271 / 255; two-rank exchange 1,433 / 808. The removals-only run passed with its Shape guard enabled. The original build651 fixture source was reconstructed byte-for-byte against its archived SHA256. The FP2-C1 option-off cohort, the 18 FP1 cohorts and G1 are executing in the same pinned validation campaign.
 
 FP2-C2 §6.1 build652 passed. All new fixtures and the surface option-off cohort, 18 FP1 cohorts, and G1 375 / 114 / 228 match. IN1 state modeled peak was 7,531,924,972 versus 7,531,924,892, the ordered 80-byte overlay constant. The initial test comparator required equality on that row. The corrected comparator verified that exact delta and all other rows and preserved the first receipt and driver. No tests repeated. Next commit and push fixtures, then launch both repetitions of N1, N6 and N6P.
+
+FP2-C2 fixtures pushed as 553ea0f147. Pre-lab actual-host audit found all owned handles terminal. Begin §6.2 in N1, N6, N6P order with two trials each.
+
+FP2-C2 build652 N1 trial 1 is terminal at runner exit 1. Evidence: cases/build652/N1. Inspect the first observed difference before any further run.
+
+FP2-C2: lab FAILED; default path not yet proven. Build652 N1 trial 1 exited 1 after 441.308 s. First gate difference was classify_unexplained=4, expected 0. All 8,800 surviving C-face probes passed. Step C accepted 5,937 collapses, including 1,977 in sweep 1. Read-only R5 checked five equal input hashes and 34 equal L/D rows. Sheet 10154 failed the absolute certificate after the specified trial screens passed. No wiring error found. Keep the code at fixture checkpoint 553ea0f147 and archive the failure. No further lab trials or S were started. FP2-D prerequisite unmet.
