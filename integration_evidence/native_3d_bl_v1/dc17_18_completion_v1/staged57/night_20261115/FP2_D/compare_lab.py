@@ -113,6 +113,13 @@ def report_rows(receipt, trial):
                                         *sorted(field for field in surface if field.startswith('left_')),
                                         *run.D_FIELDS)},
                 'physical_geometry': at(rows, 'altitude', phase) or 'not available',
+                'distance_sweeps': [{key: int(row[key]) for key in
+                                     ('sweep', 'candidates', 'splits', 'deferred', 'border_edges', 'refused_near',
+                                      'refused_ineligible', 'refused_walk', 'refused_protected', 'refused_feature',
+                                      'refused_trace', 'refused_duplicate', 'refused_outward', 'refused_entity',
+                                      'refused_valid', 'refused_size', 'refused_topology', 'refused_memory')}
+                                    for row in rows.get('sweep', ())
+                                    if row['kind'] == 'surface_distance' and int(row['pass']) == phase],
                 **({'strict_observation': observation or None, 'proof': proof or None} if phase == last_pass else {}),
             }
 
@@ -165,6 +172,12 @@ def run_campaign(build):
     references = run.reference_trials()
     artifacts = {str(run.S0_LAB): a.sha(run.S0_LAB)}
     fingerprints, results, report = None, {}, []
+    failed_path, failed = load_trial(656, 'N1', 1)
+    run.c3.c2.committed(failed_path, 'd5e8ec972a')
+    assert not failed['passed'] and failed['measurement']['failed_limits'] == [
+        {'rank': 0, 'pass': 1, 'field': 'sweeps_distance', 'observed': 40, 'maximum': 39}]
+    artifacts[str(failed_path)] = a.sha(failed_path)
+    report.extend(report_rows(failed, 'failed build656'))
     for name, (reference_path, reference) in references.items():
         trials = [load_trial(build, name, repeat) for repeat in (1, 2)]
         first, second = (receipt for _, receipt in trials)

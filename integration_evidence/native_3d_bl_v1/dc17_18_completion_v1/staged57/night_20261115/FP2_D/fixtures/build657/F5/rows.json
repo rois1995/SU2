@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "call_rows": [
+    "FX2_MEMO case=F5 work=19049655 work_exhausted=0 time_exhausted=0 next_time_check=0 caller_bytes=3895283792 maximum_bytes=12884901888 peak_bytes=3992061856 peak_over_maximum=0 exception=none message=\"\" snapshot_sha256=cf1b6d29446148c995e318bd20397a3a937b08da555aead57907bc4d58a093d7 payload_sha256=448ed4f5c58c70ee3861fd1580ad09be2c451c742bdcb44e2891ad163828b83c"
+  ],
+  "timer_rows": [
+    "NATIVE3D_TIMER root=FX2_M6_B1 boundary=final rank=0 phase=construction operation=mobility_policy calls=1 inclusive_call_seconds=9.0299999999999997e-07 exclusive_seconds=9.0299999999999997e-07",
+    "NATIVE3D_TIMER_SUMMARY root=FX2_M6_B1 boundary=final rank=0 ranks=1 root_seconds=10.340279621000001 sumexclusive=10.340279621000001 unattributed=10.340278718 coverage=8.7328392771281684e-08 fixedstorage=4120"
+  ],
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/fixtures/build657/F5",
+  "log_sha256": "6cae38bda60914e0d722589359b26208d2f31f4bdc735b0b288d344fa6d7a769",
+  "test_seconds": 66.58420395851135,
+  "pins": {
+    "build": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/build657/build_status.json",
+    "build_sha256": "d2d3909ecd24a4ad94eb29003d30ee8122769f5b42893e009ca2c18bc3bd21e2",
+    "source_pins_sha256": "a4d661bb391927e63beaa34b7a9b736f0dc536a32c104c75a13c05c0183b3423",
+    "binary_sha256": "f2ab18d6a98e164f47863bf4d8c236b3967c13ce17c9a2248884f6c8237facc3",
+    "selector": "[.][NativeFastPathStage2Bounds]",
+    "inputs": {
+      "SU2_FP2_OUT": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/adapted_mesh_adap_00001.su2.native_ref",
+        "sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9"
+      }
+    }
+  },
+  "B1": {
+    "points": 33587,
+    "faces": 67170,
+    "constructor_seconds": 10.340279171,
+    "policy_seconds": 15.983680150000001,
+    "constructor_minus_policy_seconds": -5.643400979000001,
+    "modeled_peak_bytes": 3992061856,
+    "reservation_work": 19049655,
+    "memo_entry_bytes": 1583080,
+    "policy_modeled_peak_bytes": 3957944912,
+    "rss_before_bytes": 236322816,
+    "rss_after_bytes": 287772672,
+    "rss_change_bytes": 51449856,
+    "snapshot_equal": true,
+    "traces": 733
+  }
+}

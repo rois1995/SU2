@@ -24,6 +24,18 @@ S0_LAB = C2 / 'cases/build655/lab_acceptance.json'
 ORDER = HERE / 'inputs/FAST_PATH_STAGE2_D1_REV2.md'
 ORDER_SHA = '69178513638b8741ae412cd689c50bc0b2396676c3395d867bb3ba868a27d8f1'
 SOURCE_CHECK = HERE / 'source_check.md'
+CONTINUATION = HERE / 'inputs/FP2_D_CONTINUE_1.md'
+CONTINUATION_SHA = '8c3b55c6c4b7903776ed64aab8c90f3f88c6e703bfea285da28aa29b80ad8977'
+CONTINUATION_CHECK = HERE / 'continuation1_source_check.md'
+
+
+def continuation_pins():
+    checksum = CONTINUATION.with_suffix('.sha256')
+    assert a.sha(CONTINUATION) == CONTINUATION_SHA
+    assert checksum.read_text().split() == [CONTINUATION_SHA, CONTINUATION.name]
+    return CONTINUATION, checksum, CONTINUATION_CHECK
+
+
 WATCHDOG = lab.SECONDS
 PASS_TIME_RULE = 600
 WATCHDOG_ORDER = C1 / 'inputs/FP2_C1_CONTINUE_2.md'
@@ -320,6 +332,7 @@ def run(build, name, repeat, verify_only, watchdog_retry):
         fingerprints = {key: receipt[key] for key in lab.FINGERPRINTS}
         checkpoints = verify_checkpoints(label, fingerprints)
         support = (DRIVER, ORDER, ORDER.with_suffix('.sha256'), WATCHDOG_ORDER, SOURCE_CHECK, S0_LAB, reference,
+                   *continuation_pins(),
                    c1.DRIVER, c3.DRIVER, c3.c2.DRIVER, c3.prior.DRIVER, c3.prior.OLD_LAB, *checkpoints,
                    *watchdog_inputs)
         pins.update({str(path): a.sha(path) for path in support})

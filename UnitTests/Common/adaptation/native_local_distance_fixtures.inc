@@ -59,6 +59,11 @@ class DistanceSampleGeometry : public FlatGeometry {
  public:
   explicit DistanceSampleGeometry(const Owned& rows) : FlatGeometry(rows) {}
 
+  bool Feature(const Edge& edge) const override { return feature == edge; }
+  std::optional<double> Chord(const std::array<Node, 2>& ends) override {
+    return Feature(EdgeKey(ends)) ? std::optional<double>{2 * Limit()} : std::nullopt;
+  }
+
   local::SurfaceSamples Samples(const SurfaceFace& face) override {
     local::SurfaceSamples result{};
     const auto key = Key(face.v);
@@ -81,12 +86,15 @@ class DistanceSampleGeometry : public FlatGeometry {
       result.refusal = SurfaceRefusal::Walk;
       return result;
     }
-    return FlatGeometry::Place(ends, faces, id);
+    auto placement = FlatGeometry::Place(ends, faces, id);
+    if (Feature(edge)) placement.parent = edge;
+    return placement;
   }
 
   std::map<Face, std::map<Edge, double>> errors;
   std::optional<Face> centroid;
   std::optional<Edge> refuse;
+  std::optional<Edge> feature;
   std::vector<Edge> attempts;
 };
 
@@ -136,8 +144,8 @@ void SetSkewedErrors(DistanceSampleGeometry& geometry) {
 constexpr Edge RadialA{0, 1}, RadialB{0, 2}, RadialC{0, 3};
 constexpr Face FanAB{0, 1, 2}, FanBC{0, 2, 3}, FanCA{0, 1, 3};
 
-Owned DistanceFan(double radial_c = 1) {
-  return BoundMesh({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, radial_c}}, {{0, 1, 2, 3}}, 1);
+Owned DistanceFan() {
+  return BoundMesh({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}}, {{0, 1, 2, 3}}, 1);
 }
 }  // namespace
 
@@ -162,6 +170,8 @@ TEST_CASE("FP2-D cuts fewer edges on the FP2-A cylinder", "[.][NativeFP2D]") {
   };
   const auto stats = mesh.RunPass(ids, SIZE_MAX, std::move(report), options, &probe);
   const auto& counts = stats.surface;
+  // The refused rim cannot be cut; a side child still spans its full 45-degree chord.
+  // Other midpoint errors can end directly, while chord requests retain the parent rule.
   CHECK(probe.Checked() == counts.splits_distance);
   CHECK(probe.Violations() == 0);
   CHECK(counts.splits_distance < off.stats.surface.splits_distance);
@@ -177,6 +187,9 @@ TEST_CASE("FP2-D cuts fewer edges on the FP2-A cylinder", "[.][NativeFP2D]") {
   }
   CHECK(above == remaining.size());
   CHECK(above == counts.left_distance);
+  std::cout << "FP2_D cylinder off_splits=" << off.stats.surface.splits_distance
+            << " on_splits=" << counts.splits_distance << " sweeps=" << counts.sweeps_distance
+            << " left_refused=" << counts.left_refused << '\n';
 }
 
 TEST_CASE("FP2-D layered cylinder cuts diagonals followed by across edges", "[.][NativeFP2D]") {
@@ -288,15 +301,19 @@ TEST_CASE("FP2-D follows pooled errors to the terminal marked by its own face", 
   DistanceSampleGeometry geometry(rows);
   SetSkewedErrors(geometry);
   const auto [counts, remaining, sweeps, refusals] = RunDistanceFixture(mesh, geometry);
-  // 0-2 leads to 2-3 and then 3-6. The cut of 3-6 removes that original asking face only.
-  // Its child at 2-3 takes the pooled error of the surviving original face, so 2-3 ends
-  // the next path. The same argument leaves 0-2 for sweep three. Each terminal is also
-  // marked by its own asking face, so these are direct splits even when another face waits.
+  // All three edges carry an error and meet in tetrahedron 0-2-3-6. Their lengths
+  // are sqrt(5), 2 and sqrt(2) in attempt order. Each cut stamps the common ring
+  // and removes its asking face; the other original requests survive and defer.
   CHECK((geometry.attempts == std::vector<Edge>{FirstTerminal, LockedSide, BoxDiagonal}));
   REQUIRE(sweeps.size() == 3);
-  for (const auto& sweep : sweeps) CHECK(sweep.counters.splits == 1);
+  for (size_t i = 0; i < sweeps.size(); ++i) {
+    CHECK(sweeps[i].candidates == 3 - i);
+    CHECK(sweeps[i].counters.deferred == 2 - i);
+    CHECK(sweeps[i].counters.splits == 1);
+  }
   CHECK(counts.sweeps_distance == 3);
-  CHECK(counts.path_max == 2);
+  CHECK(counts.path_max == 0);
+  CHECK(counts.waits_neighbor == 0);
   CHECK(counts.path_splits == 0);
   CHECK(counts.d_marks_error == 3);
   CHECK(remaining.empty());
@@ -309,13 +326,14 @@ TEST_CASE("FP2-D border locks both a path and its asking neighbor", "[.][NativeF
   DistanceSampleGeometry geometry(rows);
   SetSkewedErrors(geometry);
   const auto result = RunDistanceFixture(mesh, geometry);
-  CHECK(geometry.attempts.empty());
+  // The longer 2-3 is tried first and refused on the missing physical face
+  // 2-3-6. The 0-2 ring is complete; its cut removes both asking faces.
+  CHECK((geometry.attempts == std::vector<Edge>{BoxDiagonal}));
   CHECK((result.refusals == std::vector<DistanceRefusal>{{LockedSide, SurfaceRefusal::Border}}));
-  const std::map<Face, SurfaceRemaining> expected{{AskingFace, SurfaceRemaining::NeighborLocked},
-                                                  {LockedFace, SurfaceRemaining::Border}};
-  CHECK(result.remaining == expected);
-  CHECK(result.counts.splits_distance == 0);
-  CHECK(result.counts.left_neighbor_locked == 1);
+  CHECK(result.remaining.empty());
+  CHECK(result.counts.splits_distance == 1);
+  REQUIRE(result.sweeps.size() == 1);
+  CHECK(result.sweeps.front().candidates == 2);
 }
 
 TEST_CASE("FP2-D uses the longest edge for an unshared centroid error", "[.][NativeFP2D]") {
@@ -343,15 +361,18 @@ TEST_CASE("FP2-D pools the cyclic face preferences in a tetrahedron fan", "[.][N
   geometry.errors[FanBC][RadialC] = 3;
   geometry.errors[FanCA][RadialA] = 4;
   const auto [counts, remaining, sweeps, refusals] = RunDistanceFixture(mesh, geometry);
-  // Pooled order is pa > pc > pb. AB and CA choose pa; BC chooses pc and waits one step.
-  // Splitting pa removes AB and CA but leaves BC. Its surviving error of 3*Limit() makes
-  // pc terminal at the new neighboring face, so only pc splits next.
+  // AB and CA mark pa, and BC marks pc. Both edges have unit length, so pa goes
+  // first by ID and stamps the single tetrahedron. BC survives and marks pc again.
   CHECK((geometry.attempts == std::vector<Edge>{RadialA, RadialC}));
   REQUIRE(sweeps.size() == 2);
   CHECK(sweeps[0].counters.splits == 1);
   CHECK(sweeps[1].counters.splits == 1);
-  CHECK(counts.waits_neighbor >= 1);
-  CHECK(counts.path_max == 1);
+  CHECK(sweeps[0].candidates == 2);
+  CHECK(sweeps[0].counters.deferred == 1);
+  CHECK(sweeps[1].candidates == 1);
+  CHECK(sweeps[1].counters.deferred == 0);
+  CHECK(counts.waits_neighbor == 0);
+  CHECK(counts.path_max == 0);
   CHECK(counts.d_marks_error == 2);
   CHECK(remaining.empty());
   CHECK(refusals.empty());
@@ -375,10 +396,12 @@ TEST_CASE("FP2-D uses a shared edge error across the limit", "[.][NativeFP2D]") 
 }
 
 TEST_CASE("FP2-D enforces the length floor after advancing a path", "[.][NativeFP2D]") {
-  const auto rows = DistanceFan(.02);
+  const auto rows = BoundMesh({{0, 0, 0}, {1, 0, 0}, {.5, .2, 0}, {0, 0, .02}}, {{0, 1, 2, 3}}, 1);
   local::Mesh mesh(rows, false, ErrorCut());
   DistanceSampleGeometry geometry(rows);
-  geometry.errors[FanAB][RadialA] = 2;
+  // pa is longer than either side incident to b. Its other face chooses pc
+  // by the pooled error, but pc = .02 fails the .028 floor before the early stop.
+  geometry.centroid = FanAB;
   geometry.errors[FanCA][RadialC] = 3;
   const auto result = RunDistanceFixture(mesh, geometry);
   CHECK(geometry.attempts.empty());
@@ -433,4 +456,86 @@ TEST_CASE("FP2-D preserves the altitude guard for a flat child", "[.][NativeFP2D
   CHECK(result.counts.splits_distance == 0);
   CHECK(geometry.created.empty());
   CHECK(Snapshot(mesh) == before);
+}
+
+TEST_CASE("FP2-D splits independent strip diagonals in one sweep", "[.][NativeFP2D]") {
+  for (const size_t layers : {4, 8}) {
+    CAPTURE(layers);
+    std::vector<Point> points;
+    std::vector<Tet> tets;
+    for (size_t layer = 0; layer <= layers; ++layer) {
+      const double z = CylinderLayerHeight * layer;
+      points.insert(points.end(), {{0, 0, z}, {1, 0, z}, {std::sqrt(.5), std::sqrt(.5), z}});
+    }
+    for (size_t layer = 0; layer < layers; ++layer) {
+      const Id p = 3 * layer;
+      tets.insert(tets.end(), {{p, p + 1, p + 2, p + 5}, {p, p + 1, p + 4, p + 5},
+                               {p, p + 3, p + 4, p + 5}});
+    }
+    const auto rows = BoundMesh(points, tets, 1);
+    local::Mesh mesh(rows, false, ErrorCut());
+    DistanceSampleGeometry geometry(rows);
+    std::vector<Edge> diagonals;
+    for (size_t layer = 0; layer < layers; ++layer) {
+      const Id p = 3 * layer;
+      const Face lower{p + 1, p + 2, p + 5}, upper{p + 1, p + 4, p + 5};
+      const Edge diagonal{p + 1, p + 5}, across{p + 4, p + 5};
+      diagonals.push_back(diagonal);
+      geometry.errors[lower][diagonal] = geometry.errors[upper][diagonal] = 2 * layer + 2;
+      if (layer + 1 < layers) {
+        const Face next_lower{p + 4, p + 5, p + 8};
+        geometry.errors[upper][across] = geometry.errors[next_lower][across] = 2 * layer + 3;
+      }
+    }
+    // Along the strip the increasing keys alternate diagonal and across; the old walk
+    // ends at the last diagonal for every request. The disjoint diagonal rings are
+    // longer than across edges, so they split first and stamp every interior across ring.
+    const auto result = RunDistanceFixture(mesh, geometry);
+    REQUIRE(result.sweeps.size() == 1);
+    CHECK(result.sweeps.front().candidates == 2 * layers - 1);
+    CHECK(result.sweeps.front().counters.deferred == layers - 1);
+    CHECK(result.sweeps.front().counters.splits == layers);
+    CHECK(result.counts.path_max == 0);
+    CHECK(result.counts.waits_neighbor == 0);
+    std::sort(geometry.attempts.begin(), geometry.attempts.end());
+    CHECK(geometry.attempts == diagonals);
+    CHECK(result.remaining.empty());
+  }
+}
+
+TEST_CASE("FP2-D retains the centroid walk until reaching an error edge", "[.][NativeFP2D]") {
+  const auto rows = SkewedBox(false);
+  for (const bool midpoint : {false, true}) {
+    CAPTURE(midpoint);
+    local::Mesh mesh(rows, false, ErrorCut());
+    DistanceSampleGeometry geometry(rows);
+    geometry.centroid = AskingFace;
+    if (midpoint) geometry.errors[{2, 3, 6}][LockedSide] = 2;
+    const auto result = RunDistanceFixture(mesh, geometry);
+    // All three seed lengths rise. With error on 2-3, it ends the path
+    // after the first advance and is also marked by its own asking face.
+    REQUIRE_FALSE(geometry.attempts.empty());
+    CHECK(geometry.attempts.front() == (midpoint ? LockedSide : FirstTerminal));
+    CHECK(result.sweeps.front().candidates == 1);
+    CHECK(result.counts.path_max == (midpoint ? 1 : 2));
+    CHECK(result.remaining.empty());
+  }
+}
+
+TEST_CASE("FP2-D walks through a feature carrying midpoint error", "[.][NativeFP2D]") {
+  const auto rows = SkewedBox(false);
+  local::Mesh mesh(rows, false, ErrorCut());
+  DistanceSampleGeometry geometry(rows);
+  geometry.centroid = AskingFace;
+  geometry.feature = LockedSide;
+  geometry.errors[{2, 3, 6}] = {{LockedSide, 2}, {FirstTerminal, 3}};
+  // Both the centroid route and the chord request advance through the feature
+  // to 3-6, which is longer and preferred by the other parent of 2-3.
+  const auto result = RunDistanceFixture(mesh, geometry);
+  REQUIRE_FALSE(geometry.attempts.empty());
+  REQUIRE_FALSE(result.sweeps.empty());
+  CHECK(geometry.attempts.front() == FirstTerminal);
+  CHECK(result.sweeps.front().candidates == 1);
+  CHECK(result.sweeps.front().counters.splits == 1);
+  CHECK(result.sweeps.front().counters.deferred == 0);
 }

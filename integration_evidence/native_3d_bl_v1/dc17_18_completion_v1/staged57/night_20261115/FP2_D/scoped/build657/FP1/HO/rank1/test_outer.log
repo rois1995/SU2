@@ -1,0 +1,9 @@
+Filters: [NativeLocalCoreHOperators]
+FP1_FIXTURE h_shape good_start=1 old=2.51984 fresh=0.533931 refused_shape=1
+FP1_FIXTURE h_shape good_start=0 old=0.00273911 fresh=0.533931 refused_shape=0
+FP1_FIXTURE h_split perturb_ulps=2 float=3.46945e-18 exact=-1.2326e-32
+FP1_FIXTURE h_float_box cells=384 signs=9216 collapses=1
+FP1_FIXTURE h_float_sampler samples=24 separated=18 max_relative_error=2.17876e-16
+===============================================================================
+All tests passed (10951 assertions in 4 test cases)
+

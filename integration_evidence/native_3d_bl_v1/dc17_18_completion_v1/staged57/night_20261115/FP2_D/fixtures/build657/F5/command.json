@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "env",
+    "-C",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/fixtures/build657/F5",
+    "OMP_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "OMPI_MCA_osc=pt2pt",
+    "TMPDIR=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "SU2_FP2_OUT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/adapted_mesh_adap_00001.su2.native_ref",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/fixtures/build657/F5/time.txt",
+    "timeout",
+    "5400",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[.][NativeFastPathStage2Bounds]"
+  ],
+  "ranks": 1,
+  "selector": "[.][NativeFastPathStage2Bounds]",
+  "seconds_limit": 5400
+}

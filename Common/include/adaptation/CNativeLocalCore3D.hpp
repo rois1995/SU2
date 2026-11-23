@@ -381,7 +381,8 @@ class Mesh {
   std::pair<Edge, double> LongestSurfaceEdge(const std::array<Edge, 3>& edges) const;
   Edge LongestSurfaceEdge(PhysicalFace face) const;
   std::pair<Edge, double> ChosenSurfaceEdge(PhysicalFace face, const SurfaceErrors& errors) const;
-  DistancePath FollowDistancePath(Edge edge, PhysicalFace face, const SurfaceEdgeSet& refused,
+  DistancePath FollowDistancePath(Edge edge, PhysicalFace face, const SurfaceGeometry& geometry,
+                                  const SurfaceEdgeSet& refused,
                                   const SurfaceEdgeSet& border, const SurfaceErrors& errors, double floor,
                                   size_t face_count, bool check_first) const;
   DistanceChoice ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,

@@ -34,7 +34,10 @@ BUDGET_FIELDS = ('overlay_peak', 'pass_admitted_bytes', 'query_scratch_max', 'co
 CONTINUATION_HISTORY = (
     'S0 is FP2-C2 at 240330d3aa. FP2-D changes which edges step D splits. '
     'The modeled error-table reservation adds 672 bytes per input cell on the 64-bit build. '
-    '[Whole-item source check](../source_check.md) · [S0 report](../../FP2_C2/reports/FP2_C2_655.md)')
+    'The first FP2-D candidate reached 40 marked sweeps in N1 on build656. '
+    'Continuation 1 ends the walk at a nonfeature edge carrying midpoint error. '
+    '[Continuation source check](../continuation1_source_check.md) · [Build656 lab failure](FP2_D_656.md) · '
+    '[S0 report](../../FP2_C2/reports/FP2_C2_655.md)')
 QUALITY = ('q_measured', 'q_bad', 'q_debt', 'j_measured', 'j_bad', 'j_debt')
 C_CLOCK = ('Core surface collapse step', SURFACE, ('seconds_c',))
 RANK_TIMING = prior.rank_timing

@@ -920,6 +920,6 @@ TEST_CASE("FP2-D hand-over on the event-1 production partition", "[.][NativeFP2D
   RunVolumeHandover(true, true, SurfaceObservation::None, ProductionPartition::Event1, true, true);
 }
 
-TEST_CASE("FP2-D accepted splits cut both parents' chosen edges", "[.][NativeFP2DLabInvariant]") {
+TEST_CASE("FP2-D accepted splits carry nonfeature error or cut both parents' chosen edges", "[.][NativeFP2DLabInvariant]") {
   RunVolumeHandover(false, true, SurfaceObservation::None, ProductionPartition::None, true, true, true);
 }

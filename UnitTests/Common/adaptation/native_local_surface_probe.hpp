@@ -233,8 +233,10 @@ class SurfaceChosenEdgeProbe final : public SurfaceGeometry {
     if (recording_) {
       if (!pooled_) Rebuild();
       const auto edge = Key(ends[0].id, ends[1].id);
-      pending_ = {ends, faces, errors_.count(edge) != 0,
-                  chosen_.at(faces[0].v) != edge || chosen_.at(faces[1].v) != edge};
+      const bool error = errors_.count(edge) != 0;
+      const bool independent = error && !geometry_.Feature(edge);
+      pending_ = {ends, faces, error,
+                  !independent && (chosen_.at(faces[0].v) != edge || chosen_.at(faces[1].v) != edge)};
     }
     return geometry_.Place(ends, faces, id);
   }

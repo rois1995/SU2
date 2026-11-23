@@ -6,6 +6,8 @@ import re
 import sys
 from unittest.mock import patch
 
+from run_c2_lab import continuation_pins
+
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 C2 = HERE.with_name('FP2_C2')
@@ -55,21 +57,27 @@ def reference_pins():
     return paths
 
 
-def run(build):
+def run(build, directional_only=False):
     assert sha(ORDER) == ORDER_SHA and ORDER.with_suffix('.sha256').read_text().split() == [ORDER_SHA, ORDER.name]
     hidden.clear_options()
-    _, fingerprints, _ = hidden.prepare(build)
+    binary, fingerprints, pins = hidden.prepare(build)
     baseline = reference_pins()
     base = HERE / 'fixtures' / build.name
-    directional = base / 'distance/attempt1/result.json'
-    if not cut.read(directional)['passed']:
-        directional = base / 'distance/attempt2/result.json'
-    d = cut.read(directional)
+    pins.update({str(path): sha(path) for path in (ORDER, ORDER.with_suffix('.sha256'), *continuation_pins())})
+    spec = (1, '[.][NativeFP2D]', 15)
+    d = hidden.attempt(base / 'distance/attempt1', binary, fingerprints, pins, spec, 1800)
+    if d['watchdog'] and not d['assertion_failed']:
+        d = hidden.attempt(base / 'distance/attempt2', binary, fingerprints, pins, spec, 5400)
+    if directional_only or not d['passed']:
+        status = 'open_watchdog' if d['watchdog'] and not d['assertion_failed'] else 'failed'
+        return {**d, 'status': 'passed' if d['passed'] else status}
+    directional = Path(d['case']) / 'result.json'
     assert d['passed'] and all(d[key] == value for key, value in fingerprints.items())
     assert all(sha(directional.parent / name) == digest for name, digest in d['artifacts'].items())
     artifacts = {str(directional): sha(directional)}
     with ExitStack() as stack:
-        stack.enter_context(patch.multiple(hidden, HERE=HERE, ORDER_FILES=(ORDER, ORDER.with_suffix('.sha256')),
+        stack.enter_context(patch.multiple(hidden, HERE=HERE,
+                                            ORDER_FILES=(ORDER, ORDER.with_suffix('.sha256'), *continuation_pins()),
                                             SOURCE_CHECK=SOURCE))
         stack.enter_context(patch.multiple(prior, HERE=HERE, BASE_SCOPE=BASE_SCOPE, BASE_FIXTURES=BASE_FIXTURES,
                                             DRIVER=Path(__file__).resolve(), reference_pins=lambda: baseline))
@@ -110,7 +118,7 @@ def run(build):
 
 if __name__ == '__main__':
     try:
-        result = run(Path(sys.argv[1]).resolve())
+        result = run(Path(sys.argv[1]).resolve(), '--directional-only' in sys.argv[2:])
     except prior.WatchdogOpen as error:
         print(error, flush=True)
         raise SystemExit(75)

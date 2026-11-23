@@ -18,7 +18,7 @@ spec = spec_from_file_location('c1_surface_g5', C1 / DRIVER.name)
 prior = module_from_spec(spec)
 spec.loader.exec_module(prior)
 from retry_c1_restart import retry_restart, terminal_wait
-from run_c2_lab import C2, ORDER, ORDER_SHA, S0, S0_BUILD as S0_BUILD_NUMBER, a, verify_checkpoints
+from run_c2_lab import C2, ORDER, ORDER_SHA, S0, S0_BUILD as S0_BUILD_NUMBER, a, continuation_pins, verify_checkpoints
 
 cut, sha, workflow = prior.cut, prior.sha, prior.workflow
 WATCHDOG_ORDER = C1 / 'inputs/FP2_C1_CONTINUE_2.md'
@@ -37,6 +37,7 @@ class WatchdogOpen(RuntimeError):
 
 def verify_orders():
     prior.verify_order()
+    continuation_pins()
     for path, digest in ((ORDER, ORDER_SHA), (WATCHDOG_ORDER, WATCHDOG_ORDER_SHA)):
         assert sha(path) == digest, path
         assert path.with_suffix('.sha256').read_text().split() == [digest, path.name], path
@@ -217,6 +218,7 @@ def run(build_dir):
                HERE / 'source_check.md', config, config.with_suffix('.cfg.sha256'), prior.FP2_A / 'run.cfg',
                build_dir / 'build_status.json', build_dir / 'source_pins.json']
     sources += [path for order in orders for path in (order, order.with_suffix('.sha256'))]
+    sources += list(continuation_pins())
     sources += reference_sources(payloads) + prerequisite_sources(build)
     try:
         run_attempt(work, build_dir, build, config, sources, payloads)

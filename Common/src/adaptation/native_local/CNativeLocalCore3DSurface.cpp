@@ -623,11 +623,16 @@ std::pair<Edge, double> Mesh::ChosenSurfaceEdge(PhysicalFace face, const Surface
   return {ById(chosen), length};
 }
 
-Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const SurfaceEdgeSet& refused,
+Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const SurfaceGeometry& geometry,
+                                            const SurfaceEdgeSet& refused,
                                             const SurfaceEdgeSet& border, const SurfaceErrors& errors, double floor,
                                             size_t face_count, bool check_first) const {
-  // Both faces at an edge use the same key. Each advance goes to a strictly larger key, so no edge
-  // or face repeats and the path terminates before the guard.
+  // A nonfeature error edge carries an above-limit midpoint sample on at least one face. Mark it
+  // directly so independent cuts are not serialized (N1 build656 concentrated requests on few ends
+  // and took 40 sweeps). The pooled sample guarantees neither a decrease nor a sweep count. The
+  // length floor and rule 2 still apply. A feature edge still needs each parent to choose it.
+  // When the walk continues, both faces use the same edge key and each advance strictly increases
+  // that key, so the walk terminates before the guard.
   size_t steps = 0;
   for (;;) {
     const auto ring = EdgeRing(edge, face.cell);
@@ -636,6 +641,10 @@ Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const 
       if (refused.count(ids) || border.count(ids) || ring.border) return {edge, steps, true};
       // The error key can lead to a shorter edge, so apply the floor at each lock check.
       if (options_.distance_error_cut && Distance(points_, edge) < floor) return {edge, steps, true};
+    }
+    if (!errors.empty()) {
+      const auto ids = Ids(points_, edge);
+      if (errors.count(ids) && !geometry.Feature(ids)) return {edge, steps, false};
     }
     bool advanced = false;
     for (const auto next : SurfaceParents(edge, ring)) {
@@ -671,7 +680,7 @@ Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGe
   if (length < 2 * limit) return {edge, feature_chord, SurfaceRemaining::Short};
 
   if (feature_chord) return {edge, true, std::nullopt};
-  const auto path = FollowDistancePath(edge, face, refused, border, errors, 2 * limit, face_count, false);
+  const auto path = FollowDistancePath(edge, face, geometry, refused, border, errors, 2 * limit, face_count, false);
   if (path.locked) return {edge, false, SurfaceRemaining::NeighborLocked, path.steps};
   return {path.edge, false, std::nullopt, path.steps};
 }
@@ -755,7 +764,7 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
         for (const auto parent : SurfaceParents(use.edge, EdgeRing(use.edge, use.cell))) {
           const auto chosen = ChosenSurfaceEdge(parent, errors).first;
           if (chosen == use.edge) continue;
-          const auto path = FollowDistancePath(chosen, parent, refused, border, errors, floor, faces.size(), true);
+          const auto path = FollowDistancePath(chosen, parent, geometry, refused, border, errors, floor, faces.size(), true);
           report_path(path.steps);
           if (path.locked) locked = true;
           else terminals.push_back(path.edge);
