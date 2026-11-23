@@ -1,0 +1,543 @@
+{
+  "actual_host_proc": true,
+  "all_observed_terminal": true,
+  "launches": [
+    {
+      "launch": "cases/build656/N1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1288550,
+          "start_ticks": 95637789
+        },
+        {
+          "pid": 1287957,
+          "start_ticks": 95636606
+        },
+        {
+          "pid": 1288570,
+          "start_ticks": 95637806
+        },
+        {
+          "pid": 1288571,
+          "state": "S",
+          "ppid": 1288570,
+          "pgid": 1288571,
+          "sid": 1288570,
+          "start_ticks": 95637806,
+          "comm": "timeout"
+        },
+        {
+          "pid": 1288572,
+          "state": "R",
+          "ppid": 1288571,
+          "pgid": 1288571,
+          "sid": 1288570,
+          "start_ticks": 95637806,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 1288573,
+          "state": "S",
+          "ppid": 1288572,
+          "pgid": 1288573,
+          "sid": 1288573,
+          "start_ticks": 95637807,
+          "comm": "orted"
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "fixtures/build656/F1-F4/test_launch.json",
+      "identities": [
+        {
+          "pid": 1235464,
+          "start_ticks": 95517162
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "fixtures/build656/F5/test_launch.json",
+      "identities": [
+        {
+          "pid": 1235994,
+          "start_ticks": 95518134
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "fixtures/build656/border/attempt1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1234183,
+          "start_ticks": 95514020
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "fixtures/build656/distance/attempt1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1231239,
+          "start_ticks": 95506814
+        },
+        {
+          "pid": 1230977,
+          "start_ticks": 95506206
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "fixtures/build656/exchange/attempt1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1234639,
+          "start_ticks": 95515127
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "fixtures/build656/serial/attempt1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1233705,
+          "start_ticks": 95512873
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "fixtures/build656/wall/test_launch.json",
+      "identities": [
+        {
+          "pid": 1235089,
+          "start_ticks": 95516268
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/A/rank1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1245807,
+          "start_ticks": 95540413
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/B/rank2/test_launch.json",
+      "identities": [
+        {
+          "pid": 1246021,
+          "start_ticks": 95540855
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/B/rank4/test_launch.json",
+      "identities": [
+        {
+          "pid": 1246192,
+          "start_ticks": 95541208
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/C/rank1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1246383,
+          "start_ticks": 95541570
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/C/rank2/test_launch.json",
+      "identities": [
+        {
+          "pid": 1246536,
+          "start_ticks": 95541931
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/C/rank4/test_launch.json",
+      "identities": [
+        {
+          "pid": 1246728,
+          "start_ticks": 95542289
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/FA/rank1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1246890,
+          "start_ticks": 95542652
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/FB/rank2/test_launch.json",
+      "identities": [
+        {
+          "pid": 1247287,
+          "start_ticks": 95543396
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/FB/rank4/test_launch.json",
+      "identities": [
+        {
+          "pid": 1247457,
+          "start_ticks": 95543759
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/FC/rank1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1247614,
+          "start_ticks": 95544121
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/FC/rank2/test_launch.json",
+      "identities": [
+        {
+          "pid": 1247780,
+          "start_ticks": 95544520
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/FC/rank4/test_launch.json",
+      "identities": [
+        {
+          "pid": 1247976,
+          "start_ticks": 95544903
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/FR/rank1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1247070,
+          "start_ticks": 95543046
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/G/rank1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1248162,
+          "start_ticks": 95545286
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/H/rank1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1248520,
+          "start_ticks": 95545990
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/H6/rank1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1248858,
+          "start_ticks": 95546808
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/HB/rank2/test_launch.json",
+      "identities": [
+        {
+          "pid": 1248702,
+          "start_ticks": 95546456
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/FP1/HO/rank1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1248334,
+          "start_ticks": 95545633
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/G1/mpi2/test_launch.json",
+      "identities": [
+        {
+          "pid": 1283609,
+          "start_ticks": 95627228
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/G1/mpi4/test_launch.json",
+      "identities": [
+        {
+          "pid": 1284294,
+          "start_ticks": 95628844
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/G1/serial/test_launch.json",
+      "identities": [
+        {
+          "pid": 1249066,
+          "start_ticks": 95547358
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/IN1/test_launch.json",
+      "identities": [
+        {
+          "pid": 1242546,
+          "start_ticks": 95532632
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/box/test_launch.json",
+      "identities": [
+        {
+          "pid": 1242370,
+          "start_ticks": 95532283
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/exchange/rank2/test_launch.json",
+      "identities": [
+        {
+          "pid": 1245497,
+          "start_ticks": 95539684
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/exchange/rank4/test_launch.json",
+      "identities": [
+        {
+          "pid": 1245646,
+          "start_ticks": 95540047
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/locked/test_launch.json",
+      "identities": [
+        {
+          "pid": 1245331,
+          "start_ticks": 95539337
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/sheet/test_launch.json",
+      "identities": [
+        {
+          "pid": 1240147,
+          "start_ticks": 95527429
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    },
+    {
+      "launch": "scoped/build656/volume/test_launch.json",
+      "identities": [
+        {
+          "pid": 1242222,
+          "start_ticks": 95531935
+        },
+        {
+          "pid": 1233361,
+          "start_ticks": 95511992
+        }
+      ],
+      "terminal": true
+    }
+  ],
+  "matching_host_processes": [],
+  "total_launches": 36
+}

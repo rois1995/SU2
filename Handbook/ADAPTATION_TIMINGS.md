@@ -2,6 +2,10 @@
 
 ## Fast path stage 2
 
+### FP2-D lab, build656
+
+N1 trial 1 took 322.010 s end to end at a starting one-minute host load of 1.82. The production pass took 155.507 s. Step D used 40 marked sweeps and made 3,926 splits. The S0 pass used 23 sweeps and made 17,123 splits. Build656 failed the sweep gate and stopped before S. [N1 evidence and diagnosis](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_656.md)
+
 ### FP2-C2 S, build655
 
 Run S passed both remesh events in 598.347 and 416.655 native seconds, with 446,509 and 435,746 cells. The corresponding build647 S events were 606.213 and 387.779 s. The per-rank report includes the Bound and modeled scratch observations. Isolated restart took 112.807 s. [S timings and receipts](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C2/reports/FP2_C2_655.md)
