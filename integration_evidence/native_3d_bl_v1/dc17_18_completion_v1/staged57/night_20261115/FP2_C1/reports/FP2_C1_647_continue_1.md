@@ -86,3 +86,14 @@ Each event uses the rank with the largest native time in the sealed summaries. M
 
 - S2 timing unavailable. Six-rank native summaries or final remesh ledgers are unavailable.
 
+
+## Rollback and close
+
+`FP2-C1: default proof FAILED` was pushed as `935fa3ff9a`. The single rollback commit `6825979092` restored Common, SU2_CFD and UnitTests from FX2 commit `7e6953e721`. All 1,829 FX2 source pins checked before and after the two-target rebuild. The build completed in 433.180 s and both active binary hashes match FX2 build645.
+
+| Artifact | FX2 build645 SHA256 | Rebuilt SHA256 |
+| --- | --- | --- |
+| SU2_CFD | `4f85c34986b98aa1520b29eae956a274a184f52fef0675f13f89c2da17d7d574` | `4f85c34986b98aa1520b29eae956a274a184f52fef0675f13f89c2da17d7d574` |
+| test_driver | `abdd26035c5dfb849640527c45ee0649f267520b1f73b58309714f4f495f3322` | `abdd26035c5dfb849640527c45ee0649f267520b1f73b58309714f4f495f3322` |
+
+The C1 test and production commits and the C2 step 0 test commit remain in history. The audit found no owned workloads. The continuation ended with the rollback label. S2 did not run, and the prerequisites for C2 and D remain unmet. [Build receipt](../restored645/build_status.json) · [Source and binary verification](../restored645/restoration_verification.json) · [Terminal audit](../restored645/terminal_audit.json)

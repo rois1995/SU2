@@ -1506,3 +1506,9 @@ FP2-C1 CORE event 1 mesh, sidecar and restart SHA256 match the FP1 reference. Ev
 FP2-C1 continuation CORE event 2 F3b and P7/P8 passed. Both memory values equal 11,663,958,016 bytes, proof faces 64,758, minimum coverage 98.127%. Continued CFD, isolated restart and six-file identity follow.
 
 FP2-C1 continuation CORE failed the isolated restart. The first failing value was exit 124 vs 0 from the inherited 600 s watchdog; outer wait 617.692 s. The restart loaded and recorded iteration 0 before timeout during final metric computation. Both full CORE events passed and all six on-disk payloads match FP1. Read-only diagnosis complete. Commit the failure evidence, restore part 1 production and test code to FX2 in one commit, rebuild both targets, and close. S2 and C2 are blocked.
+
+FP2-C1 default-proof failure evidence pushed as `935fa3ff9a`. The source rollback is committed as `6825979092`. The Common, SU2_CFD and UnitTests diff against FX2 `7e6953e721` is empty. All 1,829 FX2 source pins matched before the two-target rebuild. Build preflight saw 41,449,500 kB available and no competing owned heavy process.
+
+FP2-D is queued behind the specific FP2-C2 S-passed label. The C1 continuation failure leaves the C2 and D prerequisites unmet; their production orders have not been opened.
+
+FP2-C1 reverted; production sources = build645. The two-target rebuild finished in 433.180 s. Every one of the 1,829 FX2 source pins holds on disk, and both rebuilt binaries match their exact build645 hashes. All C1, RCFD and C2 step 0 owned identities are terminal. The C1 continuation closed at the failed default proof. S2, FP2-C2 production and FP2-D did not start.
