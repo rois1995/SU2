@@ -1550,3 +1550,9 @@ FP2-C2 fixtures pushed as 553ea0f147. Pre-lab actual-host audit found all owned 
 FP2-C2 build652 N1 trial 1 is terminal at runner exit 1. Evidence: cases/build652/N1. Inspect the first observed difference before any further run.
 
 FP2-C2: lab FAILED; default path not yet proven. Build652 N1 trial 1 exited 1 after 441.308 s. First gate difference was classify_unexplained=4, expected 0. All 8,800 surviving C-face probes passed. Step C accepted 5,937 collapses, including 1,977 in sweep 1. Read-only R5 checked five equal input hashes and 34 equal L/D rows. Sheet 10154 failed the absolute certificate after the specified trial screens passed. No wiring error found. Keep the code at fixture checkpoint 553ea0f147 and archive the failure. No further lab trials or S were started. FP2-D prerequisite unmet.
+
+FP2-C2 continuation 1 start. Verified and archived FP2_C2_CONTINUE_1.md with its SHA256 and read the whole order. S0=71d4ba519b, production=553ea0f147, build652. User accepted the C1 timing flag. Whole-item R4 recorded in FP2_C2/continuation1_source_check.md before edits. Step 1 will reproduce the build652 N1 counts and localize the mesh-side and model-side failures with test code.
+
+FP2-C2 continuation 1 build653 completed in 197.034 s without a new warning. Its solver and all Common/SU2_CFD pins match build652. Starting the one pinned N1 diagnostic on the test driver.
+
+FP2-C2 continuation 1 Step 1 passed its diagnostic reproduction. Build653 N1 reproduced 5,937 collapses, four above-tolerance and unexplained classifications, bins 0,2,1,0,1, and expected test exit 1 at 567.114 s. All four are step-C faces on sheet 10154. Model-side witness facet 11045, with two flagged faces among the nearby boxes. R4 and diagnostics are documented in FP2_C2/reports/FP2_C2_continue1_diag_653.md. Push the diagnosis, then implement the ordered Bound test.

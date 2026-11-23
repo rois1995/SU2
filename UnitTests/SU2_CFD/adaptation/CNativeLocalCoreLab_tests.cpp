@@ -245,6 +245,8 @@ struct LabEntityCensus {
   size_t faces = 0, above = 0, left_refused = 0, left_short = 0, left_border = 0, left_limit = 0;
   size_t left_neighbor_locked = 0, unexplained = 0;
   ExcessBins excess{}, border{}, no_border{};
+  std::map<Face, double> bounds;
+  std::map<BoundaryParameterState::EntityKey, size_t> above_by_entity;
 };
 
 void PrintLabExcessBins(std::ostream& out, const LabEntityCensus& census, bool classify_border = false) {
@@ -260,7 +262,8 @@ void PrintLabExcessBins(std::ostream& out, const LabEntityCensus& census, bool c
 }
 
 LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2NativeGeometry::AtlasBudget& budget,
-                                   const SurfaceReasons& remaining, const SurfaceFaceBorders* borders = nullptr) {
+                                   const SurfaceReasons& remaining, const SurfaceFaceBorders* borders = nullptr,
+                                   bool c2 = false) {
   constexpr std::array<double, 4> cutoffs{.01, .1, 1., 10.};
   const auto tolerance = state.GeometryTolerance();
   LabEntityCensus census;
@@ -274,8 +277,10 @@ LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2Nativ
     }
     const double bound = state.EntityFaceError(face.facet, bindings, points, &budget,
                                                SU2NativeGeometry::SurfaceQueryNeed::Classify());
+    if (c2) census.bounds.emplace(key, bound);
     ++census.faces;
     if (!(bound > tolerance)) continue;
+    if (c2) ++census.above_by_entity[state.Entity(face.facet)];
     ++census.above;
     const auto excess = bound / tolerance - 1.;
     const auto bin = std::upper_bound(cutoffs.begin(), cutoffs.end(), excess) - cutoffs.begin();
@@ -301,8 +306,148 @@ LabEntityCensus ClassifyLabSurface(const BoundaryParameterState& state, SU2Nativ
   return census;
 }
 
+void PrintLabTriple(std::ostream& out, const Face& ids) {
+  out << ids[0] << ',' << ids[1] << ',' << ids[2];
+}
+
+void PrintLabPoint(std::ostream& out, Point point) {
+  out << point.x << ',' << point.y << ',' << point.z;
+}
+
+void PrintLabEntity(std::ostream& out, const BoundaryParameterState::EntityKey& key) {
+  const auto& [body, sheet, marker] = key;
+  out << " body=" << body << " sheet=" << sheet << " marker=" << marker;
+}
+
+std::array<Point, 3> LabTriangle(const BoundaryParameterState& state, const SurfaceFace& face) {
+  return {state.Records().at(face.v[0]).point.node.p, state.Records().at(face.v[1]).point.node.p,
+          state.Records().at(face.v[2]).point.node.p};
+}
+
+void PrintLabFace(std::ostream& out, const BoundaryParameterState& state, const Face& key,
+                  const SurfaceFace& face, const std::set<Face>& collapse_faces, double bound) {
+  out << " key=";
+  PrintLabTriple(out, key);
+  out << " v_ids=";
+  PrintLabTriple(out, face.v);
+  const auto triangle = LabTriangle(state, face);
+  bool direct = true;
+  Face dimensions{};
+  std::array<double, 3> edges{};
+  for (unsigned k = 0; k < triangle.size(); ++k) {
+    out << " v" << k << '=';
+    PrintLabPoint(out, triangle[k]);
+    const auto& binding = state.Records().at(face.v[k]).point.binding;
+    direct &= state.Geometry().Supports(face.facet, binding);
+    dimensions[k] = state.Geometry().MobilityDimension(binding, state.Mobility());
+    const auto a = triangle[k], b = triangle[(k + 1) % triangle.size()];
+    edges[k] = std::hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  }
+  out << " facet=" << face.facet;
+  PrintLabEntity(out, state.Entity(face.facet));
+  out << " c_face=" << collapse_faces.count(key) << " bound=" << bound << " direct=" << direct << " dims=";
+  PrintLabTriple(out, dimensions);
+  out << " edges=" << edges[0] << ',' << edges[1] << ',' << edges[2];
+}
+
+size_t LabModelGapEntities(const BoundaryParameterState::Certificates& certificates, const LabEntityCensus& census) {
+  return std::count_if(certificates.begin(), certificates.end(), [&](const auto& row) {
+    return row.second.outside_tolerance && !census.above_by_entity.count(row.first);
+  });
+}
+
+double LabBoxDistance(const std::array<Point, 3>& a, const std::array<Point, 3>& b) {
+  const auto gap = [&](double Point::*axis) {
+    const auto by_axis = [axis](Point x, Point y) { return x.*axis < y.*axis; };
+    const auto first = std::minmax_element(a.begin(), a.end(), by_axis);
+    const auto second = std::minmax_element(b.begin(), b.end(), by_axis);
+    return std::max({0., (*first.first).*axis - (*second.second).*axis,
+                     (*second.first).*axis - (*first.second).*axis});
+  };
+  return std::hypot(gap(&Point::x), gap(&Point::y), gap(&Point::z));
+}
+
+void PrintLabModelGap(const BoundaryParameterState& state, const BoundaryParameterState::EntityKey& entity,
+                      const LabEntityCensus& census, const std::set<Face>& collapse_faces,
+                      SU2NativeGeometry::AtlasBudget& proof_budget) {
+  std::ostringstream out;
+  out << std::setprecision(17) << "FP2_C2 LAB_MODEL_GAP";
+  PrintLabEntity(out, entity);
+  auto budget = proof_budget;
+  const auto started = Clock::now();
+  budget.within_time = [&] { return Seconds(started) < 900. && (!proof_budget.within_time || proof_budget.within_time()); };
+  try {
+    std::vector<Id> facets;
+    std::vector<std::array<Point, 3>> triangles;
+    for (const auto& row : state.Geometry().Reference().Facets())
+      if (state.Entity(row.first) == entity) facets.push_back(row.first);
+    for (const auto& row : state.Surface())
+      if (state.Entity(row.second.facet) == entity) triangles.push_back(LabTriangle(state, row.second));
+    if (facets.empty() || triangles.empty()) throw std::runtime_error("empty entity surface");
+    // The source map visits sorted unique facet ids. Only its tested half is rebuilt.
+    using transfer_memory::Add;
+    using transfer_memory::Bytes;
+    budget.caller_bytes = Add(budget.caller_bytes, Bytes(facets), Bytes(triangles),
+                             transfer_memory::Mul(facets.size(), sizeof(Id)));
+    while (facets.size() > 1) {
+      const auto middle = facets.begin() + facets.size() / 2;
+      std::vector<Id> first(facets.begin(), middle);
+      if (state.Geometry().BoundModelSurface(first, triangles, state.GeometryTolerance(), budget).outside_tolerance) {
+        facets = std::move(first);
+        continue;
+      }
+      std::vector<Id> second(middle, facets.end());
+      if (!state.Geometry().BoundModelSurface(second, triangles, state.GeometryTolerance(), budget).outside_tolerance)
+        throw std::runtime_error("neither facet half certified outside");
+      facets = std::move(second);
+    }
+    const auto& facet = state.Geometry().Reference().Get(facets.front());
+    const std::array<Point, 3> triangle{facet.v[0].p, facet.v[1].p, facet.v[2].p};
+    out << " facet=" << facets.front();
+    for (unsigned k = 0; k < triangle.size(); ++k) {
+      out << " f" << k << '=';
+      PrintLabPoint(out, triangle[k]);
+    }
+    out << " faces_near=";
+    size_t printed = 0;
+    for (const auto& [key, face] : state.Surface()) {
+      if (state.Entity(face.facet) != entity || LabBoxDistance(triangle, LabTriangle(state, face)) > 5e-3) continue;
+      if (printed++) out << '|';
+      PrintLabTriple(out, key);
+      out << ':' << collapse_faces.count(key) << ':' << census.bounds.at(key);
+      if (printed == 60) break;
+    }
+    if (!printed) out << '-';
+  } catch (const std::exception& error) {
+    out << " failed=" << std::quoted(error.what());
+  }
+  proof_budget.work = budget.work;
+  proof_budget.work_exhausted = budget.work_exhausted;
+  proof_budget.peak_bytes = std::max(proof_budget.peak_bytes, budget.peak_bytes);
+  std::cout << out.str() << std::endl;
+}
+
+void PrintLabC2Diagnosis(const BoundaryParameterState& state, const LabEntityCensus& census,
+                        const SurfaceReasons& remaining, const std::set<Face>& collapse_faces,
+                        const BoundaryParameterState::Certificates& certificates, SU2NativeGeometry::AtlasBudget& budget) {
+  std::ostringstream out;
+  out << std::setprecision(17);
+  size_t printed = 0;
+  for (const auto& [key, bound] : census.bounds) {
+    if (!(bound > state.GeometryTolerance()) || remaining.count(key)) continue;
+    out << "FP2_C2 LAB_ABOVE";
+    PrintLabFace(out, state, key, state.Surface().at(key), collapse_faces, bound);
+    out << '\n';
+    if (++printed == 200) break;
+  }
+  std::cout << out.str() << std::flush;
+  for (const auto& [entity, certificate] : certificates)
+    if (certificate.outside_tolerance) PrintLabModelGap(state, entity, census, collapse_faces, budget);
+}
+
 void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t ceiling, size_t caller,
-                     Clock::time_point deadline_start, const SurfaceReasons& remaining) {
+                     Clock::time_point deadline_start, const SurfaceReasons& remaining,
+                     const std::set<Face>* collapse_faces = nullptr) {
   auto budget = native_fp2_fixture::Budget(cells, caller, deadline_start, 5400, ceiling);
   std::vector<SurfaceFace> faces;
   faces.reserve(state.Surface().size());
@@ -316,13 +461,17 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
   const auto forward_start = Clock::now();
   const auto& forward = state.GeometryCertificates(budget, false);
   const auto forward_seconds = Seconds(forward_start);
-  REQUIRE(reverse.size() == keys.size());
-  REQUIRE(forward.size() == keys.size());
-  REQUIRE_FALSE(keys.empty());
-  bool accepted = state.ReverseProofComplete(reverse);
+  if (!collapse_faces) {
+    REQUIRE(reverse.size() == keys.size());
+    REQUIRE(forward.size() == keys.size());
+    REQUIRE_FALSE(keys.empty());
+  }
+  const bool complete = !keys.empty() && reverse.size() == keys.size() && forward.size() == keys.size();
+  bool accepted = complete && state.ReverseProofComplete(reverse);
   const auto tolerance = state.GeometryTolerance();
   size_t i = 0;
   for (const auto& key : keys) {
+    if (!complete) break;
     const auto& [body, sheet, marker] = key;
     const auto mesh_to_model = reverse[i++];
     const auto& certificate = forward.at(key);
@@ -335,10 +484,11 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
     accepted &= valid;
   }
   const auto classify_start = Clock::now();
-  const auto census = ClassifyLabSurface(state, budget, remaining);
+  const auto census = ClassifyLabSurface(state, budget, remaining, nullptr, collapse_faces != nullptr);
+  const auto model_gap_entities = collapse_faces ? LabModelGapEntities(forward, census) : 0;
   const bool reason_accounting = census.above == census.left_refused + census.left_short + census.left_border +
                                                  census.left_limit + census.left_neighbor_locked;
-  const bool qualified = (accepted || reason_accounting) && census.unexplained == 0;
+  const bool qualified = complete && (accepted || reason_accounting) && census.unexplained == 0 && !model_gap_entities;
   std::cout << "FP2_A LAB_S_PROOF entities=" << keys.size() << " classified=" << census.faces
             << " classify_above_tol=" << census.above << " accepted=" << accepted << " qualified=" << qualified
             << " classify_left_refused=" << census.left_refused << " classify_left_short=" << census.left_short
@@ -346,9 +496,11 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
             << " classify_left_neighbor_locked=" << census.left_neighbor_locked
             << " classify_unexplained=" << census.unexplained;
   PrintLabExcessBins(std::cout, census);
+  if (collapse_faces) std::cout << " model_gap_entities=" << model_gap_entities;
   std::cout << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
             << " seconds_classify=" << Seconds(classify_start) << " work=" << budget.work
             << " modeled_peak=" << budget.peak_bytes << std::endl;
+  if (collapse_faces) PrintLabC2Diagnosis(state, census, remaining, *collapse_faces, forward, budget);
   REQUIRE(census.faces == state.Surface().size());
   REQUIRE(census.unexplained == 0);
   REQUIRE(qualified);

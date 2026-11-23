@@ -130,16 +130,24 @@ Face CollapseFaceKey(Face v) {
   return v;
 }
 
-void RemoveCollapseReasons(const World& world, const std::set<Face>& collapse_faces, SurfaceReasons& reasons) {
+std::set<Face> RemoveCollapseReasons(const World& world, const std::set<Face>& collapse_faces,
+                                    SurfaceReasons& reasons) {
+  std::set<Face> gathered;
   for (int rank = 0; rank < world.size; ++rank) {
     std::vector<Face> rows;
     CheckLabStep(world, [&] {
       if (world.rank == rank) rows.assign(collapse_faces.begin(), collapse_faces.end());
     });
     CPassiveComm::Bcast(rows, rank, world.comm);
-    if (world.rank == 0)
-      for (const auto& face : rows) reasons.erase(face);
+    CheckLabStep(world, [&] {
+      if (world.rank != 0) return;
+      for (const auto& face : rows) {
+        reasons.erase(face);
+        gathered.insert(face);
+      }
+    });
   }
+  return gathered;
 }
 
 void ReportCollapseFaces(std::ostream& out, const local::Mesh& mesh, local::SurfaceGeometry& geometry,
@@ -178,7 +186,8 @@ void ReportCollapseFaces(std::ostream& out, const local::Mesh& mesh, local::Surf
 }
 
 bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size_t ceiling, size_t caller,
-                         Clock::time_point start, const SurfaceReasons& remaining, const SurfaceFaceBorders* borders) {
+                         Clock::time_point start, const SurfaceReasons& remaining, const SurfaceFaceBorders* borders,
+                         const std::set<Face>* collapse_faces) {
   auto budget = native_fp2_fixture::Budget(cells, caller, start, 5400, ceiling);
   std::vector<SurfaceFace> faces;
   faces.reserve(state.Surface().size());
@@ -213,11 +222,12 @@ bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size
   }
 
   const auto classify_start = Clock::now();
-  const auto census = ClassifyLabSurface(state, budget, remaining, borders);
+  const auto census = ClassifyLabSurface(state, budget, remaining, borders, collapse_faces != nullptr);
+  const auto model_gap_entities = collapse_faces ? LabModelGapEntities(forward, census) : 0;
   const auto accounted = census.left_refused + census.left_short + census.left_border + census.left_limit +
                          census.left_neighbor_locked;
   const bool qualified = complete && census.faces == state.Surface().size() && census.unexplained == 0 &&
-                         (accepted || census.above == accounted);
+                         (accepted || census.above == accounted) && !model_gap_entities;
   out << "FP2_B proof rank=0 entities=" << keys.size() << " classified=" << census.faces
       << " classify_above_tol=" << census.above << " accepted=" << accepted << " qualified=" << qualified
       << " classify_left_refused=" << census.left_refused << " classify_left_short=" << census.left_short
@@ -225,10 +235,12 @@ bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size
       << " classify_left_neighbor_locked=" << census.left_neighbor_locked
       << " classify_unexplained=" << census.unexplained;
   PrintLabExcessBins(out, census, borders != nullptr);
+  if (collapse_faces) out << " model_gap_entities=" << model_gap_entities;
   out << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
       << " seconds_classify=" << Seconds(classify_start) << " work=" << budget.work
       << " modeled_peak=" << budget.peak_bytes << '\n';
   std::cout << out.str() << std::flush;
+  if (collapse_faces) PrintLabC2Diagnosis(state, census, remaining, *collapse_faces, forward, budget);
   return qualified;
 }
 
@@ -275,12 +287,13 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
     if (collapse_faces)
       for (const auto& face : *collapse_faces) remaining.erase(face);
     std::cout << std::setprecision(17);
-    ProveLabSurface(state, global_cells, input.ceiling, proof_live(remaining), start, remaining);
+    ProveLabSurface(state, global_cells, input.ceiling, proof_live(remaining), start, remaining, collapse_faces);
     return;
   }
 
   auto global_reasons = GatherVolumeFaces(world, remaining, "FP2-B final surface reason has duplicate rank ownership.");
-  if (collapse_faces) RemoveCollapseReasons(world, *collapse_faces, global_reasons);
+  const auto global_collapse_faces =
+      collapse_faces ? RemoveCollapseReasons(world, *collapse_faces, global_reasons) : std::set<Face>{};
   const auto global_borders =
       borders ? GatherVolumeFaces(world, *borders, "FP2-B longest-edge ring has duplicate rank ownership.") :
                 SurfaceFaceBorders{};
@@ -293,7 +306,8 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
         transfer_memory::Add(borders->size(), global_borders.size()), border_row_bytes) : 0;
     qualified = ProveVolumeHandover(state, global_cells, input.ceiling,
                                     transfer_memory::Add(proof_live(global_reasons), retained, border_bytes),
-                                    start, global_reasons, borders ? &global_borders : nullptr);
+                                    start, global_reasons, borders ? &global_borders : nullptr,
+                                    collapse_faces ? &global_collapse_faces : nullptr);
   });
   REQUIRE_FALSE(world.maximum(!qualified));
 }
