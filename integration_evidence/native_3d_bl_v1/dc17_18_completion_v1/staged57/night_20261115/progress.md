@@ -1408,3 +1408,15 @@ FP2-C1 G5 S event 1 reached native exit with q/J/size/geometry bad counts zero. 
 FP2-C1 G5 S event 2 reached native exit and passed its proof and timer receipts. Owned proof faces summed to 77,370. Job peak 11,620,970,496 bytes equals the process-peak sum. The supervisor continues through workflow validation and the isolated restart.
 
 FP2-C1 §5.4–5 passed on build647. The single G5 S ran both events and the isolated restart under unchanged limits. Native times 606.213 / 387.779 s, final cells 467,139 / 464,565, proof faces 79,996 / 77,370, minimum coverage 98.092%. All six candidate file hashes independently verified. Close S with default path pending, verify terminal jobs, then proceed to the queued C2 step 0.
+
+FP2-C1 closed and pushed as `4730bd59ec`. The post-push host audit found 139 C1 identities terminal. FP2-C2 step 0 order is verified and archived. Its passing C1 lab branch uses wall_collapses ON, with build647 N1 and N6P trial 1 as the sanity references. The measurement is test code only and defers T12 until after the existing proof and cell digest.
+
+FP2-C2 step 0 build648 compiled only the test-driver target in 27.691 s. The complete Common/SU2_CFD diff against C1 is empty, and the solver SHA is still b824f37ee37f2458d334b3534569078437f0a321a4b4166e52288ee111e46b4c. N1 is running under the 3,600 s wrapper.
+
+FP2-C2 step 0 N1 completed the dry in-pass measurements and retained the C1 hand-over count of 475,815 with zero nonpositive cells. The normal proof precedes the deferred T12 queries and final sanity comparison.
+
+FP2-C2 step 0 N1 passed in 2,134.237 s with zero sanity differences against C1 build647, including proof work/peak and the owned-cell digest. It measured 118,885 short physical edges and 237,770 directions. T12 reached the ordered cap after 79,808 of 90,196 scheduled directions. Starting N6P on the same test binary.
+
+FP2-C2 step 0 N6P printed the original proof and all six owned-cell digests. The proof work (44,591,524), modeled peak (1,119,171,112 bytes), unexplained count and all six digests match C1. Deferred strict queries are active.
+
+FP2-C2 step 0 complete on test-driver build648. N6P ended in 991.403 s with zero sanity differences and all 167,814 scheduled T12 directions evaluated across both passes. N1 / N6P pass 2 whole-chain counts were 66,380 / 71,085 and one-sweep estimates were 9,578 / 9,766 points. Omitting T8 gave 66,407 / 71,113, and substituting T8m gave 66,397 / 71,104. N1 stopped T12 at the 25-minute cap after 88.5% of scheduled directions. The required report and handoff updates are ready. Production sources and the solver match C1; only the two dry labs ran. Commit, push, audit and wait.

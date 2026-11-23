@@ -253,3 +253,8 @@ How should the report cover all edges with five ranked rows, and which label app
 - The pass-1 sweep equality rule includes rows whose printer adds an elapsed-seconds field. Used exact comparison of all non-clock fields, applying the timing exclusion of the neighboring pass-1 surface rule. S0 `7e6953e721`.
 - The earlier correction-3 controller also has an above-tolerance count alarm and a post-shift edge census. Used the C1 §4 list as the gate and retain the older measurements alongside it. S0 `7e6953e721`.
 - The engine emits the collapse elapsed clock from entry and prints rounds at the boundary. Used that elapsed clock with setup included, since a separate exclusive collapse clock is unavailable. S0 `7e6953e721`.
+
+## 2026-11-23 01:33 CET · FP2-C2 step 0 · probe timing
+
+- The inherited `FP2_B pass` row uses the post-writeback exact cell count. Considered moving that row or leaving it at its established boundary. Kept it in place and ran the dry probe after the pre-writeback rows, excluding the probe interval from `seconds_pass`. C1 base `4730bd59ec`.
+- The strict-query order spans two captured passes on a production-partition rank. Used the same ascending metric length and ID-pair order across those records, preserving that order within each pass. The one-in-ten sample ordinal is pass-local. C1 base `4730bd59ec`.

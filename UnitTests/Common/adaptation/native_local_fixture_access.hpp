@@ -13,6 +13,7 @@
 #include <iosfwd>
 #include <map>
 #include <stdexcept>
+#include <utility>
 
 namespace SU2NativeLocal3D {
 struct SurfaceFixtureAccess {
@@ -90,6 +91,15 @@ struct SurfaceFixtureAccess {
     }
     return borders;
   }
+
+  static std::vector<Edge> CollapsePhysicalEdges(const Mesh&);
+  static std::vector<std::vector<Slot>> CollapseStars(const Mesh&);
+  static std::vector<Slot> CollapseRing(const Mesh&, const std::vector<Slot>& star, Edge);
+  static std::vector<Face> CollapseSurfaceParents(const Mesh&, Edge, const std::vector<Slot>& ring);
+  static std::vector<std::pair<Face, SurfaceFace>> CollapseSkin(const Mesh&, const std::vector<Slot>& star, Slot);
+  static bool CollapseTrialPositive(const Mesh&, Vertices);
+  static bool CollapsePositive(const Mesh&, Vertices);
+  static double CollapseWorst(const Mesh&, const std::vector<Slot>& star);
 
   static unsigned BadClass(const Mesh&, const Vertices&, Id point_base);
   static bool HandoverBlocked(const Mesh& mesh, Vertices v) { return mesh.Blocked(v); }
