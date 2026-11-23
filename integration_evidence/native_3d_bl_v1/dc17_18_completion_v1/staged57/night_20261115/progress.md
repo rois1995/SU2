@@ -1452,3 +1452,9 @@ RCFD1 R-OFF cycle counts were 1/500/500. Cycle 2 ended at rms[Rho] −4.85661. F
 RCFD1 R-OFF full workflow passed and was terminal in 4,323.849 s. The isolated restart preflight returned 1 before writing a launch receipt because PID 51464 (SU2_CFD, start ticks 92229855) was active. It was outside the sealed full run and the identity had ended when checked. Preserve the preflight failure and launch only the pending isolated restart under the same preflight and validators.
 
 RCFD1 passed both build647 full workflows, all four 500-iteration continued CFD cycles and both isolated restarts. R-OFF native maxima 1,961.595 / 1,372.908 s. The isolated restart ran once in 215.844 s after the earlier host preflight returned before launch. All eight ParaView files are present. The terminal audit found 37 RCFD1 identities terminal. Commit and push the evidence, then read FP2-C1 continuation 1. RCFD1 accepted no mesh.
+
+RCFD1 closed and pushed as `635c7ee619`. Post-push audits found 37 RCFD1, 141 C1 and 19 C2 step 0 recorded identities terminal. FP2-C1 continuation order is verified and archived. Its item 1 was fulfilled by the RCFD1 preparation; verify the three hashes, reuse build647 fixtures/G1/lab, and execute §1.2(a) default regressions.
+
+FP2-C1 continuation verified build647/649 fingerprints and live pins. G2 on build647 passed its exact rows, modeled storage, 4,120 fixed storage, decisions and scheduling in 275.060 s. GQ is active.
+
+FP2-C1 continuation GQ passed exact decision, modeled storage, timer and scheduling comparisons in 769.670 s on build647. The already-launched §1.2(a) supervisor advanced to G3. The RCFD2 order is verified and archived. Its runs follow the terminal scoped supervisor and its pushed evidence checkpoint, before C1 §1.2(b).
