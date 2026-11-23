@@ -88,7 +88,7 @@ enum class SurfaceRefusal {
 };
 enum class SurfaceCollapseRefusal {
   None, Protected, Border, Ineligible, BorderKeeper, FeatureChord, Link, Near, Outward, Reverse, Topology,
-  Size, Shape, Validity, Distance, Entity
+  Size, Shape, Validity, Distance, Entity, Bound
 };
 
 bool SampleMovedTensor(const std::vector<DonorCell>& donors, Point point, Tensor& tensor);
@@ -139,8 +139,9 @@ struct SurfaceCounters {
   double seconds_v = 0;
   std::string v_changes;
   size_t collapses_surface = 0, c_sweeps = 0, c_candidates = 0, c_deferred = 0;
-  std::array<size_t, static_cast<size_t>(SurfaceCollapseRefusal::Entity) + 1> c_refusals{};
-  double c_reverse_max = 0, seconds_c = 0, seconds_c_samples = 0, seconds_c_entity = 0;
+  std::array<size_t, static_cast<size_t>(SurfaceCollapseRefusal::Bound) + 1> c_refusals{};
+  double c_reverse_max = 0, seconds_c = 0, seconds_c_samples = 0, seconds_c_entity = 0, seconds_c_bound = 0;
+  size_t c_bound_queries = 0, query_scratch_max = 0;
   size_t faces_before_c = 0, points_before_c = 0;
   std::string c_changes;
 };

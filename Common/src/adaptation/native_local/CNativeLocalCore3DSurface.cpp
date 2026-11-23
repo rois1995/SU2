@@ -195,12 +195,13 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
       << " seconds_v=" << s.seconds_v;
   out << " collapses_surface=" << s.collapses_surface << " c_sweeps=" << s.c_sweeps
       << " c_candidates=" << s.c_candidates << " c_deferred=" << s.c_deferred;
-  constexpr std::array<const char*, static_cast<size_t>(SurfaceCollapseRefusal::Entity)> reasons = {
+  constexpr std::array<const char*, static_cast<size_t>(SurfaceCollapseRefusal::Bound)> reasons = {
       "protected", "border", "ineligible", "border_keeper", "feature_chord", "link", "near", "outward",
-      "reverse", "topology", "size", "shape", "validity", "distance", "entity"};
+      "reverse", "topology", "size", "shape", "validity", "distance", "entity", "bound"};
   for (size_t i = 0; i < reasons.size(); ++i) out << " c_refused_" << reasons[i] << '=' << s.c_refusals[i + 1];
   out << " c_reverse_max=" << s.c_reverse_max << " seconds_c=" << s.seconds_c
       << " seconds_c_samples=" << s.seconds_c_samples << " seconds_c_entity=" << s.seconds_c_entity
+      << " seconds_c_bound=" << s.seconds_c_bound << " c_bound_queries=" << s.c_bound_queries
       << " faces_before_c=" << s.faces_before_c << " points_before_c=" << s.points_before_c;
   if (!s.c_changes.empty()) out << " c_changes=" << std::quoted(s.c_changes);
   if (!s.first_feature_reason.empty()) out << " first_feature_reason=" << std::quoted(s.first_feature_reason);
@@ -894,6 +895,8 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats) {
 }
 
 void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
+  const SurfaceQueryScratch query_scratch(stats.report && options_.surface_collapses
+                                              ? &stats.surface.query_scratch_max : nullptr);
   const auto report = [&](size_t& faces, size_t& points) {
     if (!stats.report) return;
     faces = PhysicalFaces().size();

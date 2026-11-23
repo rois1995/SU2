@@ -50,6 +50,18 @@ class SurfaceGeometry {
   virtual unsigned Dimension(Id) const = 0;
   virtual void Remove(Id) = 0;
   virtual bool OnEntityFace(const SurfaceFace&) const = 0;
+  virtual bool WithinTolerance(const SurfaceFace&) = 0;
+};
+
+class SurfaceQueryScratch {
+ public:
+  explicit SurfaceQueryScratch(size_t* maximum);
+  ~SurfaceQueryScratch();
+  SurfaceQueryScratch(const SurfaceQueryScratch&) = delete;
+  SurfaceQueryScratch& operator=(const SurfaceQueryScratch&) = delete;
+
+ private:
+  size_t* previous_;
 };
 
 struct SurfaceEdits {
@@ -79,6 +91,7 @@ class StateSurfaceGeometry final : public SurfaceGeometry {
   unsigned Dimension(Id) const override;
   void Remove(Id) override;
   bool OnEntityFace(const SurfaceFace&) const override;
+  bool WithinTolerance(const SurfaceFace&) override;
   const BoundaryPoint* Find(Id) const;
   const SU2NativeGeometry::EdgeTrace* FindTrace(const SurfaceEdge&) const;
   size_t ResidentBytes() const;

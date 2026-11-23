@@ -21,11 +21,19 @@ cut, sha, workflow = runner.cut, runner.sha, runner.workflow
 table = prior.table
 SURFACE = 'NATIVE3D_LOCAL_SURFACE'
 SURFACE_STATE = 'NATIVE3D_LOCAL_SURFACE_STATE'
+SURFACE_BUDGET = 'NATIVE3D_LOCAL_SURFACE_BUDGET'
 COLLAPSE_FIELDS = ('collapses_surface', 'c_sweeps', 'c_candidates', 'c_deferred', 'c_reverse_max',
-                   'seconds_c', 'seconds_c_samples', 'seconds_c_entity', 'faces_before_c', 'points_before_c')
+                   'seconds_c', 'seconds_c_samples', 'seconds_c_entity', 'seconds_c_bound', 'c_bound_queries',
+                   'faces_before_c', 'points_before_c')
 REASONS = ('protected', 'border', 'ineligible', 'border_keeper', 'feature_chord', 'link', 'near', 'outward',
-           'reverse', 'topology', 'validity', 'size', 'shape', 'distance', 'entity')
+           'reverse', 'topology', 'validity', 'size', 'shape', 'distance', 'entity', 'bound')
 REFUSALS = tuple('c_refused_' + reason for reason in REASONS)
+BUDGET_FIELDS = ('overlay_peak', 'pass_admitted_bytes', 'query_scratch_max', 'conservative_sum', 'ceiling')
+CONTINUATION_HISTORY = (
+    'Build652 N1 failed the lab proof with four unexplained mesh-side faces. '
+    'The build653 test-only replay localized all four to step C on sheet 10154 and located the model-side '
+    'witness on facet 11045. [Build652 report](FP2_C2_652.md) · '
+    '[Continuation diagnosis](FP2_C2_continue1_diag_653.md)')
 QUALITY = ('q_measured', 'q_bad', 'q_debt', 'j_measured', 'j_bad', 'j_debt')
 C_CLOCK = ('Core surface collapse step', SURFACE, ('seconds_c',))
 RANK_TIMING = prior.rank_timing
@@ -46,7 +54,7 @@ def collect(path, parse, candidate=False):
         _, local, _, _ = parse['read_event'](case, number)
         for rank, lines in sorted(local.items()):
             rows = event['ranks'][str(rank)]
-            for key, marker in (('surface', SURFACE), ('surface_state', SURFACE_STATE)):
+            for key, marker in (('surface', SURFACE), ('surface_state', SURFACE_STATE), ('surface_budget', SURFACE_BUDGET)):
                 rows[key] = [row for line in lines if (row := parse['fields'](line, marker))
                              and row['rank'] == str(rank) and row.get('applicable') != '0']
             for row in rows['surface']:
@@ -57,6 +65,10 @@ def collect(path, parse, candidate=False):
                                                               'fields': sorted(missing)})
             if not rows['surface'] or not rows['surface_state']:
                 event['missing_observations'].append({'rank': rank, 'row': 'surface or surface-state'})
+            if candidate:
+                for row in rows['surface_budget']:
+                    if missing := set(BUDGET_FIELDS) - row.keys():
+                        event['missing_observations'].append({'rank': rank, 'row': SURFACE_BUDGET, 'fields': sorted(missing)})
         rank0 = event['ranks']['0']
         if rank0['surface_state'] and rank0['engine_length_collapse']:
             before = int(rank0['surface_state'][0]['faces'])
@@ -114,7 +126,7 @@ def watchdog_rows(observations):
 
 
 def markdown(label, runs, cases, watchdog):
-    summary, surface, engine_surface, collapse, phases, repairs, quality, missing = ([] for _ in range(8))
+    summary, surface, budgets, engine_surface, collapse, phases, repairs, quality, missing = ([] for _ in range(9))
     for name, run in runs.items():
         for event in run['events']:
             row = event['summary']
@@ -133,6 +145,8 @@ def markdown(label, runs, cases, watchdog):
                                          if row.get('c_refused_' + reason, '0') != '0')
                     surface.append((*key, row['stage'], row['pass'], *(row.get(field, '—')
                                     for field in (*COLLAPSE_FIELDS, 'faces_out', 'points_out')), refusals or '—'))
+                for row in rows['surface_budget']:
+                    budgets.append((*key, row['stage'], row['pass'], *(row.get(field, '—') for field in BUDGET_FIELDS)))
                 for index, pair in enumerate(rows['engine_length_collapse'], 1):
                     length = pair['length'] or {}
                     elapsed = length.get('elapsed')
@@ -152,6 +166,7 @@ def markdown(label, runs, cases, watchdog):
     lines = [f'# FP2-C2 build{label} S', '', 'FP2-C2: S passed; default path not yet proven', '',
              'Both remesh events and isolated restart passed the standing gates. The comparison uses the first '
              'accepted FP2-C1 S run on build647.', '',
+             CONTINUATION_HISTORY, '', f'[Continuation lab and memory observations](FP2_C2_lab_{label}.json)', '',
              *table(('Event', 'Run', 'Native maximum s', 'Cells', 'Points', 'Proof faces',
                      'Minimum coverage', 'Job peak bytes'), sorted(summary)),
              '## Published payload SHA256', '',
@@ -174,6 +189,11 @@ def markdown(label, runs, cases, watchdog):
              *table(('Event', 'Run', 'Rank', 'Invocation', 'Phase', 'Start', 'End', 'Seconds'), sorted(repairs)),
              '## Shape at quality entry', '',
              *table(('Event', 'Run', 'Rank', 'Entry', *QUALITY), sorted(quality)), timing_table(cases)]
+    if budgets:
+        lines += ['## Surface query storage', '',
+                  'The scratch is budgeted above the overlay caller baseline. The conservative pass-plus-query '
+                  'sum is reported beside its ceiling.', '',
+                  *table(('Event', 'Run', 'Rank', 'Stage', 'Pass', *BUDGET_FIELDS), sorted(budgets))]
     if watchdog:
         lines += ['## Wrapper watchdog receipts', '',
                   *table(('Receipt', 'Status', 'Watchdog s', 'Start load', 'Elapsed s', 'Exit'),
@@ -221,6 +241,7 @@ def failure_report(label, work):
     evaluated = {str(path): cut.read(path)['passed'] for path in sorted(
         (*case.glob('f3b_event*_timer_gate.json'), *case.glob('p7p8_event*_gate.json')))}
     lines = [f'# FP2-C2 build{label} S', '', status, '',
+             CONTINUATION_HISTORY, '', f'[Continuation lab and memory observations](FP2_C2_lab_{label}.json)', '',
              f'Step ended during {failure["stage"]}.', '',
              f'First recorded observation. {failure["first_observed_failure"]}', '',
              '## Evaluated event gates', '',

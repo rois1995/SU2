@@ -18,20 +18,25 @@ a, cut, sha = c1.scope.a, c1.cut, c1.sha
 DRIVER = Path(__file__).resolve()
 ORDER = HERE / "inputs/FAST_PATH_STAGE2_C2.md"
 ORDER_SHA = "fdd678fed866cb0fb9171316ca1f8e534ea848357918fb1956d95bdbb2bf7cae"
+CONTINUATION = HERE / "inputs/FP2_C2_CONTINUE_1.md"
+CONTINUATION_SHA = "7480af812c7173c1c574c24be6406b4db2d421701bd4bc569263b82ba3056ee2"
+SOURCE_CHECK = HERE / "continuation1_source_check.md"
 WATCHDOG_ORDER = C1 / "inputs/FP2_C1_CONTINUE_2.md"
 WATCHDOG_ORDER_SHA = "f65f2f302302f8f546ffcc23bb84a9e2ababa40defd9995e9779be456a94eda3"
+ORDERS = ((ORDER, ORDER_SHA), (CONTINUATION, CONTINUATION_SHA), (WATCHDOG_ORDER, WATCHDOG_ORDER_SHA))
+ORDER_FILES = tuple(file for path, _ in ORDERS for file in (path, path.with_suffix(".sha256")))
 R6_SECONDS = 90 * 60
 OPEN = "FP2-C2: fixture (i) OPEN at the R6 limit; default path not yet proven"
 FIRST_SERIAL_DRIVER = "365709bb7e41ba436698b2b43b3831d301753a23730de69fd409d7c436a6a9e6"
 CASES = {
-    "serial": (1, "[.][NativeFP2C2]~[NativeFP2C2MPI]", 6),
+    "serial": (1, "[.][NativeFP2C2]~[NativeFP2C2MPI]", 8),
     "border": (2, "Step C protects a rank-border point and keeper without mutating either state", 1),
     "exchange": (2, "Step C exchanges cross-pass and local cancellations and builds with removals only", 1),
 }
 
 
 def verify_orders():
-    for path, digest in ((ORDER, ORDER_SHA), (WATCHDOG_ORDER, WATCHDOG_ORDER_SHA)):
+    for path, digest in ORDERS:
         assert sha(path) == digest
         assert path.with_suffix(".sha256").read_text().split() == [digest, path.name]
 
@@ -43,8 +48,7 @@ def prepare(build):
     assert not receipt["new_warnings"]
     assert sha(Path(receipt["binary"])) == receipt["binary_sha256"]
     fingerprints = build_fingerprints(receipt)
-    support = (DRIVER, ORDER, ORDER.with_suffix(".sha256"), WATCHDOG_ORDER, WATCHDOG_ORDER.with_suffix(".sha256"),
-               HERE / "source_check.md", Path(sys.modules["run_fp0"].__file__).resolve(),
+    support = (DRIVER, *ORDER_FILES, SOURCE_CHECK, HERE / "source_check.md", Path(sys.modules["run_fp0"].__file__).resolve(),
                cut.PREFLIGHT, build / "build_status.json")
     pins = {str(path): sha(path) for path in support}
     return binary, fingerprints, pins
@@ -57,7 +61,8 @@ def clear_options():
 
 
 def has_assertion_failure(logs):
-    return any(re.search(r"^\s*FAILED:", a.ANSI.sub("", path.read_text(errors="replace")), re.MULTILINE)
+    return any(re.search(r"^\s*(?:[^\r\n]+:\d+:\s*)?FAILED:",
+                         a.ANSI.sub("", path.read_text(errors="replace")), re.MULTILINE)
                for path in logs)
 
 

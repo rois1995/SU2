@@ -30,6 +30,28 @@ using Triangle = std::array<BoundaryPoint, 3>;
 using Scope = SU2NativeTiming3D::Scope;
 using Operation = SU2NativeTiming3D::Operation;
 
+thread_local size_t* query_scratch_maximum = nullptr;
+
+class QueryPeak {
+ public:
+  explicit QueryPeak(AtlasBudget& budget)
+      : budget_(budget), maximum_(query_scratch_maximum), historical_(budget.peak_bytes),
+        baseline_(budget.caller_bytes) {
+    if (maximum_) budget_.peak_bytes = baseline_;
+  }
+
+  ~QueryPeak() {
+    if (!maximum_) return;
+    *maximum_ = std::max(*maximum_, budget_.peak_bytes - baseline_);
+    budget_.peak_bytes = std::max(historical_, budget_.peak_bytes);
+  }
+
+ private:
+  AtlasBudget& budget_;
+  size_t* maximum_;
+  size_t historical_, baseline_;
+};
+
 template <class Container>
 size_t MapBytes(const Container& rows) {
   return Mul(rows.size(), sizeof(typename Container::value_type) + 4 * sizeof(void*));
@@ -473,6 +495,12 @@ size_t CheckOwnedFaces(const Owned& owned, const BoundaryState& next) {
 }
 }  // namespace
 
+SurfaceQueryScratch::SurfaceQueryScratch(size_t* maximum) : previous_(query_scratch_maximum) {
+  query_scratch_maximum = maximum;
+}
+
+SurfaceQueryScratch::~SurfaceQueryScratch() { query_scratch_maximum = previous_; }
+
 struct StateSurfaceGeometry::Impl {
   Impl(std::shared_ptr<const PlanarReference> reference, AtlasBudget input)
       : original(std::move(reference)), state(GetState(original)), walker(state), budget(std::move(input)),
@@ -686,6 +714,7 @@ SurfaceSamples StateSurfaceGeometry::Samples(const SurfaceFace& face) {
 std::optional<double> StateSurfaceGeometry::Chord(const std::array<Node, 2>& ends) {
   Scope timing(Operation::GeometryBound);
   impl_->BeginQuery();
+  const QueryPeak query_peak(impl_->budget);
   const auto* trace = impl_->Trace(EdgeKey(ends[0].id, ends[1].id));
   if (!trace) return std::nullopt;
   BoundaryPoint middle;
@@ -698,6 +727,7 @@ SurfacePlacement StateSurfaceGeometry::Place(const std::array<Node, 2>& ends,
                                                const std::array<SurfaceFace, 2>& parents, Id id) {
   Scope timing(Operation::GeometryBound);
   impl_->BeginQuery();
+  const QueryPeak query_peak(impl_->budget);
   const auto* trace = impl_->Trace(EdgeKey(ends[0].id, ends[1].id));
   return trace ? impl_->PlaceOnFeature(ends, parents, id, *trace) : impl_->PlaceOnSheet(ends, parents, id);
 }
@@ -751,6 +781,27 @@ void StateSurfaceGeometry::Remove(Id id) {
 
 bool StateSurfaceGeometry::OnEntityFace(const SurfaceFace& face) const {
   return impl_->state.ContainsEntityFace(face.facet, impl_->Corners(face));
+}
+
+bool StateSurfaceGeometry::WithinTolerance(const SurfaceFace& face) {
+  Scope timing(Operation::GeometryBound);
+  impl_->BeginQuery();
+  const QueryPeak query_peak(impl_->budget);
+  auto& state = impl_->state;
+  // Support selection depends on the first vertex. Match the rebuilt census inputs.
+  // Admission can change its traversal, so the rebuilt proof remains the gate.
+  const auto facet = state.Geometry().Canonical(face.facet);
+  const auto corners = impl_->Corners({FaceOrder(face.v), facet});
+  std::array<SurfaceBinding, 3> bindings;
+  std::array<Point, 3> points;
+  for (size_t k = 0; k < corners.size(); ++k) {
+    bindings[k] = corners[k].binding;
+    points[k] = corners[k].node.p;
+  }
+  const auto bound = state.EntityFaceError(facet, bindings, points, &impl_->budget,
+                                         SU2NativeGeometry::SurfaceQueryNeed::Classify());
+  impl_->CheckBudget();
+  return bound <= state.GeometryTolerance();
 }
 
 void StateSurfaceGeometry::Exchange(World& world, MemoryBudget& budget, size_t caller) {

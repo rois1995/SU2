@@ -18,6 +18,7 @@ spec = spec_from_file_location('c1_surface_g5', C1 / DRIVER.name)
 prior = module_from_spec(spec)
 spec.loader.exec_module(prior)
 from retry_c1_restart import retry_restart, terminal_wait
+from run_c2_lab import CONTINUATION_BASE, continuation_sources
 
 cut, sha, workflow = prior.cut, prior.sha, prior.workflow
 ORDER = HERE / 'inputs/FAST_PATH_STAGE2_C2.md'
@@ -84,9 +85,14 @@ def prerequisite_sources(build):
     assert all(sha(path) == hidden_row['receipts'][str(path)] for path in hidden_paths), hidden
     lab_row = cut.read(lab_proof)
     assert lab_row['baseline_build'] == 647 and set(lab_row['cases']) == {'N1', 'N6', 'N6P'}, lab_proof
+    assert lab_row['continuation_baseline_build'] == CONTINUATION_BASE, lab_proof
     artifacts = [Path(name) for name in lab_row['artifacts']]
     assert artifacts and all(path.is_absolute() and sha(path) == lab_row['artifacts'][str(path)] for path in artifacts)
-    return [*hidden_paths, *(fixture.parent / name for name in gate['receipts']), hidden, lab_proof, *artifacts]
+    continuation = continuation_sources()
+    assert lab_row['continuation_baseline'] == {'N1': str(continuation[-1]), 'N6': None, 'N6P': None}
+    assert continuation[-1] in artifacts
+    return list(dict.fromkeys((*hidden_paths, *(fixture.parent / name for name in gate['receipts']),
+                               hidden, lab_proof, *artifacts, *continuation)))
 
 
 def restart_timed_out(work, case, seconds):
@@ -258,6 +264,7 @@ def work_path(label):
 
 def self_check():
     verify_orders()
+    continuation_sources()
     prior.config_for('S')
     reference_sources(runpy.run_path(str(workflow.PAYLOADS)))
     source = retry_controller()

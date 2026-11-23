@@ -2,6 +2,10 @@
 
 ## Fast path stage 2
 
+### FP2-C2 continuation 1
+
+The test-only build653 N1 diagnostic ran for 567.114 s at a one-minute starting host load of 7.00. The initial geometry proof and the extra facet localization are both included in the elapsed time. Build654 closed at the MPI removals-only fixture, so there is no new lab or S timing. [Continuation report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C2/reports/FP2_C2_continue1_654.md)
+
 ### FP2-C2 inside-only surface collapse, build652 N1
 
 Step C accepted 5,937 surface collapses in 25.504 s, including 5.324 s of forward samples and 3.777 s of entity checks. The N1 pass took 176.668 s and the lab ended in 441.308 s at a starting host load of 3.87. Build647 on the same frozen input took 120.920 s for the pass and 332.144 s for the lab. The strict proof logged four unexplained faces above tolerance. S is unevaluated. [Fixture and lab evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C2/reports/FP2_C2_652.md)
@@ -26,7 +30,7 @@ Solve includes metric generation. Mean history time per nonzero iteration was 0.
 | 1 | 614.463 → 606.213 | 550,027 → 467,139 | 210.259 → 201.092 | 267.667 → 257.030 |
 | 2 | 410.522 → 387.779 | 575,733 → 464,565 | 212.803 → 187.658 | 136.275 → 134.143 |
 
-The engine phase clocks are the maximum per-rank sums of its measured spans. The collapse boundary clock includes setup and lies within construction. Wall-near length collapse committed 16,970 and 10,221 core edits. The engine accepted 3,936 and 3,884 collapses. Minimum named coverage was 98.092% and 98.785%. The default proof and S2 passed. S2 matched all six S payloads and measured 1,029.687 and 498.925 native seconds, with one-minute host load 6.43 at launch and 6.32–19.67 in the run samples. Both purpose targets remain open. [Continuation timings](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/reports/FP2_C1_647_continue_1.md) [Per-rank stage and repair clocks](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/G5/build647/S/S_report.md)
+The engine phase clocks are the maximum per-rank sums of its measured spans. The collapse boundary clock includes setup and lies within construction. Wall-near length collapse committed 16,970 and 10,221 core edits. The engine accepted 3,936 and 3,884 collapses. Minimum named coverage was 98.092% and 98.785%. The default proof and S2 passed. S2 matched all six S payloads and measured 1,029.687 and 498.925 native seconds, with one-minute host load 6.43 at launch and 6.32–19.67 in the run samples. The user accepted the timing flag on 2026-11-23. [Continuation timings](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/reports/FP2_C1_647_continue_1.md) [Per-rank stage and repair clocks](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/G5/build647/S/S_report.md)
 
 ### FX2 mobility-policy replay, build645
 

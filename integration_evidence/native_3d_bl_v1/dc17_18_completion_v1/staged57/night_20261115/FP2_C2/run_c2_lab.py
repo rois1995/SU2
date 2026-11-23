@@ -18,22 +18,52 @@ import run_c1_lab as c1
 lab, a, c3 = c1.lab, c1.a, c1.c3
 ORDER = HERE / 'inputs/FAST_PATH_STAGE2_C2.md'
 ORDER_SHA = 'fdd678fed866cb0fb9171316ca1f8e534ea848357918fb1956d95bdbb2bf7cae'
-SOURCE_CHECK = HERE / 'source_check.md'
+SOURCE_CHECK = HERE / 'continuation1_source_check.md'
+CONTINUATION = HERE / 'inputs/FP2_C2_CONTINUE_1.md'
+CONTINUATION_SHA = '7480af812c7173c1c574c24be6406b4db2d421701bd4bc569263b82ba3056ee2'
+CONTINUATION_BASE = 652
+CONTINUATION_CASE = HERE / 'cases/build652/N1'
+DIAGNOSIS_BUILD = 'build653'
+DIAGNOSIS_COMMIT = '2df5aeb78c'
 WATCHDOG = lab.SECONDS
 PASS_TIME_RULE = 600
 WATCHDOG_ORDER = C1 / 'inputs/FP2_C1_CONTINUE_2.md'
 WATCHDOG_ORDER_SHA = 'f65f2f302302f8f546ffcc23bb84a9e2ababa40defd9995e9779be456a94eda3'
 RUNS = {'N1': (1, 'Serial'), 'N6': (6, 'MPI'), 'N6P': (6, 'Production1')}
-LINE = re.compile(c1.LINE.pattern.replace('core|cells', 'core|cells|collapse_probe')
-                  .replace('FP2_A LAB_S_PROOF', 'FP2_A LAB_S_(?:PROOF|ENTITY)'))
+LINE = re.compile(c1.LINE.pattern.replace('core|cells', 'core|cells|collapse_probe|query_budget|strict_observation')
+                  .replace('FP2_A LAB_S_PROOF', 'FP2_A LAB_S_(?:PROOF|ENTITY)')
+                  .replace('|NATIVE3D_LOCAL_SURFACE',
+                           '|FP2_C2 LAB_(?:ABOVE|MODEL_GAP|MISMATCH)|NATIVE3D_LOCAL_SURFACE'))
 COUNTERS = frozenset(('collapses_surface', 'c_sweeps', 'c_candidates', 'c_deferred',
-                      'faces_before_c', 'points_before_c'))
+                      'faces_before_c', 'points_before_c', 'c_bound_queries'))
 REFUSALS = tuple('c_refused_' + reason for reason in (
     'protected', 'border', 'ineligible', 'border_keeper', 'feature_chord', 'link',
-    'near', 'outward', 'reverse', 'topology', 'validity', 'size', 'shape', 'distance', 'entity',
+    'near', 'outward', 'reverse', 'topology', 'validity', 'size', 'shape', 'distance', 'entity', 'bound',
 ))
-REAL_FIELDS = ('c_reverse_max', 'seconds_c', 'seconds_c_samples', 'seconds_c_entity')
+REAL_FIELDS = ('c_reverse_max', 'seconds_c', 'seconds_c_samples', 'seconds_c_entity', 'seconds_c_bound')
 PROBE_ERRORS = ('distance', 'near', 'entity', 'size')
+PROOF_COUNTS = ('model_gap_entities', 'strict_checked', 'strict_mismatch', 'strict_sink_mismatch')
+BUDGET_FIELDS = ('overlay_peak', 'pass_admitted_bytes', 'query_scratch_max', 'conservative_sum', 'ceiling')
+DIAGNOSTIC_ROWS = ('LAB_ABOVE', 'LAB_MODEL_GAP', 'LAB_MISMATCH')
+
+
+def continuation_sources():
+    assert a.sha(CONTINUATION) == CONTINUATION_SHA
+    checksum = CONTINUATION.with_suffix('.sha256')
+    assert checksum.read_text().split() == [CONTINUATION_SHA, CONTINUATION.name]
+    diagnosis = HERE / 'diagnosis'
+    candidates = (root / 'cases' / DIAGNOSIS_BUILD / 'N1/diagnosis.json'
+                  for root in (diagnosis, diagnosis / 'watchdog_retry'))
+    path, = (path for path in candidates if path.is_file() and a.cut.read(path)['passed'])
+    measurement = path.with_name('measurement.json')
+    for source in (path, measurement):
+        c3.c2.committed(source, DIAGNOSIS_COMMIT)
+    receipt = a.cut.read(path)
+    assert receipt['status'] == 'matched_expected_failure' and receipt['baseline_build'] == CONTINUATION_BASE
+    assert receipt['measurement_sha256'] == a.sha(measurement)
+    baseline = CONTINUATION_CASE / 'measurement.json'
+    c3.c2.committed(baseline, '71d4ba519b')
+    return CONTINUATION, checksum, SOURCE_CHECK, path, measurement, baseline
 
 
 def session_root(repeat, watchdog_retry=False):
@@ -61,7 +91,7 @@ def limit(problems, rank, phase, key, value, maximum):
         problems.append({'rank': rank, 'pass': phase, 'field': key, 'observed': value, 'maximum': maximum})
 
 
-def observed_failures(name, data):
+def observed_failures(name, data, strict=False):
     """Result gates that can already have a value when the helper watchdog ends."""
     failures = []
     last_pass = 1 if RUNS[name][0] == 1 else 2
@@ -72,7 +102,7 @@ def observed_failures(name, data):
             for key, maximum in (('star_max', 1000), ('sweeps_distance', 39), ('v_limit', 0), ('c_sweeps', 49)):
                 limit(failures, rank, int(row['pass']), key, int(row[key]), maximum)
         for row in rows.get('collapse_probe', ()):
-            for key in PROBE_ERRORS:
+            for key in (*PROBE_ERRORS, 'strict_above') if strict and 'strict_above' in row else PROBE_ERRORS:
                 limit(failures, rank, int(row['pass']), f'collapse_probe_{key}', int(row[key]), 0)
         for row in rows.get('edge_bins', ()):
             if row['checkpoint'] == 'out' and int(row['pass']) == last_pass:
@@ -84,11 +114,52 @@ def observed_failures(name, data):
         for row in (*rows.get('proof', ()), *rows.get('LAB_S_PROOF', ())):
             limit(failures, rank, last_pass, 'proof_unqualified', 1 - int(row['qualified']), 0)
             limit(failures, rank, last_pass, 'classify_unexplained', int(row['classify_unexplained']), 0)
+            if strict:
+                for field in ('model_gap_entities', 'strict_sink_mismatch'):
+                    if row.get(field, '').isdigit():
+                        limit(failures, rank, last_pass, field, int(row[field]), 0)
+                if row.get('strict_checked', '').isdigit():
+                    observed = int(row['strict_checked'])
+                    expected = int(rows['state'][0]['faces']) if rows.get('state') else int(row['classified'])
+                    if observed != expected or observed != int(row['classified']):
+                        failures.append({'rank': rank, 'pass': last_pass, 'field': 'strict_checked',
+                                         'observed': observed, 'expected': expected, 'classified': int(row['classified'])})
         for row in rows.get('state', ()):
             limit(failures, rank, last_pass, 'owned_geometry_mismatch', 1 - int(row['owned_geometry_equal']), 0)
             if RUNS[name][0] > 1:
                 limit(failures, rank, last_pass, 'snapshot_mismatch', 1 - int(row['snapshot_equal']), 0)
     return failures
+
+
+def record_continuation(result, data, ranks):
+    proof = result['proof']
+    counts_valid = all(proof.get(field, '').isdigit() for field in PROOF_COUNTS)
+    if (not counts_valid or
+            not 0 <= int(proof['strict_sink_mismatch']) <= int(proof['strict_mismatch']) <= int(proof['strict_checked'])):
+        result['problems'].append({'row': 'proof continuation fields', 'observed': proof})
+
+    observations = []
+    for rank, rows in data.items():
+        per_rank = rows.get('strict_observation', ())
+        if len(per_rank) != 1 or per_rank[0].get('rank') != str(rank) or not per_rank[0].get('checked', '').isdigit():
+            result['problems'].append({'row': 'strict_observation', 'rank': rank, 'observed': per_rank})
+            continue
+        row = per_rank[0]
+        try:
+            seconds = float(row['seconds'])
+            assert math.isfinite(seconds) and seconds >= 0
+        except (AssertionError, KeyError, ValueError):
+            result['problems'].append({'row': 'strict_observation', 'rank': rank, 'observed': row})
+            continue
+        observations.append({'rank': rank, 'checked': int(row['checked']), 'seconds': seconds})
+    if counts_valid and len(observations) == ranks:
+        checked = sum(row['checked'] for row in observations)
+        if checked != int(proof['strict_checked']):
+            result['failed_limits'].append({'field': 'strict_checked_rank_sum', 'observed': checked,
+                                            'expected': int(proof['strict_checked'])})
+    result['strict_observation'] = observations
+    result['diagnostics'] = {kind: [row for rows in data.values() for row in rows.get(kind, ())]
+                             for kind in DIAGNOSTIC_ROWS}
 
 
 def pass_timing(data, loadavg):
@@ -109,7 +180,7 @@ def evaluate(name, data, expected, loadavg):
                  for rank, rows in data.items()}
     result = c3.prior.BASELINE_EVALUATE(name, pass_rows, expected)
     # C1 continuation 2 makes the per-pass timing threshold report-only for C2.
-    result['failed_limits'] = observed_failures(name, data)
+    result['failed_limits'] = observed_failures(name, data, strict=True)
     result['pass_timing'] = pass_timing(data, loadavg)
     result['problems'].extend(c1.observations(name, data))
     c3.c2.donor_scan(data, ranks, result, True)
@@ -122,8 +193,17 @@ def evaluate(name, data, expected, loadavg):
         if [probe['pass'] for probe in probes] != phases:
             result['problems'].append({'row': 'collapse_probe', 'rank': rank, 'expected_passes': phases})
         for probe in probes:
-            if (probe['rank'] != str(rank) or not 0 <= int(probe['surviving']) <= int(probe['reported'])):
+            if (probe['rank'] != str(rank) or not probe.get('strict_above', '').isdigit()
+                    or not 0 <= int(probe['strict_above']) <= int(probe['surviving']) <= int(probe['reported'])):
                 result['problems'].append({'row': 'collapse_probe', 'rank': rank, 'observed': probe})
+        budgets = rows.get('query_budget', ())
+        if [row.get('pass') for row in budgets] != phases:
+            result['problems'].append({'row': 'query_budget', 'rank': rank, 'expected_passes': phases})
+        for budget in budgets:
+            if (budget.get('rank') != str(rank)
+                    or not all(budget.get(field, '').isdigit() for field in BUDGET_FIELDS)
+                    or int(budget['conservative_sum']) != int(budget['pass_admitted_bytes']) + int(budget['query_scratch_max'])):
+                result['problems'].append({'row': 'query_budget', 'rank': rank, 'observed': budget})
         for surface in rows.get('NATIVE3D_LOCAL_SURFACE', ()):
             phase = int(surface['pass'])
             try:
@@ -141,6 +221,7 @@ def evaluate(name, data, expected, loadavg):
             if not valid:
                 result['problems'].append({'row': 'NATIVE3D_LOCAL_SURFACE', 'rank': rank, 'pass': phase,
                                            'observed': surface})
+    record_continuation(result, data, ranks)
     return result
 
 
@@ -160,14 +241,17 @@ def watchdog_evidence(case, result):
     if result['supervisor_stop'] != 'wrapper_time_limit':
         return {}
     log_failures = [str(path) for path in lab.b0.log_paths(case, result['ranks']).values()
-                    if re.search(r'^\s*FAILED:', path.read_text(errors='replace'), re.MULTILINE)]
-    status = 'result_failed' if result['measurement']['failed_limits'] or log_failures else 'retry_allowed'
+                    if re.search(r'(?:^\s*FAILED:|: FAILED:\s*$)', a.ANSI.sub('', path.read_text(errors='replace')),
+                                 re.MULTILINE)]
+    peak_exceeded = result['peak_lower_bound_bytes'] > a.MEMORY * 1024
+    status = 'result_failed' if result['measurement']['failed_limits'] or log_failures or peak_exceeded else 'retry_allowed'
     command = a.cut.read(case / 'command.json')
     if status == 'retry_allowed' and command['seconds_limit'] == 3 * WATCHDOG:
         status = 'open'
     evidence = {'status': status, 'seconds_limit': command['seconds_limit'],
                 'host_preflight': a.cut.read(case / 'test_host_preflight.json'),
-                'measurement_sha256': a.sha(case / 'measurement.json'), 'result_failure_logs': log_failures}
+                'measurement_sha256': a.sha(case / 'measurement.json'), 'result_failure_logs': log_failures,
+                'job_peak_exceeded': peak_exceeded}
     a.sealed(case / 'watchdog.json', evidence)
     return evidence
 
@@ -185,6 +269,7 @@ def run(build, name, repeat, verify_only, watchdog_retry):
     assert a.sha(ORDER) == ORDER_SHA
     assert ORDER.with_suffix('.sha256').read_text().split() == [ORDER_SHA, ORDER.name]
     assert a.sha(WATCHDOG_ORDER) == WATCHDOG_ORDER_SHA
+    continuation = continuation_sources()
     label = a.cut.read(build / 'build_status.json')['build']
     root = session_root(repeat, watchdog_retry)
     case = case_path(label, name, repeat, watchdog_retry)
@@ -202,7 +287,7 @@ def run(build, name, repeat, verify_only, watchdog_retry):
             receipt, binary, pins = c3.prior.BASELINE_PREPARE(directory)
         fingerprints = {key: receipt[key] for key in lab.FINGERPRINTS}
         checkpoints = verify_checkpoints(label, fingerprints)
-        support = (DRIVER, ORDER, ORDER.with_suffix('.sha256'), SOURCE_CHECK, WATCHDOG_ORDER,
+        support = (DRIVER, ORDER, ORDER.with_suffix('.sha256'), WATCHDOG_ORDER, *continuation,
                    c1.DRIVER, c3.DRIVER, c3.c2.DRIVER, c3.prior.DRIVER, c3.prior.OLD_LAB, *checkpoints,
                    *watchdog_inputs)
         pins.update({str(path): a.sha(path) for path in support})

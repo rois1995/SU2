@@ -58,6 +58,7 @@ class CollapseFixtureGeometry final : public FlatGeometry {
   double Tolerance() const override { return tolerance_; }
   unsigned Dimension(Id id) const override { return id == keep_ ? 0 : 2; }
   bool OnEntityFace(const SurfaceFace&) const override { return true; }
+  bool WithinTolerance(const SurfaceFace&) override { return true; }
   void Remove(Id id) override { REQUIRE(removed.insert(id).second); }
 
   std::set<Id> removed;
@@ -124,8 +125,8 @@ std::vector<char> FrozenSnapshot(const local::Mesh& mesh) {
 std::vector<char> OverlaySnapshot(const local::Mesh& mesh, const local::StateSurfaceGeometry& geometry) {
   std::vector<char> bytes;
   RecordStream stream(bytes);
-  auto splits = geometry.Splits(), removals = geometry.Removals(), bytes_used = geometry.ResidentBytes();
-  stream(splits, removals, bytes_used);
+  auto splits = geometry.Splits(), removals = geometry.Removals();
+  stream(splits, removals);
   for (const auto& row : mesh.Points()) {
     const auto* point = geometry.Find(row.node.id);
     bool found = point != nullptr;
@@ -469,6 +470,188 @@ TEST_CASE("Step C work-list and full scans produce the same S33 cells and faces"
 }
 
 namespace {
+class RecordingCollapseGeometry final : public FlatGeometry {
+ public:
+  using Call = std::pair<char, Face>;
+
+  RecordingCollapseGeometry(const Owned& rows, char refuse, std::optional<Id> keeper)
+      : FlatGeometry(rows), refuse_(refuse), keeper_(keeper) {}
+
+  unsigned Dimension(Id) const override { return 2; }
+  void Remove(Id id) override { removed = id; }
+
+  local::SurfaceSamples Samples(const SurfaceFace& face) override {
+    if (Test('S', face)) return {};
+    return {{2 * Limit(), 0, 0, 0}, 0};
+  }
+  bool OnEntityFace(const SurfaceFace& face) const override { return Test('E', face); }
+  bool WithinTolerance(const SurfaceFace& face) override { return Test('B', face); }
+
+  mutable std::vector<Call> calls;
+  std::optional<Id> removed;
+
+ private:
+  bool Test(char query, const SurfaceFace& face) const {
+    calls.emplace_back(query, Key(face.v));
+    return refuse_ != query || (keeper_ && !Holds(face.v, *keeper_));
+  }
+
+  char refuse_;
+  std::optional<Id> keeper_;
+};
+
+void CheckCollapseCalls(const std::vector<RecordingCollapseGeometry::Call>& calls, size_t& offset,
+                        Id keeper, char stop = 0) {
+  const auto query = [&](char expected) {
+    REQUIRE(offset < calls.size());
+    const auto& [method, face] = calls[offset++];
+    CHECK(method == expected);
+    CHECK(Holds(face, keeper));
+    return face;
+  };
+  // Each interior S33 endpoint has six bottom triangles, two of which contain the trial edge.
+  std::array<Face, 4> children;
+  for (auto& child : children) {
+    child = query('S');
+    if (stop == 'S') return;
+  }
+  for (const auto& child : children) {
+    CHECK(query('E') == child);
+    if (stop == 'E') return;
+  }
+  for (const auto& child : children) {
+    CHECK(query('B') == child);
+    if (stop == 'B') return;
+  }
+}
+
+bool CensusWithinTolerance(const BoundaryParameterState& state, const SurfaceFace& face) {
+  std::array<SU2NativeGeometry::SurfaceBinding, 3> bindings;
+  std::array<Point, 3> positions;
+  for (size_t i = 0; i < face.v.size(); ++i) {
+    const auto& point = state.Records().at(face.v[i]).point;
+    bindings[i] = point.binding;
+    positions[i] = point.node.p;
+  }
+  auto budget = AtlasBudget();
+  return state.EntityFaceError(face.facet, bindings, positions, &budget,
+                               SU2NativeGeometry::SurfaceQueryNeed::Classify()) <= state.GeometryTolerance();
+}
+
+class RecordingCollapseBound final : public local::SurfaceGeometry {
+ public:
+  explicit RecordingCollapseBound(local::StateSurfaceGeometry& geometry) : geometry_(geometry) {}
+
+  double Tolerance() const override { return geometry_.Tolerance(); }
+  bool Feature(const Edge& edge) const override { return geometry_.Feature(edge); }
+  unsigned Dimension(Id id) const override { return geometry_.Dimension(id); }
+  void Remove(Id id) override { geometry_.Remove(id); }
+  local::SurfaceSamples Samples(const SurfaceFace& face) override { return geometry_.Samples(face); }
+  std::optional<double> Chord(const std::array<Node, 2>& ends) override { return geometry_.Chord(ends); }
+  local::SurfacePlacement Place(const std::array<Node, 2>& ends, const std::array<SurfaceFace, 2>& faces,
+                                Id id) override {
+    return geometry_.Place(ends, faces, id);
+  }
+  bool OnEntity(const SurfaceFace& face, const BoundaryPoint& middle) override {
+    return geometry_.OnEntity(face, middle);
+  }
+  bool OnEntityFace(const SurfaceFace& face) const override { return geometry_.OnEntityFace(face); }
+  void Accept(local::SurfacePlacement&& placement) override { geometry_.Accept(std::move(placement)); }
+  bool WithinTolerance(const SurfaceFace& face) override {
+    const bool within = geometry_.WithinTolerance(face);
+    answers.emplace(Key(face.v), within);
+    return within;
+  }
+
+  std::map<Face, bool> answers;
+
+ private:
+  local::StateSurfaceGeometry& geometry_;
+};
+}  // namespace
+
+TEST_CASE("Step C strict bounds are lazy and can choose the other direction", "[.][NativeFP2C2]") {
+  const auto rows = S33();
+  constexpr Edge ends{GridId(1, 1, 0), GridId(2, 1, 0)};
+  const auto run = [&](char refuse, std::optional<Id> restricted, C2Refusal expected, size_t refused_bound) {
+    local::Mesh mesh(rows);
+    RecordingCollapseGeometry geometry(rows, refuse, restricted);
+    const auto before = Snapshot(mesh), frozen = FrozenSnapshot(mesh);
+    const auto [edge, seed] = C2Edge(mesh, ends);
+    local::SurfaceCounters stats;
+    REQUIRE(mesh.CollapseSurface(edge, seed, geometry, 2, stats, true) == expected);
+    CHECK(stats.c_refusals[static_cast<size_t>(C2Refusal::Bound)] == refused_bound);
+    const auto bound_calls = std::count_if(geometry.calls.begin(), geometry.calls.end(),
+                                           [](const auto& call) { return call.first == 'B'; });
+    CHECK(stats.c_bound_queries == static_cast<size_t>(bound_calls));
+    if (expected == C2Refusal::None) {
+      REQUIRE(geometry.removed);
+      REQUIRE((*geometry.removed == ends[0] || *geometry.removed == ends[1]));
+      REQUIRE_NOTHROW(mesh.Check());
+    } else {
+      CHECK_FALSE(geometry.removed);
+      CHECK(Snapshot(mesh) == before);
+      CHECK(FrozenSnapshot(mesh) == frozen);
+    }
+    return std::make_pair(std::move(geometry.calls), geometry.removed);
+  };
+
+  const auto [initial, removed] = run(0, std::nullopt, C2Refusal::None, 0);
+  const auto preferred = *removed == ends[0] ? ends[1] : ends[0];
+  size_t offset = 0;
+  CheckCollapseCalls(initial, offset, preferred);
+  CHECK(offset == initial.size());
+
+  const auto [both_refused, no_removal] = run('B', std::nullopt, C2Refusal::Bound, 2);
+  CHECK_FALSE(no_removal);
+  offset = 0;
+  CheckCollapseCalls(both_refused, offset, preferred, 'B');
+  CheckCollapseCalls(both_refused, offset, *removed, 'B');
+  CHECK(offset == both_refused.size());
+
+  for (const char query : {'B', 'S', 'E'}) {
+    CAPTURE(query);
+    const auto [calls, removed_second] = run(query, preferred, C2Refusal::None, query == 'B' ? 1 : 0);
+    CHECK(removed_second == preferred);
+    offset = 0;
+    CheckCollapseCalls(calls, offset, preferred, query);
+    CheckCollapseCalls(calls, offset, *removed);
+    CHECK(offset == calls.size());
+  }
+}
+
+TEST_CASE("Step C overlay bounds use canonical cyclic faces and created points", "[.][NativeFP2C2]") {
+  const auto rows = S33();
+  local::StateSurfaceGeometry geometry(S33Reference(rows), AtlasBudget());
+  const auto& state = geometry.State();
+  for (const auto& [key, stored] : state.Surface()) {
+    CAPTURE(key);
+    const bool comparison = CensusWithinTolerance(state, stored);
+    REQUIRE(comparison);
+    auto face = stored;
+    for (size_t i = 0; i < face.v.size(); ++i) {
+      CHECK(geometry.WithinTolerance(face) == comparison);
+      std::rotate(face.v.begin(), face.v.begin() + 1, face.v.end());
+    }
+  }
+
+  local::Mesh mesh(rows);
+  local::IdSequence points(LastS33Point);
+  constexpr Edge diagonal{GridId(0, 0, 0), GridId(1, 1, 0)};
+  const auto midpoint = C2Split(mesh, diagonal, geometry, points);
+  REQUIRE(geometry.Find(midpoint));
+  CHECK(state.Records().count(midpoint) == 0);
+  size_t children = 0;
+  for (const auto& face : Surface(mesh)) {
+    if (!Holds(face.v, midpoint)) continue;
+    CHECK(geometry.WithinTolerance(face));
+    ++children;
+  }
+  CHECK(children == 4);
+  CHECK(CollapseWithProof(mesh, midpoint, diagonal[0], geometry) == C2Refusal::None);
+}
+
+namespace {
 template <class Function>
 void C2OnRank(World& world, int owner, const Function& action) {
   bool ok = true;
@@ -665,5 +848,42 @@ TEST_CASE("Step C exchanges cross-pass and local cancellations and builds with r
     const auto state = C2CheckState(world, working, geometry, memory, 0, 1);
     CHECK(state->Records().count(remove) == 0);
     CHECK(state->Records().count(keep) == 1);
+  }
+  SECTION("A surviving created corner has the same trial and rebuilt bound") {
+    auto working = C2Partition(initial, world.rank, false);
+    const auto meeting = local::MeetBorderPoints(world, working, memory);
+    constexpr Edge side{GridId(1, 0, 0), GridId(1, 1, 0)};
+    constexpr Edge diagonal{GridId(0, 0, 0), GridId(1, 1, 0)};
+    constexpr Id first = LastS33Point + 1, second = LastS33Point + 3;
+    std::vector<Id> answer;
+    C2OnRank(world, 0, [&] {
+      local::Mesh mesh(working, true);
+      mesh.MarkBorderSurface(meeting);
+      REQUIRE(C2Split(mesh, side, geometry, points) == first);
+      REQUIRE(C2Split(mesh, diagonal, geometry, points) == second);
+      CHECK(geometry.State().Records().count(first) == 0);
+      RecordingCollapseBound recorder(geometry);
+      REQUIRE(C2Collapse(mesh, {second, diagonal[0]}, recorder, [&](const SurfaceFace& child) {
+        if (!answer.empty() || !Holds(child.v, first)) return;
+        const auto key = Key(child.v);
+        answer = {key[0], key[1], key[2], recorder.answers.at(key)};
+      }) == C2Refusal::None);
+      REQUIRE(answer.size() == 4);
+      CHECK(answer.back() == 1);
+      CHECK(geometry.Find(first));
+      CHECK(geometry.Find(second) == nullptr);
+      REQUIRE_NOTHROW(mesh.Check());
+      mesh.WriteBack(working, cells);
+    });
+    CPassiveComm::Bcast(answer, 0, world.comm);
+    REQUIRE(answer.size() == 4);
+    geometry.Exchange(world, memory, memory.OwnedBytes(working.size()));
+    const auto state = C2CheckState(world, working, geometry, memory, 2, 1);
+    CHECK(state->Records().count(first) == 1);
+    CHECK(state->Records().count(second) == 0);
+    const Face key{answer[0], answer[1], answer[2]};
+    const auto face = state->Surface().find(key);
+    REQUIRE(face != state->Surface().end());
+    CHECK(CensusWithinTolerance(*state, face->second) == (answer.back() != 0));
   }
 }

@@ -189,6 +189,9 @@ class FlatGeometry : public local::SurfaceGeometry {
   bool OnEntityFace(const SurfaceFace&) const override {
     throw std::logic_error("Unexpected entity query on flat fixture.");
   }
+  bool WithinTolerance(const SurfaceFace&) override {
+    throw std::logic_error("Unexpected strict bound query on flat fixture.");
+  }
   void Accept(local::SurfacePlacement&& placement) override {
     const auto node = placement.point.node;
     REQUIRE(nodes_.emplace(node.id, node.p).second);

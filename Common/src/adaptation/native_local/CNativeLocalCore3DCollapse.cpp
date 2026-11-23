@@ -320,7 +320,16 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
     const bool entity = std::all_of(children.begin(), children.end(),
                                     [&](const auto& face) { return geometry.OnEntityFace(face); });
     if (report) counters.seconds_c_entity += clock() - second;
-    return entity ? Reason::None : Reason::Entity;
+    if (!entity) return Reason::Entity;
+    // The four samples screen points. The final classifier bounds the whole face.
+    // The model-to-mesh side stays with the final proof.
+    const double third = clock();
+    const bool bounded = std::all_of(children.begin(), children.end(), [&](const auto& face) {
+      if (report) ++counters.c_bound_queries;
+      return geometry.WithinTolerance(face);
+    });
+    if (report) counters.seconds_c_bound += clock() - third;
+    return bounded ? Reason::None : Reason::Bound;
   };
   const unsigned first = trials[0].plan.score < trials[1].plan.score ? 0 : 1;
   for (unsigned i : {first, 1 - first}) {

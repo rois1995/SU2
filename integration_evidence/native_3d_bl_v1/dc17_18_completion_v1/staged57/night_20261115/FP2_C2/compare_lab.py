@@ -1,4 +1,4 @@
-"""Compare the C2 repeat trials and report their observations beside build647."""
+"""Compare C2 repeats and report the historical and continuation observations."""
 
 from argparse import ArgumentParser
 import json
@@ -42,6 +42,7 @@ def applies(name, marker):
 
 def integer_fields(row):
     values = compare_lab_c1.integer_fields(row)
+    values.pop('strict_mismatch', None)
     if 'c_changes' in row:
         values['c_changes'] = run.changes(row)
     return values
@@ -58,11 +59,15 @@ def report_rows(receipt, trial):
     at = run.c3.c2.fields_for_pass
     for rank, rows in receipt['rows_by_rank'].items():
         end = rows['end'][0]
+        proof, = rows.get('LAB_S_PROOF', rows.get('proof', ())) or ({},)
+        observation, = rows.get('strict_observation', ()) or ({},)
+        last_pass = max(int(row['pass']) for row in rows['NATIVE3D_LOCAL_SURFACE'])
         for surface in rows['NATIVE3D_LOCAL_SURFACE']:
             phase = int(surface['pass'])
             bad = at(rows, 'bad', phase)
             before_v = at(rows, 'bad_before_v', phase)
             passed = at(rows, 'pass', phase)
+            query_budget = at(rows, 'query_budget', phase) or {}
             estimate = STEP0_ESTIMATE.get(receipt['case'])
             yield {
                 'case': receipt['case'], 'build': receipt['build'], 'trial': trial, 'rank': int(rank), 'pass': phase,
@@ -71,20 +76,39 @@ def report_rows(receipt, trial):
                 'points_before_c': int(surface.get('points_before_c', surface['points_out'])),
                 'points_after_c': int(surface['points_out']),
                 'collapses_by_sweep': run.changes(surface),
-                'refused': {key.removeprefix('c_refused_'): int(surface.get(key, 0)) for key in run.REFUSALS},
+                'refused': {key.removeprefix('c_refused_'): int(surface[key]) if key in surface else None
+                            for key in run.REFUSALS},
                 'reverse_max': float(surface.get('c_reverse_max', 0)),
                 'seconds_c': float(surface.get('seconds_c', 0)),
                 'seconds_c_samples': float(surface.get('seconds_c_samples', 0)),
                 'seconds_c_entity': float(surface.get('seconds_c_entity', 0)),
+                'seconds_c_bound': float(surface['seconds_c_bound']) if 'seconds_c_bound' in surface else None,
+                'c_bound_queries': int(surface['c_bound_queries']) if 'c_bound_queries' in surface else None,
+                'seconds_pass': float(passed['seconds_pass']),
                 'bad_before_v': {key: int(value) for key, value in before_v.items() if key.startswith('bad')},
                 'bad_after_v': {key: int(value) for key, value in bad.items() if key.startswith('bad')},
                 'cells_in': int(passed['cells_in']), 'cells_out': int(passed['cells_out']),
                 'modeled_peak_through_pass': int(passed['modeled_peak']) if 'modeled_peak' in passed else None,
                 'modeled_peak_final': int(end['modeled_peak']),
+                'query_budget': {key: int(query_budget[key]) if key in query_budget else None
+                                 for key in run.BUDGET_FIELDS},
+                'query_budget_over_ceiling': int(query_budget['conservative_sum']) > int(query_budget['ceiling'])
+                if query_budget else None,
                 'collapse_probe': at(rows, 'collapse_probe', phase),
                 'edge_bins': run.c3.c2.measured_edge(rows, 'out', phase),
                 'step0_estimate_pass': estimate[0] if estimate else None,
+                **({'strict_observation': observation or None, 'proof': proof or None} if phase == last_pass else {}),
             }
+
+
+def slowest_passes(rows):
+    groups = {(row['trial'], row['pass']) for row in rows}
+    result = []
+    for trial, phase in sorted(groups):
+        group = [row for row in rows if row['trial'] == trial and row['pass'] == phase]
+        slowest = max(group, key=lambda row: (row['seconds_pass'], -row['rank']))
+        result.append({key: slowest[key] for key in ('trial', 'pass', 'rank', 'seconds_pass')})
+    return result
 
 
 def first_sweep_estimate(name, rows):
@@ -106,7 +130,10 @@ def compare_case(name, first, second):
 
 
 def run_campaign(build):
-    assert build != BASELINE
+    assert build not in (BASELINE, run.CONTINUATION_BASE)
+    continuation_sources = run.continuation_sources()
+    continuation_path, continuation = load_trial(run.CONTINUATION_BASE, 'N1', 1)
+    assert not continuation['passed'] and continuation_path == continuation_sources[-1]
     artifacts, fingerprints, summaries, report, comparison = {}, None, {}, [], {}
     for name in run.RUNS:
         reference_path, reference = compare_lab_c1.load_trial(BASELINE, name, 1)
@@ -120,6 +147,8 @@ def run_campaign(build):
             assert pins == fingerprints, name
         result = compare_case(name, first, second)
         paths = [reference_path, *(path for path, _ in trials)]
+        if name == 'N1':
+            paths.append(continuation_path)
         measured = {str(path): a.sha(path) for path in paths}
         result.update(artifacts=measured, compared_rows=[marker for marker in ROW_NAMES if applies(name, marker)])
         path = run.case_path(build, name, 1) / 'comparison.json'
@@ -130,6 +159,9 @@ def run_campaign(build):
                            'receipt': str(path)}
         labels = ('build647', 'repeat1', 'repeat2')
         receipts = (reference, first, second)
+        if name == 'N1':
+            labels = (*labels, 'build652')
+            receipts = (*receipts, continuation)
         rows = [row for label, receipt in zip(labels, receipts, strict=True) for row in report_rows(receipt, label)]
         report.extend(rows)
         details = {}
@@ -143,32 +175,47 @@ def run_campaign(build):
                 'bad_by_class': measure['bad_by_class'],
                 'classify_above_tol': int(measure['proof']['classify_above_tol']),
                 'classify_unexplained': int(measure['proof']['classify_unexplained']),
+                **{key: int(measure['proof'][key]) if key in measure['proof'] else None
+                   for key in run.PROOF_COUNTS},
+                'seconds_classify': float(measure['proof']['seconds_classify']),
+                'diagnostics': {key: records for rows in receipt['rows_by_rank'].values()
+                                for key in run.DIAGNOSTIC_ROWS if (records := rows.get(key))},
             }
-        comparison[name] = {'trials': details, 'step0_one_sweep': first_sweep_estimate(name, rows)}
+        comparison[name] = {'trials': details, 'step0_one_sweep': first_sweep_estimate(name, rows),
+                            'slowest_rank_per_pass': slowest_passes(rows)}
     reports = HERE / 'reports'
     reports.mkdir(exist_ok=True)
     path = reports / f'FP2_C2_lab_{build}.json'
-    a.sealed(path, {'baseline_build': BASELINE, 'build': build, 'cases': comparison, 'per_pass': report})
+    baseline = {'baseline_build': BASELINE, 'continuation_baseline_build': run.CONTINUATION_BASE,
+                'continuation_baseline': {'N1': str(continuation_path), 'N6': None, 'N6P': None}}
+    a.sealed(path, {**baseline, 'build': build, 'cases': comparison, 'per_pass': report})
     artifacts[str(path)] = a.sha(path)
     result = {**fingerprints, 'passed': all(row['passed'] for row in summaries.values()),
-              'baseline_build': BASELINE, 'cases': summaries, 'artifacts': artifacts, 'report': str(path),
+              **baseline, 'cases': summaries, 'artifacts': artifacts, 'report': str(path),
               'compared_rows': ROW_NAMES}
     a.sealed(run.case_path(build, 'N1', 1).parent / 'lab_acceptance.json', result)
     return result
 
 
 def self_check():
-    old = {'c_changes': '"1,0"', 'c_sweeps': '2', 'seconds_c': '2.5', 'c_refused_topology': '30'}
-    new = {**old, 'seconds_c': '9.0'}
+    old = {'c_changes': '"1,0"', 'c_sweeps': '2', 'seconds_c': '2.5', 'c_refused_topology': '30',
+           'strict_mismatch': '2', 'strict_sink_mismatch': '0'}
+    new = {**old, 'seconds_c': '9.0', 'strict_mismatch': '5'}
     assert integer_fields(old) == integer_fields(new)
+    assert integer_fields({**new, 'strict_sink_mismatch': '1'}) != integer_fields(old)
     new['c_changes'] = '"0,1"'
     assert next(compare_lab_c1.field_differences(integer_fields(old), integer_fields(new)))['field'] == 'c_changes'
     assert run.changes({}) == []
-    assert len(run.REFUSALS) == 15
+    assert len(run.REFUSALS) == 16
     for name in run.RUNS:
         path, receipt = compare_lab_c1.load_trial(BASELINE, name, 1)
         assert receipt['passed'], path
         assert list(report_rows(receipt, 'build647'))
+    continuation_path, continuation = load_trial(run.CONTINUATION_BASE, 'N1', 1)
+    assert continuation_path == run.continuation_sources()[-1] and not continuation['passed']
+    row, = report_rows(continuation, 'build652')
+    assert sum(row['collapses_by_sweep']) == 5937 and row['seconds_c_bound'] is None
+    assert set(row['query_budget'].values()) == {None}
     print('FP2-C2 lab comparator self-check passed.')
 
 

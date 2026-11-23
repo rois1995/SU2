@@ -152,7 +152,7 @@ std::set<Face> RemoveCollapseReasons(const World& world, const std::set<Face>& c
 
 void ReportCollapseFaces(std::ostream& out, const local::Mesh& mesh, local::SurfaceGeometry& geometry,
                          const std::map<Face, SurfaceFace>& reported, int rank, unsigned pass) {
-  size_t surviving = 0, distance = 0, near = 0, entity = 0, size = 0;
+  size_t surviving = 0, distance = 0, near = 0, entity = 0, size = 0, strict_above = 0;
   const auto limit = geometry.Limit();
   const auto& points = mesh.Points();
   const auto& cells = mesh.Cells();
@@ -174,6 +174,7 @@ void ReportCollapseFaces(std::ostream& out, const local::Mesh& mesh, local::Surf
                               [&](double sample) { return !std::isfinite(sample) || sample > limit; });
       near += !(local::SurfaceFixtureAccess::SmallestAltitude(a.p, b.p, c.p) >= limit);
       entity += !geometry.OnEntityFace(face);
+      strict_above += !geometry.WithinTolerance(face);
       size += !(mesh.Length({slots[0], slots[1]}) <= local::LongEdge &&
                 mesh.Length({slots[1], slots[2]}) <= local::LongEdge &&
                 mesh.Length({slots[2], slots[0]}) <= local::LongEdge);
@@ -182,12 +183,42 @@ void ReportCollapseFaces(std::ostream& out, const local::Mesh& mesh, local::Surf
   }
   out << "FP2_C collapse_probe rank=" << rank << " pass=" << pass << " reported=" << reported.size()
       << " surviving=" << surviving << " distance=" << distance << " near=" << near
-      << " entity=" << entity << " size=" << size << '\n';
+      << " entity=" << entity << " size=" << size << " strict_above=" << strict_above << '\n';
+}
+
+LabSurfaceAnswers ObserveLabStrictFaces(World& world, const Owned& owned, local::StateSurfaceGeometry& surface,
+                                        local::MemoryBudget& memory, size_t caller) {
+  constexpr size_t row_bytes = sizeof(LabSurfaceAnswers::value_type) + 4 * sizeof(void*);
+  size_t faces = 0;
+  for (const auto& entry : owned)
+    for (const auto& side : entry.second.physical) faces += side.present;
+  const auto global_faces = world.reduce<uint64_t>(faces, CPassiveComm::Op::SUM);
+  const auto baseline = transfer_memory::Add(caller, transfer_memory::Mul(faces, row_bytes));
+  const auto gathered_bytes = world.size > 1 && world.rank == 0 ? transfer_memory::Mul(global_faces, row_bytes) : 0;
+  memory.Require(world, transfer_memory::Add(baseline, surface.ResidentBytes(), gathered_bytes),
+                 "FP2-C2 strict face answer maps exceed modeled storage.");
+  LabSurfaceAnswers answers;
+  CheckLabStep(world, [&] {
+    surface.SetCallerBytes(baseline);
+    for (const auto& entry : owned) {
+      const auto& row = entry.second;
+      for (unsigned side = 0; side < row.physical.size(); ++side) {
+        if (!row.physical[side].present) continue;
+        const auto vertices = local::OrientedFace({0, 1, 2, 3}, side);
+        const SurfaceFace face{{row.cell.v[vertices[0]].id, row.cell.v[vertices[1]].id,
+                                row.cell.v[vertices[2]].id}, row.physical[side].facet};
+        const auto within = surface.WithinTolerance(face);
+        if (!answers.emplace(CollapseFaceKey(face.v), within).second)
+          throw std::runtime_error("FP2-C2 strict face answer has duplicate local ownership.");
+      }
+    }
+  });
+  return answers;
 }
 
 bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size_t ceiling, size_t caller,
                          Clock::time_point start, const SurfaceReasons& remaining, const SurfaceFaceBorders* borders,
-                         const std::set<Face>* collapse_faces) {
+                         const std::set<Face>* collapse_faces, const LabSurfaceAnswers* answers) {
   auto budget = native_fp2_fixture::Budget(cells, caller, start, 5400, ceiling);
   std::vector<SurfaceFace> faces;
   faces.reserve(state.Surface().size());
@@ -224,10 +255,12 @@ bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size
   const auto classify_start = Clock::now();
   const auto census = ClassifyLabSurface(state, budget, remaining, borders, collapse_faces != nullptr);
   const auto model_gap_entities = collapse_faces ? LabModelGapEntities(forward, census) : 0;
+  const auto strict = CompareLabStrict(state, census, collapse_faces, answers);
   const auto accounted = census.left_refused + census.left_short + census.left_border + census.left_limit +
                          census.left_neighbor_locked;
   const bool qualified = complete && census.faces == state.Surface().size() && census.unexplained == 0 &&
-                         (accepted || census.above == accounted) && !model_gap_entities;
+                         (accepted || census.above == accounted) && !model_gap_entities &&
+                         strict.complete && !strict.sink_mismatch;
   out << "FP2_B proof rank=0 entities=" << keys.size() << " classified=" << census.faces
       << " classify_above_tol=" << census.above << " accepted=" << accepted << " qualified=" << qualified
       << " classify_left_refused=" << census.left_refused << " classify_left_short=" << census.left_short
@@ -236,19 +269,35 @@ bool ProveVolumeHandover(const BoundaryParameterState& state, size_t cells, size
       << " classify_unexplained=" << census.unexplained;
   PrintLabExcessBins(out, census, borders != nullptr);
   if (collapse_faces) out << " model_gap_entities=" << model_gap_entities;
+  if (answers) PrintLabStrict(out, strict);
   out << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
       << " seconds_classify=" << Seconds(classify_start) << " work=" << budget.work
       << " modeled_peak=" << budget.peak_bytes << '\n';
   std::cout << out.str() << std::flush;
-  if (collapse_faces) PrintLabC2Diagnosis(state, census, remaining, *collapse_faces, forward, budget);
+  if (collapse_faces) PrintLabC2Diagnosis(state, census, remaining, *collapse_faces, forward, budget, answers, strict);
   return qualified;
 }
 
 void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const ReferenceState& reference,
-                                 const local::StateSurfaceGeometry& surface, local::MemoryBudget& memory,
+                                 local::StateSurfaceGeometry& surface, local::MemoryBudget& memory,
                                  size_t global_cells, SurfaceReasons& remaining, Clock::time_point start,
                                  const SurfaceFaceBorders* borders, const std::set<Face>* collapse_faces) {
-  const auto caller = transfer_memory::Add(reference.original->ResidentBytes(), OwnedStorageBytes(input.cells));
+  auto caller = transfer_memory::Add(reference.original->ResidentBytes(), OwnedStorageBytes(input.cells));
+  const bool parallel = world.size > 1;
+  LabSurfaceAnswers local_answers, global_answers;
+  if (collapse_faces) {
+    const auto observation_start = Clock::now();
+    local_answers = ObserveLabStrictFaces(world, input.cells, surface, memory, caller);
+    if (parallel)
+      global_answers = GatherVolumeFaces(world, local_answers, "FP2-C2 strict face answers have duplicate rank ownership.");
+    constexpr size_t row_bytes = sizeof(LabSurfaceAnswers::value_type) + 4 * sizeof(void*);
+    const auto answer_rows = transfer_memory::Add(local_answers.size(), global_answers.size());
+    caller = transfer_memory::Add(caller, transfer_memory::Mul(answer_rows, row_bytes));
+    std::ostringstream observation;
+    observation << std::setprecision(17) << "FP2_C strict_observation rank=" << world.rank
+                << " checked=" << local_answers.size() << " seconds=" << Seconds(observation_start) << '\n';
+    std::cout << observation.str() << std::flush;
+  }
   const auto result = local::BuildSurfaceState(world, input.cells, surface, memory, caller);
   const auto removals = collapse_faces ? result.removals : 0;
   REQUIRE_FALSE(world.maximum(!result.state || (result.splits == 0 && removals == 0)));
@@ -262,7 +311,6 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
                               state.Surface().size() + 2 * removals != original.Surface().size() + 2 * result.splits ||
                               state.Records().size() + removals != original.Records().size() + result.splits));
 
-  const bool parallel = world.size > 1;
   const auto live = transfer_memory::Add(caller, surface.ResidentBytes(), state.ResidentBytes());
   std::ostringstream row;
   row << std::setprecision(17) << "FP2_B state rank=" << world.rank << " splits=" << result.splits
@@ -280,14 +328,17 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
 
   const auto proof_live = [&](const SurfaceReasons& reasons) {
     const auto reason_bytes = transfer_memory::Mul(reasons.size(), sizeof(SurfaceReasons::value_type) + 4 * sizeof(void*));
-    return transfer_memory::Add(live, reason_bytes,
+    const auto bound_rows = collapse_faces ? transfer_memory::Mul(
+        state.Surface().size(), sizeof(std::pair<const Face, double>) + 4 * sizeof(void*)) : 0;
+    return transfer_memory::Add(live, reason_bytes, bound_rows,
                                 transfer_memory::Mul(state.Surface().size(), sizeof(SurfaceFace)));
   };
   if (!parallel) {
     if (collapse_faces)
       for (const auto& face : *collapse_faces) remaining.erase(face);
     std::cout << std::setprecision(17);
-    ProveLabSurface(state, global_cells, input.ceiling, proof_live(remaining), start, remaining, collapse_faces);
+    ProveLabSurface(state, global_cells, input.ceiling, proof_live(remaining), start, remaining, collapse_faces,
+                    collapse_faces ? &local_answers : nullptr);
     return;
   }
 
@@ -307,7 +358,8 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
     qualified = ProveVolumeHandover(state, global_cells, input.ceiling,
                                     transfer_memory::Add(proof_live(global_reasons), retained, border_bytes),
                                     start, global_reasons, borders ? &global_borders : nullptr,
-                                    collapse_faces ? &global_collapse_faces : nullptr);
+                                    collapse_faces ? &global_collapse_faces : nullptr,
+                                    collapse_faces ? &global_answers : nullptr);
   });
   REQUIRE_FALSE(world.maximum(!qualified));
 }
@@ -427,9 +479,9 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
       if (parallel) meeting = local::MeetBorderPoints(world, input.cells, memory, previous.Bytes());
       const auto retained = transfer_memory::Add(reference_bytes, previous.Bytes(), meeting.Bytes());
       const auto extra_bytes = parallel ? local::Mesh::SurfaceArrayBytes(input.cells.size()) : 0;
-      memory.Require(world, transfer_memory::Add(memory.caller_bytes, previous.Bytes(), meeting.Bytes(), owned,
-                                                 local::Mesh::ArrayBytes(input.cells.size()), extra_bytes),
-                     "FP2-B frozen core admission.");
+      const auto admitted = transfer_memory::Add(memory.caller_bytes, previous.Bytes(), meeting.Bytes(), owned,
+                                                local::Mesh::ArrayBytes(input.cells.size()), extra_bytes);
+      memory.Require(world, admitted, "FP2-B frozen core admission.");
       const auto bytes_per_cell = owned_row_bytes + local::Mesh::BytesPerCell +
                                   (parallel ? local::Mesh::SurfaceArrayBytes(1) : 0);
       const auto cell_limit = (input.ceiling - memory.caller_bytes) / bytes_per_cell;
@@ -542,6 +594,12 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
             << " seconds_run_pass=" << run_seconds;
         if (surface_collapses) row << " modeled_peak=" << std::max(memory.maximum_bytes, surface->PeakBytes());
         row << '\n';
+        if (surface_collapses)
+          row << "FP2_C query_budget rank=" << world.rank << " pass=" << pass
+              << " overlay_peak=" << surface->PeakBytes() << " pass_admitted_bytes=" << admitted
+              << " query_scratch_max=" << stats.surface.query_scratch_max
+              << " conservative_sum=" << transfer_memory::Add(admitted, stats.surface.query_scratch_max)
+              << " ceiling=" << input.ceiling << '\n';
         std::cout << row.str() << std::flush;
       });
       REQUIRE_FALSE(world.maximum(exact.nonpositive != 0));

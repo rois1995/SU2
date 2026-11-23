@@ -239,6 +239,7 @@ void ReportStrict(const Owned& owned) {
 
 using SurfaceReasons = std::map<Face, local::SurfaceRemaining>;
 using SurfaceFaceBorders = std::map<Face, bool>;
+using LabSurfaceAnswers = std::map<Face, bool>;
 using ExcessBins = std::array<size_t, 5>;
 
 struct LabEntityCensus {
@@ -356,6 +357,34 @@ size_t LabModelGapEntities(const BoundaryParameterState::Certificates& certifica
   });
 }
 
+struct LabStrictComparison {
+  size_t checked = 0, mismatch = 0, sink_mismatch = 0;
+  bool complete = true;
+  std::vector<Face> first_mismatches;
+};
+
+LabStrictComparison CompareLabStrict(const BoundaryParameterState& state, const LabEntityCensus& census,
+                                     const std::set<Face>* collapse_faces, const LabSurfaceAnswers* answers) {
+  LabStrictComparison result;
+  if (!answers) return result;
+  for (const auto& [key, bound] : census.bounds) {
+    const auto answer = answers->find(key);
+    if (answer == answers->end()) continue;
+    ++result.checked;
+    if (answer->second == (bound <= state.GeometryTolerance())) continue;
+    ++result.mismatch;
+    result.sink_mismatch += collapse_faces->count(key);
+    if (result.first_mismatches.size() < 50) result.first_mismatches.push_back(key);
+  }
+  result.complete = result.checked == state.Surface().size() && result.checked == answers->size();
+  return result;
+}
+
+void PrintLabStrict(std::ostream& out, const LabStrictComparison& strict) {
+  out << " strict_checked=" << strict.checked << " strict_mismatch=" << strict.mismatch
+      << " strict_sink_mismatch=" << strict.sink_mismatch;
+}
+
 double LabBoxDistance(const std::array<Point, 3>& a, const std::array<Point, 3>& b) {
   const auto gap = [&](double Point::*axis) {
     const auto by_axis = [axis](Point x, Point y) { return x.*axis < y.*axis; };
@@ -429,7 +458,8 @@ void PrintLabModelGap(const BoundaryParameterState& state, const BoundaryParamet
 
 void PrintLabC2Diagnosis(const BoundaryParameterState& state, const LabEntityCensus& census,
                         const SurfaceReasons& remaining, const std::set<Face>& collapse_faces,
-                        const BoundaryParameterState::Certificates& certificates, SU2NativeGeometry::AtlasBudget& budget) {
+                        const BoundaryParameterState::Certificates& certificates, SU2NativeGeometry::AtlasBudget& budget,
+                        const LabSurfaceAnswers* answers, const LabStrictComparison& strict) {
   std::ostringstream out;
   out << std::setprecision(17);
   size_t printed = 0;
@@ -440,6 +470,12 @@ void PrintLabC2Diagnosis(const BoundaryParameterState& state, const LabEntityCen
     out << '\n';
     if (++printed == 200) break;
   }
+  for (const auto& key : strict.first_mismatches) {
+    const auto bound = census.bounds.at(key);
+    out << "FP2_C2 LAB_MISMATCH";
+    PrintLabFace(out, state, key, state.Surface().at(key), collapse_faces, bound);
+    out << " overlay_within=" << answers->at(key) << " census_within=" << (bound <= state.GeometryTolerance()) << '\n';
+  }
   std::cout << out.str() << std::flush;
   for (const auto& [entity, certificate] : certificates)
     if (certificate.outside_tolerance) PrintLabModelGap(state, entity, census, collapse_faces, budget);
@@ -447,7 +483,7 @@ void PrintLabC2Diagnosis(const BoundaryParameterState& state, const LabEntityCen
 
 void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t ceiling, size_t caller,
                      Clock::time_point deadline_start, const SurfaceReasons& remaining,
-                     const std::set<Face>* collapse_faces = nullptr) {
+                     const std::set<Face>* collapse_faces = nullptr, const LabSurfaceAnswers* answers = nullptr) {
   auto budget = native_fp2_fixture::Budget(cells, caller, deadline_start, 5400, ceiling);
   std::vector<SurfaceFace> faces;
   faces.reserve(state.Surface().size());
@@ -486,9 +522,11 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
   const auto classify_start = Clock::now();
   const auto census = ClassifyLabSurface(state, budget, remaining, nullptr, collapse_faces != nullptr);
   const auto model_gap_entities = collapse_faces ? LabModelGapEntities(forward, census) : 0;
+  const auto strict = CompareLabStrict(state, census, collapse_faces, answers);
   const bool reason_accounting = census.above == census.left_refused + census.left_short + census.left_border +
                                                  census.left_limit + census.left_neighbor_locked;
-  const bool qualified = complete && (accepted || reason_accounting) && census.unexplained == 0 && !model_gap_entities;
+  const bool qualified = complete && (accepted || reason_accounting) && census.unexplained == 0 && !model_gap_entities &&
+                         strict.complete && !strict.sink_mismatch;
   std::cout << "FP2_A LAB_S_PROOF entities=" << keys.size() << " classified=" << census.faces
             << " classify_above_tol=" << census.above << " accepted=" << accepted << " qualified=" << qualified
             << " classify_left_refused=" << census.left_refused << " classify_left_short=" << census.left_short
@@ -497,10 +535,11 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
             << " classify_unexplained=" << census.unexplained;
   PrintLabExcessBins(std::cout, census);
   if (collapse_faces) std::cout << " model_gap_entities=" << model_gap_entities;
+  if (answers) PrintLabStrict(std::cout, strict);
   std::cout << " seconds_mesh_to_model=" << reverse_seconds << " seconds_model_to_mesh=" << forward_seconds
             << " seconds_classify=" << Seconds(classify_start) << " work=" << budget.work
             << " modeled_peak=" << budget.peak_bytes << std::endl;
-  if (collapse_faces) PrintLabC2Diagnosis(state, census, remaining, *collapse_faces, forward, budget);
+  if (collapse_faces) PrintLabC2Diagnosis(state, census, remaining, *collapse_faces, forward, budget, answers, strict);
   REQUIRE(census.faces == state.Surface().size());
   REQUIRE(census.unexplained == 0);
   REQUIRE(qualified);

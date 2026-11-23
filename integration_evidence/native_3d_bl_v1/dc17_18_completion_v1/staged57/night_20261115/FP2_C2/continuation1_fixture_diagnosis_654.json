@@ -1,0 +1,58 @@
+{
+  "build": 654,
+  "fixture": "(i) removals only, rank 0",
+  "first_difference": {
+    "field": "SurfaceCollapseRefusal",
+    "expected": "0 (None)",
+    "observed": "16 (Bound)"
+  },
+  "rank_log_sha256": "f290ac55943b498a841e393587c7aa6eed4cdabe283bce971923b0452e0cb7ea",
+  "watchdog": false,
+  "source_analysis": "For each direction the pinned flat mapped reference queries only its anchor facet. The child keeper is separated from that triangle by at least one grid unit along x.",
+  "examples": [
+    {
+      "remove": 5,
+      "keep": 6,
+      "anchor": 1,
+      "parent": [
+        0,
+        1,
+        5
+      ],
+      "child": [
+        0,
+        1,
+        6
+      ],
+      "parent_x_bounds": [
+        0,
+        1
+      ],
+      "keeper_x": 2,
+      "axis_separation_lower_bound": 1
+    },
+    {
+      "remove": 6,
+      "keep": 5,
+      "anchor": 13,
+      "parent": [
+        2,
+        6,
+        7
+      ],
+      "child": [
+        2,
+        5,
+        7
+      ],
+      "parent_x_bounds": [
+        2,
+        3
+      ],
+      "keeper_x": 1,
+      "axis_separation_lower_bound": 1
+    }
+  ],
+  "wiring_error_found": false,
+  "repeated": false
+}

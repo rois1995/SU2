@@ -1,4 +1,4 @@
-"""Run FP2-C2 §6.1 and seal the hidden fixtures, S0 off cohort, and G1."""
+"""Run FP2-C2 continuation 1 fixture gates and seal the hidden fixtures, option-off cohort, and G1."""
 
 from argparse import ArgumentParser
 from contextlib import ExitStack
@@ -11,18 +11,19 @@ import run_c2_hidden as hidden
 
 import run_g1 as g1
 
-HERE, C1, a, cut, sha = hidden.HERE, hidden.C1, hidden.a, hidden.cut, hidden.sha
+HERE, a, cut, sha = hidden.HERE, hidden.a, hidden.cut, hidden.sha
 c1 = hidden.c1
 fx2, scope = c1.fx2, c1.scope
 DRIVER = Path(__file__).resolve()
-BASE_SCOPE = C1 / "scoped/build647"
-BASE_FIXTURES = C1 / "fixtures/build647"
+BASE_BUILD = 652
+BASE_SCOPE = HERE / f"scoped/build{BASE_BUILD}"
+BASE_FIXTURES = HERE / f"fixtures/build{BASE_BUILD}"
 REFERENCE_PINS = {
-    BASE_SCOPE / "fixtures.json": "b7bfcaf62a0a89d956e43f862def2938a48715be5524e0e138ebefb96c1841af",
-    BASE_SCOPE / "sheet/fixture_status.json": "f1e9184f2a32245fa5f84e32532d99feef49b3ec66bb055ec8ef899429f3adbb",
+    BASE_SCOPE / "fixtures.json": "3cb2866739e0d04ba202972ec6178b6a956c6b5cca64da0e7c12ae353af43895",
+    BASE_SCOPE / "sheet/fixture_status.json": "07a8ee239bca619174953dc5c3d39303ef21eda06841f33d782e4541d18d382d",
     BASE_FIXTURES / "wall/test_outer.log": "5801212b7f22ab9cada13aef1921e21d9086db011e31217343fba2f5d988b417",
-    BASE_FIXTURES / "F1-F4/rows.json": "80662e446980f499aa5eceae8ee0795ab74adb4ccd701bdb48ea2ccd415d3ad8",
-    BASE_FIXTURES / "F5/rows.json": "c0521bb16fc33811c93c7bb4980e95d00d3c3f64409376a91b853422e565a4b0",
+    BASE_FIXTURES / "F1-F4/rows.json": "b01c49819169067e2ab7526759a4de5dd26563e6d9048012a116e2c1a92b09e8",
+    BASE_FIXTURES / "F5/rows.json": "80aff98eb13b30e0f28bf2dca0557a94d2d98aa75a881b379a722b7020599159",
 }
 SURFACE_RESULTS = (
     "box/fixture_status.json", "IN1/fixture_status.json", "locked/fixture_status.json",
@@ -32,8 +33,6 @@ SURFACE_RESULTS = (
 )
 OBSERVATIONS = {"line", "text", "peak_rss", "job_peak_rss_bytes"}
 CATCH_CASE = re.compile(r"<TestCase\b.*?</TestCase>", re.DOTALL)
-# The empty overlay adds a 48-byte set, a 24-byte vector, and an 8-byte count on this host.
-OVERLAY_BYTES = 80
 
 
 class WatchdogOpen(RuntimeError):
@@ -43,7 +42,7 @@ class WatchdogOpen(RuntimeError):
 def reference_pins():
     pinned = dict(REFERENCE_PINS)
     old = cut.read(BASE_SCOPE / "fixtures.json")
-    assert old["passed"] and old["G1"] == [375, 114, 228] and old["fp1_cohorts"] == 18
+    assert old["build"] == BASE_BUILD and old["passed"] and old["G1"] == [375, 114, 228] and old["fp1_cohorts"] == 18
     pinned.update({BASE_SCOPE / name: digest for name, digest in old["receipts"].items()})
     assert all(sha(path) == digest for path, digest in pinned.items())
     return pinned
@@ -100,18 +99,8 @@ def compare_off(root, base):
         pairs.append((BASE_FIXTURES / name / "rows.json", base / name / "rows.json", mobility_result))
     comparisons = []
     for old, new, parse in pairs:
-        reference, candidate = parse(old), parse(new)
-        row = {"reference": str(old), "reference_sha256": sha(old), "candidate": str(new),
-               "candidate_sha256": sha(new)}
-        if old.parent.name == "IN1":
-            before = reference["measurement"]["rows"]["FP2_A IN1_STATE"][0]["fields"]
-            after = candidate["measurement"]["rows"]["FP2_A IN1_STATE"][0]["fields"]
-            original, revised = (int(fields["modeled_peak"]) for fields in (before, after))
-            row["overlay_bytes"] = {"reference_peak": original, "candidate_peak": revised,
-                                    "delta": revised - original, "expected_delta": OVERLAY_BYTES}
-            after["modeled_peak"] = str(revised - OVERLAY_BYTES)
-        row["first_difference"] = first_difference(reference, candidate)
-        comparisons.append(row)
+        comparisons.append({"reference": str(old), "reference_sha256": sha(old), "candidate": str(new),
+                            "candidate_sha256": sha(new), "first_difference": first_difference(parse(old), parse(new))})
     old_wall, new_wall = BASE_FIXTURES / "wall/test_outer.log", base / "wall/test_outer.log"
     # The C1 wall cases exercise both settings of that older option. C2 is off throughout.
     comparisons.append({"reference": str(old_wall), "reference_sha256": sha(old_wall), "candidate": str(new_wall),
@@ -199,16 +188,16 @@ def run_g1(output, status_path, source_pins, receipt):
 
 def run_cohort(build, fingerprints):
     pinned = reference_pins()
-    support = (DRIVER, hidden.WATCHDOG_ORDER, hidden.WATCHDOG_ORDER.with_suffix(".sha256"),
+    support = (DRIVER, *hidden.ORDER_FILES, HERE / "source_check.md",
                Path(c1.__file__).resolve(), Path(g1.__file__).resolve(), *pinned)
     base = HERE / "fixtures" / f"build{fingerprints['build']}"
     with ExitStack() as stack:
         for module in (a, c1, fx2, g1):
             stack.enter_context(patch.object(module, "run_case", run_with_watchdog))
         stack.enter_context(patch.object(scope.prior, "run_g1", run_g1))
-        stack.enter_context(patch.multiple(scope, HERE=HERE, ORDER=hidden.ORDER, ORDER_SHA=hidden.ORDER_SHA,
-                                          DRIVER=DRIVER, SOURCE_CHECK=HERE / "source_check.md",
-                                          BASE_SCOPE=BASE_SCOPE, BASE="de08269a8a"))
+        stack.enter_context(patch.multiple(scope, HERE=HERE, ORDER=hidden.CONTINUATION,
+                                          ORDER_SHA=hidden.CONTINUATION_SHA, DRIVER=DRIVER,
+                                          SOURCE_CHECK=hidden.SOURCE_CHECK, BASE_SCOPE=BASE_SCOPE, BASE="71d4ba519b"))
         stack.enter_context(patch.object(c1, "HERE", HERE))
         stack.enter_context(patch.object(fx2, "HERE", HERE))
         c1.wall_fixtures(build)

@@ -13,7 +13,7 @@ All four faces are step-C children on body 0, sheet 10154, marker 2. Each has th
 | `65968,68646,71815` | 16678 | 0.00015266206207179123 |
 | `66084,68587,68647` | 30331 | 0.0001037109946751164 |
 
-The model-side bisection certified a witness on reference facet 11045 of the same entity. It listed 60 nearby face boxes, including `64355,68646,71815\` and \`65968,68646,71815`. The nearby boxes locate the failure region. The reported upper bounds are certificate values.
+The model-side bisection certified a witness on reference facet 11045 of the same entity. It listed 60 nearby face boxes, including `64355,68646,71815` and `65968,68646,71815`. The nearby boxes locate the failure region. The reported upper bounds are certificate values.
 
 The raw rows retain the original vertex order, coordinates, mobility dimensions, edges and nearby faces.
 

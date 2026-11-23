@@ -239,6 +239,7 @@ class RecordingSurface final : public local::SurfaceGeometry {
   unsigned Dimension(Id id) const override { return geometry_.Dimension(id); }
   void Remove(Id id) override { geometry_.Remove(id); }
   bool OnEntityFace(const SurfaceFace& face) const override { return geometry_.OnEntityFace(face); }
+  bool WithinTolerance(const SurfaceFace& face) override { return geometry_.WithinTolerance(face); }
   local::SurfaceSamples Samples(const SurfaceFace& face) override { return geometry_.Samples(face); }
   std::optional<double> Chord(const std::array<Node, 2>& ends) override {
     const auto chord = geometry_.Chord(ends);

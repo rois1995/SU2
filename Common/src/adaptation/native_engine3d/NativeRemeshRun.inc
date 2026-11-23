@@ -1044,7 +1044,15 @@ struct RemeshRun {
       const auto elected = workers.elect(local);
       if (report && !local.Failed()) {
         PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
-        if (surface) PrintLocalSurfacePass(workers.rank, pass, counts.surface);
+        if (surface) {
+          PrintLocalSurfacePass(workers.rank, pass, counts.surface);
+          const auto scratch = counts.surface.query_scratch_max;
+          std::cout << "NATIVE3D_LOCAL_SURFACE_BUDGET rank=" << workers.rank << " stage=" << stage
+                    << " pass=" << pass << " overlay_peak=" << surface->PeakBytes()
+                    << " pass_admitted_bytes=" << bytes << " query_scratch_max=" << scratch
+                    << " conservative_sum=" << transfer_memory::Add(bytes, scratch)
+                    << " ceiling=" << kernel.memory_ceiling << '\n' << std::flush;
+        }
       }
       if (elected.any) throw elected;
 

@@ -83,6 +83,7 @@ class SurfaceLongestEdgeProbe final : public SurfaceGeometry {
   }
 
   bool OnEntityFace(const SurfaceFace& face) const override { return geometry_.OnEntityFace(face); }
+  bool WithinTolerance(const SurfaceFace& face) override { return geometry_.WithinTolerance(face); }
 
   void Remove(Id id) override {
     geometry_.Remove(id);
