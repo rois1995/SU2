@@ -284,10 +284,13 @@ def continuation_case(case):
 
 def continuation_markdown(cases):
     runs = {name: continuation_case(case) for name, case in cases.items()}
-    summary = [(event, name, *run[event][0]) for event in (1, 2) for name, run in runs.items()]
+    loads = {name: optional_json(case.parent / 'full_host_preflight.json').get('loadavg', '—').split()[0]
+             for name, case in cases.items()}
+    summary = [(event, name, *run[event][0], loads[name]) for event in (1, 2) for name, run in runs.items()]
     lines = [
         '## Mesh and native time', '',
-        *table(('Event', 'Run', 'Native maximum s', 'Cells', 'Points', 'Proof faces'), summary),
+        *table(('Event', 'Run', 'Native maximum s', 'Cells', 'Points', 'Proof faces',
+                'Host load at preflight (1 min)'), summary),
         '## Where the time is', '',
         'Each event uses the rank with the largest native time in the sealed summaries. '
         'Maxima are computed independently over all six ranks, and the maximum sum is the maximum '

@@ -1,0 +1,202 @@
+{
+  "build": 647,
+  "binary_sha256": "b824f37ee37f2458d334b3534569078437f0a321a4b4166e52288ee111e46b4c",
+  "test_binary_sha256": "689cfdac2fe93f832f86f42dbe33ae0fcbf2a8101be4fb294854cfa66b66cfd3",
+  "source_pins_sha256": "0a0a20626ef79575488e2bf9763636f131c0504c4b0920b6c756edff3ec64dae",
+  "passed": true,
+  "mode": "S2",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/G5/build647/S2/full647_run1",
+  "hashes": {
+    "adapted_mesh_adap_00001.su2": "fbe2c11411d288c5eefbab560492e6e73dc7b0f89ff50bf94dd2a6647aad9bd3",
+    "adapted_mesh_adap_00001.su2.native_ref": "b13ca887e6c0cb73799c31a7e2c00842e6a3cb419239ba980ab30ad352bd60ad",
+    "restart_flow_adap_00001.dat": "2bc8688dd4918c4e7869aef0806587e07301b2ee58e4a4f5d8fbc70d09ce2736",
+    "adapted_mesh_adap_00002.su2": "1d59e54ee303f19eb09c92c6b00b409c7c507b673b836e4288786f15f76426a7",
+    "adapted_mesh_adap_00002.su2.native_ref": "41333f59a4fa5bc7da12ea2f4be82a91450eb64240c8f31edb5eaee3ca160171",
+    "restart_flow_adap_00002.dat": "54c8e9a323e2210b3018fefb4eac086855d88ddcc7297fba48e77e408d49534a"
+  },
+  "restart": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/G5/build647/S2/disk_restart_full647_run1_event2/disk_restart_validation.json",
+  "events": [
+    {
+      "event": 1,
+      "native_seconds": 1029.6874422750002,
+      "remesh_detail_seconds": 796.628526498,
+      "job_peak_rss_bytes": 11377864704,
+      "process_peak_sum_bytes": 11377864704,
+      "minimum_timer_coverage": 0.9686633630888654,
+      "maximum_join_relative_difference": 1.5199107359754865e-06,
+      "proof_faces": 79996,
+      "actual_mesh_counts": {
+        "points": 98606,
+        "cells": 467139
+      },
+      "certification_six_rank_sums": {
+        "cells": 467139,
+        "measured": 467139,
+        "q_measured": 467139,
+        "j_measured": 467139,
+        "q_bad": 0,
+        "j_bad": 0,
+        "size_bad": 0,
+        "geometry_bad": 0
+      },
+      "coordinate_maximum_error": 0.0,
+      "positive_solution": {
+        "minimum_density": 0.624413580878372,
+        "minimum_internal_energy_density": 103567.72664642098,
+        "restart_precision": "Float64"
+      },
+      "maximum_transfer_residual": 8.823e-14,
+      "continued_cfd_row": [
+        -2.007612,
+        0.269975,
+        0.014777
+      ],
+      "phase_exclusive_clocks": {
+        "construction": {
+          "seconds_min": 481.49227681330814,
+          "seconds_max": 481.67760099930365,
+          "timer_calls_sum": 16871580
+        },
+        "final_proof": {
+          "seconds_min": 40.67385812700002,
+          "seconds_max": 40.677198128,
+          "timer_calls_sum": 28818
+        },
+        "metric": {
+          "seconds_min": 3.5553882820000133,
+          "seconds_max": 3.5708768079999844,
+          "timer_calls_sum": 168804
+        },
+        "preparation": {
+          "seconds_min": 142.22149625099968,
+          "seconds_max": 143.21084047698758,
+          "timer_calls_sum": 1108399
+        },
+        "quality": {
+          "seconds_min": 321.00429845599524,
+          "seconds_max": 321.0081844759997,
+          "timer_calls_sum": 1357110
+        },
+        "transfer": {
+          "seconds_min": 16.056591538,
+          "seconds_max": 16.094188554000002,
+          "timer_calls_sum": 150
+        }
+      },
+      "global_work_by_rank": [
+        319454,
+        319454,
+        319454,
+        319454,
+        319454,
+        319454
+      ],
+      "unattributed_seconds_max": 32.26845705000068
+    },
+    {
+      "event": 2,
+      "native_seconds": 498.9248277680001,
+      "remesh_detail_seconds": 412.754044798,
+      "job_peak_rss_bytes": 11612327936,
+      "process_peak_sum_bytes": 11612327936,
+      "minimum_timer_coverage": 0.9848705942039958,
+      "maximum_join_relative_difference": 1.2465566881769042e-06,
+      "proof_faces": 77370,
+      "actual_mesh_counts": {
+        "points": 96767,
+        "cells": 464565
+      },
+      "certification_six_rank_sums": {
+        "cells": 464565,
+        "measured": 464565,
+        "q_measured": 464565,
+        "j_measured": 464565,
+        "q_bad": 0,
+        "j_bad": 0,
+        "size_bad": 0,
+        "geometry_bad": 0
+      },
+      "coordinate_maximum_error": 0.0,
+      "positive_solution": {
+        "minimum_density": 0.6241919609032893,
+        "minimum_internal_energy_density": 103667.47443347023,
+        "restart_precision": "Float64"
+      },
+      "maximum_transfer_residual": 8.673e-14,
+      "continued_cfd_row": [
+        -2.133779,
+        0.270054,
+        0.015083
+      ],
+      "phase_exclusive_clocks": {
+        "construction": {
+          "seconds_min": 217.06320666009626,
+          "seconds_max": 217.09044658512082,
+          "timer_calls_sum": 8828543
+        },
+        "final_proof": {
+          "seconds_min": 29.18034485700001,
+          "seconds_max": 29.180378015000002,
+          "timer_calls_sum": 34104
+        },
+        "metric": {
+          "seconds_min": 6.328938631999969,
+          "seconds_max": 6.335660635999988,
+          "timer_calls_sum": 197976
+        },
+        "preparation": {
+          "seconds_min": 68.2541032069987,
+          "seconds_max": 68.71018686099839,
+          "timer_calls_sum": 1115253
+        },
+        "quality": {
+          "seconds_min": 152.76565000000022,
+          "seconds_max": 152.78175485199992,
+          "timer_calls_sum": 521694
+        },
+        "transfer": {
+          "seconds_min": 21.539502211000002,
+          "seconds_max": 21.567053163,
+          "timer_calls_sum": 150
+        }
+      },
+      "global_work_by_rank": [
+        160016,
+        160016,
+        160016,
+        160016,
+        160016,
+        160016
+      ],
+      "unattributed_seconds_max": 7.550533144999402
+    }
+  ],
+  "config_sha256": "07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382",
+  "report_reference": {
+    "commit": "7e6953e721",
+    "receipt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FX2/G5/build645/S/run_receipt.json",
+    "sha256": "3d69efaa1f5129c8f53415ee061df254c7408855512aa6a7031d096c8ee0d4af"
+  },
+  "artifacts": {
+    "helper_pins.json": "b2a7b48eebf104c1b5fac7d740dca0a23d52672b51a72631bcf0ff4eff1bfddd",
+    "full_launch.json": "1bcd090bdb62e0b7183c6c02f834a6bfe0d63d0254bd6e7eaf8612e87f443751",
+    "full_wait.json": "067887f4a7a6375c84d50ad8b194dbd0658761c7be89472b9c96ad65576048a7",
+    "restart_launch.json": "46294da12190b35807b5043702f2b4829a3232b6ed926545ae729421be007435",
+    "restart_wait.json": "0461f63b0b40ffb3ea12da4e0be1208a35a84af75eecae7c1f1a039a979e5fa1",
+    "full647_run1/provenance.json": "80b63c3af1a6a416d88f1a2fe81cb4b97e132a488571b8ccef08e3fab48fa993",
+    "full647_run1/status.json": "4c055c8337db1e423c77440ab3bb8cfa9914cb5e3d508ac37d10719b774434e4",
+    "full647_run1/full_workflow_receipt.json": "7af45d2b5bfdc100c8ce3595b5cf715eea90b7e7df7276570a86e9bd21cece0d",
+    "full647_run1/n8_payload_identity.json": "35a1ca4e9978727d47efb8855b57b32ced77eac8df8bd98ce7d2811e30edab24",
+    "full647_run1/p7p8_event1_gate.json": "f85da7e1176f97ad8106544e7314998ccc39e24b104867ade91fb4e6bede5c99",
+    "full647_run1/p7p8_event2_gate.json": "57022e183b6893441cd91d74cc75a03185e4db75edb40abf236cc80ef0b1d2d8",
+    "full647_run1/f3b_event1_timer_gate.json": "852e36372ac5dd33e67a88ae7e0e9197d782727ed24f68184bbf8b21464f7f72",
+    "full647_run1/f3b_event2_timer_gate.json": "cf6ecd724eaa93e739c46de690ddd939c19db877cae8adb11f64a3300749aba9",
+    "full647_run1/rank_output/1/rank.3/stdout": "4bd2aa571d66721c081a50072dfec80590cf49a60d49e8cf0aa4bc8a5dd41362",
+    "full647_run1/rank_output/1/rank.2/stdout": "02345c146624e4191093f7243822742100500a5d4922e7cf70bd0632fe67e5f4",
+    "full647_run1/rank_output/1/rank.1/stdout": "039c657ba81e2e6182f45eabee22f75c9cb147ba808bc8e34e46b73c32e37e16",
+    "full647_run1/rank_output/1/rank.5/stdout": "6ec5037aaf92a5e334c79b207e5daf4bc819819151c36c2927b0880bac7f59c9",
+    "full647_run1/rank_output/1/rank.4/stdout": "3aef337437721ba389e63bde0909803883e8e621d719f9680bde252c173bfbd4",
+    "full647_run1/rank_output/1/rank.0/stdout": "1c8c0e3baaed4c9466f18291ce94f37e1acc24f877180d080dcf42e23ae3cd4b",
+    "disk_restart_full647_run1_event2/disk_restart_validation.json": "e584131588d8ce49e915d76642dbb16e772d451f80598cf77cb46633637ebb72"
+  }
+}

@@ -1520,3 +1520,13 @@ FP2-C1 continuation 2 §1.1 passed. Build650 finished in 71.828 s with both exac
 FP2-C1 continuation 2 restoration and order pushed as `cab8d520cb`. The terminal 600 s CORE watchdog attempt and its receipts moved to `CORE/restart_attempt1_watchdog` under a 50-file SHA256 manifest. CORE full-run and payload pins verified. The authorized isolated restart retry launched with a 1,800 s watchdog, start load 9.46 and no competing owned workload at preflight. The full CORE run was reused.
 
 FP2-C1 continuation 2 §1.2 passed. CORE isolated restart completed in 162.735 s at start load 9.46 with the 1,800 s watchdog. The build640 reference was 148.863 s. The unchanged validator and run_default_g5.verify_run passed, and all six CORE hashes match FP1. Commit the default proof, then run S2 on build647.
+
+FP2-C1 continuation 2 default proof pushed as `e1c1085b68`. The audit found 247 recorded C1 identities terminal before the S2 launch. S2 uses the same config and build647 solver as S, the 600 s initial isolated restart helper, and the continuation 2 watchdog rule if needed.
+
+FP2-C1 S2 event 1 F3b and P7/P8 passed. The job peak and sum of process peaks were both 11,377,864,704 bytes, with 79,996 proof faces and 96.866% minimum timer coverage. The maximum remesh timer root was 1,029.737 s. The separate timing rule is exceeded for this event. Event 2, restart, and identical payloads remain the result checks.
+
+FP2-C1 S2 event 1 mesh, native reference and restart all match S by on-disk SHA256. The second remesh is running.
+
+FP2-C1 S2 event 2 F3b and P7/P8 passed. Both memory values were 11,612,327,936 bytes, with 77,370 proof faces and 98.487% minimum coverage. The maximum remesh timer root was 499.068 s. Continued CFD, restart and final identity follow.
+
+FP2-C1 continuation 2 §1.3 completed. S2 passed standing gates and initial isolated restart in 156.522 s. All six payloads matched S and the full comparison had zero exact differences. Native maxima 1,029.687 / 498.925 s exceed 645.186 / 431.048 s, with one-minute host load 6.43 at launch and 6.32–19.67 during the run. Label FP2-C1: accepted, time rule OPEN for the user. Commit and push the reference and report, audit, then open FP2-C2.
