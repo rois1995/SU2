@@ -21,6 +21,8 @@ ORDER_SHA = 'fdd678fed866cb0fb9171316ca1f8e534ea848357918fb1956d95bdbb2bf7cae'
 SOURCE_CHECK = HERE / 'continuation1_source_check.md'
 CONTINUATION = HERE / 'inputs/FP2_C2_CONTINUE_1.md'
 CONTINUATION_SHA = '7480af812c7173c1c574c24be6406b4db2d421701bd4bc569263b82ba3056ee2'
+CONTINUATION_2 = HERE / 'inputs/FP2_C2_CONTINUE_2.md'
+CONTINUATION_2_SHA = 'd95981c35eee1958d2bc27ed2e9e6a209c64197243a2b21b67a1c1746dcdffd4'
 CONTINUATION_BASE = 652
 CONTINUATION_CASE = HERE / 'cases/build652/N1'
 DIAGNOSIS_BUILD = 'build653'
@@ -30,7 +32,8 @@ PASS_TIME_RULE = 600
 WATCHDOG_ORDER = C1 / 'inputs/FP2_C1_CONTINUE_2.md'
 WATCHDOG_ORDER_SHA = 'f65f2f302302f8f546ffcc23bb84a9e2ababa40defd9995e9779be456a94eda3'
 RUNS = {'N1': (1, 'Serial'), 'N6': (6, 'MPI'), 'N6P': (6, 'Production1')}
-LINE = re.compile(c1.LINE.pattern.replace('core|cells', 'core|cells|collapse_probe|query_budget|strict_observation')
+LINE = re.compile(c1.LINE.pattern.replace('core|cells',
+                  'core|cells|collapse_probe|query_budget|strict_observation|entity_faces|bound_refusal')
                   .replace('FP2_A LAB_S_PROOF', 'FP2_A LAB_S_(?:PROOF|ENTITY)')
                   .replace('|NATIVE3D_LOCAL_SURFACE',
                            '|FP2_C2 LAB_(?:ABOVE|MODEL_GAP|MISMATCH)|NATIVE3D_LOCAL_SURFACE'))
@@ -48,9 +51,12 @@ DIAGNOSTIC_ROWS = ('LAB_ABOVE', 'LAB_MODEL_GAP', 'LAB_MISMATCH')
 
 
 def continuation_sources():
-    assert a.sha(CONTINUATION) == CONTINUATION_SHA
-    checksum = CONTINUATION.with_suffix('.sha256')
-    assert checksum.read_text().split() == [CONTINUATION_SHA, CONTINUATION.name]
+    orders = []
+    for source, digest in ((CONTINUATION, CONTINUATION_SHA), (CONTINUATION_2, CONTINUATION_2_SHA)):
+        assert a.sha(source) == digest
+        checksum = source.with_suffix('.sha256')
+        assert checksum.read_text().split() == [digest, source.name]
+        orders.extend((source, checksum))
     diagnosis = HERE / 'diagnosis'
     candidates = (root / 'cases' / DIAGNOSIS_BUILD / 'N1/diagnosis.json'
                   for root in (diagnosis, diagnosis / 'watchdog_retry'))
@@ -63,7 +69,7 @@ def continuation_sources():
     assert receipt['measurement_sha256'] == a.sha(measurement)
     baseline = CONTINUATION_CASE / 'measurement.json'
     c3.c2.committed(baseline, '71d4ba519b')
-    return CONTINUATION, checksum, SOURCE_CHECK, path, measurement, baseline
+    return *orders, SOURCE_CHECK, path, measurement, baseline
 
 
 def session_root(repeat, watchdog_retry=False):
@@ -160,6 +166,8 @@ def record_continuation(result, data, ranks):
     result['strict_observation'] = observations
     result['diagnostics'] = {kind: [row for rows in data.values() for row in rows.get(kind, ())]
                              for kind in DIAGNOSTIC_ROWS}
+    for kind in ('entity_faces', 'bound_refusal'):
+        result[kind] = [row for rows in data.values() for row in rows.get(kind, ())]
 
 
 def pass_timing(data, loadavg):

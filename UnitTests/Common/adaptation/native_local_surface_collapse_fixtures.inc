@@ -538,9 +538,9 @@ bool CensusWithinTolerance(const BoundaryParameterState& state, const SurfaceFac
                                SU2NativeGeometry::SurfaceQueryNeed::Classify()) <= state.GeometryTolerance();
 }
 
-class RecordingCollapseBound final : public local::SurfaceGeometry {
+class ForwardCollapseGeometry : public local::SurfaceGeometry {
  public:
-  explicit RecordingCollapseBound(local::StateSurfaceGeometry& geometry) : geometry_(geometry) {}
+  explicit ForwardCollapseGeometry(local::StateSurfaceGeometry& geometry) : geometry_(geometry) {}
 
   double Tolerance() const override { return geometry_.Tolerance(); }
   bool Feature(const Edge& edge) const override { return geometry_.Feature(edge); }
@@ -557,6 +557,15 @@ class RecordingCollapseBound final : public local::SurfaceGeometry {
   }
   bool OnEntityFace(const SurfaceFace& face) const override { return geometry_.OnEntityFace(face); }
   void Accept(local::SurfacePlacement&& placement) override { geometry_.Accept(std::move(placement)); }
+
+ protected:
+  local::StateSurfaceGeometry& geometry_;
+};
+
+class RecordingCollapseBound final : public ForwardCollapseGeometry {
+ public:
+  using ForwardCollapseGeometry::ForwardCollapseGeometry;
+
   bool WithinTolerance(const SurfaceFace& face) override {
     const bool within = geometry_.WithinTolerance(face);
     answers.emplace(Key(face.v), within);
@@ -564,9 +573,13 @@ class RecordingCollapseBound final : public local::SurfaceGeometry {
   }
 
   std::map<Face, bool> answers;
+};
 
- private:
-  local::StateSurfaceGeometry& geometry_;
+class AcceptCollapseBound final : public ForwardCollapseGeometry {
+ public:
+  using ForwardCollapseGeometry::ForwardCollapseGeometry;
+
+  bool WithinTolerance(const SurfaceFace&) override { return true; }
 };
 }  // namespace
 
@@ -827,16 +840,28 @@ TEST_CASE("Step C exchanges cross-pass and local cancellations and builds with r
     constexpr Id remove = GridId(1, 1, 0), keep = GridId(2, 1, 0);
     const auto remote = C2RemoteCells(world, working, 0);
     C2OnRank(world, 0, [&] {
+      {
+        local::Mesh trial(working, true);
+        trial.MarkBorderSurface(meeting);
+        const auto snapshot = Snapshot(trial), frozen = FrozenSnapshot(trial), overlay = OverlaySnapshot(trial, geometry);
+        REQUIRE(C2Collapse(trial, {remove, keep}, geometry) == C2Refusal::Bound);
+        REQUIRE(Snapshot(trial) == snapshot);
+        REQUIRE(FrozenSnapshot(trial) == frozen);
+        REQUIRE(OverlaySnapshot(trial, geometry) == overlay);
+      }
+
+      // Exercise removals-only exchange despite the flat reference's limited facet search.
+      AcceptCollapseBound exchange_geometry(geometry);
       local::CoreOptions options;
       local::Mesh mesh(working, true, options);
       mesh.MarkBorderSurface(meeting);
-      const auto result = CollapseWithProof(mesh, remove, keep, geometry, remote);
+      const auto result = CollapseWithProof(mesh, remove, keep, exchange_geometry, remote);
       if (result == C2Refusal::Shape) {
         std::cout << "FP2_C2 removals_only_shape=refused retry_shape_test=0\n";
         options.shape_test = false;
         local::Mesh retry(working, true, options);
         retry.MarkBorderSurface(meeting);
-        REQUIRE(CollapseWithProof(retry, remove, keep, geometry, remote) == C2Refusal::None);
+        REQUIRE(CollapseWithProof(retry, remove, keep, exchange_geometry, remote) == C2Refusal::None);
         retry.WriteBack(working, cells);
       } else {
         REQUIRE(result == C2Refusal::None);

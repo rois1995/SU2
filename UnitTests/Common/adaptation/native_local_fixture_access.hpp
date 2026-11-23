@@ -17,6 +17,7 @@
 namespace SU2NativeLocal3D {
 struct SurfaceFixtureAccess {
   static const auto& Frozen(const Mesh& mesh) { return mesh.frozen_; }
+  static uint32_t SweepStamp(const Mesh& mesh) { return mesh.sweep_; }
 
   static double SmallestAltitude(Point a, Point b, Point c) { return Mesh::SmallestAltitude(a, b, c); }
 

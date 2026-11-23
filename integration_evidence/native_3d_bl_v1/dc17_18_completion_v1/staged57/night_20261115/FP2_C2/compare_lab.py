@@ -55,6 +55,17 @@ def repeat_differences(name, reference, candidate):
         lambda marker, row: integer_fields(row))
 
 
+def sweep_observations(surface, rows):
+    return [
+        {'sweep_number': sweep, 'accepted_collapses': accepted,
+         'bound_refusals_by_entity': [
+             {key: int(row[key]) for key in ('sweep', 'body', 'sheet', 'marker', 'count')}
+             for row in rows if row['pass'] == surface['pass'] and row['sweep_number'] == str(sweep)
+         ]}
+        for sweep, accepted in enumerate(run.changes(surface), 1)
+    ]
+
+
 def report_rows(receipt, trial):
     at = run.c3.c2.fields_for_pass
     for rank, rows in receipt['rows_by_rank'].items():
@@ -76,6 +87,8 @@ def report_rows(receipt, trial):
                 'points_before_c': int(surface.get('points_before_c', surface['points_out'])),
                 'points_after_c': int(surface['points_out']),
                 'collapses_by_sweep': run.changes(surface),
+                'sweep_observations': sweep_observations(surface, rows.get('bound_refusal', ()))
+                if 'bound_refusal' in receipt['measurement'] else 'not available',
                 'refused': {key.removeprefix('c_refused_'): int(surface[key]) if key in surface else None
                             for key in run.REFUSALS},
                 'reverse_max': float(surface.get('c_reverse_max', 0)),
@@ -178,9 +191,13 @@ def run_campaign(build):
                 **{key: int(measure['proof'][key]) if key in measure['proof'] else None
                    for key in run.PROOF_COUNTS},
                 'seconds_classify': float(measure['proof']['seconds_classify']),
+                'entity_faces': [{key: int(row[key]) for key in ('body', 'sheet', 'marker', 'faces')}
+                                 for row in measure.get('entity_faces', ())] or 'not available',
                 'diagnostics': {key: records for rows in receipt['rows_by_rank'].values()
                                 for key in run.DIAGNOSTIC_ROWS if (records := rows.get(key))},
             }
+        if name == 'N1':
+            details['build653'] = {'entity_faces': 'not available'}
         comparison[name] = {'trials': details, 'step0_one_sweep': first_sweep_estimate(name, rows),
                             'slowest_rank_per_pass': slowest_passes(rows)}
     reports = HERE / 'reports'
@@ -207,6 +224,16 @@ def self_check():
     assert next(compare_lab_c1.field_differences(integer_fields(old), integer_fields(new)))['field'] == 'c_changes'
     assert run.changes({}) == []
     assert len(run.REFUSALS) == 16
+    surface = {'pass': '2', 'c_changes': '"3,1"'}
+    refusal = {'pass': '2', 'sweep': '34', 'sweep_number': '2', 'body': '0',
+               'sheet': '10154', 'marker': '2', 'count': '6'}
+    assert run.LINE.fullmatch('FP2_C bound_refusal ' + ' '.join(f'{key}={value}' for key, value in refusal.items()))
+    assert run.LINE.fullmatch('FP2_C entity_faces rank=0 body=0 sheet=10154 marker=2 faces=6000')
+    first, second = sweep_observations(surface, (refusal, {**refusal, 'pass': '1'}))
+    assert first['accepted_collapses'] == 3 and first['bound_refusals_by_entity'] == []
+    assert second['accepted_collapses'] == 1 and second['bound_refusals_by_entity'] == [
+        {'sweep': 34, 'body': 0, 'sheet': 10154, 'marker': 2, 'count': 6}]
+    assert not {'FP2_C entity_faces', 'FP2_C bound_refusal'}.intersection(ROW_NAMES)
     for name in run.RUNS:
         path, receipt = compare_lab_c1.load_trial(BASELINE, name, 1)
         assert receipt['passed'], path

@@ -325,6 +325,17 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
     row << " snapshot_bytes=" << snapshot_bytes << " snapshot_equal=1";
   }
   std::cout << row.str() << '\n' << std::flush;
+  if (collapse_faces && world.rank == 0) {
+    std::map<BoundaryParameterState::EntityKey, size_t> faces_by_entity;
+    for (const auto& entry : state.Surface()) ++faces_by_entity[state.Entity(entry.second.facet)];
+    std::ostringstream entities;
+    for (const auto& [entity, count] : faces_by_entity) {
+      entities << "FP2_C entity_faces rank=0";
+      PrintLabEntity(entities, entity);
+      entities << " faces=" << count << '\n';
+    }
+    std::cout << entities.str() << std::flush;
+  }
 
   const auto proof_live = [&](const SurfaceReasons& reasons) {
     const auto reason_bytes = transfer_memory::Mul(reasons.size(), sizeof(SurfaceReasons::value_type) + 4 * sizeof(void*));
@@ -363,6 +374,53 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
   });
   REQUIRE_FALSE(world.maximum(!qualified));
 }
+
+class LabBoundObserver final : public local::SurfaceGeometry {
+ public:
+  LabBoundObserver(const local::Mesh& mesh, local::SurfaceGeometry& geometry, const BoundaryParameterState& state)
+      : mesh_(mesh), geometry_(geometry), state_(state) {}
+
+  double Tolerance() const override { return geometry_.Tolerance(); }
+  bool Feature(const local::SurfaceEdge& edge) const override { return geometry_.Feature(edge); }
+  local::SurfaceSamples Samples(const SurfaceFace& face) override { return geometry_.Samples(face); }
+  std::optional<double> Chord(const std::array<Node, 2>& ends) override { return geometry_.Chord(ends); }
+  local::SurfacePlacement Place(const std::array<Node, 2>& ends, const std::array<SurfaceFace, 2>& faces,
+                                Id id) override {
+    return geometry_.Place(ends, faces, id);
+  }
+  bool OnEntity(const SurfaceFace& face, const BoundaryPoint& middle) override {
+    return geometry_.OnEntity(face, middle);
+  }
+  void Accept(local::SurfacePlacement&& placement) override { geometry_.Accept(std::move(placement)); }
+  unsigned Dimension(Id id) const override { return geometry_.Dimension(id); }
+  void Remove(Id id) override { geometry_.Remove(id); }
+  bool OnEntityFace(const SurfaceFace& face) const override { return geometry_.OnEntityFace(face); }
+
+  bool WithinTolerance(const SurfaceFace& face) override {
+    const auto stamp = local::SurfaceFixtureAccess::SweepStamp(mesh_);
+    if (!first_sweep_) first_sweep_ = stamp;
+    const auto within = geometry_.WithinTolerance(face);
+    if (!within) ++refusals_[{stamp, state_.Entity(state_.Geometry().Canonical(face.facet))}];
+    return within;
+  }
+
+  void Report(std::ostream& out, int rank, unsigned pass) const {
+    for (const auto& [key, count] : refusals_) {
+      const auto& [stamp, entity] = key;
+      out << "FP2_C bound_refusal rank=" << rank << " pass=" << pass << " sweep=" << stamp
+          << " sweep_number=" << stamp - first_sweep_ + 1;
+      PrintLabEntity(out, entity);
+      out << " count=" << count << '\n';
+    }
+  }
+
+ private:
+  const local::Mesh& mesh_;
+  local::SurfaceGeometry& geometry_;
+  const BoundaryParameterState& state_;
+  uint32_t first_sweep_ = 0;
+  std::map<std::pair<uint32_t, BoundaryParameterState::EntityKey>, size_t> refusals_;
+};
 
 size_t PartitionHandover(World& world, LabInput& input, const ReferenceState& reference,
                          PartitionStats& routing, bool production) {
@@ -542,6 +600,11 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         }
         const auto pass_begin = Clock::now();
         local::SurfaceGeometry* geometry = probe ? &*probe : static_cast<local::SurfaceGeometry*>(surface.get());
+        std::optional<LabBoundObserver> bound_observer;
+        if (surface_collapses) {
+          bound_observer.emplace(mesh, *geometry, surface->State());
+          geometry = &*bound_observer;
+        }
         stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, geometry);
         const auto run_seconds = Seconds(pass_begin) - measurement_seconds;
         bool walk_probe_matches = true;
@@ -559,6 +622,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
             << " applicable=1";
         local::PrintSurfaceFields(row, stats.surface);
         row << '\n';
+        if (bound_observer) bound_observer->Report(row, world.rank, pass);
         ReportCollapseCore(row, stats, world.rank, pass);
         std::cout << row.str() << std::flush;
         if (!walk_probe_matches) throw std::logic_error("Tolerance placement counts or accepted split differ.");
