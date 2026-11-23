@@ -1458,3 +1458,7 @@ RCFD1 closed and pushed as `635c7ee619`. Post-push audits found 37 RCFD1, 141 C1
 FP2-C1 continuation verified build647/649 fingerprints and live pins. G2 on build647 passed its exact rows, modeled storage, 4,120 fixed storage, decisions and scheduling in 275.060 s. GQ is active.
 
 FP2-C1 continuation GQ passed exact decision, modeled storage, timer and scheduling comparisons in 769.670 s on build647. The already-launched §1.2(a) supervisor advanced to G3. The RCFD2 order is verified and archived. Its runs follow the terminal scoped supervisor and its pushed evidence checkpoint, before C1 §1.2(b).
+
+FP2-C1 exact G2 and GQ prefix evidence pushed as `7544a2659f`. G3 passed in 639.650 s with 1,148 accepted edits and the first 1,113 matching N14. G4 completed with exit 0 in 39.167 s. The scoped supervisor is advancing through saved-state safeguards before the RCFD2 boundary.
+
+FP2-C1 continuation §1.2(a) passed on build647. G2 and GQ exact, G3 1,148 splits with 1,113 exact common edits, G4 passed, and merit481 / saved481 / saved_current passed in 130.296 / 123.339 / 122.834 s. The scoped supervisor is terminal. Checkpoint this evidence, then execute RCFD2. Resume C1 at §1.2(b) OFF after RCFD2.
