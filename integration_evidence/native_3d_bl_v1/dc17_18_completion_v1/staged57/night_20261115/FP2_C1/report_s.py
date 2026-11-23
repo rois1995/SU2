@@ -1,9 +1,11 @@
 """Extract the C1 S wall-collapse and engine observations beside the accepted FX2 S run."""
 
 from argparse import ArgumentParser
+from collections import Counter, defaultdict
 from decimal import Decimal
 import json
 from pathlib import Path
+import re
 import runpy
 import sys
 
@@ -24,6 +26,17 @@ CORE_TABLE = ('cells_in', 'cells_out', 'collapses', 'collapses_wall_near', 'refu
               'short_surface')
 STAGES = set(engine.BOUNDARIES) | {'length_collapse_exit'}
 ENGINE_PHASES = ('construction', 'quality', 'geometry repair', 'surface repair', 'size repair')
+ZERO = Decimal(0)
+CORE_MARKER = re.compile(r'\b(NATIVE3D_LOCAL_(?:CORE|SURFACE(?:_STATE)?))\s+(.*)')
+CORE_CLOCKS = (
+    ('Core surface length step', 'NATIVE3D_LOCAL_SURFACE', ('seconds_length',)),
+    ('Core surface distance step', 'NATIVE3D_LOCAL_SURFACE', ('seconds_distance',)),
+    ('Core length work', 'NATIVE3D_LOCAL_CORE', ('seconds_collapse', 'seconds_split')),
+    ('Core quality, including V rounds when enabled', 'NATIVE3D_LOCAL_CORE', ('seconds_quality',)),
+    ('Core surface-state build', 'NATIVE3D_LOCAL_SURFACE_STATE', ('seconds_gather', 'seconds_build', 'seconds_check')),
+)
+TIMING_HEAD = (*(name for name, _, _ in CORE_CLOCKS), 'Engine construction', 'Engine quality')
+TIMING_TAIL = ('Engine final proof', 'Transfer within the remesh root', 'Sum', 'Rest', 'Native total')
 
 
 def rank_rows(lines, rank, fields):
@@ -147,12 +160,188 @@ def markdown(report):
     return '\n'.join(lines)
 
 
+def timing_rows(stream, rank, local):
+    for line in stream:
+        if line.endswith(('\n', '\r')) and (match := CORE_MARKER.search(line)):
+            marker, body = match.groups()
+            row = engine.report.full.fields(engine.report.full.PREFIX.sub('', body))
+            if row.get('rank') == str(rank) and row.get('applicable') != '0':
+                local[marker].append(row)
+        yield line
+
+
+def continuation_clocks(case):
+    clocks = {}
+    for rank in range(6):
+        path = case / f'rank_output/1/rank.{rank}/stdout'
+        if not path.is_file() and not path.with_suffix('.gz').is_file():
+            continue
+        with engine.report.lab.archived.open_log(path) as stream:
+            for event in (1, 2):
+                local = {marker: [] for _, marker, _ in CORE_CLOCKS}
+                stages = engine.scan_engine(timing_rows(stream, rank, local), rank)['stages']
+                clocks[event, rank] = local, stages
+    return clocks
+
+
+def rank_timing(local, stages, ledger, native):
+    def pass_keys(rows):
+        return {(row['stage'], row['pass']) for row in rows}
+
+    core = local['NATIVE3D_LOCAL_CORE']
+    surface = local['NATIVE3D_LOCAL_SURFACE']
+    states = local['NATIVE3D_LOCAL_SURFACE_STATE']
+    stages_seen = {row['stage'] for row in core}
+    expected = {(stage, index) for stage in stages_seen for index in ('1', '2')}
+    if not expected or len(core) != len(expected) or pass_keys(core) != expected or \
+            len(surface) != len(expected) or pass_keys(surface) != expected or \
+            len(states) != len(stages_seen) or {row['stage'] for row in states} != stages_seen:
+        raise ValueError('local core, surface or surface-state rows are incomplete')
+    parts = {name: sum((Decimal(row[field]) for row in local[marker] for field in fields), ZERO)
+             for name, marker, fields in CORE_CLOCKS}
+    spans = list(engine.spans(stages))
+    if not spans or spans[-1][3] != 'exit' or any(row[0] != 1 or row[4] < 0 for row in spans):
+        raise ValueError('the engine rows do not describe one closed invocation')
+    if sum((span[4] for span in spans), ZERO) != Decimal(stages[-1]['elapsed']):
+        raise ValueError('the phase spans do not reconcile to engine elapsed at exit')
+
+    repairs = Counter()
+    for _, phase, _, _, seconds in spans:
+        name = f'Engine {phase}'
+        if phase not in ('construction', 'quality'):
+            repairs[phase] += 1
+            name += f' {repairs[phase]}'
+        parts[name] = parts.get(name, ZERO) + seconds
+
+    phases = defaultdict(lambda: ZERO)
+    for row in ledger['rows']:
+        phases[row['phase']] += Decimal(row['exclusive_seconds'])
+    # The terminal engine span already includes final proof.
+    proof = phases['final_proof']
+    if proof > spans[-1][4]:
+        raise ValueError('final-proof ledger exceeds the terminal engine span')
+    parts[name] -= proof
+    parts['Engine final proof'] = proof
+    parts['Transfer within the remesh root'] = phases['transfer']
+    parts['Sum'] = sum(parts.values(), ZERO)
+    parts['Rest'] = native - parts['Sum']
+    parts['Native total'] = native
+    if min(parts.values()) < 0:
+        raise ValueError('the accounting exceeds the native time on this rank')
+    return parts
+
+
+def optional_json(path):
+    return cut.read(path) if path.is_file() else {}
+
+
+def mesh_counts(path):
+    counts = {}
+    if path.is_file():
+        with path.open() as stream:
+            for line in stream:
+                key, _, value = line.partition('=')
+                if key.strip() in ('NPOIN', 'NELEM'):
+                    counts[key.strip()] = int(value.split()[0])
+                    if len(counts) == 2:
+                        break
+    return {'cells': counts.get('NELEM', '—'), 'points': counts.get('NPOIN', '—')}
+
+
+def continuation_case(case):
+    full = optional_json(case / 'full_workflow_receipt.json')
+    native_blocks = []
+    rank0 = case / 'rank_output/1/rank.0/stdout'
+    if rank0.is_file() or rank0.with_suffix('.gz').is_file():
+        parse = runpy.run_path(str(workflow.N22 / 'check_connected_events.py'))
+        with engine.report.lab.archived.open_log(rank0) as stream:
+            native_blocks = parse['event_summary_blocks'](stream)
+    local = continuation_clocks(case)
+    results = {}
+    for event in (1, 2):
+        data = next((row for row in full.get('events', ()) if row['event'] == event), {})
+        recorded = native_blocks[event - 1].values() if len(native_blocks) >= event else ()
+        native = {int(row['rank']): Decimal(row['total']) for row in data.get('native_summaries', recorded)}
+        proof = optional_json(case / f'p7p8_event{event}_gate.json').get('proof', {})
+        counts = data.get('actual_mesh_counts') or mesh_counts(case / f'adapted_mesh_adap_{event:05d}.su2')
+        summary = (f'{max(native.values()):.3f}' if native else '—',
+                   counts['cells'], counts['points'], proof.get('owned_faces_sum', '—'))
+        try:
+            timed = optional_json(case / f'f3b_event{event}_timer_gate.json')
+            ledgers = {int(row['rank']): row['ledger'] for row in timed.get('ranks', ()) if row['ledger']}
+            if set(native) != set(range(6)) or set(native) != set(ledgers):
+                raise ValueError('six-rank native summaries or final remesh ledgers are unavailable')
+            slowest = min(native, key=lambda rank: (-native[rank], rank))
+            recorded_max = Decimal(str(data.get('whole_event_seconds_max_rank', native[slowest])))
+            if abs(native[slowest] - recorded_max) > Decimal('0.000001'):
+                raise ValueError('the maximum rank differs from the full workflow receipt')
+            parts = {rank: rank_timing(*local[event, rank], ledgers[rank], native[rank]) for rank in native}
+            results[event] = summary, slowest, parts, None
+        except (KeyError, ValueError, ArithmeticError) as error:
+            results[event] = summary, None, {}, str(error)
+    return results
+
+
+def continuation_markdown(cases):
+    runs = {name: continuation_case(case) for name, case in cases.items()}
+    summary = [(event, name, *run[event][0]) for event in (1, 2) for name, run in runs.items()]
+    lines = [
+        '## Mesh and native time', '',
+        *table(('Event', 'Run', 'Native maximum s', 'Cells', 'Points', 'Proof faces'), summary),
+        '## Where the time is', '',
+        'Each event uses the rank with the largest native time in the sealed summaries. '
+        'Maxima are computed independently over all six ranks, and the maximum sum is the maximum '
+        'of rank sums. Core surface clocks include their nested sampling and placement work. Core '
+        'quality includes V rounds when enabled. Surface-state build covers gathering, construction '
+        'and checking of the state. Ordinary pass setup, exchange and write-back remain in Rest. '
+        'Engine phases use nonoverlapping elapsed stage spans. The remesh ledger’s final-proof '
+        'exclusive seconds are moved from the terminal engine phase to the separate proof row. '
+        'Transfer is the remesh ledger’s transfer phase. Replacement and mesh output have distinct '
+        'timer roots outside the native total. Zero marks a part that did not run, and — marks '
+        'unavailable evidence.', '',
+    ]
+    for event in (1, 2):
+        lines += [f'### Event {event}', '']
+        event_runs = {name: run[event] for name, run in runs.items()}
+        repairs = {key for _, _, rank_rows, _ in event_runs.values() for parts in rank_rows.values() for key in parts}
+        repairs.difference_update((*TIMING_HEAD, *TIMING_TAIL))
+        repairs.add('Engine geometry repair 1')
+        repairs = sorted(repairs, key=lambda name: (name.rsplit(' ', 1)[0], int(name.rsplit(' ', 1)[1])))
+        header = ['Part']
+        for name, (_, slowest, _, _) in event_runs.items():
+            header.extend((f'{name} rank {slowest if slowest is not None else "—"}', f'{name} max over ranks'))
+        rows = []
+        for part in (*TIMING_HEAD, *repairs, *TIMING_TAIL):
+            row = [part]
+            for _, slowest, ranks, _ in event_runs.values():
+                if slowest is None:
+                    row.extend(('—', '—'))
+                else:
+                    row.extend((f'{ranks[slowest].get(part, ZERO):.3f}',
+                                f'{max(values.get(part, ZERO) for values in ranks.values()):.3f}'))
+            rows.append(row)
+        lines += table(header, rows)
+        lines += [f'- {name} timing unavailable. {error[0].upper() + error[1:]}.'
+                  for name, (_, _, _, error) in event_runs.items() if error]
+        lines.append('')
+    return '\n'.join(lines)
+
+
 def main():
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('build', type=int, nargs='?')
     parser.add_argument('--self-check', action='store_true')
+    parser.add_argument('--continuation', action='store_true', help='Print the C1 S, S2 and FX2 S timing report.')
     args = parser.parse_args()
     runner.reference_sources()
+    if args.continuation:
+        if args.build is None:
+            parser.error('an FP2-C1 continuation build is required')
+        root = HERE / 'G5' / f'build{args.build}'
+        cases = {'FX2 S': Path(cut.read(runner.S0_S)['case']),
+                 **{mode: root / mode / f'full{args.build}_run1' for mode in ('S', 'S2')}}
+        print(continuation_markdown(cases))
+        return
     baseline = collect(runner.S0_S)
     if args.self_check:
         assert [item['summary']['event'] for item in baseline['events']] == [1, 2]
@@ -163,6 +352,11 @@ def main():
         assert rank0['engine_quality_entry'][0]['q_bad'] == '834'
         assert any(span['phase'] == 'geometry repair' and span['through'] == 'quality_exit'
                    for span in rank0['engine_spans'])
+        timing = continuation_case(Path(cut.read(runner.S0_S)['case']))
+        assert timing[1][0] == ('614.463', 550027, 113007, 80650)
+        assert timing[2][0] == ('410.522', 575733, 116342, 79274)
+        assert [timing[event][1] for event in (1, 2)] == [1, 4]
+        assert all(len(timing[event][2]) == 6 and timing[event][3] is None for event in (1, 2))
         print('FP2-C1 report parser verified on the accepted two-event FX2 S receipt.')
         return
     if args.build is None:

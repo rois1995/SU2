@@ -1494,3 +1494,15 @@ FP2-C1 continuation OFF event 1 wrote all three payloads with the expected N21 W
 FP2-C1 continuation OFF event 2 F3b and P7/P8 passed with 58,260 certified faces, 99.483% minimum timer coverage, and both reported memory values 16,794,025,984 bytes. Continued CFD, isolated restart and OFF identity checks follow.
 
 FP2-C1 continuation OFF passed all standing gates, two accepted remeshes and isolated restart. Both events match all six N21 W payload hashes. FX2 build645 OFF comparison found zero exact differences. Native maxima 1,801.488 / 1,070.726 s. CORE follows the OFF checkpoint.
+
+FP2-C1 OFF evidence pushed as `78e6aca10b`. The actual-host boundary audit found 217 C1 identities terminal. CORE launched on build647 after verifying the OFF receipt and the FP1 reference.
+
+FP2-C1 continuation CORE preflight saw 45,471,372 kB available. Its event 1 first-collapse report repeated build640 CORE's 92,045,474 work and zero upper refinements. Both CORE logs report the expected difference from the OFF count prediction, which is a report row in CORE. The full run remains active.
+
+FP2-C1 continuation CORE event 1 F3b and P7/P8 passed with 68,006 certified faces and 99.076% minimum coverage. Job peak and process-peak sum were both 11,586,916,352 bytes. The workflow is publishing the first CORE mesh before event 2.
+
+FP2-C1 CORE event 1 mesh, sidecar and restart SHA256 match the FP1 reference. Event 2 is active.
+
+FP2-C1 continuation CORE event 2 F3b and P7/P8 passed. Both memory values equal 11,663,958,016 bytes, proof faces 64,758, minimum coverage 98.127%. Continued CFD, isolated restart and six-file identity follow.
+
+FP2-C1 continuation CORE failed the isolated restart. The first failing value was exit 124 vs 0 from the inherited 600 s watchdog; outer wait 617.692 s. The restart loaded and recorded iteration 0 before timeout during final metric computation. Both full CORE events passed and all six on-disk payloads match FP1. Read-only diagnosis complete. Commit the failure evidence, restore part 1 production and test code to FX2 in one commit, rebuild both targets, and close. S2 and C2 are blocked.
