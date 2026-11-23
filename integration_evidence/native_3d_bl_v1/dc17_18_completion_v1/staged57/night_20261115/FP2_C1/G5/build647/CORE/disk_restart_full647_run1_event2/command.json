@@ -6,7 +6,7 @@
     "/usr/bin/time",
     "-v",
     "timeout",
-    "600",
+    "1800",
     "mpirun",
     "--oversubscribe",
     "--bind-to",
@@ -19,13 +19,13 @@
     "run.cfg"
   ],
   "wrapper": {
-    "pid": 454719,
-    "start_ticks": 93559500
+    "pid": 531172,
+    "start_ticks": 93750889
   },
   "saved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/G5/build647/CORE/full647_run1",
   "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C1/G5/build647/CORE/full647_run1",
-  "initial_available_bytes": 42729275392,
-  "loadavg": "24.16 18.63 15.37 16/3420 455050\n",
+  "initial_available_bytes": 39525416960,
+  "loadavg": "9.73 12.65 16.33 5/3791 531423\n",
   "environment": {
     "OMP_NUM_THREADS": "1",
     "OPENBLAS_NUM_THREADS": "1",
@@ -33,7 +33,7 @@
     "OMPI_MCA_osc": "pt2pt",
     "OMPI_MCA_mpi_yield_when_idle": "1",
     "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
-    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/adapted-disk508-247qx71s"
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/adapted-disk508-ptrxaaqe"
   },
   "scope": "Actual isolated steady CFD disk restart on R3 P7/P8 accepted event2 mesh and matching following-CFD state; one further CFD iteration; no adaptation or convergence claim."
 }
