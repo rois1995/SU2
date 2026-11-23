@@ -1566,3 +1566,21 @@ FP2-C2 continuation 2. The signed order and SHA256 were verified, archived and r
 FP2-C2 continuation 2 build655 passed in 32.709 s without a new warning. Solver hash and production pins equal build654. All hidden fixture groups passed with assertion summaries {'serial': [[['3991', '8']]], 'border': [[['271', '1']], [['255', '1']]], 'exchange': [[['1721', '1']], [['1073', '1']]]}. The option-off, FP1 and G1 cohorts are executing under the same pins.
 
 FP2-C2 continuation 2 build655 fixtures passed. The pinned real Bound refusal and unchanged snapshots passed, and wrapped removals-only exchange assembled the identical state on two ranks. The option-off comparison is exact against build652. All 18 FP1 cohorts and G1 375 / 114 / 228 matched. Production source pins and solver hash equal build654. Push the required fixtures-passed label, then begin the six ordered lab trials.
+
+FP2-C2 continuation 2 fixtures pushed as 4494472267. Start the build655 lab with the build654 solver and all prior handles terminal.
+
+FP2-C2 build655 N1 trial 1 passed in 525.297 s. Across passes and ranks C accepted 5,930 collapses and returned 3 Bound refusals.
+
+FP2-C2 build655 N1 first proof passed. All 75,954 classified faces are below tolerance, strict answers match for all 75,954, and model_gap_entities=0. Bound refused three directions on sheet 10154, at C sweeps 3 and 5. The second N1 trial follows under the existing campaign controller.
+
+FP2-C2 build655 N1 trial 2 passed in 441.984 s. Across passes and ranks C accepted 5,930 collapses and returned 3 Bound refusals.
+
+FP2-C2 build655 N6 trial 1 passed in 569.022 s. Across passes and ranks C accepted 7,089 collapses and returned 5 Bound refusals.
+
+FP2-C2 build655 N6 trial 2 passed in 547.965 s. Across passes and ranks C accepted 7,089 collapses and returned 5 Bound refusals.
+
+FP2-C2 build655 N6P trial 1 passed in 383.921 s. Across passes and ranks C accepted 7,027 collapses and returned 2 Bound refusals.
+
+FP2-C2 build655 N6P trial 2 passed in 385.153 s. Across passes and ranks C accepted 7,027 collapses and returned 2 Bound refusals.
+
+FP2-C2 build655 lab PASSED all six trials. Repeat comparisons exact for N1/N6/N6P; final strict face counts 75,954 / 73,618 / 72,208 with zero mismatches, zero sink mismatches, zero unexplained and zero model gap entities. The comparator writer initially compared a tuple to its JSON list and failed post-write sealing. Normalized the list and verified the same completed evidence; no trial repeat. Next commit and push lab, then start S on the build654 solver.

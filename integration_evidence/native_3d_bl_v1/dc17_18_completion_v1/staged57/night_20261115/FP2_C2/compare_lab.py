@@ -209,7 +209,7 @@ def run_campaign(build):
     artifacts[str(path)] = a.sha(path)
     result = {**fingerprints, 'passed': all(row['passed'] for row in summaries.values()),
               **baseline, 'cases': summaries, 'artifacts': artifacts, 'report': str(path),
-              'compared_rows': ROW_NAMES}
+              'compared_rows': list(ROW_NAMES)}
     a.sealed(run.case_path(build, 'N1', 1).parent / 'lab_acceptance.json', result)
     return result
 
