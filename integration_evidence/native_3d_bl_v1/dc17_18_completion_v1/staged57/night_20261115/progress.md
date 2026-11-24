@@ -1800,3 +1800,11 @@ FP2-M2 build667 fixture curved controller returned 0. See FP2_M2/fixtures/build6
 FP2-M2 build667 fixture model controller returned 0. See FP2_M2/fixtures/build667/model/case_summary.json.
 
 FP2-M2 build667 inherited fixtures and model pin PASSED. Option-off serial and MPI matched the build666 counts (9 cases and 10,314 assertions, 3 cases per rank and 898 / 727 assertions). The curved fixture matched 20 query traces and 727 assertions. Model elapsed 46.717 s, 48,954 facets, 72,757 same-entity edges, 674 between different entities. All 363,785 seam checks and 291,028 endpoint checks passed (worst 2.8421709430404007e-14 against 3e-10, endpoints exact). The model files are sealed. Push the fixture and model checkpoint before launching BASELINE with trace off.
+
+FP2-M2 fixtures/model checkpoint 466ffc2a2e pushed and verified. Launch BASELINE at 1E-4, with trace off and hand-over CSV capture on. The detached controller will preserve the live host and terminal receipts.
+
+FP2-M2 BASELINE live pass completed with 373,889 cells, 26,920 surface faces and no nonpositive cells. The stage observer reported complete with 0.333 s observer work. These are provisional until the inherited proof, post-digest exports and exact comparison finish.
+
+FP2-M2 BASELINE done in 1,180.061 s. The inherited evaluation qualified, the proof was accepted with zero classified faces above tolerance, and the exact projection including modeled storage matched sealed build664. Both CSVs completed: 26,920 faces, 40,380 edges, 80,760 evaluated corners and zero missing metric edges. The durable supervisor and recorded children are terminal. Launch ANATOMY at 1E-4 with trace on and no hand-over CSV exporter.
+
+FP2-M2 ANATOMY done in 1,253.027 s. The inherited gates and full build664 repeat comparison passed. Trace tables are complete with 17,087,833 rows, 72,564 begun and closed forwards, 300 retained forwards in each length bin, zero UNRESOLVED rows and zero parser errors. No CSV exporter ran. Push the baseline/anatomy checkpoint, then launch 2E-4 under the unchanged 3,261 s watchdog.
