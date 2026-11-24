@@ -1836,3 +1836,11 @@ FP2-M3 build668 fixture off-mpi returned 0. See FP2_M3/fixtures/build668/off-mpi
 FP2-M3 build668 fixture curved returned 0. See FP2_M3/fixtures/build668/curved/case_summary.json.
 
 FP2-M3 build668 focused fixtures passed. Serial and two-rank Catch counts equal build666. The unchanged curved checker matched 20 production forwards. The first usable production witness contained 8 depth-zero leaves (all ordinal 0 in their facets); all 24 exact-rational cubic corner comparisons had zero error at the 6.25e-6 limit. G1 and the analysis self-check are complete. Commit the trace and fixture checkpoint, then run N1 TRACE-OFF.
+
+FP2-M3 trace and fixtures checkpoint 7f10fd1452 pushed and verified. All required parts of the checkpoint passed. Launch TRACE-OFF at 1E-4 with the post-digest facet export on and M1 and M2 hand-over exports off.
+
+FP2-M3 TRACE-OFF finished in 1,126.088 s with the full build664 exact projection, inherited qualification and accepted proof of 26,920 faces. The facet CSV completed and its 48,954 rows and SHA256 verified against the trial. All observed processes are terminal. Launch TRACE-ON at the same tolerance with M2 streaming and the compressed provenance collector.
+
+FP2-M3 TRACE-ON finished in 1,206.416 s. It qualified and matched the full inherited build664 projection. The compressed provenance and M2-format anatomy receipts are complete; both trials are terminal. Verified the facet CSV, provenance artifact and sealed M2 model edge inputs. Start the one low-priority offline analysis in analysis/build668; the compressed stream remains local and will not be committed.
+
+FP2-M3 offline analysis completed in 113.726 s with exit 0. It reconciled 68,853 usable batches and 1,629 uncached forwards with no batch, with no malformed or incomplete measured batch. There are 46,617 complete leaf tables and 20 preserved witness examples. All four M2-format comparison fields matched M2 in every bin. Report input and output hashes, the facet CSV, G1, both identity results and all terminal processes were verified. Close with the exact label FP2-M3: measurement done; default path not yet proven. Preserve the 136,934,750-byte compressed provenance locally at its receipt path. Stop after push.

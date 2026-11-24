@@ -1,0 +1,48 @@
+{
+  "all_observed_terminal": true,
+  "identities": [
+    {
+      "pid": 641532,
+      "start_ticks": 104771510
+    },
+    {
+      "pid": 641534,
+      "state": "S",
+      "ppid": 641532,
+      "pgid": 641534,
+      "sid": 641532,
+      "start_ticks": 104771511,
+      "comm": "timeout"
+    },
+    {
+      "pid": 641536,
+      "state": "S",
+      "ppid": 641535,
+      "pgid": 641536,
+      "sid": 641536,
+      "start_ticks": 104771511,
+      "comm": "orted"
+    },
+    {
+      "pid": 641535,
+      "state": "R",
+      "ppid": 641534,
+      "pgid": 641534,
+      "sid": 641532,
+      "start_ticks": 104771511,
+      "comm": "test_driver"
+    }
+  ],
+  "sigkill_sent_to": [],
+  "sampled_rank_peak_lower_bound_bytes": 2500874240,
+  "sampled_rank_peaks_bytes": [
+    {
+      "pid": 641535,
+      "start_ticks": 104771511,
+      "peak_rss_bytes": 2500874240
+    }
+  ],
+  "child_returncode": 0,
+  "elapsed_seconds": 1206.186544117052,
+  "stop": null
+}

@@ -1,0 +1,2603 @@
+{
+  "batches": {
+    "usable": 68853
+  },
+  "completion": "complete",
+  "exclusion_reasons": {},
+  "forwards": {
+    "all": 72564,
+    "direct_only": 2082,
+    "measured": 68853,
+    "miss": 70482,
+    "no_batch": 1629
+  },
+  "groups": {
+    "0": {
+      "0": {
+        "batch_counts": {
+          "0": 17,
+          "1": 367,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 384,
+          "incomplete": 0,
+          "measured": 367,
+          "no_batch": 17,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 1423,
+            "denominator": 1688,
+            "share": 0.8430094786729858
+          },
+          "invalid": {
+            "count": 1,
+            "denominator": 1688,
+            "share": 0.0005924170616113745
+          },
+          "single": {
+            "count": 216,
+            "denominator": 1688,
+            "share": 0.12796208530805686
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 1688,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 48,
+            "denominator": 1688,
+            "share": 0.02843601895734597
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 1688,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 12,
+          "mean": 4.599455040871935,
+          "median": 4,
+          "n": 367,
+          "p90": 7
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 367,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 367,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 367,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 41,
+            "denominator": 367,
+            "share": 0.11171662125340599
+          },
+          "none": {
+            "count": 45,
+            "denominator": 367,
+            "share": 0.1226158038147139
+          },
+          "other": {
+            "count": 0,
+            "denominator": 367,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 367,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 367,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 220,
+            "denominator": 367,
+            "share": 0.5994550408719346
+          },
+          "tj_inter_fine": {
+            "count": 241,
+            "denominator": 367,
+            "share": 0.6566757493188011
+          },
+          "tj_intra_coarse": {
+            "count": 125,
+            "denominator": 367,
+            "share": 0.3405994550408719
+          },
+          "tj_intra_fine": {
+            "count": 142,
+            "denominator": 367,
+            "share": 0.3869209809264305
+          }
+        },
+        "merged_inside_sets": {
+          "empty": {
+            "count": 45,
+            "denominator": 367,
+            "share": 0.1226158038147139
+          },
+          "key_split": {
+            "count": 31,
+            "denominator": 367,
+            "share": 0.08446866485013624
+          },
+          "key_split,tj": {
+            "count": 10,
+            "denominator": 367,
+            "share": 0.027247956403269755
+          },
+          "tj": {
+            "count": 281,
+            "denominator": 367,
+            "share": 0.7656675749318801
+          }
+        },
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 9.713896457765667,
+            "n": 367,
+            "total": 3565
+          },
+          "crop_intra": {
+            "mean": 12.632152588555858,
+            "n": 367,
+            "total": 4636
+          },
+          "entity_border": {
+            "mean": 1.103542234332425,
+            "n": 367,
+            "total": 405
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 367,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 367,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.0,
+            "n": 367,
+            "total": 0
+          },
+          "tj_inter_coarse": {
+            "mean": 5.801089918256131,
+            "n": 367,
+            "total": 2129
+          },
+          "tj_inter_fine": {
+            "mean": 10.220708446866485,
+            "n": 367,
+            "total": 3751
+          },
+          "tj_intra_coarse": {
+            "mean": 2.9700272479564034,
+            "n": 367,
+            "total": 1090
+          },
+          "tj_intra_fine": {
+            "mean": 5.482288828337874,
+            "n": 367,
+            "total": 2012
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 367,
+            "total": 0
+          },
+          "all": {
+            "mean": 2.138964577656676,
+            "n": 367,
+            "total": 785
+          },
+          "axis_sign": {
+            "mean": 2.138964577656676,
+            "n": 367,
+            "total": 785
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 367,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 767,
+            "2": 20,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 787
+          },
+          "intra": {
+            "1": 574,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 574
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 12,
+            "mean": 2.1444141689373297,
+            "median": 2,
+            "n": 367,
+            "p90": 5
+          },
+          "intra": {
+            "maximum": 14,
+            "mean": 1.564032697547684,
+            "median": 0,
+            "n": 367,
+            "p90": 5
+          }
+        }
+      },
+      "1": {
+        "batch_counts": {
+          "0": 303,
+          "1": 3468,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 3771,
+          "incomplete": 0,
+          "measured": 3468,
+          "no_batch": 303,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 3907,
+            "denominator": 4009,
+            "share": 0.9745572461960589
+          },
+          "invalid": {
+            "count": 0,
+            "denominator": 4009,
+            "share": 0.0
+          },
+          "single": {
+            "count": 101,
+            "denominator": 4009,
+            "share": 0.025193315041157394
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 4009,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 1,
+            "denominator": 4009,
+            "share": 0.0002494387627837366
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 4009,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 10,
+          "mean": 1.155997693194925,
+          "median": 1,
+          "n": 3468,
+          "p90": 1
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 3468,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 3468,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 3468,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 0,
+            "denominator": 3468,
+            "share": 0.0
+          },
+          "none": {
+            "count": 3464,
+            "denominator": 3468,
+            "share": 0.9988465974625144
+          },
+          "other": {
+            "count": 0,
+            "denominator": 3468,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 3468,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 3468,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 4,
+            "denominator": 3468,
+            "share": 0.0011534025374855825
+          },
+          "tj_inter_fine": {
+            "count": 4,
+            "denominator": 3468,
+            "share": 0.0011534025374855825
+          },
+          "tj_intra_coarse": {
+            "count": 0,
+            "denominator": 3468,
+            "share": 0.0
+          },
+          "tj_intra_fine": {
+            "count": 0,
+            "denominator": 3468,
+            "share": 0.0
+          }
+        },
+        "merged_inside_sets": null,
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 11.868223760092272,
+            "n": 3468,
+            "total": 41159
+          },
+          "crop_intra": {
+            "mean": 0.9273356401384083,
+            "n": 3468,
+            "total": 3216
+          },
+          "entity_border": {
+            "mean": 0.9328143021914648,
+            "n": 3468,
+            "total": 3235
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 3468,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 3468,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.05738177623990773,
+            "n": 3468,
+            "total": 199
+          },
+          "tj_inter_coarse": {
+            "mean": 0.22462514417531718,
+            "n": 3468,
+            "total": 779
+          },
+          "tj_inter_fine": {
+            "mean": 0.3809111880046136,
+            "n": 3468,
+            "total": 1321
+          },
+          "tj_intra_coarse": {
+            "mean": 0.022779700115340255,
+            "n": 3468,
+            "total": 79
+          },
+          "tj_intra_fine": {
+            "mean": 0.03835063437139562,
+            "n": 3468,
+            "total": 133
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 3468,
+            "total": 0
+          },
+          "all": {
+            "mean": 0.22202998846597463,
+            "n": 3468,
+            "total": 770
+          },
+          "axis_sign": {
+            "mean": 0.22202998846597463,
+            "n": 3468,
+            "total": 770
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 3468,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 8,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 8
+          },
+          "intra": {
+            "1": 0,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 0
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 2,
+            "mean": 0.002306805074971165,
+            "median": 0,
+            "n": 3468,
+            "p90": 0
+          },
+          "intra": {
+            "maximum": 0,
+            "mean": 0.0,
+            "median": 0,
+            "n": 3468,
+            "p90": 0
+          }
+        }
+      }
+    },
+    "1": {
+      "0": {
+        "batch_counts": {
+          "0": 11,
+          "1": 1353,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 1364,
+          "incomplete": 0,
+          "measured": 1353,
+          "no_batch": 11,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 3653,
+            "denominator": 4247,
+            "share": 0.8601365669884624
+          },
+          "invalid": {
+            "count": 0,
+            "denominator": 4247,
+            "share": 0.0
+          },
+          "single": {
+            "count": 543,
+            "denominator": 4247,
+            "share": 0.12785495643983988
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 4247,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 51,
+            "denominator": 4247,
+            "share": 0.012008476571697669
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 4247,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 12,
+          "mean": 3.1389504804138952,
+          "median": 3,
+          "n": 1353,
+          "p90": 6
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 1353,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 1353,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 1353,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 186,
+            "denominator": 1353,
+            "share": 0.13747228381374724
+          },
+          "none": {
+            "count": 669,
+            "denominator": 1353,
+            "share": 0.49445676274944567
+          },
+          "other": {
+            "count": 0,
+            "denominator": 1353,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 1353,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 1353,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 245,
+            "denominator": 1353,
+            "share": 0.18107908351810792
+          },
+          "tj_inter_fine": {
+            "count": 277,
+            "denominator": 1353,
+            "share": 0.20473022912047303
+          },
+          "tj_intra_coarse": {
+            "count": 415,
+            "denominator": 1353,
+            "share": 0.30672579453067256
+          },
+          "tj_intra_fine": {
+            "count": 459,
+            "denominator": 1353,
+            "share": 0.3392461197339246
+          }
+        },
+        "merged_inside_sets": {
+          "empty": {
+            "count": 669,
+            "denominator": 1353,
+            "share": 0.49445676274944567
+          },
+          "key_split": {
+            "count": 150,
+            "denominator": 1353,
+            "share": 0.11086474501108648
+          },
+          "key_split,tj": {
+            "count": 36,
+            "denominator": 1353,
+            "share": 0.026607538802660754
+          },
+          "tj": {
+            "count": 498,
+            "denominator": 1353,
+            "share": 0.36807095343680707
+          }
+        },
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 2.821138211382114,
+            "n": 1353,
+            "total": 3817
+          },
+          "crop_intra": {
+            "mean": 23.710273466371028,
+            "n": 1353,
+            "total": 32080
+          },
+          "entity_border": {
+            "mean": 0.43015521064301554,
+            "n": 1353,
+            "total": 582
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 1353,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 1353,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.188470066518847,
+            "n": 1353,
+            "total": 255
+          },
+          "tj_inter_coarse": {
+            "mean": 2.9711751662971175,
+            "n": 1353,
+            "total": 4020
+          },
+          "tj_inter_fine": {
+            "mean": 5.241685144124168,
+            "n": 1353,
+            "total": 7092
+          },
+          "tj_intra_coarse": {
+            "mean": 3.169992609016999,
+            "n": 1353,
+            "total": 4289
+          },
+          "tj_intra_fine": {
+            "mean": 5.373983739837398,
+            "n": 1353,
+            "total": 7271
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 1353,
+            "total": 0
+          },
+          "all": {
+            "mean": 1.3015521064301552,
+            "n": 1353,
+            "total": 1761
+          },
+          "axis_sign": {
+            "mean": 1.3015521064301552,
+            "n": 1353,
+            "total": 1761
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 1353,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 762,
+            "2": 215,
+            "more": 6,
+            "nonpositive": 0,
+            "pairs": 983
+          },
+          "intra": {
+            "1": 2239,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 2239
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 17,
+            "mean": 0.7265336289726534,
+            "median": 0,
+            "n": 1353,
+            "p90": 2
+          },
+          "intra": {
+            "maximum": 28,
+            "mean": 1.654841093865484,
+            "median": 0,
+            "n": 1353,
+            "p90": 6
+          }
+        }
+      },
+      "1": {
+        "batch_counts": {
+          "0": 138,
+          "1": 5429,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 5567,
+          "incomplete": 0,
+          "measured": 5429,
+          "no_batch": 138,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 5819,
+            "denominator": 5959,
+            "share": 0.9765061251887901
+          },
+          "invalid": {
+            "count": 0,
+            "denominator": 5959,
+            "share": 0.0
+          },
+          "single": {
+            "count": 140,
+            "denominator": 5959,
+            "share": 0.023493874811209934
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 5959,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 0,
+            "denominator": 5959,
+            "share": 0.0
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 5959,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 7,
+          "mean": 1.0976238717995948,
+          "median": 1,
+          "n": 5429,
+          "p90": 1
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "none": {
+            "count": 5429,
+            "denominator": 5429,
+            "share": 1.0
+          },
+          "other": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "tj_inter_fine": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "tj_intra_coarse": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          },
+          "tj_intra_fine": {
+            "count": 0,
+            "denominator": 5429,
+            "share": 0.0
+          }
+        },
+        "merged_inside_sets": null,
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 10.333210536010315,
+            "n": 5429,
+            "total": 56099
+          },
+          "crop_intra": {
+            "mean": 5.765518511696445,
+            "n": 5429,
+            "total": 31301
+          },
+          "entity_border": {
+            "mean": 0.3446306870510223,
+            "n": 5429,
+            "total": 1871
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 5429,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 5429,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.30447596242401914,
+            "n": 5429,
+            "total": 1653
+          },
+          "tj_inter_coarse": {
+            "mean": 0.1738810093939952,
+            "n": 5429,
+            "total": 944
+          },
+          "tj_inter_fine": {
+            "mean": 0.2657948056732363,
+            "n": 5429,
+            "total": 1443
+          },
+          "tj_intra_coarse": {
+            "mean": 0.029102965555350892,
+            "n": 5429,
+            "total": 158
+          },
+          "tj_intra_fine": {
+            "mean": 0.04070731258058574,
+            "n": 5429,
+            "total": 221
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 5429,
+            "total": 0
+          },
+          "all": {
+            "mean": 0.05802173512617425,
+            "n": 5429,
+            "total": 315
+          },
+          "axis_sign": {
+            "mean": 0.05802173512617425,
+            "n": 5429,
+            "total": 315
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 5429,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 0,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 0
+          },
+          "intra": {
+            "1": 0,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 0
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 0,
+            "mean": 0.0,
+            "median": 0,
+            "n": 5429,
+            "p90": 0
+          },
+          "intra": {
+            "maximum": 0,
+            "mean": 0.0,
+            "median": 0,
+            "n": 5429,
+            "p90": 0
+          }
+        }
+      }
+    },
+    "2": {
+      "0": {
+        "batch_counts": {
+          "0": 46,
+          "1": 4119,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 4165,
+          "incomplete": 0,
+          "measured": 4119,
+          "no_batch": 46,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 12177,
+            "denominator": 14314,
+            "share": 0.8507056029062456
+          },
+          "invalid": {
+            "count": 0,
+            "denominator": 14314,
+            "share": 0.0
+          },
+          "single": {
+            "count": 2023,
+            "denominator": 14314,
+            "share": 0.14133016627078385
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 14314,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 114,
+            "denominator": 14314,
+            "share": 0.007964230822970519
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 14314,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 12,
+          "mean": 3.4751153192522457,
+          "median": 3,
+          "n": 4119,
+          "p90": 6
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 4119,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 4119,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 4119,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 347,
+            "denominator": 4119,
+            "share": 0.08424374848264142
+          },
+          "none": {
+            "count": 1806,
+            "denominator": 4119,
+            "share": 0.4384559359067735
+          },
+          "other": {
+            "count": 0,
+            "denominator": 4119,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 4119,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 4119,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 809,
+            "denominator": 4119,
+            "share": 0.19640689487739743
+          },
+          "tj_inter_fine": {
+            "count": 887,
+            "denominator": 4119,
+            "share": 0.21534352998300557
+          },
+          "tj_intra_coarse": {
+            "count": 1676,
+            "denominator": 4119,
+            "share": 0.4068948773974266
+          },
+          "tj_intra_fine": {
+            "count": 1761,
+            "denominator": 4119,
+            "share": 0.42753095411507647
+          }
+        },
+        "merged_inside_sets": {
+          "empty": {
+            "count": 1806,
+            "denominator": 4119,
+            "share": 0.4384559359067735
+          },
+          "key_split": {
+            "count": 314,
+            "denominator": 4119,
+            "share": 0.07623209516873028
+          },
+          "key_split,tj": {
+            "count": 33,
+            "denominator": 4119,
+            "share": 0.008011653313911144
+          },
+          "tj": {
+            "count": 1966,
+            "denominator": 4119,
+            "share": 0.4773003156105851
+          }
+        },
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 2.128429230395727,
+            "n": 4119,
+            "total": 8767
+          },
+          "crop_intra": {
+            "mean": 30.926924010682203,
+            "n": 4119,
+            "total": 127388
+          },
+          "entity_border": {
+            "mean": 0.20684632192279678,
+            "n": 4119,
+            "total": 852
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 4119,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 4119,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.20417577081815974,
+            "n": 4119,
+            "total": 841
+          },
+          "tj_inter_coarse": {
+            "mean": 4.071133770332605,
+            "n": 4119,
+            "total": 16769
+          },
+          "tj_inter_fine": {
+            "mean": 6.922554017965526,
+            "n": 4119,
+            "total": 28514
+          },
+          "tj_intra_coarse": {
+            "mean": 4.156591405680991,
+            "n": 4119,
+            "total": 17121
+          },
+          "tj_intra_fine": {
+            "mean": 7.277737314882253,
+            "n": 4119,
+            "total": 29977
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 4119,
+            "total": 0
+          },
+          "all": {
+            "mean": 2.20199077445982,
+            "n": 4119,
+            "total": 9070
+          },
+          "axis_sign": {
+            "mean": 2.20199077445982,
+            "n": 4119,
+            "total": 9070
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 4119,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 2886,
+            "2": 784,
+            "more": 48,
+            "nonpositive": 0,
+            "pairs": 3718
+          },
+          "intra": {
+            "1": 10438,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 10438
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 28,
+            "mean": 0.9026462733673222,
+            "median": 0,
+            "n": 4119,
+            "p90": 3
+          },
+          "intra": {
+            "maximum": 28,
+            "mean": 2.53411022092741,
+            "median": 0,
+            "n": 4119,
+            "p90": 8
+          }
+        }
+      },
+      "1": {
+        "batch_counts": {
+          "0": 502,
+          "1": 15992,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 16494,
+          "incomplete": 0,
+          "measured": 15992,
+          "no_batch": 502,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 16998,
+            "denominator": 17303,
+            "share": 0.9823729989019245
+          },
+          "invalid": {
+            "count": 0,
+            "denominator": 17303,
+            "share": 0.0
+          },
+          "single": {
+            "count": 299,
+            "denominator": 17303,
+            "share": 0.01728024042073629
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 17303,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 6,
+            "denominator": 17303,
+            "share": 0.0003467606773391897
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 17303,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 10,
+          "mean": 1.0819784892446223,
+          "median": 1,
+          "n": 15992,
+          "p90": 1
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "none": {
+            "count": 15992,
+            "denominator": 15992,
+            "share": 1.0
+          },
+          "other": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "tj_inter_fine": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "tj_intra_coarse": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          },
+          "tj_intra_fine": {
+            "count": 0,
+            "denominator": 15992,
+            "share": 0.0
+          }
+        },
+        "merged_inside_sets": null,
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 12.935967983991995,
+            "n": 15992,
+            "total": 206872
+          },
+          "crop_intra": {
+            "mean": 4.05527763881941,
+            "n": 15992,
+            "total": 64852
+          },
+          "entity_border": {
+            "mean": 0.4259004502251126,
+            "n": 15992,
+            "total": 6811
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 15992,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 15992,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.10242621310655328,
+            "n": 15992,
+            "total": 1638
+          },
+          "tj_inter_coarse": {
+            "mean": 0.12456228114057029,
+            "n": 15992,
+            "total": 1992
+          },
+          "tj_inter_fine": {
+            "mean": 0.19772386193096547,
+            "n": 15992,
+            "total": 3162
+          },
+          "tj_intra_coarse": {
+            "mean": 0.05971735867933967,
+            "n": 15992,
+            "total": 955
+          },
+          "tj_intra_fine": {
+            "mean": 0.09242121060530264,
+            "n": 15992,
+            "total": 1478
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 15992,
+            "total": 0
+          },
+          "all": {
+            "mean": 0.0709104552276138,
+            "n": 15992,
+            "total": 1134
+          },
+          "axis_sign": {
+            "mean": 0.0709104552276138,
+            "n": 15992,
+            "total": 1134
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 15992,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 0,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 0
+          },
+          "intra": {
+            "1": 0,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 0
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 0,
+            "mean": 0.0,
+            "median": 0,
+            "n": 15992,
+            "p90": 0
+          },
+          "intra": {
+            "maximum": 0,
+            "mean": 0.0,
+            "median": 0,
+            "n": 15992,
+            "p90": 0
+          }
+        }
+      }
+    },
+    "3": {
+      "0": {
+        "batch_counts": {
+          "0": 104,
+          "1": 6150,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 6254,
+          "incomplete": 0,
+          "measured": 6150,
+          "no_batch": 104,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 18006,
+            "denominator": 21984,
+            "share": 0.8190502183406113
+          },
+          "invalid": {
+            "count": 1,
+            "denominator": 21984,
+            "share": 4.5487627365356625e-05
+          },
+          "single": {
+            "count": 3726,
+            "denominator": 21984,
+            "share": 0.16948689956331878
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 21984,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 251,
+            "denominator": 21984,
+            "share": 0.011417394468704512
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 21984,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 16,
+          "mean": 3.5746341463414635,
+          "median": 3,
+          "n": 6150,
+          "p90": 6
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 6150,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 6150,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 6150,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 285,
+            "denominator": 6150,
+            "share": 0.046341463414634146
+          },
+          "none": {
+            "count": 2698,
+            "denominator": 6150,
+            "share": 0.43869918699186994
+          },
+          "other": {
+            "count": 0,
+            "denominator": 6150,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 6150,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 6150,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 2015,
+            "denominator": 6150,
+            "share": 0.3276422764227642
+          },
+          "tj_inter_fine": {
+            "count": 2238,
+            "denominator": 6150,
+            "share": 0.36390243902439023
+          },
+          "tj_intra_coarse": {
+            "count": 2667,
+            "denominator": 6150,
+            "share": 0.43365853658536585
+          },
+          "tj_intra_fine": {
+            "count": 2768,
+            "denominator": 6150,
+            "share": 0.4500813008130081
+          }
+        },
+        "merged_inside_sets": {
+          "empty": {
+            "count": 2698,
+            "denominator": 6150,
+            "share": 0.43869918699186994
+          },
+          "key_split": {
+            "count": 177,
+            "denominator": 6150,
+            "share": 0.02878048780487805
+          },
+          "key_split,tj": {
+            "count": 108,
+            "denominator": 6150,
+            "share": 0.0175609756097561
+          },
+          "tj": {
+            "count": 3167,
+            "denominator": 6150,
+            "share": 0.514959349593496
+          }
+        },
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 3.2333333333333334,
+            "n": 6150,
+            "total": 19885
+          },
+          "crop_intra": {
+            "mean": 36.65479674796748,
+            "n": 6150,
+            "total": 225427
+          },
+          "entity_border": {
+            "mean": 0.3229268292682927,
+            "n": 6150,
+            "total": 1986
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 6150,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 6150,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.15170731707317073,
+            "n": 6150,
+            "total": 933
+          },
+          "tj_inter_coarse": {
+            "mean": 5.23739837398374,
+            "n": 6150,
+            "total": 32210
+          },
+          "tj_inter_fine": {
+            "mean": 9.223577235772357,
+            "n": 6150,
+            "total": 56725
+          },
+          "tj_intra_coarse": {
+            "mean": 4.899837398373983,
+            "n": 6150,
+            "total": 30134
+          },
+          "tj_intra_fine": {
+            "mean": 8.765853658536585,
+            "n": 6150,
+            "total": 53910
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 6150,
+            "total": 0
+          },
+          "all": {
+            "mean": 2.4073170731707316,
+            "n": 6150,
+            "total": 14805
+          },
+          "axis_sign": {
+            "mean": 2.4073170731707316,
+            "n": 6150,
+            "total": 14805
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 6150,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 6599,
+            "2": 1507,
+            "more": 73,
+            "nonpositive": 0,
+            "pairs": 8179
+          },
+          "intra": {
+            "1": 18436,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 18436
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 24,
+            "mean": 1.3299186991869918,
+            "median": 0,
+            "n": 6150,
+            "p90": 4
+          },
+          "intra": {
+            "maximum": 35,
+            "mean": 2.997723577235772,
+            "median": 0,
+            "n": 6150,
+            "p90": 10
+          }
+        }
+      },
+      "1": {
+        "batch_counts": {
+          "0": 296,
+          "1": 13899,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 14195,
+          "incomplete": 0,
+          "measured": 13899,
+          "no_batch": 296,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 15580,
+            "denominator": 16335,
+            "share": 0.9537802265074993
+          },
+          "invalid": {
+            "count": 0,
+            "denominator": 16335,
+            "share": 0.0
+          },
+          "single": {
+            "count": 743,
+            "denominator": 16335,
+            "share": 0.04548515457606367
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 16335,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 12,
+            "denominator": 16335,
+            "share": 0.0007346189164370982
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 16335,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 9,
+          "mean": 1.1752644075113317,
+          "median": 1,
+          "n": 13899,
+          "p90": 2
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "none": {
+            "count": 13899,
+            "denominator": 13899,
+            "share": 1.0
+          },
+          "other": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "tj_inter_fine": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "tj_intra_coarse": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          },
+          "tj_intra_fine": {
+            "count": 0,
+            "denominator": 13899,
+            "share": 0.0
+          }
+        },
+        "merged_inside_sets": null,
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 12.035757968199151,
+            "n": 13899,
+            "total": 167285
+          },
+          "crop_intra": {
+            "mean": 6.184617598388373,
+            "n": 13899,
+            "total": 85960
+          },
+          "entity_border": {
+            "mean": 0.26411972084322616,
+            "n": 13899,
+            "total": 3671
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 13899,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 13899,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.024318296280307936,
+            "n": 13899,
+            "total": 338
+          },
+          "tj_inter_coarse": {
+            "mean": 0.33649902870710124,
+            "n": 13899,
+            "total": 4677
+          },
+          "tj_inter_fine": {
+            "mean": 0.48924383049140224,
+            "n": 13899,
+            "total": 6800
+          },
+          "tj_intra_coarse": {
+            "mean": 0.12159148140153968,
+            "n": 13899,
+            "total": 1690
+          },
+          "tj_intra_fine": {
+            "mean": 0.19231599395639973,
+            "n": 13899,
+            "total": 2673
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 13899,
+            "total": 0
+          },
+          "all": {
+            "mean": 0.07662421756960933,
+            "n": 13899,
+            "total": 1065
+          },
+          "axis_sign": {
+            "mean": 0.07662421756960933,
+            "n": 13899,
+            "total": 1065
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 13899,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 0,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 0
+          },
+          "intra": {
+            "1": 0,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 0
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 0,
+            "mean": 0.0,
+            "median": 0,
+            "n": 13899,
+            "p90": 0
+          },
+          "intra": {
+            "maximum": 0,
+            "mean": 0.0,
+            "median": 0,
+            "n": 13899,
+            "p90": 0
+          }
+        }
+      }
+    },
+    "4": {
+      "0": {
+        "batch_counts": {
+          "0": 85,
+          "1": 6451,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 6536,
+          "incomplete": 0,
+          "measured": 6451,
+          "no_batch": 85,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 19732,
+            "denominator": 25062,
+            "share": 0.787327427978613
+          },
+          "invalid": {
+            "count": 14,
+            "denominator": 25062,
+            "share": 0.0005586146357034554
+          },
+          "single": {
+            "count": 4746,
+            "denominator": 25062,
+            "share": 0.1893703615034714
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 25062,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 570,
+            "denominator": 25062,
+            "share": 0.022743595882212114
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 25062,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 23,
+          "mean": 3.884979073011936,
+          "median": 4,
+          "n": 6451,
+          "p90": 6
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 6451,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 6451,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 6451,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 34,
+            "denominator": 6451,
+            "share": 0.005270500697566269
+          },
+          "none": {
+            "count": 1542,
+            "denominator": 6451,
+            "share": 0.2390327081072702
+          },
+          "other": {
+            "count": 0,
+            "denominator": 6451,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 6451,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 6451,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 3880,
+            "denominator": 6451,
+            "share": 0.6014571384281506
+          },
+          "tj_inter_fine": {
+            "count": 4119,
+            "denominator": 6451,
+            "share": 0.6385056580375136
+          },
+          "tj_intra_coarse": {
+            "count": 2423,
+            "denominator": 6451,
+            "share": 0.37560068206479613
+          },
+          "tj_intra_fine": {
+            "count": 2807,
+            "denominator": 6451,
+            "share": 0.4351263370020152
+          }
+        },
+        "merged_inside_sets": {
+          "empty": {
+            "count": 1542,
+            "denominator": 6451,
+            "share": 0.2390327081072702
+          },
+          "key_split": {
+            "count": 22,
+            "denominator": 6451,
+            "share": 0.0034103239807781738
+          },
+          "key_split,tj": {
+            "count": 12,
+            "denominator": 6451,
+            "share": 0.0018601767167880949
+          },
+          "tj": {
+            "count": 4875,
+            "denominator": 6451,
+            "share": 0.7556967911951635
+          }
+        },
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 5.753526585025577,
+            "n": 6451,
+            "total": 37116
+          },
+          "crop_intra": {
+            "mean": 27.22802666253294,
+            "n": 6451,
+            "total": 175648
+          },
+          "entity_border": {
+            "mean": 0.3974577584870563,
+            "n": 6451,
+            "total": 2564
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 6451,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 6451,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.0001550147263990079,
+            "n": 6451,
+            "total": 1
+          },
+          "tj_inter_coarse": {
+            "mean": 6.770423190203069,
+            "n": 6451,
+            "total": 43676
+          },
+          "tj_inter_fine": {
+            "mean": 11.526430010851032,
+            "n": 6451,
+            "total": 74357
+          },
+          "tj_intra_coarse": {
+            "mean": 3.513253759107115,
+            "n": 6451,
+            "total": 22664
+          },
+          "tj_intra_fine": {
+            "mean": 6.303518834289258,
+            "n": 6451,
+            "total": 40664
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 6451,
+            "total": 0
+          },
+          "all": {
+            "mean": 0.5391412184157495,
+            "n": 6451,
+            "total": 3478
+          },
+          "axis_sign": {
+            "mean": 0.5391412184157495,
+            "n": 6451,
+            "total": 3478
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 6451,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 18311,
+            "2": 689,
+            "more": 4,
+            "nonpositive": 0,
+            "pairs": 19004
+          },
+          "intra": {
+            "1": 14844,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 14844
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 25,
+            "mean": 2.945899860486746,
+            "median": 2,
+            "n": 6451,
+            "p90": 8
+          },
+          "intra": {
+            "maximum": 45,
+            "mean": 2.3010385986668735,
+            "median": 0,
+            "n": 6451,
+            "p90": 6
+          }
+        }
+      },
+      "1": {
+        "batch_counts": {
+          "0": 127,
+          "1": 11625,
+          "more": 0
+        },
+        "forwards": {
+          "eligible": 11752,
+          "incomplete": 0,
+          "measured": 11625,
+          "no_batch": 127,
+          "not_classifiable": 0,
+          "not_usable": 0
+        },
+        "group_status": {
+          "accepted": {
+            "count": 14765,
+            "denominator": 16820,
+            "share": 0.8778240190249703
+          },
+          "invalid": {
+            "count": 0,
+            "denominator": 16820,
+            "share": 0.0
+          },
+          "single": {
+            "count": 2008,
+            "denominator": 16820,
+            "share": 0.11938168846611177
+          },
+          "storage_refused": {
+            "count": 0,
+            "denominator": 16820,
+            "share": 0.0
+          },
+          "trimmed": {
+            "count": 47,
+            "denominator": 16820,
+            "share": 0.002794292508917955
+          },
+          "zero_sign": {
+            "count": 0,
+            "denominator": 16820,
+            "share": 0.0
+          }
+        },
+        "groups_per_batch": {
+          "maximum": 16,
+          "mean": 1.4468817204301074,
+          "median": 1,
+          "n": 11625,
+          "p90": 3
+        },
+        "inside_forwards": {
+          "crop_inter": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "crop_intra": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "entity_border": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "key_split": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "none": {
+            "count": 11625,
+            "denominator": 11625,
+            "share": 1.0
+          },
+          "other": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "same_segment": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "support_border": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "tj_inter_coarse": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "tj_inter_fine": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "tj_intra_coarse": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          },
+          "tj_intra_fine": {
+            "count": 0,
+            "denominator": 11625,
+            "share": 0.0
+          }
+        },
+        "merged_inside_sets": null,
+        "open_edges_per_batch": {
+          "crop_inter": {
+            "mean": 9.127311827956989,
+            "n": 11625,
+            "total": 106105
+          },
+          "crop_intra": {
+            "mean": 10.99810752688172,
+            "n": 11625,
+            "total": 127853
+          },
+          "entity_border": {
+            "mean": 0.06787096774193549,
+            "n": 11625,
+            "total": 789
+          },
+          "other": {
+            "mean": 0.0,
+            "n": 11625,
+            "total": 0
+          },
+          "same_segment": {
+            "mean": 0.0,
+            "n": 11625,
+            "total": 0
+          },
+          "support_border": {
+            "mean": 0.025204301075268817,
+            "n": 11625,
+            "total": 293
+          },
+          "tj_inter_coarse": {
+            "mean": 0.9347096774193548,
+            "n": 11625,
+            "total": 10866
+          },
+          "tj_inter_fine": {
+            "mean": 1.3101075268817204,
+            "n": 11625,
+            "total": 15230
+          },
+          "tj_intra_coarse": {
+            "mean": 0.11888172043010753,
+            "n": 11625,
+            "total": 1382
+          },
+          "tj_intra_fine": {
+            "mean": 0.17703225806451614,
+            "n": 11625,
+            "total": 2058
+          }
+        },
+        "split_keys_per_batch": {
+          "above_2_chords": {
+            "mean": 0.0,
+            "n": 11625,
+            "total": 0
+          },
+          "all": {
+            "mean": 0.027526881720430108,
+            "n": 11625,
+            "total": 320
+          },
+          "axis_sign": {
+            "mean": 0.027526881720430108,
+            "n": 11625,
+            "total": 320
+          },
+          "same_projection": {
+            "mean": 0.0,
+            "n": 11625,
+            "total": 0
+          }
+        },
+        "tj_depth_difference": {
+          "inter": {
+            "1": 0,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 0
+          },
+          "intra": {
+            "1": 0,
+            "2": 0,
+            "more": 0,
+            "nonpositive": 0,
+            "pairs": 0
+          }
+        },
+        "tj_pairs_per_forward": {
+          "inter": {
+            "maximum": 0,
+            "mean": 0.0,
+            "median": 0,
+            "n": 11625,
+            "p90": 0
+          },
+          "intra": {
+            "maximum": 0,
+            "mean": 0.0,
+            "median": 0,
+            "n": 11625,
+            "p90": 0
+          }
+        }
+      }
+    }
+  },
+  "leaf_tables": {
+    "cache_snapshot": {
+      "0": {
+        "facets": 384,
+        "positive": 384,
+        "zero": 0
+      },
+      "1": {
+        "facets": 768,
+        "positive": 768,
+        "zero": 0
+      },
+      "2": {
+        "facets": 1530,
+        "positive": 1530,
+        "zero": 0
+      },
+      "3": {
+        "facets": 22172,
+        "positive": 22172,
+        "zero": 0
+      },
+      "4": {
+        "facets": 5536,
+        "positive": 5536,
+        "zero": 0
+      },
+      "5": {
+        "facets": 8410,
+        "positive": 8410,
+        "zero": 0
+      },
+      "6": {
+        "facets": 10154,
+        "positive": 7817,
+        "zero": 2337
+      }
+    },
+    "pass_authority": "0x64173b02da30",
+    "publication": {
+      "complete": 46617,
+      "complete_inside_step_c": 46617,
+      "incomplete": 0,
+      "not_usable": 0
+    },
+    "published_built_inside_step_c": 46617,
+    "published_total": 46617,
+    "resolutions": {
+      "3f1a36e2eb1c432d": {
+        "edge_midpoint_bins": {
+          "0": {
+            "different_intervals": {
+              "count": 236,
+              "denominator": 672,
+              "share": 0.35119047619047616
+            },
+            "not_usable": 0,
+            "with_both_tables_published": 672
+          },
+          "1": {
+            "different_intervals": {
+              "count": 828,
+              "denominator": 960,
+              "share": 0.8625
+            },
+            "not_usable": 0,
+            "with_both_tables_published": 960
+          },
+          "2": {
+            "different_intervals": {
+              "count": 910,
+              "denominator": 2468,
+              "share": 0.3687196110210697
+            },
+            "not_usable": 0,
+            "with_both_tables_published": 2468
+          },
+          "3": {
+            "different_intervals": {
+              "count": 366,
+              "denominator": 32898,
+              "share": 0.011125296370600037
+            },
+            "not_usable": 0,
+            "with_both_tables_published": 32898
+          },
+          "4": {
+            "different_intervals": {
+              "count": 1620,
+              "denominator": 8221,
+              "share": 0.1970563191825812
+            },
+            "not_usable": 0,
+            "with_both_tables_published": 8221
+          },
+          "5": {
+            "different_intervals": {
+              "count": 2370,
+              "denominator": 12476,
+              "share": 0.1899647322859891
+            },
+            "not_usable": 0,
+            "with_both_tables_published": 12476
+          },
+          "6": {
+            "different_intervals": {
+              "count": 132,
+              "denominator": 11491,
+              "share": 0.011487250892002436
+            },
+            "not_usable": 0,
+            "with_both_tables_published": 11491
+          }
+        },
+        "facet_centroid_bins": {
+          "0": {
+            "built_inside_step_c": 384,
+            "largest_depth_histogram": {
+              "4": 380,
+              "5": 4
+            },
+            "mixed_depth": {
+              "count": 166,
+              "denominator": 384,
+              "share": 0.4322916666666667
+            },
+            "not_usable_for_depth": 0,
+            "published": 384
+          },
+          "1": {
+            "built_inside_step_c": 768,
+            "largest_depth_histogram": {
+              "4": 764,
+              "5": 4
+            },
+            "mixed_depth": {
+              "count": 686,
+              "denominator": 768,
+              "share": 0.8932291666666666
+            },
+            "not_usable_for_depth": 0,
+            "published": 768
+          },
+          "2": {
+            "built_inside_step_c": 1530,
+            "largest_depth_histogram": {
+              "2": 740,
+              "3": 398,
+              "4": 392
+            },
+            "mixed_depth": {
+              "count": 784,
+              "denominator": 1530,
+              "share": 0.5124183006535947
+            },
+            "not_usable_for_depth": 0,
+            "published": 1530
+          },
+          "3": {
+            "built_inside_step_c": 22172,
+            "largest_depth_histogram": {
+              "0": 21864,
+              "1": 222,
+              "2": 78,
+              "3": 8
+            },
+            "mixed_depth": {
+              "count": 86,
+              "denominator": 22172,
+              "share": 0.003878766011185279
+            },
+            "not_usable_for_depth": 0,
+            "published": 22172
+          },
+          "4": {
+            "built_inside_step_c": 5536,
+            "largest_depth_histogram": {
+              "0": 3038,
+              "1": 426,
+              "2": 214,
+              "3": 1094,
+              "4": 764
+            },
+            "mixed_depth": {
+              "count": 1022,
+              "denominator": 5536,
+              "share": 0.18460982658959538
+            },
+            "not_usable_for_depth": 0,
+            "published": 5536
+          },
+          "5": {
+            "built_inside_step_c": 8410,
+            "largest_depth_histogram": {
+              "0": 544,
+              "1": 2888,
+              "2": 4874,
+              "3": 84,
+              "4": 20
+            },
+            "mixed_depth": {
+              "count": 1028,
+              "denominator": 8410,
+              "share": 0.12223543400713437
+            },
+            "not_usable_for_depth": 0,
+            "published": 8410
+          },
+          "6": {
+            "built_inside_step_c": 7817,
+            "largest_depth_histogram": {
+              "0": 7749,
+              "1": 42,
+              "2": 16,
+              "3": 2,
+              "4": 8
+            },
+            "mixed_depth": {
+              "count": 10,
+              "denominator": 7817,
+              "share": 0.001279263144428809
+            },
+            "not_usable_for_depth": 0,
+            "published": 7817
+          }
+        },
+        "facets_without_export_row": 0
+      }
+    }
+  },
+  "malformed_rows": {},
+  "marked_outer_authorities": {
+    "0x64173b02da30": 70482
+  },
+  "measured_outer_authorities": {
+    "0x64173b02da30": 70482
+  },
+  "stream": {
+    "bytes": 136934750,
+    "file": "provenance.log.gz",
+    "sha256": "d0615b887a20a6df35fad995af0c7e3e9cbd7571f2524ed3ebb933e30ab48f4b"
+  }
+}

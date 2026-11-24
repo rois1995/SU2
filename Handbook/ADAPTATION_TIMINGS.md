@@ -2,6 +2,12 @@
 
 ## Fast path stage 2
 
+### FP2-M3 footprint trace, build668
+
+N1 trace-off and trace-on took 1,126.088 and 1,206.416 s. FP2-M2's baseline and anatomy took 1,180.061 and 1,253.027 s. These trial times include different observation costs. Both M3 projections matched build664 exactly, and the M2-format counts of forwards, prepared nodes, root-enough forwards and result work matched M2 in every bin. The provenance stream was 136,934,750 compressed bytes. Offline analysis took 113.726 s.
+
+Of 70,482 uncached step-C forwards, 68,853 had a usable witness batch and 1,629 had no batch. In the 20 mm-and-above cohort with a usable batch, 4,887 of the 6,451 forwards needing more than the root had an inside T-junction. The analyzer found 14,844 intra-facet and 19,004 inter-facet pairs in that cohort. The 11,625 root-enough forwards in the same bin had no classified inside edges. The classes describe the measured witnesses and establish an association. [FP2-M3 report and tables](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/reports/FP2_M3_668.md)
+
 ### FP2-M2 lab, build667
 
 The serial baseline took 1,180.061 s and the instrumented ANATOMY run took 1,253.027 s. The sealed build664 run took 1,086.701 s. Both exact comparisons passed. On trace-off non-direct faces with longest edge at least 20 mm, physical traversal used 86.8% of upper-bound time and scope building used 11.0%. On those faces ANATOMY counted a median of 1 prepared node, a 90th percentile of 1,049, and a maximum of 20,297. The root was enough for 64.3% of these forwards. The traced elapsed time includes collection overhead.

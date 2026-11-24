@@ -1,0 +1,24 @@
+{
+  "unit": "fp2-m2-668-trace-on-1795555396644632018",
+  "command": [
+    "systemd-run",
+    "--user",
+    "--quiet",
+    "--collect",
+    "--unit=fp2-m2-668-trace-on-1795555396644632018",
+    "--property=Type=exec",
+    "--property=WorkingDirectory=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+    "--property=StandardOutput=append:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/supervisors/build668/TRACE-ON/1795555396644632018/controller.log",
+    "--property=StandardError=inherit",
+    "/usr/bin/python3",
+    "-B",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/run_m3.py",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/build668",
+    "--only",
+    "TRACE-ON",
+    "--supervisor",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/supervisors/build668/TRACE-ON/1795555396644632018"
+  ],
+  "mode": "TRACE-ON",
+  "build": 668
+}

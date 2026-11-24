@@ -1,0 +1,26 @@
+{
+  "unit": "fp2-m3-668-offline-analysis",
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/analysis/build668/analysis.time",
+    "/usr/bin/python3",
+    "-B",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/analyze_provenance.py",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/trials/build668/TRACE-ON/attempt1/cases/build668/N1/provenance.log.gz",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/trials/build668/TRACE-OFF/attempt1/cases/build668/N1/facet_vertices.csv",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M2/reports/model_edges.csv",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/analysis/build668/analysis.json",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/analysis/build668/examples.json"
+  ],
+  "helper_sha256": "3cb7741f649667f78458258b30cdb1f7402a290ee5607e3d951ee57a079e5ec0",
+  "inputs": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/trials/build668/TRACE-ON/attempt1/cases/build668/N1/provenance.log.gz": "d0615b887a20a6df35fad995af0c7e3e9cbd7571f2524ed3ebb933e30ab48f4b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/trials/build668/TRACE-OFF/attempt1/cases/build668/N1/facet_vertices.csv": "8481effc4dec19f75e8bd1ad486eb70348556f74ca5742b7b52e08d4f53c878c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M2/reports/model_edges.csv": "71f928b5b76285932321766e5437bde1ba23b64ac64d513f60554acd7d0bf606"
+  }
+}
