@@ -1,0 +1,24 @@
+{
+  "unit": "fp2-m2-667-1e-3-1795552223512627689",
+  "command": [
+    "systemd-run",
+    "--user",
+    "--quiet",
+    "--collect",
+    "--unit=fp2-m2-667-1e-3-1795552223512627689",
+    "--property=Type=exec",
+    "--property=WorkingDirectory=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+    "--property=StandardOutput=append:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M2/supervisors/build667/1E-3/1795552223512627689/controller.log",
+    "--property=StandardError=inherit",
+    "/usr/bin/python3",
+    "-B",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M2/run_m2.py",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M2/build667",
+    "--only",
+    "1E-3",
+    "--supervisor",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M2/supervisors/build667/1E-3/1795552223512627689"
+  ],
+  "mode": "1E-3",
+  "build": 667
+}

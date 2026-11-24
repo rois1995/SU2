@@ -2,6 +2,19 @@
 
 ## Fast path stage 2
 
+### FP2-M2 lab, build667
+
+The serial baseline took 1,180.061 s and the instrumented ANATOMY run took 1,253.027 s. The sealed build664 run took 1,086.701 s. Both exact comparisons passed. On trace-off non-direct faces with longest edge at least 20 mm, physical traversal used 86.8% of upper-bound time and scope building used 11.0%. On those faces ANATOMY counted a median of 1 prepared node, a 90th percentile of 1,049, and a maximum of 20,297. The root was enough for 64.3% of these forwards. The traced elapsed time includes collection overhead.
+
+| Lab tolerance | Trial s | Forward calls | Mean forward ms | Cells out | Hand-over faces | Inherited evaluation |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| 1E-4 | 1,180.061 | 72,564 | 11.418 | 373,889 | 26,920 | Qualified |
+| 2E-4 | 809.411 | 62,373 | 8.177 | 364,922 | 22,208 | Altitude finding |
+| 5E-4 | 485.966 | 50,232 | 4.399 | 370,213 | 25,146 | Altitude finding |
+| 1E-3 | 369.420 | 41,964 | 2.760 | 375,293 | 28,892 | Altitude finding |
+
+The larger-tolerance runs measured altitude 7.7325745101917715E-5 on rank 0, pass 1, below their respective minima 1.4E-4, 3.5E-4 and 7E-4. Each rebuilt proof qualified and accepted at its trial tolerance, with zero faces classified above it. The inherited step clocks include the observer. The frozen sensor supplies the same input tensors, and the measured tolerances move several geometry thresholds together. [FP2-M2 tables and trace sample](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M2/reports/FP2_M2_667.md)
+
 ### FP2-M1 lab, build666
 
 Build664 S took 951.321 / 689.037 native seconds versus 550.220 / 330.735 for build660. Across event-1 ranks the geometry-bound exclusive time rose from 80–188 to 197–450 s while calls fell from 166–286k to 148–277k. The mean call cost rose from 0.4–1.0 ms to 0.9–3.0 ms. Event-2 geometry-bound time rose from 35–130 to 72–392 s. In event 1, communication plus join wait rose from 211–308 to 369–613 s. All other exclusive rows together fell from 140–204 to 120–192 s. The hand-over shrank to 26,480 / 21,308 physical faces from 57,640 / 51,808. Build664 N1 averaged 1.81 ms below 2 mm and 22.96 ms at 20 mm and above, with 772.852 of 775.167 s on the non-direct branch.

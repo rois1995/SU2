@@ -1,0 +1,338 @@
+Filters: [.][NativeFP2C3LabSerial]
+
+Parsing config file for zone 0
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible Euler equations.
+Mach number: 0.8395.
+Angle of attack (AoA): 3.06 deg, and angle of sideslip (AoS): 0 deg.
+Reading and writing binary SU2 native restart files.
+Read flow solution from: baseline_euler_seed.
+Dimensional simulation.
+The reference area is 0.7532 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 0.64607 m.
+Reference origin for moment evaluation is (0.25, 0, 0).
+Surface(s) where the force coefficients are evaluated: WING3D.
+
+Surface(s) plotted in the output file: WING3D.
+Input mesh file name: m6.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+Second order integration in space, with slope limiter.
+Venkatakrishnan slope-limiting method, with constant: 1.
+The reference element size is: 1. 
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Local time stepping (steady state simulation).
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using LU-SGS preconditioning.
+Convergence criteria of the linear solver: 0.0001.
+Max number of linear iterations: 5.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:        1
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 1.
+Begin convergence monitoring at iteration 10.
+Residual minimum value: 1e-10.
+Cauchy series min. value: 1e-06.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
++------------------------------------+
+Writing the convergence history file every 1 inner iterations.
+Writing the screen convergence history every 10 inner iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: flow.
+Restart file name: restart_flow.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                         Euler wall|                             WING3D|
++-----------------------------------------------------------------------+
+|                          Far-field|                           FARFIELD|
++-----------------------------------------------------------------------+
+|                     Symmetry plane|                           SYMMETRY|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: INNER_ITER, RMS_DENSITY, LIFT, DRAG
+History output group(s): ITER, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE, METRIC, ADAP_SENSOR
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Three dimensional problem.
+61330 grid points.
+303359 volume elements.
+3 surface markers.
+2060 boundary elements in index 0 (Marker = FARFIELD).
+8094 boundary elements in index 1 (Marker = SYMMETRY).
+38800 boundary elements in index 2 (Marker = WING3D).
+303359 tetrahedra.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 2.08846e+06.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 72103.8. Mean K: 541.635. Standard deviation K: 3508.42.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        6.83474|        84.2921|
+|     CV Face Area Aspect Ratio|        1.05639|        157.983|
+|           CV Sub-Volume Ratio|        1.00915|        1864.59|
+|                     CV Volume|    4.23004e-13|        1347.01|
++--------------------------------------------------------------+
+Finding max control volume width.
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=1 time_iter=0 total=3.6480829249999998 other=4.3929999993252977e-06 cpu=3.6479239999999997 cpu_other=2.9999999999752447e-06 process_peak_rss=302579712 partition=9.121999999972541e-06 partition_cpu=7.9999999999999996e-06 migration=1.0669964999999999 migration_cpu=1.066959 preprocess=2.5810729100000005 preprocess_cpu=2.5809539999999997
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 6.653e-06 1.067 2.58118
+Semi-span length = 1.21848 m.
+Wetted area = 1.55706 m^2.
+Area projection in the x-plane = 0.0743682 m^2, y-plane = 0.0181104 m^2, z-plane = 0.758905 m^2.
+Max. coordinate in the x-direction = 1.14408 m, y-direction = 1.21848 m, z-direction = 0.0394304 m.
+Min. coordinate in the x-direction = -6.1346e-14 m, y-direction = -1.06253e-13 m, z-direction = -0.0394304 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Inviscid flow: Computing density based on free-stream
+temperature and pressure using the ideal gas law.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|                        -|                         -|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+|            Velocity-X|       285.272|             1|       m/s|       285.272|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|        0.8395|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Euler). MG level: 0.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+NATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296
+
+--------------------------- Finalizing Solver ---------------------------
+Deleted CNumerics container.
+Deleted CIntegration container.
+Deleted CSolver container.
+Deleted CIteration container.
+Deleted CInterface container.
+Deleted CGeometry container.
+Deleted CFreeFormDefBox class.
+Deleted CSurfaceMovement class.
+Deleted CVolumetricMovement class.
+Deleted CConfig container.
+Deleted nInst container.
+Deleted COutput class.
+-------------------------------------------------------------------------
+
+
+-------------------------- Performance Summary --------------------------
+Simulation totals:
+   Wall-clock time (hrs):  0.00315558 |            Core-hrs:  0.00315558
+                   Cores:           1 |          DOFs/point:           5
+             Points/core:       61330 |   Ghost points/core:           0
+ Ghost/Owned Point Ratio:           0 | 
+
+Preprocessing phase:
+       Preproc. Time (s):     4.34482 |   Preproc. Time (%):     38.2463
+
+Compute phase:
+        Compute Time (s):     7.01528 |    Compute Time (%):     61.7537
+         Iteration count:           0 | 
+
+Output phase:
+         Output Time (s):           0 |     Output Time (%):           0
+            Output count:           0 | 
+-------------------------------------------------------------------------
+
+
+------------------------- Exit Success (SU2_CFD) ------------------------
+
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=1 candidates=1675 live_cells=305052 bad_listed=0 evaluated_collapse=0 evaluated_split=685 evaluated_quality=0 deferred=990 skipped_memory=0 blocked=0 collapses=0 splits=685 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.55095722400000113 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=2 candidates=1304 live_cells=306474 bad_listed=0 evaluated_collapse=0 evaluated_split=550 evaluated_quality=0 deferred=754 skipped_memory=0 blocked=0 collapses=0 splits=550 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.3758719360000029 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=3 candidates=917 live_cells=307474 bad_listed=0 evaluated_collapse=0 evaluated_split=397 evaluated_quality=0 deferred=520 skipped_memory=0 blocked=0 collapses=0 splits=397 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.24347641900000383 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=4 candidates=608 live_cells=308188 bad_listed=0 evaluated_collapse=0 evaluated_split=293 evaluated_quality=0 deferred=315 skipped_memory=0 blocked=0 collapses=0 splits=293 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.16419050799999724 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=5 candidates=361 live_cells=308637 bad_listed=0 evaluated_collapse=0 evaluated_split=188 evaluated_quality=0 deferred=173 skipped_memory=0 blocked=0 collapses=0 splits=188 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.099209084000001724 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=6 candidates=191 live_cells=308887 bad_listed=0 evaluated_collapse=0 evaluated_split=105 evaluated_quality=0 deferred=86 skipped_memory=0 blocked=0 collapses=0 splits=105 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.055525107999997658 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=7 candidates=89 live_cells=309044 bad_listed=0 evaluated_collapse=0 evaluated_split=63 evaluated_quality=0 deferred=26 skipped_memory=0 blocked=0 collapses=0 splits=63 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.031545485000002316 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=8 candidates=26 live_cells=309098 bad_listed=0 evaluated_collapse=0 evaluated_split=22 evaluated_quality=0 deferred=4 skipped_memory=0 blocked=0 collapses=0 splits=22 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.012131095999997399 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=9 candidates=4 live_cells=309106 bad_listed=0 evaluated_collapse=0 evaluated_split=4 evaluated_quality=0 deferred=0 skipped_memory=0 blocked=0 collapses=0 splits=4 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.0032856810000012615 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_length round=0 sweep=10 candidates=0 live_cells=309106 bad_listed=0 evaluated_collapse=0 evaluated_split=0 evaluated_quality=0 deferred=0 skipped_memory=0 blocked=0 collapses=0 splits=0 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.0003035049999979833 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_distance round=0 sweep=1 candidates=6 live_cells=309118 bad_listed=0 evaluated_collapse=0 evaluated_split=6 evaluated_quality=0 deferred=0 skipped_memory=0 blocked=0 collapses=0 splits=6 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.96993441600000097 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B sweep rank=0 pass=1 kind=surface_distance round=0 sweep=2 candidates=0 live_cells=309118 bad_listed=0 evaluated_collapse=0 evaluated_split=0 evaluated_quality=0 deferred=0 skipped_memory=0 blocked=0 collapses=0 splits=0 edge_removals=0 face_swaps=0 moves=0 refused_valid=0 refused_size=0 refused_topology=0 refused_memory=0 refused_numeric=0 refused_shape=0 refused_exact=0 seconds=0.11262298599999809 border_edges=0 refused_ineligible=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_entity=0 refused_near=0
+FP2_B bad_before_v rank=0 pass=1 bad=2678 bad_a=0 bad_b=2671 bad_c=0 bad_d=7
+FP2_D altitude rank=0 pass=1 faces=28892 shortest_edge=8.5442286185530812e-05 angle_deg=1.324679580381013 altitude=7.7325745101917715e-05 limit=0.00069999999999999999
+NATIVE3D_LOCAL_SURFACE rank=0 stage=0 pass=1 applicable=1 faces_in=48954 faces_out=28892 points_in=24479 points_out=14448 splits_length=2307 splits_distance=6 splits_feature=35 sweeps_length=9 sweeps_distance=1 left_long=0 left_border=0 left_distance=0 left_all_feature=0 left_refused=0 left_limit=0 left_short=0 left_neighbor_locked=0 waits_neighbor=0 path_splits=0 path_max=0 left_long_neighbor=0 waits_length=653 star_max=112 star_gt100=1 star_gt1000=0 refused_walk=0 refused_protected=0 refused_feature=0 refused_trace=0 refused_duplicate=0 refused_outward=0 refused_size=0 refused_valid=0 refused_topology=0 refused_memory=0 refused_entity=0 refused_near=0 walk_tol8=0 walk_far=0 walk_no_start=0 walk_exception=0 chord_unknown=0 samples=214368 samples_unconverged=7639 outward_max=2.0645228827524136e-14 seconds_length=1.5366832839999987 seconds_distance=1.1336451450000027 seconds_samples=0.77199181000245432 seconds_place=0.076589241999805324 seconds_entity=1.2756203780000774 v_rounds=4 v_limit=0 v_collapses=24 v_splits=102 v_changes=c11s93q16,c13s8q7,c0s1q2,c0s0q1 bad_before_v=2678 seconds_v=3.6377052109999681 collapses_surface=12344 c_sweeps=18 c_candidates=201097 c_deferred=105848 c_refused_protected=3125 c_refused_border=0 c_refused_ineligible=0 c_refused_border_keeper=0 c_refused_feature_chord=712 c_refused_link=2308 c_refused_near=48062 c_refused_outward=0 c_refused_reverse=5365 c_refused_topology=0 c_refused_size=5551 c_refused_shape=6171 c_refused_validity=16102 c_refused_distance=1585 c_refused_entity=0 c_refused_bound=0 c_reverse_max=0.0006901665896329516 seconds_c=171.272453337 seconds_c_samples=12.902620495999585 seconds_c_entity=8.7522276499993055 seconds_c_bound=116.47629906400076 c_bound_queries=41964 faces_before_c=53580 points_before_c=26792 d_error_edges=6 d_marks_error=6 d_marks_longest=0 d_centroid_only=0 d_nonfinite=0 d_short_metric=0 d_refused_metric=0 c_outward_tried=11707 collapses_outward=10412 c_refused_contact_remote=0 c_refused_contact=0 c_contact_directions=13929 c_contact_candidates=7051319 c_contact_calls=7051319 c_contact_rebuilds=5 c_contact_fresh_max=19321 c_refused_metric=0 short_after_l=0 short_after_d=0 short_after_c=0 seconds_c_contact=19.905452121999588 seconds_c_contact_build=2.1076738560000052 c_changes="3391,2637,1901,1441,1058,781,528,333,170,67,25,5,1,1,2,2,1,0"
+FP2_D REFUSED_OBSERVER rank=0 pass=1 status=ok seconds_observer=0.045343115999999975 scratch_bytes=5602154 total_refused=0 captured=0
+FP2_D REFUSED_REGION rank=0 pass=1 bin=0 captured=0 total_refused=0
+FP2_D REFUSED_REGION rank=0 pass=1 bin=1 captured=0 total_refused=0
+FP2_D REFUSED_REGION rank=0 pass=1 bin=2 captured=0 total_refused=0
+FP2_D REFUSED_REGION rank=0 pass=1 bin=3 captured=0 total_refused=0
+FP2_D REFUSED_REGION rank=0 pass=1 bin=4 captured=0 total_refused=0
+FP2_D REFUSED_REGION rank=0 pass=1 bin=outside captured=0 total_refused=0
+FP2_C3 BOUND_OBSERVER rank=0 pass=1 status=ok seconds_observer=0.57136265900002026 scratch_bytes=7774875 calls=41964 seconds=115.93490889600018 work_units=unavailable
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=time bin=0 calls=3513 seconds=2.5161474660000018
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=time bin=1 calls=36702 seconds=84.946807753000144
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=time bin=2 calls=1749 seconds=28.471953677000034
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=time bin=3 calls=0 seconds=0
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=length bin=0 calls=123 seconds=0.23281539000000007
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=length bin=1 calls=2267 seconds=4.5328843350000003
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=length bin=2 calls=8149 seconds=18.821479272999913
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=length bin=3 calls=11042 seconds=29.698029838999958
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=length bin=4 calls=20383 seconds=62.649700058999841
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=fate bin=1 calls=8155 seconds=30.589637442000058
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=fate bin=2 calls=33809 seconds=85.34527145400024
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=fate bin=3 calls=0 seconds=0
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=direct bin=0 calls=41474 seconds=115.89048100300062 classification_work=59014806
+FP2_C3 BOUND_BIN rank=0 pass=1 kind=direct bin=1 calls=490 seconds=0.044427893000000017 classification_work=0
+FP2_C3 BOUND_ENTITY rank=0 pass=1 order=1 body=0 sheet=10154 marker=2 calls=36018 seconds=108.94188021200122 mean_longest_edge=0.023041323431141528
+FP2_C3 BOUND_ENTITY rank=0 pass=1 order=2 body=0 sheet=2060 marker=1 calls=5902 seconds=6.9892294490000086 mean_longest_edge=0.90367037193159716
+FP2_C3 BOUND_ENTITY rank=0 pass=1 order=3 body=0 sheet=0 marker=0 calls=44 seconds=0.0037992349999999998 mean_longest_edge=5.2179751627887958
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=1 body=0 sheet=10154 marker=2 facet=10413 canonical=10413 vertices=7816,7809,7808 xyz0=0.51715856208000333,0.87338832070679662,0.01317500195408805 xyz1=0.52979905663277993,0.89554985009564603,0.01301811641362337 xyz2=0.53580821720137572,0.89206514572968798,0.015038076587768821 seconds=0.093195093000000007 answer=1 longest_edge=0.026459487451054257 direct=0 classification_work=5858
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=2 body=0 sheet=10154 marker=2 facet=36560 canonical=36560 vertices=18713,18714,18730 xyz0=0.20453323560989131,0.28580062288236691,-0.021958732833808212 xyz1=0.18687023150001941,0.27561020393081642,-0.020069652556627258 xyz2=0.18716441531065289,0.2548502101932712,-0.022236281493134759 seconds=0.073147195999999998 answer=1 longest_edge=0.035491984975073838 direct=0 classification_work=2740
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=3 body=0 sheet=10154 marker=2 facet=48769 canonical=48769 vertices=23697,24158,24165 xyz0=0.79062855853929881,1.2162242663468359,-2.218461615854135e-16 xyz1=0.78053388311158611,1.214660769845197,-0.0061434780978589353 xyz2=0.79516083621911249,1.215147861601189,-0.0072750336022028867 seconds=0.067490978000000007 answer=1 longest_edge=0.014678740867252271 direct=0 classification_work=7985
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=4 body=0 sheet=10154 marker=2 facet=29988 canonical=29988 vertices=18559,18553,18570 xyz0=0.34260290922750658,0.53183424778610155,-0.019752417521800451 xyz1=0.33454946737819591,0.53650924491620988,-0.017940167376196619 xyz2=0.31906149231050313,0.50914725270977335,-0.0181634989973278 seconds=0.064916267999999999 answer=1 longest_edge=0.032732594124678376 direct=0 classification_work=2561
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=5 body=0 sheet=10154 marker=2 facet=48144 canonical=48144 vertices=24153,24165,23695 xyz0=0.75312300167325674,1.2121769412073971,-0.0068688534686212272 xyz1=0.79516083621911249,1.215147861601189,-0.0072750336022028867 xyz2=0.76990175792678939,1.214905352615147,-2.218497008688921e-16 seconds=0.061765683000000002 answer=1 longest_edge=0.042144642406739055 direct=0 classification_work=29504
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=6 body=0 sheet=10154 marker=2 facet=41251 canonical=41251 vertices=14997,24170,15793 xyz0=0.86299973732815838,1.196299999999894,-0.02218018469301012 xyz1=0.82439155807138464,1.2034891187444221,-0.020376774803698979 xyz2=0.83330563227687326,1.1743407319039829,-0.02238666022453897 seconds=0.058700300000000004 answer=1 longest_edge=0.039313193982109418 direct=0 classification_work=33293
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=7 body=0 sheet=10154 marker=2 facet=10782 canonical=10782 vertices=4210,8156,4209 xyz0=0.2181808439113247,0.3779157012962216,1.171434621589939e-16 xyz1=0.21126989587529679,0.36220199945241471,0.0067732425532366254 xyz2=0.20964912204060121,0.36313772355886698,1.2417520946379601e-16 seconds=0.056924128000000004 answer=1 longest_edge=0.018454225615769183 direct=0 classification_work=2580
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=8 body=0 sheet=10154 marker=2 facet=17541 canonical=17541 vertices=8286,8312,8287 xyz0=0.15299592769970999,0.16952109705806079,0.024952283781685531 xyz1=0.13487269546552749,0.13692471245072571,0.02526871645182183 xyz2=0.1335560141659887,0.15932555711701671,0.023092647779836131 seconds=0.056857365000000007 answer=1 longest_edge=0.03729713079739716 direct=0 classification_work=2177
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=9 body=0 sheet=10154 marker=2 facet=29877 canonical=29877 vertices=18450,18451,18460 xyz0=0.44564129623205712,0.69601754747822808,-0.01983054655130129 xyz1=0.43043584074354613,0.68834839871726017,-0.018348869313372759 xyz2=0.4234022032977775,0.675814787092479,-0.018461265137790291 seconds=0.054692231000000001 answer=1 longest_edge=0.030076630684518248 direct=0 classification_work=2045
+FP2_C3 BOUND_SLOW rank=0 pass=1 order=10 body=0 sheet=10154 marker=2 facet=10333 canonical=10333 vertices=7738,7724,7761 xyz0=0.57384749936419976,0.9837792363368596,0.0093143782789036639 xyz1=0.59032071170360456,1.0016574445927431,0.012266960744204291 xyz2=0.56060946490267038,0.94956718109298699,0.01263571764608348 seconds=0.051781013000000001 answer=1 longest_edge=0.059969073025958365 direct=0 classification_work=29146
+FP2_M2 STAGE rank=0 pass=1 bin=0 direct_eligible=0 calls=123 seconds_forward=0.23246499400000004 direct_calls=0 upper_calls=123 classification_calls=123 classification_work=63738 facet_hits=22379 facet_misses=949 scope_hits=0 scope_misses=123 scope_builds=123 scope_build_work=6297 support_calls=123 support_facets=23328 facet_build_work=2122 piece_selection_work=28387 traversal_work=3481 selected_pieces=4917 support_pieces=25032 direct_seconds=0 upper_seconds=0.21174996899998177 scope_build_seconds=0.14694948199999658 support_seconds=0.01845125899999811 facet_build_seconds=0.036338956000003364 piece_selection_seconds=0.0076589809999996206 traversal_seconds=0.0072635919999939347
+FP2_M2 STAGE rank=0 pass=1 bin=0 direct_eligible=1 calls=0 seconds_forward=0 direct_calls=0 upper_calls=0 classification_calls=0 classification_work=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_builds=0 scope_build_work=0 support_calls=0 support_facets=0 facet_build_work=0 piece_selection_work=0 traversal_work=0 selected_pieces=0 support_pieces=0 direct_seconds=0 upper_seconds=0 scope_build_seconds=0 support_seconds=0 facet_build_seconds=0 piece_selection_seconds=0 traversal_seconds=0
+FP2_M2 STAGE rank=0 pass=1 bin=1 direct_eligible=0 calls=2267 seconds_forward=4.5263897399999955 direct_calls=0 upper_calls=2267 classification_calls=2267 classification_work=1791558 facet_hits=535146 facet_misses=5023 scope_hits=139 scope_misses=2128 scope_builds=2128 scope_build_work=111141 support_calls=2267 support_facets=540169 facet_build_work=12278 piece_selection_work=635895 traversal_work=489808 selected_pieces=87537 support_pieces=656674 direct_seconds=0 upper_seconds=4.1483447960001882 scope_build_seconds=2.5452149759999116 support_seconds=0.34303062100001736 facet_build_seconds=0.23046285199999694 piece_selection_seconds=0.15419738400000371 traversal_seconds=0.9448444540000196
+FP2_M2 STAGE rank=0 pass=1 bin=1 direct_eligible=1 calls=0 seconds_forward=0 direct_calls=0 upper_calls=0 classification_calls=0 classification_work=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_builds=0 scope_build_work=0 support_calls=0 support_facets=0 facet_build_work=0 piece_selection_work=0 traversal_work=0 selected_pieces=0 support_pieces=0 direct_seconds=0 upper_seconds=0 scope_build_seconds=0 support_seconds=0 facet_build_seconds=0 piece_selection_seconds=0 traversal_seconds=0
+FP2_M2 STAGE rank=0 pass=1 bin=2 direct_eligible=0 calls=8149 seconds_forward=18.797477899999954 direct_calls=0 upper_calls=8149 classification_calls=8149 classification_work=8554731 facet_hits=2698378 facet_misses=13303 scope_hits=264 scope_misses=7885 scope_builds=7885 scope_build_work=407611 support_calls=8149 support_facets=2711681 facet_build_work=35326 piece_selection_work=3081868 traversal_work=2310096 selected_pieces=319893 support_pieces=3273716 direct_seconds=0 upper_seconds=16.907774841999711 scope_build_seconds=9.7606582800001433 support_seconds=1.7594881440000005 facet_build_seconds=0.72508701599999137 piece_selection_seconds=0.71525181799999826 traversal_seconds=4.2931547270002426
+FP2_M2 STAGE rank=0 pass=1 bin=2 direct_eligible=1 calls=0 seconds_forward=0 direct_calls=0 upper_calls=0 classification_calls=0 classification_work=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_builds=0 scope_build_work=0 support_calls=0 support_facets=0 facet_build_work=0 piece_selection_work=0 traversal_work=0 selected_pieces=0 support_pieces=0 direct_seconds=0 upper_seconds=0 scope_build_seconds=0 support_seconds=0 facet_build_seconds=0 piece_selection_seconds=0 traversal_seconds=0
+FP2_M2 STAGE rank=0 pass=1 bin=3 direct_eligible=0 calls=11042 seconds_forward=29.665089723000026 direct_calls=0 upper_calls=11042 classification_calls=11042 classification_work=14294689 facet_hits=3706503 facet_misses=11455 scope_hits=324 scope_misses=10718 scope_builds=10718 scope_build_work=590363 support_calls=11042 support_facets=3717958 facet_build_work=40646 piece_selection_work=4323515 traversal_work=5611165 selected_pieces=440681 support_pieces=5482612 direct_seconds=0 upper_seconds=27.177678927000215 scope_build_seconds=13.536346909000343 support_seconds=2.3099335710000144 facet_build_seconds=1.0206135399999998 piece_selection_seconds=1.008876349000003 traversal_seconds=9.670605520000116
+FP2_M2 STAGE rank=0 pass=1 bin=3 direct_eligible=1 calls=0 seconds_forward=0 direct_calls=0 upper_calls=0 classification_calls=0 classification_work=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_builds=0 scope_build_work=0 support_calls=0 support_facets=0 facet_build_work=0 piece_selection_work=0 traversal_work=0 selected_pieces=0 support_pieces=0 direct_seconds=0 upper_seconds=0 scope_build_seconds=0 support_seconds=0 facet_build_seconds=0 piece_selection_seconds=0 traversal_seconds=0
+FP2_M2 STAGE rank=0 pass=1 bin=4 direct_eligible=0 calls=19893 seconds_forward=62.54926379799975 direct_calls=0 upper_calls=19893 classification_calls=19893 classification_work=34310090 facet_hits=6130323 facet_misses=13741 scope_hits=487 scope_misses=19406 scope_builds=19406 scope_build_work=987323 support_calls=19893 support_facets=6144064 facet_build_work=54058 piece_selection_work=7143809 traversal_work=19960943 selected_pieces=688298 support_pieces=13261171 direct_seconds=0 upper_seconds=58.726618954998415 scope_build_seconds=21.239311289999655 support_seconds=3.4941133669999962 facet_build_seconds=1.416234432 piece_selection_seconds=1.6763724269999969 traversal_seconds=31.230288551000442
+FP2_M2 STAGE rank=0 pass=1 bin=4 direct_eligible=1 calls=490 seconds_forward=0.04343358700000001 direct_calls=490 upper_calls=0 classification_calls=0 classification_work=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_builds=0 scope_build_work=0 support_calls=0 support_facets=0 facet_build_work=0 piece_selection_work=0 traversal_work=0 selected_pieces=0 support_pieces=0 direct_seconds=0.040254436999999962 upper_seconds=0 scope_build_seconds=0 support_seconds=0 facet_build_seconds=0 piece_selection_seconds=0 traversal_seconds=0
+FP2_M2 OBSERVER rank=0 pass=1 status=complete seconds=0.16671292800001317
+FP2_C core rank=0 pass=1 cells_in=303359 cells_out=375293 points_in=61330 points_out=69014 surface_points=14448 border_points=0 wall_near_points=11634 collapses=59941 splits=77578 edge_removals=4305 face_swaps=243 moves=1098 deferred=924858 skipped_memory=150943 evaluated_collapse=274615 refused_valid=345788 refused_size=228047 refused_topology=0 refused_shape=29642 refused_exact=0 blocked=0 short_out=97861 edges_out=458752 bad_in=15008 bad_out=1878 sweeps_collapse=44 sweeps_split=17 sweeps_quality=41 rounds=3 limit=0 round_changes=c14612(26)s77578(15),c45329(17)s0(1),c0(1)s0(1) collapses_wall_near=17921 refused_size_wall=37947 refused_shape_wall=15308 refused_topology_wall=0 refused_valid_wall=112700 blocked_wall=0 four_surface_cells=541 short_free=44007 short_wall_near=27022 short_border=0 short_surface=26832 seconds_collapse=51.709529436000025 seconds_split=10.929759638999968 seconds_quality=6.1394997440000338
+FP2_C collapse_probe rank=0 pass=1 reported=41964 surviving=8155 distance=0 near=0 entity=0 size=0 strict_above=0
+FP2_B bad rank=0 pass=1 bad=1878 bad_a=0 bad_b=1872 bad_c=0 bad_d=6
+FP2_B0 edge_bins rank=0 pass=1 checkpoint=out lt_1e_6=0 lt_1e_4=0 lt_1e_2=0 lt_01=3176
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=1 metric=0.037868018073053872 space=0.00020953068521724214 a=4483 a_xyz=1.0089066178404711,0.71832503821373872,0.00041902867980519608 b=8541 b_xyz=1.0087066322312299,0.71838156191680613,0.00044574824446466568 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=2 metric=0.038592715927605228 space=0.0002086589184692586 a=4482 a_xyz=1.0112772924729669,0.72671350832419546,0.00041728527477997708 b=8736 b_xyz=1.0110781389176611,0.72676979685649379,0.00044389367190371192 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=3 metric=0.038762806907241182 space=0.00020953068521718557 a=13294 a_xyz=1.0089066178404711,0.71832503821373872,-0.00041902867980563968 b=19036 b_xyz=1.0087066322312299,0.71838156191680613,-0.00044574824446466568 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=4 metric=0.041130839454509488 space=0.00020779149345944402 a=4481 a_xyz=1.01363615952095,0.73506019810410606,0.00041555055310670089 b=8539 b_xyz=1.0134378338756249,0.73511625263687808,0.00044204833633871882 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=5 metric=0.041161542343320527 space=0.00020692839307225118 a=4480 a_xyz=1.015983265531931,0.74336527225865723,0.0004138244805541134 b=8534 b_xyz=1.015785763668968,0.74342109395852829,0.00044021220135615261 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=6 metric=0.042068401518126144 space=0.00022952481060181508 a=8735 a_xyz=1.010859070091088,0.72683171421835091,0.00047316359172506632 b=8736 b_xyz=1.0110781389176611,0.72676979685649379,0.00044389367190371192 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=7 metric=0.042071190068060343 space=0.00023048375402742052 a=8540 a_xyz=1.00848664814568,0.71844373796640959,0.00047514045144291282 b=8541 b_xyz=1.0087066322312299,0.71838156191680613,0.00044574824446466568 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=8 metric=0.042144454590573102 space=0.00022887119287740359 a=4504 a_xyz=0.95631203770171003,0.53222271214230954,0.00045770697587177011 b=8583 b_xyz=0.9560935926296168,0.53228445320676621,0.00048689283489743889 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=9 metric=0.042235282858877919 space=0.00020521509780583835 a=4478 a_xyz=1.0206423803879781,0.75985123164566459,0.00041039814606613149 b=8657 b_xyz=1.020446513772129,0.75990659116116854,0.00043656738767679448 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=10 metric=0.04255756164193699 space=0.00020865891846920197 a=13295 a_xyz=1.0112772924729669,0.72671350832419546,-0.00041728527478042068 b=19231 b_xyz=1.0110781389176611,0.72676979685649379,-0.00044389367190371192 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=11 metric=0.042736164956872755 space=0.00022790427157040328 a=13274 a_xyz=0.95894149172695708,0.54152685544196821,-0.00045577326329168449 b=19012 b_xyz=0.95872396952869166,0.54158833566642484,-0.00048483582103484518 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=12 metric=0.042853942848651586 space=0.00023048375402742052 a=19035 a_xyz=1.00848664814568,0.71844373796640959,-0.00047514045144291282 b=19036 b_xyz=1.0087066322312299,0.71838156191680613,-0.00044574824446466568 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=13 metric=0.042864659854602159 space=0.00020606960021441923 a=4479 a_xyz=1.018318657004758,0.75162889532083932,0.00041210702292674892 b=8535 b_xyz=1.0181219748128529,0.75168448534982335,0.00043838523058080679 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=14 metric=0.043035442889511298 space=0.00021040681083685188 a=4484 a_xyz=1.0065240890289431,0.70989462290121563,0.00042078080244818098 b=8542 b_xyz=1.0063232672054589,0.70995138295091642,0.00044761209047181131 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=15 metric=0.043709992001972897 space=0.00022694205435867018 a=13275 a_xyz=0.96155815255858057,0.55078573090062466,-0.0004538489588845704 b=18966 b_xyz=0.96134154874433797,0.5508469515540757,-0.00048278881519240598 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=16 metric=0.043790966291258379 space=0.00020436486879446924 a=4477 a_xyz=1.0229544820782279,0.76803244540445526,0.00040869781585196229 b=8655 b_xyz=1.022759426959708,0.7680875755592852,0.00043475863634919593 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=17 metric=0.043799424767134006 space=0.00022694205435872674 a=4502 a_xyz=0.96155815255858057,0.55078573090062466,0.0004538489588841268 b=8471 b_xyz=0.96134154874433797,0.5508469515540757,0.00048278881519240598 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=18 metric=0.044124668219388465 space=0.00022887119287734697 a=13273 a_xyz=0.95631203770171003,0.53222271214230954,-0.00045770697587221382 b=19078 b_xyz=0.9560935926296168,0.53228445320676621,-0.00048689283489743889 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=19 metric=0.044390114147854688 space=0.00019609387766391279 a=4467 a_xyz=1.0454464728858699,0.84761881716055631,0.00039215710239271499 b=8576 b_xyz=1.045259311978268,0.84767171610467484,0.00041716320632890222 a_group=surface b_group=surface a_origin=input b_origin=input physical=1
+FP2_B0 edge rank=0 pass=1 checkpoint=out order=20 metric=0.044669110654196466 space=0.00026510116251216313 a=142161 a_xyz=1.0118735798199006,0.73087043808259944,0.0028747711011655385 b=142185 b_xyz=1.0116205554621693,0.73094195259707773,0.0029085790141288757 a_group=free b_group=free a_origin=other_new b_origin=other_new physical=0
+FP2_B0 stars rank=0 pass=1 checkpoint=out group=surface n1_50=14448 n51_100=0 n101_200=0 over200=0
+FP2_B0 stars rank=0 pass=1 checkpoint=out group=border n1_50=0 n51_100=0 n101_200=0 over200=0
+FP2_B0 stars rank=0 pass=1 checkpoint=out group=free n1_50=54091 n51_100=472 n101_200=3 over200=0
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=1 point=141636 point_xyz=0.8268267861721329,0.076097887145810381,0.0035411288324674411 group=free origin=other_new cells=114
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=2 point=141343 point_xyz=1.1064068982260769,1.0639481388371799,0.002731985544541354 group=free origin=other_new cells=108
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=3 point=142057 point_xyz=0.95897040189427396,0.54619582365226005,0.0026137094677933532 group=free origin=other_new cells=102
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=4 point=141536 point_xyz=1.1194649782999098,1.1099057019873453,-0.0024087779349383789 group=free origin=other_new cells=100
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=5 point=142062 point_xyz=0.98767201000747251,0.64600274291835225,-0.0014457650350843398 group=free origin=other_new cells=100
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=6 point=141292 point_xyz=1.0730505832492312,0.94971042762380609,-0.0033899257320768911 group=free origin=other_new cells=98
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=7 point=141255 point_xyz=1.0852867592458555,0.98989921056447439,-0.0025241282794922545 group=free origin=other_new cells=96
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=8 point=141600 point_xyz=0.95969715021903634,0.54609964891072105,-0.0027128404500631944 group=free origin=other_new cells=96
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=9 point=141890 point_xyz=1.0662929802290657,0.92145201466152926,0.0023377049501928267 group=free origin=other_new cells=96
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=10 point=141450 point_xyz=1.0359470809155444,0.81619531932621714,-0.0022498934428086519 group=free origin=other_new cells=94
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=11 point=141705 point_xyz=0.8320649327666052,0.093019706404007987,-0.0038485763811174334 group=free origin=other_new cells=94
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=12 point=141811 point_xyz=1.0165830924892907,0.74783392212129618,0.0035009250422700115 group=free origin=other_new cells=94
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=13 point=141948 point_xyz=1.0061256379527554,0.71235659262081985,-0.0029834239451958212 group=free origin=other_new cells=94
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=14 point=27963 point_xyz=1.0026293419418151,0.69644676397772942,-0.0042387883371963059 group=free origin=input cells=92
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=15 point=41467 point_xyz=1.011692285178649,0.72985808925789564,-0.0040091176533851728 group=free origin=input cells=92
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=16 point=141499 point_xyz=0.9226208751345687,0.41333348537117198,0.0033006751088153286 group=free origin=other_new cells=92
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=17 point=141727 point_xyz=1.0671712543530274,0.93148740977539746,-0.0038509307542591441 group=free origin=other_new cells=92
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=18 point=141970 point_xyz=1.1171285961898529,1.1066746325913008,0.0025009349213440733 group=free origin=other_new cells=92
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=19 point=141311 point_xyz=0.88405277590641762,0.27838671740563287,-0.0039314146247068481 group=free origin=other_new cells=90
+FP2_B0 star_top rank=0 pass=1 checkpoint=out order=20 point=141357 point_xyz=0.8792027501441857,0.2630215444113907,-0.0040389042847046638 group=free origin=other_new cells=90
+FP2_C3 embedding rank=0 pass=1 violations=0 pairs=18193169 calls=18193169 peak_bytes=187638364 seconds=38.314161168000005
+NATIVE3D_LOCAL_CONTACT rank=0 stage=0 pass=1 kind=verify owner_rows=28658 owner_bytes=4126752 peak_bytes=3547537172 verify_cells=375293 verify_candidates=2145221 verify_calls=2145221 seconds_gather=0.085256282000045758 seconds_verify=4.6184303
+FP2_B pass rank=0 pass=1 cells_in=303359 cells_out=375293 faces_out=28892 bad_out=1878 nonpositive=0 first_nonpositive=0 seconds_pass=250.00688406099999 seconds_run_pass=244.38360720200001 modeled_peak=12884891280
+FP2_C query_budget rank=0 pass=1 overlay_peak=8919386512 pass_admitted_bytes=12884891280 query_scratch_max=1472303944 conservative_sum=14357195224 ceiling=12884901888
+FP2_B end rank=0 cells_out=375293 nonpositive=0 first_nonpositive=0 modeled_peak=12884891280 seconds=338.10079811100002
+FP2_B donor_scan rank=0 cells=375293 rejected=0
+FP2_B0 region rank=0 cells=375293 faces=28892 cells_a=16291 cells_b=61346 cells_c=0 cells_d=297656 has_faces=1 bbox_min=-100,-1.0625278440000011e-13,-100 bbox_max=100,100,100
+FP2_C strict_observation rank=0 checked=28892 seconds=3.7035930100000001
+FP2_B state rank=0 splits=2313 owned_faces=28892 total_owned_faces=28892 faces=28892 points=14448 traces=709 revision=2 owned_geometry_equal=1 seconds_gather=0.11008828600000697 seconds_build=6.4195867760000169 seconds_check=0.06338965999998436 modeled_peak=12884891280 removals=12344
+FP2_C entity_faces rank=0 body=0 sheet=0 marker=0 faces=2769
+FP2_C entity_faces rank=0 body=0 sheet=2060 marker=1 faces=8253
+FP2_C entity_faces rank=0 body=0 sheet=10154 marker=2 faces=16272
+FP2_C entity_faces rank=0 body=0 sheet=27868 marker=2 faces=1598
+FP2_A LAB_S_ENTITY body=0 sheet=0 marker=0 mesh_to_model=5.9002792345363484e-14 model_to_mesh=0.00098178897818240502 accepted=1
+FP2_A LAB_S_ENTITY body=0 sheet=2060 marker=1 mesh_to_model=0.00099968419701305759 model_to_mesh=0.00099956742788934096 accepted=1
+FP2_A LAB_S_ENTITY body=0 sheet=10154 marker=2 mesh_to_model=0.00099999332917666468 model_to_mesh=0.00099992159947170554 accepted=1
+FP2_A LAB_S_ENTITY body=0 sheet=27868 marker=2 mesh_to_model=2.5759970305665014e-05 model_to_mesh=2.5759970305665126e-05 accepted=1
+FP2_A LAB_S_PROOF entities=4 classified=28892 classify_above_tol=0 accepted=1 qualified=1 classify_left_refused=0 classify_left_short=0 classify_left_border=0 classify_left_limit=0 classify_left_neighbor_locked=0 classify_unexplained=0 classify_excess_bins=0,0,0,0,0 model_gap_entities=0 strict_checked=28892 strict_mismatch=0 strict_sink_mismatch=0 seconds_mesh_to_model=1.2288241750000002 seconds_model_to_mesh=8.2788266640000003 seconds_classify=1.2474438990000001 work=10982038 modeled_peak=3710797964
+FP2_C cells rank=0 cells=375293 digest=1284430924665356004
+FP2_M2 TABLE rank=0 status=complete faces=28892 edges=43338 corners_ok=86676 corners_none=0 edges_without_metric=0 seconds=6.9850538120000003
+===============================================================================
+All tests passed (36 assertions in 1 test case)
+
