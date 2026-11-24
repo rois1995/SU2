@@ -7,6 +7,7 @@
 #include "TransferTestCase.hpp"
 #include "../../Common/adaptation/native_local_fixture_access.hpp"
 #include "../../Common/adaptation/native_local_surface_probe.hpp"
+#include "../../../Common/include/adaptation/CNativeCurvedReference.hpp"
 #include "../../../Common/include/adaptation/CNativeD9Profile3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalCore3D.hpp"
@@ -22,6 +23,7 @@
 #include <cctype>
 #include <chrono>
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
@@ -488,7 +490,8 @@ void PrintLabC2Diagnosis(const BoundaryParameterState& state, const LabEntityCen
 
 void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t ceiling, size_t caller,
                      Clock::time_point deadline_start, const SurfaceReasons& remaining,
-                     const std::set<Face>* collapse_faces = nullptr, const LabSurfaceAnswers* answers = nullptr) {
+                     const std::set<Face>* collapse_faces = nullptr, const LabSurfaceAnswers* answers = nullptr,
+                     std::map<Face, double>* saved_bounds = nullptr) {
   auto budget = native_fp2_fixture::Budget(cells, caller, deadline_start, 5400, ceiling);
   std::vector<SurfaceFace> faces;
   faces.reserve(state.Surface().size());
@@ -525,7 +528,7 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
     accepted &= valid;
   }
   const auto classify_start = Clock::now();
-  const auto census = ClassifyLabSurface(state, budget, remaining, nullptr, collapse_faces != nullptr);
+  auto census = ClassifyLabSurface(state, budget, remaining, nullptr, collapse_faces != nullptr);
   const auto model_gap_entities = collapse_faces ? LabModelGapEntities(forward, census) : 0;
   const auto strict = CompareLabStrict(state, census, collapse_faces, answers);
   const bool reason_accounting = census.above == census.left_refused + census.left_short + census.left_border +
@@ -548,6 +551,7 @@ void ProveLabSurface(const BoundaryParameterState& state, size_t cells, size_t c
   REQUIRE(census.faces == state.Surface().size());
   REQUIRE(census.unexplained == 0);
   REQUIRE(qualified);
+  if (saved_bounds) *saved_bounds = std::move(census.bounds);
 }
 
 void ReportRankSweep(const local::Mesh& mesh, const local::SweepRow& sweep, int rank, unsigned pass, bool first) {
@@ -1024,3 +1028,4 @@ TEST_CASE("FP2-A rank check on the frozen M6 event 1 volume", "[.][NativeLocalCo
 #include "fixtures/native_handover_volume.inc"
 #include "fixtures/native_volume_handover.inc"
 #include "fixtures/native_m1_support_fixture.inc"
+#include "fixtures/native_m2_model.inc"

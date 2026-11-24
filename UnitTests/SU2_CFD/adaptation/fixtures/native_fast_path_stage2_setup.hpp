@@ -37,7 +37,7 @@ inline SU2NativeGeometry::AtlasBudget Budget(size_t cells, size_t caller, Clock:
 }
 
 inline SU2NativeGeometry::AtlasBudget PrepareIN1(SU2Native3D::ReferenceState& reference, size_t ceiling,
-                                                size_t retained = 0) {
+                                                size_t retained = 0, double tolerance = Tolerance) {
   const auto& state = *reference.original->Parameters();
   const size_t baseline = transfer_memory::Add(reference.original->ResidentBytes(), retained);
   if (baseline >= ceiling) throw std::length_error("Curved mobility setup exceeds storage admission.");
@@ -52,7 +52,7 @@ inline SU2NativeGeometry::AtlasBudget PrepareIN1(SU2Native3D::ReferenceState& re
     throw std::length_error("Curved mobility setup reservation overflows.");
   auto mobility = state.WithMobilityPolicy(60, {{0, 2}, {1, 0}, {2, 2}}, budget, ceiling, baseline);
   auto entity =
-      mobility->WithEntityGeometry(Tolerance, budget, ceiling, transfer_memory::Add(baseline, mobility->ResidentBytes()));
+      mobility->WithEntityGeometry(tolerance, budget, ceiling, transfer_memory::Add(baseline, mobility->ResidentBytes()));
   reference.original = reference.original->WithParameterState(entity);
   return budget;
 }

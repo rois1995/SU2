@@ -189,6 +189,10 @@ void ReportCollapseFaces(std::ostream& out, const local::Mesh& mesh, local::Surf
       << " entity=" << entity << " size=" << size << " strict_above=" << strict_above << '\n';
 }
 
+#include "native_c3_lab_observers.inc"
+#include "native_m2_stages.inc"
+#include "native_m2_tables.inc"
+
 class LabM1Handover {
  public:
   using Stats = SU2NativeGeometry::MappedFacetReference::GeometryStats;
@@ -339,7 +343,7 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
                                  local::StateSurfaceGeometry& surface, local::MemoryBudget& memory,
                                  size_t global_cells, SurfaceReasons& remaining, Clock::time_point start,
                                  const SurfaceFaceBorders* borders, const std::set<Face>* collapse_faces,
-                                 bool measure_handover) {
+                                 bool measure_handover, bool trace_m2, LabM2Tables* m2_tables) {
   auto caller = transfer_memory::Add(reference.original->ResidentBytes(), OwnedStorageBytes(input.cells));
   const bool parallel = world.size > 1;
   LabSurfaceAnswers local_answers, global_answers;
@@ -347,8 +351,11 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
     const auto observation_start = Clock::now();
     std::optional<LabM1Handover> measurement;
     if (measure_handover) measurement.emplace();
-    local_answers = ObserveLabStrictFaces(world, input.cells, surface, memory, caller,
-                                          measurement ? &*measurement : nullptr);
+    {
+      const LabM2Phase phase(trace_m2, "handover_strict");
+      local_answers = ObserveLabStrictFaces(world, input.cells, surface, memory, caller,
+                                            measurement ? &*measurement : nullptr);
+    }
     if (parallel)
       global_answers = GatherVolumeFaces(world, local_answers, "FP2-C2 strict face answers have duplicate rank ownership.");
     constexpr size_t row_bytes = sizeof(LabSurfaceAnswers::value_type) + 4 * sizeof(void*);
@@ -410,8 +417,15 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
     if (collapse_faces)
       for (const auto& face : *collapse_faces) remaining.erase(face);
     std::cout << std::setprecision(17);
-    ProveLabSurface(state, global_cells, input.ceiling, proof_live(remaining), start, remaining, collapse_faces,
-                    collapse_faces ? &local_answers : nullptr);
+    {
+      const LabM2Phase phase(trace_m2, "proof");
+      ProveLabSurface(state, global_cells, input.ceiling, proof_live(remaining), start, remaining, collapse_faces,
+                      collapse_faces ? &local_answers : nullptr, m2_tables ? &m2_tables->bounds : nullptr);
+    }
+    if (m2_tables) {
+      m2_tables->rebuilt = result.state;
+      m2_tables->answers = std::move(local_answers);
+    }
     return;
   }
 
@@ -437,15 +451,15 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
   REQUIRE_FALSE(world.maximum(!qualified));
 }
 
-#include "native_c3_lab_observers.inc"
 #include "native_m1_observer.inc"
 
 class LabBoundObserver final : public local::SurfaceGeometry {
  public:
   LabBoundObserver(const local::Mesh& mesh, local::SurfaceGeometry& geometry, const BoundaryParameterState& state,
-                   bool capture_short, LabC3Observers* continuation, LabM1Observer* support = nullptr)
+                   bool capture_short, LabC3Observers* continuation, LabM1Observer* support = nullptr,
+                   LabM2Stages* stages = nullptr)
       : mesh_(mesh), geometry_(geometry), state_(state), sample_distance_(capture_short),
-        continuation_(continuation), support_(support) {}
+        continuation_(continuation), support_(support), stages_(stages) {}
 
   double Tolerance() const override { return geometry_.Tolerance(); }
   bool Feature(const local::SurfaceEdge& edge) const override { return geometry_.Feature(edge); }
@@ -481,7 +495,7 @@ class LabBoundObserver final : public local::SurfaceGeometry {
     }
     const auto work_before = continuation_ ? continuation_->BoundWorkBefore() : 0;
     const auto start = continuation_ || support_ ? Clock::now() : Clock::time_point{};
-    const auto within = geometry_.WithinTolerance(face);
+    const auto within = stages_ ? stages_->Forward(geometry_, face) : geometry_.WithinTolerance(face);
     if (support_) {
       const auto seconds = Seconds(start);
       if (continuation_) continuation_->Bound(face, seconds, within, work_before);
@@ -559,6 +573,7 @@ class LabBoundObserver final : public local::SurfaceGeometry {
   std::map<Id, local::Slot> slots_;
   LabC3Observers* continuation_;
   LabM1Observer* support_;
+  LabM2Stages* stages_;
 };
 
 size_t PartitionHandover(World& world, LabInput& input, const ReferenceState& reference,
@@ -724,6 +739,14 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
   const bool event2 = partition == ProductionPartition::Event2;
   const char* m1_option = std::getenv("SU2_NATIVE_FP2_M1");
   const bool measure_support = outward_collapses && m1_option && std::strcmp(m1_option, "1") == 0;
+  const char* m2_option = std::getenv("SU2_NATIVE_FP2_M2");
+  const bool measure_rule = outward_collapses && !parallel && !production && !measure_support &&
+                            m2_option && std::strcmp(m2_option, "1") == 0;
+  const char* trace_option = std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");
+  const bool trace_m2 = measure_rule && trace_option && std::strcmp(trace_option, "1") == 0;
+  const char* table_option = std::getenv("SU2_NATIVE_FP2_M2_TABLE");
+  std::optional<LabM2Tables> m2_tables;
+  if (measure_rule && !trace_m2 && table_option && std::strcmp(table_option, "1") == 0) m2_tables.emplace(start);
   std::string reference_path;
   ReferenceState reference;
   auto input = LoadMesh(&reference, parallel, production, measure_support ? &reference_path : nullptr);
@@ -742,7 +765,8 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
     REQUIRE(reference.original->Parameters()->Mobility().identity == 0);
     REQUIRE_FALSE(reference.original->Parameters()->EntityGeometry());
     const auto retained = transfer_memory::Add(OwnedStorageBytes(input.cells), transfer_memory::Bytes(input.original));
-    CheckLabStep(world, [&] { native_fp2_fixture::PrepareIN1(reference, input.ceiling, retained); });
+    const auto tolerance = measure_rule ? input.tolerance : native_fp2_fixture::Tolerance;
+    CheckLabStep(world, [&] { native_fp2_fixture::PrepareIN1(reference, input.ceiling, retained, tolerance); });
   }
   const auto& original = *reference.original->Parameters();
   REQUIRE(original.Surface().size() == (event2 ? 76126 : 48954));
@@ -886,6 +910,8 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         stats.report = true;
         std::optional<LabC3Observers> continuation;
         if (outward_collapses) continuation.emplace(mesh, *surface, !parallel || production);
+        std::optional<LabM2Stages> stages;
+        if (measure_rule && stats.report) stages.emplace(*surface, trace_m2);
         std::optional<LabM1Observer> support;
         if (shadow_ready) {
           try {
@@ -965,11 +991,20 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         if (chosen_probe) geometry = &*chosen_probe;
         if (surface_collapses) {
           bound_observer.emplace(mesh, *geometry, surface->State(), options.distance_error_cut,
-                                 continuation ? &*continuation : nullptr, support ? &*support : nullptr);
+                                 continuation ? &*continuation : nullptr, support ? &*support : nullptr,
+                                 stages ? &*stages : nullptr);
           geometry = &*bound_observer;
         }
         stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, geometry, remote ? &*remote : nullptr);
         if (support) measurement_seconds += support->SecondsObserver();
+        double capture_seconds = 0;
+        if (m2_tables) {
+          const auto size = std::max(stats.cells_in, stats.cells_out);
+          const auto retained = transfer_memory::Add(reference_bytes, owned, surface->ResidentBytes(),
+              local::Mesh::ArrayBytes(size), local::Mesh::SurfaceArrayBytes(size, options.distance_error_cut));
+          capture_seconds = m2_tables->Capture(mesh, input.ceiling, retained);
+        }
+        if (stages) measurement_seconds += stages->SecondsObserver() + capture_seconds;
         if (outward_collapses) {
           remote.reset();
           surface->SetCallerBytes(geometry_caller);
@@ -1016,6 +1051,11 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           }
           measurement_seconds += Seconds(measurement_start);
         }
+        if (stages) {
+          const auto measurement_start = Clock::now();
+          stages->Report(row, world.rank, pass, capture_seconds);
+          measurement_seconds += Seconds(measurement_start);
+        }
         ReportCollapseCore(row, stats, world.rank, pass);
         std::cout << row.str() << std::flush;
         if (chosen_probe) {
@@ -1027,7 +1067,10 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           const auto measurement_start = Clock::now();
           row.str("");
           if (surface_collapses) {
-            ReportCollapseFaces(row, mesh, *surface, pass_collapse_faces, world.rank, pass);
+            {
+              const LabM2Phase phase(trace_m2, "collapse_report");
+              ReportCollapseFaces(row, mesh, *surface, pass_collapse_faces, world.rank, pass);
+            }
             for (const auto& entry : pass_collapse_faces) collapse_faces.insert(entry.first);
           }
           const auto bad_after_v = ReportVolumeBad(row, mesh, point_base, world.rank, pass);
@@ -1116,7 +1159,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
     try {
       CheckVolumeHandoverGeometry(world, input, reference, *surface, memory, global_cells, remaining, start,
                                  classify_border ? &borders : nullptr, surface_collapses ? &collapse_faces : nullptr,
-                                 measure_support);
+                                 measure_support, trace_m2, m2_tables ? &*m2_tables : nullptr);
     } catch (const CElectedFailure& error) {
       FAIL(error.message);
     }
@@ -1126,6 +1169,10 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
     ReportCellDigest(digest, input.cells, world.rank);
     std::cout << digest.str() << std::flush;
   });
+  if (m2_tables) {
+    const auto retained = transfer_memory::Add(reference_bytes, OwnedStorageBytes(input.cells), surface->ResidentBytes());
+    m2_tables->Report(reference, global_cells, input.ceiling, retained, world.rank);
+  }
 }
 }  // namespace
 

@@ -1784,3 +1784,19 @@ FP2-M1 N1 shadow admission passed. Modeled shadow resident was 3,343,436,800 byt
 FP2-M1 N1 retrospective qualification at checkpoint 9622b66f80. The child finished at 18:18:22 with exit 0, 37 Catch assertions, and 2,238.47 elapsed seconds under the original 3,261 s watchdog. The actual host had no owned workload and all six recorded PIDs were absent. All 40 trial pins and the sealed build664 reference verified. The inherited gates, 26,920 strict hand-over calls, and the full exact projection including modeled peaks passed. The supervisor stopped writing at 18:08:58. Its wait and owned-process receipts remain absent. The recovery receipt preserves the 4,224,188,416-byte sampled lower bound and GNU time's separate 4,446,085,120-byte serial maximum RSS. No repeat was launched. The first post-run evaluator check used a string rank key; the archived result uses the inherited evaluator's integer key convention and checks the optional round difference as the existing runner does.
 
 FP2-M1 build666 concluded with both trials exact against build664. The stage-1 replay was 771.714 / 201.818 rank-s for N6P passes 1 / 2, compared with 817.166 / 206.529 rank-s forwarded. N1 was 882.769 versus 924.039 s. Stage 2 added zero proofs in all three passes. The section 4 report and JSON are in FP2_M1/reports/FP2_M1_666. Close with the exact label FP2-M1: measurement done; default path not yet proven.
+
+FP2-M2 started at 0957977801. Verified and archived the signed order (6ea8a6633ec03d02acb9737b4de2893a1ad4bb0af8bc22727e8c3398584b2075). Actual host preflight showed no owned build or solver, 35,102 MiB available and load 1.49 / 1.14 / 1.37. The whole-item source check is FP2_M2/source_check.md. All changes will be in lab test code and evidence. Next implement the stage observer, tracing and hand-over tables, then run the focused and model fixtures.
+
+FP2-M2 source and helper sub-step at 0957977801. Integrated the serial option T, isolated stage-forward statistics and phase marks, and the post-digest hand-over and model exporters. The report histogram, trace parser including archived production-format replay, tolerance-config derivation and baseline pin checks passed their self-checks. A detached user-unit smoke test wrote its durable log. Launch build667 for UnitTests/test_driver only.
+
+FP2-M2 build667 passed in 47.836 s, zero new warnings and all source pins verified. The build664 solver remains e1b25b45969b9cd778082a164218a1bfaaca5ab5780343b802d11a62a656be13. The build supervisor is terminal. Run the three option-off fixtures and the independent model pin fixture in sequence.
+
+FP2-M2 build667 fixture off-serial controller returned 0. See FP2_M2/fixtures/build667/off-serial/case_summary.json.
+
+FP2-M2 build667 fixture off-mpi controller returned 0. See FP2_M2/fixtures/build667/off-mpi/case_summary.json.
+
+FP2-M2 build667 fixture curved controller returned 0. See FP2_M2/fixtures/build667/curved/case_summary.json.
+
+FP2-M2 build667 fixture model controller returned 0. See FP2_M2/fixtures/build667/model/case_summary.json.
+
+FP2-M2 build667 inherited fixtures and model pin PASSED. Option-off serial and MPI matched the build666 counts (9 cases and 10,314 assertions, 3 cases per rank and 898 / 727 assertions). The curved fixture matched 20 query traces and 727 assertions. Model elapsed 46.717 s, 48,954 facets, 72,757 same-entity edges, 674 between different entities. All 363,785 seam checks and 291,028 endpoint checks passed (worst 2.8421709430404007e-14 against 3e-10, endpoints exact). The model files are sealed. Push the fixture and model checkpoint before launching BASELINE with trace off.
