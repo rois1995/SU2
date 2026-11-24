@@ -47,13 +47,18 @@ class P1CellBlocks {
     const BlockRef* refs;
     unsigned short nNodes;
 
+    /*! \brief Read a cached off-diagonal pair when refs is available. */
+    BlockRef OffDiagRef(unsigned short a, unsigned short b) const {
+      /*--- Each row packs nNodes - 1 references, skipping its diagonal. ---*/
+      return refs[a * (nNodes - 1) + b - (b > a)];
+    }
+
     /*! \brief Add the off-diagonal block with the same update as indexed assembly (bitwise target). */
     FORCEINLINE void AddOffDiag(Matrix& matrix, unsigned short a, unsigned short b, unsigned long row,
                                unsigned long col, const su2double* const* values) const {
       if constexpr (UseBlockRefs) {
         if (refs) {
-          /*--- Each row packs nNodes - 1 references, skipping its diagonal. ---*/
-          matrix.AddBlock(refs[a * (nNodes - 1) + b - (b > a)], values);
+          matrix.AddBlock(OffDiagRef(a, b), values);
           return;
         }
       }

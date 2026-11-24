@@ -163,6 +163,20 @@ inline void EntropyVariableJacobian(unsigned short nDim, const su2double& gamma,
 }
 
 using EntropyJacobianRow = su2double[MAXNVAR];
+using PicardBlock = su2double[MAXNVAR - 1][MAXNVAR - 1];  /*!< \brief Momentum and energy rows and columns of |T| M. */
+
+/*--- Round-off tier: multiply |T| M by W, omitting the zero mass row and column of M. ---*/
+inline void MultiplyPicardBlock(unsigned short nVar, const PicardBlock& block, const EntropyJacobianRow* W,
+                                su2double J[][MAXNVAR]) {
+  for (unsigned short j = 0; j < nVar; ++j) J[0][j] = 0.0;
+  for (unsigned short i = 1; i < nVar; ++i) {
+    for (unsigned short j = 0; j < nVar; ++j) {
+      su2double sum = block[i - 1][0] * W[1][j];
+      for (unsigned short k = 2; k < nVar; ++k) sum += block[i - 1][k - 1] * W[k][j];
+      J[i][j] = sum;
+    }
+  }
+}
 
 /*--- Point data shared by the volume simplices of one residual evaluation. ---*/
 struct PointState {
@@ -505,6 +519,59 @@ class Element : public P1Simplex::Geometry {
   }
 
   /*!
+   * \brief Round-off tier. In Flux, G_theta = -dw_E y and G_m = dw_m (x) y, with y = g_b and z = g_a.
+   *        Contracting the stress with z gives A (dw_m + v dw_E) / theta,
+   *        A = mu ((y.z) I + y z^T - (2/3) z y^T).
+   *        The energy flux adds v^T times that stress contraction and kappa (y.z) dw_E / (R theta^2).
+   *        Store |T| M_ab for the standard test vectors, using M_ba = M_ab^T before applying W.
+   */
+  void PicardBlocks(PicardBlock blocks[][MAXNODE]) const {
+    const su2double invTheta = 1.0 / theta;
+    const su2double stress = size * mu * invTheta;
+    const su2double heat = size * kappa * invTheta * invTheta / gasConst;
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      const auto& z = grad[a];
+      for (unsigned short b = a; b < nNodes; ++b) {
+        const auto& y = grad[b];
+        su2double dot = 0.0;
+        for (unsigned short i = 0; i < nDim; ++i) dot += y[i] * z[i];
+
+        auto& M = blocks[a][b];
+        for (unsigned short i = 0; i < nDim; ++i) {
+          for (unsigned short j = 0; j < nDim; ++j)
+            M[i][j] = stress * (y[i] * z[j] - (2.0 / 3.0) * z[i] * y[j]);
+          M[i][i] += stress * dot;
+        }
+
+        M[nDim][nDim] = heat * dot;
+        for (unsigned short i = 0; i < nDim; ++i) {
+          su2double right = 0.0, left = 0.0;
+          for (unsigned short j = 0; j < nDim; ++j) {
+            right += M[i][j] * vel[j];
+            left += vel[j] * M[j][i];
+          }
+          M[i][nDim] = right;
+          M[nDim][i] = left;
+          M[nDim][nDim] += vel[i] * right;
+        }
+
+        if (a == b) continue;
+        for (unsigned short i = 0; i <= nDim; ++i)
+          for (unsigned short j = 0; j <= nDim; ++j) blocks[b][a][j][i] = M[i][j];
+      }
+    }
+  }
+
+  /*--- Round-off tier: J_ab = (|T| M_ab) W_b for the standard Picard test vectors. ---*/
+  template <class NodalJacobian>
+  void PicardJacobian(const NodalJacobian& dwdu, su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR]) const {
+    PicardBlock blocks[MAXNODE][MAXNODE];
+    PicardBlocks(blocks);
+    for (unsigned short a = 0; a < nNodes; ++a)
+      for (unsigned short b = 0; b < nNodes; ++b) MultiplyPicardBlock(nVar, blocks[a][b], dwdu[b], jac[a][b]);
+  }
+
+  /*!
    * \brief VISC_P1_JACOBIAN= FULL: add the dK/du part to the Picard Jacobian of Jacobian(): sum over the columns (b, jVar) of
    *        the residual of StateDerivative(b, node[b], dwdu[b], jVar): dR_a/du_b = Picard + |T| (dK/du_b G) . g_a (or
    *        . test_a with moved test vectors, theta_v frozen). Then jac is the exact Jacobian of Residual with the
@@ -544,6 +611,35 @@ class Element : public P1Simplex::Geometry {
    * \param[in,out] rows - Row bounds of the element nodes, added to.
    */
   void RowBound(const NodeState* node, const su2double& gamma, su2double* rows) const;
+};
+
+/*--- Round-off tier: sum omega_t |T| M_ab before applying the cell node's common W_b. ---*/
+struct MixedPicardBlocks {
+  PicardBlock blocks[N_POINTS_MAXIMUM][N_POINTS_MAXIMUM];
+  bool used[N_POINTS_MAXIMUM][N_POINTS_MAXIMUM] = {};
+
+  template <class HasBlock>
+  void Accumulate(const Element& simplex, const unsigned short* cellNode, const su2double& weight,
+                  const HasBlock& hasBlock) {
+    PicardBlock sub[MAXNODE][MAXNODE];
+    simplex.PicardBlocks(sub);
+    for (unsigned short a = 0; a < simplex.nNodes; ++a) {
+      const auto row = cellNode[a];
+      for (unsigned short b = 0; b < simplex.nNodes; ++b) {
+        const auto col = cellNode[b];
+        if (!hasBlock(row, col)) continue;
+        auto& block = blocks[row][col];
+        const bool add = used[row][col];
+        for (unsigned short i = 0; i < simplex.nNodes; ++i) {
+          for (unsigned short j = 0; j < simplex.nNodes; ++j) {
+            const su2double value = weight * sub[a][b][i][j];
+            block[i][j] = add ? block[i][j] + value : value;
+          }
+        }
+        used[row][col] = true;
+      }
+    }
+  }
 };
 
 /*!

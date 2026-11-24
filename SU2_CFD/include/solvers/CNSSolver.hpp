@@ -180,10 +180,15 @@ private:
    */
   void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, P1CellBlocks::Cell cellBlocks,
                             const P1Simplex::Geometry* cached, const P1ViscousEntropy::PointState* pointStates,
-                            bool implicit, bool rowBound,
+                            bool implicit, bool rowBound, bool moved,
                             const su2double& prandtlTurb, const su2double& gasConst,
                             const P1ViscousEntropy::TransportLaw* law, const CVariable* turbNodes = nullptr,
                             bool elementKine = false);
+
+  /*! \brief Round-off tier. Multiply each accumulated mixed-cell Picard block by W_b and add it once. */
+  void AddMixedPicardJacobian(const CPrimalGrid& element, P1CellBlocks::Cell cellBlocks,
+                              const P1ViscousEntropy::PointState* pointStates,
+                              const P1ViscousEntropy::MixedPicardBlocks& cellPicard);
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: P^v_T and D^gal_T - W_T of a simplex with an owned node, for the one-budget blend

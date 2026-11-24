@@ -1134,6 +1134,42 @@ TEST_CASE("VISC_P1_ENTROPY element: entropy dissipation, P1_CELL limit, Picard J
   }
 }
 
+/*--- Block infinity-entry error relative to the largest entry in the reference block. ---*/
+static void CheckPicardBlock(int nVar, const su2double ref[][pve::MAXNVAR], const su2double actual[][pve::MAXNVAR]) {
+  su2double error = 0.0, scale = 0.0;
+  for (int i = 0; i < nVar; ++i) {
+    for (int j = 0; j < nVar; ++j) {
+      error = std::max(error, fabs(actual[i][j] - ref[i][j]));
+      scale = std::max(scale, fabs(ref[i][j]));
+    }
+  }
+  CHECK(error <= 1e-12 * scale);
+}
+
+TEST_CASE("VISC_P1_ENTROPY: closed-form Picard blocks match the flux Jacobian", "[P1Flux]") {
+  std::mt19937 gen(39471);
+  std::uniform_real_distribution<double> k(0.0, 0.5);
+  for (int nDim : {2, 3}) {
+    for (int trial = 0; trial < 200; ++trial) {
+      CAPTURE(nDim, trial);
+      su2double x[4][3], dwdu[4][5][5];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, (trial % 2) ? 1.0 : 1e-3, x, state);
+      pve::Element simplex;
+      REQUIRE(simplex.Set(nDim, x, state, kGas) > 0.0);
+      for (int b = 0; b < simplex.nNodes; ++b) {
+        if (trial % 3) state[b].k = k(gen);
+        pve::EntropyVariableJacobian(nDim, kGamma, state[b], dwdu[b]);
+      }
+      su2double ref[4][4][5][5], actual[4][4][5][5];
+      simplex.Jacobian(dwdu, ref);
+      simplex.PicardJacobian(dwdu, actual);
+      for (int a = 0; a < simplex.nNodes; ++a)
+        for (int b = 0; b < simplex.nNodes; ++b) CheckPicardBlock(simplex.nVar, ref[a][b], actual[a][b]);
+    }
+  }
+}
+
 TEST_CASE("BC_WALL_ENTROPY_P1 on one wall element: entropy bound, rest state, Jacobian", "[P1Flux]") {
   std::mt19937 gen(8765);
   std::uniform_real_distribution<double> u(-1.0, 1.0);
@@ -7430,6 +7466,80 @@ TEST_CASE("VISC_P1_JACOBIAN: simplex element and weak wall Jacobians against fin
     ReportMissing(std::to_string(nDim) + "D simplex element, Picard", elemNorms, names);
     for (int kind = 0; kind < 3; ++kind)
       ReportMissing(std::to_string(nDim) + "D " + wallNames[kind] + ", Picard", wallNorms[kind], names);
+  }
+}
+
+TEST_CASE("VISC_P1_ENTROPY: mixed-cell Picard blocks match summed sub-simplex Jacobians", "[P1Flux]") {
+  std::mt19937 gen(50893);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_picard_cell_" + std::to_string(nDim) + "d.su2";
+    WriteMixedMesh(mesh, nDim, 3, 0.0, 1.0);
+    MeshCase test(mesh, MixedOptions);
+    auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+    for (const int vtk : MixedTypes) {
+      if ((vtk == QUADRILATERAL) != (nDim == 2)) continue;
+      const auto cell = MakeCell(vtk);
+      const auto nCell = cell->GetnNodes();
+      const auto& splits = geometry.SetMixedSimplices(cell.get());
+      for (int trial = 0; trial < 12; ++trial) {
+        const bool sparse = (trial % 2 == 0);
+        CAPTURE(vtk, trial);
+        const auto x = CellCoords(gen, vtk, 0.12, (trial % 4 < 2) ? 1e-2 : 1.0);
+        pve::PointState points[N_POINTS_MAXIMUM];
+        for (unsigned short b = 0; b < nCell; ++b) {
+          auto& S = points[b].node;
+          S.rho = exp(u(gen));
+          S.p = S.rho * kGas * exp(u(gen));
+          S.k = (trial % 3) ? 0.25 * (1.0 + u(gen)) : 0.0;
+          for (int i = 0; i < nDim; ++i) S.vel[i] = 1.5 * u(gen);
+          RecomputeTransport(S, exp(u(gen)));
+          pve::EntropyVariableJacobian(nDim, kGamma, S, points[b].dwdu);
+        }
+        const auto hasBlock = [&](unsigned short a, unsigned short b) {
+          if (!sparse) return true;
+          if (a == 0) return false;  // Simulate an unowned row with an available halo state.
+          if (a == b) return true;
+          for (unsigned short k = 0; k < cell->GetnNeighbor_Nodes(a); ++k)
+            if (cell->GetNeighbor_Nodes(a, k) == b) return true;
+          return false;
+        };
+        pve::MixedPicardBlocks actual;
+        su2double ref[N_POINTS_MAXIMUM][N_POINTS_MAXIMUM][5][5] = {};
+        for (const auto& entry : splits) {
+          const su2double* coord[4];
+          pve::NodeState state[4];
+          const pve::EntropyJacobianRow* dwdu[4];
+          for (int a = 0; a <= nDim; ++a) {
+            const auto node = entry.nodes[a];
+            coord[a] = x[node].data();
+            state[a] = points[node].node;
+            dwdu[a] = points[node].dwdu;
+          }
+          pve::Element simplex;
+          REQUIRE(simplex.Set(nDim, coord, state, kGas) > 0.0);
+          actual.Accumulate(simplex, entry.nodes.data(), entry.weight, hasBlock);
+          su2double jac[4][4][5][5];
+          simplex.PicardJacobian(dwdu, jac);
+          for (int a = 0; a <= nDim; ++a)
+            for (int b = 0; b <= nDim; ++b)
+              for (int i = 0; i < nDim + 2; ++i)
+                for (int j = 0; j < nDim + 2; ++j)
+                  ref[entry.nodes[a]][entry.nodes[b]][i][j] += entry.weight * jac[a][b][i][j];
+        }
+        for (unsigned short a = 0; a < nCell; ++a) {
+          for (unsigned short b = 0; b < nCell; ++b) {
+            if (!hasBlock(a, b)) {
+              CHECK_FALSE(actual.used[a][b]);
+              continue;
+            }
+            su2double J[5][5] = {};
+            if (actual.used[a][b]) pve::MultiplyPicardBlock(nDim + 2, actual.blocks[a][b], points[b].dwdu, J);
+            CheckPicardBlock(nDim + 2, ref[a][b], J);
+          }
+        }
+      }
+    }
   }
 }
 

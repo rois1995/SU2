@@ -324,8 +324,8 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
       if (nNodes != nDim + 1) {
         if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
-        MixedViscousResidual(geometry, element, cellBlocks, cached, pointStates, implicit, rowBound, prandtlTurb, gasConst,
-                             fullJacobian ? &law : nullptr, turbNodes, elementKine);
+        MixedViscousResidual(geometry, element, cellBlocks, cached, pointStates, implicit, rowBound, moved, prandtlTurb,
+                             gasConst, fullJacobian ? &law : nullptr, turbNodes, elementKine);
         continue;
       }
 
@@ -405,7 +405,8 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
       for (auto iNode = 0u; iNode < nNodes; ++iNode)
         dwdu[iNode] = ViscousNodeJacobian(pointStates, element->GetNode(iNode), state[iNode], localDwdu[iNode]);
       su2double jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
-      simplex.Jacobian(dwdu, jacobian);
+      if (fullJacobian || moved) simplex.Jacobian(dwdu, jacobian);
+      else simplex.PicardJacobian(dwdu, jacobian);
       if (fullJacobian) {
         if (!pointStates) {
           for (auto iNode = 0u; iNode < nNodes; ++iNode)
@@ -440,7 +441,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
 void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, P1CellBlocks::Cell cellBlocks,
                                      const P1Simplex::Geometry* cached, const P1ViscousEntropy::PointState* pointStates,
-                                     bool implicit, bool rowBound,
+                                     bool implicit, bool rowBound, bool moved,
                                      const su2double& prandtlTurb, const su2double& gasConst,
                                      const P1ViscousEntropy::TransportLaw* law, const CVariable* turbNodes,
                                      bool elementKine) {
@@ -465,6 +466,15 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
         pve::GatherTransportDerivatives(*nodes, element->GetNode(iNode), gasConst, *law, cellState[iNode]);
     }
   }
+
+  /*--- The C2 map covers double-precision assembly. The fallback keeps per-simplex matrix updates. ---*/
+  const bool cellJacobian = implicit && !fullJacobian && !moved && cellBlocks.refs && pointStates;
+  pve::MixedPicardBlocks cellPicard;
+  const auto hasBlock = [&](unsigned short a, unsigned short b) {
+    if (a == b) return geometry->nodes->GetDomain(element->GetNode(a));
+    /*--- The packed map also marks unowned rows absent. ---*/
+    return cellBlocks.OffDiagRef(a, b) != CSysMatrix<su2mixedfloat>::BlockRef::Absent;
+  };
 
   const unsigned short nNodes = nDim + 1;
   for (const auto& entry : geometry->GetMixedSimplices(element->GetVTK_Type())) {
@@ -525,12 +535,18 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
 
     if (!implicit) continue;
 
+    if (cellJacobian) {
+      cellPicard.Accumulate(simplex, entry.nodes.data(), weight, hasBlock);
+      continue;
+    }
+
     pve::EntropyJacobianRow localDwdu[pve::MAXNODE][pve::MAXNVAR];
     const pve::EntropyJacobianRow* dwdu[pve::MAXNODE];
     for (unsigned short a = 0; a < nNodes; ++a)
       dwdu[a] = ViscousNodeJacobian(pointStates, point[a], state[a], localDwdu[a]);
     su2double jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
-    simplex.Jacobian(dwdu, jacobian);
+    if (fullJacobian || moved) simplex.Jacobian(dwdu, jacobian);
+    else simplex.PicardJacobian(dwdu, jacobian);
     if (fullJacobian) simplex.AddStateJacobian(state, dwdu, jacobian);
     /*--- SST_ENERGY_CONSISTENT: d mu/dT of the sub-simplex k diffusion in the energy row (scaled by omega below). ---*/
     if (fullJacobian && elementKine) {
@@ -551,6 +567,28 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
         if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
         else cellBlocks.AddOffDiag(Jacobian, entry.nodes[a], entry.nodes[b], point[a], point[b], rows);
       }
+    }
+  }
+  if (cellJacobian) AddMixedPicardJacobian(*element, cellBlocks, pointStates, cellPicard);
+}
+
+void CNSSolver::AddMixedPicardJacobian(const CPrimalGrid& element, P1CellBlocks::Cell cellBlocks,
+                                      const P1ViscousEntropy::PointState* pointStates,
+                                      const P1ViscousEntropy::MixedPicardBlocks& cellPicard) {
+  namespace pve = P1ViscousEntropy;
+  const auto nNodes = element.GetnNodes();
+  for (unsigned short a = 0; a < nNodes; ++a) {
+    const auto row = element.GetNode(a);
+    for (unsigned short b = 0; b < nNodes; ++b) {
+      if (!cellPicard.used[a][b]) continue;
+      const auto col = element.GetNode(b);
+      /*--- W_b depends on nDim, Gamma and the same copied nodal state (including fixed SST k) for every split. ---*/
+      su2double block[pve::MAXNVAR][pve::MAXNVAR];
+      pve::MultiplyPicardBlock(nVar, cellPicard.blocks[a][b], pointStates[col].dwdu, block);
+      const su2double* rows[pve::MAXNVAR];
+      for (auto iVar = 0u; iVar < nVar; ++iVar) rows[iVar] = block[iVar];
+      if (a == b) Jacobian.AddBlock2Diag(row, rows);
+      else cellBlocks.AddOffDiag(Jacobian, a, b, row, col, rows);
     }
   }
 }
