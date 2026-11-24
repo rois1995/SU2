@@ -439,3 +439,121 @@ TEST_CASE("FP2-C3 work-list and full scans agree on three tents", "[.][NativeFP2
   };
   CHECK(run(true) == run(false));
 }
+
+TEST_CASE("FP2-C3 collapse guards the minimum length of each new edge", "[.][NativeFP2C3]") {
+  World world;
+  if (world.size != 1) return;
+  // The ring of 5-6 has opposite vertices {1,10,22,26}. The other cells
+  // in Star(5), after dropping those vertices, give {0,4,9,21,25}.
+  // Relative to (2,1,0) these have squared distances {5,4,2,2,3}.
+  // Scaling by (minimum / sqrt(2))^2 makes the two shortest edges
+  // exactly minimum in the metric. Both are short in the .009 arm.
+  const auto run = [](double minimum, bool outward, C3Refusal expected) {
+    CAPTURE(minimum, outward);
+    const auto scale = minimum / std::sqrt(2.);
+    auto rows = S33();
+    for (auto& entry : rows)
+      entry.second.sensor.fill({scale * scale, 0, 0, scale * scale, 0, scale * scale});
+    local::StateSurfaceGeometry overlay(EntityReference(rows, false), AtlasBudget());
+    TentOverlayGeometry geometry(rows, overlay);
+    local::Mesh mesh(rows, false, ContactOptions(outward));
+    const auto [edge, seed] = C2Edge(mesh, {TentRemove, TentKeep});
+    const auto [early, fresh, caps] = local::SurfaceFixtureAccess::TentPrepared(mesh, edge, seed, geometry);
+    REQUIRE(early == expected);
+    CHECK(fresh == (expected == C3Refusal::Size ? 0 : 9));
+    CHECK(caps == 0);
+    const auto snapshot = Snapshot(mesh), frozen = FrozenSnapshot(mesh);
+    const auto saved_overlay = OverlaySnapshot(mesh, overlay);
+    const auto keeper_edges = [&] {
+      std::map<Id, double> lengths;
+      for (const auto& use : mesh.Edges()) {
+        const auto a = mesh.Points()[use.edge[0]].node.id, b = mesh.Points()[use.edge[1]].node.id;
+        if (a == TentKeep || b == TentKeep) lengths.emplace(a == TentKeep ? b : a, mesh.Length(use.edge));
+      }
+      return lengths;
+    };
+    const auto old_edges = keeper_edges();
+    const auto live_point_count = [&] {
+      return std::count_if(mesh.Points().begin(), mesh.Points().end(), [](const auto& point) { return !point.removed; });
+    };
+    const auto old_points = live_point_count();
+    std::optional<local::LocalContactIndex> index;
+    std::optional<local::ContactContext> contact;
+    if (outward) {
+      index.emplace(mesh);
+      contact.emplace(local::ContactContext{*index, nullptr});
+    }
+    local::SurfaceCounters stats;
+    REQUIRE(mesh.CollapseSurface(edge, seed, geometry, 2, stats, true, {}, contact ? &*contact : nullptr) == expected);
+    const bool refused = expected == C3Refusal::Size;
+    CHECK(stats.c_refused_metric == (refused ? 1 : 0));
+    CHECK(stats.c_refusals[static_cast<size_t>(C3Refusal::Size)] == (refused ? 1 : 0));
+    CHECK(stats.c_refusals[static_cast<size_t>(C3Refusal::Protected)] == 1);
+    if (refused) {
+      CHECK(Snapshot(mesh) == snapshot);
+      CHECK(FrozenSnapshot(mesh) == frozen);
+      CHECK(OverlaySnapshot(mesh, overlay) == saved_overlay);
+      CHECK(live_point_count() == old_points);
+      CHECK(geometry.removed.empty());
+    } else {
+      CHECK(live_point_count() == old_points - 1);
+      CHECK(geometry.removed == std::set<Id>{TentRemove});
+      CHECK(overlay.Removals() == 1);
+      const std::map<Id, unsigned> squared_distances{{0, 5}, {4, 4}, {9, 2}, {21, 2}, {25, 3}};
+      std::vector<Id> new_neighbors;
+      size_t short_edges = 0;
+      for (const auto& [id, length] : keeper_edges()) {
+        if (old_edges.count(id)) continue;
+        new_neighbors.push_back(id);
+        REQUIRE(squared_distances.count(id) == 1);
+        CHECK(length == Approx(scale * std::sqrt(squared_distances.at(id))));
+        short_edges += length < local::HandoverMetricEdge;
+      }
+      CHECK(new_neighbors == std::vector<Id>{0, 4, 9, 21, 25});
+      CHECK(short_edges == (outward ? 0 : 2));
+    }
+  };
+  run(.009, true, C3Refusal::Size);
+  run(.011, true, C3Refusal::None);
+  run(.009, false, C3Refusal::None);
+}
+
+TEST_CASE("FP2-C3 reports distinct short edges after each surface step", "[.][NativeFP2C3]") {
+  World world;
+  if (world.size != 1) return;
+  class ProtectedGeometry final : public FlatGeometry {
+   public:
+    explicit ProtectedGeometry(const Owned& rows) : FlatGeometry(rows) {}
+    unsigned Dimension(Id) const override { return 0; }
+  };
+
+  // Three unit legs meet at the origin and the other three edges join the
+  // axis tips at distance sqrt(2). In the constant metric the lengths are
+  // .005 and .005*sqrt(2), all below .01. All points and edges lie on the skin.
+  const auto rows = BoundMesh({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}}, {{0, 1, 2, 3}}, .000025);
+  for (bool outward : {true, false}) {
+    CAPTURE(outward);
+    auto options = ContactOptions(outward);
+    options.surface_splits = options.distance_error_cut = true;
+    local::Mesh mesh(rows, false, options);
+    ProtectedGeometry geometry(rows);
+    const auto before = Snapshot(mesh);
+    local::IdSequence ids(3);
+    const auto stats = mesh.RunPass(ids, SIZE_MAX, true, options, &geometry);
+    CHECK(Snapshot(mesh) == before);
+    CHECK(ids.Peek() == 4);
+    CHECK(geometry.created.empty());
+    REQUIRE(mesh.Edges().size() == 6);
+    const size_t expected = outward ? 6 : 0;
+    CHECK(stats.surface.c_refused_metric == 0);
+    CHECK(stats.surface.short_after_l == expected);
+    CHECK(stats.surface.short_after_d == expected);
+    CHECK(stats.surface.short_after_c == expected);
+    std::ostringstream fields;
+    local::PrintSurfaceFields(fields, stats.surface);
+    const auto count = std::to_string(expected);
+    CHECK(fields.str().find(" c_refused_metric=0 short_after_l=" + count + " short_after_d=" + count +
+                            " short_after_c=" + count + " seconds_c_contact=") != std::string::npos);
+    if (!outward) std::cout << "FP2_C3 option_off_surface " << fields.str() << '\n';
+  }
+}

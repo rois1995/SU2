@@ -33,6 +33,19 @@ def load_trial(build, name, repeat):
     return path, row
 
 
+def historical_663_trials():
+    run.history_663_sources()
+    receipt = a.cut.read(run.RECEIPT_663)
+    history = {}
+    for name in run.RUNS:
+        repeats = (1,) if name == 'N6P' else (1, 2)
+        history[name] = [load_trial(run.BUILD_663, name, repeat) for repeat in repeats]
+        for path, trial in history[name]:
+            assert receipt['artifacts'][str(path)] == a.sha(path), path
+            assert trial['passed'] == (name != 'N6P'), path
+    return history
+
+
 def applies(name, marker):
     if marker == 'FP2_A LAB_S_ENTITY':
         return name == 'N1'
@@ -101,6 +114,47 @@ def contact_report(rows, phase, surface, passed):
     }
 
 
+def metric_observations(rows, phase, last_pass, surface):
+    def census(checkpoint, number, row_type):
+        match = [row for row in rows.get(row_type, ())
+                 if row['checkpoint'] == checkpoint and row['pass'] == str(number)
+                 and (row_type != 'edge' or row['order'] == '1')]
+        return match[0] if match else {}
+
+    out = census('out', phase, 'edge_bins')
+    shifted = census('shifted', 0, 'edge_bins') if phase == last_pass else {}
+    fields = {key: surface.get(key, run.NOT_AVAILABLE) for key in run.C3_METRIC_FIELDS}
+    fields = {key: int(value) if value.isascii() and value.isdecimal() else value
+              for key, value in fields.items()}
+    counts = {'out': int(out['lt_1e_2']) if out else run.NOT_AVAILABLE,
+              'shifted': int(shifted['lt_1e_2']) if shifted else run.NOT_AVAILABLE}
+    checkpoints = [(key, fields[key]) for key in run.C3_METRIC_FIELDS[1:]]
+    checkpoints.extend(counts.items())
+    return {
+        **fields, 'lt_1e_2': counts,
+        'first_short_checkpoint': run.first_short_checkpoint(checkpoints),
+        'smallest_metric_edge_out': census('out', phase, 'edge') or run.NOT_AVAILABLE,
+        'smallest_metric_edge_shifted': (census('shifted', 0, 'edge') or run.NOT_AVAILABLE)
+        if phase == last_pass else run.NOT_AVAILABLE,
+    }
+
+
+def observer_report(rows, phase):
+    observations = {}
+    for kind in run.OBSERVERS:
+        observed = [row for row in rows.get(kind, ()) if row.get('pass') == str(phase)]
+        # The summary row is required to distinguish an empty collection from an unavailable one.
+        group = 'BOUND_OBSERVER' if kind.startswith('BOUND_') else 'REFUSED_OBSERVER'
+        summaries = [row for row in rows.get(group, ()) if row.get('pass') == str(phase)]
+        available = any(row.get('status') == 'ok' for row in summaries)
+        observations[kind] = observed if observed or available else run.NOT_AVAILABLE
+    return {
+        'step_c_clocks_include_observer': True if observations['BOUND_OBSERVER'] != run.NOT_AVAILABLE
+        else run.NOT_AVAILABLE,
+        **observations,
+    }
+
+
 def report_rows(receipt, trial):
     at = run.c3.c2.fields_for_pass
     for rank, rows in receipt['rows_by_rank'].items():
@@ -124,6 +178,8 @@ def report_rows(receipt, trial):
                 'points_removed_by_c': int(surface.get('points_before_c', surface['points_out'])) -
                                        int(surface['points_out']),
                 **contact_report(rows, phase, surface, passed),
+                'hand_over_metric': metric_observations(rows, phase, last_pass, surface),
+                'lab_observers': observer_report(rows, phase),
                 'sweep_observations': sweep_observations(surface, rows.get('bound_refusal', ()))
                 if 'bound_refusal' in receipt['measurement'] else 'not available',
                 'refused': {key.removeprefix('c_refused_'): int(surface[key]) if key in surface else None
@@ -185,12 +241,16 @@ def compare_case(name, first, second):
 
 
 def run_campaign(build):
-    assert build != BASELINE
+    assert build > run.BUILD_663, 'Continuation comparisons require a new build.'
     references = run.reference_trials()
-    artifacts = {str(run.S0_LAB): a.sha(run.S0_LAB)}
+    historical = historical_663_trials()
+    candidates = {name: [load_trial(build, name, repeat) for repeat in (1, 2)] for name in references}
+    assert all(row['passed'] for trials in candidates.values() for _, row in trials), 'A trial failed alone.'
+    sources = (run.S0_LAB, *run.continuation_sources(), *run.history_663_sources())
+    artifacts = {str(path): a.sha(path) for path in sources}
     fingerprints, results, report = None, {}, []
     for name, (reference_path, reference) in references.items():
-        trials = [load_trial(build, name, repeat) for repeat in (1, 2)]
+        trials = candidates[name]
         first, second = (receipt for _, receipt in trials)
         for _, trial in trials:
             pins = {key: trial[key] for key in lab.FINGERPRINTS}
@@ -206,8 +266,11 @@ def run_campaign(build):
         artifacts[str(path)] = a.sha(path)
         results[name] = {'passed': result['passed'], 'first_difference': result['first_difference'],
                          'receipt': str(path)}
-        for label, receipt in zip(('S0', 'repeat1', 'repeat2'), (reference, first, second), strict=True):
-            report.extend(report_rows(receipt, label))
+        report.extend(report_rows(reference, 'S0'))
+        for repeat, (_, receipt) in enumerate(historical[name], 1):
+            report.extend(report_rows(receipt, f'build663_repeat{repeat}'))
+        for repeat, (_, receipt) in enumerate(trials, 1):
+            report.extend(report_rows(receipt, f'repeat{repeat}'))
     reports = HERE / 'reports'
     reports.mkdir(exist_ok=True)
     path = reports / f'FP2_C3_lab_{build}.json'
@@ -228,11 +291,16 @@ def run_campaign(build):
     baseline_events = a.cut.read(baseline_s)['runs'][f'build{BASELINE}']['events']
     artifacts[str(baseline_s)] = a.sha(baseline_s)
     engine_removals = {row['summary']['event']: row['engine_surface_removal'] for row in baseline_events}
-    a.sealed(path, {'build': build, 'baseline_build': BASELINE, 'per_pass': report, 'totals': totals,
+    a.sealed(path, {'build': build, 'baseline_build': BASELINE, 'historical_build': run.BUILD_663,
+                    'build663_N6P_repeat2': run.NOT_AVAILABLE, 'per_pass': report, 'totals': totals,
+                    'timing': {name: {f'repeat{repeat}': receipt['measurement']['pass_timing']
+                                      for repeat, (_, receipt) in enumerate(trials, 1)}
+                               for name, trials in candidates.items()},
                     'S0_S_engine_surface_removal': {'report': str(baseline_s), 'by_event': engine_removals}})
     artifacts[str(path)] = a.sha(path)
     result = {**fingerprints, 'passed': all(row['passed'] for row in results.values()),
-              'baseline_build': BASELINE, 'cases': results, 'fixture_receipt': str(fixture),
+              'baseline_build': BASELINE, 'historical_build': run.BUILD_663,
+              'cases': results, 'fixture_receipt': str(fixture),
               'artifacts': artifacts, 'report': str(path), 'compared_rows': list(ROW_NAMES)}
     a.sealed(run.case_path(build, 'N1', 1).parent / 'lab_acceptance.json', result)
     return result
@@ -276,6 +344,26 @@ def self_check():
     assert repeat_fields(run.CONTACT, contact) == repeat_fields(
         run.CONTACT, {**contact, 'peak_bytes': '20', 'seconds_verify': '1'})
     assert repeat_fields(run.CONTACT, contact) != repeat_fields(run.CONTACT, {**contact, 'verify_calls': '5'})
+    for name, trials in historical_663_trials().items():
+        assert len(trials) == (1 if name == 'N6P' else 2)
+        for _, trial in trials:
+            assert all(row['hand_over_metric']['c_refused_metric'] == run.NOT_AVAILABLE
+                       for row in report_rows(trial, 'build663'))
+    metric = {name: '0' for name in run.C3_METRIC_FIELDS}
+    metric.update({'pass': '1', 'c_refused_size': '1'})
+    assert not run.continuation_surface_problems(0, [metric], ['1'])
+    invalid = {**metric, 'c_refused_metric': '2', 'short_after_c': 'unavailable', 'short_after_l': '-1'}
+    problems = run.continuation_surface_problems(0, [invalid], ['1', '2'])
+    assert {(row['pass'], row['field'], row['observed']) for row in problems} == {
+        (1, 'c_refused_metric', '2'), (1, 'short_after_c', 'unavailable'), (1, 'short_after_l', '-1'),
+        *((2, name, None) for name in run.C3_METRIC_FIELDS)}
+    assert integer_fields(metric) != integer_fields({**metric, 'short_after_c': '1'})
+    observed = metric_observations({'edge_bins': [{'checkpoint': 'out', 'pass': '1', 'lt_1e_2': '3'}]},
+                                   1, 1, metric)
+    assert observed['first_short_checkpoint'] == 'out' and observed['lt_1e_2']['out'] == 3
+    assert all(run.LINE.fullmatch(('FP2_C3' if key.startswith('BOUND_') else 'FP2_D')
+                                  + f' {key} rank=0 pass=1 status=ok') for key in run.OBSERVERS)
+    assert all(key not in marker for key in run.OBSERVERS for marker in ROW_NAMES)
     print('FP2-C3 lab comparator self-check passed.')
 
 

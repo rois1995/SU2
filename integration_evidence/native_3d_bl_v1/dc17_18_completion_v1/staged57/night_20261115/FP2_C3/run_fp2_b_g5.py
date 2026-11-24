@@ -18,7 +18,8 @@ spec = spec_from_file_location('c1_surface_g5', C1 / DRIVER.name)
 prior = module_from_spec(spec)
 spec.loader.exec_module(prior)
 from retry_c1_restart import retry_restart, terminal_wait
-from run_c2_lab import D, ORDER, ORDER_SHA, S0, S0_BUILD as S0_BUILD_NUMBER, a, c3, failure_logs, verify_checkpoints
+from run_c2_lab import (BUILD_663, D, ORDER, ORDER_SHA, S0, S0_BUILD as S0_BUILD_NUMBER, a, c3,
+                        continuation_sources, failure_logs, history_663_sources, verify_checkpoints)
 
 cut, sha, workflow = prior.cut, prior.sha, prior.workflow
 WATCHDOG_ORDER = C1 / 'inputs/FP2_C1_CONTINUE_2.md'
@@ -40,6 +41,7 @@ def verify_orders():
     for path, digest in ((ORDER, ORDER_SHA), (WATCHDOG_ORDER, WATCHDOG_ORDER_SHA)):
         assert sha(path) == digest, path
         assert path.with_suffix('.sha256').read_text().split() == [digest, path.name], path
+    continuation_sources()
 
 
 def s0_receipt():
@@ -68,7 +70,8 @@ def prerequisite_sources(build):
     row = cut.read(lab_proof)
     assert row['passed'] and row['fixture_receipt'] == str(fixtures[0]), lab_proof
     assert all(case['passed'] for case in row['cases'].values()), lab_proof
-    assert row['baseline_build'] == S0_BUILD_NUMBER and set(row['cases']) == {'N1', 'N6', 'N6P'}
+    assert row['baseline_build'] == S0_BUILD_NUMBER and row['historical_build'] == BUILD_663
+    assert set(row['cases']) == {'N1', 'N6', 'N6P'}
     assert all(row[key] == value for key, value in fingerprints.items())
     artifacts = [Path(name) for name in row['artifacts']]
     assert artifacts and all(path.is_absolute() and sha(path) == row['artifacts'][str(path)] for path in artifacts)
@@ -237,6 +240,7 @@ def run(build_dir):
     verify_orders()
     build, _, _ = prior.lab.prepare(build_dir)
     label = build['build']
+    assert label > BUILD_663, 'Continuation run S requires a new build.'
     work = work_path(label)
     config = prior.config_for('S')
     payloads = runpy.run_path(str(workflow.PAYLOADS))
@@ -246,7 +250,8 @@ def run(build_dir):
                HERE / 'source_check.md', config, config.with_suffix('.cfg.sha256'), prior.FP2_A / 'run.cfg',
                build_dir / 'build_status.json', build_dir / 'source_pins.json']
     sources += [path for order in orders for path in (order, order.with_suffix('.sha256'))]
-    sources += [D / DRIVER.name, HERE / 'run_c2_lab.py', HERE / 'compare_lab.py']
+    sources += [D / DRIVER.name, HERE / 'run_c2_lab.py', HERE / 'compare_lab.py', HERE / 'report_s.py',
+                *continuation_sources(), *history_663_sources()]
     sources += reference_sources(payloads) + prerequisite_sources(build)
     try:
         run_attempt(work, build_dir, build, config, sources, payloads)

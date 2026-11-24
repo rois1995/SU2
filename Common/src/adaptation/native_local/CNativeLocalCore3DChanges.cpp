@@ -215,7 +215,9 @@ void Mesh::MeasureCollapse(Plan& plan, Slot keep, const std::vector<Slot>& incid
   for (const auto& cell : plan.fresh) {
     for (auto p : cell.vertices) {
       if (std::find(incident.begin(), incident.end(), p) != incident.end()) continue;
-      plan.score = std::max(plan.score, Length({keep, p}));
+      const double length = Length({keep, p});
+      plan.score = std::max(plan.score, length);
+      plan.shortest = std::min(plan.shortest, length);
     }
   }
   if (plan.score > LongEdge || longest_child > LongEdge) {

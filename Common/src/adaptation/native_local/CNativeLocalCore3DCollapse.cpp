@@ -298,6 +298,17 @@ Mesh::SurfaceCollapseTrial Mesh::PrepareSurfaceCollapse(Edge direction, const Ri
   if (attempt.plan.refusal == Refusal::Size) return refused(Reason::Size);
   if (attempt.plan.refusal == Refusal::Shape) return refused(Reason::Shape);
 
+  // The upper size bound also needs a lower bound for new edges at the keeper.
+  // By the link test, an existing keeper edge in a new cell is in incident.
+  // Step D leaves points close to the floor, and a collapse can connect two of
+  // them below it (N6P, build663). Use the strict census limit and Mesh::Length.
+  // Existing short edges can survive, and L and V can make them, so the census stays the gate.
+  if (options_.outward_collapses && attempt.plan.shortest < HandoverMetricEdge) {
+    auto trial = refused(Reason::Size);
+    trial.short_metric = true;
+    return trial;
+  }
+
   // The floating-point filter cannot certify the edits.
   if (!ExactlyPositive(attempt.plan)) return refused(Reason::Validity);
   for (size_t i = 0; i < changed.size(); ++i) {
@@ -322,7 +333,11 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
   const auto count = [&](Reason reason) {
     if (report && reason != Reason::None) ++counters.c_refusals[static_cast<unsigned>(reason)];
   };
-  for (const auto& trial : trials) count(trial.refusal);
+  if (report)
+    for (const auto& trial : trials) {
+      count(trial.refusal);
+      counters.c_refused_metric += trial.short_metric;
+    }
   const auto clock = [&] { return report ? SU2_MPI::Wtime() : 0.; };
   const auto test_contact = [&](const SurfaceCollapseTrial& trial) {
     if (!contact) return Reason::Contact;

@@ -19,13 +19,16 @@ a, cut, sha = prior.a, prior.cut, prior.sha
 OLD_FIXTURES = D / 'fixtures/build660'
 OLD_SCOPE = D / 'scoped/build660'
 OLD = OLD_FIXTURES / 'd_acceptance.json'
+CONTINUATION_PINS = (runner.CONTINUATION, runner.CONTINUATION.with_suffix('.sha256'), runner.CONTINUATION_CHECK)
+METRIC_FIELDS = set(runner.C3_METRIC_FIELDS)
 CONTACT = {*runner.CONTACT_COUNTERS, *runner.CONTACT_CLOCKS, 'c_refused_contact', 'c_refused_contact_remote'}
-FOCUSED = {'contact_serial': (1, '[.][NativeFP2C3]~[NativeFP2C3MPI]', 7),
+FOCUSED = {'contact_serial': (1, '[.][NativeFP2C3]~[NativeFP2C3MPI]', 9),
            'contact_mpi': (2, '[.][NativeFP2C3][NativeFP2C3MPI]', 3)}
 
 
 def verify_orders():
-    for path, digest in ((ORDER, ORDER_SHA), (runner.WATCHDOG_ORDER, runner.WATCHDOG_ORDER_SHA)):
+    for path, digest in ((ORDER, ORDER_SHA), (runner.CONTINUATION, runner.CONTINUATION_SHA),
+                         (runner.WATCHDOG_ORDER, runner.WATCHDOG_ORDER_SHA)):
         assert sha(path) == digest
         assert path.with_suffix(".sha256").read_text().split() == [digest, path.name]
 
@@ -47,18 +50,39 @@ def reference_pins():
                  *(OLD_FIXTURES / sub / 'rows.json' for sub in ('F1-F4', 'F5'))):
         pins[path] = sha(path)
     assert all(sha(path) == digest for path, digest in pins.items())
-    return {OLD: sha(OLD), **pins}
+    c3 = HERE / 'fixtures/build663/c3_acceptance.json'
+    prior.scope.c3.c2.committed(c3, 'ae9ef407fa')
+    assert cut.read(c3)['passed']
+    return {OLD: sha(OLD), c3: sha(c3), **pins}
+
+
+def without_metric_fields(values):
+    present = values.keys() & METRIC_FIELDS
+    if not present:
+        return values
+    assert present == METRIC_FIELDS and all(str(values[key]) == '0' for key in present), values
+    return {key: value for key, value in values.items() if key not in present}
+
+
+def project_off(value):
+    if isinstance(value, dict):
+        return {key: project_off(item) for key, item in without_metric_fields(value).items()}
+    if isinstance(value, list):
+        return [project_off(item) for item in value]
+    return value
 
 
 def off_rows(logs):
     count = 0
     for path in logs:
         for line in path.read_text(errors='replace').splitlines():
-            if 'NATIVE3D_LOCAL_SURFACE ' not in line:
+            if not any(marker in line for marker in ('NATIVE3D_LOCAL_SURFACE ', 'FP2_C3 option_off_surface ')):
                 continue
             values = dict(re.findall(r'\b([a-z_]+)=([^\s]+)', line))
-            assert CONTACT <= values.keys(), (path, line)
-            assert all(float(values[key]) == 0 for key in CONTACT), (path, line)
+            assert METRIC_FIELDS <= values.keys(), (path, line)
+            prior_fields = without_metric_fields(values)
+            assert CONTACT <= prior_fields.keys(), (path, line)
+            assert all(float(prior_fields[key]) == 0 for key in CONTACT), (path, line)
             count += 1
     return count
 
@@ -92,7 +116,7 @@ def run(build, selected):
     binary, fingerprints, pins = hidden.prepare(build)
     baseline = reference_pins()
     pins.update({str(path): sha(path) for path in
-                 (DRIVER, ORDER, ORDER.with_suffix('.sha256'), runner.SOURCE_CHECK, *baseline)})
+                 (DRIVER, ORDER, ORDER.with_suffix('.sha256'), runner.SOURCE_CHECK, *CONTINUATION_PINS, *baseline)})
     base = HERE / 'fixtures' / build.name
     artifacts = {}
     off_logs = []
@@ -106,6 +130,8 @@ def run(build, selected):
             return result
         if result['status'] == 'open_r6':
             open_r6.append(name)
+        elif name == 'contact_serial':
+            off_logs.append(Path(result['case']) / 'test_outer.log')
     add_progress(f'FP2-C3 build{fingerprints["build"]} focused serial/MPI receipts sealed. '
                  f'R6-open groups: {open_r6}. Starting option-off, FP1 and G1.')
 
@@ -121,11 +147,13 @@ def run(build, selected):
     off_logs.append(candidate)
 
     with ExitStack() as stack:
-        stack.enter_context(patch.multiple(hidden, HERE=HERE, ORDER_FILES=(ORDER, ORDER.with_suffix('.sha256')),
+        stack.enter_context(patch.multiple(hidden, HERE=HERE, ORDER_FILES=(ORDER, ORDER.with_suffix('.sha256'), *CONTINUATION_PINS),
                                             SOURCE_CHECK=runner.SOURCE_CHECK))
         stack.enter_context(patch.multiple(prior, HERE=HERE, BASE_SCOPE=OLD_SCOPE, BASE_FIXTURES=OLD_FIXTURES,
                                             DRIVER=DRIVER, reference_pins=lambda: baseline))
         stack.enter_context(patch.object(prior.scope, 'base_receipt', lambda path: cut.read(path)))
+        original_surface_result = prior.surface_result
+        stack.enter_context(patch.object(prior, 'surface_result', lambda path: project_off(original_surface_result(path))))
         original_patch = prior.patch.multiple
 
         def scope_patch(module, **kwargs):
@@ -169,6 +197,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.self_check:
         verify_orders()
+        assert without_metric_fields({'old': 42, **dict.fromkeys(METRIC_FIELDS, '0')}) == {'old': 42}
         print(f'Pinned {len(reference_pins())} FP2-D option-off artifacts.')
         sys.exit(0)
     try:

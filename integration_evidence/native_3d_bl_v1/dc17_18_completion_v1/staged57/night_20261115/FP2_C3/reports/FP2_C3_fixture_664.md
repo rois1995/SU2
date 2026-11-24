@@ -1,0 +1,9 @@
+# FP2-C3 continuation 1 fixtures, build664
+
+The continuation starts at the failed build663 lab checkpoint `ae9ef407fa`. The step-C change bounds each new keeper edge below by the existing strict hand-over census limit of 0.01. The upper size and shape tests, contact tests and final census still decide in their ordered places. S0 remains build660. [Continuation order](../inputs/FP2_C3_CONTINUE_1.md) · [Source check](../continuation1_source_check.md) · [Build663 failure](FP2_C3_663.md)
+
+Both targets built in 58.601 s with zero warnings and unchanged source pins. No pass-admission formula changed. The three print-only counts reuse the admitted edge workspace one checkpoint at a time, outside the step clocks. [Build664 receipt](../build664/build_status.json)
+
+The nine serial contact cases passed 10,314 assertions, including the unmodified seven cases and new fixtures (k) and (l). Fixture (k) observed one metric Size refusal for the direction that would create two 0.009 edges, preserved the mesh and overlay, accepted the 0.011 arm and established that the disabled control still creates both 0.009 edges. Fixture (l) measured six short live edges at each checkpoint with the option enabled and printed four zeros with the option disabled. All three MPI cases passed (898 / 727 assertions). No existing fixture value changed. [Serial receipt](../fixtures/build664/contact_serial/attempt1/result.json) · [MPI receipt](../fixtures/build664/contact_mpi/attempt1/result.json)
+
+The option-off comparison passed with the old fields exact. The fixture driver validated the four new zero fields separately on the printed control row. The inherited FP2-D cylinder and chain counts matched S0, and all 18 FP1 cohorts passed. G1 matched 375 / 114 / 228 records in 749.443 / 10.022 / 11.149 s. [Fixture acceptance](../fixtures/build664/c3_acceptance.json) · [Option-off comparison](../fixtures/build664/off_comparison.json)

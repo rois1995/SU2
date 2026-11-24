@@ -24,6 +24,16 @@ S0_LAB = D / 'cases/build660/lab_acceptance.json'
 ORDER = HERE / 'inputs/FAST_PATH_STAGE2_C3.md'
 ORDER_SHA = '87b804b6f54de048cb1c05f26dc87ab189096b6e6761526d86a91687849d511f'
 SOURCE_CHECK = HERE / 'source_check.md'
+CONTINUATION = HERE / 'inputs/FP2_C3_CONTINUE_1.md'
+CONTINUATION_SHA = 'f5d5c6ac5bc2e37a06bc53d0318ac4e86c734826ef52bd5c89061dbfb6184bb8'
+CONTINUATION_CHECK = HERE / 'continuation1_source_check.md'
+BASE_663 = 'ae9ef407fa'
+BUILD_663 = 663
+RECEIPT_663 = HERE / 'reports/FP2_C3_lab_663_partial.json'
+NOT_AVAILABLE = 'not available'
+C3_METRIC_FIELDS = ('c_refused_metric', 'short_after_l', 'short_after_d', 'short_after_c')
+OBSERVERS = ('BOUND_OBSERVER', 'BOUND_BIN', 'BOUND_ENTITY', 'BOUND_SLOW',
+             'REFUSED_OBSERVER', 'REFUSED_FACE', 'REFUSED_REGION')
 CONTACT = 'NATIVE3D_LOCAL_CONTACT'
 CONTACT_FAILURE = 'Native local surface contact'
 
@@ -31,12 +41,14 @@ WATCHDOG = lab.SECONDS
 PASS_TIME_RULE = 600
 WATCHDOG_ORDER = C1 / 'inputs/FP2_C1_CONTINUE_2.md'
 WATCHDOG_ORDER_SHA = 'f65f2f302302f8f546ffcc23bb84a9e2ababa40defd9995e9779be456a94eda3'
-RUNS = {'N1': (1, 'Serial'), 'N6': (6, 'MPI'), 'N6P': (6, 'Production1')}
+RUNS = {'N6P': (6, 'Production1'), 'N1': (1, 'Serial'), 'N6': (6, 'MPI')}
 LINE = re.compile(c1.LINE.pattern.replace('core|cells',
                   'core|cells|collapse_probe|query_budget|strict_observation|entity_faces|bound_refusal')
                   .replace('FP2_A LAB_S_PROOF', 'FP2_A LAB_S_(?:PROOF|ENTITY)')
                   .replace('|NATIVE3D_LOCAL_SURFACE',
-                           '|FP2_D (?:altitude|invariant|region|station|SHORT_FACE)|FP2_C3 embedding|NATIVE3D_LOCAL_CONTACT|FP2_C2 LAB_(?:ABOVE|MODEL_GAP|MISMATCH)|NATIVE3D_LOCAL_SURFACE'))
+                           '|FP2_D (?:altitude|invariant|region|station|SHORT_FACE|REFUSED_OBSERVER|REFUSED_FACE|REFUSED_REGION)'
+                           '|FP2_C3 (?:embedding|BOUND_[A-Z_]+)|NATIVE3D_LOCAL_CONTACT'
+                           '|FP2_C2 LAB_(?:ABOVE|MODEL_GAP|MISMATCH)|NATIVE3D_LOCAL_SURFACE'))
 COUNTERS = frozenset(('collapses_surface', 'c_sweeps', 'c_candidates', 'c_deferred',
                       'faces_before_c', 'points_before_c', 'c_bound_queries'))
 REFUSALS = tuple('c_refused_' + reason for reason in (
@@ -97,6 +109,45 @@ def reference_trials():
         assert qualified['artifacts'][str(path)] == a.sha(path), path
         references[name] = path, row
     return references
+
+
+def continuation_sources():
+    checksum = CONTINUATION.with_suffix('.sha256')
+    assert a.sha(CONTINUATION) == CONTINUATION_SHA, CONTINUATION
+    assert checksum.read_text().split() == [CONTINUATION_SHA, CONTINUATION.name], checksum
+    assert CONTINUATION_CHECK.is_file(), CONTINUATION_CHECK
+    return CONTINUATION, checksum, CONTINUATION_CHECK
+
+
+def history_663_sources():
+    fixture = HERE / 'fixtures/build663/c3_acceptance.json'
+    build = HERE / 'build663/build_status.json'
+    pins = HERE / 'build663/source_pins.json'
+    for path in (RECEIPT_663, fixture, build, pins):
+        c3.c2.committed(path, BASE_663)
+    receipt = a.cut.read(RECEIPT_663)
+    assert receipt['build'] == BUILD_663 and receipt['passed'] is False, RECEIPT_663
+    assert receipt['first_difference'] == {'rank': 0, 'pass': 2, 'field': 'lt_1e_2',
+                                          'observed': 1, 'maximum': 0}, RECEIPT_663
+    assert receipt['cases']['N6P']['trial_passed'] == {'repeat1': False, 'repeat2': None}
+    assert all(receipt['cases'][name]['passed'] for name in ('N1', 'N6'))
+    built, qualified = a.cut.read(build), a.cut.read(fixture)
+    assert built['passed'] and qualified['passed'] and built['source_pins_sha256'] == a.sha(pins)
+    assert all(built[key] == qualified[key] for key in lab.FINGERPRINTS)
+    for path, digest in receipt['artifacts'].items():
+        assert a.sha(Path(path)) == digest, path
+    return (RECEIPT_663, fixture, build, pins, *(Path(path) for path in receipt['artifacts']))
+
+
+def first_short_checkpoint(checkpoints):
+    """Return the first observed positive count in ordered (checkpoint, count) data."""
+    observed = False
+    for name, value in checkpoints:
+        if re.fullmatch(r'[0-9]+', str(value)):
+            observed = True
+            if int(value) > 0:
+                return name
+    return 'none observed' if observed else NOT_AVAILABLE
 
 
 def session_root(repeat, watchdog_retry=False):
@@ -259,6 +310,27 @@ def contact_problems(rank, rows, phases, ranks):
     return problems
 
 
+def continuation_surface_problems(rank, rows, phases=None):
+    problems = []
+    if phases is not None:
+        for phase in phases:
+            if not any(row.get('pass') == phase for row in rows):
+                for field in C3_METRIC_FIELDS:
+                    problems.append({'rank': rank, 'pass': int(phase), 'field': field, 'observed': None})
+    for row in rows:
+        for field in C3_METRIC_FIELDS:
+            raw = row.get(field)
+            invalid = raw is None or not re.fullmatch(r'[0-9]+', raw)
+            problem = {'rank': rank, 'pass': int(row['pass']), 'field': field, 'observed': raw}
+            if invalid:
+                problems.append(problem)
+            elif field == 'c_refused_metric' and re.fullmatch(r'[0-9]+', row.get('c_refused_size', '')):
+                maximum = int(row['c_refused_size'])
+                if int(raw) > maximum:
+                    problems.append({**problem, 'maximum': maximum})
+    return problems
+
+
 def evaluate(name, data, expected, loadavg):
     ranks = RUNS[name][0]
     pass_rows = {rank: {**rows, 'edge_bins': [row for row in rows.get('edge_bins', ())
@@ -294,7 +366,9 @@ def evaluate(name, data, expected, loadavg):
                     or not all(budget.get(field, '').isdigit() for field in BUDGET_FIELDS)
                     or int(budget['conservative_sum']) != int(budget['pass_admitted_bytes']) + int(budget['query_scratch_max'])):
                 result['problems'].append({'row': 'query_budget', 'rank': rank, 'observed': budget})
-        for surface in rows.get('NATIVE3D_LOCAL_SURFACE', ()):
+        surfaces = rows.get('NATIVE3D_LOCAL_SURFACE', ())
+        result['problems'].extend(continuation_surface_problems(rank, surfaces, phases))
+        for surface in surfaces:
             phase = int(surface['pass'])
             try:
                 sweep_counts = changes(surface)
@@ -354,14 +428,17 @@ def watchdog_evidence(case, result):
         return {}
     log_failures = failure_logs(lab_logs(case, result['ranks']), catch=True)
     peak_exceeded = result['peak_lower_bound_bytes'] > a.MEMORY * 1024
-    status = 'result_failed' if result['measurement']['failed_limits'] or log_failures or peak_exceeded else 'retry_allowed'
+    fields_failed = [item for rank, rows in result['rows_by_rank'].items()
+                     for item in continuation_surface_problems(int(rank), rows.get('NATIVE3D_LOCAL_SURFACE', ()))]
+    status = ('result_failed' if result['measurement']['failed_limits'] or log_failures or peak_exceeded
+              or fields_failed else 'retry_allowed')
     command = a.cut.read(case / 'command.json')
     if status == 'retry_allowed' and command['seconds_limit'] == 3 * WATCHDOG:
         status = 'open'
     evidence = {'status': status, 'seconds_limit': command['seconds_limit'],
                 'host_preflight': a.cut.read(case / 'test_host_preflight.json'),
                 'measurement_sha256': a.sha(case / 'measurement.json'), 'result_failure_logs': log_failures,
-                'job_peak_exceeded': peak_exceeded}
+                'job_peak_exceeded': peak_exceeded, 'continuation_fields_failed': fields_failed}
     a.sealed(case / 'watchdog.json', evidence)
     return evidence
 
@@ -380,7 +457,10 @@ def run(build, name, repeat, verify_only, watchdog_retry):
     assert ORDER.with_suffix('.sha256').read_text().split() == [ORDER_SHA, ORDER.name]
     assert a.sha(WATCHDOG_ORDER) == WATCHDOG_ORDER_SHA
     reference = reference_trials()[name][0]
+    continuation = continuation_sources()
+    history = history_663_sources()
     label = a.cut.read(build / 'build_status.json')['build']
+    assert label > BUILD_663, 'Continuation trials require a new build.'
     root = session_root(repeat, watchdog_retry)
     case = case_path(label, name, repeat, watchdog_retry)
     verify_launches_terminal()
@@ -400,7 +480,8 @@ def run(build, name, repeat, verify_only, watchdog_retry):
         support = (DRIVER, ORDER, ORDER.with_suffix('.sha256'), WATCHDOG_ORDER, SOURCE_CHECK, S0_LAB, reference,
                    D / 'run_c2_lab.py', D / 'compare_lab.py',
                    c1.DRIVER, c3.DRIVER, c3.c2.DRIVER, c3.prior.DRIVER, c3.prior.OLD_LAB, *checkpoints,
-                   *watchdog_inputs)
+                   HERE / 'run_lab_campaign.py', HERE / 'compare_lab.py',
+                   *continuation, *history, *watchdog_inputs)
         pins.update({str(path): a.sha(path) for path in support})
         return receipt, binary, pins
 

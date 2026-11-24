@@ -11,9 +11,10 @@ import run_c2_lab as runner
 def main(build):
     label = runner.a.cut.read(build / 'build_status.json')['build']
     progress = runner.HERE.parent / 'progress.md'
+    assert label > runner.BUILD_663, 'Continuation trials require a new build.'
     campaign = runner.HERE / f'lab_campaign{label}'
     campaign.mkdir(exist_ok=True)
-    sequence = [(name, repeat) for name in ('N1', 'N6', 'N6P') for repeat in (1, 2)]
+    sequence = [(name, repeat) for name in runner.RUNS for repeat in (1, 2)]
     for index, (name, repeat) in enumerate(sequence):
         trial_receipt = campaign / f'{name}_{repeat}.json'
         already_recorded = trial_receipt.is_file()

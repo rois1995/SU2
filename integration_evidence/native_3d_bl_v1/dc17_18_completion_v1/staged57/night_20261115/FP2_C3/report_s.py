@@ -22,7 +22,9 @@ table = prior.table
 SURFACE = 'NATIVE3D_LOCAL_SURFACE'
 SURFACE_STATE = 'NATIVE3D_LOCAL_SURFACE_STATE'
 SURFACE_BUDGET = 'NATIVE3D_LOCAL_SURFACE_BUDGET'
-from run_c2_lab import CONTACT, CONTACT_CLOCKS, CONTACT_COUNTS, CONTACT_COUNTERS, CONTACT_TIMES, D_FIELDS
+from run_c2_lab import (C3_METRIC_FIELDS, CONTACT, CONTACT_CLOCKS, CONTACT_COUNTS, CONTACT_COUNTERS,
+                        CONTACT_TIMES, D_FIELDS, NOT_AVAILABLE, first_short_checkpoint)
+SHORT = 'NATIVE3D_LOCAL_SHORT'
 COLLAPSE_FIELDS = ('splits_distance', 'sweeps_distance', 'path_max', 'path_splits', 'waits_neighbor',
                    'left_distance', *D_FIELDS, 'collapses_surface', 'c_sweeps', 'c_candidates', 'c_deferred', 'c_reverse_max',
                    'seconds_c', 'seconds_c_samples', 'seconds_c_entity', 'seconds_c_bound', 'c_bound_queries',
@@ -33,7 +35,9 @@ REFUSALS = tuple('c_refused_' + reason for reason in REASONS)
 BUDGET_FIELDS = ('overlay_peak', 'pass_admitted_bytes', 'query_scratch_max', 'conservative_sum', 'ceiling')
 S0_HISTORY = ('S0 is FP2-D at 0c6860fd3a. Its sealed build660 S workflow provides the comparison. '
               '[S0 report](../../FP2_D/reports/FP2_D_660.md)')
-NOT_AVAILABLE = 'not available'
+BUILD_663_HISTORY = ('Build663 failed N6P trial 1 at rank 0 in pass 2. Step C created a physical edge with '
+                     'metric length 0.0090487726. N1 and N6 passed both trials, and N6P trial 2 was gated out. '
+                     '[Failed lab report](FP2_C3_663.md)')
 CONTACT_COLUMNS = ('remote_rows', 'remote_bytes', 'owner_rows', 'owner_bytes', 'peak_bytes', 'verify_cells',
                    'verify_candidates', 'verify_calls', 'seconds_gather', 'seconds_verify')
 QUALITY = ('q_measured', 'q_bad', 'q_debt', 'j_measured', 'j_bad', 'j_debt')
@@ -46,6 +50,41 @@ def report_work(label):
     retry = work / runner.FULL_RETRY
     assert not all((path / 'run_receipt.json').is_file() for path in (work, retry))
     return retry if retry.is_dir() else work
+
+
+def short_observations(surfaces, short_rows, core=()):
+    def census(stage, phase, checkpoint):
+        rows = [row for row in short_rows if row.get('stage') == stage and row.get('pass') == phase
+                and row.get('checkpoint') == checkpoint]
+        count = next((row['lt_1e_2'] for row in rows if 'lt_1e_2' in row), NOT_AVAILABLE)
+        smallest = next((row for row in rows if row.get('order') == '1'), NOT_AVAILABLE)
+        return {'lt_1e_2': count, 'smallest': smallest}
+
+    result = {}
+    stages = {row['stage'] for row in (*surfaces, *short_rows, *core)}
+    for stage in sorted(stages, key=int):
+        fields = {row['pass']: row for row in surfaces if row['stage'] == stage}
+        phases = fields.keys() | {row['pass'] for row in short_rows
+                                  if row['stage'] == stage and row['checkpoint'] == 'c1'}
+        phases |= {row['pass'] for row in core if row['stage'] == stage and row['pass'] != '0'}
+        passes, checkpoints = {}, []
+        for phase in sorted(phases, key=int):
+            current = {key: fields.get(phase, {}).get(key, NOT_AVAILABLE) for key in C3_METRIC_FIELDS}
+            census_c1 = census(stage, phase, 'c1')
+            passes[phase] = {**current, 'c1': census_c1, 'out': NOT_AVAILABLE}
+            checkpoints.extend((f'pass {phase} {key}', current[key]) for key in C3_METRIC_FIELDS[1:])
+            checkpoints.append((f'pass {phase} c1', census_c1['lt_1e_2']))
+        shifted = census(stage, '0', 'shifted')
+        checkpoints.append(('pass 0 shifted', shifted['lt_1e_2']))
+        result[stage] = {'passes': passes, 'shifted': shifted,
+                         'first_short_checkpoint': first_short_checkpoint(checkpoints)}
+    return result
+
+
+def short_census_columns(row):
+    smallest = row['smallest']
+    return (row['lt_1e_2'], *(smallest.get(key, NOT_AVAILABLE) if isinstance(smallest, dict) else NOT_AVAILABLE
+                               for key in ('metric', 'space', 'a', 'b')))
 
 
 def collect(path, parse, candidate=False):
@@ -61,9 +100,10 @@ def collect(path, parse, candidate=False):
         for rank, lines in sorted(local.items()):
             rows = event['ranks'][str(rank)]
             for key, marker in (('surface', SURFACE), ('surface_state', SURFACE_STATE),
-                                ('surface_budget', SURFACE_BUDGET), ('contact', CONTACT)):
+                                ('surface_budget', SURFACE_BUDGET), ('contact', CONTACT), ('short', SHORT)):
                 rows[key] = [row for line in lines if (row := parse['fields'](line, marker))
                              and row['rank'] == str(rank) and row.get('applicable') != '0']
+            rows['hand_over_metric'] = short_observations(rows['surface'], rows['short'], rows['core_rows'])
             rows['clearance'] = [row for line in lines if (row := parse['fields'](line, 'NATIVE3D_TIMER'))
                                  and row['rank'] == str(rank) and row.get('root') == 'remesh'
                                  and row.get('operation') == 'clearance' and row.get('boundary') == 'final']
@@ -157,7 +197,7 @@ def peak_bytes(rows):
 
 def markdown(label, runs, cases, watchdog):
     summary, surface, budgets, engine_surface, collapse, phases, repairs, quality, missing = ([] for _ in range(9))
-    contact, slowest, clearance, handover, bad = ([] for _ in range(5))
+    contact, slowest, clearance, handover, bad, short, shifted = ([] for _ in range(7))
     for name, run in runs.items():
         for event in run['events']:
             row = event['summary']
@@ -188,6 +228,12 @@ def markdown(label, runs, cases, watchdog):
                                          if row.get('c_refused_' + reason, '0') != '0')
                     surface.append((*key, row['stage'], row['pass'], *(row.get(field, '—')
                                     for field in (*COLLAPSE_FIELDS, 'faces_out', 'points_out')), refusals or '—'))
+                for stage, census in rows['hand_over_metric'].items():
+                    for phase, row in census['passes'].items():
+                        short.append((*key, stage, phase, *(row[field] for field in C3_METRIC_FIELDS),
+                                      *short_census_columns(row['c1']), row['out']))
+                    shifted.append((*key, stage, *short_census_columns(census['shifted']),
+                                    census['first_short_checkpoint']))
                 for row in rows['contact']:
                     contact.append((*key, row['stage'], row['pass'], row['kind'],
                                     *(row.get(field, '—') for field in CONTACT_COLUMNS)))
@@ -219,7 +265,7 @@ def markdown(label, runs, cases, watchdog):
     lines = [f'# FP2-C3 build{label} S', '', 'FP2-C3: S passed; default path not yet proven', '',
              'Both remesh events and isolated restart passed the standing gates. The comparison uses the first '
              'FP2-D S run on build660.', '',
-             S0_HISTORY, '', f'[Fixture report and contact storage model](FP2_C3_fixture_{label}.md)', '',
+             S0_HISTORY, '', BUILD_663_HISTORY, '', f'[Fixture report and contact storage model](FP2_C3_fixture_{label}.md)', '',
              f'[Lab contact, embedding and memory observations](FP2_C3_lab_{label}.json)', '',
              *table(('Event', 'Run', 'Native maximum s', 'Cells', 'Points', 'Proof faces',
                      'Minimum coverage', 'Job peak bytes'), sorted(summary)),
@@ -229,6 +275,14 @@ def markdown(label, runs, cases, watchdog):
              'difference. Production rows do not distinguish the lab’s additional classes.', '',
              *table(('Event', 'Run', 'Rank', 'Stage', 'Pass', 'Cells after V', 'Bad total', 'Bad free',
                      'Bad constrained'), sorted(bad)),
+             '## Short metric-edge observations', '',
+             'The c1 census runs after step C. Its smallest edge has order 1. The production per-pass census '
+             'after volume work is unavailable. The first positive count is an observation and can include edges '
+             'already present at pass entry.', '',
+             *table(('Event', 'Run', 'Rank', 'Stage', 'Pass', *C3_METRIC_FIELDS, 'c1 lt_1e_2',
+                     'c1 metric', 'c1 space', 'c1 a', 'c1 b', 'out lt_1e_2'), sorted(short)),
+             *table(('Event', 'Run', 'Rank', 'Stage', 'Shifted lt_1e_2', 'Shifted metric', 'Shifted space',
+                     'Shifted a', 'Shifted b', 'First observed positive'), sorted(shifted)), '',
              '## Observed payload SHA256', '',
              *table(('File', 'SHA256'), sorted(runs[f'build{label}']['hashes'].items())),
              '## Core surface rows', '',
@@ -317,7 +371,7 @@ def failure_report(label, work):
     evaluated = {str(path): cut.read(path)['passed'] for path in sorted(
         (*case.glob('f3b_event*_timer_gate.json'), *case.glob('p7p8_event*_gate.json')))}
     lines = [f'# FP2-C3 build{label} S', '', status, '',
-             S0_HISTORY, '', f'[Fixture report and contact storage model](FP2_C3_fixture_{label}.md)', '',
+             S0_HISTORY, '', BUILD_663_HISTORY, '', f'[Fixture report and contact storage model](FP2_C3_fixture_{label}.md)', '',
              f'[Lab contact and embedding observations](FP2_C3_lab_{label}.json)', '',
              f'Step ended during {failure["stage"]}.', '',
              f'First recorded observation. {failure["first_observed_failure"]}', '',
@@ -351,6 +405,22 @@ def self_check():
     record = collect(runner.s0_receipt(), parse)
     assert len(record['events']) == 2
     assert not any(row['missing_observations'] for row in record['events'])
+    for event in record['events']:
+        for rows in event['ranks'].values():
+            for stage in rows['hand_over_metric'].values():
+                assert stage['passes']
+                for found in stage['passes'].values():
+                    assert found['short_after_c'] == NOT_AVAILABLE
+                    assert found['c1']['lt_1e_2'].isdigit()
+                    assert found['c1']['smallest']['order'] == '1'
+                assert stage['shifted']['lt_1e_2'].isdigit()
+    sample = {'stage': '0', 'pass': '1', 'short_after_l': 'unavailable', 'short_after_c': '2'}
+    data = short_observations([sample], [])
+    assert data['0']['passes']['1']['short_after_l'] == 'unavailable'
+    assert data['0']['first_short_checkpoint'] == 'pass 1 short_after_c'
+    missing = short_observations([], [], ({'stage': '0', 'pass': '1'},))
+    assert missing['0']['passes']['1']['short_after_c'] == NOT_AVAILABLE
+    assert missing['0']['first_short_checkpoint'] == NOT_AVAILABLE
     timing = timing_table({'build660': Path(cut.read(runner.s0_receipt())['case'])})
     assert '| Core surface collapse step |' in timing
     assert 'timing unavailable' not in timing

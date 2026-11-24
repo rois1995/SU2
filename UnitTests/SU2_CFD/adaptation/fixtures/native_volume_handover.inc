@@ -378,17 +378,21 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
   REQUIRE_FALSE(world.maximum(!qualified));
 }
 
+#include "native_c3_lab_observers.inc"
+
 class LabBoundObserver final : public local::SurfaceGeometry {
  public:
   LabBoundObserver(const local::Mesh& mesh, local::SurfaceGeometry& geometry, const BoundaryParameterState& state,
-                   bool capture_short)
-      : mesh_(mesh), geometry_(geometry), state_(state), sample_distance_(capture_short) {}
+                   bool capture_short, LabC3Observers* continuation)
+      : mesh_(mesh), geometry_(geometry), state_(state), sample_distance_(capture_short),
+        continuation_(continuation) {}
 
   double Tolerance() const override { return geometry_.Tolerance(); }
   bool Feature(const local::SurfaceEdge& edge) const override { return geometry_.Feature(edge); }
   local::SurfaceSamples Samples(const SurfaceFace& face) override {
     const auto samples = geometry_.Samples(face);
-    if (sample_distance_) distance_samples_.insert_or_assign(face.v, std::make_pair(face.facet, samples));
+    if (continuation_) continuation_->Sample(face, samples);
+    else if (sample_distance_) distance_samples_.insert_or_assign(face.v, std::make_pair(face.facet, samples));
     return samples;
   }
   std::optional<double> Chord(const std::array<Node, 2>& ends) override { return geometry_.Chord(ends); }
@@ -400,15 +404,29 @@ class LabBoundObserver final : public local::SurfaceGeometry {
     return geometry_.OnEntity(face, middle);
   }
   void Accept(local::SurfacePlacement&& placement) override { geometry_.Accept(std::move(placement)); }
-  unsigned Dimension(Id id) const override { return geometry_.Dimension(id); }
+  unsigned Dimension(Id id) const override {
+    // Distance work has no Dimension query; step C calls it before its first trial.
+    if (continuation_) continuation_->EndDistance();
+    return geometry_.Dimension(id);
+  }
   void Remove(Id id) override { geometry_.Remove(id); }
   bool OnEntityFace(const SurfaceFace& face) const override { return geometry_.OnEntityFace(face); }
 
   bool WithinTolerance(const SurfaceFace& face) override {
     const auto stamp = local::SurfaceFixtureAccess::SweepStamp(mesh_);
     if (!first_sweep_) first_sweep_ = stamp;
+    const auto work_before = continuation_ ? continuation_->BoundWorkBefore() : 0;
+    const auto start = continuation_ ? Clock::now() : Clock::time_point{};
     const auto within = geometry_.WithinTolerance(face);
-    if (!within) ++refusals_[{stamp, state_.Entity(state_.Geometry().Canonical(face.facet))}];
+    if (continuation_) continuation_->Bound(face, Seconds(start), within, work_before);
+    if (!within) {
+      try {
+        ++refusals_[{stamp, state_.Entity(state_.Geometry().Canonical(face.facet))}];
+      } catch (...) {
+        if (!continuation_) throw;
+        continuation_->BoundUnavailable();
+      }
+    }
     return within;
   }
 
@@ -419,6 +437,10 @@ class LabBoundObserver final : public local::SurfaceGeometry {
 
   template <class RecordRegion>
   void ReportShortFace(std::ostream& out, const Face& face, int rank, unsigned pass, RecordRegion record_region) {
+    if (continuation_) {
+      continuation_->ShortFace(out, face, rank, pass, record_region);
+      return;
+    }
     if (short_count_ >= 50) return;
     const auto& [facet, samples] = distance_samples_.at(face);
     if (slots_.empty()) {
@@ -465,6 +487,7 @@ class LabBoundObserver final : public local::SurfaceGeometry {
   size_t short_count_ = 0;
   std::map<Face, std::pair<Id, local::SurfaceSamples>> distance_samples_;
   std::map<Id, local::Slot> slots_;
+  LabC3Observers* continuation_;
 };
 
 size_t PartitionHandover(World& world, LabInput& input, const ReferenceState& reference,
@@ -554,14 +577,14 @@ class WingDistanceRegions {
   void Split(const std::array<Node, 2>& ends, const std::array<SurfaceFace, 2>& parents, bool error) {
     if (!Wing(parents[0]) && !Wing(parents[1])) return;
     const auto a = ends[0].p, b = ends[1].p;
-    const auto [eta, chord] = Planform({(a.x+b.x)/2, (a.y+b.y)/2, (a.z+b.z)/2});
-    if (const auto bin = Bin(eta, chord)) ++(error ? bins_[*bin].error : bins_[*bin].longest);
+    const auto [eta, chord] = WingPlanform({(a.x+b.x)/2, (a.y+b.y)/2, (a.z+b.z)/2});
+    if (const auto bin = WingDistanceBin(eta, chord)) ++(error ? bins_[*bin].error : bins_[*bin].longest);
   }
 
   void Short(Id facet, Point centroid) {
     if (std::get<2>(state_.Entity(facet)) != 2) return;
-    const auto [eta, chord] = Planform(centroid);
-    if (const auto bin = Bin(eta, chord)) ++bins_[*bin].short_faces;
+    const auto [eta, chord] = WingPlanform(centroid);
+    if (const auto bin = WingDistanceBin(eta, chord)) ++bins_[*bin].short_faces;
   }
 
   void Report(std::ostream& out, const local::Mesh& mesh, const SurfaceReasons& remaining,
@@ -569,8 +592,8 @@ class WingDistanceRegions {
     local::VisitLivePhysicalFaces(mesh, [&](const SurfaceFace& face, const std::array<Node, 3>& nodes) {
       if (!Wing(face)) return;
       const auto a = nodes[0].p, b = nodes[1].p, c = nodes[2].p;
-      const auto [eta, chord] = Planform({(a.x+b.x+c.x)/3, (a.y+b.y+c.y)/3, (a.z+b.z+c.z)/3});
-      if (const auto bin = Bin(eta, chord)) {
+      const auto [eta, chord] = WingPlanform({(a.x+b.x+c.x)/3, (a.y+b.y+c.y)/3, (a.z+b.z+c.z)/3});
+      if (const auto bin = WingDistanceBin(eta, chord)) {
         auto& counts = bins_[*bin];
         ++counts.faces;
         const auto key = CollapseFaceKey(face.v);
@@ -606,21 +629,6 @@ class WingDistanceRegions {
 
  private:
   bool Wing(const SurfaceFace& face) const { return std::get<2>(state_.Entity(face.facet)) == 2; }
-
-  static std::pair<double, double> Planform(Point p) {
-    const auto pi = std::acos(-1.);
-    const double leading = p.y * std::tan(pi / 6), trailing = .8059 + p.y * std::tan(15.8 * pi / 180);
-    return {p.y / 1.1963, (p.x - leading) / (trailing - leading)};
-  }
-
-  static std::optional<size_t> Bin(double eta, double chord) {
-    if (eta >= .98) return 4;
-    if (chord < .005) return 0;
-    if (chord < .02) return 1;
-    if (chord < .10) return 2;
-    if (chord > .90) return 3;
-    return std::nullopt;
-  }
 
   static double Median(std::vector<double>& values) {
     if (values.empty()) return NAN;
@@ -781,10 +789,13 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           surface->SetCallerBytes(transfer_memory::Add(geometry_caller, remote_bytes, admission.contact_bytes));
         }
         stats.report = true;
+        std::optional<LabC3Observers> continuation;
+        if (outward_collapses) continuation.emplace(mesh, *surface, !parallel || production);
         std::map<Face, SurfaceFace> pass_collapse_faces;
         if (surface_collapses) {
           stats.surface_collapse_sink = [&](const SurfaceFace& face) {
             pass_collapse_faces.insert_or_assign(CollapseFaceKey(face.v), face);
+            if (continuation) continuation->Commit(face);
           };
         }
         std::optional<LabBoundObserver> bound_observer;
@@ -797,6 +808,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
               bound_observer->ReportShortFace(short_rows, face, world.rank, pass,
                                               [&](Id facet, Point centroid) { regions.Short(facet, centroid); });
             }
+            if (continuation && reason == local::SurfaceRemaining::Refused) continuation->RefusedFace(face);
             if (pass != pass_count) return;
             std::sort(face.begin(), face.end());
             if (!remaining.emplace(face, reason).second)
@@ -813,10 +825,14 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         const bool trace = observation == SurfaceObservation::Diagnosis;
         const bool invariant = observation == SurfaceObservation::Invariant;
         if (observation != SurfaceObservation::None) probe.emplace(mesh, *surface, trace);
-        if (invariant)
-          stats.surface_refusal_sink = [&](const char*, const local::SurfaceEdge& edge, local::SurfaceRefusal refusal) {
-            probe->RefusedAfterPlace(edge, refusal);
+        if (invariant || continuation)
+          stats.surface_refusal_sink = [&](const char* step, const local::SurfaceEdge& edge,
+                                           local::SurfaceRefusal refusal) {
+            if (invariant) probe->RefusedAfterPlace(edge, refusal);
+            if (continuation) continuation->Refusal(step, edge, refusal);
           };
+        if (continuation)
+          stats.surface_near_sink = [&](char step, const std::string& row) { continuation->Near(step, row); };
         std::optional<size_t> bad_before_v;
         if (handover) {
           stats.sink = [&](const local::SweepRow& sweep) {
@@ -844,7 +860,8 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         local::SurfaceGeometry* geometry = probe ? &*probe : static_cast<local::SurfaceGeometry*>(surface.get());
         if (chosen_probe) geometry = &*chosen_probe;
         if (surface_collapses) {
-          bound_observer.emplace(mesh, *geometry, surface->State(), options.distance_error_cut);
+          bound_observer.emplace(mesh, *geometry, surface->State(), options.distance_error_cut,
+                                 continuation ? &*continuation : nullptr);
           geometry = &*bound_observer;
         }
         stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, geometry, remote ? &*remote : nullptr);
@@ -877,6 +894,11 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         local::PrintSurfaceFields(row, stats.surface);
         row << '\n';
         if (bound_observer) bound_observer->Report(row, world.rank, pass);
+        if (continuation) {
+          const auto measurement_start = Clock::now();
+          continuation->Report(row, world.rank, pass);
+          measurement_seconds += Seconds(measurement_start);
+        }
         ReportCollapseCore(row, stats, world.rank, pass);
         std::cout << row.str() << std::flush;
         if (chosen_probe) {

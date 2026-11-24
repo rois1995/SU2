@@ -1706,3 +1706,17 @@ FP2-C3 build663 N6P trial 1 reported the first observed result difference at ran
 FP2-C3 build663 N6P trial 1 failed in 858.792 s, first recorded difference={'rank': 0, 'pass': 2, 'field': 'lt_1e_2', 'observed': 1, 'maximum': 0}. Receipt FP2_C3/cases/build663/N6P/measurement.json. Next stop for gate disposition.
 
 FP2-C3 build663 lab FAILED. N1 and N6 passed both trials and matched exactly. N6P trial 1 ended in 858.792 s with one gate miss: rank 0, pass 2, physical edge (69215,74584) metric length 0.0090487725598145056, giving lt_1e_2=1 against 0. All 38 rank-pass checks across the five trials passed embedding and global contact verification. N6P's six snapshots matched, with 26,480 strict-checked faces, zero unexplained faces, zero model gaps and zero strict sink mismatches. The single read-only R5 diagnosis traced the edge to step C and found no wiring error. Keep the candidate with no retry. N6P trial 2, S and the default proof are unevaluated. The terminal audit confirms no owned build, test or solver remains. The closing checkpoint carries the exact FP2-C3 lab FAILED label. Stop under the signed order.
+
+FP2-C3 continuation 1 started at ae9ef407fa, verified at origin/codex/native-3d-bl. Scoped tracked sources are clean and the host has no owned workload. Verified and archived FP2_C3_CONTINUE_1.md, SHA256 f5d5c6ac5bc2e37a06bc53d0318ac4e86c734826ef52bd5c89061dbfb6184bb8. Whole-item source check is FP2_C3/continuation1_source_check.md. S0 stays 0c6860fd3a/build660, with build663 as the second report baseline. Next implement the step C floor, measurements and fixtures.
+
+FP2-C3 continuation 1 implemented the step C metric refusal, three print-only censuses, fixtures (k) and (l), and lab diagnostics. The five C3 harness drivers retain S0 and build663 evidence, and the report/parser self-checks passed. Build664 will compile both targets with the continuation and source check pinned. Next run all ordered fixture and identity cohorts.
+
+FP2-C3 continuation 1 build664 compiled both targets in 58.601 s with no new warnings and all source pins verified. Start the nine serial fixtures, three two-rank fixtures, option-off comparisons, FP1 and G1.
+
+FP2-C3 build664 focused serial/MPI receipts sealed. R6-open groups: []. Starting option-off, FP1 and G1.
+
+FP2-C3 continuation 1 build664 focused tests passed 9 serial cases (10,314 assertions) and 3 MPI cases on both ranks (898 / 727 assertions). The new fixture refused one direction with two short fresh edges, accepted the 0.011 arm, and measured six edges at all three gated-on checkpoints. Its option-off output printed all four zeros. The old fixture pins did not change. Next await option-off, 18 FP1 cohorts and G1.
+
+FP2-C3 continuation 1 build664 option-off cohorts and all 18 FP1 cases ran successfully. The FP2-D cylinder and chain matched S0. G1 serial is running. Next seal the complete option-off comparison and G1 identity results, then push and start N6P trial 1.
+
+FP2-C3 continuation 1 build664 fixtures PASSED. Exact option-off, four zeros independently verified on one control row, all 18 FP1 cohorts passed and G1 matched 375 / 114 / 228 (749.443 / 10.022 / 11.149 s). Receipt FP2_C3/fixtures/build664/c3_acceptance.json is sealed; fixture controller is terminal. Push the continuation fixture checkpoint, then run N6P trial 1.

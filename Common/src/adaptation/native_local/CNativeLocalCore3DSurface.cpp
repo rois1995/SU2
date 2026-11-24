@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <iostream>
 #include <limits>
 #include <ostream>
 #include <set>
@@ -214,7 +215,16 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
       << " c_contact_directions=" << s.c_contact_directions
       << " c_contact_candidates=" << s.c_contact_candidates << " c_contact_calls=" << s.c_contact_calls
       << " c_contact_rebuilds=" << s.c_contact_rebuilds << " c_contact_fresh_max=" << s.c_contact_fresh_max
-      << " seconds_c_contact=" << s.seconds_c_contact
+      << " c_refused_metric=" << s.c_refused_metric;
+  const auto print_short = [&](const char* name, const std::optional<size_t>& count) {
+    out << ' ' << name << '=';
+    if (count) out << *count;
+    else out << "unavailable";
+  };
+  print_short("short_after_l", s.short_after_l);
+  print_short("short_after_d", s.short_after_d);
+  print_short("short_after_c", s.short_after_c);
+  out << " seconds_c_contact=" << s.seconds_c_contact
       << " seconds_c_contact_build=" << s.seconds_c_contact_build;
   if (!s.c_changes.empty()) out << " c_changes=" << std::quoted(s.c_changes);
   if (!s.first_feature_reason.empty()) out << " first_feature_reason=" << std::quoted(s.first_feature_reason);
@@ -1050,11 +1060,37 @@ void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t 
     faces = PhysicalFaces().size();
     points = std::count_if(points_.begin(), points_.end(), [](const auto& p) { return p.surface && !p.removed; });
   };
+  const bool count_short = stats.report && options_.outward_collapses;
+  const auto short_edges = [&](const char* checkpoint) noexcept -> std::optional<size_t> {
+    const auto diagnostic = [&](const char* reason) noexcept {
+      try {
+        std::ostringstream row;
+        row << "NATIVE3D_LOCAL_SHORT_COUNT checkpoint=" << checkpoint
+            << " error=" << std::quoted(reason) << '\n';
+        std::cerr << row.str();
+      } catch (...) {}
+    };
+    try {
+      const auto edges = Edges();
+      return std::count_if(edges.begin(), edges.end(), [&](const auto& use) {
+        return Length(use.edge) < HandoverMetricEdge;
+      });
+    } catch (const std::exception& e) {
+      diagnostic(e.what());
+    } catch (...) {
+      diagnostic("unknown exception");
+    }
+    return std::nullopt;
+  };
   report(stats.surface.faces_in, stats.surface.points_in);
   SurfaceLength(geometry, point_ids, cell_limit, stats);
+  if (count_short) stats.surface.short_after_l = short_edges("after_l");
   SurfaceDistance(geometry, point_ids, cell_limit, stats);
+  if (count_short) stats.surface.short_after_d = short_edges("after_d");
   report(stats.surface.faces_before_c, stats.surface.points_before_c);
   if (options_.surface_collapses) SurfaceCollapseWork(geometry, stats, remote);
+  if (count_short)
+    stats.surface.short_after_c = options_.surface_collapses ? short_edges("after_c") : stats.surface.short_after_d;
   MarkUnresolved();
   report(stats.surface.faces_out, stats.surface.points_out);
   if (stats.report) {

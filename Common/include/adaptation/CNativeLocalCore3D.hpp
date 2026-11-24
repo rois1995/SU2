@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <functional>
 #include <iosfwd>
+#include <limits>
 #include <map>
 #include <optional>
 #include <set>
@@ -153,6 +154,8 @@ struct SurfaceCounters {
   size_t d_short_metric = 0, d_refused_metric = 0;
   size_t c_outward_tried = 0, collapses_outward = 0, c_contact_directions = 0;
   size_t c_contact_candidates = 0, c_contact_calls = 0, c_contact_rebuilds = 0, c_contact_fresh_max = 0;
+  size_t c_refused_metric = 0;
+  std::optional<size_t> short_after_l{0}, short_after_d{0}, short_after_c{0};
   double seconds_c_contact = 0, seconds_c_contact_build = 0;
   std::string c_changes;
 };
@@ -335,6 +338,7 @@ class Mesh {
     std::vector<FreshCell> fresh;
     Refusal refusal = Refusal::Ineligible;
     double score = 0;
+    double shortest = std::numeric_limits<double>::infinity();
     bool Accepted() const { return refusal == Refusal::None; }
   };
 
@@ -345,6 +349,7 @@ class Mesh {
     double reverse_max = 0;
     SurfaceCollapseRefusal refusal = SurfaceCollapseRefusal::None;
     unsigned failure_order = 0;
+    bool short_metric = false;
   };
 
   void BuildFaces(bool allow_border);
