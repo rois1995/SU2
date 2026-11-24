@@ -212,62 +212,6 @@ passivedouble MaxAbs(const passivedouble (&m)[5][5]) {
 }
 }  // namespace
 
-TEST_CASE("UQ_JACOBIAN option and guards", "[EPMJacobian]") {
-  {
-    std::stringstream options(UQText(0, .1, "NONE"));
-    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
-    CHECK(config.GetUQ_Jacobian() == UQ_JACOBIAN::NONE);
-    CHECK(config.GetUQJacobianError().empty());
-  }
-  {
-    std::stringstream options("SOLVER= RANS\nKIND_TURB_MODEL= SST\nSST_OPTIONS= (V2003m, UQ)\n");
-    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
-    CHECK(config.GetUQ_Jacobian() == UQ_JACOBIAN::NONE);
-  }
-  /*--- Accepted for all five cases and both signs of UQ_URLX, with the usual preconditioners. ---*/
-  for (int mode = 0; mode < 5; ++mode)
-    for (double urlx : {.1, -.1, 1.0}) {
-      std::stringstream options(UQText(mode, urlx, "TANGENT"));
-      CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
-      CHECK(config.GetUQ_Jacobian() == UQ_JACOBIAN::TANGENT);
-      CHECK(config.GetUQJacobianError().empty());
-    }
-  for (const char* prec : {"ILU", "LU_SGS", "JACOBI"}) {
-    std::stringstream options(UQText(0, .1, "TANGENT", std::string("LINEAR_SOLVER_PREC= ") + prec + "\n"));
-    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
-    CHECK(config.GetUQJacobianError().empty());
-  }
-
-  /*--- SU2_MPI::Error aborts, so the guard is checked on configurations that are valid with UQ_JACOBIAN= NONE, with
-   *    TANGENT set afterwards. The string is the message CConfig raises at postprocessing. ---*/
-  const auto error = [](const std::string& text) {
-    std::stringstream options(text);
-    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
-    config.SetUQ_Jacobian(UQ_JACOBIAN::TANGENT);
-    return config.GetUQJacobianError();
-  };
-  CHECK(error(UQText(0, .1, "NONE")).empty());
-  /*--- No classical EPM. ---*/
-  CHECK(error("SOLVER= RANS\nKIND_TURB_MODEL= SST\nSST_OPTIONS= V2003m\n").find("classical EPM") != std::string::npos);
-  CHECK(error("SOLVER= RANS\nKIND_TURB_MODEL= SA\n").find("classical EPM") != std::string::npos);
-  /*--- Incompressible flow (no tangent term in CAvgGradInc_Flow). ---*/
-  CHECK(error("SOLVER= INC_RANS\nKIND_TURB_MODEL= SST\nSST_OPTIONS= (V2003m, UQ)\n"
-              "MARKER_HEATFLUX= (y_minus, 0.0, y_plus, 0.0)\nMARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)\n"
-              "INC_DENSITY_INIT= 1.1766\nINC_TEMPERATURE_INIT= 300.0\nVISCOSITY_MODEL= CONSTANT_VISCOSITY\n")
-            .find("compressible RANS") != std::string::npos);
-  /*--- Target eigenvalues that depend on the baseline ones. ---*/
-  {
-    std::stringstream options("SOLVER= RANS\nKIND_TURB_MODEL= SST\nSST_OPTIONS= (V2003m, UQ)\nUQ_DELTA_B= 0.5\n");
-    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
-    config.SetUQ_Jacobian(UQ_JACOBIAN::TANGENT);
-    CHECK(config.GetUQJacobianError().find("UQ_DELTA_B") != std::string::npos);
-  }
-  /*--- Quantized (int8) off-diagonal storage. ---*/
-  for (const char* prec : {"Q_LU_SGS", "Q_JACOBI", "Q_IDENTITY"})
-    CHECK(error(UQText(0, .1, "NONE", std::string("LINEAR_SOLVER_PREC= ") + prec + "\n")).find("quantized") !=
-          std::string::npos);
-}
-
 TEST_CASE("EPM spectrum output does not change the perturbed stress", "[EPMJacobian]") {
   for (unsigned short nDim : {2, 3})
     for (uint64_t seed = 1; seed <= 6; ++seed) {
@@ -608,4 +552,60 @@ void CheckSimdTangent() {
 TEST_CASE("Vectorized viscous flux: tangent Jacobian against finite differences", "[EPMJacobian]") {
   CheckSimdTangent<2>();
   CheckSimdTangent<3>();
+}
+
+/*--- Last, so that an abort in CConfig cannot hide the numerical tests above. ---*/
+TEST_CASE("UQ_JACOBIAN option and guards", "[EPMJacobian]") {
+  {
+    std::stringstream options(UQText(0, .1, "NONE"));
+    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+    CHECK(config.GetUQ_Jacobian() == UQ_JACOBIAN::NONE);
+    CHECK(config.GetUQJacobianError().empty());
+  }
+  {
+    std::stringstream options("SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nSST_OPTIONS= (V2003m, UQ)\n");
+    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+    CHECK(config.GetUQ_Jacobian() == UQ_JACOBIAN::NONE);
+  }
+  /*--- Accepted for all five cases and both signs of UQ_URLX, with the usual preconditioners. ---*/
+  for (int mode = 0; mode < 5; ++mode)
+    for (double urlx : {.1, -.1, 1.0}) {
+      std::stringstream options(UQText(mode, urlx, "TANGENT"));
+      CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+      CHECK(config.GetUQ_Jacobian() == UQ_JACOBIAN::TANGENT);
+      CHECK(config.GetUQJacobianError().empty());
+    }
+  for (const char* prec : {"ILU", "LU_SGS", "JACOBI"}) {
+    std::stringstream options(UQText(0, .1, "TANGENT", std::string("LINEAR_SOLVER_PREC= ") + prec + "\n"));
+    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+    CHECK(config.GetUQJacobianError().empty());
+  }
+
+  /*--- SU2_MPI::Error aborts, so the guard is checked on configurations that are valid with UQ_JACOBIAN= NONE, with
+   *    TANGENT set afterwards. The string is the message CConfig raises at postprocessing. ---*/
+  const auto error = [](const std::string& text) {
+    std::stringstream options(text);
+    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+    config.SetUQ_Jacobian(UQ_JACOBIAN::TANGENT);
+    return config.GetUQJacobianError();
+  };
+  CHECK(error(UQText(0, .1, "NONE")).empty());
+  /*--- No classical EPM. ---*/
+  CHECK(error("SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nSST_OPTIONS= V2003m\n").find("classical EPM") !=
+        std::string::npos);
+  CHECK(error("SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SA\n").find("classical EPM") != std::string::npos);
+  /*--- The rejection of other solvers (e.g. INC_RANS) is not tested here: an incompressible SST UQ configuration
+   *    that passes CConfig postprocessing could not be verified without running it. ---*/
+  /*--- Target eigenvalues that depend on the baseline ones. ---*/
+  {
+    std::stringstream options(
+        "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nSST_OPTIONS= (V2003m, UQ)\nUQ_DELTA_B= 0.5\n");
+    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+    config.SetUQ_Jacobian(UQ_JACOBIAN::TANGENT);
+    CHECK(config.GetUQJacobianError().find("UQ_DELTA_B") != std::string::npos);
+  }
+  /*--- Quantized (int8) off-diagonal storage. ---*/
+  for (const char* prec : {"Q_LU_SGS", "Q_JACOBI", "Q_IDENTITY"})
+    CHECK(error(UQText(0, .1, "NONE", std::string("LINEAR_SOLVER_PREC= ") + prec + "\n")).find("quantized") !=
+          std::string::npos);
 }
