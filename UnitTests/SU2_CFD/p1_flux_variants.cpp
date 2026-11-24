@@ -10590,7 +10590,7 @@ TEST_CASE("P1 viscous point states match per-simplex gathers after each refresh"
   }
 }
 
-/*--- Check every cached |T| and g_a against recomputation, including after a coordinate update. ---*/
+/*--- Check geometry and wall terms against recomputation, including after a coordinate update. ---*/
 TEST_CASE("P1 viscous simplex geometry cache matches recomputation on a mixed mesh", "[P1Flux]") {
   const std::string mesh = "p1_mixed_simplex_geometry.su2";
   WriteMixedMesh(mesh, 3, 3, 0.2, 1.0);
@@ -10623,6 +10623,34 @@ TEST_CASE("P1 viscous simplex geometry cache matches recomputation on a mixed me
         P1Simplex::Geometry fresh;
         fresh.Set(3, coord);
         CHECK(*cached == fresh);
+
+        pve::NodeState state[4];
+        su2double dwdu[4][5][5];
+        for (auto a = 0u; a < 4; ++a) {
+          state[a].rho = 1.0 + 0.1 * a;
+          state[a].p = 0.9 + 0.2 * a;
+          state[a].vel[0] = 0.1 * (a + 1);
+          state[a].mu = 0.02;
+          state[a].kappa = 0.03;
+          state[a].k = 0.01 * (a + 1);
+          pve::EntropyVariableJacobian(3, kGamma, state[a], dwdu[a]);
+        }
+        pve::Element original, reused;
+        REQUIRE(original.Set(3, coord, state, kGas) > 0.0);
+        REQUIRE(reused.SetFromGeometry(3, *cached, state, kGas) > 0.0);
+        constexpr unsigned short faceNodes[3] = {1, 2, 3};
+        su2double normal[3], cachedNormal[3];
+        pve::WallFaceNormal(3, coord, 0, faceNodes, normal);
+        pve::WallFaceNormal(3, coord, 0, faceNodes, cachedNormal);
+        auto wall = [&](const pve::Element& E, const su2double* N, auto& residual, auto& jacobian) {
+          pve::NoSlipWall(E, 3, faceNodes, N, true, 1.1, 1, pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY,
+                          residual, dwdu, jacobian);
+        };
+        su2double residual[4][5], cachedResidual[4][5], jacobian[4][4][5][5], cachedJacobian[4][4][5][5];
+        wall(original, normal, residual, jacobian);
+        wall(reused, cachedNormal, cachedResidual, cachedJacobian);
+        CHECK(std::memcmp(residual, cachedResidual, sizeof(residual)) == 0);
+        CHECK(std::memcmp(jacobian, cachedJacobian, sizeof(jacobian)) == 0);
         ++cached;
       };
       if (element->GetnNodes() == 4) {

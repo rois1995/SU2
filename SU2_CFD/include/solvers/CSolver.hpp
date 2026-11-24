@@ -29,6 +29,7 @@
 
 #include "../../../Common/include/parallelization/mpi_structure.hpp"
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <string>
@@ -205,6 +206,17 @@ protected:
   vector<P1WallFace> P1WallFaces;    /*!< \brief Wall faces of the local elements (BC_WALL_ENTROPY_P1), sorted by element. */
   bool P1WallFacesReady = false;     /*!< \brief P1WallFaces is built on first use. */
   unsigned long P1WallFacesVersion = 0; /*!< \brief CGeometry::GetP1FluxVersion of the coordinates P1WallFaces was built on. */
+
+  /*--- Geometry follows mesh updates independently of the wall topology and moved shares. ---*/
+  unsigned long P1WallNormalsVersion = 0;
+  vector<std::array<su2double, 3>> P1WallNormals;  /*!< \brief Outward area vector per wall record. */
+  vector<CSysMatrix<su2mixedfloat>::BlockRef> P1WallBlocks;  /*!< \brief Packed off-diagonal refs per wall record. */
+
+  struct P1QuadFaceNormals {
+    su2double normal[4][3];
+  };
+  unsigned long P1QuadNormalsVersion = 0;
+  vector<vector<P1QuadFaceNormals>> P1QuadNormals;  /*!< \brief Split normals by marker, in quad traversal order. */
 
   /*--- VISC_P1_TIME_STEP (P1_TIME_STEP.md): block row bounds B_i of the Picard Jacobian of VISC_P1_ENTROPY and of the
    * weak no-slip walls, in the norms of the nodal entropy Hessians, from the last residual evaluation (fine grid,

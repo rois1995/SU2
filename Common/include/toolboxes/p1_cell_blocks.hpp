@@ -61,6 +61,20 @@ class P1CellBlocks {
     }
   };
 
+  /*! \brief Pack the ordered off-diagonal pairs for a cell or sub-simplex (bitwise target). */
+  template <class GetPoint>
+  static void BuildCell(const CGeometry& geometry, const Matrix& matrix, unsigned short nNodes,
+                        GetPoint point, BlockRef* refs) {
+    for (auto a = 0u; a < nNodes; ++a) {
+      const auto row = point(a);
+      const bool owned = geometry.nodes->GetDomain(row);
+      for (auto b = 0u; b < nNodes; ++b) {
+        if (a == b) continue;
+        *refs++ = owned ? matrix.GetBlockRef(row, point(b)) : BlockRef::Absent;
+      }
+    }
+  }
+
   /*! \brief Resolve ordered off-diagonal pairs in the matrix's stored pattern once (bitwise target). */
   void Build(const CGeometry& geometry, const Matrix& matrix) {
     if constexpr (!UseBlockRefs) return;
@@ -77,15 +91,8 @@ class P1CellBlocks {
     for (auto iElem = 0ul; iElem < nElem; ++iElem) {
       const auto* element = geometry.elem[iElem];
       const auto nNodes = element->GetnNodes();
-      auto index = offsets[iElem];
-      for (auto a = 0u; a < nNodes; ++a) {
-        const auto row = element->GetNode(a);
-        const bool owned = geometry.nodes->GetDomain(row);
-        for (auto b = 0u; b < nNodes; ++b) {
-          if (a == b) continue;
-          refs[index++] = owned ? matrix.GetBlockRef(row, element->GetNode(b)) : BlockRef::Absent;
-        }
-      }
+      BuildCell(geometry, matrix, nNodes, [element](auto a) { return element->GetNode(a); },
+                refs.data() + offsets[iElem]);
     }
   }
 

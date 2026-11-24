@@ -48,6 +48,7 @@
 #include "../../../Common/include/toolboxes/MMS/CUserDefinedSolution.hpp"
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/C1DInterpolation.hpp"
+#include "../../../Common/include/toolboxes/p1_cell_blocks.hpp"
 #include "../../include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../include/numerics/flow/p1_boundary_ghost.hpp"
@@ -4896,6 +4897,8 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
    * (P1_MIXED.md, Theorem X10), each as a boundary triangle with its own area vector, so that sum_k n_ik = -beta_i of
    * the split average is met exactly, warped faces included. ---*/
   const bool mixedP1 = config->GetEdge_Form_P1_Mixed();
+  const bool cacheQuadNormals = std::is_same_v<su2double, passivedouble> && weakP1 && mixedP1 &&
+                                iMesh == MESH_0 && !Jacobian.IsQuantized();
 
   /*--- Pick one numerics object per thread. ---*/
   CNumerics* conv_bound_numerics = numerics_container[CONV_BOUND_TERM + omp_get_thread_num()*MAX_TERMS];
@@ -5004,6 +5007,17 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
     if (weakNoSlip) continue;
 
     SU2_OMP_SAFE_GLOBAL_ACCESS(
+    vector<P1QuadFaceNormals>* quadNormals = nullptr;
+    std::size_t iQuad = 0;
+    if (cacheQuadNormals) {
+      const auto version = geometry->GetP1FluxVersion();
+      if (P1QuadNormalsVersion != version) {
+        P1QuadNormals.clear();
+        P1QuadNormalsVersion = version;
+      }
+      if (P1QuadNormals.empty()) P1QuadNormals.resize(config->GetnMarker_All());
+      quadNormals = &P1QuadNormals[iMarker];
+    }
     for (iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem ) {
       auto& element = geometry->bound[iMarker][iElem];
       const auto nNodes = element->GetnNodes();
@@ -5017,10 +5031,19 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
       if (weakP1 && (nNodes == 4)) {
         su2double* faceNormal = element->getNormal();
         const su2double savedNormal[3] = {faceNormal[0], faceNormal[1], faceNormal[2]};
-        std::array<const su2double*, 4> faceCoord;
-        for (unsigned short k = 0; k < 4; ++k) faceCoord[k] = geometry->nodes->GetCoord(element->GetNode(k));
-        su2double subNormal[4][3];
-        P1Mixed::QuadSubNormals(faceCoord, savedNormal, subNormal);
+        P1QuadFaceNormals localNormals;
+        const bool cached = quadNormals && iQuad < quadNormals->size();
+        auto* normals = &localNormals;
+        if (quadNormals) {
+          if (!cached) quadNormals->emplace_back();
+          normals = &(*quadNormals)[iQuad++];
+        }
+        if (!cached) {
+          std::array<const su2double*, 4> faceCoord;
+          for (unsigned short k = 0; k < 4; ++k) faceCoord[k] = geometry->nodes->GetCoord(element->GetNode(k));
+          P1Mixed::QuadSubNormals(faceCoord, savedNormal, normals->normal);
+        }
+        const auto& subNormal = normals->normal;
 
         /*--- (6,1,1)/24 of the triangle path, the weights of the approximate Jacobian of the weak nodal fluxes; closure C
          * gets the exact Jacobian of each sub-triangle (EsFaceJacobian), also at walls and symmetry planes (pressure flux,
@@ -5863,6 +5886,8 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
   }
   P1WallFacesReady = true;
   P1WallFacesVersion = geometry->GetP1FluxVersion();
+  P1WallNormals.clear();
+  P1WallBlocks.clear();
 }
 
 void CSolver::UpdateP1WallFaces(const CGeometry *geometry, const CConfig *config) {
@@ -5879,6 +5904,19 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
   UpdateP1WallFaces(geometry, config);
 
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+  const bool cache = std::is_same_v<su2double, passivedouble> && geometry->GetMGLevel() == MESH_0 &&
+                     !Jacobian.IsQuantized();
+  const auto version = geometry->GetP1FluxVersion();
+  const unsigned short nNodes = nDim + 1, refsPerWall = nNodes * (nNodes - 1);
+  const bool refreshNormals = cache && (P1WallNormalsVersion != version || P1WallNormals.size() != P1WallFaces.size());
+  const bool refreshBlocks = cache && implicit && (refreshNormals || P1WallBlocks.empty());
+  if (refreshNormals) {
+    geometry->PrepareP1SimplexGeometry(config->GetEdge_Form_P1_Mixed());
+    P1WallNormals.resize(P1WallFaces.size());
+    P1WallNormalsVersion = version;
+    P1WallBlocks.clear();
+  }
+  if (refreshBlocks) P1WallBlocks.resize(P1WallFaces.size() * refsPerWall);
   const su2double gamma = config->GetGamma(), gm1 = gamma - 1.0;
 
   /*--- GRID_ENTROPY_P1 (P1_ALE.md, 6.4): moving wall, v = v_w the grid velocity of the face nodes. Inviscid part closure
@@ -5906,9 +5944,9 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
   const su2double omegaSelf = (nDim == 2) ? 5.0 / 12.0 : 1.0 / 4.0;
   const su2double omegaOther = (nDim == 2) ? 1.0 / 12.0 : 1.0 / 24.0;
 
-  for (const auto& record : P1WallFaces) {
+  for (std::size_t iWall = 0; iWall < P1WallFaces.size(); ++iWall) {
+    const auto& record = P1WallFaces[iWall];
     const auto* elem = geometry->elem[record.elem];
-    const unsigned short nNodes = nDim + 1;
 
     /*--- EDGE_FORM_P1_MIXED: the wall element is a sub-simplex of a split average, its terms are scaled by omega_t
      * and use the shares |tau|/d (W = |t|/(d+1)), not the moved ones (P1_MIXED.md, 6.2). ---*/
@@ -5926,23 +5964,36 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
     for (unsigned short c = 0, k = 0; c < nNodes; ++c)
       if (c != record.opposite) faceNodes[k++] = c;
 
+    const auto* cachedGeometry = cache ? geometry->GetP1SimplexGeometry(record.elem) : nullptr;
+    if (cachedGeometry && subSimplex) cachedGeometry += record.simplex;
     const su2double* coord[pve::MAXNODE];
+    if (!cachedGeometry || refreshNormals) {
+      for (unsigned short c = 0; c < nNodes; ++c) coord[c] = geometry->nodes->GetCoord(point[c]);
+    }
     pve::NodeState state[pve::MAXNODE];
     for (unsigned short c = 0; c < nNodes; ++c) {
       const auto iPoint = point[c];
-      coord[c] = geometry->nodes->GetCoord(iPoint);
       pve::GatherNode(*base_nodes, iPoint, nDim, prandtlTurb, state[c]);
       /*--- SST: k of the total energy for dp/drho of the entropy-variable Jacobian (P1_SST_COUPLED.md, D3). ---*/
       if (turbNodes) state[c].k = turbNodes->GetSolution(iPoint, 0);
     }
     pve::Element simplex;
-    if (simplex.Set(nDim, coord, state, gasConst) == 0.0) {
+    const auto size = cachedGeometry ? simplex.SetFromGeometry(nDim, *cachedGeometry, state, gasConst)
+                                     : simplex.Set(nDim, coord, state, gasConst);
+    if (size == 0.0) {
       SU2_MPI::Error("BC_WALL_ENTROPY_P1: degenerate wall element.", CURRENT_FUNCTION);
     }
 
     /*--- Area vector A_f nu of the face, pointing away from the opposite node. ---*/
-    su2double faceNormal[3] = {0.0, 0.0, 0.0};
-    pve::WallFaceNormal(nDim, coord, record.opposite, faceNodes, faceNormal);
+    su2double localNormal[3];
+    auto* normal = cache ? P1WallNormals[iWall].data() : localNormal;
+    if (!cache || refreshNormals) pve::WallFaceNormal(nDim, coord, record.opposite, faceNodes, normal);
+    const auto* faceNormal = normal;
+
+    auto* refs = cache && implicit ? P1WallBlocks.data() + iWall * refsPerWall : nullptr;
+    if (refreshBlocks)
+      P1CellBlocks::BuildCell(*geometry, Jacobian, nNodes, [&point](auto a) { return point[a]; }, refs);
+    const P1CellBlocks::Cell blocks{refs, nNodes};
 
     /*--- Inviscid part: closure C with the pressure flux, as at Euler walls (entropy conservative). Symmetry planes
      * (BC_ENTROPY_P1, viscous): closure C is in Weak_BC_Residual, here only the SAT for u.n = 0 (P1_NOSLIP.md, 11.3). ---*/
@@ -6082,7 +6133,7 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
         const su2double* rows[pve::MAXNVAR];
         for (unsigned short iVar = 0; iVar < nVar; ++iVar) rows[iVar] = jac[c][b][iVar];
         if (b == c) Jacobian.AddBlock2Diag(pointC, rows);
-        else Jacobian.AddBlock(pointC, point[b], rows);
+        else blocks.AddOffDiag(Jacobian, c, b, pointC, point[b], rows);
       }
     }
   }
