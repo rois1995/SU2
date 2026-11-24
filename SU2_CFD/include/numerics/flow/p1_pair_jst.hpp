@@ -194,11 +194,12 @@ inline void AddSurrogateJacobian(unsigned short nDim, su2double gamma, const su2
  *        d flux/dU_i and d flux/dU_k.
  * \param[in] normal - Dissipation normal: the pair coefficient n_ik (SplitNormal) or its edge projection
  *                     (DissipationNormal).
+ * \param[in] shareFactor - Optional precomputed ShareFactor(share) for this pair.
  */
 template <class Matrix>
 inline void AddPairDissipation(unsigned short nDim, const Params& par, const Node& Ni, const Node& Nk,
                                const su2double* normal, su2double* flux, bool implicit, Matrix& jac_i, Matrix& jac_k,
-                               su2double share = 1.0) {
+                               su2double share = 1.0, const su2double* shareFactor = nullptr) {
   const unsigned short nVar = nDim + 2;
   /*--- Only an edge projection can vanish (n_ik perpendicular to e_ik): no term, and the stretching factor
    * (Lambda/lambda)^0.3 is not defined at lambda = 0. EDGE_FORM_P1_MIXED_DISS_MEAN scales the corrected radius by
@@ -207,7 +208,7 @@ inline void AddPairDissipation(unsigned short nDim, const Params& par, const Nod
   if (radius == 0.0) return;
   su2double lambda = CorrectedRadius(radius, Ni, Nk);
   if (share != 1.0) {
-    const su2double factor = ShareFactor(share);
+    const su2double factor = shareFactor ? *shareFactor : ShareFactor(share);
     lambda *= factor;
   }
   const Coefficients eps = DissipationCoefficients(par, Ni, Nk);

@@ -59,6 +59,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_pair_jst.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
+#include "../../SU2_CFD/include/solvers/CEulerSolver.hpp"
 #include "tecno_adjoint_checks.hpp"
 
 namespace {
@@ -11125,6 +11126,79 @@ namespace {
 const std::string MixedMeanOptions = MixedOptions +
     "EDGE_FORM_P1_MIXED_DISS= YES\nEDGE_FORM_P1_MIXED_DISS_ALIGNED= YES\nEDGE_FORM_P1_MIXED_DISS_MEAN= YES\n";
 }  // namespace
+
+TEST_CASE("Mixed split-pair cache matches indexed residual and Jacobian assembly", "[P1Flux]") {
+  if constexpr (!std::is_same_v<su2double, passivedouble>) return;
+
+  constexpr unsigned short nDim = 3, nVar = nDim + 2;
+  const std::string mesh = "p1_mixed_split_pair_cache.su2";
+  WriteMixedMesh(mesh, nDim, 3, 0.2, 1.0);
+  for (const bool meanDiss : {false, true}) {
+    CAPTURE(meanDiss);
+    const auto options = meanDiss ? MixedMeanOptions : MixedOptions +
+        "EDGE_FORM_P1_MIXED_DISS= YES\nEDGE_FORM_P1_MIXED_DISS_ALIGNED= YES\n";
+    MeshCase test(mesh, options + "EDGE_FORM_EC_FLUX= YES\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n"
+                                  "EDGE_COLORING_GROUP_SIZE= 1\n");
+    auto& geometry = *test.geometry;
+    auto* config = test.config.get();
+    geometry.PreprocessP2PComms(&geometry, config);
+    geometry.UpdateP1FluxCoefficients(config);
+    config->SetKind_TimeIntScheme(EULER_IMPLICIT);
+    CEulerSolver solver(&geometry, config, MESH_0);
+    REQUIRE(solver.Jacobian.HasSplitPairPattern());
+    REQUIRE_FALSE(solver.Jacobian.IsQuantized());
+    REQUIRE(GlobalSum(su2double(geometry.edges->GetSplitNodes().size())) > 0.0);
+
+    auto assemble = [&](unsigned short meshLevel) {
+      geometry.SetMGLevel(meshLevel);
+      solver.LinSysRes.SetValZero();
+      solver.Jacobian.SetValZero();
+      solver.SplitEdgeResidual(&geometry, config);
+      std::vector<std::array<su2double, nVar>> residual;
+      std::vector<std::array<su2mixedfloat, nVar * nVar>> blocks;
+      for (auto row = 0ul; row < geometry.GetnPointDomain(); ++row) {
+        std::copy_n(solver.LinSysRes.GetBlock(row), nVar, residual.emplace_back().begin());
+        auto saveBlock = [&](unsigned long col) {
+          std::copy_n(solver.Jacobian.GetBlock(row, col), nVar * nVar, blocks.emplace_back().begin());
+        };
+        saveBlock(row);
+        solver.Jacobian.ForEachOffDiagColumn(row, saveBlock);
+      }
+      return std::make_pair(std::move(residual), std::move(blocks));
+    };
+
+    auto* nodes = solver.GetNodes();
+    for (auto pass = 0u; pass < 3; ++pass) {
+      CAPTURE(pass);
+      for (auto point = 0ul; point < geometry.GetnPoint(); ++point) {
+        const auto id = geometry.nodes->GetGlobalIndex(point);
+        const su2double U[nVar] = {1.0 + 0.01 * (id % 7), 0.2, 0.02 * (id % 11), 0.01, 2.5};
+        nodes->SetSolution(point, U);
+        REQUIRE(nodes->SetPrimVar(point, solver.GetFluidModel()));
+        nodes->SetLambda(point, 3.0 + 0.1 * (id % 7 + pass));
+        nodes->SetSensor(point, 0.02 * (id % 3 + pass));
+        for (auto v = 0u; v < nVar; ++v)
+          nodes->GetUndivided_Laplacian(point)[v] = 0.03 * (id % (v + 2));
+      }
+      if (pass == 2) {
+        for (auto point = 0ul; point < geometry.GetnPoint(); ++point)
+          geometry.nodes->SetCoord(point, 2, 1.1 * geometry.nodes->GetCoord(point)[2]);
+        geometry.UpdateP1FluxCoefficients(config);
+      }
+      // The coarse-level guard selects indexed assembly on the same geometry and matrix.
+      const auto indexed = assemble(MESH_0 + 1);
+      const auto cached = assemble(MESH_0);
+      REQUIRE(indexed.first.size() == cached.first.size());
+      REQUIRE(indexed.second.size() == cached.second.size());
+      if (!indexed.first.empty())
+        CHECK(std::memcmp(indexed.first.data(), cached.first.data(),
+                          indexed.first.size() * sizeof(indexed.first.front())) == 0);
+      if (!indexed.second.empty())
+        CHECK(std::memcmp(indexed.second.data(), cached.second.data(),
+                          indexed.second.size() * sizeof(indexed.second.front())) == 0);
+    }
+  }
+}
 
 TEST_CASE("EDGE_FORM_P1_MIXED_DISS_MEAN: split shares pi of the node pairs per cell type and on a mixed mesh", "[P1Flux]") {
   for (int nDim : {2, 3}) {

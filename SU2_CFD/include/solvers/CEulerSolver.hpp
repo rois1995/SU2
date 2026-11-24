@@ -48,6 +48,20 @@ protected:
 
   su2activevector P1MovedThetaV; /*!< \brief VISC_P1_ENTROPY_MOVED: theta_v of each simplex, set by SetEdgeBlendLambda. */
 
+  using SplitBlockRef = CSysMatrix<su2mixedfloat>::BlockRef;
+  struct SplitPairData {
+    SplitBlockRef ii = SplitBlockRef::Absent, ik = SplitBlockRef::Absent;
+    SplitBlockRef ki = SplitBlockRef::Absent, kk = SplitBlockRef::Absent;
+    su2double shareFactor = 1.0;
+    su2double alignedNormal[3] = {};
+  };
+  vector<SplitPairData> P1SplitPairs;
+  unsigned long P1SplitPairsVersion = 0;
+  vector<P1PairJST::Node> P1SplitJSTNodes;
+
+  /*! \brief Cache the four block refs, pi^0.3 and projected normal in split-pair order (bitwise target). */
+  void PrepareP1SplitPairs(const CGeometry& geometry, bool meanDiss, bool alignedDiss);
+
   /*--- EDGE_FORM_ES_BLEND_CV work arrays (MESH_0, sized only with the option). ---*/
   su2activematrix ESBlendCVLambda; /*!< \brief lam^T of the pairs of each simplex (iElem, iPair), pair order of BlendEdges. */
   su2activematrix ESBlendCVBudget; /*!< \brief Star sums with the shares 1/(d+1) (iPoint, 0..3): P^c_i, D_i, P^v_i, D^v_i. */

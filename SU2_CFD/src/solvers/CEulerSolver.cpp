@@ -2068,6 +2068,36 @@ void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry, const CConfi
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
+void CEulerSolver::PrepareP1SplitPairs(const CGeometry& geometry, bool meanDiss, bool alignedDiss) {
+  const auto& pairs = geometry.edges->GetSplitNodes();
+  const auto version = geometry.GetP1FluxVersion();
+  if (P1SplitPairs.size() == pairs.size() && P1SplitPairsVersion == version) return;
+
+  P1SplitPairs.resize(pairs.size());
+  const bool hasPattern = Jacobian.HasSplitPairPattern();
+  for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+    const auto iPoint = pairs[iSplit][0], kPoint = pairs[iSplit][1];
+    auto& pair = P1SplitPairs[iSplit];
+    pair = {};
+    if (hasPattern) {
+      if (geometry.nodes->GetDomain(iPoint)) {
+        pair.ii = Jacobian.GetBlockRef(iPoint, iPoint);
+        pair.ik = Jacobian.GetBlockRef(iPoint, kPoint);
+      }
+      if (geometry.nodes->GetDomain(kPoint)) {
+        pair.ki = Jacobian.GetBlockRef(kPoint, iPoint);
+        pair.kk = Jacobian.GetBlockRef(kPoint, kPoint);
+      }
+    }
+    if (meanDiss) pair.shareFactor = P1PairJST::ShareFactor(geometry.edges->GetSplitShare()(iSplit));
+    if (alignedDiss)
+      P1PairJST::DissipationNormal(nDim, alignedDiss, geometry.edges->GetSplitNormal()[iSplit],
+                                   geometry.nodes->GetCoord(iPoint), geometry.nodes->GetCoord(kPoint),
+                                   pair.alignedNormal);
+  }
+  P1SplitPairsVersion = version;
+}
+
 void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched) {
   SU2_ZONE_SCOPED
 
@@ -2136,6 +2166,9 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
     /*--- Only with the split-pair pattern (not with the OpenMP reducer, which keeps the plain pattern). ---*/
     /*--- The current integration kind (explicit during matrix-free NEWTON_KRYLOV products), as the edge kernel. ---*/
     const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT) && Jacobian.HasSplitPairPattern();
+    const bool useCache = std::is_same_v<su2double, passivedouble> && geometry->GetMGLevel() == MESH_0 &&
+                          !Jacobian.IsQuantized() && !splitNodes.empty() &&
+                          (pairDiss || Jacobian.HasSplitPairPattern());
     namespace pbc = P1BoundaryClosure;
     auto esState = [&](unsigned long iPoint) {
       pbc::EsState S;
@@ -2180,8 +2213,16 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
       return N;
     };
     BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      if (useCache) {
+        PrepareP1SplitPairs(*geometry, meanDiss, alignedDiss);
+        if (pairDiss) {
+          P1SplitJSTNodes.resize(nPoint);
+          for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) P1SplitJSTNodes[iPoint] = jstNode(iPoint);
+        }
+      }
       for (auto iSplit = 0ul; iSplit < splitNodes.size(); ++iSplit) {
         const auto iPoint = splitNodes[iSplit][0], kPoint = splitNodes[iSplit][1];
+        const auto* cachedPair = useCache ? &P1SplitPairs[iSplit] : nullptr;
         su2double flux[MAXNVAR] = {};
         if (ecFlux) {
           P1AleEntropy::IsmailRoeFlux(nDim, Gamma, state(iPoint), state(kPoint), splitNormal[iSplit], flux);
@@ -2194,11 +2235,17 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
         if (pairDiss) {
           su2double alignedNormal[3];
           const su2double* dissNormal =
-              P1PairJST::DissipationNormal(nDim, alignedDiss, splitNormal[iSplit], geometry->nodes->GetCoord(iPoint),
-                                           geometry->nodes->GetCoord(kPoint), alignedNormal);
+              cachedPair ? (alignedDiss ? cachedPair->alignedNormal : splitNormal[iSplit])
+                         : P1PairJST::DissipationNormal(nDim, alignedDiss, splitNormal[iSplit],
+                                                        geometry->nodes->GetCoord(iPoint),
+                                                        geometry->nodes->GetCoord(kPoint), alignedNormal);
           const su2double share = meanDiss ? geometry->edges->GetSplitShare()(iSplit) : su2double(1.0);
-          P1PairJST::AddPairDissipation(nDim, jst, jstNode(iPoint), jstNode(kPoint), dissNormal, flux, implicit,
-                                        dissJac_i, dissJac_k, share);
+          if (cachedPair)
+            P1PairJST::AddPairDissipation(nDim, jst, P1SplitJSTNodes[iPoint], P1SplitJSTNodes[kPoint], dissNormal,
+                                         flux, implicit, dissJac_i, dissJac_k, share, &cachedPair->shareFactor);
+          else
+            P1PairJST::AddPairDissipation(nDim, jst, jstNode(iPoint), jstNode(kPoint), dissNormal, flux, implicit,
+                                         dissJac_i, dissJac_k, share);
         }
         const su2double massFlux = flux[0];
         if (turbMatched) addPairKine(iPoint, kPoint, flux);
@@ -2233,21 +2280,31 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
             P1SSTMatched::TransformJacobian(nVar, bi, kUp, tke(iPoint));
             P1SSTMatched::TransformJacobian(nVar, bk, kUp, tke(kPoint));
           }
-          /*--- Diagonal: [a][b] access (SetBlock2Diag); off-diagonal: flat blocks with row stride nVar (pointer overload). ---*/
+          /*--- The indexed fallback uses flat blocks with row stride nVar. Cached adds take row pointers. ---*/
           su2double flat_i[pbc::ES_NVAR * pbc::ES_NVAR], flat_k[pbc::ES_NVAR * pbc::ES_NVAR];
-          for (auto a = 0u; a < nVar; ++a) {
-            for (auto b = 0u; b < nVar; ++b) {
-              flat_i[a * nVar + b] = jac_i[a][b];
-              flat_k[a * nVar + b] = jac_k[a][b];
+          const su2double *rows_i[pbc::ES_NVAR], *rows_k[pbc::ES_NVAR];
+          if (cachedPair) {
+            for (auto a = 0u; a < nVar; ++a) {
+              rows_i[a] = jac_i[a];
+              rows_k[a] = jac_k[a];
+            }
+          } else {
+            for (auto a = 0u; a < nVar; ++a) {
+              for (auto b = 0u; b < nVar; ++b) {
+                flat_i[a * nVar + b] = jac_i[a][b];
+                flat_k[a * nVar + b] = jac_k[a][b];
+              }
             }
           }
           if (geometry->nodes->GetDomain(iPoint)) {
             Jacobian.AddBlock2Diag(iPoint, jac_i);
-            Jacobian.AddBlock(iPoint, kPoint, flat_k);
+            if (cachedPair) Jacobian.AddBlock(cachedPair->ik, rows_k);
+            else Jacobian.AddBlock(iPoint, kPoint, flat_k);
           }
           if (geometry->nodes->GetDomain(kPoint)) {
             Jacobian.SubtractBlock2Diag(kPoint, jac_k);
-            Jacobian.SubtractBlock(kPoint, iPoint, flat_i);
+            if (cachedPair) Jacobian.SubtractBlock(cachedPair->ki, rows_i);
+            else Jacobian.SubtractBlock(kPoint, iPoint, flat_i);
           }
         }
       }
