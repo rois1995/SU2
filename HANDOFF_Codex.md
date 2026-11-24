@@ -1,5 +1,7 @@
 # Native adaptation handoff
 
+FP2-D continuation 2 build660 passed the complete lab and S. The two adaptation events took 550.220 / 330.735 native seconds, with 53,188 / 47,718 proof faces. Isolated restart passed in 83.336 s. The default path remains unproven. The exact S-passed checkpoint authorizes FP2-C3 under its signed order. [FP2-D S report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_660.md)
+
 FP2-D continuation 1 build657 passed both N1 trials in seven marked sweeps. N6 trial 1 failed the metric-edge gate at rank 4, pass 2, with five edges below 1e-2. The candidate is held at the lab failure. The S checkpoint required for FP2-C3 is unproven. [FP2-D continuation 1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_657.md)
 
 FP2-D build656 failed N1 trial 1 at 40 marked step-D sweeps against a maximum of 39. The fixture checkpoint passed. The R5 diagnosis found no wiring error. The candidate is held at the failed lab gate. N6, N6P, N1Invariant, S and the default proof are unevaluated. [FP2_D_656](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_656.md)

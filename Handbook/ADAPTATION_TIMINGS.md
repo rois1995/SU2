@@ -2,6 +2,10 @@
 
 ## Fast path stage 2
 
+### FP2-D continuation 2 S, build660
+
+Native maxima were 550.220 and 330.735 s, with minimum timer coverage 97.892% and 98.800%. The remeshed outputs had 424,564 and 407,937 cells, and isolated restart took 83.336 s. The S0 native maxima were 598.347 and 416.655 s. [S comparison](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_660.md)
+
 ### FP2-D continuation 1 lab, build657
 
 N1 completed its two matching trials in 365.029 and 361.054 s. The first pass took 175.827 s at a starting one-minute load of 1.21. Step D completed seven marked sweeps with 8,636 splits, down from 40 marked sweeps in build656. N6 took 509.264 s and failed the metric-edge gate after pass 2. Its slowest pass took 48.238 s. S remains unevaluated. [FP2-D continuation 1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_657.md)

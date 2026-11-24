@@ -1662,3 +1662,11 @@ FP2-D continuation 1 build660 N6P trial 2 passed in 359.908 s, strict_checked=57
 FP2-D continuation 1 build660 N1Invariant trial 1 passed in 358.607 s, strict_checked=59476, unexplained=0, model_gap_entities=0. Receipt FP2_D/cases/build660/N1Invariant/measurement.json. Next compare repetitions and evaluate the alarm.
 
 FP2-D continuation 2 build660 lab PASSED. Exact pairs N1/N6/N6P, 59,476 / 57,118 / 57,664 strict faces, zero mismatches, no final metric edges below 0.01. N1Invariant 8,636 checked / zero violations. Metric split refusals 0 / 12 / 77 per trial. N6P alarm both trials 105 / 136, first failing thresholds 487 / 902. Lab receipt FP2_D/cases/build660/lab_acceptance.json. Next commit and push lab, then run S.
+
+FP2-D build660 lab pushed as c1e5a59639. Start S using the build658 solver under build660 provenance. The lab controller is terminal. FP2-C3 remains gated on the exact S-passed checkpoint.
+
+FP2-D build660 S event 1 receipts p7p8_event1_gate.json and f3b_event1_timer_gate.json passed. The production hand-over census showed no edge below 0.01 on all six ranks. The connected workflow is still running. Next await event 2, continued CFD and isolated restart.
+
+FP2-D build660 S event 2 remesh and timing receipts passed. Its production hand-over census reported one edge below 0.01 on rank 3 (minimum 0.00896807). This is an observation outside the lab hand-over gate, and the present rows do not attribute its creation to a specific operation. Next await continued CFD and the isolated restart receipt.
+
+FP2-D build660 S PASSED. Native maxima 550.220 / 330.735 s; timer coverage minima 97.892% / 98.800%; proof faces 53,188 / 47,718; job peaks 10,250,842,112 / 10,463,076,352 bytes. Both events and continued CFD passed, six payload digests verified, isolated restart 83.336 s, no owned job. Commit and push the exact FP2-D S-passed checkpoint, then verify, archive and read FP2-C3 under the user order.
