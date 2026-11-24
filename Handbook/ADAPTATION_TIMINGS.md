@@ -2,6 +2,10 @@
 
 ## Fast path stage 2
 
+### FP2-C3 continuation 1 S, build664
+
+Native maxima were 951.321 and 689.037 s, up from build660’s 550.220 and 330.735 s. Minimum timer coverage was 98.891% and 99.599%. At the slowest native rank of event 1, step C took 253.148 s, including 238.667 s in geometry-bound queries and 5.582 s in contact tests. The engine removed 687 and 522 surface points after hand-over, compared with 2,202 and 2,031 at build660. Isolated restart passed in 46.276 s after the sampler correction. The elapsed phase tables exclude the lab-only observer work. [S timing tables](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/reports/FP2_C3_664.md) · [Lab query breakdown](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/reports/FP2_C3_lab_664.md)
+
 ### FP2-C3 lab, build663
 
 N1 removed 21,960 surface points versus 5,682 at FP2-D S0. Its exact repeat matched. The first pass took 950.332 s and step C took 877.460 s, including 784.810 s in geometry-bound queries and 41.132 s in contact tests. The serial end check took 4.105 s after a 0.065 s gather. The independent embedding check is separate and took 34.799 s. N6 matched in both trials. N6P took 858.792 s and failed the metric-edge floor after pass 2, so C3 has no S timing. [FP2-C3 lab comparison and diagnosis](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/reports/FP2_C3_663.md)
