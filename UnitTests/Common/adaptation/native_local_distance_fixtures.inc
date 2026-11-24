@@ -539,3 +539,109 @@ TEST_CASE("FP2-D walks through a feature carrying midpoint error", "[.][NativeFP
   CHECK(result.sweeps.front().counters.splits == 1);
   CHECK(result.sweeps.front().counters.deferred == 0);
 }
+
+namespace {
+class PersistentLineGeometry final : public DistanceSampleGeometry {
+ public:
+  explicit PersistentLineGeometry(const Owned& rows) : DistanceSampleGeometry(rows) {}
+
+  double Tolerance() const override { return .018; }
+
+  local::SurfaceSamples Samples(const SurfaceFace& face) override {
+    local::SurfaceSamples samples{};
+    for (size_t i = 0; i < face.v.size(); ++i) {
+      const auto a = At(face.v[i]), b = At(face.v[(i + 1) % face.v.size()]);
+      if (a.y == 0 && a.z == 0 && b.y == 0 && b.z == 0) samples.distances[i + 1] = 2 * Limit();
+    }
+    return samples;
+  }
+};
+}  // namespace
+
+TEST_CASE("FP2-D screens persistent midpoint errors at the metric seed floor", "[.][NativeFP2D]") {
+  const auto rows = BoundMesh({{-.5, 0, 0}, {.5, 0, 0}, {0, 1, 0}, {0, 0, 1}},
+                              {{0, 1, 2, 3}}, .0025);
+  for (const bool enabled : {true, false}) {
+    CAPTURE(enabled);
+    local::Mesh mesh(rows, false, ErrorCut(enabled));
+    PersistentLineGeometry geometry(rows);
+    REQUIRE(mesh.Length({SlotOf(mesh, 0), SlotOf(mesh, 1)}) == Approx(.05));
+    const auto result = RunDistanceFixture(mesh, geometry);
+    const auto edges = mesh.Edges();
+    const auto below = std::count_if(edges.begin(), edges.end(),
+                                     [&](const auto& row) { return mesh.Length(row.edge) < local::HandoverMetricEdge; });
+    CHECK(result.counts.d_refused_metric == 0);
+    if (enabled) {
+      // Metric lengths .05 and .025 pass; .0125 stops. The halves occupy
+      // distinct tetrahedra, so both are cut in sweep 2 and leave eight Short faces.
+      CHECK(result.counts.splits_distance == 3);
+      CHECK(result.counts.sweeps_distance == 2);
+      CHECK(result.counts.left_short == 8);
+      CHECK(result.counts.left_short == result.remaining.size());
+      CHECK(result.counts.d_short_metric == 8);
+      CHECK(result.refusals.empty());
+      CHECK(below == 0);
+    } else {
+      // With the option off, the spatial-only longest-edge walk starts on a
+      // sqrt(1.25) spoke rather than the unit line. Both requests lead to 2-3,
+      // length sqrt(2), before the test ever cuts the error line itself.
+      REQUIRE_FALSE(geometry.attempts.empty());
+      CHECK((geometry.attempts.front() == Edge{2, 3}));
+      CHECK(result.counts.d_short_metric == 0);
+      CHECK(below > 0);
+      std::cout << "FP2_D chain_control splits=" << result.counts.splits_distance
+                << " sweeps=" << result.counts.sweeps_distance << " left=" << result.remaining.size()
+                << " left_short=" << result.counts.left_short << " below_metric=" << below << '\n';
+    }
+  }
+}
+
+TEST_CASE("FP2-D checks the inner spoke before committing a split", "[.][NativeFP2D]") {
+  const auto rows = BoundMesh({{-1, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {0, .001, .001}},
+                              {{0, 1, 2, 4}, {0, 1, 4, 3}}, 1);
+  for (const double floor : {local::HandoverMetricEdge, 0.0}) {
+    CAPTURE(floor);
+    FlatGeometry geometry(rows);
+    local::Mesh mesh(rows);
+    const auto before = Snapshot(mesh);
+    local::IdSequence ids(4);
+    local::SurfaceCounters stats;
+    std::string row;
+    // The physical children have unit-height third vertices C and D. The
+    // interior spoke to X has identity-metric length sqrt(2) * .001.
+    const auto result = mesh.SplitSurface({SlotOf(mesh, 0), SlotOf(mesh, 1)}, 0, geometry, ids, 1, SIZE_MAX,
+                                          stats, false, true, &row, floor);
+    if (floor > 0) {
+      CHECK(result == SurfaceRefusal::Near);
+      CHECK(stats.refused_near == 1);
+      CHECK(stats.d_refused_metric == 1);
+      CHECK(Snapshot(mesh) == before);
+      CHECK(ids.Peek() == 5);
+      CHECK(geometry.created.empty());
+      CHECK(row.find("outcome=refused reason=metric_floor m=5 blocker=4 m_xyz=0,0,0 length=") == 0);
+    } else {
+      CHECK(result == SurfaceRefusal::None);
+      CHECK(stats.d_refused_metric == 0);
+      CHECK(ids.Peek() == 6);
+      CHECK(mesh.Length({SlotOf(mesh, 4), SlotOf(mesh, 5)}) == Approx(std::sqrt(2.) * .001));
+    }
+    REQUIRE_NOTHROW(mesh.Check());
+  }
+}
+
+TEST_CASE("FP2-D screens a feature seed without face requests", "[.][NativeFP2D]") {
+  const auto rows = Box(1e-4);
+  local::Mesh mesh(rows, false, ErrorCut());
+  DistanceSampleGeometry geometry(rows);
+  geometry.feature = BoxDiagonal;
+  // Diagonal 0-2 is the longest edge of both parents, but its metric length
+  // is sqrt(2) * .01. Only its chord asks, so exactly one metric check stops it.
+  CHECK(mesh.Length(BottomEdge(mesh)) == Approx(std::sqrt(2.) * .01));
+  const auto result = RunDistanceFixture(mesh, geometry);
+  CHECK(result.sweeps.empty());
+  CHECK(result.counts.sweeps_distance == 0);
+  CHECK(result.counts.d_short_metric == 1);
+  CHECK(result.counts.d_refused_metric == 0);
+  CHECK(geometry.attempts.empty());
+  CHECK(result.remaining.empty());
+}

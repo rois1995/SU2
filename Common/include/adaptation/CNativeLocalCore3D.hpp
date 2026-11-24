@@ -38,6 +38,8 @@ constexpr int32_t Physical = -1;
 constexpr int32_t Border = -2;
 constexpr double LongEdge = SU2Native3D::MaximumMetricEdge * (1 - 1e-12);
 constexpr double ShortEdge = SU2Native3D::CoarseningMetricEdge;
+// The lab's hand-over census (since FP2-B) requires every core edge to meet this metric length.
+constexpr double HandoverMetricEdge = 1e-2;
 constexpr double BadMargin = 1 + 1e-12;
 constexpr unsigned PassCount = 2;
 
@@ -145,6 +147,7 @@ struct SurfaceCounters {
   size_t c_bound_queries = 0, query_scratch_max = 0;
   size_t faces_before_c = 0, points_before_c = 0;
   size_t d_error_edges = 0, d_marks_error = 0, d_marks_longest = 0, d_centroid_only = 0, d_nonfinite = 0;
+  size_t d_short_metric = 0, d_refused_metric = 0;
   std::string c_changes;
 };
 
@@ -257,7 +260,7 @@ class Mesh {
   Refusal Split(Edge edge, Slot seed, IdSequence& point_ids, uint32_t stamp, size_t cell_limit, PassStats& stats);
   SurfaceRefusal SplitSurface(Edge edge, Slot seed, SurfaceGeometry& geometry, IdSequence& point_ids,
                               uint32_t stamp, size_t cell_limit, SurfaceCounters& stats, bool progress_test,
-                              bool report = true, std::string* near_row = nullptr);
+                              bool report = true, std::string* near_row = nullptr, double metric_floor = 0);
   SurfaceCollapseRefusal CollapseSurface(
       Edge edge, Slot seed, SurfaceGeometry& geometry, uint32_t stamp, SurfaceCounters& counters, bool report,
       const std::function<void(const SU2Native3D::SurfaceFace&)>& sink = {});
@@ -380,14 +383,17 @@ class Mesh {
   SU2Native3D::SurfaceFace SurfaceFaceAt(PhysicalFace face) const;
   std::pair<Edge, double> LongestSurfaceEdge(const std::array<Edge, 3>& edges) const;
   Edge LongestSurfaceEdge(PhysicalFace face) const;
+  static double Length(const PointRow& a, const PointRow& b);
+  bool DistanceMetricTooShort(Edge edge, PassStats& stats) const;
   std::pair<Edge, double> ChosenSurfaceEdge(PhysicalFace face, const SurfaceErrors& errors) const;
   DistancePath FollowDistancePath(Edge edge, PhysicalFace face, const SurfaceGeometry& geometry,
                                   const SurfaceEdgeSet& refused,
                                   const SurfaceEdgeSet& border, const SurfaceErrors& errors, double floor,
-                                  size_t face_count, bool check_first) const;
+                                  size_t face_count, bool check_first, PassStats& stats) const;
   DistanceChoice ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
                                     const SurfaceChords& chords, const SurfaceEdgeSet& refused,
-                                    const SurfaceEdgeSet& border, const SurfaceErrors& errors, size_t face_count) const;
+                                    const SurfaceEdgeSet& border, const SurfaceErrors& errors, size_t face_count,
+                                    PassStats& stats) const;
   void WriteSurfaceNear(Edge edge, Slot slot, const SurfaceGeometry& geometry,
                         const std::array<SU2Native3D::SurfaceFace, 2>& old_faces, bool feature,
                         std::string& row) const noexcept;

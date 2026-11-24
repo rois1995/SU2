@@ -1,0 +1,59 @@
+Filters: [.][NativeFP2D]
+FP2_D cylinder off_splits=27 on_splits=15 sweeps=1 left_refused=1
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+FP2-D screens persistent midpoint errors at the metric seed floor
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/native_local_distance_fixtures.inc:561
+...............................................................................
+
+../../UnitTests/Common/adaptation/native_local_distance_fixtures.inc:575: FAILED:
+  CHECK( result.counts.splits_distance == (enabled ? 3 : 63) )
+with expansion:
+  227 == 63
+with message:
+  enabled := false
+
+../../UnitTests/Common/adaptation/native_local_distance_fixtures.inc:576: FAILED:
+  CHECK( result.counts.sweeps_distance == (enabled ? 2 : 6) )
+with expansion:
+  22 == 6
+with message:
+  enabled := false
+
+../../UnitTests/Common/adaptation/native_local_distance_fixtures.inc:577: FAILED:
+  CHECK( result.counts.left_short == (enabled ? 8 : 128) )
+with expansion:
+  0 == 128
+with message:
+  enabled := false
+
+../../UnitTests/Common/adaptation/native_local_distance_fixtures.inc:578: FAILED:
+  CHECK( result.counts.left_short == result.remaining.size() )
+with expansion:
+  0 == 64
+with message:
+  enabled := false
+
+../../UnitTests/Common/adaptation/native_local_distance_fixtures.inc:581: FAILED:
+  CHECK( result.refusals.empty() )
+with expansion:
+  false
+with message:
+  enabled := false
+
+../../UnitTests/Common/adaptation/native_local_distance_fixtures.inc:585: FAILED:
+  CHECK( below == (enabled ? 0 : 64) )
+with expansion:
+  726 (0x2d6) == 64
+with message:
+  enabled := false
+
+===============================================================================
+test cases:   18 |   17 passed | 1 failed
+assertions: 2266 | 2260 passed | 6 failed
+

@@ -205,7 +205,8 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
       << " faces_before_c=" << s.faces_before_c << " points_before_c=" << s.points_before_c;
   out << " d_error_edges=" << s.d_error_edges << " d_marks_error=" << s.d_marks_error
       << " d_marks_longest=" << s.d_marks_longest << " d_centroid_only=" << s.d_centroid_only
-      << " d_nonfinite=" << s.d_nonfinite;
+      << " d_nonfinite=" << s.d_nonfinite << " d_short_metric=" << s.d_short_metric
+      << " d_refused_metric=" << s.d_refused_metric;
   if (!s.c_changes.empty()) out << " c_changes=" << std::quoted(s.c_changes);
   if (!s.first_feature_reason.empty()) out << " first_feature_reason=" << std::quoted(s.first_feature_reason);
   if (!s.first_trace_reason.empty()) out << " first_trace_reason=" << std::quoted(s.first_trace_reason);
@@ -317,7 +318,7 @@ void Mesh::WriteSurfaceNear(Edge edge, Slot slot, const SurfaceGeometry& geometr
 
 SurfaceRefusal Mesh::SplitSurface(Edge edge, Slot seed, SurfaceGeometry& geometry, IdSequence& point_ids,
                                   uint32_t stamp, size_t cell_limit, SurfaceCounters& stats, bool progress_test,
-                                  bool report, std::string* near_row) {
+                                  bool report, std::string* near_row, double metric_floor) {
   const auto refuse = [&](SurfaceRefusal code) {
     if (report) ++(stats.*RefusalCount(code));
     return code;
@@ -383,6 +384,47 @@ SurfaceRefusal Mesh::SplitSurface(Edge edge, Slot seed, SurfaceGeometry& geometr
 
   PointRow middle{point.node, Mean(a.tensor, b.tensor)};
   middle.surface = true;
+  if (metric_floor > 0) {
+    // Rule 2 bounds physical altitude. Bound every proposed edge with the hand-over census metric.
+    // A later collapse or volume edit can still make a short edge, so the final census stays the gate.
+    const auto refuse_metric = [&](SurfaceRefusal code) {
+      if (report) ++stats.d_refused_metric;
+      return refuse(code);
+    };
+    std::set<Slot> vertices;
+    for (const auto cell : ring.cells)
+      vertices.insert(cells_[cell].vertices.begin(), cells_[cell].vertices.end());
+    Slot blocker = NoSlot;
+    double blocked_length = 0;
+    for (const auto vertex : vertices) {
+      double length;
+      try {
+        length = Length(middle, points_[vertex]);
+      } catch (const std::runtime_error&) {
+        return refuse_metric(SurfaceRefusal::Validity);
+      }
+      if (!std::isfinite(length)) return refuse_metric(SurfaceRefusal::Validity);
+      if (length < metric_floor && blocker == NoSlot) {
+        blocker = vertex;
+        blocked_length = length;
+      }
+    }
+    if (blocker != NoSlot) {
+      if (report && near_row) {
+        try {
+          const auto& p = middle.node.p;
+          std::ostringstream out;
+          out << std::setprecision(17) << "outcome=refused reason=metric_floor"
+              << " m=" << middle.node.id << " blocker=" << points_[blocker].node.id
+              << " m_xyz=" << p.x << ',' << p.y << ',' << p.z << " length=" << blocked_length;
+          *near_row = out.str();
+        } catch (...) {
+          near_row->clear();
+        }
+      }
+      return refuse_metric(SurfaceRefusal::Near);
+    }
+  }
   if (progress_test && options_.split_progress) {
     const auto limit = Length(edge) * (1 - 1e-12);
     if (!TrialEdgeShorter(a, middle, limit) || !TrialEdgeShorter(middle, b, limit))
@@ -623,10 +665,18 @@ std::pair<Edge, double> Mesh::ChosenSurfaceEdge(PhysicalFace face, const Surface
   return {ById(chosen), length};
 }
 
+bool Mesh::DistanceMetricTooShort(Edge edge, PassStats& stats) const {
+  // Halves can be near or below the hand-over limit. A placed point can leave the chord,
+  // and its new edges need not be equal. SplitSurface tests their actual lengths.
+  const bool short_metric = options_.distance_error_cut && Length(edge) < 2 * HandoverMetricEdge;
+  if (short_metric) stats.Increment(stats.surface.d_short_metric);
+  return short_metric;
+}
+
 Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const SurfaceGeometry& geometry,
                                             const SurfaceEdgeSet& refused,
                                             const SurfaceEdgeSet& border, const SurfaceErrors& errors, double floor,
-                                            size_t face_count, bool check_first) const {
+                                            size_t face_count, bool check_first, PassStats& stats) const {
   // A nonfeature error edge carries an above-limit midpoint sample on at least one face. Mark it
   // directly so independent cuts are not serialized (N1 build656 concentrated requests on few ends
   // and took 40 sweeps). The pooled sample guarantees neither a decrease nor a sweep count. The
@@ -641,6 +691,7 @@ Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const 
       if (refused.count(ids) || border.count(ids) || ring.border) return {edge, steps, true};
       // The error key can lead to a shorter edge, so apply the floor at each lock check.
       if (options_.distance_error_cut && Distance(points_, edge) < floor) return {edge, steps, true};
+      if (DistanceMetricTooShort(edge, stats)) return {edge, steps, true};
     }
     if (!errors.empty()) {
       const auto ids = Ids(points_, edge);
@@ -664,7 +715,7 @@ Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const 
 Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
                                              const SurfaceChords& chords, const SurfaceEdgeSet& refused,
                                              const SurfaceEdgeSet& border, const SurfaceErrors& errors,
-                                             size_t face_count) const {
+                                             size_t face_count, PassStats& stats) const {
   const auto edges = FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face));
   const auto feature = std::find_if(edges.begin(), edges.end(), [&](Edge edge) {
     const auto ids = Ids(points_, edge);
@@ -678,9 +729,10 @@ Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGe
   if (refused.count(ids)) return {edge, feature_chord, SurfaceRemaining::Refused};
   if (border.count(ids)) return {edge, feature_chord, SurfaceRemaining::Border};
   if (length < 2 * limit) return {edge, feature_chord, SurfaceRemaining::Short};
+  if (DistanceMetricTooShort(edge, stats)) return {edge, feature_chord, SurfaceRemaining::Short};
 
   if (feature_chord) return {edge, true, std::nullopt};
-  const auto path = FollowDistancePath(edge, face, geometry, refused, border, errors, 2 * limit, face_count, false);
+  const auto path = FollowDistancePath(edge, face, geometry, refused, border, errors, 2 * limit, face_count, false, stats);
   if (path.locked) return {edge, false, SurfaceRemaining::NeighborLocked, path.steps};
   return {path.edge, false, std::nullopt, path.steps};
 }
@@ -759,12 +811,14 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
       }
       if (where->second && *where->second > limit && !refused.count(ids) && !border.count(ids) &&
           Distance(points_, use.edge) >= floor) {
+        if (DistanceMetricTooShort(use.edge, stats)) continue;
         std::vector<Edge> terminals;
         bool locked = false;
         for (const auto parent : SurfaceParents(use.edge, EdgeRing(use.edge, use.cell))) {
           const auto chosen = ChosenSurfaceEdge(parent, errors).first;
           if (chosen == use.edge) continue;
-          const auto path = FollowDistancePath(chosen, parent, geometry, refused, border, errors, floor, faces.size(), true);
+          const auto path =
+              FollowDistancePath(chosen, parent, geometry, refused, border, errors, floor, faces.size(), true, stats);
           report_path(path.steps);
           if (path.locked) locked = true;
           else terminals.push_back(path.edge);
@@ -789,7 +843,8 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
                          [&](const auto& edge) { return errors.count(Ids(points_, edge)); }))
           ++stats.surface.d_centroid_only;
       }
-      const auto choice = ChooseDistanceEdge(parent, geometry, limit, chords, refused, border, errors, faces.size());
+      const auto choice = ChooseDistanceEdge(parent, geometry, limit, chords, refused, border, errors, faces.size(),
+                                             stats);
       const auto ids = Ids(points_, choice.edge);
       report_path(choice.steps);
       if (choice.reason) {
@@ -835,7 +890,8 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
       }
       std::string near_row;
       const auto result = SplitSurface(edge, seed, geometry, point_ids, sweep_, cell_limit, stats.surface, false,
-                                       stats.report, stats.report && stats.surface_near_sink ? &near_row : nullptr);
+                                       stats.report, stats.report && stats.surface_near_sink ? &near_row : nullptr,
+                                       options_.distance_error_cut ? HandoverMetricEdge : 0);
       watch.Record(stats, candidate.ids, result);
       if (result == SurfaceRefusal::None) {
         stats.Increment(stats.surface.splits_distance);
@@ -844,18 +900,18 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
           else ++stats.surface.d_marks_longest;
         }
         if (stats.report && marks.at(candidate.ids).path_only) ++stats.surface.path_splits;
-        if (!near_row.empty()) {
-          try {
-            stats.surface_near_sink('D', near_row);
-          } catch (...) {
-          }
-        }
       } else if (result == SurfaceRefusal::Border) {
         border.insert(candidate.ids);
         marks.at(candidate.ids).reason = SurfaceRemaining::Border;
       } else {
         refused.insert(candidate.ids);
         marks.at(candidate.ids).reason = SurfaceRemaining::Refused;
+      }
+      if (!near_row.empty()) {
+        try {
+          stats.surface_near_sink('D', near_row);
+        } catch (...) {
+        }
       }
     }
     for (const auto& entry : chosen) entry.first->reason = marks.at(entry.second).reason;

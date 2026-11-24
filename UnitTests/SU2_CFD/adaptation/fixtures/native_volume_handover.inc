@@ -377,12 +377,17 @@ void CheckVolumeHandoverGeometry(World& world, const LabInput& input, const Refe
 
 class LabBoundObserver final : public local::SurfaceGeometry {
  public:
-  LabBoundObserver(const local::Mesh& mesh, local::SurfaceGeometry& geometry, const BoundaryParameterState& state)
-      : mesh_(mesh), geometry_(geometry), state_(state) {}
+  LabBoundObserver(const local::Mesh& mesh, local::SurfaceGeometry& geometry, const BoundaryParameterState& state,
+                   bool capture_short)
+      : mesh_(mesh), geometry_(geometry), state_(state), sample_distance_(capture_short) {}
 
   double Tolerance() const override { return geometry_.Tolerance(); }
   bool Feature(const local::SurfaceEdge& edge) const override { return geometry_.Feature(edge); }
-  local::SurfaceSamples Samples(const SurfaceFace& face) override { return geometry_.Samples(face); }
+  local::SurfaceSamples Samples(const SurfaceFace& face) override {
+    const auto samples = geometry_.Samples(face);
+    if (sample_distance_) distance_samples_.insert_or_assign(face.v, std::make_pair(face.facet, samples));
+    return samples;
+  }
   std::optional<double> Chord(const std::array<Node, 2>& ends) override { return geometry_.Chord(ends); }
   local::SurfacePlacement Place(const std::array<Node, 2>& ends, const std::array<SurfaceFace, 2>& faces,
                                 Id id) override {
@@ -404,6 +409,39 @@ class LabBoundObserver final : public local::SurfaceGeometry {
     return within;
   }
 
+  void EndSweep(const local::SweepRow& sweep) {
+    if (std::strcmp(sweep.kind, "surface_distance") == 0 && (!sweep.candidates || sweep.sweep == 40))
+      sample_distance_ = false;
+  }
+
+  template <class RecordRegion>
+  void ReportShortFace(std::ostream& out, const Face& face, int rank, unsigned pass, RecordRegion record_region) {
+    if (short_count_ >= 50) return;
+    const auto& [facet, samples] = distance_samples_.at(face);
+    if (slots_.empty()) {
+      for (local::Slot slot = 0; slot < mesh_.Points().size(); ++slot)
+        if (!mesh_.Points()[slot].removed) slots_.emplace(mesh_.Points()[slot].node.id, slot);
+    }
+    std::array<local::Slot, 3> vertices;
+    for (size_t i = 0; i < vertices.size(); ++i) vertices[i] = slots_.at(face[i]);
+    const auto point = [&](size_t i) { return mesh_.Points()[vertices[i]].node.p; };
+    const auto a = point(0), b = point(1), c = point(2);
+    out << "FP2_D SHORT_FACE rank=" << rank << " pass=" << pass << " facet=" << facet
+        << " vertices=" << face[0] << ',' << face[1] << ',' << face[2];
+    for (size_t i = 0; i < vertices.size(); ++i) {
+      const size_t j = (i + 1) % vertices.size();
+      const auto p = point(i), q = point(j);
+      out << " xyz" << i << '=' << p.x << ',' << p.y << ',' << p.z
+          << " space" << i << '=' << std::hypot(p.x - q.x, p.y - q.y, p.z - q.z)
+          << " metric" << i << '=' << mesh_.Length({vertices[i], vertices[j]});
+    }
+    out << " samples=" << samples.distances[0] << ',' << samples.distances[1] << ','
+        << samples.distances[2] << ',' << samples.distances[3]
+        << " unconverged=" << samples.unconverged << '\n';
+    record_region(facet, Point{(a.x + b.x + c.x) / 3, (a.y + b.y + c.y) / 3, (a.z + b.z + c.z) / 3});
+    ++short_count_;
+  }
+
   void Report(std::ostream& out, int rank, unsigned pass) const {
     for (const auto& [key, count] : refusals_) {
       const auto& [stamp, entity] = key;
@@ -420,6 +458,10 @@ class LabBoundObserver final : public local::SurfaceGeometry {
   const BoundaryParameterState& state_;
   uint32_t first_sweep_ = 0;
   std::map<std::pair<uint32_t, BoundaryParameterState::EntityKey>, size_t> refusals_;
+  bool sample_distance_;
+  size_t short_count_ = 0;
+  std::map<Face, std::pair<Id, local::SurfaceSamples>> distance_samples_;
+  std::map<Id, local::Slot> slots_;
 };
 
 size_t PartitionHandover(World& world, LabInput& input, const ReferenceState& reference,
@@ -513,6 +555,12 @@ class WingDistanceRegions {
     if (const auto bin = Bin(eta, chord)) ++(error ? bins_[*bin].error : bins_[*bin].longest);
   }
 
+  void Short(Id facet, Point centroid) {
+    if (std::get<2>(state_.Entity(facet)) != 2) return;
+    const auto [eta, chord] = Planform(centroid);
+    if (const auto bin = Bin(eta, chord)) ++bins_[*bin].short_faces;
+  }
+
   void Report(std::ostream& out, const local::Mesh& mesh, const SurfaceReasons& remaining,
               const std::map<Face, SurfaceFace>& collapsed) {
     local::VisitLivePhysicalFaces(mesh, [&](const SurfaceFace& face, const std::array<Node, 3>& nodes) {
@@ -546,7 +594,7 @@ class WingDistanceRegions {
     for (size_t i = 0; i < bins_.size(); ++i) {
       const auto& row = bins_[i];
       out << "FP2_D region rank=0 bin=" << i << " faces=" << row.faces << " error=" << row.error
-          << " longest=" << row.longest << " left=" << row.left << '\n';
+          << " longest=" << row.longest << " left=" << row.left << " short_faces=" << row.short_faces << '\n';
     }
     for (auto& station : stations_)
       out << "FP2_D station rank=0 eta=" << station.eta << " faces=" << station.along.size()
@@ -578,7 +626,7 @@ class WingDistanceRegions {
   }
 
   const BoundaryParameterState& state_;
-  struct BinCounts { size_t faces = 0, error = 0, longest = 0, left = 0; };
+  struct BinCounts { size_t faces = 0, error = 0, longest = 0, left = 0, short_faces = 0; };
   std::array<BinCounts, 5> bins_{};
   struct Station { double eta; std::vector<double> along, across; };
   std::array<Station, 3> stations_{{{.2, {}, {}}, {.5, {}, {}}, {.8, {}, {}}}};
@@ -682,15 +730,23 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
             pass_collapse_faces.insert_or_assign(CollapseFaceKey(face.v), face);
           };
         }
-        if (handover && pass == pass_count) {
+        std::optional<LabBoundObserver> bound_observer;
+        WingDistanceRegions regions(original);
+        std::ostringstream short_rows;
+        short_rows << std::setprecision(17);
+        if (handover && (options.distance_error_cut || pass == pass_count)) {
           stats.surface_remaining_sink = [&](Face face, local::SurfaceRemaining reason) {
+            if (options.distance_error_cut && reason == local::SurfaceRemaining::Short) {
+              bound_observer->ReportShortFace(short_rows, face, world.rank, pass,
+                                              [&](Id facet, Point centroid) { regions.Short(facet, centroid); });
+            }
+            if (pass != pass_count) return;
             std::sort(face.begin(), face.end());
             if (!remaining.emplace(face, reason).second)
               throw std::runtime_error("FP2-B final surface reason was recorded twice on one rank.");
           };
         }
         std::optional<local::SurfaceLongestEdgeProbe> probe;
-        WingDistanceRegions regions(original);
         std::optional<local::SurfaceChosenEdgeProbe> chosen_probe;
         if (chosen_invariant)
           chosen_probe.emplace(mesh, *surface,
@@ -711,6 +767,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
             if (trace) probe->ReportSweep(std::cout, sweep, world.rank, pass);
             const auto measurement_start = Clock::now();
             if (chosen_probe) chosen_probe->EndSweep(sweep);
+            if (bound_observer && options.distance_error_cut) bound_observer->EndSweep(sweep);
             std::ostringstream out;
             if (sweep.surface) {
               out << std::setprecision(17) << "FP2_B sweep rank=" << world.rank << " pass=" << pass;
@@ -730,9 +787,8 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         const auto pass_begin = Clock::now();
         local::SurfaceGeometry* geometry = probe ? &*probe : static_cast<local::SurfaceGeometry*>(surface.get());
         if (chosen_probe) geometry = &*chosen_probe;
-        std::optional<LabBoundObserver> bound_observer;
         if (surface_collapses) {
-          bound_observer.emplace(mesh, *geometry, surface->State());
+          bound_observer.emplace(mesh, *geometry, surface->State(), options.distance_error_cut);
           geometry = &*bound_observer;
         }
         stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, geometry);
@@ -740,6 +796,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         bool walk_probe_matches = true;
         std::ostringstream row;
         row << std::setprecision(17);
+        if (options.distance_error_cut) row << short_rows.str();
         if (options.distance_error_cut) ReportDistanceGeometry(row, mesh, world.rank, pass, surface->Limit());
         if (chosen_probe) {
           row << "FP2_D invariant rank=" << world.rank << " pass=" << pass

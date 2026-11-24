@@ -107,6 +107,9 @@ def report_rows(receipt, trial):
                 if query_budget else None,
                 'collapse_probe': at(rows, 'collapse_probe', phase),
                 'edge_bins': run.c3.c2.measured_edge(rows, 'out', phase),
+                'smallest_metric_edge': next((row for row in rows.get('edge', ()) if row['checkpoint'] == 'out'
+                                              and int(row['pass']) == phase and row['order'] == '1'), None),
+                'short_faces': [row for row in rows.get('SHORT_FACE', ()) if int(row['pass']) == phase],
                 'surface': {key: int(surface[key]) if key in surface else 'not available'
                             for key in ('splits_distance', 'sweeps_distance', 'path_splits', 'path_max',
                                         'waits_neighbor', 'refused_near', 'collapses_surface',
@@ -178,6 +181,12 @@ def run_campaign(build):
         {'rank': 0, 'pass': 1, 'field': 'sweeps_distance', 'observed': 40, 'maximum': 39}]
     artifacts[str(failed_path)] = a.sha(failed_path)
     report.extend(report_rows(failed, 'failed build656'))
+    for name in ('N1', 'N6'):
+        path, trial = load_trial(657, name, 1)
+        run.c3.c2.committed(path, '3c494fac91')
+        assert trial['passed'] == (name == 'N1')
+        artifacts[str(path)] = a.sha(path)
+        report.extend(report_rows(trial, 'build657'))
     for name, (reference_path, reference) in references.items():
         trials = [load_trial(build, name, repeat) for repeat in (1, 2)]
         first, second = (receipt for _, receipt in trials)
@@ -215,7 +224,14 @@ def run_campaign(build):
     reports = HERE / 'reports'
     reports.mkdir(exist_ok=True)
     path = reports / f'FP2_D_lab_{build}.json'
-    a.sealed(path, {'build': build, 'baseline_build': BASELINE, 'per_pass': report,
+    totals = {}
+    for row in report:
+        if row['build'] != build:
+            continue
+        total = totals.setdefault(row['case'] + ' ' + row['trial'], dict.fromkeys(run.METRIC_D_FIELDS, 0))
+        for key in run.METRIC_D_FIELDS:
+            total[key] += row['surface'][key]
+    a.sealed(path, {'build': build, 'baseline_build': BASELINE, 'per_pass': report, 'metric_totals': totals,
                     'wing_regions': [row for row in invariant_rows.get('region', ()) if 'bin' in row],
                     'wing_stations': invariant_rows.get('station', ()), 'alarm': alarm_result})
     artifacts[str(path)] = a.sha(path)

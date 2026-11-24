@@ -140,11 +140,11 @@ bool Mesh::TrialEdgeShorter(const PointRow& a, const PointRow& b, double limit) 
   return MetricLength(a.node.p, b.node.p, a.tensor, b.tensor, true) < limit;
 }
 
-double Mesh::Length(Edge edge) const {
-  const auto& a = points_[edge[0]];
-  const auto& b = points_[edge[1]];
+double Mesh::Length(const PointRow& a, const PointRow& b) {
   return MetricLength(a.node.p, b.node.p, a.tensor, b.tensor);
 }
+
+double Mesh::Length(Edge edge) const { return Length(points_[edge[0]], points_[edge[1]]); }
 
 MetricMeasures Mesh::Shape(Vertices vertices) const {
   SU2Native3D::Tetrahedron tet;

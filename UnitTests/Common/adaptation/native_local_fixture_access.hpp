@@ -79,7 +79,9 @@ struct SurfaceFixtureAccess {
       return vertices == face;
     });
     REQUIRE(parent != parents.end());
-    const auto choice = mesh.ChooseDistanceEdge(*parent, geometry, geometry.Limit(), {}, refused, {}, {}, parents.size());
+    PassStats stats;
+    const auto choice =
+        mesh.ChooseDistanceEdge(*parent, geometry, geometry.Limit(), {}, refused, {}, {}, parents.size(), stats);
     std::optional<SU2Native3D::Edge> mark;
     if (!choice.reason) {
       const auto edge = mesh.ById(choice.edge);

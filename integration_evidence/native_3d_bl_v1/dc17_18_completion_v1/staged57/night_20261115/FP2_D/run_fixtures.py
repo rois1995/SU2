@@ -6,7 +6,7 @@ import re
 import sys
 from unittest.mock import patch
 
-from run_c2_lab import continuation_pins
+from run_c2_lab import D_FIELDS, continuation_pins
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
@@ -22,7 +22,6 @@ ORDER_SHA = '69178513638b8741ae412cd689c50bc0b2396676c3395d867bb3ba868a27d8f1'
 SOURCE = HERE / 'source_check.md'
 BASE_SCOPE = C2 / 'scoped/build655'
 BASE_FIXTURES = C2 / 'fixtures/build655'
-D_FIELDS = {'d_error_edges', 'd_marks_error', 'd_marks_longest', 'd_centroid_only', 'd_nonfinite'}
 
 
 def compare_zero_fields(logs):
@@ -32,7 +31,7 @@ def compare_zero_fields(logs):
             if 'NATIVE3D_LOCAL_SURFACE ' not in line:
                 continue
             fields = dict(re.findall(r'\b(d_[a-z_]+)=(-?\d+)', line))
-            assert fields.keys() >= D_FIELDS and all(fields[key] == '0' for key in D_FIELDS), (log, line)
+            assert fields.keys() >= set(D_FIELDS) and all(fields[key] == '0' for key in D_FIELDS), (log, line)
             count += 1
     return count
 
@@ -64,7 +63,7 @@ def run(build, directional_only=False):
     baseline = reference_pins()
     base = HERE / 'fixtures' / build.name
     pins.update({str(path): sha(path) for path in (ORDER, ORDER.with_suffix('.sha256'), *continuation_pins())})
-    spec = (1, '[.][NativeFP2D]', 15)
+    spec = (1, '[.][NativeFP2D]', 18)
     d = hidden.attempt(base / 'distance/attempt1', binary, fingerprints, pins, spec, 1800)
     if d['watchdog'] and not d['assertion_failed']:
         d = hidden.attempt(base / 'distance/attempt2', binary, fingerprints, pins, spec, 5400)

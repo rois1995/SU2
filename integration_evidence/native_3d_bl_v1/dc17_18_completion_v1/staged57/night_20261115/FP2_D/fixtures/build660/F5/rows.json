@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "call_rows": [
+    "FX2_MEMO case=F5 work=19049655 work_exhausted=0 time_exhausted=0 next_time_check=0 caller_bytes=3895283792 maximum_bytes=12884901888 peak_bytes=3992061856 peak_over_maximum=0 exception=none message=\"\" snapshot_sha256=cf1b6d29446148c995e318bd20397a3a937b08da555aead57907bc4d58a093d7 payload_sha256=448ed4f5c58c70ee3861fd1580ad09be2c451c742bdcb44e2891ad163828b83c"
+  ],
+  "timer_rows": [
+    "NATIVE3D_TIMER root=FX2_M6_B1 boundary=final rank=0 phase=construction operation=mobility_policy calls=1 inclusive_call_seconds=7.92e-07 exclusive_seconds=7.92e-07",
+    "NATIVE3D_TIMER_SUMMARY root=FX2_M6_B1 boundary=final rank=0 ranks=1 root_seconds=10.18192458 sumexclusive=10.18192458 unattributed=10.181923788000001 coverage=7.7784901428249511e-08 fixedstorage=4120"
+  ],
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/fixtures/build660/F5",
+  "log_sha256": "656754814d84ca1efacab1e7bc011bb4258b6510acc4c80306e05f992af0965a",
+  "test_seconds": 65.84019637107849,
+  "pins": {
+    "build": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/build660/build_status.json",
+    "build_sha256": "30f8cd4862aaa6ded881c381118224d382e42ea5cbc4b78a7892eceb55bf382c",
+    "source_pins_sha256": "47fb2aa8ed9508f5bbdfdcbc657b004102beadf7e27a97305e8f69539bd68d12",
+    "binary_sha256": "4ac118492c1155eb54a3be6aa4d7d55c3a32bb0b17f6b69132c2956f6c41deb6",
+    "selector": "[.][NativeFastPathStage2Bounds]",
+    "inputs": {
+      "SU2_FP2_OUT": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/round_8_5t_P/G5/full587/adapted_mesh_adap_00001.su2.native_ref",
+        "sha256": "9bddc9a6317e82cf732adb13ab157c690c46ee7fd820eebf62bf672553e129b9"
+      }
+    }
+  },
+  "B1": {
+    "points": 33587,
+    "faces": 67170,
+    "constructor_seconds": 10.181924326,
+    "policy_seconds": 15.951480358000001,
+    "constructor_minus_policy_seconds": -5.769556032000001,
+    "modeled_peak_bytes": 3992061856,
+    "reservation_work": 19049655,
+    "memo_entry_bytes": 1583080,
+    "policy_modeled_peak_bytes": 3957944912,
+    "rss_before_bytes": 236150784,
+    "rss_after_bytes": 287604736,
+    "rss_change_bytes": 51453952,
+    "snapshot_equal": true,
+    "traces": 733
+  }
+}

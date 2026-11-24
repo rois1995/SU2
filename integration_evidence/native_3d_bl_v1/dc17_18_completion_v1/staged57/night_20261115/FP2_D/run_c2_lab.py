@@ -27,13 +27,20 @@ SOURCE_CHECK = HERE / 'source_check.md'
 CONTINUATION = HERE / 'inputs/FP2_D_CONTINUE_1.md'
 CONTINUATION_SHA = '8c3b55c6c4b7903776ed64aab8c90f3f88c6e703bfea285da28aa29b80ad8977'
 CONTINUATION_CHECK = HERE / 'continuation1_source_check.md'
+CONTINUATION2 = HERE / 'inputs/FP2_D_CONTINUE_2.md'
+CONTINUATION2_SHA = '47f5d8edb7ca66ab2d067669179aa3bd30c73b92de3ef6855c310156dfa39a00'
+CONTINUATION2_CHECK = HERE / 'continuation2_source_check.md'
 
 
 def continuation_pins():
-    checksum = CONTINUATION.with_suffix('.sha256')
-    assert a.sha(CONTINUATION) == CONTINUATION_SHA
-    assert checksum.read_text().split() == [CONTINUATION_SHA, CONTINUATION.name]
-    return CONTINUATION, checksum, CONTINUATION_CHECK
+    pins = []
+    for order, digest, source_check in ((CONTINUATION, CONTINUATION_SHA, CONTINUATION_CHECK),
+                                        (CONTINUATION2, CONTINUATION2_SHA, CONTINUATION2_CHECK)):
+        checksum = order.with_suffix('.sha256')
+        assert a.sha(order) == digest
+        assert checksum.read_text().split() == [digest, order.name]
+        pins.extend((order, checksum, source_check))
+    return tuple(pins)
 
 
 WATCHDOG = lab.SECONDS
@@ -45,7 +52,7 @@ LINE = re.compile(c1.LINE.pattern.replace('core|cells',
                   'core|cells|collapse_probe|query_budget|strict_observation|entity_faces|bound_refusal')
                   .replace('FP2_A LAB_S_PROOF', 'FP2_A LAB_S_(?:PROOF|ENTITY)')
                   .replace('|NATIVE3D_LOCAL_SURFACE',
-                           '|FP2_D (?:altitude|invariant|region|station)|FP2_C2 LAB_(?:ABOVE|MODEL_GAP|MISMATCH)|NATIVE3D_LOCAL_SURFACE'))
+                           '|FP2_D (?:altitude|invariant|region|station|SHORT_FACE)|FP2_C2 LAB_(?:ABOVE|MODEL_GAP|MISMATCH)|NATIVE3D_LOCAL_SURFACE'))
 COUNTERS = frozenset(('collapses_surface', 'c_sweeps', 'c_candidates', 'c_deferred',
                       'faces_before_c', 'points_before_c', 'c_bound_queries'))
 REFUSALS = tuple('c_refused_' + reason for reason in (
@@ -56,7 +63,8 @@ REAL_FIELDS = ('c_reverse_max', 'seconds_c', 'seconds_c_samples', 'seconds_c_ent
 PROBE_ERRORS = ('distance', 'near', 'entity', 'size')
 PROOF_COUNTS = ('model_gap_entities', 'strict_checked', 'strict_mismatch', 'strict_sink_mismatch')
 BUDGET_FIELDS = ('overlay_peak', 'pass_admitted_bytes', 'query_scratch_max', 'conservative_sum', 'ceiling')
-D_FIELDS = ('d_error_edges', 'd_marks_error', 'd_marks_longest', 'd_centroid_only', 'd_nonfinite')
+METRIC_D_FIELDS = ('d_short_metric', 'd_refused_metric')
+D_FIELDS = ('d_error_edges', 'd_marks_error', 'd_marks_longest', 'd_centroid_only', 'd_nonfinite', *METRIC_D_FIELDS)
 DIAGNOSTIC_ROWS = ('LAB_ABOVE', 'LAB_MODEL_GAP', 'LAB_MISMATCH')
 
 

@@ -22,7 +22,7 @@ table = prior.table
 SURFACE = 'NATIVE3D_LOCAL_SURFACE'
 SURFACE_STATE = 'NATIVE3D_LOCAL_SURFACE_STATE'
 SURFACE_BUDGET = 'NATIVE3D_LOCAL_SURFACE_BUDGET'
-D_FIELDS = ('d_error_edges', 'd_marks_error', 'd_marks_longest', 'd_centroid_only', 'd_nonfinite')
+from run_c2_lab import D_FIELDS
 COLLAPSE_FIELDS = ('splits_distance', 'sweeps_distance', 'path_max', 'path_splits', 'waits_neighbor',
                    'left_distance', *D_FIELDS, 'collapses_surface', 'c_sweeps', 'c_candidates', 'c_deferred', 'c_reverse_max',
                    'seconds_c', 'seconds_c_samples', 'seconds_c_entity', 'seconds_c_bound', 'c_bound_queries',
@@ -36,7 +36,10 @@ CONTINUATION_HISTORY = (
     'The modeled error-table reservation adds 672 bytes per input cell on the 64-bit build. '
     'The first FP2-D candidate reached 40 marked sweeps in N1 on build656. '
     'Continuation 1 ends the walk at a nonfeature edge carrying midpoint error. '
-    '[Continuation source check](../continuation1_source_check.md) · [Build656 lab failure](FP2_D_656.md) · '
+    'Build657 cleared the sweep gate and had five edges below the hand-over metric floor in N6. '
+    'Continuation 2 screens seeds and checks every proposed D edge. '
+    '[Continuation 2 source check](../continuation2_source_check.md) · '
+    '[Build656 lab failure](FP2_D_656.md) · [Build657 lab failure](FP2_D_657.md) · '
     '[S0 report](../../FP2_C2/reports/FP2_C2_655.md)')
 QUALITY = ('q_measured', 'q_bad', 'q_debt', 'j_measured', 'j_bad', 'j_debt')
 C_CLOCK = ('Core surface collapse step', SURFACE, ('seconds_c',))
