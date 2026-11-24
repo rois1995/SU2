@@ -54,6 +54,7 @@ struct CSplitPattern {
  */
 class CPhysicalGeometry final : public CGeometry {
   std::map<unsigned short, std::vector<CSplitPattern>> SplitPatterns; /*!< \brief Splits by VTK cell type. */
+  std::map<unsigned short, std::vector<P1Mixed::PairShare>> MixedPairShares; /*!< \brief Pair shares by VTK cell type. */
 
   unordered_map<unsigned long, unsigned long>
       Global_to_Local_Point;              /*!< \brief Global-local indexation for the points. */
@@ -494,6 +495,20 @@ class CPhysicalGeometry final : public CGeometry {
    * \return The list, also returned by CGeometry::GetMixedSimplices from then on.
    */
   const std::vector<P1Mixed::Simplex>& SetMixedSimplices(const CPrimalGrid* element);
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED: the node pairs of the neighbour-fan splits of a cell type with their share pi of the
+   *        splits (P1Mixed::NeighbourFanPairShares), built on first use and kept by VTK type.
+   * \param[in] element - A non-simplex cell of that type.
+   */
+  const std::vector<P1Mixed::PairShare>& GetMixedPairShares(const CPrimalGrid* element);
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED: adds the share pi of each node pair of a non-simplex cell that is not a true edge to
+   *        shares[{i, k}] = {sum of the shares, number of cells}, i < k global-local node indices (SetEdgeFormP1).
+   */
+  void AddSplitPairShares(const CPrimalGrid* element,
+                          std::map<std::pair<unsigned long, unsigned long>, std::array<passivedouble, 2>>& shares);
 
   /*!
    * \brief EDGE_FORM_P1_MIXED: the triangle faces of prisms and pyramids that are not shared with another non-simplex

@@ -7139,6 +7139,8 @@ void CPhysicalGeometry::SetEdgeFormP1(bool mixed) {
      * edges (face and body diagonals) are kept as in SetSplitEdges. ---*/
     using PairNormal = std::array<su2double, MAXNDIM>;
     std::map<std::pair<unsigned long, unsigned long>, PairNormal> pairs;
+    /*--- EDGE_FORM_P1_MIXED_DISS_MEAN: per pair, the sum of its shares pi over the cells that hold it and their count. ---*/
+    std::map<std::pair<unsigned long, unsigned long>, std::array<passivedouble, 2>> pairShares;
     unsigned long nInverted = 0;
     if (mixed) edges->FormMass.resize(nPoint) = su2double(0.0);
 
@@ -7202,6 +7204,7 @@ void CPhysicalGeometry::SetEdgeFormP1(bool mixed) {
             }
           }
         }
+        AddSplitPairShares(element, pairShares);
         continue;
       }
 
@@ -7253,9 +7256,36 @@ void CPhysicalGeometry::SetEdgeFormP1(bool mixed) {
         const auto& entry = pairs.at({edges->SplitNodes[iSplit][0], edges->SplitNodes[iSplit][1]});
         for (unsigned short iDim = 0; iDim < nDim; iDim++) edges->SplitNormal(iSplit, iDim) = entry[iDim];
       }
+      /*--- pi of each pair: the mean over the cells that hold it (all local, the pair touches an owned node). Face
+       * diagonals get 1/2 from each of their (one or two) cells, body diagonals of hexahedra 1/4 from their cell. ---*/
+      edges->SplitShare.resize(edges->SplitNodes.size()) = su2double(0.0);
+      for (auto iSplit = 0ul; iSplit < edges->SplitNodes.size(); iSplit++) {
+        const auto& entry = pairShares.at({edges->SplitNodes[iSplit][0], edges->SplitNodes[iSplit][1]});
+        edges->SplitShare(iSplit) = entry[0] / entry[1];
+      }
     }
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
+const vector<P1Mixed::PairShare>& CPhysicalGeometry::GetMixedPairShares(const CPrimalGrid* element) {
+  const auto found = MixedPairShares.find(element->GetVTK_Type());
+  if (found != MixedPairShares.end()) return found->second;
+  auto list = P1Mixed::NeighbourFanPairShares(*element, nDim, GetSplitPatterns(element));
+  if (list.empty()) SU2_MPI::Error("EDGE_FORM_P1_MIXED: no split of this cell type.", CURRENT_FUNCTION);
+  return MixedPairShares.emplace(element->GetVTK_Type(), std::move(list)).first->second;
+}
+
+void CPhysicalGeometry::AddSplitPairShares(
+    const CPrimalGrid* element, std::map<std::pair<unsigned long, unsigned long>, std::array<passivedouble, 2>>& shares) {
+  for (const auto& pair : GetMixedPairShares(element)) {
+    const auto iPoint = element->GetNode(pair.a), kPoint = element->GetNode(pair.b);
+    /*--- True edges are in every split of every cell (pi = 1), they are not split pairs. ---*/
+    if (FindEdge(iPoint, kPoint, false) >= 0) continue;
+    auto& entry = shares[{std::min(iPoint, kPoint), std::max(iPoint, kPoint)}];
+    entry[0] += pair.share;
+    entry[1] += 1.0;
+  }
 }
 
 const vector<P1Mixed::Simplex>& CPhysicalGeometry::SetMixedSimplices(const CPrimalGrid* element) {

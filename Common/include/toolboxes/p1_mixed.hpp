@@ -152,6 +152,64 @@ std::vector<Simplex> NeighbourFanAverage(const Element& element, unsigned short 
 }
 
 /*!
+ * \brief Share of the kept splits of a cell type that hold a node pair (EDGE_FORM_P1_MIXED_DISS_MEAN).
+ */
+struct PairShare {
+  unsigned short a = 0, b = 0; /*!< \brief Cell-local nodes, a < b. */
+  passivedouble share = 0.0;   /*!< \brief pi_ab = (number of kept splits with a sub-simplex holding a and b)/|family|. */
+};
+
+/*!
+ * \brief Node pairs of the neighbour-fan subset of the pulling splits of a cell type, with the share pi of the kept
+ *        splits that hold each pair. A pair counts once per split, whatever the number of its sub-simplices there.
+ *        Values: 1 on the edges of the cell (every split triangulates every face), 1/2 on the diagonals of the
+ *        quadrilateral faces (face balance, Lemma X2), 1/4 on the 4 body diagonals of a hexahedron (one per Kuhn
+ *        triangulation); prisms and pyramids have only face diagonals.
+ * \param[in] element - A cell of that type (as NeighbourFanAverage).
+ * \param[in] nDim - 2 or 3.
+ * \param[in] patterns - All pulling splits (CPhysicalGeometry::GetSplitPatterns).
+ * \return The pairs held by at least one kept split, ordered by (a, b).
+ */
+template <class Element, class Patterns>
+std::vector<PairShare> NeighbourFanPairShares(const Element& element, unsigned short nDim, const Patterns& patterns) {
+  const unsigned short nNodes = nDim + 1;
+  constexpr unsigned short MAX_CELL_NODES = 8;
+  unsigned short count[MAX_CELL_NODES][MAX_CELL_NODES] = {};
+  size_t nKept = 0;
+
+  for (const auto& pattern : patterns) {
+    if (!NeighbourFan(element, nDim, pattern.simplices)) continue;
+    ++nKept;
+    /*--- The pairs of this split, each once. ---*/
+    bool held[MAX_CELL_NODES][MAX_CELL_NODES] = {};
+    for (const auto& t : pattern.simplices) {
+      for (unsigned short p = 0; p < nNodes; ++p) {
+        for (unsigned short q = p + 1; q < nNodes; ++q) {
+          held[std::min(t[p], t[q])][std::max(t[p], t[q])] = true;
+        }
+      }
+    }
+    for (unsigned short a = 0; a < MAX_CELL_NODES; ++a)
+      for (unsigned short b = a + 1; b < MAX_CELL_NODES; ++b)
+        if (held[a][b]) ++count[a][b];
+  }
+
+  std::vector<PairShare> shares;
+  if (nKept == 0) return shares;
+  for (unsigned short a = 0; a < MAX_CELL_NODES; ++a) {
+    for (unsigned short b = a + 1; b < MAX_CELL_NODES; ++b) {
+      if (count[a][b] == 0) continue;
+      PairShare entry;
+      entry.a = a;
+      entry.b = b;
+      entry.share = passivedouble(count[a][b]) / nKept;
+      shares.push_back(entry);
+    }
+  }
+  return shares;
+}
+
+/*!
  * \brief Sub-triangles of a quadrilateral face (local nodes 0-3 in the cyclic order of the face): the two of the
  *        diagonal 0-2, then the two of the diagonal 1-3. Each diagonal has weight 1/2 (Theorem X10).
  */

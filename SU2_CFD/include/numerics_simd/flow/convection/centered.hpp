@@ -524,6 +524,7 @@ private:
   const su2double kappa2;
   const su2double kappa4;
   const bool entropyBudget; /*!< \brief JST_ENTROPY_BUDGET: store (eps2 lam, eps4 lam) of the edge (fine grid). */
+  const bool meanDiss; /*!< \brief EDGE_FORM_P1_MIXED_DISS_MEAN: neighbour weights of the pair graph (fine grid). */
 
 public:
   /*!
@@ -533,7 +534,8 @@ public:
   CJSTScheme(const CConfig& config, Ts&... args) : Base(config, args...),
     kappa2(config.GetKappa_2nd_Flow()),
     kappa4(config.GetKappa_4th_Flow()),
-    entropyBudget(config.GetJST_Entropy_Budget() && (Base::edgeForm || Base::projDiss)) {
+    entropyBudget(config.GetJST_Entropy_Budget() && (Base::edgeForm || Base::projDiss)),
+    meanDiss(Base::edgeForm && config.GetEdge_Form_P1_Mixed_Diss_Mean()) {
   }
 
   /*!
@@ -574,8 +576,12 @@ public:
 
     /*--- Compute dissipation coefficients. ---*/
 
-    const auto ni = Base::numNeighbor(iPoint, geometry);
-    const auto nj = Base::numNeighbor(jPoint, geometry);
+    /*--- EDGE_FORM_P1_MIXED_DISS_MEAN: the neighbour weights sum_k pi_ik of the pair graph (true edges and split pairs,
+     * CEulerSolver::SetJSTPairNeighbor). A true edge has pi = 1, so its term below keeps its form (also the count
+     * n_i + 1 of the Jacobian); the sensor, Laplacians and nodal radii read here are the pi-weighted ones of the
+     * nodal passes. ---*/
+    const Double ni = meanDiss ? gatherVariables(iPoint, solution.GetJSTPairNeighbor()) : Base::numNeighbor(iPoint, geometry);
+    const Double nj = meanDiss ? gatherVariables(jPoint, solution.GetJSTPairNeighbor()) : Base::numNeighbor(jPoint, geometry);
     const Double sc2 = 3 * (ni+nj) / (ni*nj);
     const Double sc4 = 0.25*pow(sc2, 2);
 

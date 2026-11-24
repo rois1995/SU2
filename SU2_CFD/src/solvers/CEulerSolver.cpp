@@ -358,6 +358,7 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
       };
       JSTWeakWall::WallNodeFlags(*geometry, *config, isWeakWall, nodes->JSTWallNode);
     }
+    if (config->GetEdge_Form_P1_Mixed_Diss_Mean()) SetJSTPairNeighbor(geometry, config);
     if (config->GetEdge_Form_TeCNO_Adjoint()) {
       /*--- Simplex meshes only for now (P1_TECNO_CONVERGENCE.md, 5.1). ---*/
       unsigned long nonSimplex = 0, nonSimplexGlobal = 0;
@@ -2148,6 +2149,9 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
     const bool alignedDiss = config->GetEdge_Form_P1_Mixed_Diss_Aligned();
     /*--- EDGE_FORM_P1_DISS_LED: the eps2 term of an aligned pair on the full pair coefficient n_ik (as the true edges). ---*/
     const bool ledDiss = alignedDiss && config->GetEdge_Form_P1_Diss_LED();
+    /*--- EDGE_FORM_P1_MIXED_DISS_MEAN: the pair term times pi^0.3 of its share pi_ik, the nodal data on the pair graph
+     * (neighbour weights here; Laplacians, sensor and nodal radii from the nodal passes). ---*/
+    const bool meanDiss = pairDiss && config->GetEdge_Form_P1_Mixed_Diss_Mean();
     /*--- Only with the split-pair pattern (not with the OpenMP reducer, which keeps the plain pattern). ---*/
     /*--- The current integration kind (explicit during matrix-free NEWTON_KRYLOV products), as the edge kernel. ---*/
     const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT) && Jacobian.HasSplitPairPattern();
@@ -2190,7 +2194,7 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
       N.soundSpeed = nodes->GetSoundSpeed(iPoint);
       N.sensor = nodes->GetSensor(iPoint);
       N.lambda = nodes->GetLambda(iPoint);
-      N.nNeighbor = geometry->nodes->GetnNeighbor(iPoint);
+      N.nNeighbor = meanDiss ? nodes->GetJSTPairNeighbor()(iPoint) : su2double(geometry->nodes->GetnNeighbor(iPoint));
       if (jst.weakWall) N.wall = nodes->GetJSTWallNode()(iPoint);
       return N;
     };
@@ -2211,8 +2215,9 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
           const su2double* dissNormal =
               P1PairJST::DissipationNormal(nDim, alignedDiss, splitNormal[iSplit], geometry->nodes->GetCoord(iPoint),
                                            geometry->nodes->GetCoord(kPoint), alignedNormal);
+          const su2double share = meanDiss ? geometry->edges->GetSplitShare()(iSplit) : su2double(1.0);
           P1PairJST::AddPairDissipation(nDim, jst, jstNode(iPoint), jstNode(kPoint), dissNormal, flux, implicit,
-                                        dissJac_i, dissJac_k, ledDiss ? splitNormal[iSplit] : nullptr);
+                                        dissJac_i, dissJac_k, ledDiss ? splitNormal[iSplit] : nullptr, share);
         }
         const su2double massFlux = flux[0];
         if (turbMatched) addPairKine(iPoint, kPoint, flux);
@@ -2602,6 +2607,13 @@ void CommPointData(CGeometry* geometry, const CConfig* config, su2double* data, 
   }
 }
 }  // namespace
+
+void CEulerSolver::SetJSTPairNeighbor(CGeometry *geometry, const CConfig *config) {
+  /*--- n_i = sum_k pi_ik on the owned nodes (all their split pairs are on this rank), copied to the halos, whose split
+   * pairs are only partly local. The true edges read it in CJSTScheme, the split pairs in SplitEdgeResidual. ---*/
+  P1PairJST::NeighborWeights(*geometry, nodes->JSTPairNeighbor);
+  CommPointData(geometry, config, nodes->JSTPairNeighbor.data(), 1);
+}
 
 void CEulerSolver::SetTeCNOAdjointGradient(CGeometry *geometry, const CConfig *config) {
   SU2_ZONE_SCOPED
@@ -4090,6 +4102,9 @@ void CEulerSolver::SetUndivided_Laplacian(CGeometry *geometry, const CConfig *co
   }
   END_SU2_OMP_FOR
 
+  /*--- EDGE_FORM_P1_MIXED_DISS_MEAN: the split pairs with their weights pi_ik, before the halo exchange. ---*/
+  if (config->GetEdge_Form_P1_Mixed_Diss_Mean() && (geometry->GetMGLevel() == MESH_0)) AddSplitPairLaplacian(geometry);
+
   /*--- Correct the Laplacian across any periodic boundaries. ---*/
 
   for (unsigned short iPeriodic = 1; iPeriodic <= config->GetnMarker_Periodic()/2; iPeriodic++) {
@@ -4102,6 +4117,22 @@ void CEulerSolver::SetUndivided_Laplacian(CGeometry *geometry, const CConfig *co
   InitiateComms(geometry, config, MPI_QUANTITIES::UNDIVIDED_LAPLACIAN);
   CompleteComms(geometry, config, MPI_QUANTITIES::UNDIVIDED_LAPLACIAN);
 
+}
+
+void CEulerSolver::AddSplitPairLaplacian(const CGeometry *geometry) {
+  /*--- The terms of the nodal loop of SetUndivided_Laplacian, times pi: rho, rho u, rho E + p (= rho H) and, with
+   * matched k, the extra column rho k. One thread, the pairs are not grouped by node. ---*/
+  const bool rhoKColumn = (nodes->GetUndivided_Laplacian().cols() > nVar);
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    P1PairJST::ForEachOwnedPairEnd(*geometry, true, [&](unsigned long iPoint, unsigned long kPoint, su2double share) {
+      for (unsigned short iVar = 0; iVar < nVar; iVar++) {
+        nodes->AddUnd_Lapl(iPoint, iVar, share * (nodes->GetSolution(kPoint, iVar) - nodes->GetSolution(iPoint, iVar)));
+      }
+      nodes->AddUnd_Lapl(iPoint, nVar - 1, share * (nodes->GetPressure(kPoint) - nodes->GetPressure(iPoint)));
+      if (rhoKColumn) nodes->AddUnd_Lapl(iPoint, nVar, share * (nodes->GetRhoTke(kPoint) - nodes->GetRhoTke(iPoint)));
+    });
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
 void CEulerSolver::SetCentered_Dissipation_Sensor(CGeometry *geometry, const CConfig *config) {

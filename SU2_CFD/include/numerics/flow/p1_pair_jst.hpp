@@ -48,6 +48,16 @@
  * With nu_ik the term is that of the projection, n.e is kept: nu.e = n.e. The eps2 part stays entropy dissipative
  * (any lambda >= 0); pair positivity (lambda >= rho(A(n_ik))) is given up, as on BL tetrahedra. A pair with n.e = 0 has
  * nu = 0, lambda = 0 and no dissipation. ---*/
+/*--- EDGE_FORM_P1_MIXED_DISS_MEAN: the JST term as the mean over the conforming splits s of the non-simplex cells, as the
+ * central part (the assembled pair coefficient n_ik is the mean of the split coefficients, zero where s lacks the pair).
+ * With pi_ik the share of the splits that hold the pair (1 on true edges, CEdge::GetSplitShare on split pairs), a split
+ * that holds it has the coefficient n_ik/pi_ik, and Phi lambda (stretching correction times radius) is homogeneous of
+ * degree 1 - STRETCH_PARAM = 0.7 in lambda, so
+ *     mean_s [Phi(lambda/pi) lambda/pi] = pi Phi(lambda/pi) lambda/pi = pi^0.3 Phi(lambda) lambda   (ShareFactor).
+ * The nodal data of the splits are replaced by their pi-weighted forms on the pair graph (true edges and split pairs):
+ * the neighbour count n_i = sum_k pi_ik (NeighborWeights), the undivided Laplacian and the pressure sensor with the
+ * weights pi_ik (ForEachOwnedPairEnd, the boundary-neighbour rule of the true edges), the nodal spectral radius on the
+ * form normals of the true edges and the coefficients of the split pairs. eps2 >= 0 is kept. ---*/
 namespace P1PairJST {
 
 constexpr unsigned short MAX_NVAR = 5;
@@ -127,6 +137,14 @@ inline su2double CorrectedRadius(su2double lambda, const Node& Ni, const Node& N
 }
 
 /*!
+ * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: factor pi^STRETCH_PARAM of the stretching-corrected radius of a pair held by the
+ *        share pi of the splits; exactly 1 for pi = 1 (true edges, or the option off).
+ */
+inline su2double ShareFactor(su2double share) {
+  return (share == 1.0) ? su2double(1.0) : su2double(pow(share, STRETCH_PARAM));
+}
+
+/*!
  * \brief JST_WEAK_WALL_DISSIPATION factor: 0 if exactly one end is on a weak no-slip wall, else 1 (jstWallFactor).
  */
 inline su2double WallKeep(const Node& Ni, const Node& Nk) { return 1.0 - fabs(Ni.wall - Nk.wall); }
@@ -180,16 +198,22 @@ inline void AddSurrogateJacobian(unsigned short nDim, su2double gamma, const su2
 template <class Matrix>
 inline void AddPairDissipation(unsigned short nDim, const Params& par, const Node& Ni, const Node& Nk,
                                const su2double* normal, su2double* flux, bool implicit, Matrix& jac_i, Matrix& jac_k,
-                               const su2double* ledNormal = nullptr) {
+                               const su2double* ledNormal = nullptr, su2double share = 1.0) {
   const unsigned short nVar = nDim + 2;
   /*--- Only an edge projection can vanish (n_ik perpendicular to e_ik): no term, and the stretching factor
    * (Lambda/lambda)^0.3 is not defined at lambda = 0. EDGE_FORM_P1_DISS_LED: the second-difference term on ledNormal
-   * (the full pair normal n_ik), the fourth-difference term on normal. ---*/
+   * (the full pair normal n_ik), the fourth-difference term on normal. EDGE_FORM_P1_MIXED_DISS_MEAN: both corrected
+   * radii times pi^0.3 (ShareFactor, 1 when off), the nodal data of Ni and Nk are already the pi-weighted ones. ---*/
   const su2double radius = SpectralRadius(nDim, Ni, Nk, normal);
   const su2double radius2 = ledNormal ? SpectralRadius(nDim, Ni, Nk, ledNormal) : radius;
   if (radius2 == 0.0) return;
-  const su2double lambda = (radius == 0.0) ? su2double(0.0) : CorrectedRadius(radius, Ni, Nk);
-  const su2double lambda2 = ledNormal ? CorrectedRadius(radius2, Ni, Nk) : lambda;
+  su2double lambda = (radius == 0.0) ? su2double(0.0) : CorrectedRadius(radius, Ni, Nk);
+  su2double lambda2 = ledNormal ? CorrectedRadius(radius2, Ni, Nk) : lambda;
+  if (share != 1.0) {
+    const su2double factor = ShareFactor(share);
+    lambda *= factor;
+    lambda2 *= factor;
+  }
   const Coefficients eps = DissipationCoefficients(par, Ni, Nk);
 
   for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
@@ -201,12 +225,49 @@ inline void AddPairDissipation(unsigned short nDim, const Params& par, const Nod
   }
   if (!implicit) return;
 
-  const su2double dissip_i = ledNormal ? par.fixFactor * (eps.eps2Jac * lambda2 + eps.eps4 * (Ni.nNeighbor + 1) * lambda)
-                                       : par.fixFactor * (eps.eps2Jac + eps.eps4 * (Ni.nNeighbor + 1)) * lambda;
-  const su2double dissip_k = ledNormal ? -par.fixFactor * (eps.eps2Jac * lambda2 + eps.eps4 * (Nk.nNeighbor + 1) * lambda)
-                                       : -par.fixFactor * (eps.eps2Jac + eps.eps4 * (Nk.nNeighbor + 1)) * lambda;
+  /*--- Fourth-difference count n_i + 1 of the edge kernel: |dL_i/dU_i| + |dL_k/dU_i| = n_i + 1 on the true-edge
+   * graph. With the pi-weighted Laplacians (EDGE_FORM_P1_MIXED_DISS_MEAN) it is n_i + pi_ik; share = 1 otherwise. ---*/
+  const su2double dissip_i = ledNormal ? par.fixFactor * (eps.eps2Jac * lambda2 + eps.eps4 * (Ni.nNeighbor + share) * lambda)
+                                       : par.fixFactor * (eps.eps2Jac + eps.eps4 * (Ni.nNeighbor + share)) * lambda;
+  const su2double dissip_k = ledNormal ? -par.fixFactor * (eps.eps2Jac * lambda2 + eps.eps4 * (Nk.nNeighbor + share) * lambda)
+                                       : -par.fixFactor * (eps.eps2Jac + eps.eps4 * (Nk.nNeighbor + share)) * lambda;
   AddSurrogateJacobian(nDim, par.gamma, Ni.vel, dissip_i, jac_i);
   AddSurrogateJacobian(nDim, par.gamma, Nk.vel, dissip_k, jac_k);
+}
+
+/*!
+ * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: calls add(a, b, pi_ab) for each end a of every split pair (a, b) that is owned
+ *        by this rank, b the other end, pi_ab its share (CEdge::GetSplitShare). With boundaryRule the end is skipped
+ *        if a is on a physical boundary and b is not, the neighbour rule of the undivided Laplacian and of the sensor.
+ * \note An owned node has all its split pairs on its rank (CPhysicalGeometry::SetEdgeFormP1), so the nodal sums of the
+ *       owned nodes are complete; the halo values come from the exchange that follows each nodal pass.
+ */
+template <class Geometry, class AddTerm>
+void ForEachOwnedPairEnd(const Geometry& geometry, bool boundaryRule, const AddTerm& add) {
+  const auto& pairs = geometry.edges->GetSplitNodes();
+  const auto& share = geometry.edges->GetSplitShare();
+  for (unsigned long iSplit = 0; iSplit < pairs.size(); ++iSplit) {
+    for (unsigned short end = 0; end < 2; ++end) {
+      const auto a = pairs[iSplit][end], b = pairs[iSplit][1 - end];
+      if (!geometry.nodes->GetDomain(a)) continue;
+      if (boundaryRule && geometry.nodes->GetPhysicalBoundary(a) && !geometry.nodes->GetPhysicalBoundary(b)) continue;
+      add(a, b, share[iSplit]);
+    }
+  }
+}
+
+/*!
+ * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: neighbour weight n_i = sum_k pi_ik of each node on the pair graph, the number
+ *        of true-edge neighbours plus the shares of its split pairs; on the owned nodes (the halo nodes keep their
+ *        true-edge count and need the exchange). A mesh without split pairs gives exactly GetnNeighbor.
+ * \param[out] weights - Resized to the number of points of the rank.
+ */
+template <class Geometry, class Vector>
+void NeighborWeights(const Geometry& geometry, Vector& weights) {
+  const unsigned long nPoint = geometry.GetnPoint();
+  weights.resize(nPoint);
+  for (unsigned long iPoint = 0; iPoint < nPoint; ++iPoint) weights[iPoint] = geometry.nodes->GetnNeighbor(iPoint);
+  ForEachOwnedPairEnd(geometry, false, [&](unsigned long a, unsigned long, su2double share) { weights[a] += share; });
 }
 
 }  // namespace P1PairJST

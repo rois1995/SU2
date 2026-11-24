@@ -61,6 +61,7 @@ class CEdge {
   su2activematrix BlendDelta; /*!< \brief Per simplex, W_a - |T|/(d+1) of its nodes, allocated only for EDGE_FORM_ES_BLEND. */
   su2matrix<Index> BlendEdges; /*!< \brief Per simplex, the edge of each node pair a < b, only for EDGE_FORM_ES_BLEND. */
   su2activematrix BlendY; /*!< \brief Per tetrahedron, the moved-dual face tensor Y_T (row major), only for VISC_P1_ENTROPY_MOVED. */
+  su2activevector SplitShare; /*!< \brief Share pi_ik of the splits that hold each split pair, only for EDGE_FORM_P1_MIXED. */
   const Index nEdge, nEdgeSIMD;
 
   friend class CPhysicalGeometry;
@@ -236,6 +237,12 @@ class CEdge {
    * \brief Coefficient E_ik of the split edges that are not true edges, one row per pair.
    */
   inline const su2activematrix& GetSplitE() const { return SplitE; }
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED: share pi_ik of the split averages that hold each split pair (1/2 on quad face
+   *        diagonals, 1/4 on hexahedron body diagonals), one entry per pair (EDGE_FORM_P1_MIXED_DISS_MEAN).
+   */
+  inline const su2activevector& GetSplitShare() const { return SplitShare; }
 
   /*!
    * \brief Mass of the P1 form at each node (EDGE_FORM_P1_MIXED): sum of W_i over the simplices and of omega_t |t|/(d+1)

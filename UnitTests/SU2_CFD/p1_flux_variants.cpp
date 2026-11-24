@@ -11171,6 +11171,223 @@ TEST_CASE("EDGE_FORM_P1_MIXED_DISS_ALIGNED: a pair with n_ik perpendicular to e_
   }
 }
 
+/*--- EDGE_FORM_P1_MIXED_DISS_MEAN: the pair JST as the mean over the conforming splits, with pi_ik the share of the
+ * splits that hold the pair (P1Mixed::NeighbourFanPairShares, CEdge::GetSplitShare). ---*/
+namespace {
+const std::string MixedMeanOptions = MixedOptions +
+    "EDGE_FORM_P1_MIXED_DISS= YES\nEDGE_FORM_P1_MIXED_DISS_ALIGNED= YES\nEDGE_FORM_P1_MIXED_DISS_MEAN= YES\n";
+}  // namespace
+
+TEST_CASE("EDGE_FORM_P1_MIXED_DISS_MEAN: split shares pi of the node pairs per cell type and on a mixed mesh", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_pairdiss_mean_" + std::to_string(nDim) + "d.su2";
+    WriteMixedMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.3, 1.0);
+    MeshCase test(mesh, MixedMeanOptions);
+    auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+
+    /*--- Per cell type: every node pair is held by some kept split; pi = 1 on the cell edges, 1/2 on the quad face
+     * diagonals, 1/4 on the 4 body diagonals of the hexahedron (one per Kuhn triangulation). Cross-check: pi is the
+     * fraction of the kept splits (KeptSplits) whose sub-simplices hold the pair. ---*/
+    for (const int vtk : MixedTypes) {
+      if ((vtk == QUADRILATERAL) != (nDim == 2)) continue;
+      INFO("VTK type " << vtk);
+      const auto cell = MakeCell(vtk);
+      const auto shares = P1Mixed::NeighbourFanPairShares(*cell, nDim, geometry.GetSplitPatterns(cell.get()));
+      const unsigned short nNodes = cell->GetnNodes();
+      CHECK(shares.size() == size_t(nNodes) * (nNodes - 1) / 2);
+
+      auto isEdge = [&](unsigned short a, unsigned short b) {
+        for (unsigned short j = 0; j < cell->GetnNeighbor_Nodes(a); ++j)
+          if (cell->GetNeighbor_Nodes(a, j) == b) return true;
+        return false;
+      };
+      auto onQuadFace = [&](unsigned short a, unsigned short b) {
+        if (nDim == 2) return true; /*--- The quadrilateral itself. ---*/
+        for (unsigned short iFace = 0; iFace < cell->GetnFaces(); ++iFace) {
+          if (cell->GetnNodesFace(iFace) != 4) continue;
+          bool hasA = false, hasB = false;
+          for (unsigned short k = 0; k < 4; ++k) {
+            hasA = hasA || (cell->GetFaces(iFace, k) == a);
+            hasB = hasB || (cell->GetFaces(iFace, k) == b);
+          }
+          if (hasA && hasB) return true;
+        }
+        return false;
+      };
+      const auto splits = KeptSplits(geometry, *cell, nDim);
+      auto heldFraction = [&](unsigned short a, unsigned short b) {
+        su2double held = 0.0;
+        for (const auto& split : splits) {
+          bool found = false;
+          for (const auto& t : split) {
+            bool hasA = false, hasB = false;
+            for (int p = 0; p <= nDim; ++p) {
+              hasA = hasA || (t.nodes[p] == a);
+              hasB = hasB || (t.nodes[p] == b);
+            }
+            found = found || (hasA && hasB);
+          }
+          if (found) held += 1.0;
+        }
+        return held / splits.size();
+      };
+
+      unsigned short nBody = 0;
+      for (const auto& pair : shares) {
+        INFO("pair " << pair.a << "-" << pair.b);
+        CHECK(pair.share == heldFraction(pair.a, pair.b));
+        if (isEdge(pair.a, pair.b)) {
+          CHECK(pair.share == 1.0);
+        } else if (onQuadFace(pair.a, pair.b)) {
+          CHECK(pair.share == 0.5);
+        } else {
+          CHECK(vtk == HEXAHEDRON);
+          CHECK(pair.share == 0.25);
+          ++nBody;
+        }
+      }
+      CHECK(nBody == ((vtk == HEXAHEDRON) ? 4 : 0));
+    }
+
+    /*--- On the mesh: one share per split pair, the mean over the cells that hold it. The quad faces between two
+     * cells (hexahedron-prism, prism-prism, hexahedron-pyramid) get 1/2 from both, the body diagonals 1/4. ---*/
+    geometry.SetEdgeFormP1(true);
+    const auto& pairs = geometry.edges->GetSplitNodes();
+    const auto& share = geometry.edges->GetSplitShare();
+    REQUIRE(share.size() == pairs.size());
+    su2double nHalf = 0.0, nQuarter = 0.0, nOther = 0.0;
+    for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+      if (share(iSplit) == 0.5) nHalf += 1.0;
+      else if (share(iSplit) == 0.25) nQuarter += 1.0;
+      else nOther += 1.0;
+    }
+    INFO("nDim " << nDim);
+    CHECK(GlobalSum(nHalf) > 0.0);
+    CHECK((GlobalSum(nQuarter) > 0.0) == (nDim == 3));
+    CHECK(GlobalSum(nOther) == 0.0);
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED_DISS_MEAN: pi^0.3 is the split mean of the corrected radius, pair term and Jacobian", "[P1Flux]") {
+  std::mt19937 gen(8484);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  constexpr int nDim = 3, nVar = 5;
+  su2double errMean = 0.0, errFlux = 0.0, errJac = 0.0, scaleFlux = 0.0, scaleJac = 0.0;
+  for (int draw = 0; draw < 100; ++draw) {
+    const auto Ni = RandomPairNode(gen, nDim), Nk = RandomPairNode(gen, nDim);
+    su2double n[3];
+    for (int d = 0; d < nDim; ++d) n[d] = 0.1 * u(gen);
+    /*--- A quad face diagonal (pi = 1/2) and a hexahedron body diagonal (pi = 1/4). ---*/
+    const su2double share = (draw % 2 == 0) ? 0.5 : 0.25;
+    const su2double factor = pjst::ShareFactor(share);
+    CHECK(factor == Approx(pow(share, 0.3)).epsilon(1e-15));
+
+    /*--- Derivation: in the share pi of the splits the pair has the coefficient n/pi, so the mean of the corrected
+     * radius over the splits is pi Phi(lambda/pi) lambda/pi = pi^0.3 Phi(lambda) lambda. ---*/
+    const su2double radius = pjst::SpectralRadius(nDim, Ni, Nk, n);
+    const su2double splitMean = share * pjst::CorrectedRadius(radius / share, Ni, Nk);
+    const su2double corrected = factor * pjst::CorrectedRadius(radius, Ni, Nk);
+    errMean = std::max(errMean, su2double(fabs(splitMean - corrected) / corrected));
+
+    /*--- The pair term with the share: pi^0.3 times the term without it (eps2, eps4 and the nodal data unchanged), and
+     * the surrogate Jacobian with that radius and the fourth-difference count n_i + pi of the weighted Laplacian. ---*/
+    pjst::Params par;
+    par.gamma = kGamma;
+    par.kappa4 = 0.02 + 0.1 * (draw % 3);
+    par.weakWall = (draw % 3 == 0);
+    su2double fOne[5] = {}, fPi[5] = {}, jOne_i[5][5] = {}, jOne_k[5][5] = {}, jPi_i[5][5] = {}, jPi_k[5][5] = {};
+    pjst::AddPairDissipation(nDim, par, Ni, Nk, n, fOne, true, jOne_i, jOne_k);
+    pjst::AddPairDissipation(nDim, par, Ni, Nk, n, fPi, true, jPi_i, jPi_k, nullptr, share);
+    for (int v = 0; v < nVar; ++v) {
+      errFlux = std::max(errFlux, su2double(fabs(fPi[v] - factor * fOne[v])));
+      scaleFlux = std::max(scaleFlux, su2double(fabs(fOne[v])));
+    }
+    const auto eps = pjst::DissipationCoefficients(par, Ni, Nk);
+    const su2double lambda = pjst::CorrectedRadius(radius, Ni, Nk) * factor;
+    su2double ref_i[5][5] = {}, ref_k[5][5] = {};
+    pjst::AddSurrogateJacobian(nDim, par.gamma, Ni.vel, par.fixFactor * (eps.eps2Jac + eps.eps4 * (Ni.nNeighbor + share)) * lambda, ref_i);
+    pjst::AddSurrogateJacobian(nDim, par.gamma, Nk.vel, -par.fixFactor * (eps.eps2Jac + eps.eps4 * (Nk.nNeighbor + share)) * lambda, ref_k);
+    for (int v = 0; v < nVar; ++v) {
+      for (int w = 0; w < nVar; ++w) {
+        errJac = std::max({errJac, su2double(fabs(jPi_i[v][w] - ref_i[v][w])), su2double(fabs(jPi_k[v][w] - ref_k[v][w]))});
+        scaleJac = std::max({scaleJac, su2double(fabs(ref_i[v][w])), su2double(fabs(ref_k[v][w]))});
+      }
+    }
+
+    /*--- pi = 1 (true edges, and every pair with the option off): the same bits as without the argument. ---*/
+    su2double fUnit[5] = {}, jUnit_i[5][5] = {}, jUnit_k[5][5] = {};
+    pjst::AddPairDissipation(nDim, par, Ni, Nk, n, fUnit, true, jUnit_i, jUnit_k, nullptr, 1.0);
+    CHECK(std::memcmp(fUnit, fOne, sizeof(fOne)) == 0);
+    CHECK(std::memcmp(jUnit_i, jOne_i, sizeof(jOne_i)) == 0);
+    CHECK(std::memcmp(jUnit_k, jOne_k, sizeof(jOne_k)) == 0);
+  }
+  INFO("split mean " << errMean << ", flux " << errFlux << " of " << scaleFlux << ", Jacobian " << errJac << " of " << scaleJac);
+  CHECK(errMean <= 1e-14);
+  CHECK(scaleFlux > 0.0);
+  CHECK(errFlux <= 1e-14 * scaleFlux);
+  CHECK(errJac <= 1e-14 * scaleJac);
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED_DISS_MEAN: pair-graph neighbour weights, no pair terms on simplex meshes", "[P1Flux]") {
+  /*--- The nodal passes of the option (Laplacian, sensor, nodal radius) run over the split pairs (ForEachOwnedPairEnd,
+   * CFVMFlowSolverBase::AddSplitPairNodalLambda): a mesh of simplices has none, and its neighbour weights are the
+   * true-edge counts bitwise. The true-edge nodal radius on n_ik instead of the dual normal is the same up to round-off
+   * on the median dual ("P1 edge form reduces to the median normal on the median dual"). ---*/
+  for (const bool mixed : {false, true}) {
+    const std::string mesh = mixed ? "p1_pairdiss_mean_mixed_3d.su2" : "p1_pairdiss_mean_tet_3d.su2";
+    if (mixed) {
+      WriteMixedMesh(mesh, 3, 3, 0.3, 1.0);
+    } else {
+      WriteSimplexMesh(mesh, 3, 4, 0.3, 1.0);
+    }
+    MeshCase test(mesh, MixedMeanOptions);
+    auto& geometry = *test.geometry;
+    geometry.SetEdgeFormP1(true);
+    INFO("mixed " << mixed);
+
+    su2activevector weights;
+    pjst::NeighborWeights(geometry, weights);
+    REQUIRE(weights.size() == geometry.GetnPoint());
+
+    /*--- Visits of owned pair ends, without and with the boundary-neighbour rule. ---*/
+    su2double visits = 0.0, visitsRule = 0.0;
+    pjst::ForEachOwnedPairEnd(geometry, false, [&](unsigned long, unsigned long, su2double) { visits += 1.0; });
+    pjst::ForEachOwnedPairEnd(geometry, true, [&](unsigned long a, unsigned long b, su2double) {
+      CHECK(!(geometry.nodes->GetPhysicalBoundary(a) && !geometry.nodes->GetPhysicalBoundary(b)));
+      visitsRule += 1.0;
+    });
+
+    /*--- Owned nodes: n_i - nNeighbor_i is the sum of the shares of the split pairs at i, multiples of 1/4. ---*/
+    std::vector<su2double> pairSum(geometry.GetnPoint(), 0.0);
+    const auto& pairs = geometry.edges->GetSplitNodes();
+    for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+      for (int end = 0; end < 2; ++end) pairSum[pairs[iSplit][end]] += geometry.edges->GetSplitShare()(iSplit);
+    }
+    su2double worst = 0.0, offDyadic = 0.0, extra = 0.0;
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+      const su2double added = weights(iPoint) - geometry.nodes->GetnNeighbor(iPoint);
+      worst = std::max(worst, su2double(fabs(added - pairSum[iPoint])));
+      const passivedouble quarters = SU2_TYPE::GetValue(4.0 * added);
+      offDyadic = std::max(offDyadic, su2double(fabs(quarters - std::round(quarters))));
+      extra += added;
+    }
+    CHECK(GlobalMax(worst) == 0.0);
+    CHECK(GlobalMax(offDyadic) == 0.0);
+    CHECK((GlobalSum(extra) > 0.0) == mixed);
+    CHECK((GlobalSum(visits) > 0.0) == mixed);
+    CHECK(GlobalSum(visitsRule) <= GlobalSum(visits));
+
+    if (!mixed) {
+      su2double changed = 0.0;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+        const su2double count = geometry.nodes->GetnNeighbor(iPoint);
+        changed += (std::memcmp(&weights(iPoint), &count, sizeof(su2double)) != 0);
+      }
+      CHECK(GlobalSum(changed) == 0.0);
+    }
+  }
+}
+
 /*--- TURB_VISC_P1_GALERKIN (TURB_GALERKIN_DIFFUSION.md): P1 Galerkin diffusion of the turbulence equations. ---*/
 namespace {
 

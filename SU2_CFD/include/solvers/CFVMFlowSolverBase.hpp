@@ -485,6 +485,53 @@ class CFVMFlowSolverBase : public CSolver {
   }
 
   /*!
+   * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: adds |ubar.n_ik| + cbar |n_ik| of every split pair, on its full coefficient n_ik
+   *        (the mean of the split coefficients, so pi_ik is already in it), to the nodal spectral radius Lambda of its
+   *        owned nodes, the radius of the JST stretching correction (SetMax_Eigenvalue_impl). Static meshes only.
+   * \param[in] soundSpeed - Function object of the speed of sound, (nodes, iPoint, jPoint) as for the edges.
+   * \param[in] geometry - Geometrical definition of the problem.
+   */
+  template<class SoundSpeedFunc>
+  void AddSplitPairNodalLambda(const SoundSpeedFunc& soundSpeed, const CGeometry *geometry) {
+    const auto& splitNodes = geometry->edges->GetSplitNodes();
+    const auto& splitNormal = geometry->edges->GetSplitNormal();
+
+    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      for (auto iSplit = 0ul; iSplit < splitNodes.size(); ++iSplit) {
+        const auto iPoint = splitNodes[iSplit][0], kPoint = splitNodes[iSplit][1];
+        const su2double* normal = splitNormal[iSplit];
+        const su2double area = GeometryToolbox::Norm(nDim, normal);
+
+        const su2double meanProjVel = 0.5 * (nodes->GetProjVel(iPoint, normal) + nodes->GetProjVel(kPoint, normal));
+        const su2double lambda = fabs(meanProjVel) + soundSpeed(*nodes, iPoint, kPoint) * area;
+
+        if (geometry->nodes->GetDomain(iPoint)) nodes->AddLambda(iPoint, lambda);
+        if (geometry->nodes->GetDomain(kPoint)) nodes->AddLambda(kPoint, lambda);
+      }
+    }
+    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  }
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: adds pi_ik (s_k - s_i) and pi_ik (s_k + s_i) of the split pairs to the sums of the
+   *        pressure sensor of the owned nodes (iPoint_UndLapl, jPoint_UndLapl), with the boundary-neighbour rule of the
+   *        true edges (SetCentered_Dissipation_Sensor_impl).
+   * \param[in] sensVar - Function object of the sensor variable, (nodes, iPoint).
+   * \param[in] geometry - Geometrical definition of the problem.
+   */
+  template<class SensVarFunc>
+  void AddSplitPairSensorSums(const SensVarFunc& sensVar, const CGeometry *geometry) {
+    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      P1PairJST::ForEachOwnedPairEnd(*geometry, true, [&](unsigned long iPoint, unsigned long kPoint, su2double share) {
+        const su2double sensVar_i = sensVar(*nodes, iPoint), sensVar_k = sensVar(*nodes, kPoint);
+        iPoint_UndLapl[iPoint] += share * (sensVar_k - sensVar_i);
+        jPoint_UndLapl[iPoint] += share * (sensVar_k + sensVar_i);
+      });
+    }
+    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  }
+
+  /*!
    * \brief Generic implementation to compute the time step based on CFL and conv/visc eigenvalues.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver_container - Container vector with all the solutions.
@@ -763,6 +810,12 @@ class CFVMFlowSolverBase : public CSolver {
   template<class SoundSpeedFunc>
   FORCEINLINE void SetMax_Eigenvalue_impl(const SoundSpeedFunc& soundSpeed, CGeometry *geometry, const CConfig *config) {
 
+    /*--- EDGE_FORM_P1_MIXED_DISS_MEAN: the nodal radius of the pair graph, the true edges on their form normal n_ik (the
+     * mean of the split coefficients) and the split pairs on theirs, both as in the splits. On a mesh of simplices there
+     * are no split pairs and n_ik is the median normal on the median dual (MOD_CENTROIDS= NO or exponent 0), so Lambda
+     * changes only by round-off there; with moved centroids n_ik is not the dual normal. ---*/
+    const bool meanDiss = config->GetEdge_Form_P1_Mixed_Diss_Mean() && (geometry->GetMGLevel() == MESH_0);
+
     /*--- Loop domain points. ---*/
 
     SU2_OMP_FOR_DYN(omp_chunk_size)
@@ -777,7 +830,7 @@ class CFVMFlowSolverBase : public CSolver {
         auto jPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
 
         auto iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
-        auto Normal = geometry->edges->GetNormal(iEdge);
+        const su2double* Normal = meanDiss ? geometry->edges->GetFormNormal()[iEdge] : geometry->edges->GetNormal(iEdge);
         su2double Area = GeometryToolbox::Norm(nDim, Normal);
 
         /*--- Mean Values ---*/
@@ -841,6 +894,9 @@ class CFVMFlowSolverBase : public CSolver {
         END_SU2_OMP_FOR
       }
     }
+
+    /*--- EDGE_FORM_P1_MIXED_DISS_MEAN: the split pairs of the owned nodes, before the halo exchange. ---*/
+    if (meanDiss) AddSplitPairNodalLambda(soundSpeed, geometry);
 
     /*--- Correct the eigenvalue values across any periodic boundaries. ---*/
 
@@ -910,6 +966,18 @@ class CFVMFlowSolverBase : public CSolver {
       }
     }
     END_SU2_OMP_FOR
+
+    /*--- EDGE_FORM_P1_MIXED_DISS_MEAN: the Jameson sums with the split pairs (weights pi_ik), then the sensor again.
+     * Not with the MSW sensor (a maximum over the neighbours, not a weighted sum). ---*/
+    if (config->GetEdge_Form_P1_Mixed_Diss_Mean() && (geometry->GetMGLevel() == MESH_0) && !msw) {
+      AddSplitPairSensorSums(sensVar, geometry);
+      if (!isPeriodic) {
+        SU2_OMP_FOR_STAT(omp_chunk_size)
+        for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++)
+          nodes->SetSensor(iPoint, fabs(iPoint_UndLapl[iPoint]) / jPoint_UndLapl[iPoint]);
+        END_SU2_OMP_FOR
+      }
+    }
 
     if (isPeriodic) {
       /*--- Correct the sensor values across any periodic boundaries. ---*/

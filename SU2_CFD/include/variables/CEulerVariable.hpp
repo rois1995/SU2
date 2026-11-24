@@ -118,6 +118,15 @@ class CEulerVariable : public CFlowVariable {
   mutable su2activematrix TeCNOAdjEdgeTVD;
   su2activematrix TeCNOAdjEdgePhi;
 
+  /*--- EDGE_FORM_P1_MIXED_DISS_MEAN (declared after the members above, their offsets are unchanged). ---*/
+  su2activevector JSTPairNeighbor; /*!< \brief Neighbour weight sum_k pi_ik of each node, owned and halo. */
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: neighbour weight of each node on the pair graph (true edges and split pairs
+   *        with their shares pi_ik), the JST neighbour count of the option; empty when the option is off.
+   */
+  inline const su2activevector& GetJSTPairNeighbor() const { return JSTPairNeighbor; }
+
   /*!
    * \brief Constructor of the class.
    * \param[in] density - Value of the flow density (initialization value).

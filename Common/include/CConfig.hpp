@@ -113,6 +113,7 @@ private:
   bool Edge_Form_P1_Mixed;     /*!< \brief EDGE_FORM_P1 on quadrilaterals, hexahedra, prisms and pyramids by split averages (P1_MIXED.md). */
   bool Edge_Form_P1_Mixed_Diss; /*!< \brief EDGE_FORM_P1_MIXED_DISS: JST dissipation on the split pairs of EDGE_FORM_P1_MIXED. */
   bool Edge_Form_P1_Mixed_Diss_Aligned; /*!< \brief EDGE_FORM_P1_MIXED_DISS_ALIGNED: the pair dissipation on the edge projection of n_ik. */
+  bool Edge_Form_P1_Mixed_Diss_Mean; /*!< \brief EDGE_FORM_P1_MIXED_DISS_MEAN: the JST of the true edges and split pairs as the mean over the splits. */
   bool Edge_Form_P1_Diss_Aligned; /*!< \brief EDGE_FORM_P1_DISS_ALIGNED: the true-edge JST on the edge projection of the form normal n_ik. */
   bool Edge_Form_P1_Diss_LED;     /*!< \brief EDGE_FORM_P1_DISS_LED: the eps2 part of the aligned JST on n_ik (LED), eps4 on nu_ik. */
   bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
@@ -10293,6 +10294,14 @@ public:
    *        nu_ik = (n_ik.e_ik/|e_ik|^2) e_ik of the pair coefficient, e_ik = x_k - x_i, instead of n_ik.
    */
   bool GetEdge_Form_P1_Mixed_Diss_Aligned() const { return Edge_Form_P1_Mixed_Diss_Aligned; }
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: the JST dissipation of EDGE_FORM_P1_MIXED_DISS_ALIGNED as the mean over the
+   *        conforming splits: the split pairs weighted by their share pi_ik of the splits (factor pi^0.3 of the
+   *        stretching-corrected radius), and the neighbour counts, undivided Laplacians, pressure sensor and nodal
+   *        spectral radii on the pair graph (true edges and split pairs, weights pi_ik).
+   */
+  bool GetEdge_Form_P1_Mixed_Diss_Mean() const { return Edge_Form_P1_Mixed_Diss_Mean; }
 
   /*!
    * \brief EDGE_FORM_P1_DISS_ALIGNED: the JST dissipation of the true edges of EDGE_FORM_P1 (and its Jacobian) uses the

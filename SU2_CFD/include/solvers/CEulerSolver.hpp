@@ -393,6 +393,21 @@ protected:
   void SetUndivided_Laplacian(CGeometry *geometry, const CConfig *config);
 
   /*!
+   * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: adds pi_ik (U_k - U_i) of the split pairs to the undivided Laplacian of the
+   *        owned nodes, with the variables and the boundary-neighbour rule of the true edges (SetUndivided_Laplacian).
+   * \param[in] geometry - Geometrical definition of the problem.
+   */
+  void AddSplitPairLaplacian(const CGeometry *geometry);
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: neighbour weight sum_k pi_ik of each node on the pair graph (true edges and
+   *        split pairs), owned and halo, for the JST coefficients. The mesh is static, it is set once.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void SetJSTPairNeighbor(CGeometry *geometry, const CConfig *config);
+
+  /*!
    * \brief Compute the dissipation sensor for centered schemes.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
