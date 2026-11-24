@@ -2,6 +2,10 @@
 
 ## Fast path stage 2
 
+### FP2-C3 lab, build663
+
+N1 removed 21,960 surface points versus 5,682 at FP2-D S0. Its exact repeat matched. The first pass took 950.332 s and step C took 877.460 s, including 784.810 s in geometry-bound queries and 41.132 s in contact tests. The serial end check took 4.105 s after a 0.065 s gather. The independent embedding check is separate and took 34.799 s. N6 matched in both trials. N6P took 858.792 s and failed the metric-edge floor after pass 2, so C3 has no S timing. [FP2-C3 lab comparison and diagnosis](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/reports/FP2_C3_663.md)
+
 ### FP2-D continuation 2 S, build660
 
 Native maxima were 550.220 and 330.735 s, with minimum timer coverage 97.892% and 98.800%. The remeshed outputs had 424,564 and 407,937 cells, and isolated restart took 83.336 s. The S0 native maxima were 598.347 and 416.655 s. [S comparison](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_D/reports/FP2_D_660.md)

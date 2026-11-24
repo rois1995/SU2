@@ -1,0 +1,368 @@
+{
+  "timestamp": "2026-11-24T11:03:22.551435+01:00",
+  "actual_host_proc": true,
+  "attempts": [
+    {
+      "case": "N1",
+      "repeat": 1,
+      "controller": {
+        "pid": 2966968,
+        "start_ticks": 100051231
+      },
+      "observed_identities": [
+        {
+          "pid": 2966970,
+          "start_ticks": 100051247
+        },
+        {
+          "pid": 2966971,
+          "state": "S",
+          "ppid": 2966970,
+          "pgid": 2966971,
+          "sid": 2966970,
+          "start_ticks": 100051247,
+          "comm": "timeout"
+        },
+        {
+          "pid": 2966972,
+          "state": "R",
+          "ppid": 2966971,
+          "pgid": 2966971,
+          "sid": 2966970,
+          "start_ticks": 100051247,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 2966973,
+          "state": "S",
+          "ppid": 2966972,
+          "pgid": 2966973,
+          "sid": 2966973,
+          "start_ticks": 100051248,
+          "comm": "orted"
+        }
+      ],
+      "measurement": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/cases/build663/N1/measurement.json",
+      "measurement_sha256": "10ed711c6d74ff8f5bfaa166b928ece20d4092935557c16cccdc7545303a341f",
+      "terminal": true
+    },
+    {
+      "case": "N1",
+      "repeat": 2,
+      "controller": {
+        "pid": 3009005,
+        "start_ticks": 100162022
+      },
+      "observed_identities": [
+        {
+          "pid": 3009007,
+          "start_ticks": 100162039
+        },
+        {
+          "pid": 3009008,
+          "state": "S",
+          "ppid": 3009007,
+          "pgid": 3009008,
+          "sid": 3009007,
+          "start_ticks": 100162039,
+          "comm": "timeout"
+        },
+        {
+          "pid": 3009009,
+          "state": "R",
+          "ppid": 3009008,
+          "pgid": 3009008,
+          "sid": 3009007,
+          "start_ticks": 100162039,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3009010,
+          "state": "S",
+          "ppid": 3009009,
+          "pgid": 3009010,
+          "sid": 3009010,
+          "start_ticks": 100162039,
+          "comm": "orted"
+        }
+      ],
+      "measurement": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/repeat2/cases/build663/N1/measurement.json",
+      "measurement_sha256": "4ac48b213b313284a0923dcfda2fdfbcb33454a8b042dc861a47927e40054e76",
+      "terminal": true
+    },
+    {
+      "case": "N6",
+      "repeat": 1,
+      "controller": {
+        "pid": 3061011,
+        "start_ticks": 100285011
+      },
+      "observed_identities": [
+        {
+          "pid": 3061022,
+          "start_ticks": 100285035
+        },
+        {
+          "pid": 3061024,
+          "state": "S",
+          "ppid": 3061023,
+          "pgid": 3061023,
+          "sid": 3061022,
+          "start_ticks": 100285035,
+          "comm": "mpirun"
+        },
+        {
+          "pid": 3061027,
+          "state": "R",
+          "ppid": 3061024,
+          "pgid": 3061027,
+          "sid": 3061022,
+          "start_ticks": 100285039,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3061028,
+          "state": "R",
+          "ppid": 3061024,
+          "pgid": 3061028,
+          "sid": 3061022,
+          "start_ticks": 100285040,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3061029,
+          "state": "R",
+          "ppid": 3061024,
+          "pgid": 3061029,
+          "sid": 3061022,
+          "start_ticks": 100285040,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3061030,
+          "state": "R",
+          "ppid": 3061024,
+          "pgid": 3061030,
+          "sid": 3061022,
+          "start_ticks": 100285040,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3061031,
+          "state": "R",
+          "ppid": 3061024,
+          "pgid": 3061031,
+          "sid": 3061022,
+          "start_ticks": 100285040,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3061032,
+          "state": "R",
+          "ppid": 3061024,
+          "pgid": 3061032,
+          "sid": 3061022,
+          "start_ticks": 100285040,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3061023,
+          "state": "S",
+          "ppid": 3061022,
+          "pgid": 3061023,
+          "sid": 3061022,
+          "start_ticks": 100285035,
+          "comm": "timeout"
+        }
+      ],
+      "measurement": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/cases/build663/N6/measurement.json",
+      "measurement_sha256": "6d7525b15b7fdaf8d7c78b8d56913431d93f38dc56ee8d49f3a7d90a814ee8c5",
+      "terminal": true
+    },
+    {
+      "case": "N6",
+      "repeat": 2,
+      "controller": {
+        "pid": 3113995,
+        "start_ticks": 100439601
+      },
+      "observed_identities": [
+        {
+          "pid": 3114008,
+          "start_ticks": 100439625
+        },
+        {
+          "pid": 3114016,
+          "state": "R",
+          "ppid": 3114010,
+          "pgid": 3114016,
+          "sid": 3114008,
+          "start_ticks": 100439629,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3114017,
+          "state": "R",
+          "ppid": 3114010,
+          "pgid": 3114017,
+          "sid": 3114008,
+          "start_ticks": 100439630,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3114018,
+          "state": "R",
+          "ppid": 3114010,
+          "pgid": 3114018,
+          "sid": 3114008,
+          "start_ticks": 100439630,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3114009,
+          "state": "S",
+          "ppid": 3114008,
+          "pgid": 3114009,
+          "sid": 3114008,
+          "start_ticks": 100439625,
+          "comm": "timeout"
+        },
+        {
+          "pid": 3114010,
+          "state": "S",
+          "ppid": 3114009,
+          "pgid": 3114009,
+          "sid": 3114008,
+          "start_ticks": 100439625,
+          "comm": "mpirun"
+        },
+        {
+          "pid": 3114013,
+          "state": "R",
+          "ppid": 3114010,
+          "pgid": 3114013,
+          "sid": 3114008,
+          "start_ticks": 100439629,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3114014,
+          "state": "R",
+          "ppid": 3114010,
+          "pgid": 3114014,
+          "sid": 3114008,
+          "start_ticks": 100439629,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3114015,
+          "state": "R",
+          "ppid": 3114010,
+          "pgid": 3114015,
+          "sid": 3114008,
+          "start_ticks": 100439629,
+          "comm": "test_driver"
+        }
+      ],
+      "measurement": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/repeat2/cases/build663/N6/measurement.json",
+      "measurement_sha256": "0354b44efb22b8b8f0157d18043a981206dafb8b2c5d8439985fe88431943c14",
+      "terminal": true
+    },
+    {
+      "case": "N6P",
+      "repeat": 1,
+      "controller": {
+        "pid": 3161757,
+        "start_ticks": 100584203
+      },
+      "observed_identities": [
+        {
+          "pid": 3161768,
+          "start_ticks": 100584220
+        },
+        {
+          "pid": 3161769,
+          "state": "S",
+          "ppid": 3161768,
+          "pgid": 3161769,
+          "sid": 3161768,
+          "start_ticks": 100584220,
+          "comm": "timeout"
+        },
+        {
+          "pid": 3161770,
+          "state": "S",
+          "ppid": 3161769,
+          "pgid": 3161769,
+          "sid": 3161768,
+          "start_ticks": 100584220,
+          "comm": "mpirun"
+        },
+        {
+          "pid": 3161773,
+          "state": "R",
+          "ppid": 3161770,
+          "pgid": 3161773,
+          "sid": 3161768,
+          "start_ticks": 100584223,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3161774,
+          "state": "R",
+          "ppid": 3161770,
+          "pgid": 3161774,
+          "sid": 3161768,
+          "start_ticks": 100584223,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3161775,
+          "state": "R",
+          "ppid": 3161770,
+          "pgid": 3161775,
+          "sid": 3161768,
+          "start_ticks": 100584223,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3161776,
+          "state": "R",
+          "ppid": 3161770,
+          "pgid": 3161776,
+          "sid": 3161768,
+          "start_ticks": 100584223,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3161777,
+          "state": "R",
+          "ppid": 3161770,
+          "pgid": 3161777,
+          "sid": 3161768,
+          "start_ticks": 100584223,
+          "comm": "test_driver"
+        },
+        {
+          "pid": 3161778,
+          "state": "R",
+          "ppid": 3161770,
+          "pgid": 3161778,
+          "sid": 3161768,
+          "start_ticks": 100584223,
+          "comm": "test_driver"
+        }
+      ],
+      "measurement": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/cases/build663/N6P/measurement.json",
+      "measurement_sha256": "835183b006fcf8dd4a1f51dda33f940ce504688a4e7b76b9b2604b5ca66a8f0f",
+      "terminal": true
+    }
+  ],
+  "owned_running": [],
+  "other_host_observations": [],
+  "source_status": [
+    "?? Common/include/adaptation/CNativeDistributed3D.hpp.orig",
+    "?? Common/src/adaptation/CNativeDistributed3D.cpp.orig"
+  ],
+  "candidate_checkpoint": "7ecd2a62da"
+}

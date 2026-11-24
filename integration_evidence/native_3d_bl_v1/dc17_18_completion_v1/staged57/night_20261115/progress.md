@@ -1684,3 +1684,25 @@ FP2-C3 build663 focused serial/MPI receipts sealed. R6-open groups: []. Starting
 FP2-C3 build663 passed 7 serial contact cases (9,648 assertions) and 3 MPI contact cases on each rank (898 / 727 assertions). The FP2-D control reproduced its S0 cylinder and chain counts. The inherited corrected C2 and FP2-A/B cases and all 18 FP1 cohorts completed. G1 serial started. Next seal G1 and the option-off comparison, then push the fixtures checkpoint and start the lab.
 
 FP2-C3 build663 fixture gates PASSED with exact S0 option-off comparisons, 18 FP1 cohorts and G1 375 / 114 / 228 (748.269 / 10.154 / 9.966 s). The scoped option-off logs emitted no contact rows and no surface-counter rows. FP2_C3/fixtures/build663/c3_acceptance.json is sealed. Commit and push, then start N1 trial 1.
+
+FP2-C3 fixture checkpoint 7ecd2a62da pushed and verified at the remote branch head. All fixture controllers are terminal. Start the build663 lab at N1 trial 1.
+
+FP2-C3 build663 N1 trial 1 step C completed with 21,960 collapses (17,869 outward) in 15 sweeps and 26,920 physical faces. Of 877.460 s in step C, 41.132 s was the contact tests and 784.810 s was the existing Bound queries. Local contact refused zero directions. This is an in-flight measurement. Next await embedding, pass-end verification and rebuilt-state qualification.
+
+FP2-C3 build663 N1 trial 1 passed in 1093.303 s, strict_checked=26920, unexplained=0, model_gap_entities=0, zero embedding violations on 1 rank-pass checks. Receipt FP2_C3/cases/build663/N1/measurement.json. Next run N1 trial 2.
+
+FP2-C3 build663 N1 trial 2 passed in 1213.391 s, strict_checked=26920, unexplained=0, model_gap_entities=0, zero embedding violations on 1 rank-pass checks. Receipt FP2_C3/repeat2/cases/build663/N1/measurement.json. Next run N6 trial 1.
+
+FP2-C3 build663 N1 exact repeat comparison passed with zero differences. Trial elapsed 1093.303 / 1213.391 s; pass 950.332 / 1049.104 s at starting one-minute load 0.77 / 1.31. Both exceed the 600 s reporting threshold. The serial checks tested 373,889 cells against 26,676 owner rows with 1,716,221 exact calls, and embedding checked 17,796,216 pairs with zero violations. Next await N6 trial 1.
+
+FP2-C3 build663 N6 trial 1 passed in 1530.060 s, strict_checked=24530, unexplained=0, model_gap_entities=0, zero embedding violations on 12 rank-pass checks. Receipt FP2_C3/cases/build663/N6/measurement.json. Next run N6 trial 2.
+
+FP2-C3 build663 N6 trial 2 passed in 1431.399 s, strict_checked=24530, unexplained=0, model_gap_entities=0, zero embedding violations on 12 rank-pass checks. Receipt FP2_C3/repeat2/cases/build663/N6/measurement.json. Next run N6P trial 1.
+
+FP2-C3 build663 N6 exact repeat comparison passed with zero differences. Trial elapsed 1530.060 / 1431.399 s; slowest passes 465.489 / 106.736 s and 525.709 / 99.820 s. Both trials qualified 24,530 faces with eight accounted above tolerance and zero strict sink mismatches. The final classification took 630.745 / 506.289 s. Next await N6P trial 1 on the event-1 production partition.
+
+FP2-C3 build663 N6P trial 1 reported the first observed result difference at rank 0, pass 2: lt_1e_2 = 1 against a maximum of 0. Both pass-end contact checks and embedding checks completed on all six ranks. Let this active trial finish and seal its evidence, then make the single read-only R5 diagnosis. N6P repeat and S are gated on the result.
+
+FP2-C3 build663 N6P trial 1 failed in 858.792 s, first recorded difference={'rank': 0, 'pass': 2, 'field': 'lt_1e_2', 'observed': 1, 'maximum': 0}. Receipt FP2_C3/cases/build663/N6P/measurement.json. Next stop for gate disposition.
+
+FP2-C3 build663 lab FAILED. N1 and N6 passed both trials and matched exactly. N6P trial 1 ended in 858.792 s with one gate miss: rank 0, pass 2, physical edge (69215,74584) metric length 0.0090487725598145056, giving lt_1e_2=1 against 0. All 38 rank-pass checks across the five trials passed embedding and global contact verification. N6P's six snapshots matched, with 26,480 strict-checked faces, zero unexplained faces, zero model gaps and zero strict sink mismatches. The single read-only R5 diagnosis traced the edge to step C and found no wiring error. Keep the candidate with no retry. N6P trial 2, S and the default proof are unevaluated. The terminal audit confirms no owned build, test or solver remains. The closing checkpoint carries the exact FP2-C3 lab FAILED label. Stop under the signed order.
