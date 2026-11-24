@@ -1,0 +1,118 @@
+{
+  "all_observed_terminal": true,
+  "identities": [
+    {
+      "pid": 2755866,
+      "start_ticks": 99492444
+    },
+    {
+      "pid": 2755872,
+      "state": "R",
+      "ppid": 2755868,
+      "pgid": 2755872,
+      "sid": 2755866,
+      "start_ticks": 99492447,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 2755873,
+      "state": "R",
+      "ppid": 2755868,
+      "pgid": 2755873,
+      "sid": 2755866,
+      "start_ticks": 99492447,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 2755874,
+      "state": "R",
+      "ppid": 2755868,
+      "pgid": 2755874,
+      "sid": 2755866,
+      "start_ticks": 99492447,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 2755875,
+      "state": "R",
+      "ppid": 2755868,
+      "pgid": 2755875,
+      "sid": 2755866,
+      "start_ticks": 99492447,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 2755876,
+      "state": "R",
+      "ppid": 2755868,
+      "pgid": 2755876,
+      "sid": 2755866,
+      "start_ticks": 99492447,
+      "comm": "test_driver"
+    },
+    {
+      "pid": 2755867,
+      "state": "S",
+      "ppid": 2755866,
+      "pgid": 2755867,
+      "sid": 2755866,
+      "start_ticks": 99492444,
+      "comm": "timeout"
+    },
+    {
+      "pid": 2755868,
+      "state": "S",
+      "ppid": 2755867,
+      "pgid": 2755867,
+      "sid": 2755866,
+      "start_ticks": 99492444,
+      "comm": "mpirun"
+    },
+    {
+      "pid": 2755871,
+      "state": "R",
+      "ppid": 2755868,
+      "pgid": 2755871,
+      "sid": 2755866,
+      "start_ticks": 99492447,
+      "comm": "test_driver"
+    }
+  ],
+  "sigkill_sent_to": [],
+  "sampled_rank_peak_lower_bound_bytes": 4079734784,
+  "sampled_rank_peaks_bytes": [
+    {
+      "pid": 2755871,
+      "start_ticks": 99492447,
+      "peak_rss_bytes": 811724800
+    },
+    {
+      "pid": 2755872,
+      "start_ticks": 99492447,
+      "peak_rss_bytes": 545460224
+    },
+    {
+      "pid": 2755873,
+      "start_ticks": 99492447,
+      "peak_rss_bytes": 545755136
+    },
+    {
+      "pid": 2755874,
+      "start_ticks": 99492447,
+      "peak_rss_bytes": 849354752
+    },
+    {
+      "pid": 2755875,
+      "start_ticks": 99492447,
+      "peak_rss_bytes": 677097472
+    },
+    {
+      "pid": 2755876,
+      "start_ticks": 99492447,
+      "peak_rss_bytes": 650342400
+    }
+  ],
+  "child_returncode": 0,
+  "elapsed_seconds": 541.6935075779911,
+  "stop": null
+}

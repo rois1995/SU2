@@ -1642,3 +1642,23 @@ FP2-D continuation 2 build660 passed in 30.449 s with no warnings and solver SHA
 FP2-D continuation 2 build660 option-off fixtures and corrected C2 cohorts passed, along with all 18 FP1 cohorts. G1 serial started. The option-off chain repeated build658's 227 splits, 22 sweeps and 726 short edges. The corrected control confirmed the initial longest-edge terminal. Lab helpers verified both historical orders, the old field sets, the Short-face parser and N6P alarm reference 324 / 601. Next seal G1 and the fixture receipt, push, then start the lab.
 
 FP2-D continuation 2 build660 fixture gates PASSED. All 18 directional cases (2,263 assertions), exact option-off including corrected C2 cohorts, 18 FP1 cohorts and G1 375 / 114 / 228. G1 serial took 756.466 s. FP2_D/fixtures/build660/d_acceptance.json is sealed. Commit and push, then start the lab.
+
+FP2-D continuation 2 fixture checkpoint pushed as 89a8eaccde. Fixture controllers are terminal. Start the build660 lab at N1 trial 1.
+
+FP2-D continuation 1 build660 N1 trial 1 passed in 364.995 s, strict_checked=59476, unexplained=0, model_gap_entities=0. Receipt FP2_D/cases/build660/N1/measurement.json. Next run N1 trial 2.
+
+FP2-D continuation 2 build660 N1 trial 1 PASSED. Both new metric-floor counters were zero, with 7 marked sweeps and 59,476 strict-checked faces. The reused controller's prose prefix says continuation 1 for build660; build number and pinned orders identify all these trials as continuation 2. Next N1 trial 2.
+
+FP2-D continuation 1 build660 N1 trial 2 passed in 363.842 s, strict_checked=59476, unexplained=0, model_gap_entities=0. Receipt FP2_D/repeat2/cases/build660/N1/measurement.json. Next run N6 trial 1.
+
+FP2-D continuation 1 build660 N6 trial 1 passed in 541.888 s, strict_checked=57118, unexplained=0, model_gap_entities=0. Receipt FP2_D/cases/build660/N6/measurement.json. Next run N6 trial 2.
+
+FP2-D continuation 1 build660 N6 trial 2 passed in 537.239 s, strict_checked=57118, unexplained=0, model_gap_entities=0. Receipt FP2_D/repeat2/cases/build660/N6/measurement.json. Next run N6P trial 1.
+
+FP2-D continuation 1 build660 N6P trial 1 passed in 361.938 s, strict_checked=57664, unexplained=0, model_gap_entities=0. Receipt FP2_D/cases/build660/N6P/measurement.json. Next run N6P trial 2.
+
+FP2-D continuation 1 build660 N6P trial 2 passed in 359.908 s, strict_checked=57664, unexplained=0, model_gap_entities=0. Receipt FP2_D/repeat2/cases/build660/N6P/measurement.json. Next run N1Invariant trial 1.
+
+FP2-D continuation 1 build660 N1Invariant trial 1 passed in 358.607 s, strict_checked=59476, unexplained=0, model_gap_entities=0. Receipt FP2_D/cases/build660/N1Invariant/measurement.json. Next compare repetitions and evaluate the alarm.
+
+FP2-D continuation 2 build660 lab PASSED. Exact pairs N1/N6/N6P, 59,476 / 57,118 / 57,664 strict faces, zero mismatches, no final metric edges below 0.01. N1Invariant 8,636 checked / zero violations. Metric split refusals 0 / 12 / 77 per trial. N6P alarm both trials 105 / 136, first failing thresholds 487 / 902. Lab receipt FP2_D/cases/build660/lab_acceptance.json. Next commit and push lab, then run S.
