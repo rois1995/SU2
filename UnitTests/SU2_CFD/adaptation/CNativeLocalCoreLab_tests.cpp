@@ -7,6 +7,7 @@
 #include "TransferTestCase.hpp"
 #include "../../Common/adaptation/native_local_fixture_access.hpp"
 #include "../../Common/adaptation/native_local_surface_probe.hpp"
+#include "../../../Common/include/adaptation/CNativeD9Profile3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../../Common/include/adaptation/CNativeLocalSurface3D.hpp"
@@ -18,10 +19,12 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -96,7 +99,8 @@ struct LabInput {
   double tolerance;
 };
 
-LabInput LoadMesh(ReferenceState* kept = nullptr, bool parallel = false, bool keep_donors = false) {
+LabInput LoadMesh(ReferenceState* kept = nullptr, bool parallel = false, bool keep_donors = false,
+                  std::string* reference_path = nullptr) {
   const auto ranks = SU2_MPI::GetSize();
   REQUIRE((parallel ? (ranks == 2 || ranks == 6) : ranks == 1));
   const char* config = std::getenv("SU2_NATIVE_FROZEN_CONFIG");
@@ -121,6 +125,7 @@ LabInput LoadMesh(ReferenceState* kept = nullptr, bool parallel = false, bool ke
   const auto ceiling = driver.Config().GetAdap_Native_MemoryLimit();
   const auto tolerance = SU2_TYPE::GetValue(driver.Config().GetAdap_Hausd());
   const auto path = driver.Config().GetMesh_FileName() + ".native_ref";
+  if (reference_path) *reference_path = path;
   const auto restored = LoadReference(path, reference, loaded, reason, ceiling, 0, reference_bytes);
   INFO(reason);
   REQUIRE(restored);
@@ -1018,3 +1023,4 @@ TEST_CASE("FP2-A rank check on the frozen M6 event 1 volume", "[.][NativeLocalCo
 #include "fixtures/native_handover_quality.inc"
 #include "fixtures/native_handover_volume.inc"
 #include "fixtures/native_volume_handover.inc"
+#include "fixtures/native_m1_support_fixture.inc"

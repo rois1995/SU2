@@ -1,0 +1,63 @@
+{
+  "build": 666,
+  "binary_sha256": "e1b25b45969b9cd778082a164218a1bfaaca5ab5780343b802d11a62a656be13",
+  "test_binary_sha256": "42264fe54ad8962fc3772a21b01601e1e47e53b4f087d8c861c1a180ca4a8d11",
+  "source_pins_sha256": "274a8b2362931676ed561032423594214a0583743ad4e9680fde17e2e966fb61",
+  "status": "PASS",
+  "attempts": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M1/fixtures/build666/off-mpi/attempt1/result.json": "c6692c1e6eface82baad5e8cca3a2c7d7dc63c48f4d9863768d732685b38317b"
+  },
+  "result": {
+    "build": 666,
+    "binary_sha256": "e1b25b45969b9cd778082a164218a1bfaaca5ab5780343b802d11a62a656be13",
+    "test_binary_sha256": "42264fe54ad8962fc3772a21b01601e1e47e53b4f087d8c861c1a180ca4a8d11",
+    "source_pins_sha256": "274a8b2362931676ed561032423594214a0583743ad4e9680fde17e2e966fb61",
+    "passed": true,
+    "watchdog": false,
+    "assertion_failed": false,
+    "catch_summaries": [
+      [
+        [
+          "898",
+          "3"
+        ]
+      ],
+      [
+        [
+          "727",
+          "3"
+        ]
+      ]
+    ],
+    "wait": {
+      "actual_host_proc": true,
+      "controller": {
+        "pid": 4025402,
+        "start_ticks": 102946125
+      },
+      "returncode": 0,
+      "elapsed_seconds": 0.7962536811828613,
+      "terminal": true
+    },
+    "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M1/fixtures/build666/off-mpi/attempt1",
+    "artifacts": {
+      "command.json": "3638c8ac61cbc437b345d197b00467ef54f54841e62c13b76d5f63597766a93a",
+      "provenance.json": "26e3ce927fbc48c843e0a4bd750f41502a0047788c72433727a66fca0be6a2ae",
+      "rank_output/1/rank.0/stdout": "ed9479ba380e97070619142797c35c676aeba1b604f6dc030c1e867b50264828",
+      "rank_output/1/rank.1/stdout": "2d9713c2198d223105a9a6d707777ab1bfbea5123e59f6b816db4cc9dcabac59",
+      "test_host_preflight.json": "63ddaa69fc07586c771b3b3bb1afa0f0f003250bef4fb4446edf2976b966c68c",
+      "test_launch.json": "f34c4c15b5c5d4236009600ff4650eb0a500c3165939b575b078a2f81b610e87",
+      "test_outer.log": "f174d84e554d010a954853b396ff2f90a88036ae244606267c860cdb47c2558c",
+      "test_wait.json": "fc91c2f28e7c47b0b42adeaec9b2d61dadb09d0a142ed446940a915051fbbcd7",
+      "time.txt": "d9850cdcf0df2646cebd6a6ec2d3ba25ea69156ac40d4eb4d7b9df07bc54f78a"
+    },
+    "status": "passed"
+  },
+  "details": {
+    "environment": {
+      "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+      "SU2_NATIVE_FP2_M1": "0"
+    },
+    "unchanged_assertion_counts": true
+  }
+}
