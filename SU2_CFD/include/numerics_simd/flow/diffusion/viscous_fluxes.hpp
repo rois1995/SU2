@@ -84,6 +84,7 @@ protected:
   const size_t uq_eigval_comp;
   const su2double uq_delta_b;
   const su2double uq_urlx;
+  const bool uq_tangent;
 
   const CVariable* turbVars;
 
@@ -104,6 +105,7 @@ protected:
     uq_eigval_comp(config.GetEig_Val_Comp()),
     uq_delta_b(config.GetUQ_Delta_B()),
     uq_urlx(config.GetUQ_URLX()),
+    uq_tangent(config.GetSSTParsedOptions().uq && config.GetUQ_Jacobian() == UQ_JACOBIAN::TANGENT),
     turbVars(turbVars_) {
   }
 
@@ -152,11 +154,19 @@ protected:
     const Double eddyVisc = uq? Double(0.0) : avgV.eddyVisc();
     auto tau = stressTensor(avgV.laminarVisc() + eddyVisc, avgGrad);
     if(useSA_QCR) addQCR(avgGrad, tau, eddyVisc / (avgV.laminarVisc() + eddyVisc));
+    /*--- UQ_JACOBIAN= TANGENT: same stress, plus the pair term of its Jacobian (added after stressTensorJacobian). ---*/
+    const bool tangent = uq && uq_tangent && implicit;
+    EPMTangentLanes tangentJac;
     if(uq) {
       Double turb_ke = 0.5*(gatherVariables(iPoint, turbVars->GetSolution()) +
                             gatherVariables(jPoint, turbVars->GetSolution()));
-      addPerturbedRSM(avgV, avgGrad, turb_ke, tau,
-                      uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx);
+      if (tangent) {
+        addPerturbedRSMWithJacobian(avgV, avgGrad, turb_ke, tau, unitNormal,
+                                    uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx, tangentJac);
+      } else {
+        addPerturbedRSM(avgV, avgGrad, turb_ke, tau,
+                        uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx);
+      }
     }
     if (config.GetEPMExtraction().active) {
       const Double turb_ke = 0.5*(gatherVariables(iPoint, turbVars->GetSolution()) +
@@ -191,6 +201,7 @@ protected:
 
     Double dist_ij = sqrt(dist2_ij);
     auto dtau = stressTensorJacobian<nVar>(avgV, unitNormal, dist_ij);
+    if (tangent) addTangentStressJacobian(avgV, tangentJac, dist_ij, dtau);
 
     /*--- Energy flux Jacobian. ---*/
     auto dEdU = derived->energyJacobian(avgV, dtau, cond, area, dist_ij, iPoint, jPoint, solution);

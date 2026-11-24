@@ -156,6 +156,78 @@ NEVERINLINE void addPerturbedRSM(const PrimitiveType& V,
 }
 
 /*!
+ * \brief Tangent pair term of the perturbed stress (UQ_JACOBIAN= TANGENT), lane by lane, passive.
+ * \note dM[k] is CNumerics::EPMTangentStressJacobian of lane k; lanes with nonzero[k] false are left untouched.
+ */
+struct EPMTangentLanes {
+  passivedouble dM[Double::Size][3][3];
+  bool nonzero[Double::Size] = {};
+};
+
+/*!
+ * \brief Add perturbed stress tensor (as addPerturbedRSM) and compute the tangent pair term of its Jacobian.
+ * \note The stress is computed exactly as by addPerturbedRSM, the eigen data are a passive copy.
+ */
+template<class PrimitiveType, class MatrixType, size_t nDim>
+NEVERINLINE void addPerturbedRSMWithJacobian(const PrimitiveType& V,
+                                             const MatrixType& grad,
+                                             const Double& turb_ke,
+                                             MatrixDbl<nDim,nDim>& tau,
+                                             const VectorDbl<nDim>& unitNormal,
+                                             size_t uq_eigval_comp,
+                                             bool uq_permute,
+                                             su2double uq_delta_b,
+                                             su2double uq_urlx,
+                                             EPMTangentLanes& tangent) {
+  /*--- Handle SIMD dimensions 1 by 1. ---*/
+  for (size_t k = 0; k < Double::Size; ++k) {
+    su2double velgrad[nDim][nDim];
+    for (size_t iVar = 0; iVar < nDim; ++iVar)
+      for (size_t iDim = 0; iDim < nDim; ++iDim)
+        velgrad[iVar][iDim] = grad(iVar+1,iDim)[k];
+
+    su2double rsm[3][3];
+    CNumerics::EPMSpectrum spectrum;
+    CNumerics::ComputePerturbedRSM(nDim, uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx, velgrad, V.density()[k],
+                                   V.eddyVisc()[k], turb_ke[k], rsm, 0.0, 0.0, nullptr, 3, &spectrum);
+
+    for (size_t iDim = 0; iDim < nDim; ++iDim)
+      for (size_t jDim = 0; jDim < nDim; ++jDim)
+        tau(iDim,jDim)[k] -= V.density()[k] * rsm[iDim][jDim];
+
+    passivedouble normal[3] = {};
+    for (size_t iDim = 0; iDim < nDim; ++iDim) normal[iDim] = SU2_TYPE::GetValue(unitNormal(iDim)[k]);
+    tangent.nonzero[k] = CNumerics::EPMTangentStressJacobian(
+        nDim, spectrum, SU2_TYPE::GetValue(uq_urlx), SU2_TYPE::GetValue(V.eddyVisc()[k]),
+        SU2_TYPE::GetValue(V.laminarVisc()[k]), normal, tangent.dM[k]);
+  }
+}
+
+/*!
+ * \brief Add the tangent pair term (UQ_JACOBIAN= TANGENT) to the stress Jacobian of stressTensorJacobian.
+ * \note d(tau.n)/d(rho u)_i gains -dM/(rho d), the density column -J u follows. dM is symmetric, so the energy
+ *       Jacobian built from jac stays consistent. Lanes without a term are not touched (bit-identical).
+ */
+template<size_t nVar, size_t nDim, class PrimitiveType>
+FORCEINLINE void addTangentStressJacobian(const PrimitiveType& V,
+                                          const EPMTangentLanes& tangent,
+                                          const Double& dist_ij,
+                                          MatrixDbl<nDim,nVar>& jac) {
+  for (size_t k = 0; k < Double::Size; ++k) {
+    if (!tangent.nonzero[k]) continue;
+    const passivedouble factor = 1.0 / (SU2_TYPE::GetValue(V.density()[k]) * SU2_TYPE::GetValue(dist_ij[k]));
+    for (size_t iDim = 0; iDim < nDim; ++iDim) {
+      passivedouble dMu = 0.0;
+      for (size_t jDim = 0; jDim < nDim; ++jDim) {
+        jac(iDim,jDim+1)[k] -= tangent.dM[k][iDim][jDim] * factor;
+        dMu += tangent.dM[k][iDim][jDim] * SU2_TYPE::GetValue(V.velocity(jDim)[k]);
+      }
+      jac(iDim,0)[k] += dMu * factor;
+    }
+  }
+}
+
+/*!
  * \brief SA-QCR2000 modification of the stress tensor.
  */
 template<class MatrixType, size_t nDim>

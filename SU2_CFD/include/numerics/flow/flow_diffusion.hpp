@@ -100,6 +100,25 @@ protected:
                       su2double val_dist_ij,
                       const su2double *val_normal);
 
+  /*!
+   * \brief Add the tangent pair term of the classical EPM stress (UQ_JACOBIAN= TANGENT) to the stress Jacobian.
+   * \note Call after SetTauJacobian (compressible), only when the term is nonzero. dM is symmetric, so the energy
+   *       row built from tau_jacobian_i in GetViscousProjJacs stays consistent. The term is passive.
+   * \param[in] val_Mean_PrimVar - Mean value of the primitive variables.
+   * \param[in] dM - Pair term times the distance, from CNumerics::EPMTangentStressJacobian.
+   * \param[in] val_dist_ij - Distance between the points.
+   */
+  void AddTauJacobianUQ(const su2double* val_Mean_PrimVar,
+                        const passivedouble (&dM)[3][3],
+                        su2double val_dist_ij);
+
+  /*!
+   * \brief Tangent pair term (UQ_JACOBIAN= TANGENT) at the face of the last ComputePerturbedRSM call.
+   * \param[in] spectrum - Eigen data of that call.
+   * \param[in] val_dist_ij - Distance between the points.
+   */
+  void AddTangentTauJacobianUQ(const EPMSpectrum& spectrum, su2double val_dist_ij);
+
 
   /**
    * \brief Calculate the Jacobian of the viscous and turbulent stress tensor

@@ -73,6 +73,7 @@ CNumerics::CNumerics(unsigned short val_nDim, unsigned short val_nVar,
   uq_delta_b = config->GetUQ_Delta_B();
   uq_urlx = config->GetUQ_URLX();
   uq_permute = config->GetUQ_Permute();
+  uq_jacobian = config->GetUQ_Jacobian();
 
 }
 

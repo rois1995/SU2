@@ -203,6 +203,7 @@ protected:
   su2double uq_delta_b;           /*!< \brief Magnitude of perturbation */
   su2double uq_urlx;              /*!< \brief Under-relaxation factor for numerical stability */
   bool uq_permute;                /*!< \brief Flag for eigenvector permutation */
+  UQ_JACOBIAN uq_jacobian = UQ_JACOBIAN::NONE; /*!< \brief Implicit Jacobian of the perturbed stress (UQ_JACOBIAN). */
 
   bool nemo;                      /*!< \brief Flag for NEMO problems  */
 
@@ -579,6 +580,26 @@ public:
   }
 
   /*!
+   * \brief Passive eigen data of the classical EPM perturbation at one site, after the eigenvector permutation.
+   * \note Column c of vec is the eigenvector that carries the target anisotropy eigenvalue target[c]; baseline[c] is
+   *       its baseline anisotropy eigenvalue. Only used to build the tangent Jacobian (UQ_JACOBIAN= TANGENT).
+   */
+  struct EPMSpectrum {
+    passivedouble vec[3][3] = {};   /*!< \brief Eigenvectors (columns), after the permutation. */
+    passivedouble baseline[3] = {}; /*!< \brief Baseline anisotropy eigenvalue of each column. */
+    passivedouble target[3] = {};   /*!< \brief Target anisotropy eigenvalue of each column. */
+    bool permute = false;           /*!< \brief Columns 0 and 2 were swapped (UQ_PERMUTE). */
+    bool valid = false;             /*!< \brief False if the stress was set without an eigensystem (k = mu_t = 0). */
+  };
+
+  /*! \brief Overflow guard of the tangent pair viscosity, relative to mu_lam + mu_t (deliberately not a stability
+   *         cap: a cap below the true rotational Bingham number brings the stall back). */
+  static constexpr passivedouble EPMTangentBiMax = 1e8;
+
+  /*! \brief Target eigenvalue differences at or below this are ties (round-off of the barycentric map). */
+  static constexpr passivedouble EPMTangentTargetTie = 1e-10;
+
+  /*!
    * \brief Perturb the Reynolds stress tensor based on parameters.
    * \param[in] nDim - Dimension of the flow problem, 2 or 3.
    * \param[in] uq_eigval_comp - Component 1C 2C 3C.
@@ -590,13 +611,15 @@ public:
    * \param[in] viscosity - Eddy viscosity.
    * \param[in] turb_ke: Turbulent kinetic energy.
    * \param[out] MeanPerturbedRSM - Perturbed stress tensor.
+   * \param[out] spectrum - Optional passive copy of the eigen data (EPMSpectrum); it does not change the stress.
    */
   template<class Mat1, class Mat2, class Scalar>
   NEVERINLINE static void ComputePerturbedRSM(size_t nDim, size_t uq_eigval_comp, bool uq_permute, Scalar uq_delta_b,
                                               Scalar uq_urlx, const Mat1& velgrad, Scalar density,
                                               Scalar viscosity, Scalar turb_ke, Mat2& MeanPerturbedRSM,
                                               double probe_angle = 0.0, double gap_tolerance = 0.0,
-                                              bool* ambiguous = nullptr, size_t probe_pair = 3) {
+                                              bool* ambiguous = nullptr, size_t probe_pair = 3,
+                                              EPMSpectrum* spectrum = nullptr) {
     Scalar MeanReynoldsStress[3][3] = {{}};
     ComputeStressTensor(nDim, MeanReynoldsStress, velgrad, viscosity, density, turb_ke, true);
     for (size_t iDim = 0; iDim < 3; iDim++)
@@ -607,6 +630,7 @@ public:
     if (turb_ke == 0.0 && viscosity == 0.0) {
       for (size_t i = 0; i < 3; ++i)
         for (size_t j = 0; j < 3; ++j) MeanPerturbedRSM[i][j] = 0.0;
+      if (spectrum) spectrum->valid = false;
       return;
     }
 
@@ -693,6 +717,17 @@ public:
         swap(Eig_Vec[jDim][0], Eig_Vec[jDim][2]);
     }
 
+    /*--- Copies only: the stress below is computed exactly as without the spectrum. ---*/
+    if (spectrum) {
+      for (size_t c = 0; c < 3; ++c) {
+        for (size_t row = 0; row < 3; ++row) spectrum->vec[row][c] = SU2_TYPE::GetValue(Eig_Vec[row][c]);
+        spectrum->baseline[c] = SU2_TYPE::GetValue(baseline_eigenvalues[uq_permute ? 2-c : c]);
+        spectrum->target[c] = SU2_TYPE::GetValue(Eig_Val[c]);
+      }
+      spectrum->permute = uq_permute;
+      spectrum->valid = true;
+    }
+
     CBlasStructure::EigenRecomposition(A_ij, Eig_Vec, Eig_Val, 3);
 
     /* compute perturbed Reynolds stress matrix; using under-relaxation factor (uq_urlx)*/
@@ -704,6 +739,99 @@ public:
           uq_urlx*(MeanPerturbedRSM[iDim][jDim] - MeanReynoldsStress[iDim][jDim]);
       }
     }
+  }
+
+  /*!
+   * \brief Tangent (Daleckii-Krein) pair term of the thin-layer Jacobian of the perturbed stress (UQ_JACOBIAN).
+   * \details With k, mu_t and rho frozen, d(tau.n)/du_j = [(mu_lam + (1-A) mu_t)(I + n n^T/3) + sum_p mu_rot,p
+   *          w_p w_p^T] / d, over the eigenvector pairs p = (i<j), with mu_rot,p = A mu_t (Lt_i - Lt_j) /
+   *          (lam_i - lam_j) and w_p = v_i (v_j.n) + v_j (v_i.n). The Jacobian of the flow solver keeps the
+   *          isotropic (mu_lam + mu_t)(I + n n^T/3); this returns what it adds, d times the extra d(tau.n)/du_j:
+   *          dM = sum_p max(0, min(mu_rot,p, cap) - A mu_t) w_p w_p^T over the pairs with mu_rot,p > 0, with the
+   *          overflow guard cap = EPMTangentBiMax (mu_lam + mu_t). Pairs with tied targets (3C, and one pair of
+   *          1C and 2C) and, in 2D, the pairs with the out-of-plane eigenvector do not contribute. With exact, dM is
+   *          instead the full difference to the isotropic Jacobian, -A mu_t (I + n n^T/3) + sum_p mu_rot,p w_p w_p^T
+   *          (signed, no cap; for unit tests against finite differences).
+   * \note Passive (it is only a Jacobian): no AD dependency, nothing on the tape.
+   * \param[in] nDim - 2 or 3.
+   * \param[in] spectrum - Eigen data of ComputePerturbedRSM at the face.
+   * \param[in] urlx - UQ_URLX (A).
+   * \param[in] mu_t - Eddy viscosity passed to ComputePerturbedRSM.
+   * \param[in] mu_lam - Laminar viscosity (scale of the overflow guard).
+   * \param[in] unitNormal - Unit face normal (nDim components).
+   * \param[out] dM - Symmetric nDim x nDim matrix (zero outside), see details.
+   * \param[in] exact - Full signed difference (test mode).
+   * \return true if dM has a nonzero entry.
+   */
+  static bool EPMTangentStressJacobian(size_t nDim, const EPMSpectrum& spectrum, passivedouble urlx,
+                                       passivedouble mu_t, passivedouble mu_lam, const passivedouble* unitNormal,
+                                       passivedouble (&dM)[3][3], bool exact = false) {
+    for (size_t a = 0; a < 3; ++a)
+      for (size_t b = 0; b < 3; ++b) dM[a][b] = 0.0;
+    if (!spectrum.valid) return false;
+
+    /*--- Isotropic difference of the exact Jacobian, (1-A) mu_t instead of mu_t. ---*/
+    if (exact) {
+      for (size_t a = 0; a < nDim; ++a)
+        for (size_t b = a; b < nDim; ++b)
+          dM[a][b] = -urlx * mu_t * ((a == b ? 1.0 : 0.0) + unitNormal[a] * unitNormal[b] / 3.0);
+    }
+
+    /*--- In 2D the out-of-plane eigenvector (e_z) has no in-plane w, and its gap to an in-plane one may be 0. ---*/
+    size_t outOfPlane = 3;
+    if (nDim == 2) {
+      outOfPlane = 0;
+      for (size_t c = 1; c < 3; ++c)
+        if (std::fabs(spectrum.vec[2][c]) > std::fabs(spectrum.vec[2][outOfPlane])) outOfPlane = c;
+    }
+
+    const passivedouble cap = EPMTangentBiMax * (mu_lam + mu_t);
+    /*--- Baseline eigenvalues ascend (tql2), so lam_i - lam_j <= 0 for i < j, and >= 0 once columns 0 and 2 are
+     *    swapped (every pair contains one of them): the sign of the pair viscosity is known even for a zero gap. ---*/
+    const passivedouble gapSign = spectrum.permute ? 1.0 : -1.0;
+
+    for (size_t i = 0; i < 2; ++i) {
+      for (size_t j = i + 1; j < 3; ++j) {
+        if (i == outOfPlane || j == outOfPlane) continue;
+        const passivedouble dTarget = spectrum.target[i] - spectrum.target[j];
+        if (std::fabs(dTarget) <= EPMTangentTargetTie) continue;
+        const passivedouble num = urlx * mu_t * dTarget;
+        if (num == 0.0) continue;
+
+        passivedouble coef;
+        if (exact) {
+          coef = num / (spectrum.baseline[i] - spectrum.baseline[j]);
+        } else {
+          /*--- |mu_rot| = |num| / gap, capped without forming the quotient (gap may be 0). ---*/
+          const passivedouble gap = std::fabs(spectrum.baseline[i] - spectrum.baseline[j]);
+          const passivedouble magnitude = std::fabs(num) >= cap * gap ? cap : std::fabs(num) / gap;
+          const passivedouble muRot = (num * gapSign > 0.0) ? magnitude : -magnitude;
+          /*--- One-sided: only positive pair viscosities, and only their part missing from mu_t. ---*/
+          if (!(muRot > 0.0)) continue;
+          coef = muRot - urlx * mu_t;
+          if (!(coef > 0.0)) continue;
+        }
+
+        passivedouble ni = 0.0, nj = 0.0;
+        for (size_t a = 0; a < nDim; ++a) {
+          ni += spectrum.vec[a][i] * unitNormal[a];
+          nj += spectrum.vec[a][j] * unitNormal[a];
+        }
+        passivedouble w[3] = {};
+        for (size_t a = 0; a < nDim; ++a) w[a] = spectrum.vec[a][i] * nj + spectrum.vec[a][j] * ni;
+        for (size_t a = 0; a < nDim; ++a)
+          for (size_t b = a; b < nDim; ++b) dM[a][b] += coef * w[a] * w[b];
+      }
+    }
+
+    bool nonzero = false;
+    for (size_t a = 0; a < nDim; ++a) {
+      for (size_t b = a; b < nDim; ++b) {
+        dM[b][a] = dM[a][b];
+        nonzero = nonzero || dM[a][b] != 0.0;
+      }
+    }
+    return nonzero;
   }
 
   /*! \brief Passive classical target of one EPM case; no eigenvector AD and no counters. */

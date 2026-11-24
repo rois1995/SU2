@@ -241,6 +241,32 @@ void CAvgGrad_Base::SetTauJacobian(const su2double *val_Mean_PrimVar,
   }
 }
 
+void CAvgGrad_Base::AddTauJacobianUQ(const su2double *val_Mean_PrimVar,
+                                     const passivedouble (&dM)[3][3],
+                                     const su2double val_dist_ij) {
+
+  /*--- d(tau.n)/d(rho u)_i gains -dM/(rho d); the density column follows as in SetTauJacobian, -J u. ---*/
+
+  const passivedouble factor = 1.0 / (SU2_TYPE::GetValue(val_Mean_PrimVar[nDim+2]) * SU2_TYPE::GetValue(val_dist_ij));
+
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+    passivedouble dMu = 0.0;
+    for (unsigned short jDim = 0; jDim < nDim; jDim++) {
+      tau_jacobian_i[iDim][jDim+1] -= dM[iDim][jDim] * factor;
+      dMu += dM[iDim][jDim] * SU2_TYPE::GetValue(val_Mean_PrimVar[jDim+1]);
+    }
+    tau_jacobian_i[iDim][0] += dMu * factor;
+  }
+}
+
+void CAvgGrad_Base::AddTangentTauJacobianUQ(const EPMSpectrum& spectrum, const su2double val_dist_ij) {
+  passivedouble normal[3] = {}, dM[3][3];
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) normal[iDim] = SU2_TYPE::GetValue(UnitNormal[iDim]);
+  if (EPMTangentStressJacobian(nDim, spectrum, SU2_TYPE::GetValue(uq_urlx), SU2_TYPE::GetValue(Mean_Eddy_Viscosity),
+                               SU2_TYPE::GetValue(Mean_Laminar_Viscosity), normal, dM))
+    AddTauJacobianUQ(Mean_PrimVar, dM, val_dist_ij);
+}
+
 void CAvgGrad_Base::SetIncTauJacobian(const su2double val_laminar_viscosity,
                                       const su2double val_eddy_viscosity,
                                       const su2double val_dist_ij,
@@ -480,10 +506,15 @@ CNumerics::ResidualType<> CAvgGrad_Flow::ComputeResidual(const CConfig* config) 
 
   /*--- If using UQ methodology, set Reynolds Stress tensor and perform perturbation ---*/
 
+  /*--- The tangent Jacobian (UQ_JACOBIAN= TANGENT) needs the eigen data of the perturbation (a passive copy). ---*/
+  const bool uqTangent = sstParsedOptions.uq && implicit && uq_jacobian == UQ_JACOBIAN::TANGENT;
+  EPMSpectrum uqSpectrum;
+
   if (sstParsedOptions.uq) {
     ComputePerturbedRSM(nDim, Eig_Val_Comp, uq_permute, uq_delta_b, uq_urlx,
                         Mean_GradPrimVar+1, Mean_PrimVar[nDim+2], Mean_Eddy_Viscosity,
-                        Mean_turb_ke, MeanPerturbedRSM);
+                        Mean_turb_ke, MeanPerturbedRSM, 0.0, 0.0, nullptr, 3,
+                        uqTangent ? &uqSpectrum : nullptr);
   }
 
   /* --- If the Stochastic Backscatter Model is active, add random contribution to stress tensor ---*/
@@ -519,6 +550,7 @@ CNumerics::ResidualType<> CAvgGrad_Flow::ComputeResidual(const CConfig* config) 
     } else {
       const su2double dist_ij = sqrt(dist_ij_2);
       SetTauJacobian(Mean_PrimVar, Mean_Laminar_Viscosity, Mean_Eddy_Viscosity, dist_ij, UnitNormal);
+      if (uqTangent) AddTangentTauJacobianUQ(uqSpectrum, dist_ij);
 
       SetHeatFluxJacobian(Mean_PrimVar, Mean_Cp, Mean_Thermal_Conductivity, Mean_Eddy_Viscosity, dist_ij, UnitNormal);
 
@@ -998,10 +1030,15 @@ CNumerics::ResidualType<> CGeneralAvgGrad_Flow::ComputeResidual(const CConfig* c
 
   /*--- If using UQ methodology, set Reynolds Stress tensor and perform perturbation ---*/
 
+  /*--- The tangent Jacobian (UQ_JACOBIAN= TANGENT) needs the eigen data of the perturbation (a passive copy). ---*/
+  const bool uqTangent = sstParsedOptions.uq && implicit && uq_jacobian == UQ_JACOBIAN::TANGENT;
+  EPMSpectrum uqSpectrum;
+
   if (sstParsedOptions.uq) {
     ComputePerturbedRSM(nDim, Eig_Val_Comp, uq_permute, uq_delta_b, uq_urlx,
                         Mean_GradPrimVar+1, Mean_PrimVar[nDim+2], Mean_Eddy_Viscosity,
-                        Mean_turb_ke, MeanPerturbedRSM);
+                        Mean_turb_ke, MeanPerturbedRSM, 0.0, 0.0, nullptr, 3,
+                        uqTangent ? &uqSpectrum : nullptr);
   }
 
   /* --- If the Stochastic Backscatter Model is active, add random contribution to stress tensor ---*/
@@ -1038,6 +1075,7 @@ CNumerics::ResidualType<> CGeneralAvgGrad_Flow::ComputeResidual(const CConfig* c
       const su2double dist_ij = sqrt(dist_ij_2);
 
       SetTauJacobian(Mean_PrimVar, Mean_Laminar_Viscosity, Mean_Eddy_Viscosity, dist_ij, UnitNormal);
+      if (uqTangent) AddTangentTauJacobianUQ(uqSpectrum, dist_ij);
 
       SetHeatFluxJacobian(Mean_PrimVar, Mean_SecVar, Mean_Eddy_Viscosity,
                           Mean_Thermal_Conductivity, Mean_Cp, dist_ij);
