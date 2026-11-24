@@ -29,7 +29,6 @@
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
-#include "../../include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../include/numerics/flow/p1_sst_matched.hpp"
 #include "../../include/solvers/CFVMFlowSolverBase.inl"
 
@@ -258,6 +257,24 @@ void CNSSolver::Viscous_Residual(CGeometry *geometry, CSolver **solver_container
   if ((iMesh == MESH_0) && config->GetVisc_P1_Entropy()) Viscous_Residual_P1Entropy(geometry, solver_container, config);
 }
 
+void CNSSolver::SetViscousNodeStates(const CVariable* turbNodes, const su2double& prandtlTurb, const su2double& gasConst,
+                                   bool implicit, const P1ViscousEntropy::TransportLaw* law) {
+  /*--- A cell contributing an owned row still reads its halo nodes. ---*/
+  SU2_OMP_SAFE_GLOBAL_ACCESS(ViscousPointStates.resize(nPoint);)
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
+    ViscousPointStates[iPoint].Set(*nodes, turbNodes, iPoint, nDim, prandtlTurb, Gamma, gasConst, implicit, law);
+  END_SU2_OMP_FOR
+}
+
+const P1ViscousEntropy::EntropyJacobianRow* CNSSolver::ViscousNodeJacobian(
+    const P1ViscousEntropy::PointState* pointStates, unsigned long iPoint, const P1ViscousEntropy::NodeState& state,
+    P1ViscousEntropy::EntropyJacobianRow* localDwdu) const {
+  if (pointStates) return pointStates[iPoint].dwdu;
+  P1ViscousEntropy::EntropyVariableJacobian(nDim, Gamma, state, localDwdu);
+  return localDwdu;
+}
+
 void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver_container, const CConfig *config) {
   SU2_ZONE_SCOPED
 
@@ -298,6 +315,14 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
   const bool sst = (config->GetKind_Turb_Model() == TURB_MODEL::SST) && (solver_container != nullptr) &&
                    (solver_container[TURB_SOL] != nullptr);
   const CVariable* turbNodes = sst ? solver_container[TURB_SOL]->GetNodes() : nullptr;
+  const pve::PointState* pointStates = nullptr;
+  if constexpr (std::is_same_v<su2double, passivedouble>) {
+    if (MGLevel == MESH_0) {
+      /*--- Refresh for every residual evaluation, including matrix-free products. ---*/
+      SetViscousNodeStates(turbNodes, prandtlTurb, gasConst, implicit, fullJacobian ? &law : nullptr);
+      pointStates = ViscousPointStates.data();
+    }
+  }
   const bool elementKine = sst && config->GetSST_P1_Element_Kine();
   const auto& blendDelta = geometry->edges->GetBlendDelta();
   if (elementKine) {
@@ -340,7 +365,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
       if (nNodes != nDim + 1) {
         if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
-        MixedViscousResidual(geometry, element, cellBlocks, cached, implicit, rowBound, prandtlTurb, gasConst,
+        MixedViscousResidual(geometry, element, cellBlocks, cached, pointStates, implicit, rowBound, prandtlTurb, gasConst,
                              fullJacobian ? &law : nullptr, turbNodes, elementKine);
         continue;
       }
@@ -355,8 +380,12 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
       for (auto iNode = 0u; iNode < nNodes; ++iNode) {
         const auto iPoint = element->GetNode(iNode);
         if (!cached) coord[iNode] = geometry->nodes->GetCoord(iPoint);
-        pve::GatherNode(*nodes, iPoint, nDim, prandtlTurb, state[iNode]);
-        if (turbNodes) state[iNode].k = turbNodes->GetSolution(iPoint, 0);
+        if (pointStates) {
+          state[iNode] = pointStates[iPoint].node;
+        } else {
+          pve::GatherNode(*nodes, iPoint, nDim, prandtlTurb, state[iNode]);
+          if (turbNodes) state[iNode].k = turbNodes->GetSolution(iPoint, 0);
+        }
       }
 
       pve::Element simplex;
@@ -378,7 +407,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
         su2double kNode[pve::MAXNODE], muLam[pve::MAXNODE], muTurb[pve::MAXNODE], F1[pve::MAXNODE], resK[pve::MAXNODE];
         for (auto iNode = 0u; iNode < nNodes; ++iNode) {
           const auto iPoint = element->GetNode(iNode);
-          kNode[iNode] = turbNodes->GetSolution(iPoint, 0);
+          kNode[iNode] = pointStates ? state[iNode].k : turbNodes->GetSolution(iPoint, 0);
           muLam[iNode] = nodes->GetLaminarViscosity(iPoint);
           muTurb[iNode] = state[iNode].mut;
           F1[iNode] = turbNodes->GetF1blending(iPoint);
@@ -412,12 +441,17 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
       if (!implicit) continue;
 
-      su2double dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR], jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
-      for (auto iNode = 0u; iNode < nNodes; ++iNode) pve::EntropyVariableJacobian(nDim, Gamma, state[iNode], dwdu[iNode]);
+      pve::EntropyJacobianRow localDwdu[pve::MAXNODE][pve::MAXNVAR];
+      const pve::EntropyJacobianRow* dwdu[pve::MAXNODE];
+      for (auto iNode = 0u; iNode < nNodes; ++iNode)
+        dwdu[iNode] = ViscousNodeJacobian(pointStates, element->GetNode(iNode), state[iNode], localDwdu[iNode]);
+      su2double jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
       simplex.Jacobian(dwdu, jacobian);
       if (fullJacobian) {
-        for (auto iNode = 0u; iNode < nNodes; ++iNode)
-          pve::GatherTransportDerivatives(*nodes, element->GetNode(iNode), gasConst, law, state[iNode]);
+        if (!pointStates) {
+          for (auto iNode = 0u; iNode < nNodes; ++iNode)
+            pve::GatherTransportDerivatives(*nodes, element->GetNode(iNode), gasConst, law, state[iNode]);
+        }
         simplex.AddStateJacobian(state, dwdu, jacobian);
         /*--- SST_ENERGY_CONSISTENT: d mu/dT of the element k diffusion in the energy row (mu_t, F1, k frozen). ---*/
         if (elementKine) {
@@ -446,7 +480,8 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 }
 
 void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, const BlockRef* cellBlocks,
-                                     const P1Simplex::Geometry* cached, bool implicit, bool rowBound,
+                                     const P1Simplex::Geometry* cached, const P1ViscousEntropy::PointState* pointStates,
+                                     bool implicit, bool rowBound,
                                      const su2double& prandtlTurb, const su2double& gasConst,
                                      const P1ViscousEntropy::TransportLaw* law, const CVariable* turbNodes,
                                      bool elementKine) {
@@ -457,18 +492,19 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
   for (auto iNode = 0u; iNode < nCellNodes; ++iNode) owned |= geometry->nodes->GetDomain(element->GetNode(iNode));
   if (!owned) return;
 
-  pve::NodeState cellState[N_POINTS_MAXIMUM];
-  for (auto iNode = 0u; iNode < nCellNodes; ++iNode) {
-    pve::GatherNode(*nodes, element->GetNode(iNode), nDim, prandtlTurb, cellState[iNode]);
-    /*--- SST: k of the total energy for dp/drho of the entropy-variable Jacobian (D3). ---*/
-    if (turbNodes) cellState[iNode].k = turbNodes->GetSolution(element->GetNode(iNode), 0);
-  }
-
   /*--- VISC_P1_JACOBIAN= FULL: d mu/dT, d kappa/dT of the cell nodes for the dK/du terms of every sub-simplex. ---*/
   const bool fullJacobian = implicit && (law != nullptr);
-  if (fullJacobian) {
-    for (auto iNode = 0u; iNode < nCellNodes; ++iNode)
-      pve::GatherTransportDerivatives(*nodes, element->GetNode(iNode), gasConst, *law, cellState[iNode]);
+  pve::NodeState cellState[N_POINTS_MAXIMUM];
+  if (!pointStates) {
+    for (auto iNode = 0u; iNode < nCellNodes; ++iNode) {
+      const auto iPoint = element->GetNode(iNode);
+      pve::GatherNode(*nodes, iPoint, nDim, prandtlTurb, cellState[iNode]);
+      if (turbNodes) cellState[iNode].k = turbNodes->GetSolution(iPoint, 0);
+    }
+    if (fullJacobian) {
+      for (auto iNode = 0u; iNode < nCellNodes; ++iNode)
+        pve::GatherTransportDerivatives(*nodes, element->GetNode(iNode), gasConst, *law, cellState[iNode]);
+    }
   }
 
   const unsigned short nNodes = nDim + 1;
@@ -479,7 +515,7 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
     for (unsigned short a = 0; a < nNodes; ++a) {
       point[a] = element->GetNode(entry.nodes[a]);
       if (!cached) coord[a] = geometry->nodes->GetCoord(point[a]);
-      state[a] = cellState[entry.nodes[a]];
+      state[a] = pointStates ? pointStates[point[a]].node : cellState[entry.nodes[a]];
     }
 
     pve::Element simplex;
@@ -499,7 +535,7 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
     if (elementKine) {
       su2double kNode[pve::MAXNODE], muLam[pve::MAXNODE], muTurb[pve::MAXNODE], F1[pve::MAXNODE], resK[pve::MAXNODE];
       for (unsigned short a = 0; a < nNodes; ++a) {
-        kNode[a] = turbNodes->GetSolution(point[a], 0);
+        kNode[a] = pointStates ? state[a].k : turbNodes->GetSolution(point[a], 0);
         muLam[a] = nodes->GetLaminarViscosity(point[a]);
         muTurb[a] = state[a].mut;
         F1[a] = turbNodes->GetF1blending(point[a]);
@@ -530,8 +566,11 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
 
     if (!implicit) continue;
 
-    su2double dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR], jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
-    for (unsigned short a = 0; a < nNodes; ++a) pve::EntropyVariableJacobian(nDim, Gamma, state[a], dwdu[a]);
+    pve::EntropyJacobianRow localDwdu[pve::MAXNODE][pve::MAXNVAR];
+    const pve::EntropyJacobianRow* dwdu[pve::MAXNODE];
+    for (unsigned short a = 0; a < nNodes; ++a)
+      dwdu[a] = ViscousNodeJacobian(pointStates, point[a], state[a], localDwdu[a]);
+    su2double jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
     simplex.Jacobian(dwdu, jacobian);
     if (fullJacobian) simplex.AddStateJacobian(state, dwdu, jacobian);
     /*--- SST_ENERGY_CONSISTENT: d mu/dT of the sub-simplex k diffusion in the energy row (scaled by omega below). ---*/

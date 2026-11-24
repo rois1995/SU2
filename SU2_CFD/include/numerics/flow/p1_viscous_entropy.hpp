@@ -162,6 +162,26 @@ inline void EntropyVariableJacobian(unsigned short nDim, const su2double& gamma,
   W[nDim + 1][0] -= invP;
 }
 
+using EntropyJacobianRow = su2double[MAXNVAR];
+
+/*--- Point data shared by the volume simplices of one residual evaluation. ---*/
+struct PointState {
+  NodeState node;
+  EntropyJacobianRow dwdu[MAXNVAR];
+
+  /*--- Use the same nodal operations as the element gather, including the fixed SST k in dw/du. ---*/
+  template <class Nodes, class TurbNodes>
+  void Set(const Nodes& nodes, const TurbNodes* turbNodes, unsigned long iPoint, unsigned short nDim,
+           const su2double& prandtlTurb, const su2double& gamma, const su2double& gasConst, bool implicit,
+           const TransportLaw* law) {
+    GatherNode(nodes, iPoint, nDim, prandtlTurb, node);
+    node.k = turbNodes ? turbNodes->GetSolution(iPoint, 0) : su2double(0.0);
+    if (implicit) EntropyVariableJacobian(nDim, gamma, node, dwdu);
+    if (law) GatherTransportDerivatives(nodes, iPoint, gasConst, *law, node);
+    else node.dmudT = node.dkappadT = 0.0;
+  }
+};
+
 /*!
  * \brief One simplex: shape gradients, nodal entropy variables, frozen state and the element flux F_T.
  */
@@ -461,7 +481,8 @@ class Element : public P1Simplex::Geometry {
    * \param[in] dwdu - dw/du of each node, from EntropyVariableJacobian.
    * \param[out] jac - jac[a][b][iVar][jVar].
    */
-  void Jacobian(const su2double (*dwdu)[MAXNVAR][MAXNVAR], su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR]) const {
+  template <class NodalJacobian>
+  void Jacobian(const NodalJacobian& dwdu, su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR]) const {
     for (unsigned short b = 0; b < nNodes; ++b) {
       for (unsigned short jVar = 0; jVar < nVar; ++jVar) {
         su2double dw[MAXNVAR] = {0.0}, F[MAXNVAR][3] = {{0.0}};
@@ -492,7 +513,8 @@ class Element : public P1Simplex::Geometry {
    * \param[in] dwdu - dw/du of each node, from EntropyVariableJacobian.
    * \param[in,out] jac - jac[a][b][iVar][jVar], added to.
    */
-  void AddStateJacobian(const NodeState* node, const su2double (*dwdu)[MAXNVAR][MAXNVAR],
+  template <class NodalJacobian>
+  void AddStateJacobian(const NodeState* node, const NodalJacobian& dwdu,
                         su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR]) const {
     for (unsigned short b = 0; b < nNodes; ++b) {
       for (unsigned short jVar = 0; jVar < nVar; ++jVar) {

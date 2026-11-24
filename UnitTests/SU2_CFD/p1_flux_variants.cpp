@@ -10531,6 +10531,64 @@ TEST_CASE("P1 viscous block references match indexed writes on a mixed mesh", "[
   }
 }
 
+TEST_CASE("P1 viscous point states match per-simplex gathers after each refresh", "[P1Flux]") {
+  if constexpr (!std::is_same_v<su2double, passivedouble>) return;
+
+  struct TestNodes {
+    su2double shift = 0.0;
+    su2double GetDensity(unsigned long i) const { return 1.0 + 0.1 * i + shift; }
+    su2double GetPressure(unsigned long i) const { return 1.0 + 0.2 * i; }
+    su2double GetVelocity(unsigned long i, unsigned short d) const { return 0.1 * (i + d); }
+    su2double GetEddyViscosity(unsigned long i) const { return i % 2 ? 0.04 : -0.02; }
+    su2double GetLaminarViscosity(unsigned long i) const { return 0.01 * (i + 1); }
+    su2double GetThermalConductivity(unsigned long) const { return 0.03; }
+    su2double GetSpecificHeatCp(unsigned long) const { return 2.45; }
+    su2double GetSolution(unsigned long i, unsigned long) const { return 0.05 * i + shift; }
+  } nodes;
+
+  const pve::TransportLaw law{true, 0.3, true, 0.72};
+  const su2double prandtlTurb = 0.9;
+  const auto sameBits = [](const su2double& a, const su2double& b) {
+    const auto x = SU2_TYPE::GetValue(a), y = SU2_TYPE::GetValue(b);
+    return std::memcmp(&x, &y, sizeof(x)) == 0;
+  };
+  const unsigned long point[2][4] = {{0, 2, 1, 4}, {2, 4, 3, 1}};
+  std::array<pve::PointState, 5> cache;
+
+  for (const unsigned short nDim : {2, 3}) {
+    for (bool full : {true, false, true}) {
+      nodes.shift += 0.125;
+      const auto* turbNodes = full ? &nodes : nullptr;
+      const auto* transport = full ? &law : nullptr;
+      for (auto i = 0ul; i < cache.size(); ++i)
+        cache[i].Set(nodes, turbNodes, i, nDim, prandtlTurb, kGamma, kGas, true, transport);
+
+      for (const auto& simplex : point) {
+        for (unsigned short a = 0; a <= nDim; ++a) {
+          const auto i = simplex[a];
+          CAPTURE(nDim, full, i);
+          pve::NodeState fresh;
+          pve::GatherNode(nodes, i, nDim, prandtlTurb, fresh);
+          if (turbNodes) fresh.k = turbNodes->GetSolution(i, 0);
+          pve::EntropyJacobianRow dwdu[pve::MAXNVAR];
+          pve::EntropyVariableJacobian(nDim, kGamma, fresh, dwdu);
+          if (transport) pve::GatherTransportDerivatives(nodes, i, kGas, *transport, fresh);
+
+          const auto& stored = cache[i].node;
+          for (const auto field : {&pve::NodeState::rho, &pve::NodeState::p, &pve::NodeState::mu,
+                                   &pve::NodeState::kappa, &pve::NodeState::dmudT, &pve::NodeState::dkappadT,
+                                   &pve::NodeState::mut, &pve::NodeState::k})
+            CHECK(sameBits(stored.*field, fresh.*field));
+          for (unsigned short d = 0; d < nDim; ++d) CHECK(sameBits(stored.vel[d], fresh.vel[d]));
+          for (unsigned short row = 0; row < nDim + 2; ++row)
+            for (unsigned short col = 0; col < nDim + 2; ++col)
+              CHECK(sameBits(cache[i].dwdu[row][col], dwdu[row][col]));
+        }
+      }
+    }
+  }
+}
+
 /*--- Check every cached |T| and g_a against recomputation, including after a coordinate update. ---*/
 TEST_CASE("P1 viscous simplex geometry cache matches recomputation on a mixed mesh", "[P1Flux]") {
   const std::string mesh = "p1_mixed_simplex_geometry.su2";

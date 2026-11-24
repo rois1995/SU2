@@ -28,10 +28,7 @@
 #pragma once
 
 #include "CEulerSolver.hpp"
-
-namespace P1ViscousEntropy {
-struct TransportLaw;
-}
+#include "../numerics/flow/p1_viscous_entropy.hpp"
 
 /*!
  * \class CNSSolver
@@ -143,6 +140,17 @@ private:
    */
   void Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver_container, const CConfig *config);
 
+  vector<P1ViscousEntropy::PointState> ViscousPointStates;
+
+  /*! \brief Refresh nodal inputs and dw/du for the fine-grid passive volume assembly. */
+  void SetViscousNodeStates(const CVariable* turbNodes, const su2double& prandtlTurb, const su2double& gasConst,
+                           bool implicit, const P1ViscousEntropy::TransportLaw* law);
+
+  /*! \brief Read the current dw/du or use the original per-simplex evaluation. */
+  const P1ViscousEntropy::EntropyJacobianRow* ViscousNodeJacobian(
+      const P1ViscousEntropy::PointState* pointStates, unsigned long iPoint, const P1ViscousEntropy::NodeState& state,
+      P1ViscousEntropy::EntropyJacobianRow* localDwdu) const;
+
   using BlockRef = CSysMatrix<su2mixedfloat>::BlockRef;
   static constexpr bool UseViscousBlockRefs = std::is_same_v<su2double, double> && std::is_same_v<su2mixedfloat, double>;
   vector<std::size_t> CellBlockOffsets;
@@ -170,6 +178,7 @@ private:
    * \param[in] element - The cell.
    * \param[in] cellBlocks - Cached off-diagonal block references for the cell, or nullptr.
    * \param[in] cached - Cached geometry in split order, or nullptr.
+   * \param[in] pointStates - Current volume point states, or nullptr for per-cell gathers.
    * \param[in] implicit - Add the Jacobian.
    * \param[in] rowBound - VISC_P1_TIME_STEP: add the row bounds of the sub-simplices to P1ViscRowBound.
    * \param[in] prandtlTurb - Turbulent Prandtl number.
@@ -180,7 +189,8 @@ private:
    *            row (M3) and the shares of P* (M4), as CTurbSSTSolver::P1KineDiffusion (SSTPATHS_PLAN.md 1).
    */
   void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, const BlockRef* cellBlocks,
-                            const P1Simplex::Geometry* cached, bool implicit, bool rowBound,
+                            const P1Simplex::Geometry* cached, const P1ViscousEntropy::PointState* pointStates,
+                            bool implicit, bool rowBound,
                             const su2double& prandtlTurb, const su2double& gasConst,
                             const P1ViscousEntropy::TransportLaw* law, const CVariable* turbNodes = nullptr,
                             bool elementKine = false);
