@@ -83,9 +83,6 @@ protected:
   const bool correctionLimited;
   const bool edgeForm;
   const bool exactFormJac;
-  const su2double positiveDiss;
-  const su2double positiveSensor;
-  const bool entropyDiss;
   const bool esDiss;
   const bool esBlend;
   const bool projDiss;  /*!< \brief EDGE_DISS_PROJECTED, declared before ecFlux, which depends on it. */
@@ -122,9 +119,6 @@ protected:
     correctionLimited(config.GetFlux_Correction_Limited()),
     edgeForm(finestGrid && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
-    positiveDiss(edgeForm ? config.GetEdge_Form_Positive_Diss() : 0.0),
-    positiveSensor(config.GetEdge_Form_Positive_Sensor()),
-    entropyDiss(edgeForm && config.GetEdge_Form_Entropy_Diss()),
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
     projDiss(finestGrid && config.GetEdge_Diss_Projected()),
@@ -876,75 +870,6 @@ public:
           }
           jac_i(iVar, iVar) -= grid_i;
           jac_j(iVar, iVar) -= grid_j;
-        }
-      }
-
-      /*--- EDGE_FORM_POSITIVE_DISS: the dissipation above uses the dual normal, which can be far smaller than
-       * n_ik. Add a scalar part on the reconstructed jump, up to the bound 0.5 rho(n_ik) + rho(E_ik) that makes
-       * the first order form positive. rho(v) = |u.v| + c|v|. It stays second order in smooth flow. ---*/
-
-      if (positiveDiss > 0.0) {
-        VectorDbl<nDim> avgVel;
-        for (size_t iDim = 0; iDim < nDim; ++iDim) {
-          avgVel(iDim) = 0.5 * (V1st.i.velocity(iDim) + V1st.j.velocity(iDim));
-        }
-        const Double avgC = 0.5 * (sqrt(gamma * V1st.i.pressure() / V1st.i.density()) +
-                                   sqrt(gamma * V1st.j.pressure() / V1st.j.density()));
-        const Double rhoForm = abs(dot(avgVel, formNormal)) + avgC * norm(formNormal);
-        const Double rhoE = abs(dot(avgVel, formE)) + avgC * norm(formE);
-        const Double rhoDual = abs(dot(avgVel, normal)) + avgC * area;
-        Double extra = positiveDiss * fmax(rhoForm + 2.0 * rhoE - rhoDual, 0.0);
-
-        /*--- EDGE_FORM_POSITIVE_SENSOR: the scalar term harms the shear layers, where the pressure is nearly
-         * constant across an edge. Scale it with the pressure jump, which is small there. ---*/
-        if (positiveSensor > 0.0) {
-          const Double jumpP = abs(V1st.j.pressure() - V1st.i.pressure()) / (0.5 * (V1st.i.pressure() + V1st.j.pressure()));
-          extra *= fmin(jumpP / positiveSensor, 1.0);
-        }
-
-        for (size_t iVar = 0; iVar < nVar; ++iVar) {
-          flux(iVar) -= 0.5 * extra * (U.j.all(iVar) - U.i.all(iVar));
-          if (implicit) {
-            jac_i(iVar, iVar) += 0.5 * extra;
-            jac_j(iVar, iVar) -= 0.5 * extra;
-          }
-        }
-      }
-
-      /*--- EDGE_FORM_ENTROPY_DISS: energy stability of the E term. For scalar advection the interior edge (i,k) of
-       * the form changes d/dt sum V u^2/2 by -(u_k-u_i) F_ik, which is 0 for the central part 0.5 a.n_ik (u_i+u_k),
-       * because sum_k n_ik = 0, and +(a.E_ik)(u_k-u_i)^2 for the E part: growth where a.E_ik > 0. A dissipation
-       * d (u_k-u_i) with d >= max(a.E_ik, 0) removes it. For the system, in symmetrizing variables, the condition is
-       * D >= [A(E_ik)]_+, the positive part of the Roe matrix along E_ik, with eigenvalues u.E, u.E +- c|E|.
-       * It is applied in full, without credit for the Roe dissipation of the dual normal, so it is sufficient.
-       * On the reconstructed jump it stays second order in smooth flow and acts in full where the limiter does. ---*/
-
-      if (entropyDiss) {
-        const auto roeAvg = roeAveragedVariables(gamma, V, formE);
-        const Double areaE = norm(formE);
-        VectorDbl<nDim> unitE;
-        for (size_t iDim = 0; iDim < nDim; ++iDim) unitE(iDim) = formE(iDim) / fmax(areaE, 1e-300);
-        const Double cE = roeAvg.speedSound * areaE;
-
-        VectorDbl<nVar> lambdaE;
-        for (size_t iDim = 0; iDim < nDim; ++iDim) lambdaE(iDim) = fmax(roeAvg.projVel, 0.0);
-        lambdaE(nDim) = fmax(roeAvg.projVel + cE, 0.0);
-        lambdaE(nDim+1) = fmax(roeAvg.projVel - cE, 0.0);
-
-        const Double projUnit = dot(roeAvg.velocity, unitE);
-        const auto pMat = pMatrix(gamma, roeAvg.density, roeAvg.velocity, projUnit, roeAvg.speedSound, unitE);
-        const auto pMatInv = pMatrixInv(gamma, roeAvg.density, roeAvg.velocity, projUnit, roeAvg.speedSound, unitE);
-
-        for (size_t iVar = 0; iVar < nVar; ++iVar) {
-          for (size_t jVar = 0; jVar < nVar; ++jVar) {
-            Double d = 0.0;
-            for (size_t kVar = 0; kVar < nVar; ++kVar) d += pMat(iVar,kVar) * lambdaE(kVar) * pMatInv(kVar,jVar);
-            flux(iVar) -= d * (U.j.all(jVar) - U.i.all(jVar));
-            if (implicit) {
-              jac_i(iVar, jVar) += d;
-              jac_j(iVar, jVar) -= d;
-            }
-          }
         }
       }
 

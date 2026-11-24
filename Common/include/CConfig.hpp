@@ -75,9 +75,6 @@ private:
   unsigned short Kind_SpanWise;                  /*!< \brief Kind of span-wise section computation.*/
   unsigned short iZone, nZone;    /*!< \brief Number of zones in the mesh. */
   unsigned short nZoneSpecified;  /*!< \brief Number of zones that are specified in config file. */
-  su2double Edge_Form_Positive_Diss; /*!< \brief Part of the extra Roe dissipation up to the positivity bound of the P1 edge form. */
-  su2double Edge_Form_Positive_Sensor; /*!< \brief Relative pressure jump at which that dissipation acts in full. */
-  bool Edge_Form_Entropy_Diss; /*!< \brief Energy stable dissipation of the E term of the P1 edge form. */
   bool Edge_Form_ES_Diss;      /*!< \brief Certified entropy stable dissipation of the E part on the nodal jump. */
   bool Edge_Form_ES_Blend;     /*!< \brief Element theta blend of that dissipation, theta_T = P_T^+ / D_T. */
   bool Edge_Form_ES_Blend_CV;  /*!< \brief Control-volume form of that blend: theta_i = eps_i^+ / D_i over the vertex stars. */
@@ -106,7 +103,6 @@ private:
   bool JST_Weak_Wall_Diss;     /*!< \brief JST fourth-order term off on edges that leave a weak no-slip wall (P1_WALL_DISSIPATION.md). */
   bool MMS_Source_Dual_Quad;   /*!< \brief MMS source integrated over the actual dual cell (moved or median), not s(x_i)|V_i|. */
   bool SST_Energy_Consistent;  /*!< \brief SST: k diffusion in the energy flux and production from the stress work (no SSTm energy approximations). */
-  bool JST_Entropy_Budget;     /*!< \brief Matched JST fourth-order term under a node entropy budget (P1_JST_ENTROPY.md, Theorem J7). */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
   bool Visc_P1_Time_Step;      /*!< \brief Viscous local time step from the block row bounds of VISC_P1_ENTROPY and the weak walls (P1_TIME_STEP.md). */
   VISC_P1_JACOBIAN Kind_Visc_P1_Jacobian; /*!< \brief Jacobian of VISC_P1_ENTROPY and its weak walls: Picard (K frozen) or full (plus dK/du). */
@@ -115,7 +111,6 @@ private:
   bool Edge_Form_P1_Mixed_Diss_Aligned; /*!< \brief EDGE_FORM_P1_MIXED_DISS_ALIGNED: the pair dissipation on the edge projection of n_ik. */
   bool Edge_Form_P1_Mixed_Diss_Mean; /*!< \brief EDGE_FORM_P1_MIXED_DISS_MEAN: the JST of the true edges and split pairs as the mean over the splits. */
   bool Edge_Form_P1_Diss_Aligned; /*!< \brief EDGE_FORM_P1_DISS_ALIGNED: the true-edge JST on the edge projection of the form normal n_ik. */
-  bool Edge_Form_P1_Diss_LED;     /*!< \brief EDGE_FORM_P1_DISS_LED: the eps2 part of the aligned JST on n_ik (LED), eps4 on nu_ik. */
   bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
@@ -10053,24 +10048,6 @@ public:
   bool GetEdge_Form_Exact_Jacobian() const { return Edge_Form_Exact_Jacobian; }
 
   /*!
-   * \brief Part of the extra Roe dissipation of the edge form up to its positivity bound.
-   * \return 0 for off, 1 for the full bound.
-   */
-  su2double GetEdge_Form_Positive_Diss() const { return Edge_Form_Positive_Diss; }
-
-  /*!
-   * \brief Relative pressure jump at which EDGE_FORM_POSITIVE_DISS acts in full.
-   * \return 0 for no sensor.
-   */
-  su2double GetEdge_Form_Positive_Sensor() const { return Edge_Form_Positive_Sensor; }
-
-  /*!
-   * \brief Energy stable dissipation of the E term of the edge form.
-   * \return YES if the positive part of the Roe matrix along E_ik is added.
-   */
-  bool GetEdge_Form_Entropy_Diss() const { return Edge_Form_Entropy_Diss; }
-
-  /*!
    * \brief Ismail-Roe entropy conservative flux for the part of the edge form along n_ik minus the dual normal.
    * \return <code>TRUE</code> if it replaces the arithmetic mean of the nodal fluxes there.
    */
@@ -10218,13 +10195,6 @@ public:
   bool GetMMS_Source_Dual_Quad() const { return MMS_Source_Dual_Quad; }
 
   /*!
-   * \brief JST_ENTROPY_BUDGET: the matched fourth-order term -c4 (chi_ik (1-theta_i) Lh_i - chi_ki (1-theta_k) Lh_k),
-   *        Lh the c4-weighted Laplacian over N*, with theta_i = B_i^+ / (Pi4_i + D_i) and the floor 1/2 (theta_i + theta_k)
-   *        mu_ik (U_i - U_k); the JST production is sum_i min(B_i, 0) <= 0 (P1_JST_ENTROPY.md, J7).
-   */
-  bool GetJST_Entropy_Budget() const { return JST_Entropy_Budget; }
-
-  /*!
    * \brief SST_ENERGY_CONSISTENT: the two energy approximations of SSTm off: the total-energy viscous flux gets the
    *        k diffusion (mu + sigma_k mu_t) grad k of the k equation, and the k production is the work of the
    *        turbulent stress, mu_t (2 S:S - 2/3 (div u)^2), before the limiter (P1_SST_COUPLED.md, section 4).
@@ -10309,11 +10279,6 @@ public:
    *        dual normal. The central part, the stretching correction and the time step are unchanged.
    */
   bool GetEdge_Form_P1_Diss_Aligned() const { return Edge_Form_P1_Diss_Aligned; }
-
-  /*!
-   * \brief EDGE_FORM_P1_DISS_LED: the second-difference JST term on the full pair normal n_ik.
-   */
-  bool GetEdge_Form_P1_Diss_LED() const { return Edge_Form_P1_Diss_LED; }
 
   /*!
    * \brief POSITIVE_UPDATE_FLOW: the factor of the implicit flow update is reduced so that rho >= eps_r rho_old and

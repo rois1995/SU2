@@ -97,12 +97,6 @@ private:
   void P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config);
 
   /*!
-   * \brief JST_ENTROPY_BUDGET with the matched form: the k of the mass flux of the JST correction of each edge
-   *        (CEulerSolver::JSTEntropyResidual), k_up(m_c) m_c, the same numbers as the energy row (M1).
-   */
-  void MatchedCorrectionKine(CGeometry* geometry, CSolver** solver_container, const CConfig* config);
-
-  /*!
    * \brief Options of the convective boundary flux of this marker: the k row is skipped where the matched k of closure
    *        C replaces it (far field, inlets, outlets with BC_ENTROPY_P1 and the matched form), and with SPLIT_EDGE_FLUX,
    *        whose BC_Far_Field, BC_Inlet, BC_Outlet put the same k_b m in the energy row and in P1KNodalRes.

@@ -603,15 +603,6 @@ public:
                               su2double (*jac)[5], bool implicit);
 
   /*!
-   * \brief JST_ENTROPY_BUDGET (P1_JST_ENTROPY.md, Theorem J7): the matched Laplacian Lh and cb of each owned node from the
-   *        edge coefficients of the JST kernel and theta, each sent to the halos, then on every edge the correction from the
-   *        kernel's -c4 (L_i - L_k) to the matched, budgeted eps4 flux plus the floor, and its frozen-theta Jacobian. With
-   *        the matched SST form on the hat states, and the k of the correction mass flux (JSTMassCorrection) as the edge
-   *        flux. After EdgeFluxResidual, fine grid.
-   */
-  void JSTEntropyResidual(CGeometry *geometry, CSolver **solver_container, const CConfig *config);
-
-  /*!
    * \brief EDGE_FORM_ES_BLEND: per simplex theta_T = P_T^+ / D_T from the nodal states, and per edge
    *        sum_T theta_T lam^T_ik, read by the edge loop. Called once per residual, before the edge loop.
    *        With VISC_P1_ENTROPY_MOVED the one-budget blend gives theta_c and theta_v (P1MovedThetaV).

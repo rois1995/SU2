@@ -198,39 +198,29 @@ inline void AddSurrogateJacobian(unsigned short nDim, su2double gamma, const su2
 template <class Matrix>
 inline void AddPairDissipation(unsigned short nDim, const Params& par, const Node& Ni, const Node& Nk,
                                const su2double* normal, su2double* flux, bool implicit, Matrix& jac_i, Matrix& jac_k,
-                               const su2double* ledNormal = nullptr, su2double share = 1.0) {
+                               su2double share = 1.0) {
   const unsigned short nVar = nDim + 2;
   /*--- Only an edge projection can vanish (n_ik perpendicular to e_ik): no term, and the stretching factor
-   * (Lambda/lambda)^0.3 is not defined at lambda = 0. EDGE_FORM_P1_DISS_LED: the second-difference term on ledNormal
-   * (the full pair normal n_ik), the fourth-difference term on normal. EDGE_FORM_P1_MIXED_DISS_MEAN: both corrected
-   * radii times pi^0.3 (ShareFactor, 1 when off), the nodal data of Ni and Nk are already the pi-weighted ones. ---*/
+   * (Lambda/lambda)^0.3 is not defined at lambda = 0. EDGE_FORM_P1_MIXED_DISS_MEAN scales the corrected radius by
+   * pi^0.3 (ShareFactor); the nodal data of Ni and Nk are already the pi-weighted ones. ---*/
   const su2double radius = SpectralRadius(nDim, Ni, Nk, normal);
-  const su2double radius2 = ledNormal ? SpectralRadius(nDim, Ni, Nk, ledNormal) : radius;
-  if (radius2 == 0.0) return;
-  su2double lambda = (radius == 0.0) ? su2double(0.0) : CorrectedRadius(radius, Ni, Nk);
-  su2double lambda2 = ledNormal ? CorrectedRadius(radius2, Ni, Nk) : lambda;
+  if (radius == 0.0) return;
+  su2double lambda = CorrectedRadius(radius, Ni, Nk);
   if (share != 1.0) {
     const su2double factor = ShareFactor(share);
     lambda *= factor;
-    lambda2 *= factor;
   }
   const Coefficients eps = DissipationCoefficients(par, Ni, Nk);
 
   for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
-    if (ledNormal) {
-      flux[iVar] += eps.eps2 * (Ni.diss[iVar] - Nk.diss[iVar]) * lambda2 - eps.eps4 * (Ni.lapl[iVar] - Nk.lapl[iVar]) * lambda;
-    } else {  // off: unchanged rounding
-      flux[iVar] += (eps.eps2 * (Ni.diss[iVar] - Nk.diss[iVar]) - eps.eps4 * (Ni.lapl[iVar] - Nk.lapl[iVar])) * lambda;
-    }
+    flux[iVar] += (eps.eps2 * (Ni.diss[iVar] - Nk.diss[iVar]) - eps.eps4 * (Ni.lapl[iVar] - Nk.lapl[iVar])) * lambda;
   }
   if (!implicit) return;
 
   /*--- Fourth-difference count n_i + 1 of the edge kernel: |dL_i/dU_i| + |dL_k/dU_i| = n_i + 1 on the true-edge
    * graph. With the pi-weighted Laplacians (EDGE_FORM_P1_MIXED_DISS_MEAN) it is n_i + pi_ik; share = 1 otherwise. ---*/
-  const su2double dissip_i = ledNormal ? par.fixFactor * (eps.eps2Jac * lambda2 + eps.eps4 * (Ni.nNeighbor + share) * lambda)
-                                       : par.fixFactor * (eps.eps2Jac + eps.eps4 * (Ni.nNeighbor + share)) * lambda;
-  const su2double dissip_k = ledNormal ? -par.fixFactor * (eps.eps2Jac * lambda2 + eps.eps4 * (Nk.nNeighbor + share) * lambda)
-                                       : -par.fixFactor * (eps.eps2Jac + eps.eps4 * (Nk.nNeighbor + share)) * lambda;
+  const su2double dissip_i = par.fixFactor * (eps.eps2Jac + eps.eps4 * (Ni.nNeighbor + share)) * lambda;
+  const su2double dissip_k = -par.fixFactor * (eps.eps2Jac + eps.eps4 * (Nk.nNeighbor + share)) * lambda;
   AddSurrogateJacobian(nDim, par.gamma, Ni.vel, dissip_i, jac_i);
   AddSurrogateJacobian(nDim, par.gamma, Nk.vel, dissip_k, jac_k);
 }
