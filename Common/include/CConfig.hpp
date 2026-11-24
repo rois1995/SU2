@@ -1289,6 +1289,7 @@ private:
   unsigned short eig_val_comp;  /*!< \brief Parameter used to determine type of eigenvalue perturbation */
   su2double uq_urlx;            /*!< \brief Under-relaxation factor */
   bool uq_permute;              /*!< \brief Permutation of eigenvectors */
+  UQ_JACOBIAN uq_jacobian;      /*!< \brief Implicit Jacobian of the classical EPM stress. */
 
   unsigned long pastix_fact_freq;  /*!< \brief (Re-)Factorization frequency for PaStiX */
   unsigned short pastix_verb_lvl;  /*!< \brief Verbosity level for PaStiX */
@@ -9793,6 +9794,23 @@ public:
    * \return <code>TRUE</code> means eigenspace perterturbation will be used
    */
   bool GetUQ_Permute(void) const { return uq_permute; }
+
+  /*!
+   * \brief Get the implicit Jacobian of the classical EPM stress (UQ_JACOBIAN).
+   */
+  UQ_JACOBIAN GetUQ_Jacobian(void) const { return uq_jacobian; }
+
+  /*!
+   * \brief Set the implicit Jacobian of the classical EPM stress (unit tests; not checked by GetUQJacobianError).
+   */
+  void SetUQ_Jacobian(UQ_JACOBIAN kind) { uq_jacobian = kind; }
+
+  /*!
+   * \brief Check UQ_JACOBIAN against the supported configuration.
+   * \return An empty string if UQ_JACOBIAN= NONE or the configuration is supported, otherwise the error message,
+   *         which SetPostprocessing raises with SU2_MPI::Error.
+   */
+  string GetUQJacobianError() const;
 
   /*!
    * \brief Get information about whether to use wall functions.

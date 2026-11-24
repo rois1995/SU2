@@ -3246,6 +3246,10 @@ void CConfig::SetConfig_Options() {
   /* DESCRIPTION: Permuting eigenvectors for UQ analysis */
   addBoolOption("UQ_PERMUTE", uq_permute, false);
 
+  /* DESCRIPTION: Implicit Jacobian of the classical EPM stress: NONE (Boussinesq only) or TANGENT (plus the positive
+   * part of the eigenvector-rotation term of the perturbed stress). */
+  addEnumOption("UQ_JACOBIAN", uq_jacobian, UQ_Jacobian_Map, UQ_JACOBIAN::NONE);
+
   /* DESCRIPTION: Experimental classical EPM sensitivities after coupled adjoint convergence. */
   addBoolOption("SST_EPM_POSTPROCESS", epmExtraction.enabled, false);
 
@@ -6146,6 +6150,11 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
   }
 
+  {
+    const string error = GetUQJacobianError();
+    if (!error.empty()) SU2_MPI::Error(error, CURRENT_FUNCTION);
+  }
+
   /*--- EPM direct mode: the scalar-replay hooks stay active for the whole primal run at the fixed amplitude, so the
    *    residual is F0 + A (Fm - F0) and S0 + A (clip(Pm) - clip(P0)), whose A-derivative at 0 the extraction gives. ---*/
   if (epmExtraction.direct) {
@@ -6267,6 +6276,30 @@ string CConfig::GetEPMDirectError() const {
       GetSBSParam().StochasticBackscatter || (GetKind_FluidModel() != STANDARD_AIR && GetKind_FluidModel() != IDEAL_GAS))
     return "SST_EPM_DIRECT supports only stationary smooth-wall ideal-gas SST without additional physics or "
            "fixed-lift control.";
+  return "";
+}
+
+string CConfig::GetUQJacobianError() const {
+  if (uq_jacobian == UQ_JACOBIAN::NONE) return "";
+  /*--- The term linearizes the perturbed stress of the classical EPM; it does not exist without it (this also
+   *    excludes SST_EPM_DIRECT and SST_EPM_POSTPROCESS, which require SST_OPTIONS without UQ). ---*/
+  if (Kind_Turb_Model != TURB_MODEL::SST || !sstParsedOptions.uq)
+    return "UQ_JACOBIAN= TANGENT requires the classical EPM (KIND_TURB_MODEL= SST with UQ in SST_OPTIONS).";
+  /*--- Only the compressible viscous fluxes (scalar CAvgGrad_Flow / CGeneralAvgGrad_Flow and the vectorized edge
+   *    kernel) carry the term. ---*/
+  if (Kind_Solver != MAIN_SOLVER::RANS && Kind_Solver != MAIN_SOLVER::DISC_ADJ_RANS)
+    return "UQ_JACOBIAN= TANGENT is implemented only for the compressible RANS solver (SOLVER= RANS).";
+  /*--- The closed form assumes target eigenvalues that do not depend on the baseline ones (delta_b = 1). ---*/
+  if (uq_delta_b != 1.0)
+    return "UQ_JACOBIAN= TANGENT requires UQ_DELTA_B= 1 (its closed form assumes constant target eigenvalues).";
+  if (eig_val_comp < 1 || eig_val_comp > 3)
+    return "UQ_JACOBIAN= TANGENT requires UQ_COMPONENT= 1, 2 or 3.";
+  /*--- The entries grow like the inverse of the anisotropy eigenvalue gap (up to 1e8 times the viscosity), which
+   *    the int8 off-diagonal storage of the quantized preconditioners cannot represent. ---*/
+  if (Kind_Linear_Solver_Prec == Q_LU_SGS || Kind_Linear_Solver_Prec == Q_JACOBI ||
+      Kind_Linear_Solver_Prec == Q_IDENTITY)
+    return "UQ_JACOBIAN= TANGENT cannot be used with the quantized preconditioners Q_LU_SGS, Q_JACOBI and "
+           "Q_IDENTITY (LINEAR_SOLVER_PREC); use e.g. ILU or LU_SGS.";
   return "";
 }
 
@@ -6929,6 +6962,7 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
               case SST_OPTIONS::UQ:
                 cout << "\nperturbing the Reynold's Stress Matrix towards " << eig_val_comp << " component turbulence";
                 if (uq_permute) cout << " (permuting eigenvectors)";
+                if (uq_jacobian == UQ_JACOBIAN::TANGENT) cout << "\nwith the tangent pair term in the flow Jacobian";
                 break;
               case SST_OPTIONS::COMP_Wilcox:
                 cout << " with compressibility correction of Wilcox";

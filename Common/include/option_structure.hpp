@@ -1159,6 +1159,18 @@ static const MapType<std::string, EPM_EXTRACTION_MODE> EPM_Extraction_Mode_Map =
 };
 
 /*!
+ * \brief Implicit Jacobian of the classical EPM (SST_OPTIONS UQ) stress (UQ_JACOBIAN).
+ */
+enum class UQ_JACOBIAN {
+  NONE,    /*!< \brief Isotropic Boussinesq Jacobian only (unchanged). */
+  TANGENT, /*!< \brief Plus the positive part of the eigenvector-rotation (pair) term of the perturbed stress. */
+};
+static const MapType<std::string, UQ_JACOBIAN> UQ_Jacobian_Map = {
+  MakePair("NONE", UQ_JACOBIAN::NONE)
+  MakePair("TANGENT", UQ_JACOBIAN::TANGENT)
+};
+
+/*!
  * \brief Structure containing parsed SST options.
  */
 struct SST_ParsedOptions {
