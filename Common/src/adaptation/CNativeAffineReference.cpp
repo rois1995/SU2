@@ -228,6 +228,144 @@ TriangleDistanceBounds TriangleDistance(const Box& point,const std::array<Point,
   return {std::max(0.,std::nextafter(double(lower),-INFINITY)),best};
 }
 struct UnionTriangle {std::array<Point,3> points;double error=0;};
+
+template <class Print>
+void TraceSurface(const char* site, Print print) noexcept {
+  try {
+    print();
+  } catch (...) {
+    std::fprintf(stderr, "NATIVE_SURFACE_TRACE_INCOMPLETE site=%s\n", site);
+  }
+}
+
+unsigned long long SurfaceTraceBits(double value) noexcept {
+  uint64_t bits;
+  std::memcpy(&bits, &value, sizeof(bits));
+  return static_cast<unsigned long long>(bits);
+}
+
+void TraceSurfaceTriangle(const std::array<Point, 3>& triangle) {
+  for (const auto& point : triangle)
+    for (const auto value : Values(point)) std::fprintf(stderr, "%016llx,", SurfaceTraceBits(value));
+}
+
+void TraceSurfaceLeaf(const void* authority, Id facet, double resolution, size_t ordinal, unsigned depth,
+                      const std::array<Point, 3>& parameter, const UnionTriangle& piece) {
+  std::fprintf(stderr,
+               "NATIVE_SURFACE_FACET_LEAF authority=%p facet=%llu resolution=%016llx ordinal=%zu depth=%u parameter=",
+               authority, static_cast<unsigned long long>(facet), SurfaceTraceBits(resolution), ordinal, depth);
+  TraceSurfaceTriangle(parameter);
+  std::fprintf(stderr, " points=");
+  TraceSurfaceTriangle(piece.points);
+  std::fprintf(stderr, " error=%016llx\n", SurfaceTraceBits(piece.error));
+}
+
+void TraceSurfaceWitness(const void* authority, double resolution, const std::vector<Id>& facets,
+                         const std::vector<std::pair<size_t, size_t>>& selected) {
+  std::fprintf(stderr, "NATIVE_SURFACE_WITNESS authority=%p resolution=%016llx chords=%zu list=",
+               authority, SurfaceTraceBits(resolution), selected.size());
+  for (const auto& [facet, piece] : selected)
+    std::fprintf(stderr, "%llu:%zu,", static_cast<unsigned long long>(facets.at(facet)), piece);
+  std::fprintf(stderr, "\n");
+}
+
+struct SurfaceTraceGroup {
+  const char* status = nullptr;
+  std::vector<Id> kept;
+};
+
+using SurfaceTraceGroups = std::optional<std::vector<SurfaceTraceGroup>>;
+
+void RecordSurfaceTraceGroup(SurfaceTraceGroups& trace, size_t root, const char* status,
+                             const std::vector<SU2Native3D::Facet>* kept = nullptr) noexcept {
+  if (!trace) return;
+  TraceSurface("planes", [&] {
+    auto& group = trace->at(root);
+    if (kept) {
+      group.kept.reserve(kept->size());
+      for (const auto& facet : *kept) group.kept.push_back(facet.id);
+    }
+    group.status = status;
+  });
+}
+
+struct SurfaceTraceEdge {
+  std::array<Id, 2> key;
+  size_t chord, edge;
+};
+
+void TraceSurfaceEdges(const std::vector<std::array<Id, 3>>& ids, const std::vector<size_t>& group_of) {
+  std::vector<SurfaceTraceEdge> uses;
+  if (ids.size() > uses.max_size() / 3) throw std::length_error("Plane trace edge list exceeds its container.");
+  uses.reserve(ids.size() * 3);
+  for (size_t chord = 0; chord < ids.size(); ++chord) {
+    const auto& vertices = ids[chord];
+    for (size_t k = 0; k < vertices.size(); ++k) {
+      const auto [first, last] = std::minmax(vertices[k], vertices[(k + 1) % vertices.size()]);
+      uses.push_back({{first, last}, chord, k});
+    }
+  }
+  std::sort(uses.begin(), uses.end(), [](const auto& a, const auto& b) {
+    return std::tie(a.key, a.chord, a.edge) < std::tie(b.key, b.chord, b.edge);
+  });
+  uses.erase(std::unique(uses.begin(), uses.end(), [](const auto& a, const auto& b) {
+    return a.key == b.key && a.chord == b.chord;
+  }), uses.end());
+
+  std::vector<size_t> open;
+  struct Split { size_t first, other, count; };
+  std::vector<Split> splits;
+  for (size_t first = 0; first < uses.size();) {
+    size_t last = first + 1;
+    size_t other = uses.size();
+    while (last < uses.size() && uses[last].key == uses[first].key) {
+      if (other == uses.size() && group_of[uses[last].chord] != group_of[uses[first].chord]) other = last;
+      ++last;
+    }
+    if (last == first + 1) open.push_back(first);
+    if (other != uses.size()) splits.push_back({first, other, last - first});
+    first = last;
+  }
+
+  std::fprintf(stderr, "NATIVE_SURFACE_PLANE_OPEN open_count=%zu split_count=%zu edges=", open.size(), splits.size());
+  for (const auto i : open) std::fprintf(stderr, "%zu.%zu,", uses[i].chord, uses[i].edge);
+  std::fprintf(stderr, "\n");
+  for (const auto& split : splits) {
+    const auto& a = uses[split.first];
+    const auto& b = uses[split.other];
+    std::fprintf(stderr,
+        "NATIVE_SURFACE_PLANE_SPLIT chords=%zu triangle=%zu edge=%zu group=%zu other_triangle=%zu other_edge=%zu other_group=%zu\n",
+        split.count, a.chord, a.edge, group_of[a.chord], b.chord, b.edge, group_of[b.chord]);
+  }
+}
+
+void TraceSurfacePlanes(const SurfaceTraceGroups& trace, const std::map<size_t, std::vector<size_t>>& groups,
+                        const std::vector<std::pair<unsigned, int>>& projection,
+                        const std::vector<std::array<Id, 3>>& ids) {
+  if (!trace) return;
+  std::vector<size_t> group_of(ids.size());
+  size_t index = 0;
+  for (const auto& [root, chords] : groups) {
+    const auto [axis, sign] = projection[root];
+    const auto& recorded = trace->at(root);
+    const char* status = chords.size() == 1 ? "single" : !sign ? "zero_sign" : recorded.status;
+    if (!status) throw std::logic_error("Plane trace group has no recorded outcome.");
+    std::fprintf(stderr, "NATIVE_SURFACE_PLANE_GROUP index=%zu axis=%u sign=%d status=%s chords=",
+                 index, axis, sign, status);
+    for (const auto chord : chords) {
+      group_of[chord] = index;
+      std::fprintf(stderr, "%zu,", chord);
+    }
+    if (std::strcmp(status, "trimmed") == 0) {
+      std::fprintf(stderr, " kept=");
+      for (const auto chord : recorded.kept) std::fprintf(stderr, "%llu,", static_cast<unsigned long long>(chord));
+    }
+    std::fprintf(stderr, "\n");
+    ++index;
+  }
+  TraceSurfaceEdges(ids, group_of);
+}
+
 UnionTriangle UnionChord(const std::array<Box,10>& controls) {
   UnionTriangle piece;
   for(unsigned k=0;k<3;++k)piece.points[k]=BoxMiddle(controls[k]);
@@ -507,6 +645,8 @@ class TriangleUnion {
       }
     }
     std::map<size_t,std::vector<size_t>> groups;for(size_t i=0;i<count;++i)groups[root(i)].push_back(i);
+    SurfaceTraceGroups trace_groups;
+    if (AtlasOps::Trace()) TraceSurface("planes", [&] { trace_groups.emplace(count); });
     triangle_plane.assign(count,none);triangle_slot.resize(count);size_t retained=transfer_memory::Mul(count,1024),invalid=0,refused=0,trimmed=0,trimmed_faces=0;
     for(const auto& group:groups) {
       if(group.second.size()<2)continue;
@@ -525,9 +665,12 @@ class TriangleUnion {
         plane.faces.push_back(face);facets.push_back(f);}
       AffineAuthority authority;authority.origin={};authority.normal={0,0,1};authority.dimension=3;authority.version=1;authority.maximum_error=4*std::numeric_limits<double>::min();
       const auto temporary=transfer_memory::Add(PlanarReference::ConstructionBytes(facets.size()),transfer_memory::Mul(facets.size(),4096));
-      if(transfer_memory::Add(op.budget.caller_bytes,retained,temporary)>op.budget.maximum_bytes){++refused;continue;}
+      if(transfer_memory::Add(op.budget.caller_bytes,retained,temporary)>op.budget.maximum_bytes){
+        if (AtlasOps::Trace()) RecordSurfaceTraceGroup(trace_groups, group.first, "storage_refused");
+        ++refused;continue;}
       op.Storage(transfer_memory::Add(retained,temporary));
-      try{plane.footprint=std::make_shared<FinitePlaneReference>(authority,facets,temporary);}
+      try{plane.footprint=std::make_shared<FinitePlaneReference>(authority,facets,temporary);
+        if (AtlasOps::Trace()) RecordSurfaceTraceGroup(trace_groups, group.first, "accepted");}
       catch(const std::invalid_argument& error){
         if(AtlasOps::Trace() && invalid<2)std::fprintf(stderr,"NATIVE_SURFACE_PLANE_REJECT pieces=%zu reason=%s\n",facets.size(),error.what());
         // Boundary pinches can invalidate this optional graph although the complete target is manifold.
@@ -545,7 +688,9 @@ class TriangleUnion {
           }
           for(const auto& vertex:degree)if(vertex.second[0]!=1||vertex.second[1]!=1)branch.insert(vertex.first);
         }
-        if(branch.empty()){++invalid;continue;}
+        if(branch.empty()){
+          if (AtlasOps::Trace()) RecordSurfaceTraceGroup(trace_groups, group.first, "invalid");
+          ++invalid;continue;}
         std::vector<Facet> kept;std::vector<PlaneUnion::Plane> kept_faces;
         kept.reserve(facets.size());kept_faces.reserve(plane.faces.size());
         for(size_t i=0;i<facets.size();++i) {
@@ -553,10 +698,15 @@ class TriangleUnion {
           if(branch.count(f.v[0].id)||branch.count(f.v[1].id)||branch.count(f.v[2].id))continue;
           kept.push_back(f);kept_faces.push_back(plane.faces[i]);
         }
-        if(kept.empty()){++invalid;continue;}
+        if(kept.empty()){
+          if (AtlasOps::Trace()) RecordSurfaceTraceGroup(trace_groups, group.first, "invalid");
+          ++invalid;continue;}
         // Omitted faces remain in the complete distance support and ordinary triangle witnesses.
         try {plane.footprint=std::make_shared<FinitePlaneReference>(authority,kept,temporary);}
-        catch(const std::invalid_argument&){++invalid;continue;}
+        catch(const std::invalid_argument&){
+          if (AtlasOps::Trace()) RecordSurfaceTraceGroup(trace_groups, group.first, "invalid");
+          ++invalid;continue;}
+        if (AtlasOps::Trace()) RecordSurfaceTraceGroup(trace_groups, group.first, "trimmed", &kept);
         ++trimmed;trimmed_faces+=facets.size()-kept.size();facets.swap(kept);plane.faces.swap(kept_faces);
       }
       const auto& t=facets.front().v;plane.positive=SurfaceNormalSign({0,0,1},{t[0].p,t[1].p,t[2].p},nullptr)>0;
@@ -564,6 +714,7 @@ class TriangleUnion {
       for(size_t slot=0;slot<plane.faces.size();++slot){const auto i=plane.faces[slot].triangle;triangle_plane[i]=planes.size();triangle_slot[i]=slot;}
       planes.push_back(std::move(plane));
     }
+    if (AtlasOps::Trace()) TraceSurface("planes", [&] { TraceSurfacePlanes(trace_groups, groups, projection, ids); });
     if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_PLANES triangles=%zu groups=%zu accepted=%zu invalid=%zu storage_refused=%zu boundary_trimmed=%zu trimmed_triangles=%zu\n",count,groups.size(),planes.size(),invalid,refused,trimmed,trimmed_faces);
     visited.resize(planes.size());op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,retained);
   }
@@ -2317,14 +2468,30 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     const auto& f=reference->Get(domain.facet);return LinearPoint({f.v[0].p,f.v[1].p,f.v[2].p},parameter);
   };
   auto prepare_facet=[&](Id facet,std::vector<UnionTriangle>& model) {
+    size_t trace_start = 0;
+    if (AtlasOps::Trace()) TraceSurface("facet", [&] {
+      trace_start = model.size();
+      std::fprintf(stderr, "NATIVE_SURFACE_FACET_BEGIN authority=%p facet=%llu resolution=%016llx\n",
+                   static_cast<const void*>(this), static_cast<unsigned long long>(facet), SurfaceTraceBits(resolution));
+    });
     std::vector<UnionDomain> pending;op.Storage(sizeof(UnionDomain));pending.push_back({facet});
     while(!pending.empty()) {
       const auto domain=pending.back();pending.pop_back();const auto piece=UnionChord(net(domain));
       op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(model.size()+1,sizeof(UnionTriangle)),
           transfer_memory::GrowthBound(pending.size()+4,sizeof(UnionDomain))));
-      if(piece.error<=resolution/16)model.push_back(piece);
+      if(piece.error<=resolution/16) {
+        model.push_back(piece);
+        if (AtlasOps::Trace()) TraceSurface("facet", [&] {
+          TraceSurfaceLeaf(this, facet, resolution, model.size() - trace_start - 1, domain.depth, domain.parameter, piece);
+        });
+      }
       else {unresolved("target",domain,piece.error,0);const auto children=UnionChildren(domain);pending.insert(pending.end(),children.begin(),children.end());}
     }
+    if (AtlasOps::Trace()) TraceSurface("facet", [&] {
+      std::fprintf(stderr, "NATIVE_SURFACE_FACET_END authority=%p facet=%llu resolution=%016llx leaves=%zu\n",
+                   static_cast<const void*>(this), static_cast<unsigned long long>(facet), SurfaceTraceBits(resolution),
+                   model.size() - trace_start);
+    });
   };
   std::unique_lock<std::mutex> preparation;
   std::shared_ptr<CurvedSearch::PreparedFacet> prepared_model;
@@ -2431,6 +2598,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       prepared_model=std::make_shared<CurvedSearch::PreparedFacet>();prepared_model->triangles.reserve(selected.size());
       for(const auto& piece:selected)prepared_model->triangles.push_back(retained_models[piece.first]->triangles[piece.second]);
       budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(prepared_model->triangles.capacity(),sizeof(UnionTriangle)));
+      if (AtlasOps::Trace()) TraceSurface("witness", [&] { TraceSurfaceWitness(this, resolution, facets, selected); });
       prepared_model->target=std::make_unique<TriangleUnion>(prepared_model->triangles,op,tolerance);
       budget.caller_bytes=caller;
       const auto bytes=transfer_memory::Add(prepared_model->Bytes(),transfer_memory::Mul(scope.capacity(),2*sizeof(uint64_t)),256);op.Storage(bytes);

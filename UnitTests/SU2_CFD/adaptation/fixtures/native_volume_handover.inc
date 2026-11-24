@@ -193,6 +193,52 @@ void ReportCollapseFaces(std::ostream& out, const local::Mesh& mesh, local::Surf
 #include "native_m2_stages.inc"
 #include "native_m2_tables.inc"
 
+void ReportLabM3Facets(const BoundaryParameterState& state, size_t ceiling, size_t retained, Clock::time_point start,
+                       int rank) noexcept {
+  const auto begin = Clock::now();
+  size_t written = 0;
+  std::array<char, 200> failure{};
+  try {
+    M2CheckDeadline(start);
+    M2CheckStorage(ceiling, transfer_memory::Add(retained, size_t{1} << 20));
+    std::ofstream out;
+    M2Output(out, "facet_vertices.csv");
+    out << "facet,body,sheet,marker,v0,v1,v2,bin,retained_pieces\n";
+    const auto& geometry = state.Geometry();
+    for (const auto& [id, facet] : geometry.Reference().Facets()) {
+      M2CheckDeadline(start);
+      const auto entity = state.Entity(id);
+      const auto centroid = M2Centroid({facet.v[0].p, facet.v[1].p, facet.v[2].p});
+      out << id;
+      M2CsvEntity(out, entity);
+      for (const auto& vertex : facet.v) out << ',' << vertex.id;
+      out << ',' << M2Bin(std::get<2>(entity), centroid) << ',' << geometry.StructuralEstimate(id).prepared_pieces << '\n';
+      ++written;
+    }
+    out.close();
+    M2CheckDeadline(start);
+  } catch (const std::exception& error) {
+    const size_t n = std::min(std::strlen(error.what()), failure.size() - 1);
+    std::memcpy(failure.data(), error.what(), n);
+    if (!failure.front()) failure.front() = '?';
+  } catch (...) {
+    failure.front() = '?';
+  }
+  try {
+    std::cout << "FP2_M3 FACETS rank=" << rank << " status=" << (failure.front() ? "incomplete" : "complete")
+              << " facets=" << written << " seconds=" << std::setprecision(17) << Seconds(begin);
+    if (failure.front()) {
+      std::cout << " reason=";
+      for (const unsigned char c : failure) {
+        if (!c) break;
+        std::cout << (std::isspace(c) || std::iscntrl(c) || c == '=' ? '_' : static_cast<char>(c));
+      }
+    }
+    std::cout << '\n' << std::flush;
+  } catch (...) {
+  }
+}
+
 class LabM1Handover {
  public:
   using Stats = SU2NativeGeometry::MappedFacetReference::GeometryStats;
@@ -744,6 +790,8 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
                             m2_option && std::strcmp(m2_option, "1") == 0;
   const char* trace_option = std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");
   const bool trace_m2 = measure_rule && trace_option && std::strcmp(trace_option, "1") == 0;
+  const char* facet_option = std::getenv("SU2_NATIVE_FP2_M3_FACETS");
+  const bool measure_facets = measure_rule && !trace_m2 && facet_option && std::strcmp(facet_option, "1") == 0;
   const char* table_option = std::getenv("SU2_NATIVE_FP2_M2_TABLE");
   std::optional<LabM2Tables> m2_tables;
   if (measure_rule && !trace_m2 && table_option && std::strcmp(table_option, "1") == 0) m2_tables.emplace(start);
@@ -1172,6 +1220,10 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
   if (m2_tables) {
     const auto retained = transfer_memory::Add(reference_bytes, OwnedStorageBytes(input.cells), surface->ResidentBytes());
     m2_tables->Report(reference, global_cells, input.ceiling, retained, world.rank);
+  }
+  if (measure_facets) {
+    const auto retained = transfer_memory::Add(reference_bytes, OwnedStorageBytes(input.cells), surface->ResidentBytes());
+    ReportLabM3Facets(surface->State(), input.ceiling, retained, start, world.rank);
   }
 }
 }  // namespace

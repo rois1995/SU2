@@ -1818,3 +1818,21 @@ FP2-M2 5E-4 finished in 485.966 s as a finding. First failed inherited gate was 
 FP2-M2 1E-3 finished in 369.420 s as a finding. Rank 0 pass 1 failed FP2_D altitude at 7.7325745101917715e-05 below the reported 0.00069999999999999999 limit. The bounded look confirmed the same inherited 0.7-tolerance comparison. The pass retained 375,293 cells and 28,892 faces. The rebuilt proof separately qualified and accepted with zero above tolerance. The CSVs completed (28,892 faces, 43,338 edges). All five authorized first attempts finished, with no watchdog or R5 repeat. Generate and verify the report and update the handoffs.
 
 FP2-M2 build667 report verified. All fixture and trial artifact hashes checked, all report copies match their sealed sources, and hand-over CSV row counts reconcile for the four trace-off cases. Actual-host check found all five detached supervisors and recorded children terminal, with no owned build, test or solver. Production sources and build664 solver stayed pinned. The report and handoffs are ready for the exact final label FP2-M2: measurement done; default path not yet proven. Stop after it is pushed.
+
+FP2-M3 start at d9357fcb73. The FP2-M2 final label is present locally and on origin, and no owned build, solver or test process is live. Host load was 5.35 / 3.33 / 2.67 with 34,458 MiB available. Verified the signed SHA256 50603b9671295ffc71ba92a3fa067c32be0d2eb3e678e35edd0bdcebec069ac0 and archived the order. R4 check is FP2_M3/source_check.md. Next add the three guarded trace sites and lab helpers.
+
+FP2-M3 source sub-step at d9357fcb73. The sole production diff is the trace-only additions to prepare_facet, the joined-witness construction and BuildPlanes in CNativeAffineReference.cpp. The exact diff receipt is 5777717f655412bf45c1624a6cc9aebb34ab615ba4915e281fc7f2b088b3c6e7. The lab facet export is after the inherited digest. Build668 will pin the C++ and order inputs; runner and analysis helper pins are sealed with the checks that use them.
+
+FP2-M3 build668 passed in 142.307 s with no warnings. The candidate solver and test driver hashes are pinned in build_status.json with the authorized AR patch hash. The build is terminal. Start G1 at 1/2/4 ranks with trace explicitly off.
+
+FP2-M3 analyzer/helper self-check passed while G1 serial runs. The synthetic packet covers several leaf ordinals, an unpublished interrupted facet build, cropped and entity-border edges, and both intra- and inter-facet T-junctions with one inside pair of each. The helpers are sealed in FP2_M3/helper_pins.sha256. G1 serial startup shows trace=0 in the command receipt.
+
+FP2-M3 G1 passed exact case, outcome and failed-assertion comparison at all ranks, 375 / 114 / 228 records in 761.061 / 10.472 / 10.244 s. Trace was explicitly off. The detached G1 controller is terminal. Run the inherited focused fixtures and curved packet pin sequentially.
+
+FP2-M3 build668 fixture off-serial returned 0. See FP2_M3/fixtures/build668/off-serial/case_summary.json.
+
+FP2-M3 build668 fixture off-mpi returned 0. See FP2_M3/fixtures/build668/off-mpi/case_summary.json.
+
+FP2-M3 build668 fixture curved returned 0. See FP2_M3/fixtures/build668/curved/case_summary.json.
+
+FP2-M3 build668 focused fixtures passed. Serial and two-rank Catch counts equal build666. The unchanged curved checker matched 20 production forwards. The first usable production witness contained 8 depth-zero leaves (all ordinal 0 in their facets); all 24 exact-rational cubic corner comparisons had zero error at the 6.25e-6 limit. G1 and the analysis self-check are complete. Commit the trace and fixture checkpoint, then run N1 TRACE-OFF.

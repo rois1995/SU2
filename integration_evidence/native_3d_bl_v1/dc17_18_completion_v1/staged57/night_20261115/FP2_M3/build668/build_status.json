@@ -1,0 +1,33 @@
+{
+  "state": "terminal",
+  "passed": true,
+  "build": 668,
+  "exit_code": 0,
+  "pins_verified": true,
+  "changed": [
+    "Common/src/adaptation/CNativeAffineReference.cpp",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_volume_handover.inc"
+  ],
+  "source_pins_sha256": "41b607f63e6c961231db0c25803230fd668d1b48b20e878864b2cf97b1b2753a",
+  "production_diff_sha256": "5777717f655412bf45c1624a6cc9aebb34ab615ba4915e281fc7f2b088b3c6e7",
+  "graph_after": {
+    "build.ninja": "59db458e4ffd548de0d37395ab03046b72b2c6144bf0f8b56a0424c83718ad90",
+    "compile_commands.json": "0dea4febacab233fc602fdefef86b38289c1aff1a05c492ef2c5ab04cb5005de"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "8ca0cfd213d80ae0dfedab778b1385e0a036edfb4b88e30970ed0b70afb7e385",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "a3d7792d12d7671ae51dd770d726291d9267a7276b6d8cf3bc87b5abb6a2cadd",
+  "warnings": [],
+  "new_warnings": [],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 526900,
+      "start_ticks": 104544790
+    },
+    "returncode": 0,
+    "elapsed_seconds": 142.30698800086975,
+    "terminal": true
+  }
+}
