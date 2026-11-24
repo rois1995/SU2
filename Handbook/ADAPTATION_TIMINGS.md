@@ -2,6 +2,18 @@
 
 ## Fast path stage 2
 
+### FP2-M1 lab, build666
+
+Build664 S took 951.321 / 689.037 native seconds versus 550.220 / 330.735 for build660. Across event-1 ranks the geometry-bound exclusive time rose from 80–188 to 197–450 s while calls fell from 166–286k to 148–277k. The mean call cost rose from 0.4–1.0 ms to 0.9–3.0 ms. Event-2 geometry-bound time rose from 35–130 to 72–392 s. In event 1, communication plus join wait rose from 211–308 to 369–613 s. All other exclusive rows together fell from 140–204 to 120–192 s. The hand-over shrank to 26,480 / 21,308 physical faces from 57,640 / 51,808. Build664 N1 averaged 1.81 ms below 2 mm and 22.96 ms at 20 mm and above, with 772.852 of 775.167 s on the non-direct branch.
+
+| Case and pass | Mean full / small support facets, stage 1 | Same-run full forwards, rank-s | Stage 1 replay, rank-s | Stage 1+2 replay, rank-s |
+| --- | ---: | ---: | ---: | ---: |
+| N6P pass 1 | 238.59 / 20.47 | 817.166 | 771.714 | 772.026 |
+| N6P pass 2 | 440.69 / 28.76 | 206.529 | 201.818 | 201.818 |
+| N1 pass 1 | 239.39 / 20.46 | 924.039 | 882.769 | 883.066 |
+
+The replay uses each run’s cache history and full-support equality information. Stage 2 added zero proofs. The observed lab elapsed times were 1,160.010 / 2,238.47 s for N6P / N1 versus 858.019 / 1,086.701 s on build664. Both exact projections matched. N1's supervisor stopped sampling before the child exited, so the final job peak is available only as a lower bound of 4,446,085,120 bytes from GNU time's serial-process RSS. [FP2-M1 measurement and receipts](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M1/reports/FP2_M1_666.md)
+
 ### FP2-C3 continuation 1 S, build664
 
 Native maxima were 951.321 and 689.037 s, up from build660’s 550.220 and 330.735 s. Minimum timer coverage was 98.891% and 99.599%. At the slowest native rank of event 1, step C took 253.148 s, including 238.667 s in geometry-bound queries and 5.582 s in contact tests. The engine removed 687 and 522 surface points after hand-over, compared with 2,202 and 2,031 at build660. Isolated restart passed in 46.276 s after the sampler correction. The elapsed phase tables exclude the lab-only observer work. [S timing tables](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/reports/FP2_C3_664.md) · [Lab query breakdown](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/reports/FP2_C3_lab_664.md)

@@ -1,0 +1,52 @@
+{
+  "name": "N1",
+  "build": 666,
+  "status": "PASS",
+  "observer": {
+    "status": "PASS",
+    "problems": [],
+    "open_ranks": [],
+    "handover_calls": 26920,
+    "strict_observations": 26920,
+    "strict_checked": "26920"
+  },
+  "identity": {
+    "passed": true,
+    "baseline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_C3/cases/build664/N1/measurement.json",
+    "baseline_sha256": "983cf724c81ddd9faea1426e2f0a655d7f4bd5f94e8f5fb2236479827f510d84",
+    "first_difference": null,
+    "differences": []
+  },
+  "first_difference": null,
+  "watchdog": {},
+  "correction_of": null,
+  "used": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M1/cases/build666/N1/measurement.json",
+  "attempts": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M1/cases/build666/N1/measurement.json": "6251b9cca3e559a3fb67cfb21a0a51432a137f52e564ae1c353fb93eef2f9797"
+  },
+  "recovery": {
+    "method": "completed_child_log_and_gnu_time",
+    "absent_supervisor_receipts": [
+      "test_wait.json",
+      "owned_processes.json"
+    ],
+    "actual_host_proc": true,
+    "recorded_pids_absent_on_host": [
+      4071897,
+      4072440,
+      4072441,
+      4072442,
+      4072443,
+      4072444
+    ],
+    "process_scan_at": "2026-11-24T18:44:51.524354+01:00",
+    "last_sample_elapsed_seconds": 1674.847182828933,
+    "last_sample_mtime": "2026-11-24T18:08:58.398838+01:00",
+    "time_receipt_mtime": "2026-11-24T18:18:22.027168+01:00",
+    "sampled_peak_through_last_sample_bytes": 4224188416,
+    "timed_serial_process_peak_rss_bytes": 4446085120,
+    "full_job_peak_available": false,
+    "pin_count": 40,
+    "repeat_launched": false
+  }
+}
