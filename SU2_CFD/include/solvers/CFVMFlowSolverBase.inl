@@ -31,6 +31,7 @@
 #include "../limiters/computeLimiters.hpp"
 #include "../numerics_simd/CNumericsSIMD.hpp"
 #include "CFVMFlowSolverBase.hpp"
+#include "GAProbe.hpp"
 #include <memory>
 #include "../numerics/flow/p1_strong_slip.hpp"
 
@@ -802,6 +803,7 @@ void CFVMFlowSolverBase<V, R>::ImplicitEuler_Iteration(CGeometry *geometry, CSol
                                                        CConfig *config) {
   SU2_ZONE_SCOPED
 
+  if (GAProbe::outputPrefix) GAProbe::Dump<false>(*geometry, nVar, LinSysRes, Jacobian);
   PrepareImplicitIteration(geometry, solver_container, config);
 
   /*--- Solve or smooth the linear system. ---*/

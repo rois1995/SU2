@@ -31,6 +31,7 @@
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../include/solvers/CScalarSolver.hpp"
 #include "../../include/variables/CFlowVariable.hpp"
+#include "GAProbe.hpp"
 
 template <class VariableType>
 CScalarSolver<VariableType>::CScalarSolver(CGeometry* geometry, CConfig* config, const CSolver* flow_solver,
@@ -686,6 +687,8 @@ void CScalarSolver<VariableType>::ImplicitEuler_Iteration(CGeometry* geometry, C
                                                           CConfig* config) {
   SU2_ZONE_SCOPED
 
+  if (GAProbe::outputPrefix && this == solver_container[TURB_SOL])
+    GAProbe::Dump<true>(*geometry, nVar, LinSysRes, Jacobian);
   PrepareImplicitIteration(geometry, solver_container, config);
 
   /*--- Solve or smooth the linear system. ---*/
