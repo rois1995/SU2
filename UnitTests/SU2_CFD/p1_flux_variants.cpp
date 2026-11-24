@@ -10473,6 +10473,64 @@ TEST_CASE("EDGE_FORM_P1_MIXED: split-pair Jacobian pattern and edge block addres
   }
 }
 
+/*--- Compare the bits of blocks accumulated via references and node pairs on both stored patterns. ---*/
+TEST_CASE("P1 viscous block references match indexed writes on a mixed mesh", "[P1Flux]") {
+  const std::string mesh = "p1_mixed_block_ref.su2";
+  WriteMixedMesh(mesh, 3, 3, 0.2, 1.0);
+  MeshCase test(mesh, MixedOptions);
+  auto& geometry = *test.geometry;
+  constexpr unsigned short nVar = 5;
+
+  for (bool extended : {false, true}) {
+    CAPTURE(extended);
+    CSysMatrix<su2mixedfloat> indexed, cached;
+    for (auto* matrix : {&indexed, &cached}) {
+      matrix->SetSplitPairPattern(extended);
+      matrix->Initialize(geometry.GetnPoint(), geometry.GetnPointDomain(), nVar, nVar, true, &geometry,
+                         test.config.get());
+    }
+
+    for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
+      const auto* element = geometry.elem[iElem];
+      for (auto a = 0u; a < element->GetnNodes(); ++a) {
+        const auto row = element->GetNode(a);
+        if (!geometry.nodes->GetDomain(row)) continue;
+        for (auto b = 0u; b < element->GetnNodes(); ++b) {
+          const auto col = element->GetNode(b);
+          su2double values[nVar][nVar];
+          const su2double* rows[nVar];
+          for (auto i = 0u; i < nVar; ++i) {
+            rows[i] = values[i];
+            for (auto j = 0u; j < nVar; ++j) values[i][j] = 0.1 * (1 + iElem + a + 2 * b + 3 * i + 5 * j);
+          }
+
+          const auto ref = cached.GetBlockRef(row, col);
+          const auto expected = indexed.GetBlockView(row, col);
+          const auto actual = cached.GetBlockView(row, col);
+          CHECK(static_cast<bool>(expected) == (ref != decltype(cached)::BlockRef::Absent));
+          auto checkEntries = [&] {
+            if (!expected) return;
+            for (auto i = 0u; i < nVar; ++i) {
+              for (auto j = 0u; j < nVar; ++j) {
+                const auto x = expected(i, j), y = actual(i, j);
+                CHECK(std::memcmp(&x, &y, sizeof(x)) == 0);
+              }
+            }
+          };
+          indexed.AddBlock(row, col, rows);
+          cached.AddBlock(ref, rows);
+          indexed.AddBlock(row, col, rows, 0.625);
+          cached.AddBlock(ref, rows, 0.625);
+          checkEntries();
+          indexed.SubtractBlock(row, col, rows);
+          cached.SubtractBlock(ref, rows);
+          checkEntries();
+        }
+      }
+    }
+  }
+}
+
 /*--- JST_P1ES_JACOBIAN_DIAG.md 8.3: the split-pair blocks of the mean flux are the Ismail-Roe Jacobian at equal states,
  * EsIsmailRoeJacobian(S, S, n) = (0.5 A(U).n, 0.5 A(U).n), the derivative of 0.5 (F_i + F_k).n. ---*/
 TEST_CASE("EDGE_FORM_P1_MIXED: split-pair mean-flux blocks are the Ismail-Roe Jacobian at equal states", "[P1Flux]") {

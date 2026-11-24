@@ -755,6 +755,29 @@ class CSysMatrix {
    */
   inline bool HasSplitPairPattern() const { return edge_ptr_u != nullptr; }
 
+  /*! \brief True when the off-diagonal blocks use quantized storage. */
+  inline bool IsQuantized() const { return quantized_mode; }
+
+  /*! \brief Index into the logical concatenation of D, L and U. Valid for this matrix's sparsity pattern. */
+  enum class BlockRef : su2uint { Absent = UINT32_MAX };
+
+  /*!
+   * \brief Resolve a block in the stored sparsity pattern without accessing its values.
+   * \note D, L and U partition the original CSR pattern, whose offsets are su2uint.
+   */
+  BlockRef GetBlockRef(unsigned long block_i, unsigned long block_j) const {
+    if (block_i >= nPoint || block_j >= nPoint) return BlockRef::Absent;
+    if (block_i == block_j) return static_cast<BlockRef>(block_i);
+
+    const bool lower = block_j < block_i;
+    const auto* rowPtr = lower ? mat.row_ptr_l : mat.row_ptr_u;
+    const auto* colInd = lower ? mat.col_ind_l : mat.col_ind_u;
+    const auto start = lower ? nPoint : nPoint + mat.nnz_l;
+    for (auto k = rowPtr[block_i]; k < rowPtr[block_i + 1]; ++k)
+      if (colInd[k] == block_j) return static_cast<BlockRef>(start + k);
+    return BlockRef::Absent;
+  }
+
   /*!
    * \brief Call f(jPoint) for every off-diagonal block (iPoint, jPoint) of row iPoint in the matrix pattern.
    */
@@ -908,6 +931,35 @@ class CSysMatrix {
   template <class T>
   inline void SubtractBlock(unsigned long block_i, unsigned long block_j, const T& val_block) {
     AddBlock(block_i, block_j, val_block, -1);
+  }
+
+  /*! \brief Add a row-pointer block using the same scalar conversion and update as SetBlock<false>. */
+  template <class T, class OtherType = ScalarType>
+  inline void AddBlock(BlockRef ref, const T* const* val_block, OtherType alpha = 1.0) {
+    if (ref == BlockRef::Absent) return;
+    const auto index = static_cast<unsigned long>(ref);
+    const auto startU = nPoint + mat.nnz_l;
+    const auto blockSize = nVar * nEqn;
+    ScalarType* ptr;
+    if (index < nPoint)
+      ptr = mat.d + index * blockSize;
+    else if (quantized_mode)
+      return;
+    else if (index < startU)
+      ptr = mat.l + (index - nPoint) * blockSize;
+    else
+      ptr = mat.u + (index - startU) * blockSize;
+
+    const std::decay_t<T> blockAlpha = alpha;
+    const CBlockView<ScalarType> view{ptr, nullptr, nullptr, nVar};
+    view.template apply<false>(
+        [&](unsigned long i, unsigned long j) { return PassiveAssign(blockAlpha * val_block[i][j]); });
+  }
+
+  /*! \brief Subtract a row-pointer block using the same scale as the indexed SubtractBlock. */
+  template <class T>
+  inline void SubtractBlock(BlockRef ref, const T* const* val_block) {
+    AddBlock(ref, val_block, -1);
   }
 
   /*!

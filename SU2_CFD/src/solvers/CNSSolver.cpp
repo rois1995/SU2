@@ -44,6 +44,13 @@ CNSSolver::CNSSolver(CGeometry *geometry, CConfig *config, unsigned short iMesh)
 
   /*--- This constructor only allocates/inits what is extra to CEulerSolver. ---*/
 
+  /*--- The base constructor initializes the pattern once. A replacement mesh and Jacobian get a new table here. ---*/
+  if constexpr (UseViscousBlockRefs) {
+    if (iMesh == MESH_0 && config->GetVisc_P1_Entropy() && config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT &&
+        !Jacobian.IsQuantized())
+      BuildViscousCellBlocks(*geometry);
+  }
+
   /*--- Buffet sensor in all the markers and coefficients ---*/
 
   Buffet_Sensor.resize(nMarker);
@@ -83,6 +90,43 @@ CNSSolver::CNSSolver(CGeometry *geometry, CConfig *config, unsigned short iMesh)
       break;
   }
 
+}
+
+void CNSSolver::BuildViscousCellBlocks(const CGeometry& geometry) {
+  const auto nElem = geometry.GetnElem();
+  CellBlockOffsets.resize(nElem + 1);
+  for (auto iElem = 0ul; iElem < nElem; ++iElem) {
+    const auto nNodes = geometry.elem[iElem]->GetnNodes();
+    CellBlockOffsets[iElem + 1] = CellBlockOffsets[iElem] + nNodes * (nNodes - 1);
+  }
+  CellBlocks.resize(CellBlockOffsets.back());
+
+  for (auto iElem = 0ul; iElem < nElem; ++iElem) {
+    const auto* element = geometry.elem[iElem];
+    const auto nNodes = element->GetnNodes();
+    auto index = CellBlockOffsets[iElem];
+    for (auto a = 0u; a < nNodes; ++a) {
+      const auto row = element->GetNode(a);
+      const bool owned = geometry.nodes->GetDomain(row);
+      for (auto b = 0u; b < nNodes; ++b) {
+        if (a == b) continue;
+        CellBlocks[index++] = owned ? Jacobian.GetBlockRef(row, element->GetNode(b)) : BlockRef::Absent;
+      }
+    }
+  }
+}
+
+FORCEINLINE void CNSSolver::AddCellViscousOffDiag(const BlockRef* cellBlocks, unsigned short nCellNodes,
+                                                 unsigned short a, unsigned short b, unsigned long iPoint,
+                                                 unsigned long jPoint, const su2double* const* rows) {
+  if constexpr (UseViscousBlockRefs) {
+    if (cellBlocks) {
+      /*--- Each row packs nCellNodes - 1 references, skipping its diagonal. ---*/
+      Jacobian.AddBlock(cellBlocks[a * (nCellNodes - 1) + b - (b > a)], rows);
+      return;
+    }
+  }
+  Jacobian.AddBlock(iPoint, jPoint, rows);
 }
 
 void CNSSolver::Preprocessing(CGeometry *geometry, CSolver **solver_container, CConfig *config, unsigned short iMesh,
@@ -233,13 +277,11 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
   /*--- EDGE_FORM_P1_MIXED (P1_MIXED.md, Theorem X6): a non-simplex cell is the omega-weighted sum of V-A on the
    * sub-simplices of its split average, with K per sub-simplex. Same test functions as the convective part (M0), no
-   * moved test vectors. Jacobian blocks of node pairs that are not edges are not in the sparsity pattern and drop. ---*/
+   * moved test vectors. The stored Jacobian pattern determines which pairs have blocks. ---*/
   const bool mixed = config->GetEdge_Form_P1_Mixed();
 
   /*--- VISC_P1_JACOBIAN= FULL: add the dK/du terms (frozen state and mu(T), kappa(T), mu_t frozen) to the Picard
-   * element Jacobian. On mixed cells the sub-simplex blocks of node pairs that are not edges are passed to AddBlock like
-   * the Picard ones, which drops them: the edge (FVM, fill 0) sparsity pattern of the matrix has no such blocks, so
-   * they cannot be added without a change of the sparsity pattern. ---*/
+   * element Jacobian. Both contributions use the same block pattern. ---*/
   const bool fullJacobian = implicit && (config->GetKind_Visc_P1_Jacobian() == VISC_P1_JACOBIAN::FULL);
   const pve::TransportLaw law = fullJacobian ? pve::MakeTransportLaw(*config) : pve::TransportLaw();
 
@@ -284,13 +326,18 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
     SU2_OMP_FOR_DYN(nextMultiple(OMP_MIN_SIZE, groupSize))
     for (auto k = 0ul; k < nInColor; ++k) {
-      const auto* element = geometry->elem[indices[k]];
+      const auto iElem = indices[k];
+      const auto* element = geometry->elem[iElem];
       const auto nNodes = element->GetnNodes();
+      const BlockRef* cellBlocks = nullptr;
+      if constexpr (UseViscousBlockRefs) {
+        if (!CellBlocks.empty()) cellBlocks = CellBlocks.data() + CellBlockOffsets[iElem];
+      }
 
       if (nNodes != nDim + 1) {
         if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
-        MixedViscousResidual(geometry, element, implicit, rowBound, prandtlTurb, gasConst, fullJacobian ? &law : nullptr,
-                             turbNodes, elementKine);
+        MixedViscousResidual(geometry, element, cellBlocks, implicit, rowBound, prandtlTurb, gasConst,
+                             fullJacobian ? &law : nullptr, turbNodes, elementKine);
         continue;
       }
 
@@ -313,7 +360,6 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
         SU2_MPI::Error("VISC_P1_ENTROPY: degenerate element.", CURRENT_FUNCTION);
       }
       if (moved) {
-        const auto iElem = indices[k];
         simplex.SetMovedTest(geometry->edges->GetBlendY()[iElem], 1.0 - P1MovedThetaV[iElem]);
       }
 
@@ -334,7 +380,6 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
         const su2double D = P1SSTMatched::ElementKineDiffusivity(nNodes, muLam, muTurb, F1);
         P1SSTMatched::KineDiffusion(nDim, simplex.size, simplex.grad, kNode, D, resK);
         const su2double Dt = simplex.TurbulentDissipation();
-        const auto iElem = indices[k];
         for (auto iNode = 0u; iNode < nNodes; ++iNode) {
           if (!P1KStrongNode[element->GetNode(iNode)]) residual[iNode][nVar - 1] += resK[iNode];
           su2double omega = 1.0 / nNodes;
@@ -386,7 +431,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
           const su2double* rows[pve::MAXNVAR];
           for (auto iVar = 0u; iVar < nVar; ++iVar) rows[iVar] = jacobian[iNode][jNode][iVar];
           if (jNode == iNode) Jacobian.AddBlock2Diag(iPoint, rows);
-          else Jacobian.AddBlock(iPoint, jPoint, rows);
+          else AddCellViscousOffDiag(cellBlocks, nNodes, iNode, jNode, iPoint, jPoint, rows);
         }
       }
     }
@@ -394,8 +439,8 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
   }
 }
 
-void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit, bool rowBound,
-                                     const su2double& prandtlTurb, const su2double& gasConst,
+void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, const BlockRef* cellBlocks,
+                                     bool implicit, bool rowBound, const su2double& prandtlTurb, const su2double& gasConst,
                                      const P1ViscousEntropy::TransportLaw* law, const CVariable* turbNodes,
                                      bool elementKine) {
   namespace pve = P1ViscousEntropy;
@@ -487,8 +532,7 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
       P1SSTMatched::KineDiffusionStateJacobian(nDim, Gamma, gasConst, simplex.size, simplex.grad, state, addRow, jacobian);
     }
 
-    /*--- Blocks of non-edge pairs (face and body diagonals): in the split-pair pattern of EDGE_FORM_P1_MIXED they are
-     * kept (JST_P1ES_JACOBIAN_DIAG.md 8.3); in a plain pattern AddBlock drops them. ---*/
+    /*--- The sub-simplex uses its parent cell's block references. Absent pairs are skipped in either pattern. ---*/
     for (unsigned short a = 0; a < nNodes; ++a) {
       if (!geometry->nodes->GetDomain(point[a])) continue;
       for (unsigned short b = 0; b < nNodes; ++b) {
@@ -498,7 +542,7 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
           rows[iVar] = jacobian[a][b][iVar];
         }
         if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
-        else Jacobian.AddBlock(point[a], point[b], rows);
+        else AddCellViscousOffDiag(cellBlocks, nCellNodes, entry.nodes[a], entry.nodes[b], point[a], point[b], rows);
       }
     }
   }
