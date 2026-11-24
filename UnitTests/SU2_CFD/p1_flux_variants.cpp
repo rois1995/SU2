@@ -10531,6 +10531,50 @@ TEST_CASE("P1 viscous block references match indexed writes on a mixed mesh", "[
   }
 }
 
+/*--- Check every cached |T| and g_a against recomputation, including after a coordinate update. ---*/
+TEST_CASE("P1 viscous simplex geometry cache matches recomputation on a mixed mesh", "[P1Flux]") {
+  const std::string mesh = "p1_mixed_simplex_geometry.su2";
+  WriteMixedMesh(mesh, 3, 3, 0.2, 1.0);
+  MeshCase test(mesh, MixedOptions);
+  auto& geometry = *test.geometry;
+  geometry.UpdateP1FluxCoefficients(test.config.get());
+
+  for (bool moved : {false, true}) {
+    CAPTURE(moved);
+    if (moved) {
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint)
+        geometry.nodes->SetCoord(iPoint, 0, 2.0 * geometry.nodes->GetCoord(iPoint, 0));
+      geometry.UpdateP1FluxCoefficients(test.config.get());
+    }
+    geometry.PrepareP1SimplexGeometry(true);
+    for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
+      CAPTURE(iElem);
+      const auto* element = geometry.elem[iElem];
+      const auto* cached = geometry.GetP1SimplexGeometry(iElem);
+      if constexpr (!std::is_same<su2double, passivedouble>::value) {
+        CHECK(cached == nullptr);
+        continue;
+      }
+      CHECK(cached != nullptr);
+      if (!cached) continue;
+
+      auto checkSimplex = [&](const std::array<unsigned short, 4>& localNodes) {
+        const su2double* coord[4];
+        for (auto a = 0u; a < 4; ++a) coord[a] = geometry.nodes->GetCoord(element->GetNode(localNodes[a]));
+        P1Simplex::Geometry fresh;
+        fresh.Set(3, coord);
+        CHECK(*cached == fresh);
+        ++cached;
+      };
+      if (element->GetnNodes() == 4) {
+        checkSimplex({0, 1, 2, 3});
+      } else {
+        for (const auto& entry : geometry.GetMixedSimplices(element->GetVTK_Type())) checkSimplex(entry.nodes);
+      }
+    }
+  }
+}
+
 /*--- JST_P1ES_JACOBIAN_DIAG.md 8.3: the split-pair blocks of the mean flux are the Ismail-Roe Jacobian at equal states,
  * EsIsmailRoeJacobian(S, S, n) = (0.5 A(U).n, 0.5 A(U).n), the derivative of 0.5 (F_i + F_k).n. ---*/
 TEST_CASE("EDGE_FORM_P1_MIXED: split-pair mean-flux blocks are the Ismail-Roe Jacobian at equal states", "[P1Flux]") {

@@ -169,6 +169,7 @@ private:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] element - The cell.
    * \param[in] cellBlocks - Cached off-diagonal block references for the cell, or nullptr.
+   * \param[in] cached - Cached geometry in split order, or nullptr.
    * \param[in] implicit - Add the Jacobian.
    * \param[in] rowBound - VISC_P1_TIME_STEP: add the row bounds of the sub-simplices to P1ViscRowBound.
    * \param[in] prandtlTurb - Turbulent Prandtl number.
@@ -179,7 +180,8 @@ private:
    *            row (M3) and the shares of P* (M4), as CTurbSSTSolver::P1KineDiffusion (SSTPATHS_PLAN.md 1).
    */
   void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, const BlockRef* cellBlocks,
-                            bool implicit, bool rowBound, const su2double& prandtlTurb, const su2double& gasConst,
+                            const P1Simplex::Geometry* cached, bool implicit, bool rowBound,
+                            const su2double& prandtlTurb, const su2double& gasConst,
                             const P1ViscousEntropy::TransportLaw* law, const CVariable* turbNodes = nullptr,
                             bool elementKine = false);
 

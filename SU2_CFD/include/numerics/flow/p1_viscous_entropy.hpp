@@ -165,11 +165,9 @@ inline void EntropyVariableJacobian(unsigned short nDim, const su2double& gamma,
 /*!
  * \brief One simplex: shape gradients, nodal entropy variables, frozen state and the element flux F_T.
  */
-class Element {
+class Element : public P1Simplex::Geometry {
  public:
   unsigned short nDim = 2, nNodes = 3, nVar = 4;
-  su2double size = 0.0;                         /*!< \brief |T|. */
-  su2double grad[MAXNODE][3] = {{0.0}};         /*!< \brief Shape gradients g_a. */
   su2double thetaNode[MAXNODE] = {0.0};         /*!< \brief theta_a = rho_a/p_a = -w_E. */
   su2double wMom[MAXNODE][3] = {{0.0}};         /*!< \brief w_m = theta_a v_a. */
   su2double theta = 1.0, vel[3] = {0.0, 0.0, 0.0}, mu = 0.0, kappa = 0.0; /*!< \brief Frozen state. */
@@ -190,12 +188,31 @@ class Element {
    */
   template <class Coords>
   su2double Set(unsigned short nDim_, const Coords& coord, const NodeState* node, const su2double& gasConst_) {
+    SetParameters(nDim_, gasConst_);
+    P1Simplex::Geometry::Set(nDim_, coord);
+    return SetState(node);
+  }
+
+  /*--- Copy |T| and g_a as computed, then use the same state and flux evaluation as Set. ---*/
+  su2double SetFromGeometry(unsigned short nDim_, const P1Simplex::Geometry& geometry, const NodeState* node,
+                            const su2double& gasConst_) {
+    SetParameters(nDim_, gasConst_);
+    static_cast<P1Simplex::Geometry&>(*this) = geometry;
+    return SetState(node);
+  }
+
+ private:
+  /*--- Initialize the element parameters before either geometry path. ---*/
+  void SetParameters(unsigned short nDim_, const su2double& gasConst_) {
     nDim = nDim_;
     nNodes = nDim + 1;
     nVar = nDim + 2;
     gasConst = gasConst_;
     moved = false;
-    size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
+  }
+
+  /*--- Evaluate the frozen state and F_T from the nodal data and the simplex geometry. ---*/
+  su2double SetState(const NodeState* node) {
     if (size == 0.0) return size;
 
     su2double sumTheta = 0.0, sumMom[3] = {0.0, 0.0, 0.0};
@@ -227,6 +244,7 @@ class Element {
     return size;
   }
 
+ public:
   /*!
    * \brief F = K(wbar_T) G for the entropy-variable gradient G = (G_theta = grad theta, G_m = grad(theta v)),
    *        with SU2's stress tensor of grad v_eff and the heat flux kappa grad T_eff (Lemma V5). Linear in G.

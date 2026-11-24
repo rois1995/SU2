@@ -28,6 +28,8 @@
 
 #include "../basic_types/datatype_structure.hpp"
 
+#include <cmath>
+
 namespace P1Simplex {
 
 /*!
@@ -70,6 +72,25 @@ inline su2double ShapeGradients(unsigned short nDim, const Coords& x, su2double 
   }
   return det / 6;
 }
+
+/*--- Store |T| and every g_a as computed, including g_0, for bitwise reuse. ---*/
+struct Geometry {
+  su2double size = 0.0;
+  su2double grad[4][3] = {{0.0}};
+
+  template <class Coords>
+  void Set(unsigned short nDim, const Coords& coord) {
+    size = fabs(ShapeGradients(nDim, coord, grad));
+  }
+
+  bool operator==(const Geometry& other) const {
+    if (size != other.size) return false;
+    for (auto a = 0u; a < 4; ++a)
+      for (auto d = 0u; d < 3; ++d)
+        if (grad[a][d] != other.grad[a][d]) return false;
+    return true;
+  }
+};
 
 /*--- Moved (MOD_CENTROIDS) dual of a tetrahedron (P1_VISCOUS_MOVED.md, Lemma MV1). With p_o the dual point of the face
  * f_o opposite node o (CPrimalGrid::getFaceCG) and xi_o = p_o - xbar_o its shift from the face centroid, the dual

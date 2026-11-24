@@ -314,8 +314,11 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
     })
   }
 
-  /*--- The coloring is built on first use. ---*/
-  SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->GetElementColoring();)
+  /*--- Build the coloring and refresh simplex geometry before the threads enter the colored loop. ---*/
+  SU2_OMP_SAFE_GLOBAL_ACCESS(
+    geometry->GetElementColoring();
+    geometry->PrepareP1SimplexGeometry(mixed);
+  )
 
   const auto& coloring = geometry->GetElementColoring();
   const auto groupSize = geometry->GetElementColorGroupSize();
@@ -329,6 +332,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
       const auto iElem = indices[k];
       const auto* element = geometry->elem[iElem];
       const auto nNodes = element->GetnNodes();
+      const auto* cached = geometry->GetP1SimplexGeometry(iElem);
       const BlockRef* cellBlocks = nullptr;
       if constexpr (UseViscousBlockRefs) {
         if (!CellBlocks.empty()) cellBlocks = CellBlocks.data() + CellBlockOffsets[iElem];
@@ -336,7 +340,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
       if (nNodes != nDim + 1) {
         if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
-        MixedViscousResidual(geometry, element, cellBlocks, implicit, rowBound, prandtlTurb, gasConst,
+        MixedViscousResidual(geometry, element, cellBlocks, cached, implicit, rowBound, prandtlTurb, gasConst,
                              fullJacobian ? &law : nullptr, turbNodes, elementKine);
         continue;
       }
@@ -350,13 +354,15 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
       pve::NodeState state[pve::MAXNODE];
       for (auto iNode = 0u; iNode < nNodes; ++iNode) {
         const auto iPoint = element->GetNode(iNode);
-        coord[iNode] = geometry->nodes->GetCoord(iPoint);
+        if (!cached) coord[iNode] = geometry->nodes->GetCoord(iPoint);
         pve::GatherNode(*nodes, iPoint, nDim, prandtlTurb, state[iNode]);
         if (turbNodes) state[iNode].k = turbNodes->GetSolution(iPoint, 0);
       }
 
       pve::Element simplex;
-      if (simplex.Set(nDim, coord, state, gasConst) == 0.0) {
+      const auto size = cached ? simplex.SetFromGeometry(nDim, *cached, state, gasConst)
+                               : simplex.Set(nDim, coord, state, gasConst);
+      if (size == 0.0) {
         SU2_MPI::Error("VISC_P1_ENTROPY: degenerate element.", CURRENT_FUNCTION);
       }
       if (moved) {
@@ -440,7 +446,8 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 }
 
 void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, const BlockRef* cellBlocks,
-                                     bool implicit, bool rowBound, const su2double& prandtlTurb, const su2double& gasConst,
+                                     const P1Simplex::Geometry* cached, bool implicit, bool rowBound,
+                                     const su2double& prandtlTurb, const su2double& gasConst,
                                      const P1ViscousEntropy::TransportLaw* law, const CVariable* turbNodes,
                                      bool elementKine) {
   namespace pve = P1ViscousEntropy;
@@ -471,12 +478,14 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
     unsigned long point[pve::MAXNODE];
     for (unsigned short a = 0; a < nNodes; ++a) {
       point[a] = element->GetNode(entry.nodes[a]);
-      coord[a] = geometry->nodes->GetCoord(point[a]);
+      if (!cached) coord[a] = geometry->nodes->GetCoord(point[a]);
       state[a] = cellState[entry.nodes[a]];
     }
 
     pve::Element simplex;
-    if (simplex.Set(nDim, coord, state, gasConst) == 0.0) {
+    const auto size = cached ? simplex.SetFromGeometry(nDim, *cached++, state, gasConst)
+                             : simplex.Set(nDim, coord, state, gasConst);
+    if (size == 0.0) {
       SU2_MPI::Error("VISC_P1_ENTROPY: degenerate sub-simplex of a split average.", CURRENT_FUNCTION);
     }
     const su2double weight = entry.weight;

@@ -54,6 +54,7 @@ extern "C" {
 #include <map>
 #include <array>
 #include <cstdint>
+#include <type_traits>
 
 #include "primal_grid/CPrimalGrid.hpp"
 #include "dual_grid/CDualGrid.hpp"
@@ -65,6 +66,7 @@ extern "C" {
 #include "../CConfig.hpp"
 #include "../toolboxes/graph_toolbox.hpp"
 #include "../toolboxes/p1_mixed.hpp"
+#include "../toolboxes/p1_simplex.hpp"
 #include "../adt/CADTElemClass.hpp"
 
 using namespace std;
@@ -1019,7 +1021,24 @@ class CGeometry {
   std::map<unsigned short, std::vector<P1Mixed::Simplex>> MixedSimplices; /*!< \brief EDGE_FORM_P1_MIXED, weighted
                                                                               sub-simplices by VTK cell type. */
 
+ private:
+  static constexpr bool UseP1SimplexGeometryCache = std::is_same<su2double, passivedouble>::value;
+  unsigned long p1SimplexGeometryVersion = 0;
+  std::vector<std::size_t> p1SimplexGeometryOffsets;
+  std::vector<P1Simplex::Geometry> p1SimplexGeometry;
+
  public:
+
+  /*! \brief Refresh the fine-grid simplex geometry before the colored viscous pass, on the master thread. */
+  void PrepareP1SimplexGeometry(bool mixed);
+
+  /*! \brief After preparation, return the cell's geometry in split order, or nullptr on the uncached path. */
+  const P1Simplex::Geometry* GetP1SimplexGeometry(unsigned long iElem) const {
+    if constexpr (!UseP1SimplexGeometryCache) return nullptr;
+    if (p1SimplexGeometryOffsets.empty() || p1SimplexGeometryOffsets[iElem] == p1SimplexGeometryOffsets[iElem + 1])
+      return nullptr;
+    return p1SimplexGeometry.data() + p1SimplexGeometryOffsets[iElem];
+  }
 
   /*!
    * \brief EDGE_FORM_P1_MIXED: weighted sub-simplices of the split average of a non-simplex cell type (P1_MIXED.md,

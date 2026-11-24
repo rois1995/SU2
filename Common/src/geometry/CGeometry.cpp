@@ -2743,6 +2743,38 @@ void CGeometry::UpdateP1FluxCoefficients(const CConfig* config) {
   if (omp_get_thread_num() == 0) p1FluxVersion++;
 }
 
+void CGeometry::PrepareP1SimplexGeometry(bool mixed) {
+  if constexpr (!UseP1SimplexGeometryCache) return;
+  if (GetMGLevel() != MESH_0) return;
+  if (!p1SimplexGeometryOffsets.empty() && p1SimplexGeometryVersion == GetP1FluxVersion()) return;
+
+  p1SimplexGeometryOffsets.resize(nElem + 1);
+  for (auto iElem = 0ul; iElem < nElem; ++iElem) {
+    const auto* element = elem[iElem];
+    const auto nSimplices = element->GetnNodes() == nDim + 1 ? 1 :
+                           mixed ? GetMixedSimplices(element->GetVTK_Type()).size() : 0;
+    p1SimplexGeometryOffsets[iElem + 1] = p1SimplexGeometryOffsets[iElem] + nSimplices;
+  }
+  p1SimplexGeometry.resize(p1SimplexGeometryOffsets.back());
+
+  /*--- Keep native simplex order and the existing mixed split order. Split weights are shared by VTK type. ---*/
+  for (auto iElem = 0ul; iElem < nElem; ++iElem) {
+    const auto* element = elem[iElem];
+    auto index = p1SimplexGeometryOffsets[iElem];
+    auto compute = [&](const std::array<unsigned short, 4>& localNodes) {
+      const su2double* coord[4];
+      for (auto a = 0u; a <= nDim; ++a) coord[a] = nodes->GetCoord(element->GetNode(localNodes[a]));
+      p1SimplexGeometry[index++].Set(nDim, coord);
+    };
+    if (element->GetnNodes() == nDim + 1) {
+      compute({0, 1, 2, 3});
+    } else if (mixed) {
+      for (const auto& entry : GetMixedSimplices(element->GetVTK_Type())) compute(entry.nodes);
+    }
+  }
+  p1SimplexGeometryVersion = GetP1FluxVersion();
+}
+
 void CGeometry::CheckProjectedDissipation(bool formNormal) const {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     /*--- The numerics compute nu = (n.e/|e|^2) e on the fly from the normal and the coordinates. On simplices every
