@@ -604,8 +604,17 @@ TEST_CASE("UQ_JACOBIAN option and guards", "[EPMJacobian]") {
     config.SetUQ_Jacobian(UQ_JACOBIAN::TANGENT);
     CHECK(config.GetUQJacobianError().find("UQ_DELTA_B") != std::string::npos);
   }
-  /*--- Quantized (int8) off-diagonal storage. ---*/
+  /*--- Quantized (int8) off-diagonal storage. MATH_PROBLEM is explicit: a reverse-AD build defaults to
+   *    DISCRETE_ADJOINT, where SetPostprocessing replaces LINEAR_SOLVER_PREC by DISCADJ_LIN_PREC (default ILU). ---*/
   for (const char* prec : {"Q_LU_SGS", "Q_JACOBI", "Q_IDENTITY"})
-    CHECK(error(UQText(0, .1, "NONE", std::string("LINEAR_SOLVER_PREC= ") + prec + "\n")).find("quantized") !=
-          std::string::npos);
+    CHECK(error(UQText(0, .1, "NONE", std::string("MATH_PROBLEM= DIRECT\nLINEAR_SOLVER_PREC= ") + prec + "\n"))
+              .find("quantized") != std::string::npos);
+#ifdef CODI_REVERSE_TYPE
+  /*--- Discrete adjoint (only parsed by a reverse-AD build): the preconditioner in use is DISCADJ_LIN_PREC. ---*/
+  for (const char* prec : {"Q_LU_SGS", "Q_JACOBI", "Q_IDENTITY"}) {
+    const std::string adjoint = "MATH_PROBLEM= DISCRETE_ADJOINT\nDISCADJ_LIN_PREC= ";
+    CHECK(error(UQText(0, .1, "NONE", adjoint + prec + "\n")).find("quantized") != std::string::npos);
+    CHECK(error(UQText(0, .1, "NONE", adjoint + "ILU\nLINEAR_SOLVER_PREC= " + prec + "\n")).empty());
+  }
+#endif
 }
