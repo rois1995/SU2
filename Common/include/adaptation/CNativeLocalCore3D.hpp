@@ -45,6 +45,8 @@ constexpr unsigned PassCount = 2;
 
 Face OrientedFace(Vertices vertices, unsigned face);
 class SurfaceGeometry;
+class RemoteSurface;
+struct ContactContext;
 
 struct CoreOptions {
   bool memory = true;
@@ -58,6 +60,7 @@ struct CoreOptions {
   bool wall_collapses = false;
   bool surface_collapses = false;
   bool distance_error_cut = false;
+  bool outward_collapses = false;
 };
 
 struct PointRow {
@@ -91,7 +94,7 @@ enum class SurfaceRefusal {
 };
 enum class SurfaceCollapseRefusal {
   None, Protected, Border, Ineligible, BorderKeeper, FeatureChord, Link, Near, Outward, Reverse, Topology,
-  Size, Shape, Validity, Distance, Entity, Bound
+  Size, Shape, Validity, Distance, Entity, Bound, ContactRemote, Contact
 };
 
 bool SampleMovedTensor(const std::vector<DonorCell>& donors, Point point, Tensor& tensor);
@@ -142,12 +145,15 @@ struct SurfaceCounters {
   double seconds_v = 0;
   std::string v_changes;
   size_t collapses_surface = 0, c_sweeps = 0, c_candidates = 0, c_deferred = 0;
-  std::array<size_t, static_cast<size_t>(SurfaceCollapseRefusal::Bound) + 1> c_refusals{};
+  std::array<size_t, static_cast<size_t>(SurfaceCollapseRefusal::Contact) + 1> c_refusals{};
   double c_reverse_max = 0, seconds_c = 0, seconds_c_samples = 0, seconds_c_entity = 0, seconds_c_bound = 0;
   size_t c_bound_queries = 0, query_scratch_max = 0;
   size_t faces_before_c = 0, points_before_c = 0;
   size_t d_error_edges = 0, d_marks_error = 0, d_marks_longest = 0, d_centroid_only = 0, d_nonfinite = 0;
   size_t d_short_metric = 0, d_refused_metric = 0;
+  size_t c_outward_tried = 0, collapses_outward = 0, c_contact_directions = 0;
+  size_t c_contact_candidates = 0, c_contact_calls = 0, c_contact_rebuilds = 0, c_contact_fresh_max = 0;
+  double seconds_c_contact = 0, seconds_c_contact_build = 0;
   std::string c_changes;
 };
 
@@ -263,7 +269,7 @@ class Mesh {
                               bool report = true, std::string* near_row = nullptr, double metric_floor = 0);
   SurfaceCollapseRefusal CollapseSurface(
       Edge edge, Slot seed, SurfaceGeometry& geometry, uint32_t stamp, SurfaceCounters& counters, bool report,
-      const std::function<void(const SU2Native3D::SurfaceFace&)>& sink = {});
+      const std::function<void(const SU2Native3D::SurfaceFace&)>& sink = {}, ContactContext* contact = nullptr);
   Refusal RemoveEdge(Edge edge, Slot seed, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal SwapFace(Slot cell, unsigned face, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& stats, bool* exact_refusal = nullptr);
@@ -272,12 +278,12 @@ class Mesh {
   void LengthWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void QualityWork(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   PassStats RunPass(IdSequence& point_ids, size_t cell_limit, bool report, CoreOptions options = {},
-                    SurfaceGeometry* surface = nullptr);
+                    SurfaceGeometry* surface = nullptr, RemoteSurface* remote = nullptr);
   PassStats RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stats, CoreOptions options = {},
-                    SurfaceGeometry* surface = nullptr);
+                    SurfaceGeometry* surface = nullptr, RemoteSurface* remote = nullptr);
 
   static size_t ArrayBytes(size_t cells);
-  static size_t SurfaceArrayBytes(size_t cells, bool error_table = false);
+  static size_t SurfaceArrayBytes(size_t cells, bool error_table = false, bool contact_index = false);
   static const size_t BytesPerCell;
 
  private:
@@ -335,6 +341,7 @@ class Mesh {
   struct SurfaceCollapseTrial {
     Plan plan;
     std::vector<SU2Native3D::SurfaceFace> children;
+    std::vector<Vertices> outward_caps;
     double reverse_max = 0;
     SurfaceCollapseRefusal refusal = SurfaceCollapseRefusal::None;
     unsigned failure_order = 0;
@@ -375,7 +382,7 @@ class Mesh {
                                               const SurfaceGeometry& geometry) const;
   Plan RemoveEdgePlan(Edge edge, Slot seed, size_t cell_limit) const;
   Plan SwapFacePlan(Slot cell, unsigned face, size_t cell_limit) const;
-  void Commit(const Plan& plan, uint32_t stamp);
+  std::vector<Slot> Commit(const Plan& plan, uint32_t stamp);
   void MarkChanged(CellRow& row, uint32_t stamp);
   int32_t SaveBindings(const std::array<FacetBinding, 4>& binding);
   size_t SplitSweeps(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
@@ -402,8 +409,9 @@ class Mesh {
                                 const SurfaceEdgeSet& border, const SurfaceEdgeSet& neighbor_locked) const;
   void SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
-  void SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats);
-  void SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
+  void SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote = nullptr);
+  void SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
+                   RemoteSurface* remote);
   void MarkUnresolved();
   bool QualitySweep(IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void ReportResult(PassStats& stats) const;
@@ -424,6 +432,7 @@ class Mesh {
   std::vector<FrozenPoint> frozen_;
   size_t live_cells_ = 0;
   uint32_t sweep_ = 0;
+  bool allow_border_;
   CoreOptions options_;
   uint64_t change_ = 1;
   std::map<std::array<Id, 2>, uint64_t> collapse_refusals_;

@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
+#include "../../../include/adaptation/CNativeLocalContact3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -207,12 +208,20 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
       << " d_marks_longest=" << s.d_marks_longest << " d_centroid_only=" << s.d_centroid_only
       << " d_nonfinite=" << s.d_nonfinite << " d_short_metric=" << s.d_short_metric
       << " d_refused_metric=" << s.d_refused_metric;
+  out << " c_outward_tried=" << s.c_outward_tried << " collapses_outward=" << s.collapses_outward
+      << " c_refused_contact_remote=" << s.c_refusals[static_cast<size_t>(SurfaceCollapseRefusal::ContactRemote)]
+      << " c_refused_contact=" << s.c_refusals[static_cast<size_t>(SurfaceCollapseRefusal::Contact)]
+      << " c_contact_directions=" << s.c_contact_directions
+      << " c_contact_candidates=" << s.c_contact_candidates << " c_contact_calls=" << s.c_contact_calls
+      << " c_contact_rebuilds=" << s.c_contact_rebuilds << " c_contact_fresh_max=" << s.c_contact_fresh_max
+      << " seconds_c_contact=" << s.seconds_c_contact
+      << " seconds_c_contact_build=" << s.seconds_c_contact_build;
   if (!s.c_changes.empty()) out << " c_changes=" << std::quoted(s.c_changes);
   if (!s.first_feature_reason.empty()) out << " first_feature_reason=" << std::quoted(s.first_feature_reason);
   if (!s.first_trace_reason.empty()) out << " first_trace_reason=" << std::quoted(s.first_trace_reason);
 }
 
-size_t Mesh::SurfaceArrayBytes(size_t cells, bool error_table) {
+size_t Mesh::SurfaceArrayBytes(size_t cells, bool error_table, bool contact_index) {
   using transfer_memory::Add;
   using transfer_memory::Mul;
   constexpr size_t links = 4 * sizeof(void*);
@@ -225,7 +234,8 @@ size_t Mesh::SurfaceArrayBytes(size_t cells, bool error_table) {
                           sizeof(std::pair<const SurfaceEdge, DistanceMark>) + links +
                           3 * (sizeof(Candidate) + sizeof(EdgeUse) + sizeof(Edge));
   const size_t error = error_table ? sizeof(SurfaceErrors::value_type) + links : 0;
-  return Mul(cells, Add(Mul(4, face), Mul(12, Add(edge, error))));
+  const auto surface = Mul(cells, Add(Mul(4, face), Mul(12, Add(edge, error))));
+  return Add(surface, contact_index ? LocalContactIndex::EntryBytes(cells) : 0);
 }
 
 std::vector<Mesh::PhysicalFace> Mesh::SurfaceParents(Edge edge, const Ring& ring) const {
@@ -946,10 +956,18 @@ void Mesh::MarkUnresolved() {
         for (auto vertex : edge) points_[vertex].unresolved = true;
 }
 
-void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats) {
+void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote) {
+  if (options_.outward_collapses && allow_border_ && !remote)
+    throw std::invalid_argument("Native local surface contact: parallel step C requires a remote surface set.");
   // The distance step has released its tables. Reuse the surface reservation for
   // the edge list, candidate/refusal tables and the temporary collapse plans.
   const auto begin = ReportClock(stats.report);
+  std::optional<LocalContactIndex> index;
+  std::optional<ContactContext> contact;
+  if (options_.outward_collapses) {
+    index.emplace(*this, ContactFreshLimit, stats.report ? &stats.surface : nullptr);
+    contact.emplace(ContactContext{*index, remote});
+  }
   const bool work_list = options_.work_list && options_.memory;
   const auto removable = [&](Slot point) {
     const auto& row = points_[point];
@@ -999,13 +1017,14 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats) {
         if (work_list) deferred.push_back(edge);
         continue;
       }
+      // A far cell disappearing does not reactivate a blocked pair. This loses yield only.
       if (options_.memory) {
         const auto remembered = refused.find(candidate.ids);
         if (remembered != refused.end() && remembered->second >= points_[edge[0]].changed_at &&
             remembered->second >= points_[edge[1]].changed_at) continue;
       }
       if (CollapseSurface(edge, seed, geometry, sweep_, stats.surface, stats.report,
-                          stats.surface_collapse_sink) == SurfaceCollapseRefusal::None) {
+                          stats.surface_collapse_sink, contact ? &*contact : nullptr) == SurfaceCollapseRefusal::None) {
         ++accepted;
       } else if (options_.memory) {
         refused.insert_or_assign(candidate.ids, change_);
@@ -1022,7 +1041,8 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats) {
   if (stats.report) stats.surface.seconds_c = ReportClock(true) - begin;
 }
 
-void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats) {
+void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
+                       RemoteSurface* remote) {
   const SurfaceQueryScratch query_scratch(stats.report && options_.surface_collapses
                                               ? &stats.surface.query_scratch_max : nullptr);
   const auto report = [&](size_t& faces, size_t& points) {
@@ -1034,7 +1054,7 @@ void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t 
   SurfaceLength(geometry, point_ids, cell_limit, stats);
   SurfaceDistance(geometry, point_ids, cell_limit, stats);
   report(stats.surface.faces_before_c, stats.surface.points_before_c);
-  if (options_.surface_collapses) SurfaceCollapseWork(geometry, stats);
+  if (options_.surface_collapses) SurfaceCollapseWork(geometry, stats, remote);
   MarkUnresolved();
   report(stats.surface.faces_out, stats.surface.points_out);
   if (stats.report) {

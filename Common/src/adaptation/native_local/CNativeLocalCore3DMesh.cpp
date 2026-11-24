@@ -73,7 +73,8 @@ Id IdSequence::Take() {
   return last_;
 }
 
-Mesh::Mesh(const Owned& owned, bool allow_border, CoreOptions options) : live_cells_(owned.size()), options_(options) {
+Mesh::Mesh(const Owned& owned, bool allow_border, CoreOptions options)
+    : live_cells_(owned.size()), allow_border_(allow_border), options_(options) {
   if (owned.size() > size_t(INT32_MAX)) throw std::length_error("Too many native local core cells.");
   cells_.reserve(owned.size());
   {
@@ -269,7 +270,7 @@ void Mesh::MarkChanged(CellRow& row, uint32_t stamp) {
   row.stamp = stamp;
 }
 
-void Mesh::Commit(const Plan& plan, uint32_t stamp) {
+std::vector<Slot> Mesh::Commit(const Plan& plan, uint32_t stamp) {
   ++change_;
   std::vector<Slot> touched, slots;
   slots.reserve(plan.fresh.size());
@@ -324,6 +325,7 @@ void Mesh::Commit(const Plan& plan, uint32_t stamp) {
   }
   live_cells_ = live_cells_ - plan.old.size() + plan.fresh.size();
   if (collapse_refusals_.size() > 6 * live_cells_) collapse_refusals_.clear();
+  return slots;
 }
 
 Refusal Mesh::ReplaceCells(const std::vector<Slot>& old, const std::vector<Vertices>& fresh, uint32_t stamp) {

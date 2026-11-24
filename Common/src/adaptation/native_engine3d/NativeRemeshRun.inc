@@ -1,5 +1,6 @@
 #include "../../../include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
+#include "../../../include/adaptation/CNativeLocalContact3D.hpp"
 
 
 // Remesh owns the timer and public transaction. These stages borrow its controls and live inputs.
@@ -967,20 +968,52 @@ struct RemeshRun {
     const auto stage = stats.normalization_stages - 1;
     double exchange_seconds = 0;
     core::BorderMeeting previous;
+    core::CoreOptions options;
+    if (surface) {
+      options.surface_splits = true;
+      options.wall_collapses = true;
+      options.surface_collapses = true;
+      options.distance_error_cut = true;
+      options.outward_collapses = true;
+    }
     for (unsigned pass = 1; pass <= passes; ++pass) {
       const double begin = report ? workers.seconds() : 0;
       if (surface) budget.caller_bytes = transfer_memory::Add(kernel.caller_bytes, surface->ResidentBytes());
       auto meeting = core::MeetBorderPoints(workers, working, budget, previous.Bytes(), report);
-      auto bytes = transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working), previous.Bytes(),
-                                        meeting.Bytes(), core::Mesh::ArrayBytes(working.size()));
-      if (surface)
-        bytes = transfer_memory::Add(bytes, surface->ResidentBytes(), core::Mesh::SurfaceArrayBytes(working.size(), true));
-      budget.Require(workers, bytes, "Native local core arrays exceed working-storage admission.");
-      stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
+      const auto held = transfer_memory::Add(kernel.caller_bytes, previous.Bytes(), meeting.Bytes());
+      std::optional<core::RemoteSurface> remote;
+      const auto print_contact = [&](const auto& fields) noexcept {
+        try {
+          std::ostringstream out;
+          out << "NATIVE3D_LOCAL_CONTACT rank=" << workers.rank << " stage=" << stage << " pass=" << pass;
+          fields(out);
+          std::cout << out.str() << '\n' << std::flush;
+        } catch (...) {}
+      };
+      if (options.outward_collapses && workers.size > 1) {
+        const auto caller = transfer_memory::Add(held, OwnedStorageBytes(working), surface->ResidentBytes());
+        remote.emplace(core::GatherRemoteSurface(workers, working, core::SurfaceContactMargin(surface->Tolerance()),
+                                                budget, caller, report));
+        if (report) print_contact([&](auto& out) { core::PrintRemoteSurfaceFields(out, *remote); });
+      }
+      const auto screen_bytes = remote ? remote->Bytes() : 0;
+      auto bytes = transfer_memory::Add(held, OwnedStorageBytes(working), core::Mesh::ArrayBytes(working.size()));
       auto cell_limit = (kernel.memory_ceiling - kernel.caller_bytes) / (owned_row_bytes + core::Mesh::BytesPerCell);
-      if (surface)
+      size_t contact_bytes = 0;
+      if (options.outward_collapses) {
+        const auto fixed = transfer_memory::Add(held, surface->ResidentBytes(), screen_bytes);
+        const auto per_cell = owned_row_bytes + core::Mesh::BytesPerCell + core::Mesh::SurfaceArrayBytes(1, true);
+        const auto admission = core::AdmittedContactPass(kernel.memory_ceiling, fixed, per_cell);
+        cell_limit = admission.cell_limit;
+        bytes = cell_limit < working.size() ? SIZE_MAX : admission.peak_bytes;
+        contact_bytes = admission.contact_bytes;
+      } else if (surface) {
+        bytes = transfer_memory::Add(bytes, surface->ResidentBytes(), core::Mesh::SurfaceArrayBytes(working.size(), true));
         cell_limit = (kernel.memory_ceiling - budget.caller_bytes) /
                      (owned_row_bytes + core::Mesh::BytesPerCell + core::Mesh::SurfaceArrayBytes(1, true));
+      }
+      budget.Require(workers, bytes, "Native local core arrays exceed working-storage admission.");
+      stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
       core::PassStats counts;
       counts.report = report;
       if (report) counts.sink = [this, rank = workers.rank, pass](const auto& row) { PrintLocalSweep(rank, pass, row); };
@@ -1013,13 +1046,14 @@ struct RemeshRun {
           } catch (...) {}
         }
         if (surface) {
-          surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
-          core::CoreOptions options;
-          options.surface_splits = true;
-          options.wall_collapses = true;
-          options.surface_collapses = true;
-          options.distance_error_cut = true;
-          counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get());
+          const auto geometry_caller = options.outward_collapses ? held : kernel.caller_bytes;
+          surface->SetCallerBytes(transfer_memory::Add(geometry_caller, OwnedStorageBytes(working),
+                                                      contact_bytes, screen_bytes));
+          counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get(),
+                                     remote ? &*remote : nullptr);
+          remote.reset();
+          if (options.outward_collapses)
+            surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
         } else {
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts));
         }
@@ -1056,6 +1090,13 @@ struct RemeshRun {
         }
       }
       if (elected.any) throw elected;
+      if (options.outward_collapses) {
+        const auto caller = transfer_memory::Add(held, OwnedStorageBytes(working), surface->ResidentBytes());
+        const auto checked = core::VerifyPassContact(workers, working, budget, caller, report);
+        stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, budget.maximum_bytes);
+        if (report) print_contact([&](auto& out) { core::PrintPassContactFields(out, checked); });
+      }
+
 
       if (surface) {
         budget.maximum_bytes = std::max(budget.maximum_bytes, surface->PeakBytes());

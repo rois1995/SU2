@@ -1670,3 +1670,17 @@ FP2-D build660 S event 1 receipts p7p8_event1_gate.json and f3b_event1_timer_gat
 FP2-D build660 S event 2 remesh and timing receipts passed. Its production hand-over census reported one edge below 0.01 on rank 3 (minimum 0.00896807). This is an observation outside the lab hand-over gate, and the present rows do not attribute its creation to a specific operation. Next await continued CFD and the isolated restart receipt.
 
 FP2-D build660 S PASSED. Native maxima 550.220 / 330.735 s; timer coverage minima 97.892% / 98.800%; proof faces 53,188 / 47,718; job peaks 10,250,842,112 / 10,463,076,352 bytes. Both events and continued CFD passed, six payload digests verified, isolated restart 83.336 s, no owned job. Commit and push the exact FP2-D S-passed checkpoint, then verify, archive and read FP2-C3 under the user order.
+
+FP2-C3 started after exact FP2-D S-passed checkpoint 0c6860fd3a (build660, solver identical to build658). The signed order is archived under FP2_C3/inputs; SHA256 87b804b6f54de048cb1c05f26dc87ab189096b6e6761526d86a91687849d511f. S0 receipts: FP2_D/cases/build660/lab_acceptance.json and FP2_D/G5/build660/S/run_receipt.json. Whole-item R4 recorded in FP2_C3/source_check.md before production edits. Next implement the opt-in local index, remote screen and collective pass-end proof, then build and qualify the fixtures.
+
+FP2-C3 build661 stopped during Meson regeneration. Adding the requested source triggered the regeneration, and Meson could not find the existing repo Ninja on PATH. Both targets are unevaluated. Preserve build661 logs and use its absolute Ninja path for regeneration in build662.
+
+FP2-C3 build662 regenerated the graph with Ninja found. C++ compilation stopped because the new ADT caller did not include the declaration of LINE. Included the same option header as the existing distributed ADT caller. Meson also emitted its existing CMake probe and SU2_PY install deprecation warnings during regeneration. Build663 will recompile without a graph change.
+
+FP2-C3 build663 compiled both targets in 48.121 s with zero warnings and verified source pins. Start the focused serial and two-rank contact fixtures, then the option-off S0 and FP1 cohorts and G1.
+
+FP2-C3 build663 focused serial/MPI receipts sealed. R6-open groups: []. Starting option-off, FP1 and G1.
+
+FP2-C3 build663 passed 7 serial contact cases (9,648 assertions) and 3 MPI contact cases on each rank (898 / 727 assertions). The FP2-D control reproduced its S0 cylinder and chain counts. The inherited corrected C2 and FP2-A/B cases and all 18 FP1 cohorts completed. G1 serial started. Next seal G1 and the option-off comparison, then push the fixtures checkpoint and start the lab.
+
+FP2-C3 build663 fixture gates PASSED with exact S0 option-off comparisons, 18 FP1 cohorts and G1 375 / 114 / 228 (748.269 / 10.154 / 9.966 s). The scoped option-off logs emitted no contact rows and no surface-counter rows. FP2_C3/fixtures/build663/c3_acceptance.json is sealed. Commit and push, then start N1 trial 1.

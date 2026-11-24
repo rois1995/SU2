@@ -1,10 +1,10 @@
 /*!
  * \file CNativeLocalCore3DCollapse.cpp
- * \brief Inside-only, fixed-keeper surface contraction.
+ * \brief Fixed-keeper surface contraction.
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
-#include "../../../include/adaptation/CNativeLocalCore3D.hpp"
+#include "../../../include/adaptation/CNativeLocalContact3D.hpp"
 #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
 #include "../../../include/adaptation/CNativeCurvedReference.hpp"
 #include <algorithm>
@@ -14,6 +14,23 @@
 namespace SU2NativeLocal3D {
 namespace {
 using Reason = SurfaceCollapseRefusal;
+
+unsigned FailureOrder(Reason reason, bool contact) {
+  const auto order = static_cast<unsigned>(reason);
+  if (!contact) return order;
+  if (reason == Reason::ContactRemote) return static_cast<unsigned>(Reason::Validity) + 1;
+  if (reason == Reason::Contact) return static_cast<unsigned>(Reason::Validity) + 2;
+  return order + (reason >= Reason::Distance ? 2 : 0);
+}
+
+bool RemoteDisjoint(ContactContext& contact, const std::vector<Vertices>& caps) {
+  // (R) Three tolerances is an empirical screen. A shared point is a hit.
+  // A miss separates the cap from grown start-of-pass boxes only. Remote
+  // faces may change even at a fixed border point; the end check has authority.
+  return !contact.remote || std::none_of(caps.begin(), caps.end(), [&](const auto& cap) {
+    return contact.remote->Near(contact.index.Bounds(cap));
+  });
+}
 using Vec = SU2NativeCurved::Vec<3>;
 using SU2NativeCurved::Axpy;
 using SU2NativeCurved::Cross;
@@ -233,13 +250,16 @@ Mesh::SurfaceCollapseTrial Mesh::PrepareSurfaceCollapse(Edge direction, const Ri
   // Volumes vary linearly as p approaches k, with no sign reversal. Prepare
   // matches oriented faces, so the new cells only meet kept cells on shared
   // faces. An outward cap would instead require a contact test.
+  SurfaceCollapseTrial attempt;
   for (const auto parent : changed) {
     auto cap = Replace(cells_[parent.cell].vertices, p, k);
     cap[parent.face] = p;
-    if (Positive(cap)) return refused(Reason::Outward);
+    if (Positive(cap)) {
+      if (!options_.outward_collapses) return refused(Reason::Outward);
+      attempt.outward_caps.push_back(cap);
+    }
   }
 
-  SurfaceCollapseTrial attempt;
   if (!ReverseWithin(points_, direction, old, children, skin_p.points, diagonals, limit, attempt.reverse_max))
     return refused(Reason::Reverse);
 
@@ -293,7 +313,7 @@ Mesh::SurfaceCollapseTrial Mesh::PrepareSurfaceCollapse(Edge direction, const Ri
 // changed metric can still split the patch.
 SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeometry& geometry, uint32_t stamp,
                                             SurfaceCounters& counters, bool report,
-                                            const std::function<void(const SurfaceFace&)>& sink) {
+                                            const std::function<void(const SurfaceFace&)>& sink, ContactContext* contact) {
   edge = ById(edge);
   const auto ring = EdgeRing(edge, seed);
   const auto parents = SurfaceParents(edge, ring);
@@ -304,7 +324,34 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
   };
   for (const auto& trial : trials) count(trial.refusal);
   const auto clock = [&] { return report ? SU2_MPI::Wtime() : 0.; };
-  const auto test_geometry = [&](const std::vector<SurfaceFace>& children) {
+  const auto test_contact = [&](const SurfaceCollapseTrial& trial) {
+    if (!contact) return Reason::Contact;
+    // Changes are confined to new/new and new/kept pairs. Exact contact tests
+    // against the current mesh preserve embedding across commits, also when
+    // an inside direction has zero-volume contact outside the shared simplex.
+    // Outside Star(p), new volume lies in outward caps by the signed cap sum.
+    // L and D may have introduced contact already; the pass-end check covers
+    // them, remote contacts and directions with no outward cap.
+    if (!RemoteDisjoint(*contact, trial.outward_caps)) return Reason::ContactRemote;
+    std::vector<Vertices> fresh;
+    fresh.reserve(trial.plan.fresh.size());
+    for (const auto& cell : trial.plan.fresh) fresh.push_back(cell.vertices);
+    if (!contact->index.NewCellsDisjoint(fresh, counters, report) ||
+        !contact->index.KeptCellsDisjoint(fresh, trial.plan.old, counters, report)) return Reason::Contact;
+    return Reason::None;
+  };
+  const auto test_geometry = [&](const SurfaceCollapseTrial& trial) {
+    if (options_.outward_collapses) {
+      const auto start = clock();
+      if (report) {
+        ++counters.c_contact_directions;
+        if (!trial.outward_caps.empty()) ++counters.c_outward_tried;
+      }
+      const auto failure = test_contact(trial);
+      if (report) counters.seconds_c_contact += clock() - start;
+      if (failure != Reason::None) return failure;
+    }
+    const auto& children = trial.children;
     // Forward samples screen the whole child fan in the model tolerance.
     const double first = clock();
     const bool sampled = std::all_of(children.begin(), children.end(), [&](const auto& face) {
@@ -335,23 +382,25 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
   for (unsigned i : {first, 1 - first}) {
     auto& trial = trials[i];
     if (trial.refusal != Reason::None) continue;
-    const auto reason = test_geometry(trial.children);
+    const auto reason = test_geometry(trial);
     if (reason != Reason::None) {
       count(reason);
       trial.refusal = reason;
-      trial.failure_order = static_cast<unsigned>(reason);
+      trial.failure_order = FailureOrder(reason, options_.outward_collapses);
       continue;
     }
     const auto removed = points_[edge[i]].node.id;
     const auto kept = points_[edge[1 - i]].node.id;
     RememberWorkPoints(trial.plan);
-    Commit(trial.plan, stamp);
+    const auto slots = Commit(trial.plan, stamp);
+    if (options_.outward_collapses) contact->index.Committed(slots, counters, report);
     frozen_.erase(std::remove_if(frozen_.begin(), frozen_.end(), [&](const auto& row) {
       return row.slot == edge[i];
     }), frozen_.end());
     geometry.Remove(removed);
     if (report) {
       ++counters.collapses_surface;
+      if (!trial.outward_caps.empty()) ++counters.collapses_outward;
       counters.c_reverse_max = std::max(counters.c_reverse_max, trial.reverse_max);
       if (sink)
         for (auto face : trial.children) {

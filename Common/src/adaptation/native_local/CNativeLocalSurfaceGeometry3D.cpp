@@ -4,6 +4,8 @@
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
+#include "NativeLocalSurfaceExchange.hpp"
+
 #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
 #include "../../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../../include/adaptation/CNativeCurvedReference.hpp"
@@ -341,36 +343,6 @@ const BoundaryState& GetState(const std::shared_ptr<const PlanarReference>& refe
 }
 
 double Clock(bool report) { return report ? SU2_MPI::Wtime() : 0.; }
-
-template <class Action>
-void LocalStep(const World& world, Action action) {
-  if (world.size == 1) {
-    action();
-    return;
-  }
-  CLocalFailure local;
-  try { action(); }
-  catch (const std::exception& e) { local.Set(2, 0, e.what()); }
-  const auto failure = world.elect(local);
-  if (failure.any) throw failure;
-}
-
-template <class Row>
-std::vector<Row> SendEverywhere(World& world, const std::vector<Row>& local, MemoryBudget& budget, size_t caller) {
-  using Buckets = std::vector<std::vector<Row>>;
-  budget.Require(world, Add(caller, Mul(world.size, Add(sizeof(std::vector<Row>), transfer_memory::Bytes(local)))),
-                 "Native local surface send lists exceed working-storage admission.");
-  Buckets outgoing;
-  LocalStep(world, [&] { outgoing.assign(world.size, local); });
-  std::vector<Row> received;
-  LocalStep(world, [&] {
-    bool admitted = false;
-    received = world.exchange(outgoing, &admitted, budget.ceiling, caller);
-    budget.maximum_bytes = std::max(budget.maximum_bytes, world.max_exchange_work_bytes);
-    if (!admitted) throw std::length_error("Native local surface exchange exceeds working-storage admission.");
-  });
-  return received;
-}
 
 struct CreatedRecord {
   BoundaryPoint point;

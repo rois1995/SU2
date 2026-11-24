@@ -5,6 +5,9 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 
+#include "../../../Common/adaptation/native_local_embedding.hpp"
+#include "../../../../Common/include/adaptation/CNativeLocalContact3D.hpp"
+
 namespace {
 enum class SurfaceObservation { None, Invariant, Diagnosis };
 enum class ProductionPartition { None, Event1, Event2 };
@@ -634,7 +637,7 @@ class WingDistanceRegions {
 
 void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation observation = SurfaceObservation::None,
                        ProductionPartition partition = ProductionPartition::None, bool surface_collapses = false,
-                       bool distance_error_cut = false, bool chosen_invariant = false) {
+                       bool distance_error_cut = false, bool chosen_invariant = false, bool outward_collapses = false) {
   const auto start = Clock::now();
   World world;
   REQUIRE(world.size == (parallel ? 6 : 1));
@@ -689,6 +692,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
   options.wall_collapses = true;
   options.surface_collapses = surface_collapses;
   options.distance_error_cut = distance_error_cut;
+  options.outward_collapses = outward_collapses;
   const unsigned pass_count = parallel ? local::PassCount : 1;
   local::BorderMeeting previous;
   SurfaceReasons remaining;
@@ -705,24 +709,77 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         return local::Mesh::SurfaceArrayBytes(cells, options.distance_error_cut) -
                (parallel ? 0 : local::Mesh::SurfaceArrayBytes(cells));
       };
-      const auto extra_bytes = surface_bytes(input.cells.size());
-      const auto admitted = transfer_memory::Add(memory.caller_bytes, previous.Bytes(), meeting.Bytes(), owned,
-                                                local::Mesh::ArrayBytes(input.cells.size()), extra_bytes);
-      memory.Require(world, admitted, "FP2-B frozen core admission.");
+      const auto pass_caller = transfer_memory::Add(memory.caller_bytes, previous.Bytes(), meeting.Bytes());
+      std::optional<local::RemoteSurface> remote;
+      if (outward_collapses && parallel) {
+        remote.emplace(local::GatherRemoteSurface(world, input.cells, local::SurfaceContactMargin(surface->Tolerance()),
+                                                   memory, transfer_memory::Add(pass_caller, owned), true));
+        std::ostringstream row;
+        row << std::setprecision(17) << "NATIVE3D_LOCAL_CONTACT rank=" << world.rank << " stage=0 pass=" << pass;
+        local::PrintRemoteSurfaceFields(row, *remote);
+        std::cout << row.str() << '\n' << std::flush;
+      }
+      const auto remote_bytes = remote ? remote->Bytes() : 0;
       const auto bytes_per_cell = owned_row_bytes + local::Mesh::BytesPerCell +
                                   surface_bytes(1);
-      const auto cell_limit = (input.ceiling - memory.caller_bytes) / bytes_per_cell;
+      const auto admission = outward_collapses
+                                 ? local::AdmittedContactPass(input.ceiling, transfer_memory::Add(pass_caller, remote_bytes),
+                                                              bytes_per_cell)
+                                 : local::ContactPassAdmission{};
+      const auto admitted = outward_collapses
+                                ? (admission.cell_limit >= input.cells.size() ? admission.peak_bytes : SIZE_MAX)
+                                : transfer_memory::Add(pass_caller, owned, local::Mesh::ArrayBytes(input.cells.size()),
+                                                       surface_bytes(input.cells.size()));
+      memory.Require(world, admitted, "FP2-B frozen core admission.");
+      const auto cell_limit = outward_collapses ? admission.cell_limit
+                                                : (input.ceiling - memory.caller_bytes) / bytes_per_cell;
 
       ExactCounts exact;
       bool census_matches = false;
-      size_t violations = 0;
+      size_t violations = 0, faces_out = 0, embedding_violations = 0;
+      double run_seconds = 0, measurement_seconds = 0;
+      local::PassStats stats;
+      std::optional<local::Mesh> pass_mesh;
+      bool bad_matches = true;
+      const auto report_pass = [&](double pass_seconds) {
+        std::ostringstream row;
+        row << std::setprecision(17) << "FP2_B pass rank=" << world.rank << " pass=" << pass
+            << " cells_in=" << stats.cells_in << " cells_out=" << stats.cells_out << " faces_out=" << faces_out
+            << " bad_out=" << stats.bad_out << " nonpositive=" << exact.nonpositive
+            << " first_nonpositive=" << exact.first << " seconds_pass=" << pass_seconds
+            << " seconds_run_pass=" << run_seconds;
+        if (surface_collapses) row << " modeled_peak=" << std::max(memory.maximum_bytes, surface->PeakBytes());
+        row << '\n';
+        if (surface_collapses)
+          row << "FP2_C query_budget rank=" << world.rank << " pass=" << pass
+              << " overlay_peak=" << surface->PeakBytes() << " pass_admitted_bytes=" << admitted
+              << " query_scratch_max=" << stats.surface.query_scratch_max
+              << " conservative_sum=" << transfer_memory::Add(admitted, stats.surface.query_scratch_max)
+              << " ceiling=" << input.ceiling << '\n';
+        std::cout << row.str() << std::flush;
+      };
+      const auto write_back = [&] {
+        const auto& mesh = *pass_mesh;
+        for (const auto& cell : mesh.Cells())
+          if (cell.live) faces_out += std::count(cell.neighbors.begin(), cell.neighbors.end(), local::Physical);
+        mesh.WriteBack(input.cells, cell_ids);
+        const auto pass_seconds = Seconds(pass_start) - measurement_seconds;
+        exact = CountExact(input.cells);
+        census_matches = bad_matches && faces_out == stats.surface.faces_out && input.cells.size() == stats.cells_out;
+        if (!outward_collapses) report_pass(pass_seconds);
+        pass_mesh.reset();
+      };
       CheckLabStep(world, [&] {
-        local::Mesh mesh(input.cells, parallel, options);
+        auto& mesh = pass_mesh.emplace(input.cells, parallel, options);
         if (parallel) {
           mesh.MarkBorderSurface(meeting);
-          surface->SetCallerBytes(transfer_memory::Add(reference_bytes, owned));
+          if (!outward_collapses) surface->SetCallerBytes(transfer_memory::Add(reference_bytes, owned));
         }
-        local::PassStats stats;
+        const auto geometry_caller = transfer_memory::Add(reference_bytes, owned, previous.Bytes(), meeting.Bytes(),
+                                                          parallel ? 0 : local::Mesh::ArrayBytes(input.cells.size()));
+        if (outward_collapses) {
+          surface->SetCallerBytes(transfer_memory::Add(geometry_caller, remote_bytes, admission.contact_bytes));
+        }
         stats.report = true;
         std::map<Face, SurfaceFace> pass_collapse_faces;
         if (surface_collapses) {
@@ -760,7 +817,6 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           stats.surface_refusal_sink = [&](const char*, const local::SurfaceEdge& edge, local::SurfaceRefusal refusal) {
             probe->RefusedAfterPlace(edge, refusal);
           };
-        double measurement_seconds = 0;
         std::optional<size_t> bad_before_v;
         if (handover) {
           stats.sink = [&](const local::SweepRow& sweep) {
@@ -791,8 +847,12 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           bound_observer.emplace(mesh, *geometry, surface->State(), options.distance_error_cut);
           geometry = &*bound_observer;
         }
-        stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, geometry);
-        const auto run_seconds = Seconds(pass_begin) - measurement_seconds;
+        stats = mesh.RunPass(point_ids, cell_limit, std::move(stats), options, geometry, remote ? &*remote : nullptr);
+        if (outward_collapses) {
+          remote.reset();
+          surface->SetCallerBytes(geometry_caller);
+        }
+        run_seconds = Seconds(pass_begin) - measurement_seconds;
         bool walk_probe_matches = true;
         std::ostringstream row;
         row << std::setprecision(17);
@@ -824,7 +884,6 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           REQUIRE(chosen_probe->Violations() == 0);
         }
         if (!walk_probe_matches) throw std::logic_error("Tolerance placement counts or accepted split differ.");
-        bool bad_matches = true;
         if (handover) {
           const auto measurement_start = Clock::now();
           row.str("");
@@ -841,29 +900,41 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
           std::cout << row.str() << std::flush;
           measurement_seconds += Seconds(measurement_start);
         }
-        size_t faces_out = 0;
-        for (const auto& cell : mesh.Cells())
-          if (cell.live) faces_out += std::count(cell.neighbors.begin(), cell.neighbors.end(), local::Physical);
-        mesh.WriteBack(input.cells, cell_ids);
-        const auto pass_seconds = Seconds(pass_start) - measurement_seconds;
-        exact = CountExact(input.cells);
-        census_matches = bad_matches && faces_out == stats.surface.faces_out && input.cells.size() == stats.cells_out;
-        row.str("");
-        row << "FP2_B pass rank=" << world.rank << " pass=" << pass << " cells_in=" << stats.cells_in
-            << " cells_out=" << stats.cells_out << " faces_out=" << faces_out << " bad_out=" << stats.bad_out
-            << " nonpositive=" << exact.nonpositive
-            << " first_nonpositive=" << exact.first << " seconds_pass=" << pass_seconds
-            << " seconds_run_pass=" << run_seconds;
-        if (surface_collapses) row << " modeled_peak=" << std::max(memory.maximum_bytes, surface->PeakBytes());
-        row << '\n';
-        if (surface_collapses)
-          row << "FP2_C query_budget rank=" << world.rank << " pass=" << pass
-              << " overlay_peak=" << surface->PeakBytes() << " pass_admitted_bytes=" << admitted
-              << " query_scratch_max=" << stats.surface.query_scratch_max
-              << " conservative_sum=" << transfer_memory::Add(admitted, stats.surface.query_scratch_max)
-              << " ceiling=" << input.ceiling << '\n';
-        std::cout << row.str() << std::flush;
+        if (!outward_collapses) write_back();
       });
+      if (outward_collapses) {
+        // All ranks have completed the pass. Exclude both the test and waiting for other ranks.
+        const auto embedding_start = Clock::now();
+        CheckLabStep(world, [&] {
+          const auto& mesh = *pass_mesh;
+          const auto mesh_cells = std::max(mesh.Cells().size(), transfer_memory::CeilDiv(mesh.Points().size(), 4));
+          const auto embedding_caller =
+              transfer_memory::Add(reference_bytes, surface->ResidentBytes(), previous.Bytes(), meeting.Bytes(), owned,
+                                   local::Mesh::ArrayBytes(mesh_cells), surface_bytes(mesh_cells));
+          const auto embedding = native_fp2_c3::EmbeddingViolations(mesh, input.ceiling, embedding_caller);
+          const auto embedding_seconds = Seconds(embedding_start);
+          embedding_violations = embedding.violations;
+          std::ostringstream row;
+          row << std::setprecision(17) << "FP2_C3 embedding rank=" << world.rank << " pass=" << pass
+              << " violations=" << embedding.violations << " pairs=" << embedding.pairs
+              << " calls=" << embedding.calls << " peak_bytes=" << embedding.peak_bytes
+              << " seconds=" << embedding_seconds << '\n';
+          std::cout << row.str() << std::flush;
+        });
+        measurement_seconds += Seconds(embedding_start);
+        CheckLabStep(world, write_back);
+        const auto verify_caller = transfer_memory::Add(reference_bytes, surface->ResidentBytes(), previous.Bytes(),
+                                                        meeting.Bytes(), OwnedStorageBytes(input.cells));
+        const auto contact = local::VerifyPassContact(world, input.cells, memory, verify_caller, true);
+        const auto pass_seconds = Seconds(pass_start) - measurement_seconds;
+        std::ostringstream row;
+        row << std::setprecision(17) << "NATIVE3D_LOCAL_CONTACT rank=" << world.rank << " stage=0 pass=" << pass;
+        local::PrintPassContactFields(row, contact);
+        std::cout << row.str() << '\n' << std::flush;
+        report_pass(pass_seconds);
+        REQUIRE_FALSE(world.maximum(embedding_violations != 0));
+        REQUIRE_FALSE(world.maximum(contact.verify_cells != stats.cells_out));
+      }
       REQUIRE_FALSE(world.maximum(exact.nonpositive != 0));
       REQUIRE_FALSE(world.maximum(!census_matches));
       if (observation == SurfaceObservation::Invariant) REQUIRE(violations == 0);
@@ -979,4 +1050,16 @@ TEST_CASE("FP2-D hand-over on the event-1 production partition", "[.][NativeFP2D
 
 TEST_CASE("FP2-D accepted splits carry nonfeature error or cut both parents' chosen edges", "[.][NativeFP2DLabInvariant]") {
   RunVolumeHandover(false, true, SurfaceObservation::None, ProductionPartition::None, true, true, true);
+}
+
+TEST_CASE("FP2-C3 production hand-over on one rank", "[.][NativeFP2C3LabSerial]") {
+  RunVolumeHandover(false, true, SurfaceObservation::None, ProductionPartition::None, true, true, false, true);
+}
+
+TEST_CASE("FP2-C3 production hand-over on six ranks", "[.][NativeFP2C3LabMPI]") {
+  RunVolumeHandover(true, true, SurfaceObservation::None, ProductionPartition::None, true, true, false, true);
+}
+
+TEST_CASE("FP2-C3 hand-over on the event-1 production partition", "[.][NativeFP2C3LabProduction1]") {
+  RunVolumeHandover(true, true, SurfaceObservation::None, ProductionPartition::Event1, true, true, false, true);
 }

@@ -13,6 +13,7 @@
 #include <iosfwd>
 #include <map>
 #include <stdexcept>
+#include <tuple>
 
 namespace SU2NativeLocal3D {
 struct SurfaceFixtureAccess {
@@ -23,6 +24,12 @@ struct SurfaceFixtureAccess {
 
   static void SurfaceCollapseWork(Mesh& mesh, SurfaceGeometry& geometry, PassStats& stats) {
     mesh.SurfaceCollapseWork(geometry, stats);
+  }
+
+  static auto TentPrepared(const Mesh& mesh, Edge direction, Slot seed, const SurfaceGeometry& geometry) {
+    const auto ring = mesh.EdgeRing(direction, seed);
+    const auto trial = mesh.PrepareSurfaceCollapse(direction, ring, mesh.SurfaceParents(direction, ring), geometry);
+    return std::make_tuple(trial.refusal, trial.plan.fresh.size(), trial.outward_caps.size());
   }
 
   static bool SplitInside(Mesh& mesh, Slot seed, IdSequence& ids) {

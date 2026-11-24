@@ -5,13 +5,16 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "native_local_fixture_access.hpp"
+#include "native_local_embedding.hpp"
 #include "native_local_surface_probe.hpp"
+#include "../../../Common/include/adaptation/CNativeLocalContact3D.hpp"
 #include "../../../Common/include/adaptation/CNativeCurvedReference.hpp"
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <set>
 #include <sstream>
@@ -1070,3 +1073,5 @@ TEST_CASE("Native local V rounds run quality once when empty and respect the sur
 
 #include "native_local_surface_collapse_fixtures.inc"
 #include "native_local_distance_fixtures.inc"
+#include "native_local_contact_fixtures.inc"
+#include "native_local_contact_mpi_fixtures.inc"

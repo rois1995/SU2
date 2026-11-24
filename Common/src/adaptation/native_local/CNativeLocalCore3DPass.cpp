@@ -474,14 +474,14 @@ void Mesh::ReportResult(PassStats& stats) const {
 }
 
 PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, bool report, CoreOptions options,
-                        SurfaceGeometry* surface) {
+                        SurfaceGeometry* surface, RemoteSurface* remote) {
   PassStats stats;
   stats.report = report;
-  return RunPass(point_ids, cell_limit, std::move(stats), options, surface);
+  return RunPass(point_ids, cell_limit, std::move(stats), options, surface, remote);
 }
 
 PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stats, CoreOptions options,
-                        SurfaceGeometry* surface) {
+                        SurfaceGeometry* surface, RemoteSurface* remote) {
   options_ = options;
   if (stats.report) {
     stats.cells_in = live_cells_;
@@ -490,7 +490,7 @@ PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stat
       if (row.live && Margin(row.vertices) < BadMargin) ++stats.bad_in;
   }
   // Volume work preserves surface points, faces and edges, so a second surface stage would find nothing.
-  if (options.surface_splits && surface) SurfaceWork(*surface, point_ids, cell_limit, stats);
+  if (options.surface_splits && surface) SurfaceWork(*surface, point_ids, cell_limit, stats, remote);
   LengthWork(point_ids, cell_limit, stats);
   const auto quality_start = ReportClock(stats);
   QualityWork(point_ids, cell_limit, stats);
