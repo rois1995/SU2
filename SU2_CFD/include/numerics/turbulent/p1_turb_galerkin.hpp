@@ -38,6 +38,7 @@
 #include <vector>
 #include "../../../../Common/include/basic_types/datatype_structure.hpp"
 #include "../../../../Common/include/parallelization/mpi_structure.hpp"
+#include "../../../../Common/include/toolboxes/p1_cell_blocks.hpp"
 #include "../../../../Common/include/toolboxes/p1_simplex.hpp"
 #include "../../../../Common/include/toolboxes/p1_mixed.hpp"
 #include "../flow/p1_sst_matched.hpp"
@@ -72,13 +73,12 @@ inline bool ElementDiffusionReplacesEdges(const Config& config, unsigned short i
 }
 
 /*!
- * \brief Calls visit(point, coord, weight) for every simplex of the rank that holds an owned node: triangles and
- *        tetrahedra with weight 1 and, with EDGE_FORM_P1_MIXED, the weighted sub-simplices of the split average of the
- *        other cells (as CNSSolver::MixedViscousResidual). point and coord have nDim + 1 entries. Each rank adds to its
- *        owned rows only (the caller checks GetDomain), so every row gets the elements around it exactly once.
+ * \brief Visit owned cells' simplices in assembly order with their cached |T|, g_a and Jacobian references
+ *        (bitwise target). Gather coordinates for ShapeGradients when the geometry cache is disabled.
  */
-template <class Geometry, class Visitor>
-void ForEachSimplex(const Geometry& geometry, unsigned short nDim, bool mixed, Visitor&& visit) {
+template <class Visitor>
+void ForEachSimplex(const CGeometry& geometry, unsigned short nDim, bool mixed, const P1CellBlocks& cellBlocks,
+                    const char* nonSimplexError, Visitor&& visit) {
   const unsigned short nNodes = nDim + 1;
 
   /*--- A simplex is its own list with weight 1. ---*/
@@ -90,23 +90,25 @@ void ForEachSimplex(const Geometry& geometry, unsigned short nDim, bool mixed, V
   for (unsigned long iElem = 0; iElem < geometry.GetnElem(); ++iElem) {
     const auto* element = geometry.elem[iElem];
     const unsigned short nCellNodes = element->GetnNodes();
-    if ((nCellNodes != nNodes) && !mixed) {
-      SU2_MPI::Error("TURB_VISC_P1_GALERKIN: needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
-    }
+    const bool subCell = (nCellNodes != nNodes);
+    if (subCell && !mixed) SU2_MPI::Error(nonSimplexError, CURRENT_FUNCTION);
 
     bool owned = false;
     for (unsigned short a = 0; a < nCellNodes; ++a) owned |= geometry.nodes->GetDomain(element->GetNode(a));
     if (!owned) continue;
 
-    const auto& subs = (nCellNodes == nNodes) ? selfList : geometry.GetMixedSimplices(element->GetVTK_Type());
+    const auto& subs = subCell ? geometry.GetMixedSimplices(element->GetVTK_Type()) : selfList;
+    const auto* cached = geometry.GetP1SimplexGeometry(iElem);
+    const auto blocks = cellBlocks.Get(iElem, nCellNodes);
     for (const auto& entry : subs) {
       unsigned long point[MAXNODE];
       const su2double* coord[MAXNODE];
       for (unsigned short a = 0; a < nNodes; ++a) {
         point[a] = element->GetNode(entry.nodes[a]);
-        coord[a] = geometry.nodes->GetCoord(point[a]);
+        if (!cached) coord[a] = geometry.nodes->GetCoord(point[a]);
       }
-      visit(point, coord, su2double(entry.weight));
+      visit(point, coord, cached, entry, subCell, blocks);
+      if (cached) ++cached;
     }
   }
 }

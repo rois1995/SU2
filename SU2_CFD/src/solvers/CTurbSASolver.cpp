@@ -79,6 +79,9 @@ CTurbSASolver::CTurbSASolver(CGeometry *geometry, CConfig *config, const CSolver
 
     if (rank == MASTER_NODE) cout << "Initialize Jacobian structure (SA model)." << endl;
     Jacobian.Initialize(nPoint, nPointDomain, nVar, nVar, true, geometry, config, ReducerStrategy);
+    if (iMesh == MESH_0 && config->GetTurb_Visc_P1_Galerkin() &&
+        config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT)
+      TurbCellBlocks.Build(*geometry, Jacobian);
     LinSysSol.Initialize(nPoint, nPointDomain, nVar, 0.0);
     LinSysRes.Initialize(nPoint, nPointDomain, nVar, 0.0);
     System.SetxIsZero(true);
@@ -381,15 +384,18 @@ void CTurbSASolver::P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_co
   /*--- Contributions of one simplex (weight 1) or sub-simplex of a split average (its weight omega_t). Smooth wall
    * rows are replaced later by the strong nu_tilde = 0 of BC_HeatFlux_Wall; rough walls add their Robin flux there,
    * the boundary term of this weak form. ---*/
-  auto addSimplex = [&](const unsigned long* point, const su2double* const* coord, const su2double& weight) {
+  auto addSimplex = [&](const unsigned long* point, const su2double* const* coord, const P1Simplex::Geometry* cached,
+                        const P1Mixed::Simplex& entry, bool, P1CellBlocks::Cell blocks) {
+    const su2double weight = entry.weight;
     su2double nuTilde[MAXN], nu[MAXN];
     for (unsigned short a = 0; a < nNodes; ++a) {
       nuTilde[a] = nodes->GetSolution(point[a], 0);
       nu[a] = flowNodes->GetLaminarViscosity(point[a]) / flowNodes->GetDensity(point[a]);
     }
 
-    su2double grad[MAXN][3];
-    const su2double size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
+    su2double localGrad[MAXN][3];
+    const su2double size = cached ? cached->size : fabs(P1Simplex::ShapeGradients(nDim, coord, localGrad));
+    const auto* grad = cached ? cached->grad : localGrad;
     if (size == 0.0) SU2_MPI::Error("TURB_VISC_P1_GALERKIN: degenerate element.", CURRENT_FUNCTION);
     su2double S[MAXN][MAXN];
     ptg::Stiffness(nDim, size, grad, S);
@@ -409,17 +415,19 @@ void CTurbSASolver::P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_co
 
       for (unsigned short b = 0; b < nNodes; ++b) {
         blockData[0] = weight * jac[a][b];
-        /*--- Non-edge pairs of a mixed cell are not in the sparsity pattern, AddBlock drops them (as the flow). ---*/
         if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
-        else Jacobian.AddBlock(point[a], point[b], rows);
+        else blocks.AddOffDiag(Jacobian, entry.nodes[a], entry.nodes[b], point[a], point[b], rows);
       }
     }
   };
 
-  /*--- One pass over the simplices (serial, the rows of an element are not disjoint between elements). ---*/
+  /*--- Prepare on the master and keep the original serial assembly order. ---*/
   SU2_OMP_MASTER
   {
-    ptg::ForEachSimplex(*geometry, nDim, config->GetEdge_Form_P1_Mixed(), addSimplex);
+    const bool mixed = config->GetEdge_Form_P1_Mixed();
+    geometry->PrepareP1SimplexGeometry(mixed);
+    ptg::ForEachSimplex(*geometry, nDim, mixed, TurbCellBlocks,
+                       "TURB_VISC_P1_GALERKIN: needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", addSimplex);
   }
   END_SU2_OMP_MASTER
   SU2_OMP_BARRIER

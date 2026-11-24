@@ -28,6 +28,7 @@
 #pragma once
 
 #include "CEulerSolver.hpp"
+#include "../../../Common/include/toolboxes/p1_cell_blocks.hpp"
 #include "../numerics/flow/p1_viscous_entropy.hpp"
 
 /*!
@@ -151,18 +152,7 @@ private:
       const P1ViscousEntropy::PointState* pointStates, unsigned long iPoint, const P1ViscousEntropy::NodeState& state,
       P1ViscousEntropy::EntropyJacobianRow* localDwdu) const;
 
-  using BlockRef = CSysMatrix<su2mixedfloat>::BlockRef;
-  static constexpr bool UseViscousBlockRefs = std::is_same_v<su2double, double> && std::is_same_v<su2mixedfloat, double>;
-  vector<std::size_t> CellBlockOffsets;
-  vector<BlockRef> CellBlocks;
-
-  /*! \brief Cache the actual Jacobian's off-diagonal pattern in cell-local row order. */
-  void BuildViscousCellBlocks(const CGeometry& geometry);
-
-  /*! \brief Add the same block with either a cell-local reference or the original node pair. */
-  void AddCellViscousOffDiag(const BlockRef* cellBlocks, unsigned short nCellNodes, unsigned short a,
-                             unsigned short b, unsigned long iPoint, unsigned long jPoint,
-                             const su2double* const* rows);
+  P1CellBlocks ViscousCellBlocks;
 
   /*!
    * \brief Nodes with a strong k (SST at heat flux and isothermal walls), where the energy row gets no P1 k diffusion
@@ -176,7 +166,7 @@ private:
    *        Jacobians of the sub-simplices of its split average (P1_MIXED.md, Theorem X6). Owned rows only.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] element - The cell.
-   * \param[in] cellBlocks - Cached off-diagonal block references for the cell, or nullptr.
+   * \param[in] cellBlocks - Cell view of the off-diagonal block map.
    * \param[in] cached - Cached geometry in split order, or nullptr.
    * \param[in] pointStates - Current volume point states, or nullptr for per-cell gathers.
    * \param[in] implicit - Add the Jacobian.
@@ -188,7 +178,7 @@ private:
    * \param[in] elementKine - SST_ENERGY_CONSISTENT with VISC_P1_ENTROPY: the weighted sub-simplex k diffusion of the energy
    *            row (M3) and the shares of P* (M4), as CTurbSSTSolver::P1KineDiffusion (SSTPATHS_PLAN.md 1).
    */
-  void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, const BlockRef* cellBlocks,
+  void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, P1CellBlocks::Cell cellBlocks,
                             const P1Simplex::Geometry* cached, const P1ViscousEntropy::PointState* pointStates,
                             bool implicit, bool rowBound,
                             const su2double& prandtlTurb, const su2double& gasConst,

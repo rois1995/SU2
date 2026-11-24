@@ -11392,6 +11392,112 @@ void TurbGalerkinSplitGrid(int n, double dx, double dy, std::vector<std::array<s
 
 }  // namespace
 
+TEST_CASE("P1 turbulence caches match recomputed residuals and indexed FV blocks on a mixed mesh", "[P1Flux]") {
+  if constexpr (!std::is_same_v<su2double, passivedouble>) return;
+
+  constexpr unsigned short nDim = 3, nNodes = nDim + 1;
+  const std::string mesh = "p1_mixed_turb_cache.su2";
+  WriteMixedMesh(mesh, nDim, 3, 0.2, 1.0);
+
+  enum class Diffusion { SA, SST, SST_K };
+  for (const auto model : {Diffusion::SA, Diffusion::SST, Diffusion::SST_K}) {
+    CAPTURE(static_cast<int>(model));
+    MeshCase test(mesh, MixedOptions);
+    auto& geometry = *test.geometry;
+    geometry.UpdateP1FluxCoefficients(test.config.get());
+    const unsigned short nVar = model == Diffusion::SA ? 1 : 2;
+    using Residual = std::vector<std::array<su2double, 2>>;
+    CSysMatrix<su2mixedfloat> indexed, cached;
+    for (auto* matrix : {&indexed, &cached})
+      matrix->Initialize(geometry.GetnPoint(), geometry.GetnPointDomain(), nVar, nVar, true, &geometry,
+                         test.config.get());
+
+    auto assemble = [&](CSysMatrix<su2mixedfloat>& matrix, const P1CellBlocks& cellBlocks, bool useCache) {
+      Residual residual(geometry.GetnPoint(), {0.0, 0.0});
+      auto addSimplex = [&](const unsigned long* point, const su2double* const* coord,
+                            const P1Simplex::Geometry* simplex, const P1Mixed::Simplex& entry, bool subCell,
+                            P1CellBlocks::Cell blocks) {
+        CHECK((simplex != nullptr) == useCache);
+        CHECK((blocks.refs != nullptr) == useCache);
+        su2double localGrad[nNodes][3];
+        const su2double size = simplex ? simplex->size : fabs(P1Simplex::ShapeGradients(nDim, coord, localGrad));
+        const auto* grad = simplex ? simplex->grad : localGrad;
+        su2double k[nNodes], omega[nNodes], mu[nNodes], muT[nNodes], F1[nNodes], rho[nNodes], nu[nNodes];
+        for (auto a = 0u; a < nNodes; ++a) {
+          const auto i = geometry.nodes->GetGlobalIndex(point[a]);
+          k[a] = 0.01 * (1 + i % 7);
+          omega[a] = 0.5 + 0.02 * (i % 11);
+          mu[a] = 0.003 * (1 + i % 3);
+          muT[a] = 0.004 * (1 + i % 5);
+          F1[a] = 0.1 * (i % 9);
+          rho[a] = 1.0 + 0.05 * (i % 4);
+          nu[a] = mu[a] / rho[a];
+        }
+
+        su2double res[nNodes], resOmega[nNodes] = {};
+        su2double saJac[nNodes][nNodes], sstJac[nNodes][nNodes][2][2] = {};
+        const su2double weight = entry.weight;
+        if (model == Diffusion::SST_K) {
+          const auto D = P1SSTMatched::ElementKineDiffusivity(nNodes, mu, muT, F1);
+          P1SSTMatched::KineDiffusion(nDim, size, grad, k, D, res);
+          for (auto a = 0u; a < nNodes; ++a)
+            for (auto b = 0u; b < nNodes; ++b)
+              sstJac[a][b][0][0] = P1SSTMatched::KineDiffusionJacobian(nDim, size, grad, D, a, b) / rho[b];
+        } else {
+          su2double S[nNodes][nNodes];
+          ptg::Stiffness(nDim, size, grad, S);
+          if (model == Diffusion::SA) {
+            su2double dD = 0.0;
+            const auto D = ptg::SADiffusivity(nNodes, nu, k, false, dD);
+            ptg::SAResidual(nDim, size, grad, S, k, D, res);
+            ptg::SAJacobian(nDim, size, grad, S, k, D, dD, true, saJac);
+          } else {
+            const auto coeff = ptg::MakeSSTCoefficients(nNodes, mu, muT, F1, rho, omega);
+            ptg::SSTResidual(nNodes, S, k, omega, coeff, true, res, resOmega);
+            ptg::SSTJacobian(nNodes, S, k, omega, rho, coeff, true, true, sstJac);
+          }
+        }
+
+        for (auto a = 0u; a < nNodes; ++a) {
+          const auto row = point[a];
+          if (!geometry.nodes->GetDomain(row)) continue;
+          residual[row][0] += (model == Diffusion::SST_K && !subCell) ? res[a] : weight * res[a];
+          if (model == Diffusion::SST) residual[row][1] += weight * resOmega[a];
+          for (auto b = 0u; b < nNodes; ++b) {
+            auto& block = sstJac[a][b];
+            if (model == Diffusion::SA) block[0][0] = weight * saJac[a][b];
+            if (model == Diffusion::SST)
+              for (auto& blockRow : block)
+                for (auto& value : blockRow) value *= weight;
+            if (model == Diffusion::SST_K && subCell) block[0][0] *= weight;
+            const su2double* rows[2] = {block[0], block[1]};
+            if (a == b) matrix.AddBlock2Diag(row, rows);
+            else if (useCache) blocks.AddOffDiag(matrix, entry.nodes[a], entry.nodes[b], row, point[b], rows);
+            else matrix.AddBlock(row, point[b], rows);
+          }
+        }
+      };
+      ptg::ForEachSimplex(geometry, nDim, true, cellBlocks, "Expected a mixed mesh.", addSimplex);
+      return residual;
+    };
+
+    const auto expected = assemble(indexed, P1CellBlocks{}, false);
+    geometry.PrepareP1SimplexGeometry(true);
+    P1CellBlocks cellBlocks;
+    cellBlocks.Build(geometry, cached);
+    const auto actual = assemble(cached, cellBlocks, true);
+    for (auto row = 0ul; row < geometry.GetnPointDomain(); ++row) {
+      CHECK(std::memcmp(expected[row].data(), actual[row].data(), nVar * sizeof(su2double)) == 0);
+      auto checkBlock = [&](unsigned long col) {
+        CHECK(std::memcmp(indexed.GetBlock(row, col), cached.GetBlock(row, col),
+                          nVar * nVar * sizeof(su2mixedfloat)) == 0);
+      };
+      checkBlock(row);
+      indexed.ForEachOffDiagColumn(row, checkBlock);
+    }
+  }
+}
+
 TEST_CASE("TURB_VISC_P1_GALERKIN: the stiffness is symmetric, positive semi-definite, zero row sum, linearly exact", "[P1Flux]") {
   std::mt19937 gen(4242);
   std::uniform_real_distribution<double> u(-1.0, 1.0);

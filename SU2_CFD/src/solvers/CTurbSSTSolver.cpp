@@ -74,6 +74,9 @@ CTurbSSTSolver::CTurbSSTSolver(CGeometry *geometry, CConfig *config, const CSolv
 
     if (rank == MASTER_NODE) cout << "Initialize Jacobian structure (SST model)." << endl;
     Jacobian.Initialize(nPoint, nPointDomain, nVar, nVar, true, geometry, config, ReducerStrategy);
+    if (iMesh == MESH_0 && (config->GetTurb_Visc_P1_Galerkin() || config->GetSST_P1_Element_Kine()) &&
+        config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT)
+      TurbCellBlocks.Build(*geometry, Jacobian);
     LinSysSol.Initialize(nPoint, nPointDomain, nVar, 0.0);
     LinSysRes.Initialize(nPoint, nPointDomain, nVar, 0.0);
     System.SetxIsZero(true);
@@ -384,47 +387,22 @@ void CTurbSSTSolver::MatchedBoundaryKine(CGeometry* geometry, CSolver** solver_c
 void CTurbSSTSolver::P1KineDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {
   const auto* flowNodes = su2staticcast_p<const CFlowVariable*>(solver_container[FLOW_SOL]->GetNodes());
   const bool implicit = (config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT);
-  constexpr unsigned short MAXN = MAXNDIM + 1;
+  constexpr unsigned short MAXN = P1TurbGalerkin::MAXNODE;
+  const unsigned short nNodes = nDim + 1;
 
-  /*--- EDGE_FORM_P1_MIXED: non-simplex cells by the weighted sub-simplices of their split averages. ---*/
-  const bool mixed = config->GetEdge_Form_P1_Mixed();
-  P1Mixed::Simplex self;
-  for (unsigned short a = 0; a <= nDim; ++a) self.nodes[a] = a;
-  self.weight = 1.0;
-  const std::vector<P1Mixed::Simplex> selfList(1, self);
-
-  /*--- One pass over the simplices (serial, the rows of an element are not disjoint between elements). ---*/
-  SU2_OMP_MASTER
-  for (unsigned long iElem = 0; iElem < geometry->GetnElem(); ++iElem) {
-    const auto* element = geometry->elem[iElem];
-    const unsigned short nCellNodes = element->GetnNodes();
-    const unsigned short nNodes = nDim + 1;
-    if ((nCellNodes != nNodes) && !mixed) SU2_MPI::Error("P1 k diffusion: needs triangles or tetrahedra.", CURRENT_FUNCTION);
-
-    bool owned = false;
-    for (unsigned short a = 0; a < nCellNodes; ++a) owned |= geometry->nodes->GetDomain(element->GetNode(a));
-    if (!owned) continue;
-
-    /*--- A simplex is its own list with weight 1; a mixed cell the weighted sub-simplices of its split average, as in
-     * CNSSolver::MixedViscousResidual (SSTPATHS_PLAN.md 1). ---*/
-    const bool subCell = (nCellNodes != nNodes);
-    const auto& subs = (nCellNodes == nNodes) ? selfList : geometry->GetMixedSimplices(element->GetVTK_Type());
-
-    for (const auto& entry : subs) {
-    const su2double* coord[MAXN];
-    unsigned long point[MAXN];
+  auto addSimplex = [&](const unsigned long* point, const su2double* const* coord, const P1Simplex::Geometry* cached,
+                        const P1Mixed::Simplex& entry, bool subCell, P1CellBlocks::Cell blocks) {
     su2double k[MAXN], mu[MAXN], muT[MAXN], F1[MAXN], rho[MAXN];
     for (unsigned short a = 0; a < nNodes; ++a) {
-      point[a] = element->GetNode(entry.nodes[a]);
-      coord[a] = geometry->nodes->GetCoord(point[a]);
       k[a] = nodes->GetSolution(point[a], 0);
       mu[a] = flowNodes->GetLaminarViscosity(point[a]);
       muT[a] = fmax(flowNodes->GetEddyViscosity(point[a]), 0.0);
       F1[a] = nodes->GetF1blending(point[a]);
       rho[a] = flowNodes->GetDensity(point[a]);
     }
-    su2double grad[MAXN][3];
-    const su2double size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
+    su2double localGrad[MAXN][3];
+    const su2double size = cached ? cached->size : fabs(P1Simplex::ShapeGradients(nDim, coord, localGrad));
+    const auto* grad = cached ? cached->grad : localGrad;
     if (size == 0.0) SU2_MPI::Error("P1 k diffusion: degenerate element.", CURRENT_FUNCTION);
     const su2double D = P1SSTMatched::ElementKineDiffusivity(nNodes, mu, muT, F1);
     su2double res[MAXN];
@@ -442,12 +420,19 @@ void CTurbSSTSolver::P1KineDiffusion(CGeometry* geometry, CSolver** solver_conta
         block[0][0] = P1SSTMatched::KineDiffusionJacobian(nDim, size, grad, D, a, b) / rho[b];
         if (subCell) block[0][0] *= weight;
         const su2double* rows[2] = {block[0], block[1]};
-        /*--- Non-edge pairs of a mixed cell are not in the sparsity pattern, AddBlock drops them (as the flow). ---*/
         if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
-        else Jacobian.AddBlock(point[a], point[b], rows);
+        else blocks.AddOffDiag(Jacobian, entry.nodes[a], entry.nodes[b], point[a], point[b], rows);
       }
     }
-    }
+  };
+
+  /*--- Prepare on the master and keep the original serial assembly order. ---*/
+  SU2_OMP_MASTER
+  {
+    const bool mixed = config->GetEdge_Form_P1_Mixed();
+    geometry->PrepareP1SimplexGeometry(mixed);
+    P1TurbGalerkin::ForEachSimplex(*geometry, nDim, mixed, TurbCellBlocks,
+                                   "P1 k diffusion: needs triangles or tetrahedra.", addSimplex);
   }
   END_SU2_OMP_MASTER
   SU2_OMP_BARRIER
@@ -468,7 +453,9 @@ void CTurbSSTSolver::P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_c
   /*--- Contributions of one simplex (weight 1) or sub-simplex of a split average (its weight omega_t). The diffusion
    * coefficients are the vertex means of the edge averages of CScalarFlux_SST, mu_t clipped at 0 as in P1KineDiffusion
    * (the same numbers there). Wall rows are replaced later by the strong k, omega of BC_HeatFlux_Wall. ---*/
-  auto addSimplex = [&](const unsigned long* point, const su2double* const* coord, const su2double& weight) {
+  auto addSimplex = [&](const unsigned long* point, const su2double* const* coord, const P1Simplex::Geometry* cached,
+                        const P1Mixed::Simplex& entry, bool, P1CellBlocks::Cell blocks) {
+    const su2double weight = entry.weight;
     su2double k[MAXN], omega[MAXN], mu[MAXN], muT[MAXN], F1[MAXN], rho[MAXN];
     for (unsigned short a = 0; a < nNodes; ++a) {
       k[a] = nodes->GetSolution(point[a], 0);
@@ -479,8 +466,9 @@ void CTurbSSTSolver::P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_c
       rho[a] = flowNodes->GetDensity(point[a]);
     }
 
-    su2double grad[MAXN][3];
-    const su2double size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
+    su2double localGrad[MAXN][3];
+    const su2double size = cached ? cached->size : fabs(P1Simplex::ShapeGradients(nDim, coord, localGrad));
+    const auto* grad = cached ? cached->grad : localGrad;
     if (size == 0.0) SU2_MPI::Error("TURB_VISC_P1_GALERKIN: degenerate element.", CURRENT_FUNCTION);
     su2double S[MAXN][MAXN];
     ptg::Stiffness(nDim, size, grad, S);
@@ -502,17 +490,19 @@ void CTurbSSTSolver::P1GalerkinDiffusion(CGeometry* geometry, CSolver** solver_c
         for (unsigned short iVar = 0; iVar < 2; ++iVar)
           for (unsigned short jVar = 0; jVar < 2; ++jVar) jac[a][b][iVar][jVar] *= weight;
         const su2double* rows[2] = {jac[a][b][0], jac[a][b][1]};
-        /*--- Non-edge pairs of a mixed cell are not in the sparsity pattern, AddBlock drops them (as the flow). ---*/
         if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
-        else Jacobian.AddBlock(point[a], point[b], rows);
+        else blocks.AddOffDiag(Jacobian, entry.nodes[a], entry.nodes[b], point[a], point[b], rows);
       }
     }
   };
 
-  /*--- One pass over the simplices (serial, the rows of an element are not disjoint between elements). ---*/
+  /*--- Prepare on the master and keep the original serial assembly order. ---*/
   SU2_OMP_MASTER
   {
-    ptg::ForEachSimplex(*geometry, nDim, config->GetEdge_Form_P1_Mixed(), addSimplex);
+    const bool mixed = config->GetEdge_Form_P1_Mixed();
+    geometry->PrepareP1SimplexGeometry(mixed);
+    ptg::ForEachSimplex(*geometry, nDim, mixed, TurbCellBlocks,
+                       "TURB_VISC_P1_GALERKIN: needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", addSimplex);
   }
   END_SU2_OMP_MASTER
   SU2_OMP_BARRIER

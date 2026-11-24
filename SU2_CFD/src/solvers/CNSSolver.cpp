@@ -44,10 +44,9 @@ CNSSolver::CNSSolver(CGeometry *geometry, CConfig *config, unsigned short iMesh)
   /*--- This constructor only allocates/inits what is extra to CEulerSolver. ---*/
 
   /*--- The base constructor initializes the pattern once. A replacement mesh and Jacobian get a new table here. ---*/
-  if constexpr (UseViscousBlockRefs) {
-    if (iMesh == MESH_0 && config->GetVisc_P1_Entropy() && config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT &&
-        !Jacobian.IsQuantized())
-      BuildViscousCellBlocks(*geometry);
+  if constexpr (std::is_same_v<su2double, double> && std::is_same_v<su2mixedfloat, double>) {
+    if (iMesh == MESH_0 && config->GetVisc_P1_Entropy() && config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT)
+      ViscousCellBlocks.Build(*geometry, Jacobian);
   }
 
   /*--- Buffet sensor in all the markers and coefficients ---*/
@@ -89,43 +88,6 @@ CNSSolver::CNSSolver(CGeometry *geometry, CConfig *config, unsigned short iMesh)
       break;
   }
 
-}
-
-void CNSSolver::BuildViscousCellBlocks(const CGeometry& geometry) {
-  const auto nElem = geometry.GetnElem();
-  CellBlockOffsets.resize(nElem + 1);
-  for (auto iElem = 0ul; iElem < nElem; ++iElem) {
-    const auto nNodes = geometry.elem[iElem]->GetnNodes();
-    CellBlockOffsets[iElem + 1] = CellBlockOffsets[iElem] + nNodes * (nNodes - 1);
-  }
-  CellBlocks.resize(CellBlockOffsets.back());
-
-  for (auto iElem = 0ul; iElem < nElem; ++iElem) {
-    const auto* element = geometry.elem[iElem];
-    const auto nNodes = element->GetnNodes();
-    auto index = CellBlockOffsets[iElem];
-    for (auto a = 0u; a < nNodes; ++a) {
-      const auto row = element->GetNode(a);
-      const bool owned = geometry.nodes->GetDomain(row);
-      for (auto b = 0u; b < nNodes; ++b) {
-        if (a == b) continue;
-        CellBlocks[index++] = owned ? Jacobian.GetBlockRef(row, element->GetNode(b)) : BlockRef::Absent;
-      }
-    }
-  }
-}
-
-FORCEINLINE void CNSSolver::AddCellViscousOffDiag(const BlockRef* cellBlocks, unsigned short nCellNodes,
-                                                 unsigned short a, unsigned short b, unsigned long iPoint,
-                                                 unsigned long jPoint, const su2double* const* rows) {
-  if constexpr (UseViscousBlockRefs) {
-    if (cellBlocks) {
-      /*--- Each row packs nCellNodes - 1 references, skipping its diagonal. ---*/
-      Jacobian.AddBlock(cellBlocks[a * (nCellNodes - 1) + b - (b > a)], rows);
-      return;
-    }
-  }
-  Jacobian.AddBlock(iPoint, jPoint, rows);
 }
 
 void CNSSolver::Preprocessing(CGeometry *geometry, CSolver **solver_container, CConfig *config, unsigned short iMesh,
@@ -358,10 +320,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
       const auto* element = geometry->elem[iElem];
       const auto nNodes = element->GetnNodes();
       const auto* cached = geometry->GetP1SimplexGeometry(iElem);
-      const BlockRef* cellBlocks = nullptr;
-      if constexpr (UseViscousBlockRefs) {
-        if (!CellBlocks.empty()) cellBlocks = CellBlocks.data() + CellBlockOffsets[iElem];
-      }
+      const auto cellBlocks = ViscousCellBlocks.Get(iElem, nNodes);
 
       if (nNodes != nDim + 1) {
         if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
@@ -471,7 +430,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
           const su2double* rows[pve::MAXNVAR];
           for (auto iVar = 0u; iVar < nVar; ++iVar) rows[iVar] = jacobian[iNode][jNode][iVar];
           if (jNode == iNode) Jacobian.AddBlock2Diag(iPoint, rows);
-          else AddCellViscousOffDiag(cellBlocks, nNodes, iNode, jNode, iPoint, jPoint, rows);
+          else cellBlocks.AddOffDiag(Jacobian, iNode, jNode, iPoint, jPoint, rows);
         }
       }
     }
@@ -479,7 +438,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
   }
 }
 
-void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, const BlockRef* cellBlocks,
+void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, P1CellBlocks::Cell cellBlocks,
                                      const P1Simplex::Geometry* cached, const P1ViscousEntropy::PointState* pointStates,
                                      bool implicit, bool rowBound,
                                      const su2double& prandtlTurb, const su2double& gasConst,
@@ -590,7 +549,7 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
           rows[iVar] = jacobian[a][b][iVar];
         }
         if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
-        else AddCellViscousOffDiag(cellBlocks, nCellNodes, entry.nodes[a], entry.nodes[b], point[a], point[b], rows);
+        else cellBlocks.AddOffDiag(Jacobian, entry.nodes[a], entry.nodes[b], point[a], point[b], rows);
       }
     }
   }

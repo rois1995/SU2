@@ -30,6 +30,7 @@
 #include "CScalarSolver.hpp"
 #include "../variables/CTurbVariable.hpp"
 #include "../../../Common/include/parallelization/omp_structure.hpp"
+#include "../../../Common/include/toolboxes/p1_cell_blocks.hpp"
 
 /*!
  * \class CTurbSolver
@@ -39,6 +40,7 @@
  */
 class CTurbSolver : public CScalarSolver<CTurbVariable> {
 protected:
+  P1CellBlocks TurbCellBlocks; /*!< \brief Cell references into this solver's FV Jacobian. */
 
   vector<su2activematrix> Inlet_TurbVars;  /*!< \brief Turbulence variables at inlet profiles */
 
