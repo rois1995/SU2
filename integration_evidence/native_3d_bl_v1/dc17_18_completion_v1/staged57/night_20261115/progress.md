@@ -1720,3 +1720,25 @@ FP2-C3 continuation 1 build664 focused tests passed 9 serial cases (10,314 asser
 FP2-C3 continuation 1 build664 option-off cohorts and all 18 FP1 cases ran successfully. The FP2-D cylinder and chain matched S0. G1 serial is running. Next seal the complete option-off comparison and G1 identity results, then push and start N6P trial 1.
 
 FP2-C3 continuation 1 build664 fixtures PASSED. Exact option-off, four zeros independently verified on one control row, all 18 FP1 cohorts passed and G1 matched 375 / 114 / 228 (749.443 / 10.022 / 11.149 s). Receipt FP2_C3/fixtures/build664/c3_acceptance.json is sealed; fixture controller is terminal. Push the continuation fixture checkpoint, then run N6P trial 1.
+
+FP2-C3 continuation 1 fixture checkpoint 2b008206ae pushed and verified. Start the build664 lab with N6P trial 1. The campaign stops at the first failed trial; exact comparisons follow six passing trials.
+
+FP2-C3 continuation 1 build664 N6P trial 1 passed the observed final-edge census on every rank. The three intermediate counts were zero in both passes. The floor refused 6 directions in pass 2 (rank 0: 4, rank 1: 1, rank 2: 1) and none in pass 1. Twelve embedding and contact checks passed. This is an in-flight measurement; await rebuilt-state proof and qualification before trial 2.
+
+FP2-C3 build664 N6P trial 1 passed in 858.019 s, strict_checked=26482, unexplained=0, model_gap_entities=0, zero embedding violations on 12 rank-pass checks. Receipt FP2_C3/cases/build664/N6P/measurement.json. Next run N6P trial 2.
+
+FP2-C3 build664 N6P trial 2 passed in 853.561 s, strict_checked=26482, unexplained=0, model_gap_entities=0, zero embedding violations on 12 rank-pass checks. Receipt FP2_C3/repeat2/cases/build664/N6P/measurement.json. Next run N1 trial 1.
+
+FP2-C3 continuation 1 build664 N6P passed twice (858.019 / 853.561 s). Both trials qualified 26,482 faces, with zero short final edges and zero embedding/contact failures. The old failing rank-0 pass-2 minimum rose from 0.0090487725598145056 to 0.010048002855871579. The campaign now runs N1 trial 1 and leaves the exact pair comparisons until all six trials pass.
+
+FP2-C3 build664 N1 trial 1 passed in 1086.701 s, strict_checked=26920, unexplained=0, model_gap_entities=0, zero embedding violations on 1 rank-pass checks. Receipt FP2_C3/cases/build664/N1/measurement.json. Next run N1 trial 2.
+
+FP2-C3 build664 N1 trial 2 passed in 1116.495 s, strict_checked=26920, unexplained=0, model_gap_entities=0, zero embedding violations on 1 rank-pass checks. Receipt FP2_C3/repeat2/cases/build664/N1/measurement.json. Next run N6 trial 1.
+
+FP2-C3 build664 N6 trial 1 passed in 1507.171 s, strict_checked=24530, unexplained=0, model_gap_entities=0, zero embedding violations on 12 rank-pass checks. Receipt FP2_C3/cases/build664/N6/measurement.json. Next run N6 trial 2.
+
+FP2-C3 continuation 1 build664 N6 repeat 2 did not launch on the first attempt. Actual host preflight saw sleeping mpirun PID 3642077 and stopped the controller. The process is now gone and the host is clear. Sealed the preflight observation and resume the same campaign; the five completed trials are pinned and will not run again.
+
+FP2-C3 build664 N6 trial 2 passed in 1259.155 s, strict_checked=24530, unexplained=0, model_gap_entities=0, zero embedding violations on 12 rank-pass checks. Receipt FP2_C3/repeat2/cases/build664/N6/measurement.json. Next compare repetitions and seal the lab qualification.
+
+FP2-C3 continuation 1 build664 lab PASSED. Six individual trials and all three exact repeat comparisons passed. Strict faces N6P/N1/N6: 26,482 / 26,920 / 24,530. The 50 embedding and contact checks passed; no intermediate or final count was above zero. N6P had six new floor refusals and one fewer collapse than build663. R3 fixed the JSON report writer's event-key type and resealed the unchanged report digest from the six archived trials. The lab receipt is FP2_C3/cases/build664/lab_acceptance.json. Push the lab checkpoint, then start the single S observation.

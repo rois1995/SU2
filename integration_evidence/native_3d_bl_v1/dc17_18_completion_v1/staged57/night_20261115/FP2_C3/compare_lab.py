@@ -290,7 +290,7 @@ def run_campaign(build):
     run.c3.c2.committed(baseline_s, run.S0)
     baseline_events = a.cut.read(baseline_s)['runs'][f'build{BASELINE}']['events']
     artifacts[str(baseline_s)] = a.sha(baseline_s)
-    engine_removals = {row['summary']['event']: row['engine_surface_removal'] for row in baseline_events}
+    engine_removals = {str(row['summary']['event']): row['engine_surface_removal'] for row in baseline_events}
     a.sealed(path, {'build': build, 'baseline_build': BASELINE, 'historical_build': run.BUILD_663,
                     'build663_N6P_repeat2': run.NOT_AVAILABLE, 'per_pass': report, 'totals': totals,
                     'timing': {name: {f'repeat{repeat}': receipt['measurement']['pass_timing']
