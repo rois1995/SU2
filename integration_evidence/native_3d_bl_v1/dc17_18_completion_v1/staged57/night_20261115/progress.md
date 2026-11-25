@@ -2138,3 +2138,21 @@ FP2-P3 B2b OFF isolated restart passed in 276.890 s with unchanged pins and zero
 FP2-P3 build673 B2b passed. Evidence build673/B2b.json.
 
 FP2-P3 B2b OFF was re-evaluated from the original completed build673 full and restart children, passed the switch receipting correction, and sealed at 23:46:06 CET. Exact FX2 row differences 0, both events and six N21 W payload identities passed. Native maxima 1984.549 / 1187.970 s, minimum per-rank coverage 98.963% / 99.419%. B2c CORE started at 23:46:23 after the B2b seal; aggregate B follows only if B2c passes.
+
+FP2-P3 B2b passed checkpoint 1cb8d428d2 pushed. B2c has closure=0 and trace=0 in the actual launch, with one OFF marker on each of six ranks and the exact FP1 configuration SHA256 1ec6c26d49d4ec7c62103d5bd096471b5422290cd06c44b2f1073b7489f2b4c1. Continue the two-event CORE control and its isolated restart.
+
+FP2-P3 B2c CORE captured all six first-collapse rows. The inherited CORE observation reports work 92045474, zero upper refinements and accepted counts 465 / 459 / 428 / 573 / 451 / 445. Comparison to historical OFF work and counts is report-only in this mode. Event 1 continues.
+
+FP2-P3 B2c CORE event 1 proof, memory and timer gates passed. Owned proof sum 68006, job and summed process peaks 11572654080 bytes. The event-1 mesh and sidecar match the two FP1 hashes. Continued CFD is active; the transferred restart payload and event 2 follow.
+
+FP2-P3 B2c CORE continued CFD entered event 2. The event-1 transferred restart also matches FP1, giving all three event-1 disk identities.
+
+FP2-P3 B2c CORE event 2 proof, memory and timer gates passed. Owned proof sum 64758 and all six surface sizes agree. Job and summed process peaks both 11649990656 bytes. Continued CFD and the final disk payloads are in progress, followed by isolated restart.
+
+FP2-P3 B2c CORE solver exited normally after continued CFD. The inherited full workflow passed and all six disk payloads exactly match FP1. The isolated restart started at 00:31:01 CET. Its terminal validation and switch receipts are still required for B2c and aggregate B.
+
+FP2-P3 build673 B2c passed. Evidence build673/B2c.json.
+
+FP2-P3 build673 B passed. Evidence build673/B.json.
+
+FP2-P3 B2c CORE passed both events, continued CFD, all six exact FP1 payload hashes and the isolated restart. Native maxima 1808.734 / 496.878 s, minimum per-rank timer coverage 98.956% / 98.552%, isolated restart 162.568 s and coordinate error 0.0. All owned handles terminal. Part B has a passed aggregate seal.
