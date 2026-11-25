@@ -2028,3 +2028,11 @@ FP2-P2 D2 checkpoint fdf6ae613f pushed and supervisor terminal. Submitted step 2
 FP2-P2 build672 step 2, campaign-N1-2: passed. Exit 0. Evidence campaign/build672/N1/trial2/case_summary.json. Gate result not evaluated.
 
 FP2-P2 N1 trial 2 qualified in 645.077 s with the same 156105696 classification, 77469988 traversal and 37769889 scope-build work. The raw marker interleaving was verified and the derived log pinned. The same-binary N1 pair has an empty comparison. Next N6P trial 1.
+
+FP2-P2 build672 step 2, campaign-N6P-1: passed. Exit 0. Evidence campaign/build672/N6P/trial1/case_summary.json. Gate result not evaluated.
+
+FP2-P2 N6P trial 1 qualified in 494.160 s, six markers, peak lower bound 4355772416 bytes, hand-over 26482 faces and 371837 final cells. Next N6P trial 2 on identical inputs.
+
+FP2-P2 build672 step 2, campaign-N6P-2: passed. Exit 0. Evidence campaign/build672/N6P/trial2/case_summary.json. Gate result not evaluated.
+
+FP2-P2 N6P trial 2 qualified in 536.812 s, and the same-binary N6P pair compared exactly. Both trials record 26482 hand-over faces and 371837 cells. Next N6 trial 1.
