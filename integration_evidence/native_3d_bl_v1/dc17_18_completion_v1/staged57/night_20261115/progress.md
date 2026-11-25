@@ -1926,3 +1926,33 @@ FP2-P1 build670 step 2, campaign-N1-1: passed. Exit None. Evidence campaign/buil
 FP2-P1 build670 step 2, campaign-N1-2: passed. Exit None. Evidence campaign/build670/N1/trial2/case_summary.json. Gate result not evaluated.
 
 FP2-P1 build670 step 2, campaign-N6-1: passed. Exit None. Evidence campaign/build670/N6/trial1/case_summary.json. Gate result not evaluated.
+
+FP2-P1 five qualified trial receipts and both completed exact pairs are pushed in evidence checkpoint a920cd3c1f. The recovery service is waiting at the existing host preflight. The next native launch is N6 trial 2 with unchanged pins and watchdog.
+
+FP2-P1 build670 step 2, campaign-N6-2: passed. Exit 0. Evidence campaign/build670/N6/trial2/case_summary.json. Gate result not evaluated.
+
+FP2-P1 build670 N6 trial 2 qualified in 2250.350 s. The same-binary N6 projection is exactly equal. Both trials recorded the same proof work 385372991, modeled peak 991700828, classified 24530 and strict mismatches zero, with different clocks. All six lab trials are now qualified, and all three pair projections are equal. Next seal the comparator and run N1 ANATOMY and the closure-on shared checks.
+
+FP2-P1 build670 step 2, compare: passed. Exit 0. Evidence campaign/build670/comparison.json.
+
+FP2-P1 build670 step 2, anatomy-N1: FAILED. Exit 1. Evidence anatomy/build670/N1/trial1/case_summary.json. Gate result {'row': 'FP2_B sweep', 'rank': 0, 'index': 14, 'field': 'enabled', 'expected': None, 'observed': 1, 'pass': 1}.
+
+FP2-P1 build670 ANATOMY qualified in 1996.941 s. The original merged log inserted the enabled marker in a stdout sweep row, the same receipt defect as both N1 trace-off trials. Preserved the raw and corrected receipts. The trace observer completed and the reconstructed inherited projection is exactly equal to qualified N1 trial 1. Each trace saw 72564 completed forwards. Across 70362 grouped miss/bypass forwards, M2 versus P1 result work is 480614358 / 703296684, prepared nodes 7552490 / 50438362, and root-enough counts 51772 / 52249. P1 recorded 135091 fans and 68690 successful scans. The 200406006-byte raw sample stays local with its SHA256. The closure-on first-collapse safeguard is active.
+
+FP2-P1 build670 step 2, first-collapse: FAILED. Exit 1. Evidence shared/build670/closure1/first-collapse/case_summary.json. Gate result {'first-collapse': 'upper_work_pass'}.
+
+FP2-P1 build670 closure-on first collapse FAILED at work 111921030 / 108459426. Accepted counts 480 / 473 / 346 / 263 / 469 / 464 match, zero upper refinements, corrected sampled peak sum 7934201856 bytes, all six markers present. One read-only R5 pass traced the entire 21111161 work increase beside closure off to scope building (+10787910) and traversal (+10323251), with 12494 builds and 22889 upper calls in both runs. Rechecked the signed Work call sites and scope-miss placement. No transcription or wiring error was found. Preserve the closure-on failure and default-off code. No production correction or repeat. Independent exact C492, merit481, saved-current and native2d continue. S cannot launch.
+
+FP2-P1 build670 step 2, exact-c492: FAILED. Exit 1. Evidence shared/build670/closure1/exact-c492/case_summary.json. Gate result {'bl': 'test exit'}.
+
+FP2-P1 build670 closure-on exact C492 first attempt ended at the unchanged 600 s wrapper with exit 124. All sampled processes are terminal and the input pins verified. The completed stage-exit row has 1046 splits and zero upper refinements. No failed result gate is present in the terminal log. Preserve this attempt and retry C492 one time with the same watchdog after the remaining independent shared checks.
+
+FP2-P1 build670 step 2, merit481: passed. Exit 0. Evidence shared/build670/closure1/merit481/case_summary.json. Gate result {'merit481': 'passed'}.
+
+FP2-P1 build670 step 2, saved-current: OPEN. Exit 0. Evidence shared/build670/closure1/saved-current/case_summary.json. Gate result {'saved_current': {'field': 'trajectory_working_owned.bin', 'reference': '31139b0f1766dddb7122b0d3aa6d7378c37b59f9ece2fe472ef1d82327c478aa', 'candidate': '207e9e66096ec10264a6bb78ca646cb8ffa47197596019e7b7f543055087b605'}}.
+
+FP2-P1 build670 step 2, native2d: passed. Exit 0. Evidence shared/build670/closure1/native2d/case_summary.json. Gate result {'2d1': 'passed', '2d2': 'passed', '2d4': 'passed'}.
+
+FP2-P1 closure-on merit481 and native2d at 1 / 2 / 4 ranks passed. Saved-current ran successfully and is OPEN for the historical trajectory_working_owned.bin comparison, whose SHA differs. The independent step 2 service is terminal. Submitted the one same-limit C492 wrapper retry under su2-fp2-p1-build670-c492-retry. First collapse remains FAILED and S is gated out.
+
+FP2-P1 build670 C492 retry ended at the unchanged 600 s wrapper with exit 124. Catch's sole failure line was its report of wrapper SIGTERM. Verification found no earlier result failure. The stage recorded 822 splits, zero upper refinements and the same bounded time-budget stop used by the qualified closure-off fixture. Preserve both attempts and classify C492 OPEN. Lab checkpoint p1_lab_checkpoint.json is sealed FAILED for first-collapse work. All six trials qualified, all three pairs are equal, and ANATOMY passed. Merit481 and native2d passed. Saved-current is OPEN for the historical comparison. No owned test, solver or MPI launcher is live. Commit the lab FAILED label, then record S and its parts as not evaluated.

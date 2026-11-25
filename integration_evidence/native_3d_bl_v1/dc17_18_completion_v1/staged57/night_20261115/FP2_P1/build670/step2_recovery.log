@@ -1,0 +1,67 @@
+FP2-P1 step 2 preparing campaign-N6P-1
+FP2-P1 build670 step 2, campaign-N6P-1: passed. Exit None. Evidence campaign/build670/N6P/trial1/case_summary.json. Gate result not evaluated.
+FP2-P1 step 2 preparing campaign-N6P-2
+FP2-P1 build670 step 2, campaign-N6P-2: passed. Exit None. Evidence campaign/build670/N6P/trial2/case_summary.json. Gate result not evaluated.
+FP2-P1 step 2 preparing campaign-N1-1
+FP2-P1 build670 step 2, campaign-N1-1: passed. Exit None. Evidence campaign/build670/N1/trial1/case_summary.json. Gate result not evaluated.
+FP2-P1 step 2 preparing campaign-N1-2
+FP2-P1 build670 step 2, campaign-N1-2: passed. Exit None. Evidence campaign/build670/N1/trial2/case_summary.json. Gate result not evaluated.
+FP2-P1 step 2 preparing campaign-N6-1
+FP2-P1 build670 step 2, campaign-N6-1: passed. Exit None. Evidence campaign/build670/N6/trial1/case_summary.json. Gate result not evaluated.
+FP2-P1 step 2 preparing campaign-N6-2
+Waiting for the unchanged host preflight to clear.
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/primary_control_archive/end_b_actual_preflight.py", line 30, in <module>
+    mem=next(x for x in Path('/proc/meminfo').read_text().splitlines() if x.startswith('MemAvailable:'));assert int(mem.split()[1])*1024>19999490048;assert not owned,owned
+                                                                                                                                                            ^^^^^^^^^
+AssertionError: [{'pid': 2449969, 'comm': 'cc1plus', 'ticks': 6593, 'start_ticks': 109163999, 'state': 'R'}]
+
+Inherited host preflight cleared.
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795599639.468229, "sample_seconds": 3.1335432529449463, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   33769400 kB", "loadavg": "8.16 11.06 12.85 4/5164 2469885"}
+build670 test: starting
+build670 test: terminal in 2250.350 s
+campaign-N6-2 passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/campaign/build670/N6/trial2/case_summary.json
+FP2-P1 build670 step 2, campaign-N6-2: passed. Exit 0. Evidence campaign/build670/N6/trial2/case_summary.json. Gate result not evaluated.
+FP2-P1 step 2 preparing compare
+compare passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/campaign/build670/comparison.json
+FP2-P1 build670 step 2, compare: passed. Exit 0. Evidence campaign/build670/comparison.json.
+FP2-P1 step 2 preparing anatomy-N1
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795602096.076107, "sample_seconds": 3.1154820919036865, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   36174732 kB", "loadavg": "10.21 10.24 11.00 32/5202 2604707"}
+build670 test: starting
+build670 test: terminal in 1996.941 s
+anatomy-N1 FAILED /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/anatomy/build670/N1/trial1/case_summary.json
+FP2-P1 build670 step 2, anatomy-N1: FAILED. Exit 1. Evidence anatomy/build670/N1/trial1/case_summary.json. Gate result {'row': 'FP2_B sweep', 'rank': 0, 'index': 14, 'field': 'enabled', 'expected': None, 'observed': 1, 'pass': 1}.
+FP2-P1 step 2 preparing first-collapse
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795604107.072866, "sample_seconds": 3.097147226333618, "active_OWNED_heavy_processes": [], "other_busy_observations": [{"pid": 502243, "comm": "code", "core_fraction": 0.5844087696608036}], "MemAvailable": "MemAvailable:   36621724 kB", "loadavg": "7.35 6.20 6.02 3/5185 2709203"}
+first-collapse controller: starting
+first-collapse FAILED
+FP2-P1 build670 step 2, first-collapse: FAILED. Exit 1. Evidence shared/build670/closure1/first-collapse/case_summary.json. Gate result {'first-collapse': 'upper_work_pass'}.
+FP2-P1 step 2 preparing exact-c492
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795604445.5256562, "sample_seconds": 3.0842032432556152, "active_OWNED_heavy_processes": [], "other_busy_observations": [{"pid": 2725725, "comm": "lean", "core_fraction": 2.191814049473697}], "MemAvailable": "MemAvailable:   36562896 kB", "loadavg": "10.76 9.37 7.55 7/5208 2726654"}
+exact-c492 controller: starting
+exact-c492 FAILED
+FP2-P1 build670 step 2, exact-c492: FAILED. Exit 1. Evidence shared/build670/closure1/exact-c492/case_summary.json. Gate result {'bl': 'test exit'}.
+FP2-P1 step 2 preparing merit481
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795605075.5842676, "sample_seconds": 3.135411500930786, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   36300984 kB", "loadavg": "8.44 8.25 7.66 2/5204 2760469"}
+merit481 controller: starting
+merit481 controller: terminal in 138.968 s
+merit481 passed
+FP2-P1 build670 step 2, merit481: passed. Exit 0. Evidence shared/build670/closure1/merit481/case_summary.json. Gate result {'merit481': 'passed'}.
+FP2-P1 step 2 preparing saved-current
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795605227.590034, "sample_seconds": 3.0903210639953613, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   36509996 kB", "loadavg": "7.57 8.12 7.71 2/5192 2769412"}
+saved-current controller: starting
+saved-current controller: terminal in 152.682 s
+saved-current OPEN
+FP2-P1 build670 step 2, saved-current: OPEN. Exit 0. Evidence shared/build670/closure1/saved-current/case_summary.json. Gate result {'saved_current': {'field': 'trajectory_working_owned.bin', 'reference': '31139b0f1766dddb7122b0d3aa6d7378c37b59f9ece2fe472ef1d82327c478aa', 'candidate': '207e9e66096ec10264a6bb78ca646cb8ffa47197596019e7b7f543055087b605'}}.
+FP2-P1 step 2 preparing native2d
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795605401.2798226, "sample_seconds": 3.1047022342681885, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   36280300 kB", "loadavg": "6.95 7.65 7.60 3/5165 2779674"}
+native2d controller: starting
+native2d controller: terminal in 9.195 s
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795605413.6407752, "sample_seconds": 3.1185250282287598, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   36467956 kB", "loadavg": "6.50 7.53 7.56 1/5140 2780234"}
+native2d controller: starting
+native2d controller: terminal in 9.478 s
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795605426.277278, "sample_seconds": 3.111909866333008, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   36572808 kB", "loadavg": "6.16 7.41 7.52 1/5138 2780795"}
+native2d controller: starting
+native2d controller: terminal in 9.220 s
+native2d passed
+FP2-P1 build670 step 2, native2d: passed. Exit 0. Evidence shared/build670/closure1/native2d/case_summary.json. Gate result {'2d1': 'passed', '2d2': 'passed', '2d4': 'passed'}.

@@ -34,12 +34,16 @@ def gather(build):
     folder = HERE / f'build{build}'
     fixture = load(folder / 'p1_checkpoint.json')
     campaign = load(HERE / 'campaign' / folder.name / 'comparison.json')
+    for trial in campaign.get('trials', {}).values():
+        if trial.get('used'):
+            trial['elapsed_seconds'] = cut.read(trial['used'])['wait']['elapsed_seconds']
     anatomy = load(selected_summary(build, 'anatomy-N1'))
     shared = {name: load(HERE / 'shared' / folder.name / 'closure1' / name / 'case_summary.json')
               for name in SHARED}
     workflow = load(HERE / 'G5' / folder.name / 'S/case_summary.json')
     data = dict(build=build, build_provenance=cut.read(folder / 'build_status.json'), fixtures=fixture,
                 campaign=campaign, anatomy=anatomy, shared_closure1=shared, S=workflow,
+                lab_checkpoint=load(folder / 'p1_lab_checkpoint.json'),
                 production_diff={'path': '../production.diff', 'sha256': cut.sha(HERE / 'production.diff')},
                 focused_public=load(folder / 'public_query_comparison.json'))
     observer = anatomy.get('observer') or {}
@@ -47,6 +51,9 @@ def gather(build):
         trace = Path(anatomy['used']).with_name('anatomy.json')
         before = Path(observer['baseline']['trace'])
         data['anatomy_tables'] = {'FP2-M2': cut.read(before), 'FP2-P1': cut.read(trace)}
+    diagnosis = HERE / 'reports' / f'first_collapse_r5_{build}.json'
+    if diagnosis.is_file():
+        data['first_collapse_diagnosis'] = cut.read(diagnosis)
     data['not_evaluated'] = [
         *UNEVALUATED,
         *(name for name, row in fixture.get('parts', {}).items() if row['status'] == 'not evaluated'),
@@ -115,11 +122,13 @@ def render(data, label):
                        ((key, row['improvement']['prepared_nodes'], row['improvement']['planes']['groups'],
                          row['lower_complete']['root_lower'], row['lower_cropped']['root_lower'], row['cache']['evictions'])
                         for key, row in ((key, query[key]) for key in ('off', 'on'))))
-    lines += ['## Step 2', '']
+    lines += [f"## Step 2 · {data['lab_checkpoint']['status']}", '',
+              'The inherited C3 evaluator records the 600-second pass threshold as a timing observation. '
+              'The watchdog limits and result gates use the inherited comparisons.','']
     campaign = data['campaign']
     trials = campaign.get('trials', {})
-    lines += table(('Trial', 'Status', 'Inherited qualification', 'First finding'), (
-        (name, row['status'], row.get('evaluate_qualified'), row.get('first_difference'))
+    lines += table(('Trial', 'Status', 'Inherited qualification', 'Elapsed s', 'First finding'), (
+        (name, row['status'], row.get('evaluate_qualified'), row.get('elapsed_seconds'), row.get('first_difference'))
         for name, row in ((name, trials.get(name, {'status': 'not evaluated'})) for name in CAMPAIGN)))
     lines += table(('Case', 'Repeat identity', 'Build664 identity', 'First historical difference',
                     'Build664 s', 'Trial 1 s'), (
@@ -147,8 +156,16 @@ def render(data, label):
     lines += table(('Result gate', 'Exact projection', 'Trace completion', 'First finding'), [
         (anatomy.get('result_status', anatomy['status']), anatomy.get('identity', {}).get('status'),
          observer.get('completion'), anatomy.get('first_difference'))])
-    groups, closure = [], []
+    groups, closure, totals = [], [], []
     for version, trace in data.get('anatomy_tables', {}).items():
+        bins = [row for key, row in trace['groups'].items() if key.isdecimal()]
+        summarized = {field: sum(row['miss_bypass_denominators'][field] for row in bins)
+                      for field in ('forwards', 'prepared_nodes', 'result_work', 'planes_rows')}
+        root_enough = sum(row['root_enough'] for row in bins)
+        totals.append((version, summarized['forwards'], root_enough,
+                       root_enough / summarized['forwards'] if summarized['forwards'] else None,
+                       summarized['prepared_nodes'], summarized['result_work'], summarized['planes_rows'],
+                       sum(row.get('closure', {}).get('splits', 0) for row in bins) if version == 'FP2-P1' else None))
         for group, row in trace['groups'].items():
             count = row['miss_bypass_denominators']
             groups.append((version, group, row['calls_by_class'], row['root_enough_share'], count['prepared_nodes'],
@@ -157,6 +174,8 @@ def render(data, label):
                            row['means_per_planes_row']['groups'], count['planes_rows']))
             if 'closure' in row:
                 closure.append((group, row['closure']))
+    lines += table(('Version', 'Miss and bypass forwards', 'Root enough', 'Root-enough share', 'Prepared nodes',
+                     'Result work', 'PLANES rows', 'Committed fans'), totals)
     lines += table(('Version', 'Length and direct group', 'Forwards by class', 'Root-enough share', 'Prepared nodes',
                      'Node distribution', 'Result work', 'Work by part', 'Mean groups', 'PLANES rows'), groups)
     if closure:
@@ -171,8 +190,21 @@ def render(data, label):
                    ((name, row['status'], {part: value.get('first_failure') or value.get('missed_comparison')
                     for part, value in row.get('subruns', {}).items() if value.get('first_failure') or
                     value.get('missed_comparison')}) for name, row in data['shared_closure1'].items()))
+    c492 = data['shared_closure1']['exact-c492'].get('subruns', {}).get('bl', {})
+    if c492.get('watchdog'):
+        lines += [f"C492 first reached its 600-second wrapper. The same-limit retry is {c492['status']}. "
+                  "Both attempts have terminal process receipts.", '']
+    if 'first_collapse_diagnosis' in data:
+        finding = data['first_collapse_diagnosis']['first_failure']
+        counters = data['first_collapse_diagnosis']['case_source_stats']['closure_on_minus_off']
+        lines += [f"First collapse used {finding['value']:,} work units against the {finding['maximum']:,} ceiling. "
+                  f"The measured increase is {counters['scope_build_work']:,} units in scope building and "
+                  f"{counters['traversal_work']:,} in proof traversal. The R5 check found no production wiring "
+                  f"error. [First-collapse diagnosis](first_collapse_r5_{data['build']}.md)", '']
     workflow = data['S']
-    lines += ['## Step 3', '', f"S status: {workflow['status']}.", '']
+    lines += ['## Step 3', '', f"**S {workflow['status']}.**", '']
+    if workflow.get('reason'):
+        lines.extend((workflow['reason'], ''))
     if workflow['status'] == 'passed':
         lines += table(('Build', 'Event', 'Native maximum s', 'Proof faces', 'Hand-over faces', 'Cells',
                         'Job peak bytes', 'Minimum timer coverage'), (
@@ -197,6 +229,10 @@ def render(data, label):
             lines.append(f'- {name} recovered an enabled marker interleaved with a stdout row. '
                          'The derived log removes only the marker bytes and reuses the inherited evaluator. '
                          'Both the raw and corrected receipts are preserved.')
+    if (data['anatomy'].get('status') == 'passed' and Path(data['anatomy']['used']).name
+            == 'measurement_stdout_rejoined.json'):
+        lines.append('- ANATOMY received the same marker repair. The original raw trace stream and its '
+                     'aggregation were preserved, and the reconstructed comparison was exact.')
     lines += ['', '## Not evaluated', '', *(f'- {name}' for name in data['not_evaluated']), '']
     return '\n'.join(lines)
 
