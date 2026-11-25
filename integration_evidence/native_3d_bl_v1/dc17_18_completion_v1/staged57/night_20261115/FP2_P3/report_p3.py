@@ -9,6 +9,24 @@ PARTS=('B0','B1','B2a','B2b','B2c','B','C1','C2','C3','C4','C7','C5','C6')
 NEVER=('18 FP1 cohorts','time rule')
 
 
+def file_pin(path):
+    return {'path':str(path),'sha256':cut.sha(Path(path))}
+
+
+def curved_totals(case):
+    log=Path(case['used']).with_name('test_outer.log')
+    verify_pins({str(log):case['pins'][str(log)]})
+    values={'rows':0,'prepared_nodes':0,'work':0}
+    for line in log.read_text(errors='replace').splitlines():
+        if not line.startswith('NATIVE_SURFACE_MODEL '):
+            continue
+        fields=dict(field.split('=',1) for field in line.split()[1:])
+        values['rows']+=1
+        values['prepared_nodes']+=int(fields['prepared'])
+        values['work']+=int(fields['work'])
+    return values
+
+
 def read_selection(path):
     row=cut.read(path)
     verify_pins(row.get('pins',{}))
@@ -21,7 +39,7 @@ def collect(label, outcome):
     expected=fingerprint(receipt['data'])
     data={'label':outcome,'build':label,'build_receipt':receipt,
           'production_diff':str(HERE/'production.diff'),'order_sha256':cut.sha(ORDER),'parts':{},
-          'workflows':{},'comparisons':{},'not_evaluated':list(NEVER)}
+          'workflows':{},'comparisons':{},'curved_model_rows':{},'not_evaluated':list(NEVER)}
     for part in PARTS:
         path=build/f'{part}.json'
         if not path.is_file():
@@ -36,6 +54,8 @@ def collect(label, outcome):
             assert candidate['sha256']==item['sha256'] and candidate['data']['status']==item['status']
             children[name]=candidate
         data['parts'][part]={'status':seal['data']['status'],'seal':seal,'checks':children}
+        if (curved:=children.get('curved')) and curved['data']['status']=='passed':
+            data['curved_model_rows'][part]=curved_totals(curved['data'])
         if 'scoped' in children:
             parent=children['scoped']['data']
             actual={}
@@ -61,6 +81,72 @@ def collect(label, outcome):
     return data
 
 
+def accepted_reference(data, commit):
+    assert data['label']=='FP2-P3: accepted; the closure is the default'
+    assert all(part['status']=='passed' for part in data['parts'].values())
+    checks={name:{key:part['seal'][key] for key in ('path','sha256')}
+            for name,part in data['parts'].items()}
+    workflows={}
+    for name in ('C5','C6','C7'):
+        phase=data['workflows'][name]
+        assert data['comparisons'][name]['pair']['equal']
+        runs=[]
+        for selection in phase['runs']:
+            row=selection['data']
+            assert row['closure_variable'] is None
+            receipt=file_pin(selection['path'])
+            assert receipt['sha256']==selection['sha256']
+            restart=file_pin(row['restart'])
+            assert restart['sha256']==selection['isolated_restart']['sha256']
+            case=Path(row['case'])
+            assert len(row['hashes'])==6
+            verify_pins({str(case / file):digest for file,digest in row['hashes'].items()})
+            config=file_pin(case/'run.cfg')
+            assert config['sha256']==row['config_sha256']
+            runs.append({'case':str(case),'full_run_receipt':receipt,'isolated_restart_receipt':restart,
+                         'effective_config':config,'payload_hashes':row['hashes'],
+                         'native_maximum_seconds':{event['event']:event['native_seconds']
+                                                   for event in row['events']}})
+        assert len(runs)==2 and runs[0]['effective_config']['sha256']==runs[1]['effective_config']['sha256']
+        workflows[phase['mode']]={'reference_case':runs[0]['case'],'runs':runs}
+    prefixes={}
+    for gate, selection in data['parts']['C3']['scoped_checks'].items():
+        row=selection['data']
+        assert row['pair']['passed'] and len(row['captures'])==2
+        captures=[]
+        for capture in row['captures']:
+            case=Path(capture['case'])
+            logs={path:digest for path,digest in capture['pins'].items()
+                  if Path(path).is_relative_to(case) and Path(path).name=='stdout'}
+            assert len(logs)==6
+            validators=[file_pin(path) for path in sorted(case.glob('*gate_receipt.json'))]
+            assert any(cut.read(path['path'])==capture['receipt'] for path in validators)
+            captures.append({'case':str(case),'rank_logs':logs,'files':capture['pins'],
+                             'provenance':file_pin(case/'provenance.json'),
+                             'validator_receipts':validators})
+        prefixes[gate]={'reference_case':captures[0]['case'],'captures':captures,
+                        'evidence':file_pin(selection['path'])}
+    g3=data['parts']['C4']['scoped_checks']['G3']
+    case=Path(g3['data']['case'])
+    physical={'case':str(case),'physical_receipt':file_pin(case/'g3_end_b_gate.json'),
+              'evidence':file_pin(g3['path']),'edit_work':g3['data']['result']}
+    saved=data['parts']['C2']['checks']['saved-current']
+    assert saved['data']['pair']['status']=='passed'
+    trials=[]
+    for name in ('reference','repeat'):
+        row=saved['data']['pair'][name]
+        case=Path(row['case'])
+        verify_pins({str(case/file):digest for file,digest in row['payloads'].items()})
+        assert len(row['payloads'])==3
+        trials.append({'case':str(case),'payload_hashes':row['payloads'],
+                       'planning_projection':file_pin(row['planning_projection'])})
+    return {'accepted':True,'accepted_commit':commit,'order_sha256':data['order_sha256'],
+            **fingerprint(data['build_receipt']['data']),'gate_receipts':checks,'workflows':workflows,
+            'prefixes':prefixes,'G3':physical,
+            'saved_current':{'reference_case':trials[0]['case'],'trials':trials,
+                             'evidence':file_pin(saved['path'])}}
+
+
 def compact(value):
     if value is None:
         return '—'
@@ -79,7 +165,8 @@ def table(columns,rows):
 def render(data):
     lines=[f"# FP2-P3 build{data['build']}",'',data['label'],'',
            '[Signed order](../inputs/FP2_P3_CLOSURE_DEFAULT.md) · '
-           '[Source check](source_check.md) · [Production diff](../production.diff)','',
+           '[Source check](source_check.md) · [Production diff](../production.diff) · '
+           '[Test code corrections](test_code_corrections.md)','',
            '## Gate results','']
     results=[]
     for key,item in data['parts'].items():
@@ -99,6 +186,11 @@ def render(data):
         lines+=table(('Elapsed s','Projection','Classification work','Traversal work','Scope build work'),[(
             row['elapsed_seconds'],row['identity']['status'],*(row['stage_work'].get(key)
             for key in ('classification_work','traversal_work','scope_build_work')))])
+    if data['curved_model_rows']:
+        lines+=['The curved fixture totals count emitted model rows, including diagnostic queries.','']
+        lines+=table(('Part','Model rows','Prepared nodes','Work'),(
+            (part,row['rows'],row['prepared_nodes'],row['work'])
+            for part,row in data['curved_model_rows'].items()))
     pairs=[]
     for part,details in data['comparisons'].items():
         for key in ('pair','historical_payloads','off_comparison'):
@@ -116,6 +208,12 @@ def render(data):
                     pairs.append((part,gate,sub['status'],sub.get('first_difference')))
     lines+=['## Pairs and historical comparisons','']
     lines+=table(('Part','Comparison','Result','First difference'),pairs)
+    for part,details in data['comparisons'].items():
+        if comparison:=details.get('off_comparison'):
+            path=Path(comparison['path'])
+            verify_pins({str(path):comparison['sha256']})
+            replay=cut.read(path)['replay_differences']
+            lines+=[f"**{part} FX2 replay seconds findings** {compact(replay)}",'']
     g3=[]
     for part in ('B2a','C4'):
         if check:=data['parts'][part].get('scoped_checks',{}).get('G3'):
@@ -177,8 +275,12 @@ if __name__=='__main__':
     parser=ArgumentParser(description=__doc__)
     parser.add_argument('build',type=int)
     parser.add_argument('label')
+    parser.add_argument('--accepted-commit')
     args=parser.parse_args()
     data=collect(args.build,args.label)
     path=HERE/'reports'/f'FP2_P3_{args.build}'
     cut.save(path.with_suffix('.json'),data)
     path.with_suffix('.md').write_text(render(data))
+    if args.accepted_commit:
+        reference=accepted_reference(data,args.accepted_commit)
+        cut.save(HERE/'accepted_reference.json',reference)

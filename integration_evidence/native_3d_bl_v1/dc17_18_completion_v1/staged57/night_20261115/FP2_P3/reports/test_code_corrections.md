@@ -5,3 +5,9 @@ The initial B2a saved481 launcher omitted the N6 inherited binding that selects 
 The signed N6 reference command uses `curved492_ramp5_metric_stage_20261113T161313_3653005/target_rank0.bin`, the paired frozen sensor, and scalars 0.0047263575870155755 and 0.28717458874925855. Its check uses the same Catch selector and byte-identical frozen config. Verified the actual merit481 and saved-current launch contracts against their own references. The four target-input differences were isolated to saved481. This is launcher wiring under R3, with no production change or consumed result-gate retry.
 
 The corrected saved481 child completed in its fresh root. It matched the archived N6 command and frozen config, all three historical payload digests, and the ordered planning rows. The previous B2a seal and its failed-input evidence are retained separately. B2a was reselected from the corrected saved481 receipt and the six unchanged independent passes.
+
+## Full workflow switch receipts
+
+The first B2b seal selected the `-n 19` from `nice -n 19` when it read a command containing `mpirun -n 6`. It failed during provenance sealing after accepted events, six matching disk payloads, continued CFD and a verified isolated restart. The actual launch and restart commands contain the required switches, MPI exports and six ranks. The raw main rank logs show six OFF markers and the no-query restart shows zero. The exact FX2 row comparison has zero differences.
+
+The receipt check now looks for the rank flag after the MPI launcher token. The original launcher remains byte-pinned. The correction reuses the terminal controls and rechecks host identities, source and helper pins, payloads on disk, the restart's artifact hashes, and switch counts. The original failed receipt, summary and top seal are archived beside their respective corrected selections.

@@ -2122,3 +2122,19 @@ FP2-P3 build673 B2a FAILED. Evidence build673/B2a.json.
 FP2-P3 B2a reselected from the corrected saved481 attempt. passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/build673/B2a.json.
 
 FP2-P3 B2a reselected passed. Corrected saved481 used the exact N6 curved492 inputs, recorded one off marker, and passed all historical payload and planning comparisons. Original rejected-input launch and both B2a selections are sealed. Saved-current also passed its historical comparison. The held full OFF then CORE supervisor may now proceed.
+
+FP2-P3 B2a checkpoint c1e795ba45 pushed. B2b OFF launched at 22:35:19 CET on build673 with exact FX2 config bytes and explicit closure=0 / trace=0 set and exported. B2c and aggregate B are conditional on the passed B2b seal.
+
+FP2-P3 B2b OFF first-collapse anchor passed with configured historical equality. All six captured, zero upper refinements, work 90809869 against the 108459426 limit. Every rank recorded one enabled=0 marker. Continue the full two-event run.
+
+FP2-P3 B2b OFF event 1 proof/resource and timer gates passed. Owned proof faces sum 61906, job and summed process peak 14021840896 bytes. Continued CFD proceeds to event 2.
+
+FP2-P3 B2b OFF completed both events and continued CFD at 23:36 CET. Event 2 proof count 58260 on every rank and by owned sum, and job peak and summed process peaks both 16852041728 bytes. Both timer gates passed. All six disk payloads match N21 W. Isolated restart launched at 23:37:48; the FX2 row gate and B2b seal still follow.
+
+FP2-P3 build673 B2b FAILED. Evidence build673/B2b.json.
+
+FP2-P3 B2b OFF isolated restart passed in 276.890 s with unchanged pins and zero coordinate error. The exact FX2 row comparison was zero. The first terminal seal instead stopped at the switch receipt's rank parser, which selected the scheduler's nice -n 19 rather than mpirun -n 6. Both executed commands and per-rank logs retain the specified settings and markers. R3 recovery revalidates the same completed events and restart without a new native launch; B2c waits for the recovered B2b seal.
+
+FP2-P3 build673 B2b passed. Evidence build673/B2b.json.
+
+FP2-P3 B2b OFF was re-evaluated from the original completed build673 full and restart children, passed the switch receipting correction, and sealed at 23:46:06 CET. Exact FX2 row differences 0, both events and six N21 W payload identities passed. Native maxima 1984.549 / 1187.970 s, minimum per-rank coverage 98.963% / 99.419%. B2c CORE started at 23:46:23 after the B2b seal; aggregate B follows only if B2c passes.

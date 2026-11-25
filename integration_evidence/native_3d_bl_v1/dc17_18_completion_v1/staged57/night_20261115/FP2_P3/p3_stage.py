@@ -35,7 +35,7 @@ def result(label, part):
         require(label,*dependencies)
         source=HERE/'G5'/build.name/part/'case_summary.json'
         if not source.exists():
-            command('run_full.py',label,part)
+            command('p3_full_receipts.py',label,part)
         return seal(label,part,{'workflow':source},dependencies)[0]
     if part=='C2':
         require(label,'B')
