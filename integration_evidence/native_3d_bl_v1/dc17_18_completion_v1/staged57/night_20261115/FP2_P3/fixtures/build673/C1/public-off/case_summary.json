@@ -1,0 +1,171 @@
+{
+  "build": 673,
+  "binary_sha256": "9f766f8b188c21d44faba37b7e6a7b0b924562fc045fb3baff638d0125311e08",
+  "test_binary_sha256": "b6f2def1c88f60007ebe397d255ec7711dd37871d3d71142b54a007595f47da3",
+  "source_pins_sha256": "79362d52fe64867ce40f0959f9488248e399acd8af531416a9f795c3bbda4944",
+  "mode": "public-off",
+  "part": "C1",
+  "status": "passed",
+  "used": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/C1/public-off/attempt1/result.json",
+  "details": {
+    "catch": [
+      [
+        [
+          "221",
+          "1"
+        ]
+      ]
+    ],
+    "historical_catch": null,
+    "public_trace": {
+      "returncode": 0,
+      "stderr": "",
+      "result": {
+        "completion": "complete",
+        "improvement": {
+          "bound": "0x1.00000000000b3p-14",
+          "full": 0,
+          "prepared_nodes": 253,
+          "root_upper": 0.003906250000000004,
+          "root_lower": 0.0,
+          "root_distance_work": 5,
+          "cache": "bypass",
+          "witness": {
+            "authority": "0x63534a59ff50",
+            "resolution": "3f1a36e2eb1c432d",
+            "chords": "4",
+            "list": "0:0,1:0,1:2,1:3,"
+          },
+          "closure": null,
+          "planes": {
+            "triangles": "4",
+            "groups": "2",
+            "accepted": "1",
+            "invalid": "0",
+            "storage_refused": "0",
+            "boundary_trimmed": "0",
+            "trimmed_triangles": "0"
+          }
+        },
+        "lower_complete": {
+          "bound": "0x1.bff822bbecaa9p-5",
+          "full": 1,
+          "prepared_nodes": 1,
+          "root_upper": 0.09882117688026189,
+          "root_lower": 0.05468374999999998,
+          "root_distance_work": 6,
+          "cache": "bypass",
+          "witness": {
+            "authority": "0x63534a59ff50",
+            "resolution": "3f1a36e2eb1c432d",
+            "chords": "5",
+            "list": "0:0,1:0,1:1,1:2,1:3,"
+          },
+          "closure": null,
+          "planes": {
+            "triangles": "5",
+            "groups": "2",
+            "accepted": "1",
+            "invalid": "0",
+            "storage_refused": "0",
+            "boundary_trimmed": "0",
+            "trimmed_triangles": "0"
+          }
+        },
+        "lower_cropped": {
+          "bound": "0x1.17fc115df6553p-4",
+          "full": 0,
+          "prepared_nodes": 1,
+          "root_upper": 0.09882117688026189,
+          "root_lower": 0.06835562499999996,
+          "root_distance_work": 14,
+          "cache": "bypass",
+          "witness": {
+            "authority": "0x63534a59ff50",
+            "resolution": "3f1a36e2eb1c432d",
+            "chords": "4",
+            "list": "0:0,1:0,1:1,1:3,"
+          },
+          "closure": null,
+          "planes": {
+            "triangles": "4",
+            "groups": "2",
+            "accepted": "1",
+            "invalid": "0",
+            "storage_refused": "0",
+            "boundary_trimmed": "0",
+            "trimmed_triangles": "0"
+          }
+        },
+        "facet_depths": {
+          "0": [
+            0
+          ],
+          "1": [
+            1
+          ]
+        },
+        "cache": {
+          "bounds": {
+            "first": {
+              "mesh": "0x1.f75104d551d75p-19",
+              "model": "0x1.f75104d551d6bp-17"
+            },
+            "warm": {
+              "mesh": "0x1.f75104d551d75p-19",
+              "model": "0x1.f75104d551d6bp-17"
+            },
+            "rebuilt": {
+              "mesh": "0x1.f75104d551d75p-19",
+              "model": "0x1.f75104d551d6bp-17"
+            }
+          },
+          "evictions": 60
+        }
+      }
+    }
+  },
+  "switches": {
+    "environment": {
+      "SU2_NATIVE_CONFORMING_WITNESS": "0",
+      "SU2_NATIVE_GEOMETRY_WORK_TRACE": "1",
+      "SU2_NATIVE_FP2_M3_FACETS": "0",
+      "SU2_NATIVE_FP2_M2": "0",
+      "SU2_NATIVE_FP2_M2_TABLE": "0",
+      "SU2_NATIVE_FP2_M1": "0"
+    },
+    "query_evidence_ranks": [
+      0
+    ],
+    "rank_marker_counts": {
+      "0": 1
+    },
+    "passed": true,
+    "pins": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/C1/public-off/attempt1/command.json": "ae0def201f5799ed030bddd0afd302d0605445ce11131b80e91f59f67038947c",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/C1/public-off/attempt1/test_outer.log": "77b523d07fa813e936407376a82ae6e09eee6b588f6d1b18d9d1f3049d9ceda0"
+    },
+    "first_failure": null
+  },
+  "pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/inputs/FAST_PATH_STAGE2_B.md": "c3ce29f5a4a217bc76377a26056e8595b0a6a4a19e93efac921c70604a777ca4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/inputs/FAST_PATH_STAGE2_B.sha256": "1b04b0fd567cc44ef62a68e538181e0abeef6bd3bcda4c483e44198402617404",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/source_check.md": "c2aa5142c29adddd474862cfb0ece05dea49e9d20fbba1584c94634df6e7840c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/build673/build_status.json": "e85e62c947d2aa6109f504602c724b399c8759ecb03f0376549d348042773002",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/build673/source_pins.json": "79362d52fe64867ce40f0959f9488248e399acd8af531416a9f795c3bbda4944",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver": "b6f2def1c88f60007ebe397d255ec7711dd37871d3d71142b54a007595f47da3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD": "9f766f8b188c21d44faba37b7e6a7b0b924562fc045fb3baff638d0125311e08",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/inputs/FP2_P3_CLOSURE_DEFAULT.md": "16fec22406c931490718e23e58da2840cd4bb05b1748189d6a12e14bff5c05e5",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/inputs/FP2_P3_CLOSURE_DEFAULT.sha256": "80568b6014c7045b8cf97991c2ade23563431291488ba463e04bc483545fb6ae",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/production.diff": "08ae1739bd4df29b1789aa62de9606322f59483cf70428de42b73541d449672b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/p3_fixtures.py": "774e6ae099a361f14929e0ae8ecd1cdd01e2b185b1f784083bf68d6d01773c8a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P2/run_p2.py": "0aa33a379bea624b6c72457e92c6db7cf77fa2f0eddf8f84a2c35bc0372f1a12",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/reports/source_check.md": "ed88e1011528f91b38652df6fc3138d6d6cb15446d7a3814f84cfa6fa31405ad",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/build673/build_plan.json": "086509f31a224d1626f538774e5939b8ed806e1ccc20a1bc7c174f3ea9f69a35",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/build673/B.json": "43e7ee166e84a99fd2c60a71f3f71aa27e8af9870f849483e05460ab47d1af98",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/check_public_query.py": "a5a2461a4b67704049418714a24779287f406b0b8be43ccea94abccd395e0d7d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/C1/public-off/attempt1/command.json": "ae0def201f5799ed030bddd0afd302d0605445ce11131b80e91f59f67038947c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/C1/public-off/attempt1/test_outer.log": "77b523d07fa813e936407376a82ae6e09eee6b588f6d1b18d9d1f3049d9ceda0",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/C1/public-off/attempt1/result.json": "e777877ab15d217555c5eecc52b39c9203161141f4b5baca8978051541b437ef"
+  }
+}

@@ -2158,3 +2158,11 @@ FP2-P3 build673 B passed. Evidence build673/B.json.
 FP2-P3 B2c CORE passed both events, continued CFD, all six exact FP1 payload hashes and the isolated restart. Native maxima 1808.734 / 496.878 s, minimum per-rank timer coverage 98.956% / 98.552%, isolated restart 162.568 s and coordinate error 0.0. All owned handles terminal. Part B has a passed aggregate seal.
 
 FP2-P3 B2c checkpoint d5abf580b4. All five closure-off stages passed. Commit the Part B label and start Part C with C1 on frozen build673.
+
+FP2-P3 Part B label 4d77e303c0 pushed as "FP2-P3: default proven with the closure off"; B2c passed checkpoint d5abf580b4 pushed. Started C1 under su2-fp2-p3-build673-c1 after the pushed label. C1 checks G1, the focused and curved fixtures and both public-query settings plus their comparison. Next C2, then C3 and C4 in order.
+
+FP2-P3 C1 default G1 matched the exact adopted case, result and failed-assertion tables for 375 serial, 114 two-rank and 228 four-rank records. Elapsed 782.380 / 10.440 / 13.882 s. The focused serial and MPI checks passed; curved and hidden queries proceed.
+
+FP2-P3 build673 C1 passed. Evidence build673/C1.json.
+
+FP2-P3 C1 passed all ten sealed checks. Focused and curved fixtures completed, the curved trace and leaf pins passed, and the direct and public fixtures passed. In the public improvement case, the prepared physical nodes were 253 off and 1 on, with footprint groups 2 and 1. The complete and cropped lower-bound and cache checks also passed. C1 controller terminal. Next C2, beginning with the hard first-collapse checks.
