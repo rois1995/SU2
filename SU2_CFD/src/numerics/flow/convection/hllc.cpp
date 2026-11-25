@@ -312,8 +312,7 @@ CNumerics::ResidualType<> CUpwHLLC_Flow::ComputeResidual(const CConfig* config) 
 
       // MUSCL reconstructs enthalpy independently; use the value in the residual.
       const su2double chi = 0.0;
-      GetInviscidProjJac(Velocity_i, &Enthalpy_i, &chi, &Gamma_Minus_One, UnitNormal, 1.0, Jacobian_i,
-                        turb_ke_i);
+      GetInviscidProjJac(Velocity_i, &Enthalpy_i, &chi, &Gamma_Minus_One, UnitNormal, 1.0, Jacobian_i, turb_ke_i);
 
     }
     else {
@@ -450,8 +449,7 @@ CNumerics::ResidualType<> CUpwHLLC_Flow::ComputeResidual(const CConfig* config) 
 
       // MUSCL reconstructs enthalpy independently; use the value in the residual.
       const su2double chi = 0.0;
-      GetInviscidProjJac(Velocity_j, &Enthalpy_j, &chi, &Gamma_Minus_One, UnitNormal, 1.0, Jacobian_j,
-                        turb_ke_j);
+      GetInviscidProjJac(Velocity_j, &Enthalpy_j, &chi, &Gamma_Minus_One, UnitNormal, 1.0, Jacobian_j, turb_ke_j);
 
     }
     else {

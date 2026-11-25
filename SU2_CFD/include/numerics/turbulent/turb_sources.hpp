@@ -1018,6 +1018,7 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
       Jacobian_i[1][0] = 0.0;
       Jacobian_i[1][1] = -2.0 * beta_blended * ScalarVar_i[1] * Volume * (1.0 - beta_star/beta_blended * zetaFMt);
 
+
       /*--- Contribution due to 2D axisymmetric formulation, after the implicit part since it
        * adds to the Jacobian (which the assignments above would otherwise overwrite). ---*/
 

@@ -33,6 +33,8 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'SU2_CFD/nonlinear_globalization.cpp',
                        'SU2_CFD/scalar_limiter_eps.cpp',
                        'SU2_CFD/solvers/CNEMOEulerSolver_tests.cpp',
+                       'SU2_CFD/solvers/moving_wall_tests.cpp',
+                       'SU2_CFD/solvers/sst_energy_tests.cpp',
                        'SU2_CFD/solvers/supersonic_outlet_tests.cpp',
                        'SU2_CFD/nemo_viscous_assembly.cpp',
                        'SU2_CFD/windowing.cpp',
@@ -84,6 +86,8 @@ if get_option('enable-tests')
     test('Streamwise periodic support', python,
          args: files('Common/check_periodic_support.py') + [test_driver.full_path(), '--streamwise'],
          timeout: 150)
+    test('Multigrid configuration limits', python,
+         args: files('Common/check_multigrid_limits.py') + [test_driver.full_path()])
     test('NEMO convergence field migration', python,
          args: files('SU2_CFD/output/check_nemo_convergence_migration.py') + [test_driver.full_path()],
          timeout: 300)

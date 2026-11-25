@@ -221,11 +221,11 @@ void CSolver::GetPeriodicCommCountAndType(const CConfig* config,
       break;
     case PERIODIC_IMPLICIT:
       COUNT_PER_POINT  = nVar;
-      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      MPI_TYPE = COMM_TYPE::DOUBLE;
       break;
     case PERIODIC_LAPLACIAN:
-      COUNT_PER_POINT  = nVar;
-      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      COUNT_PER_POINT = base_nodes->GetUndivided_Laplacian().cols();
+      MPI_TYPE = COMM_TYPE::DOUBLE;
       break;
     case PERIODIC_MAX_EIG:
       COUNT_PER_POINT  = 1;
@@ -451,8 +451,8 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
 
   unsigned long iPoint, msg_offset, buf_offset, iPeriodic;
 
-  auto *Diff      = new su2double[nVar];
-  auto *Und_Lapl  = new su2double[nVar];
+  auto *Diff      = new su2double[nVar + 1];
+  auto *Und_Lapl  = new su2double[nVar + 1];
   auto *Sol_Min   = new su2double[std::max(nVar, nPrimVarGrad)];
   auto *Sol_Max   = new su2double[std::max(nVar, nPrimVarGrad)];
   auto *rotPrim_i = new su2double[nRotVars];
@@ -771,7 +771,7 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
           case PERIODIC_LAPLACIAN:
 
             if (intersectingPairs) {
-              for (auto iField = 0u; iField < nVar; ++iField)
+              for (auto iField = 0u; iField < COUNT_PER_POINT; ++iField)
                 bufDSend[buf_offset + iField] = base_nodes->GetUndivided_Laplacian(iPoint, iField);
               if (rotate_periodic) Rotate(zeros, &bufDSend[buf_offset + 1], &Und_Lapl[1]);
               if (rotate_periodic)
@@ -784,11 +784,9 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
              consistently by using the complete control volume info
              from both sides of the periodic face. ---*/
 
-            for (iVar = 0; iVar < nVar; iVar++)
-              Und_Lapl[iVar] = 0.0;
+            for (iVar = 0; iVar < COUNT_PER_POINT; iVar++) Und_Lapl[iVar] = 0.0;
 
             for (auto jPoint : geometry->nodes->GetPoints(iPoint)) {
-
               /*--- Avoid periodic boundary points so that we do not
                duplicate edges on both sides of the periodic BC. ---*/
 
@@ -805,9 +803,11 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
                 if (!(config->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE)) {
                   Pressure_i   = base_nodes->GetPressure(iPoint);
                   Pressure_j   = base_nodes->GetPressure(jPoint);
-                  Diff[nVar-1] = ((base_nodes->GetSolution(iPoint,nVar-1) + Pressure_i) -
-                                  (base_nodes->GetSolution(jPoint,nVar-1) + Pressure_j));
+                  Diff[nVar - 1] = ((base_nodes->GetSolution(iPoint, nVar - 1) + Pressure_i) -
+                                    (base_nodes->GetSolution(jPoint, nVar - 1) + Pressure_j));
                 }
+
+                if (COUNT_PER_POINT > nVar) Diff[nVar] = base_nodes->GetRhoTke(iPoint) - base_nodes->GetRhoTke(jPoint);
 
                 boundary_i = geometry->nodes->GetPhysicalBoundary(iPoint);
                 boundary_j = geometry->nodes->GetPhysicalBoundary(jPoint);
@@ -816,9 +816,8 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
                 /*--- iPoint inside the domain, jPoint on the boundary ---*/
 
                 if (!boundary_i || boundary_j) {
-                  if (geometry->nodes->GetDomain(iPoint)){
-                    for (iVar = 0; iVar< nVar; iVar++)
-                    Und_Lapl[iVar] -= Diff[iVar];
+                  if (geometry->nodes->GetDomain(iPoint)) {
+                    for (iVar = 0; iVar < COUNT_PER_POINT; iVar++) Und_Lapl[iVar] -= Diff[iVar];
                   }
                 }
               }
@@ -826,8 +825,7 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
 
             /*--- Store the components to be communicated in the buffer. ---*/
 
-            for (iVar = 0; iVar < nVar; iVar++)
-              bufDSend[buf_offset+iVar] = Und_Lapl[iVar];
+            for (iVar = 0; iVar < COUNT_PER_POINT; iVar++) bufDSend[buf_offset + iVar] = Und_Lapl[iVar];
 
             /*--- Rotate the momentum components of the Laplacian. ---*/
 
@@ -1504,7 +1502,7 @@ void CSolver::CompletePeriodicComms(CGeometry *geometry,
               /*--- Adjust the undivided Laplacian. The accumulation was
                with a subtraction before communicating, so now just add. ---*/
 
-              for (auto iField = 0u; iField < nVar; iField++)
+              for (auto iField = 0u; iField < COUNT_PER_POINT; iField++)
                 base_nodes->AddUnd_Lapl(iPoint, iField, bufDRecv[buf_offset+iField]);
 
               break;
@@ -1657,14 +1655,17 @@ void CSolver::GetCommCountAndType(const CConfig* config,
   switch (commType) {
     case MPI_QUANTITIES::SOLUTION:
     case MPI_QUANTITIES::SOLUTION_OLD:
-    case MPI_QUANTITIES::UNDIVIDED_LAPLACIAN:
     case MPI_QUANTITIES::SOLUTION_LIMITER:
-      COUNT_PER_POINT  = nVar;
-      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      COUNT_PER_POINT = nVar;
+      MPI_TYPE = COMM_TYPE::DOUBLE;
+      break;
+    case MPI_QUANTITIES::UNDIVIDED_LAPLACIAN:
+      COUNT_PER_POINT = base_nodes->GetUndivided_Laplacian().cols();
+      MPI_TYPE = COMM_TYPE::DOUBLE;
       break;
     case MPI_QUANTITIES::MAX_EIGENVALUE:
     case MPI_QUANTITIES::SENSOR:
-      COUNT_PER_POINT  = 1;
+      COUNT_PER_POINT = 1;
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
     case MPI_QUANTITIES::SOLUTION_GRADIENT:
@@ -1841,8 +1842,8 @@ void CSolver::InitiateComms(CGeometry *geometry,
             bufDSend[buf_offset] = base_nodes->GetDES_LengthScale(iPoint);
             break;
           case MPI_QUANTITIES::UNDIVIDED_LAPLACIAN:
-            for (iVar = 0; iVar < nVar; iVar++)
-              bufDSend[buf_offset+iVar] = base_nodes->GetUndivided_Laplacian(iPoint, iVar);
+            for (iVar = 0; iVar < COUNT_PER_POINT; iVar++)
+              bufDSend[buf_offset + iVar] = base_nodes->GetUndivided_Laplacian(iPoint, iVar);
             break;
           case MPI_QUANTITIES::SOLUTION_LIMITER:
           case MPI_QUANTITIES::PRIMITIVE_LIMITER:
@@ -2008,8 +2009,8 @@ void CSolver::CompleteComms(CGeometry *geometry,
             base_nodes->SetDES_LengthScale(iPoint, bufDRecv[buf_offset]);
             break;
           case MPI_QUANTITIES::UNDIVIDED_LAPLACIAN:
-            for (iVar = 0; iVar < nVar; iVar++)
-              base_nodes->SetUnd_Lapl(iPoint, iVar, bufDRecv[buf_offset+iVar]);
+            for (iVar = 0; iVar < COUNT_PER_POINT; iVar++)
+              base_nodes->SetUnd_Lapl(iPoint, iVar, bufDRecv[buf_offset + iVar]);
             break;
           case MPI_QUANTITIES::SOLUTION_LIMITER:
           case MPI_QUANTITIES::PRIMITIVE_LIMITER:
