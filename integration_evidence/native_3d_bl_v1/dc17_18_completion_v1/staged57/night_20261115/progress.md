@@ -2022,3 +2022,9 @@ FP2-P2 build672 step D2, first-collapse: passed. Exit 0. Evidence shared/build67
 FP2-P2 build672 D2 sealed passed, promote=True. Evidence build672/d2_promotion.json.
 
 FP2-P2 D2 passed and promotion is sealed. observed_work: 76652506, work_limit: 108459426, observed_solver_peak_sum_bytes: 6125809664, resource_limit_bytes: 19999490048, seconds_until_stop: 207.34979057405144, captured_ranks: [0, 1, 2, 3, 4, 5]. Zero upper refinements, historical adopted counts 480 / 473 / 346 / 263 / 469 / 464 exact, all six switch markers, all owned processes terminal. Next step 2.3 under both promotion checks.
+
+FP2-P2 D2 checkpoint fdf6ae613f pushed and supervisor terminal. Submitted step 2.3 under su2-fp2-p2-build672-step23. Both promotions are required. Sequence: N1 repeat, N6P pair, N6 pair, pair comparison, traced N1, and the four remaining shared safeguards with closure on. S remains gated.
+
+FP2-P2 build672 step 2, campaign-N1-2: passed. Exit 0. Evidence campaign/build672/N1/trial2/case_summary.json. Gate result not evaluated.
+
+FP2-P2 N1 trial 2 qualified in 645.077 s with the same 156105696 classification, 77469988 traversal and 37769889 scope-build work. The raw marker interleaving was verified and the derived log pinned. The same-binary N1 pair has an empty comparison. Next N6P trial 1.
