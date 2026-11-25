@@ -3,7 +3,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 import json
 
-from run_p1 import CAMPAIGN, HERE, SHARED, cut, selected_summary
+from run_p1 import (CAMPAIGN, HERE, SHARED, combined_status, cut, fingerprint,
+                    prepare, selected_summary, verify_campaign, verify_pins, verify_summary)
 
 UNEVALUATED = ('G2 with closure off', 'GQ with closure off', 'G3 with closure off',
                'G5 with closure off', 'full two-event no-BL workflow with closure off',
@@ -64,6 +65,41 @@ def gather(build):
     return data
 
 
+
+def seal_lab(build):
+    folder = HERE / f'build{build}'
+    receipt, _, _ = prepare(folder)
+    comparison, campaign = verify_campaign(folder)
+    rows = {'campaign': {'status': campaign['status'], 'path': str(comparison), 'sha256': cut.sha(comparison)}}
+    anatomy = selected_summary(build, 'anatomy-N1')
+    if anatomy.exists():
+        result = verify_summary(receipt, 'anatomy-N1', anatomy)
+        rows['ANATOMY'] = {'status': result['status'], 'path': str(anatomy), 'sha256': cut.sha(anatomy)}
+    else:
+        rows['ANATOMY'] = {'status': 'not evaluated'}
+    for name in SHARED:
+        path = HERE / 'shared' / folder.name / 'closure1' / name / 'case_summary.json'
+        result = load(path)
+        if path.is_file():
+            assert fingerprint(result) == fingerprint(receipt)
+            verify_pins(result['pins'])
+            rows[name] = {'status': result['status'], 'path': str(path), 'sha256': cut.sha(path)}
+        else:
+            rows[name] = {'status': 'not evaluated'}
+    status = combined_status(row['status'] for row in rows.values())
+    data = {**fingerprint(receipt), 'status': status, 'parts': rows,
+            'six_trials_qualified': len(campaign['trials']) == 6 and all(
+                trial.get('evaluate_qualified') and trial['status'] == 'passed' for trial in campaign['trials'].values()),
+            'three_equal_pairs': len(campaign['pairs']) == 3 and all(
+                pair['status'] == 'equal' for pair in campaign['pairs'].values())}
+    out = folder / 'p1_lab_checkpoint.json'
+    if out.is_file():
+        assert cut.read(out) == data
+    else:
+        cut.save(out, data)
+    return data
+
+
 def render(data, label):
     lines = [f"# FP2-P1 build{data['build']}", '', label, '',
              'Closure uses the existing curved prepared witness, gated by a process switch that defaults to off. '
@@ -90,17 +126,21 @@ def render(data, label):
         (name, campaign['pairs'][name]['status'], row['status'], row.get('first_difference'),
          row['build664']['elapsed_seconds'], (row.get('trial1') or {}).get('elapsed_seconds'))
         for name, row in campaign.get('baseline', {}).items()))
+    lines += table(('Case', 'Build', 'Hand-over faces', 'Final cells', 'Surface removals', 'Volume collapses'), (
+        (name, variant, totals['faces'][-1] if totals.get('faces') else None, totals.get('final_cells'),
+         sum(stage['removals'] for row in measured['by_rank'].values() for stage in row['by_pass'].values()),
+         totals.get('v_collapses'))
+        for name, record in campaign.get('baseline', {}).items() for variant in ('build664', 'trial1')
+        if (measured := record.get(variant)) is not None and (totals := measured['totals']) is not None))
     for name, row in campaign.get('baseline', {}).items():
         lines += [f'### {name} rank and pass measurements', '']
         values = []
         for variant in ('build664', 'trial1'):
             for rank, item in (row.get(variant) or {}).get('by_rank', {}).items():
                 for phase, record in item['by_pass'].items():
-                    index = int(phase) - 1
                     values.append((variant, rank, phase, record['faces'], record['removals'],
-                                   item['cells'][index] if index < len(item['cells']) else None,
                                    record['seconds_pass'], record['seconds_c'], record['seconds_c_bound']))
-        lines += table(('Build', 'Rank', 'Pass', 'Faces', 'Removals', 'Cells', 'Pass s', 'Step C s', 'Bound s'), values)
+        lines += table(('Build', 'Rank', 'Pass', 'Faces', 'Removals', 'Pass s', 'Step C s', 'Bound s'), values)
     anatomy = data['anatomy']
     observer = anatomy.get('observer') or {}
     lines += ['### ANATOMY', '']
@@ -145,15 +185,33 @@ def render(data, label):
             for event, row in events.items()))
         lines += table(('File', 'Build664 SHA256', 'Candidate SHA256', 'Equal'), (
             (name, data['build664'], data['candidate'], data['equal']) for name, data in workflow['payloads'].items()))
-    lines += ['## Not evaluated', '', *(f'- {name}' for name in data['not_evaluated']), '']
+    lines += ['## Build and receipt corrections', '',
+              '- Build669 regenerated bundled HDF5 and recorded eight qualifier warnings. Build670 recompiled the '
+              'changed translation units with zero warnings and froze the same binary hashes.',
+              '- The G1 helper used its inherited receipt filename. The three complete, exact comparisons were '
+              'sealed under the expected name after verifying the saved pins and terminal identities.',
+              '- The first-collapse sampler records procfs KiB. The receipt conversion now reports the sum of '
+              'the six observed process peaks in bytes. The original receipt and resource samples are preserved.']
+    for name, trial in campaign.get('trials', {}).items():
+        if trial.get('path') and cut.read(trial['path']).get('mixed_marker_seal'):
+            lines.append(f'- {name} recovered an enabled marker interleaved with a stdout row. '
+                         'The derived log removes only the marker bytes and reuses the inherited evaluator. '
+                         'Both the raw and corrected receipts are preserved.')
+    lines += ['', '## Not evaluated', '', *(f'- {name}' for name in data['not_evaluated']), '']
     return '\n'.join(lines)
 
 
 if __name__ == '__main__':
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('build', type=int)
-    parser.add_argument('label')
+    parser.add_argument('label', nargs='?')
+    parser.add_argument('--seal-lab', action='store_true')
     args = parser.parse_args()
+    if args.seal_lab:
+        print(seal_lab(args.build)['status'])
+        raise SystemExit(0)
+    if not args.label:
+        parser.error('a final checkpoint label is required')
     evidence = gather(args.build)
     evidence['label'] = args.label
     out = HERE / 'reports' / f'FP2_P1_{args.build}'

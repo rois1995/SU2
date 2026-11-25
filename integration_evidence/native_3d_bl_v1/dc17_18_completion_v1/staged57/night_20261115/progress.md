@@ -1880,3 +1880,49 @@ FP2-P1 build670 step 1, saved-current: passed. Exit 0. Evidence shared/build670/
 FP2-P1 build670 step 1, native2d: passed. Exit 0. Evidence shared/build670/closure0/native2d/case_summary.json. Gate result {'2d1': 'passed', '2d2': 'passed', '2d4': 'passed'}.
 
 FP2-P1 build670 step 1 passed and its checkpoint is sealed in FP2_P1/build670/p1_checkpoint.json. All five shared checks passed with closure 0. Merit481 passed 5947 assertions and retained exact payload identity. The current-target fixture passed 611527 assertions and retained exact payload and planning identity. Native 2D BL and no-BL passed 39 tests per rank at 1, 2 and 4 ranks. Next launch N6P twice, N1 twice, N6 twice, the exact comparisons, N1 ANATOMY, and the five closure-on shared checks.
+
+FP2-P1 exact fixtures-passed checkpoint 050c019527 pushed and remote verified. The step 2 service su2-fp2-p1-build670-step2 is submitted. It verifies the frozen build/checkpoint and starts N6P trial 1, closure 1 and trace 0, with the 2575 s wrapper limit. One owned heavy job at a time. Next inspect the trial result and preserve the first finding if any.
+
+FP2-P1 build670 step 2, campaign-N6P-1: passed. Exit 0. Evidence campaign/build670/N6P/trial1/case_summary.json. Gate result not evaluated.
+
+FP2-P1 build670 closure-on N6P trial 1 qualified in 1283.069 s, compared with sealed build664 at 858.019 s. Every rank had exactly one enabled marker. First historical difference is rank 0 FP2_B proof classify_above_tol 109 to 110. Proof work 187822605 to 293166336 and rank-0 classify seconds 422.905 to 660.642. Final 26482 hand-over faces and 371837 cells. These historical comparisons are observations. Next N6P trial 2 and the exact same-binary projection comparison.
+
+FP2-P1 build670 step 2, campaign-N6P-2: passed. Exit 0. Evidence campaign/build670/N6P/trial2/case_summary.json. Gate result not evaluated.
+
+FP2-P1 build670 N6P trial 2 qualified in 1283.655 s. The same-binary N6P exact projection is equal across both trials, with one switch marker per rank in each. The proof configuration, terminal evidence and first historical difference remain in the sealed trials. Next N1 trial 1.
+
+FP2-P1 build670 step 2, campaign-N1-1: FAILED. Exit 1. Evidence campaign/build670/N1/trial1/case_summary.json. Gate result {'rank': 0, 'field': 'switch marker count', 'observed': 0, 'expected': 1}.
+
+FP2-P1 build670 N1 closure-on trial 1 exited 0 in 1529.068 s and all 36 assertions passed. The trial receipt initially flagged a missing marker. The raw combined log has one enabled marker inserted byte-for-byte in the middle of a sweep row by stderr/stdout interleaving. The new seal_mixed_marker.py verifies the original pins and terminal identities, removes only that marker line's bytes in a derived log, rechecks the unchanged inherited evaluation, and preserves both raw and corrected receipts. The corrected trial qualified with one marker, 26920 hand-over faces and 373889 cells. Bound clock 1210.548 s. Next inspect N1 trial 2 and normalize only if the same receipt defect recurs.
+
+FP2-P1 build670 step 2, campaign-N1-2: FAILED. Exit 1. Evidence campaign/build670/N1/trial2/case_summary.json. Gate result {'rank': 0, 'field': 'switch marker count', 'observed': 0, 'expected': 1}.
+
+FP2-P1 build670 N1 trial 2 qualified in 1527.192 s after the same terminal-log marker repair. The N1 pair is exact across all compared fields. Both tests passed 36 assertions with one marker each. Continue N6 trial 1.
+
+FP2-P1 build670 N6 trial 1 pass 1 elapsed 712.081 to 713.523 s across ranks. The inherited FP2-C3 continuation evaluator and FAST_PATH_STAGE2_C3.md section 5 make the 600 s threshold an observation. It is not a failed result gate. Rank 5 Bound rose from 386.241 to 680.694 s beside build664, and rank 5 step C from 405.830 to 700.905 s. Pass-1 faces and C-removal counts matched build664 per rank. Leave the trial running for the actual qualification and historical projection.
+
+FP2-P1 build670 step 2, campaign-N6-1: passed. Exit 0. Evidence campaign/build670/N6/trial1/case_summary.json. Gate result not evaluated.
+
+FP2-P1 build670 N6 trial 1 qualified in 2746.051 s, compared with sealed build664 at 1507.171 s. Hand-over 24530 faces, 368098 final cells. First historical difference {'row': 'FP2_B proof', 'rank': 0, 'index': 1, 'field': 'modeled_peak', 'expected': 991683316, 'observed': 991700828, 'pass': 'not available'}. Continue N6 trial 2.
+
+FP2-P1 build670 step 2, campaign-N6-2: missing receipt. Exit 1. Evidence campaign/build670/N6/trial2/case_summary.json.
+
+FP2-P1 build670 step 2, compare: OPEN. Exit 75. Evidence campaign/build670/comparison.json.
+
+FP2-P1 build670 step 2, anatomy-N1: missing receipt. Exit 1. Evidence anatomy/build670/N1/trial1/case_summary.json.
+
+FP2-P1 build670 N6 trial 2 preflight declined launch when three unrelated vtk-rebase-build compiler processes were active. No N6-repeat test_launch.json or test child exists. No wrapper attempt was consumed. The partial campaign comparison is OPEN with N6 repeat not evaluated. Continue independent ANATOMY and shared checks. After the host clears and the owned service is terminal, run the original N6 repeat with the same pinned build and 4522 s watchdog, preserve the partial comparator output, and recompute the comparisons.
+
+FP2-P1 independent ANATOMY and first-collapse preparations also declined launch while the unrelated VTK compilers were active. Verified that the original stage 2 service and all owned native processes are terminal. The resume service applies the unchanged host preflight and waits for it to clear before each missing native launch. It reuses the same prepared inputs for N6 trial 2 and ANATOMY, leaves the completed five trials untouched, and preserves the provisional comparison as comparison_before_n6_preflight_resume.json. The N6-repeat and ANATOMY watchdog attempts are still unused.
+
+FP2-P1 stage 2 recovery launcher corrected a Python string escaping error before any native work. Active standby service su2-fp2-p1-build670-step2-recovery.service. The prior resume service stopped at Python parse time.
+
+FP2-P1 build670 step 2, campaign-N6P-1: passed. Exit None. Evidence campaign/build670/N6P/trial1/case_summary.json. Gate result not evaluated.
+
+FP2-P1 build670 step 2, campaign-N6P-2: passed. Exit None. Evidence campaign/build670/N6P/trial2/case_summary.json. Gate result not evaluated.
+
+FP2-P1 build670 step 2, campaign-N1-1: passed. Exit None. Evidence campaign/build670/N1/trial1/case_summary.json. Gate result not evaluated.
+
+FP2-P1 build670 step 2, campaign-N1-2: passed. Exit None. Evidence campaign/build670/N1/trial2/case_summary.json. Gate result not evaluated.
+
+FP2-P1 build670 step 2, campaign-N6-1: passed. Exit None. Evidence campaign/build670/N6/trial1/case_summary.json. Gate result not evaluated.

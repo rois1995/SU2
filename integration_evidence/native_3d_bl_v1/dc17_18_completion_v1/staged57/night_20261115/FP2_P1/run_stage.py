@@ -3,10 +3,33 @@ from argparse import ArgumentParser
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
+import time
 
 from run_p1 import CAMPAIGN, HERE, SHARED, cut, selected_summary, verify_checkpoint
 
 PYTHON = [sys.executable, '-B']
+
+
+
+def wait_host():
+    """Wait for the existing admission check to clear before preparing an owned child."""
+    announced = False
+    with tempfile.TemporaryDirectory(prefix='fp2-p1-host-') as folder:
+        preflight = Path(folder) / 'receipt.json'
+        while True:
+            check = subprocess.run([cut.PYTHON, str(cut.PREFLIGHT), str(preflight)], cwd=cut.REPO,
+                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            if check.returncode == 0:
+                if announced:
+                    print('Inherited host preflight cleared.', flush=True)
+                return
+            if 'assert not owned,owned' not in check.stdout:
+                raise RuntimeError(check.stdout)
+            if not announced:
+                print('Waiting for the unchanged host preflight to clear.', check.stdout, sep=chr(10), flush=True)
+                announced = True
+            time.sleep(30)
 
 
 def run(build, stage):
@@ -33,10 +56,12 @@ def run(build, stage):
 
     for argv, path in commands:
         print(f'FP2-P1 step {stage} preparing {argv[-1]}', flush=True)
+        if not path.is_file() and argv[-1] != 'compare':
+            wait_host()
         code = subprocess.call(argv) if not path.is_file() else None
         raw = cut.read(path) if path.is_file() else {'status': 'missing receipt'}
-        if argv[-1] == 'first-collapse' and raw['subruns']['first-collapse']['switch_receipt'].get(
-                'observed_solver_peak_sum_bytes'):
+        first = raw.get('subruns', {}).get('first-collapse', {})
+        if first.get('switch_receipt', {}).get('observed_solver_peak_sum_bytes'):
             from seal_first_collapse import seal
             raw = seal(build, stage - 1)
         name = argv[-1]

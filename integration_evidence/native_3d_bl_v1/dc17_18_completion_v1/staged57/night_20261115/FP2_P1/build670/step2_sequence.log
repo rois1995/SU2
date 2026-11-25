@@ -1,0 +1,124 @@
+FP2-P1 step 2 preparing campaign-N6P-1
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795590141.699272, "sample_seconds": 3.115525245666504, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   34118152 kB", "loadavg": "1.92 1.76 2.18 3/4897 2023918"}
+build670 test: starting
+build670 test: terminal in 1283.069 s
+campaign-N6P-1 passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/campaign/build670/N6P/trial1/case_summary.json
+FP2-P1 build670 step 2, campaign-N6P-1: passed. Exit 0. Evidence campaign/build670/N6P/trial1/case_summary.json. Gate result not evaluated.
+FP2-P1 step 2 preparing campaign-N6P-2
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795591485.3871546, "sample_seconds": 3.079192876815796, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   34101932 kB", "loadavg": "3.38 5.97 5.63 2/4884 2076936"}
+build670 test: starting
+build670 test: terminal in 1283.655 s
+campaign-N6P-2 passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/campaign/build670/N6P/trial2/case_summary.json
+FP2-P1 build670 step 2, campaign-N6P-2: passed. Exit 0. Evidence campaign/build670/N6P/trial2/case_summary.json. Gate result not evaluated.
+FP2-P1 step 2 preparing campaign-N1-1
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795592829.8534746, "sample_seconds": 3.079282760620117, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   33951164 kB", "loadavg": "3.19 5.94 6.52 1/4892 2130501"}
+build670 test: starting
+build670 test: terminal in 1529.068 s
+campaign-N1-1 FAILED /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/campaign/build670/N1/trial1/case_summary.json
+FP2-P1 build670 step 2, campaign-N1-1: FAILED. Exit 1. Evidence campaign/build670/N1/trial1/case_summary.json. Gate result {'rank': 0, 'field': 'switch marker count', 'observed': 0, 'expected': 1}.
+FP2-P1 step 2 preparing campaign-N1-2
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795594419.8031318, "sample_seconds": 3.1016886234283447, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   33867736 kB", "loadavg": "1.64 1.65 2.48 1/4874 2201224"}
+build670 test: starting
+build670 test: terminal in 1527.192 s
+campaign-N1-2 FAILED /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/campaign/build670/N1/trial2/case_summary.json
+FP2-P1 build670 step 2, campaign-N1-2: FAILED. Exit 1. Evidence campaign/build670/N1/trial2/case_summary.json. Gate result {'rank': 0, 'field': 'switch marker count', 'observed': 0, 'expected': 1}.
+FP2-P1 step 2 preparing campaign-N6-1
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795596008.043154, "sample_seconds": 3.115882635116577, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   34005452 kB", "loadavg": "2.28 2.01 1.96 1/4869 2271148"}
+build670 test: starting
+build670 test: terminal in 2746.051 s
+campaign-N6-1 passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/campaign/build670/N6/trial1/case_summary.json
+FP2-P1 build670 step 2, campaign-N6-1: passed. Exit 0. Evidence campaign/build670/N6/trial1/case_summary.json. Gate result not evaluated.
+FP2-P1 step 2 preparing campaign-N6-2
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/primary_control_archive/end_b_actual_preflight.py", line 30, in <module>
+    mem=next(x for x in Path('/proc/meminfo').read_text().splitlines() if x.startswith('MemAvailable:'));assert int(mem.split()[1])*1024>19999490048;assert not owned,owned
+                                                                                                                                                            ^^^^^^^^^
+AssertionError: [{'pid': 2428402, 'comm': 'cc1plus', 'ticks': 3469, 'start_ticks': 109130951, 'state': 'R'}, {'pid': 2428416, 'comm': 'cc1plus', 'ticks': 3152, 'start_ticks': 109130986, 'state': 'R'}, {'pid': 2429981, 'comm': 'cc1plus', 'ticks': 738, 'start_ticks': 109134166, 'state': 'R'}]
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 723, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 719, in main
+    return controller(build, mode, correction)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 666, in controller
+    path, result = run_trial(build, mode, correction)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 542, in run_trial
+    case, trial, exact, marker, evidence = run('attempt1', False)
+                                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 535, in run
+    case, trial = attempt(build, mode, path.parent / folder, (*support, *extra))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 401, in attempt
+    result = lab.run(build, name)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/run_lab.py", line 320, in run
+    a.cut.run_gate(case, 'test', wrapper)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/run_cut_step.py", line 56, in run_gate
+    subprocess.run([PYTHON, str(PREFLIGHT), str(preflight)], cwd=REPO, check=True)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/primary_control_archive/end_b_actual_preflight.py', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/campaign/build670/N6/trial2/attempt1/cases/build670/N6/test_host_preflight.json']' returned non-zero exit status 1.
+FP2-P1 build670 step 2, campaign-N6-2: missing receipt. Exit 1. Evidence campaign/build670/N6/trial2/case_summary.json.
+FP2-P1 step 2 preparing compare
+compare OPEN /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/campaign/build670/comparison.json
+FP2-P1 build670 step 2, compare: OPEN. Exit 75. Evidence campaign/build670/comparison.json.
+FP2-P1 step 2 preparing anatomy-N1
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/primary_control_archive/end_b_actual_preflight.py", line 30, in <module>
+    mem=next(x for x in Path('/proc/meminfo').read_text().splitlines() if x.startswith('MemAvailable:'));assert int(mem.split()[1])*1024>19999490048;assert not owned,owned
+                                                                                                                                                            ^^^^^^^^^
+AssertionError: [{'pid': 2428402, 'comm': 'cc1plus', 'ticks': 17294, 'start_ticks': 109130951, 'state': 'R'}]
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 723, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 719, in main
+    return controller(build, mode, correction)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 666, in controller
+    path, result = run_trial(build, mode, correction)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 542, in run_trial
+    case, trial, exact, marker, evidence = run('attempt1', False)
+                                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 535, in run
+    case, trial = attempt(build, mode, path.parent / folder, (*support, *extra))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 401, in attempt
+    result = lab.run(build, name)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/run_lab.py", line 320, in run
+    a.cut.run_gate(case, 'test', wrapper)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/run_cut_step.py", line 56, in run_gate
+    subprocess.run([PYTHON, str(PREFLIGHT), str(preflight)], cwd=REPO, check=True)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/primary_control_archive/end_b_actual_preflight.py', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/anatomy/build670/N1/trial1/attempt1/cases/build670/N1/test_host_preflight.json']' returned non-zero exit status 1.
+FP2-P1 build670 step 2, anatomy-N1: missing receipt. Exit 1. Evidence anatomy/build670/N1/trial1/case_summary.json.
+FP2-P1 step 2 preparing first-collapse
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/primary_control_archive/end_b_actual_preflight.py", line 30, in <module>
+    mem=next(x for x in Path('/proc/meminfo').read_text().splitlines() if x.startswith('MemAvailable:'));assert int(mem.split()[1])*1024>19999490048;assert not owned,owned
+                                                                                                                                                            ^^^^^^^^^
+AssertionError: [{'pid': 2428402, 'comm': 'cc1plus', 'ticks': 17936, 'start_ticks': 109130951, 'state': 'R'}]
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_shared.py", line 290, in <module>
+    raise SystemExit(run(args.build, args.closure, args.group))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_shared.py", line 244, in run
+    wait = cut.run_gate(attempt, 'controller', [sys.executable, '-B', str(SELF), str(label), str(closure), group,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/run_cut_step.py", line 56, in run_gate
+    subprocess.run([PYTHON, str(PREFLIGHT), str(preflight)], cwd=REPO, check=True)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/end_B_preparation/primary_control_archive/end_b_actual_preflight.py', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/shared/build670/closure1/first-collapse/first-collapse/controller_host_preflight.json']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_stage.py", line 60, in <module>
+    run(args.build, args.stage)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_stage.py", line 38, in run
+    if argv[-1] == 'first-collapse' and raw['subruns']['first-collapse']['switch_receipt'].get(
+                                        ~~~^^^^^^^^^^^
+KeyError: 'subruns'
