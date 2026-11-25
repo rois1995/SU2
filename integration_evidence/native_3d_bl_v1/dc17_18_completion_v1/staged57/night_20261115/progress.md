@@ -2006,3 +2006,11 @@ FP2-P2 build672 step 1, saved-current: FAILED. Exit 1. Evidence shared/build672/
 FP2-P2 build672 step 1, native2d: passed. Exit 0. Evidence shared/build672/closure0/native2d/case_summary.json. Gate result {'2d1': 'passed', '2d2': 'passed', '2d4': 'passed'}.
 
 FP2-P2 build672 saved-current initial evaluator failure was a test-harness defect. It could not open two removed historical payloads after the child passed. The same terminal run passed on the authoritative N6 SHA256 values, corroborated by the committed exact build670 reference comparison, plus the original N6 planning rows. All three candidate hashes and the planning rows matched. Original summary and raw evidence retained. Native2d at 1/2/4 ranks passed. Step 1 controller is terminal. Seal the fixture checkpoint, commit, then run D1.
+
+FP2-P2 fixtures-passed checkpoint 745b8c82bf pushed. Step 1 sealed on build672. D1 submitted under su2-fp2-p2-build672-d1 with its inherited N1 watchdog and frozen same-build control. No D2 or step 2.3 work queued. Seal D1 before deciding D2.
+
+FP2-P2 build672 step D1, campaign-N1-1: passed. Exit 0. Evidence campaign/build672/N1/trial1/case_summary.json. Gate result not evaluated.
+
+FP2-P2 build672 D1 sealed passed, promote=True. Evidence build672/d1_promotion.json.
+
+FP2-P2 D1 qualified on build672 in 640.378 s. Both selected N1 receipts have the ten stage keys and a complete observer at identical settings except closure. Gate D passed, classification 156105696 versus control 463538756 (−307433060 units); step C 419.957 versus 913.506 s, Bound 319.598 versus 811.483 s, traversal 77469988 versus 416021808, scope build 37769889 versus 6651129. The merged startup marker was proven and removed from the derived projection only; raw stdout and pin receipt preserved. D1 promotion is sealed. Next D2 first collapse.
