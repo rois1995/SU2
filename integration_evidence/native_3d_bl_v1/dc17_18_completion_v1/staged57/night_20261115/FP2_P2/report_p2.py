@@ -101,13 +101,23 @@ def gather(build):
     anatomy = load(selected_summary(build, 'anatomy-N1'))
     shared = {name: load(shared_path(folder, name)) for name in SHARED}
     workflow = load(HERE / 'G5' / folder.name / 'S/case_summary.json')
+    c492 = {}
+    for closure in (0, 1):
+        path = HERE / 'shared' / folder.name / f'closure{closure}/exact-c492/case_summary.json'
+        child = load(path).get('subruns', {}).get('bl', {})
+        if child.get('raw'):
+            raw = Path(child['raw'])
+            assert cut.sha(raw) == child['raw_sha256']
+            detail = cut.read(raw)
+            if 'actual_splits' in detail:
+                c492[str(closure)] = {key: detail[key] for key in ('actual_splits', 'first_differing_edit')}
     prior = historical()
     historical_d = {f'FP2-P1 closure {closure}': historical_measurement(branch, closure)[0]
                     for closure, branch in enumerate(('default', 'campaign'))}
     status = cut.read(folder / 'build_status.json')
     data = dict(build=build, build_provenance=status, fixtures=fixture, gate_d1=d['D1'], gate_d2=d['D2'],
                 gate_d1_historical=historical_d, campaign=campaign, anatomy=anatomy, shared_closure1=shared,
-                historical_shared_closure1=prior['shared_closure1'], S=workflow,
+                historical_shared_closure1=prior['shared_closure1'], c492_decision_evidence=c492, S=workflow,
                 historical_campaign=prior['campaign']['baseline'], historical_seal=prior['seal'],
                 lab_checkpoint=load(folder / 'p2_lab_checkpoint.json'),
                 production_diff={'path': '../production.diff', 'sha256': cut.sha(HERE / 'production.diff')},
@@ -331,6 +341,10 @@ def render(data, label):
                     for name in SHARED for version, groups in (('FP2-P1', data['historical_shared_closure1']),
                                                                  ('FP2-P2', data['shared_closure1']))
                     for row in (groups[name],)))
+    if data['c492_decision_evidence']:
+        lines += table(('C492 closure', 'Positive splits', 'First edit difference from RunA'), (
+            (closure, row['actual_splits'], row['first_differing_edit'])
+            for closure, row in data['c492_decision_evidence'].items()))
     c492 = data['shared_closure1']['exact-c492'].get('subruns', {}).get('bl', {})
     if c492.get('watchdog'):
         lines += [f"C492 first reached its 600-second wrapper. The same-limit retry is {c492['status']}. "

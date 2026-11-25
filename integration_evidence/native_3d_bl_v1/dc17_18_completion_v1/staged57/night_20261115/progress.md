@@ -2050,3 +2050,15 @@ FP2-P2 N6 trial 2 qualified in 792.215 s. N6 pair exact. The sealed comparator p
 FP2-P2 build672 step 2, anatomy-N1: passed. Exit 0. Evidence anatomy/build672/N1/trial1/case_summary.json. Gate result equal.
 
 FP2-P2 ANATOMY qualified in 680.214 s with a complete observer and an exact trace-off N1 projection. Across 70482 completed miss/bypass forwards: 61785 root enough, 412482 prepared nodes, 174429681 result work. The 68858 PLANES rows report 72944 groups, 72765 accepted, 8 invalid and 931 boundary trimmed. The closure committed 197387 fans and left 649 contacts. Successful scans 68858, failed scans zero, incomplete closure rows zero; cap zero. The raw 99700922-byte sample stays local with SHA256 22f915db427141c6b315a0db49b147e38fdfa8b99ae09826910a025d12992db1. The remaining closure-on shared checks are in sequence.
+
+FP2-P2 build672 step 2, exact-c492: passed. Exit 0. Evidence shared/build672/closure1/exact-c492/case_summary.json. Gate result {'bl': 'passed'}.
+
+FP2-P2 build672 step 2, merit481: passed. Exit 0. Evidence shared/build672/closure1/merit481/case_summary.json. Gate result {'merit481': 'passed'}.
+
+FP2-P2 closure-on C492 passed the bounded-state checks with 1794 positive splits, zero upper refinements and the original input, target and budgets. As the C492 contract requires, recorded the first differing edit from RunA, index 32 (zero-based), edge [24242, 24427] versus [24240, 24242]. The merit481 check passed. Saved-current and native2d follow.
+
+FP2-P2 build672 step 2, saved-current: OPEN. Exit 75. Evidence shared/build672/closure1/saved-current/case_summary.json. Gate result {'saved_current': {'field': 'trajectory_working_owned.bin', 'reference': '31139b0f1766dddb7122b0d3aa6d7378c37b59f9ece2fe472ef1d82327c478aa', 'candidate': '207e9e66096ec10264a6bb78ca646cb8ffa47197596019e7b7f543055087b605'}}.
+
+FP2-P2 build672 step 2, native2d: passed. Exit 0. Evidence shared/build672/closure1/native2d/case_summary.json. Gate result {'2d1': 'passed', '2d2': 'passed', '2d4': 'passed'}.
+
+FP2-P2 all closure-on shared runs and supervisor terminal. Native2d passed at 1/2/4 ranks; saved-current qualified in execution and is OPEN on its historical trajectory_working_owned.bin SHA, matching FP2-P1 closure-on. Lab status OPEN under the signed rule, with no failed part. Both promotions, six qualification receipts and all three exact pairs are available to the S launcher.

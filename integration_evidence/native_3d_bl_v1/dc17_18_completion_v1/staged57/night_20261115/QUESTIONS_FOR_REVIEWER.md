@@ -272,3 +272,7 @@ How should the report cover all edges with five ranked rows, and which label app
 ### 2026-11-25 15:55 CET, FP2-P2 R4
 
 Can the private topology store a single canonical key after removal of adjacency lookup? Options were keeping two directed lookup entries and deduplicating the live-count changes, or storing one canonical key and checking directions in the sole owner's current chord. Used the canonical key. P2 specifies unordered incidences, removes the directed adjacency walk, and derives direction from the local edges of the owner chord. Base dec45f8a71.
+
+### 2026-11-25 19:02 CET, FP2-P2 shared closure on
+
+Does the first C492 edit difference belong to the generic missed comparisons or to its explicit decision evidence? Used the C492 gate's explicit decision-evidence reading. The retained shared-engine contract requires the identical input, target and budgets, a valid bounded result, and the first edit difference as evidence when it differs. The current-identity checks for first-collapse counts and saved-current payloads are separate. Evidence checkpoint 1fb7f58673 before shared qualification.
