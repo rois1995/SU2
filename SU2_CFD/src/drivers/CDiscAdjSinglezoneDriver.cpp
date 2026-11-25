@@ -690,7 +690,12 @@ void CDiscAdjSinglezoneDriver::ExtractEPMScalarReplay() {
   rows << "case,objective,dimension,mpi_ranks,probe_pair,probe_angle,J_baseline,dJ_da_at_zero,J_linear_at_one,"
           "ambiguous_evaluations,total_evaluations,stress_evaluations,source_evaluations,"
           "gap_tolerance,delta_b,tensor_blend_factor,"
-          "primal_converged,adjoint_converged,status,extraction\n";
+          "primal_converged,adjoint_converged,status,extraction";
+  /*--- UQ_FADE_GAP: the changes of the cases are weighted by the fade factor of each site; the column is written
+   *    only with the fade, so that the file without it is unchanged. ---*/
+  const passivedouble fade_gap = SU2_TYPE::GetValue(config->GetUQ_FadeGap());
+  if (fade_gap > 0.0) rows << ",fade_gap";
+  rows << '\n';
   passivedouble lower = baseline, upper = baseline;
 
   for (unsigned short mode = 0; mode < 5; ++mode) {
@@ -736,7 +741,9 @@ void CDiscAdjSinglezoneDriver::ExtractEPMScalarReplay() {
            << epm.probe_pair << ',' << epm.angle << ',' << baseline << ',' << gradient << ',' << baseline + gradient << ','
            << global_counts[0] << ',' << global_counts[1] << ',' << global_counts[2] << ','
            << global_counts[1] - global_counts[2] << ',' << CEPMExtraction::gap_tolerance
-           << ",1,1,unverified,true,frozen_forcing_unverified,scalar_replay\n";
+           << ",1,1,unverified,true,frozen_forcing_unverified,scalar_replay";
+      if (fade_gap > 0.0) rows << ',' << fade_gap;
+      rows << '\n';
       lower = min(lower, baseline + gradient);
       upper = max(upper, baseline + gradient);
       AD::ClearAdjoints();
@@ -762,6 +769,8 @@ void CDiscAdjSinglezoneDriver::ExtractEPMScalarReplay() {
     if (!output) SU2_MPI::Error("Could not write sst_epm_sensitivities.csv.", CURRENT_FUNCTION);
     cout << "\nClassical EPM first-order frozen-forcing predictions: [" << lower << ", " << upper
          << "]. Includes baseline and sampled orientations; not verified nonlinear bounds.\n";
+    if (fade_gap > 0.0)
+      cout << "Faded EPM: the changes are weighted by the fade factor of UQ_FADE_GAP= " << fade_gap << ".\n";
   }
 }
 
@@ -867,7 +876,12 @@ void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
   rows << "case,objective,dimension,mpi_ranks,probe_pair,probe_angle,J_baseline,dJ_da_at_zero,J_linear_at_one,"
           "ambiguous_evaluations,total_evaluations,stress_evaluations,source_evaluations,"
           "gap_tolerance,delta_b,tensor_blend_factor,"
-          "primal_converged,adjoint_converged,status,extraction\n";
+          "primal_converged,adjoint_converged,status,extraction";
+  /*--- UQ_FADE_GAP: the changes of the cases are weighted by the fade factor of each site; the column is written
+   *    only with the fade, so that the file without it is unchanged. ---*/
+  const passivedouble fade_gap = SU2_TYPE::GetValue(config->GetUQ_FadeGap());
+  if (fade_gap > 0.0) rows << ",fade_gap";
+  rows << '\n';
   passivedouble lower = baseline, upper = baseline;
 
   for (unsigned short mode = 0; mode < 5; ++mode) {
@@ -882,7 +896,7 @@ void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
         const auto& record = field.Data(site);
         if (record.uses == 0) continue;  // not evaluated in the recording: no state and no sensitivity
         bool ambiguous = false;
-        local_gradient += CNumerics::EPMFieldSiteGradient(nDim, record, mode, probe, ambiguous);
+        local_gradient += CNumerics::EPMFieldSiteGradient(nDim, record, mode, probe, ambiguous, fade_gap);
         /*--- The scalar replay counts every evaluation; a site stands for its uses at the same state. ---*/
         if (ambiguous) local_ambiguous += static_cast<unsigned long>(record.uses);
       }
@@ -897,7 +911,9 @@ void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
            << epm.probe_pair << ',' << epm.angle << ',' << baseline << ',' << gradient << ',' << baseline + gradient << ','
            << global_counts[0] << ',' << global_counts[1] << ',' << global_counts[2] << ','
            << global_counts[1] - global_counts[2] << ',' << CEPMExtraction::gap_tolerance
-           << ",1,1,unverified,true,frozen_forcing_unverified,field\n";
+           << ",1,1,unverified,true,frozen_forcing_unverified,field";
+      if (fade_gap > 0.0) rows << ',' << fade_gap;
+      rows << '\n';
       lower = min(lower, baseline + gradient);
       upper = max(upper, baseline + gradient);
       // Every rank must perform the same reductions in the same order.
@@ -919,6 +935,8 @@ void CDiscAdjSinglezoneDriver::ExtractEPMFieldSensitivities() {
     if (!output) SU2_MPI::Error("Could not write sst_epm_sensitivities.csv.", CURRENT_FUNCTION);
     cout << "\nClassical EPM first-order frozen-forcing predictions: [" << lower << ", " << upper
          << "]. Includes baseline and sampled orientations; not verified nonlinear bounds.\n";
+    if (fade_gap > 0.0)
+      cout << "Faded EPM: the changes are weighted by the fade factor of UQ_FADE_GAP= " << fade_gap << ".\n";
   }
 
   /*--- Per-rank record files and the JSON layout for all sites (the reader filters on uses). The inputs of the

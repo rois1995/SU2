@@ -1023,8 +1023,8 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
         const auto& amplitude = config->GetEPMExtraction().amplitude;
         AD::SetPreaccIn(amplitude);
         passivedouble target[3][3], grad[3][3] = {};
-        EPMExtractionTarget(nDim, PrimVar_Grad_i + idx.Velocity(), Density_i,
-                            Eddy_Viscosity_i, ScalarVar_i[0], config, target);
+        const passivedouble fade = EPMExtractionTarget(nDim, PrimVar_Grad_i + idx.Velocity(), Density_i,
+                                                       Eddy_Viscosity_i, ScalarVar_i[0], config, target);
         for (size_t i = 0; i < nDim; ++i)
           for (size_t j = 0; j < nDim; ++j)
             grad[i][j] = SU2_TYPE::GetValue(PrimVar_Grad_i[i + idx.Velocity()][j]);
@@ -1033,8 +1033,15 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
         const auto raw = ComputeReynoldsStressProduction(nDim, target, grad, rho);
         const auto epm_pk = max(0.0, min(raw, SU2_TYPE::GetValue(prod_limit)));
         const auto epm_pw = mu > 0 ? SU2_TYPE::GetValue(alfa_blended) * rho / mu * epm_pk : 0.0;
-        pk += amplitude * (epm_pk - SU2_TYPE::GetValue(pk));
-        pw += amplitude * (epm_pw - SU2_TYPE::GetValue(pw));
+        if (config->GetUQ_FadeGap() > 0.0) {
+          /*--- UQ_FADE_GAP: the change of the case is weighted by the fade factor f of the node, pk0 + A f (clip(P_m)
+           *    - pk0), as the stored dpk, dpw of the field hook (each endpoint is still clipped before the blend). ---*/
+          pk += amplitude * (fade * (epm_pk - SU2_TYPE::GetValue(pk)));
+          pw += amplitude * (fade * (epm_pw - SU2_TYPE::GetValue(pw)));
+        } else {
+          pk += amplitude * (epm_pk - SU2_TYPE::GetValue(pk));
+          pw += amplitude * (epm_pw - SU2_TYPE::GetValue(pw));
+        }
       }
 
       /*--- Add the production terms to the residuals. ---*/

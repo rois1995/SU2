@@ -613,6 +613,31 @@ public:
   }
 
   /*!
+   * \brief Fade factor f of UQ_FADE_GAP from the eigen data of a site, with the gap g of ComputePerturbedRSM.
+   * \note g is the smallest |lam_i - lam_j| over the column pairs whose targets differ (by more than
+   *       EPMTangentTargetTie). The columns are the baseline eigenvalues in permuted order, so these are the pairs
+   *       and gaps of the fade inside ComputePerturbedRSM, evaluated passively. f = 1 if no pair qualifies (3C) or
+   *       without an eigensystem (spectrum not valid: k = mu_t = 0, where the stress is zero).
+   * \param[in] spectrum - Eigen data of ComputePerturbedRSM (the same with and without its fade).
+   * \param[in] fade_gap - Gap scale c > 0.
+   */
+  static passivedouble EPMSpectrumFade(const EPMSpectrum& spectrum, passivedouble fade_gap) {
+    if (!spectrum.valid) return 1.0;
+    bool distinct = false;
+    passivedouble minGap2 = 0.0;
+    for (size_t i = 0; i < 2; ++i) {
+      for (size_t j = i + 1; j < 3; ++j) {
+        if (std::fabs(spectrum.target[i] - spectrum.target[j]) <= EPMTangentTargetTie) continue;
+        const passivedouble gap = spectrum.baseline[j] - spectrum.baseline[i];
+        const passivedouble gap2 = gap * gap;
+        if (!distinct || gap2 < minGap2) minGap2 = gap2;
+        distinct = true;
+      }
+    }
+    return distinct ? EPMFadeFactor(minGap2, fade_gap) : 1.0;
+  }
+
+  /*!
    * \brief Perturb the Reynolds stress tensor based on parameters.
    * \param[in] nDim - Dimension of the flow problem, 2 or 3.
    * \param[in] uq_eigval_comp - Component 1C 2C 3C.
@@ -886,11 +911,17 @@ public:
     return nonzero;
   }
 
-  /*! \brief Passive classical target of one EPM case; no eigenvector AD and no counters. */
+  /*!
+   * \brief Passive classical target of one EPM case; no eigenvector AD and no counters.
+   * \param[in] fade_gap - UQ_FADE_GAP c. The target itself is never faded; with c > 0 the fade factor f of the site
+   *            (EPMSpectrumFade, the f of the classical path at the same state) is returned, else 1.
+   * \return The fade factor f the change of the case is weighted with (1 for c = 0).
+   */
   template<class Mat>
-  static void EPMCaseTarget(size_t nDim, const Mat& gradient, su2double density, su2double viscosity,
-                            su2double k, unsigned short component, bool permute, double angle,
-                            unsigned short probe_pair, passivedouble (&target)[3][3], bool& ambiguous) {
+  static passivedouble EPMCaseTarget(size_t nDim, const Mat& gradient, su2double density, su2double viscosity,
+                                     su2double k, unsigned short component, bool permute, double angle,
+                                     unsigned short probe_pair, passivedouble (&target)[3][3], bool& ambiguous,
+                                     passivedouble fade_gap = 0.0) {
     passivedouble grad[3][3] = {};
     const auto rho = SU2_TYPE::GetValue(density);
     const auto mu = SU2_TYPE::GetValue(viscosity);
@@ -904,31 +935,52 @@ public:
         if (!std::isfinite(grad[i][j])) SU2_MPI::Error("Nonfinite EPM gradient.", CURRENT_FUNCTION);
       }
     ambiguous = false;
+    if (fade_gap > 0.0) {
+      /*--- The spectrum is a passive copy: the target is computed exactly as without it (no fade passed). ---*/
+      EPMSpectrum spectrum;
+      ComputePerturbedRSM(nDim, component, permute, 1.0, 1.0, grad, rho, mu, tke,
+                         target, angle, CEPMExtraction::gap_tolerance, &ambiguous, probe_pair, &spectrum);
+      return EPMSpectrumFade(spectrum, fade_gap);
+    }
     ComputePerturbedRSM(nDim, component, permute, 1.0, 1.0, grad, rho, mu, tke,
                        target, angle, CEPMExtraction::gap_tolerance, &ambiguous, probe_pair);
+    return 1.0;
   }
 
-  /*! \brief Passive classical target at the actual replay stage; no eigenvector AD. */
+  /*!
+   * \brief Passive classical target at the actual replay stage; no eigenvector AD.
+   * \return The UQ_FADE_GAP factor f of the site (1 without the fade), see EPMCaseTarget.
+   */
   template<class Mat>
-  static void EPMExtractionTarget(size_t nDim, const Mat& gradient, su2double density,
-                                  su2double viscosity, su2double k, const CConfig* config,
-                                  passivedouble (&target)[3][3]) {
+  static passivedouble EPMExtractionTarget(size_t nDim, const Mat& gradient, su2double density,
+                                           su2double viscosity, su2double k, const CConfig* config,
+                                           passivedouble (&target)[3][3]) {
     auto& epm = config->GetEPMExtraction();
     bool ambiguous = false;
-    EPMCaseTarget(nDim, gradient, density, viscosity, k, epm.component, epm.permute, epm.angle,
-                  epm.probe_pair, target, ambiguous);
+    const passivedouble fade = EPMCaseTarget(nDim, gradient, density, viscosity, k, epm.component, epm.permute,
+                                             epm.angle, epm.probe_pair, target, ambiguous,
+                                             SU2_TYPE::GetValue(config->GetUQ_FadeGap()));
     ++epm.evaluations;
     epm.ambiguous += ambiguous;
+    return fade;
   }
 
-  /*! \brief Passive turbulent-stress correction of one EPM case; no counters. */
+  /*!
+   * \brief Passive turbulent-stress correction of one EPM case; no counters.
+   * \note With UQ_FADE_GAP c > 0 the correction is weighted by the fade factor f of the site: the change of the
+   *       faded case A f (tau_m - tau_0) has the derivative f (tau_m - tau_0) at A = 0 (the state dependence of f
+   *       is multiplied by A).
+   * \param[in] fade_gap - UQ_FADE_GAP c (0: no weight, the correction is computed exactly as without the fade).
+   * \return The fade factor f (1 for c = 0).
+   */
   template<class Mat>
-  static void EPMCaseStressCorrection(size_t nDim, const Mat& gradient, su2double density, su2double viscosity,
-                                      su2double k, unsigned short component, bool permute, double angle,
-                                      unsigned short probe_pair, passivedouble (&correction)[3][3],
-                                      bool& ambiguous) {
-    EPMCaseTarget(nDim, gradient, density, viscosity, k, component, permute, angle, probe_pair,
-                  correction, ambiguous);
+  static passivedouble EPMCaseStressCorrection(size_t nDim, const Mat& gradient, su2double density,
+                                               su2double viscosity, su2double k, unsigned short component,
+                                               bool permute, double angle, unsigned short probe_pair,
+                                               passivedouble (&correction)[3][3], bool& ambiguous,
+                                               passivedouble fade_gap = 0.0) {
+    const passivedouble fade = EPMCaseTarget(nDim, gradient, density, viscosity, k, component, permute, angle,
+                                             probe_pair, correction, ambiguous, fade_gap);
     passivedouble grad[3][3] = {}, baseline[3][3] = {};
     for (size_t i = 0; i < nDim; ++i)
       for (size_t j = 0; j < nDim; ++j) grad[i][j] = SU2_TYPE::GetValue(gradient[i][j]);
@@ -936,9 +988,14 @@ public:
     for (size_t i = 0; i < nDim; ++i)
       for (size_t j = 0; j < nDim; ++j)
         correction[i][j] = -SU2_TYPE::GetValue(density) * correction[i][j] - baseline[i][j];
+    if (fade_gap > 0.0) {
+      for (size_t i = 0; i < nDim; ++i)
+        for (size_t j = 0; j < nDim; ++j) correction[i][j] *= fade;
+    }
+    return fade;
   }
 
-  /*! \brief Shared passive turbulent-stress correction for scalar and fused edge fluxes. */
+  /*! \brief Shared passive turbulent-stress correction for scalar and fused edge fluxes (faded with UQ_FADE_GAP). */
   template<class Mat>
   static void EPMExtractionStressCorrection(size_t nDim, const Mat& gradient, su2double density,
                                             su2double viscosity, su2double k, const CConfig* config,
@@ -946,7 +1003,7 @@ public:
     auto& epm = config->GetEPMExtraction();
     bool ambiguous = false;
     EPMCaseStressCorrection(nDim, gradient, density, viscosity, k, epm.component, epm.permute, epm.angle,
-                            epm.probe_pair, correction, ambiguous);
+                            epm.probe_pair, correction, ambiguous, SU2_TYPE::GetValue(config->GetUQ_FadeGap()));
     ++epm.evaluations;
     epm.ambiguous += ambiguous;
     ++epm.stress_evaluations;
@@ -981,8 +1038,9 @@ public:
   /*!
    * \brief EPM field mode: add the zero-valued stress inputs of the cursor site to tau.
    * \note The first use of a site in a recording stores the passive state and the stress corrections of the
-   *       five canonical cases (m: component m/2+1, permute m%2, angle 0, probe pair 3). A later use of the site
-   *       in the same recording must have the same state (error otherwise); its sensitivity adds up.
+   *       five canonical cases (m: component m/2+1, permute m%2, angle 0, probe pair 3), weighted by the
+   *       UQ_FADE_GAP factor f of the case at the site (EPMCaseStressCorrection). A later use of the site in the same
+   *       recording must have the same state (error otherwise); its sensitivity adds up.
    * \note The stored EDGE normal points from key_a to key_b (the smaller to the larger global id), whatever the
    *       local orientation of the edge; a BOUNDARY normal is stored as given (outward, see the BC callers).
    * \param[in] normal - Unit normal of the face, oriented from the cursor point a to point b for an edge.
@@ -1016,11 +1074,12 @@ public:
     if (!same)
       SU2_MPI::Error("EPM field site evaluated twice in one recording with a different state.", CURRENT_FUNCTION);
     if (first) {
+      const passivedouble fade_gap = SU2_TYPE::GetValue(config->GetUQ_FadeGap());
       for (int m = 0; m < CEPMFieldSites::kCases; ++m) {
         passivedouble correction[3][3];
         bool ambiguous = false;
         EPMCaseStressCorrection(nDim, gradient, density, viscosity, k, m / 2 + 1, m % 2, 0.0, 3,
-                                correction, ambiguous);
+                                correction, ambiguous, fade_gap);
         for (size_t i = 0; i < nDim; ++i)
           for (size_t j = 0; j < nDim; ++j) record.dtau[m][i*3+j] = correction[i][j];
       }
@@ -1040,7 +1099,8 @@ public:
   /*!
    * \brief EPM field mode: add the zero-valued k and omega production inputs of the cursor site.
    * \note The first use of a site in a recording stores the passive state, the clip flags of the raw baseline
-   *       production and the production changes of the five canonical cases, clipped like the scalar replay.
+   *       production and the production changes of the five canonical cases, clipped like the scalar replay and
+   *       weighted by the UQ_FADE_GAP factor f of the case at the site (f (clip(P_m) - pk0), omega alike).
    *       A later use of the site in the same recording must have the same state (error otherwise).
    * \param[in,out] pk - k production after the clip, the input is added to it.
    * \param[in,out] pw - omega production, the input is added to it.
@@ -1085,15 +1145,21 @@ public:
     if (!same)
       SU2_MPI::Error("EPM field site evaluated twice in one recording with a different state.", CURRENT_FUNCTION);
     if (first) {
+      const passivedouble fade_gap = SU2_TYPE::GetValue(config->GetUQ_FadeGap());
       for (int m = 0; m < CEPMFieldSites::kCases; ++m) {
         passivedouble target[3][3];
         bool ambiguous = false;
-        EPMCaseTarget(nDim, gradient, density, viscosity, k, m / 2 + 1, m % 2, 0.0, 3, target, ambiguous);
+        const passivedouble fade = EPMCaseTarget(nDim, gradient, density, viscosity, k, m / 2 + 1, m % 2, 0.0, 3,
+                                                 target, ambiguous, fade_gap);
         const auto raw = ComputeReynoldsStressProduction(nDim, target, grad, rho);
         const auto epm_pk = std::max(0.0, std::min(raw, limit));
         const auto epm_pw = mu > 0 ? alfa * rho / mu * epm_pk : 0.0;
         record.dpk[m] = epm_pk - pk0;
         record.dpw[m] = epm_pw - pw0;
+        if (fade_gap > 0.0) {
+          record.dpk[m] *= fade;
+          record.dpw[m] *= fade;
+        }
       }
     }
     ++record.uses;
@@ -1110,16 +1176,18 @@ public:
    * \brief Contribution S . delta of one field site to dJ/da of one EPM case and orientation probe.
    * \note The canonical case (probe 0: angle 0, probe pair 3) uses the corrections stored by the hooks. The probes
    *       (probe 1..3: 90-degree swap of the eigenvector pair probe-1) recompute them from the stored passive state,
-   *       with the hook helpers and, for NODE sites, the same clip and omega production as the source hook. The
-   *       case is recomputed in both, for its ambiguity flag.
+   *       with the hook helpers and, for NODE sites, the same clip and omega production as the source hook, all
+   *       weighted by the UQ_FADE_GAP factor f like the stored corrections (f depends only on the eigenvalues, so the
+   *       probes of a site share it). The case is recomputed in both, for its ambiguity flag.
    * \param[in] nDim - Dimension of the flow problem, 2 or 3.
    * \param[in] record - Site record after the reverse sweep (S_* extracted, S_tau symmetrized).
    * \param[in] mode - Case index m (component m/2+1, permute m%2).
    * \param[in] probe - 0 for the canonical case, 1..3 for the probes.
    * \param[out] ambiguous - Ambiguity flag of the case and probe at the stored state.
+   * \param[in] fade_gap - UQ_FADE_GAP c of the recording (the stored corrections are weighted with it).
    */
   static passivedouble EPMFieldSiteGradient(size_t nDim, const CEPMFieldSites::Record& record, unsigned short mode,
-                                            unsigned short probe, bool& ambiguous) {
+                                            unsigned short probe, bool& ambiguous, passivedouble fade_gap = 0.0) {
     const unsigned short component = mode / 2 + 1;
     const bool permute = mode % 2;
     const double angle = probe == 0 ? 0.0 : PI_NUMBER / 2;
@@ -1138,7 +1206,7 @@ public:
           for (size_t j = 0; j < nDim; ++j) correction[i][j] = record.dtau[mode][i*3+j];
       } else {
         EPMCaseStressCorrection(nDim, grad, record.rho, record.mu_t, record.k, component, permute, angle,
-                                probe_pair, correction, ambiguous);
+                                probe_pair, correction, ambiguous, fade_gap);
       }
       for (size_t i = 0; i < nDim; ++i)
         for (size_t j = 0; j < nDim; ++j) gradient += record.S_tau[i*3+j] * correction[i][j];
@@ -1146,16 +1214,20 @@ public:
     }
 
     passivedouble target[3][3];
-    EPMCaseTarget(nDim, grad, record.rho, record.mu_t, record.k, component, permute, angle, probe_pair, target,
-                  ambiguous);
+    const passivedouble fade = EPMCaseTarget(nDim, grad, record.rho, record.mu_t, record.k, component, permute,
+                                             angle, probe_pair, target, ambiguous, probe != 0 ? fade_gap : 0.0);
     passivedouble dpk = record.dpk[mode], dpw = record.dpw[mode];
     if (probe != 0) {
-      /*--- Same clip and omega production as the scalar replay and the source hook. ---*/
+      /*--- Same clip, omega production and fade as the scalar replay and the source hook. ---*/
       const auto raw = ComputeReynoldsStressProduction(nDim, target, grad, record.rho);
       const auto epm_pk = std::max(0.0, std::min(raw, record.prod_limit));
       const auto epm_pw = record.mu_t > 0 ? record.alfa_blended * record.rho / record.mu_t * epm_pk : 0.0;
       dpk = epm_pk - record.pk0;
       dpw = epm_pw - record.pw0;
+      if (fade_gap > 0.0) {
+        dpk *= fade;
+        dpw *= fade;
+      }
     }
     return record.S_pk * dpk + record.S_pw * dpw;
   }

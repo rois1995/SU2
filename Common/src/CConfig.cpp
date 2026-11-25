@@ -6316,10 +6316,13 @@ string CConfig::GetUQFadeGapError() const {
   if (!(uq_fade_gap >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(uq_fade_gap)))
     return "UQ_FADE_GAP must be a finite number >= 0 (0 = off).";
   if (uq_fade_gap == 0.0) return "";
-  /*--- The fade scales the blend of the classical EPM; it does not exist without it (this also excludes
-   *    SST_EPM_DIRECT and SST_EPM_POSTPROCESS, which require SST_OPTIONS without UQ). ---*/
-  if (Kind_Turb_Model != TURB_MODEL::SST || !sstParsedOptions.uq)
-    return "UQ_FADE_GAP > 0 requires the classical EPM (KIND_TURB_MODEL= SST with UQ in SST_OPTIONS).";
+  /*--- The fade scales the blend of the classical EPM, and with the same factor per site the change of the case in
+   *    the EPM extraction (SST_EPM_POSTPROCESS) and in the EPM direct mode (SST_EPM_DIRECT); their own guards require
+   *    SST_OPTIONS without UQ. Anywhere else it would do nothing. ---*/
+  const bool classical = Kind_Turb_Model == TURB_MODEL::SST && sstParsedOptions.uq;
+  if (!classical && !epmExtraction.enabled && !epmExtraction.direct)
+    return "UQ_FADE_GAP > 0 requires the classical EPM (KIND_TURB_MODEL= SST with UQ in SST_OPTIONS), "
+           "SST_EPM_POSTPROCESS= YES or SST_EPM_DIRECT= YES.";
   return "";
 }
 
@@ -6982,7 +6985,11 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
               case SST_OPTIONS::UQ:
                 cout << "\nperturbing the Reynold's Stress Matrix towards " << eig_val_comp << " component turbulence";
                 if (uq_permute) cout << " (permuting eigenvectors)";
-                if (uq_jacobian == UQ_JACOBIAN::TANGENT) cout << "\nwith the tangent pair term in the flow Jacobian";
+                if (uq_jacobian == UQ_JACOBIAN::TANGENT) {
+                  cout << "\nwith the tangent pair term in the flow Jacobian";
+                  if (GetKind_TimeIntScheme_Flow() != EULER_IMPLICIT)
+                    cout << " (no effect: the flow time integration is not implicit)";
+                }
                 if (uq_fade_gap > 0.0) cout << "\nfaded where the anisotropy eigenvalue gap is below UQ_FADE_GAP= " << uq_fade_gap;
                 break;
               case SST_OPTIONS::COMP_Wilcox:
@@ -7000,6 +7007,10 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
               cout << "\nEPM direct mode: case " << eig_val_comp << "C"
                    << (eig_val_comp == 3 ? "" : (uq_permute ? "_SWAP" : "_KEEP")) << " at amplitude "
                    << epmExtraction.direct_amplitude << " (blend of the clipped endpoints)";
+            }
+            if ((epmExtraction.direct || epmExtraction.enabled) && uq_fade_gap > 0.0) {
+              cout << "\nEPM " << (epmExtraction.direct ? "direct mode" : "extraction")
+                   << ": change of the case weighted by the fade factor of UQ_FADE_GAP= " << uq_fade_gap;
             }
 
             if (sstParsedOptions.dll){
