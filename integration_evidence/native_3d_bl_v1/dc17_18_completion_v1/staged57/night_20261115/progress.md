@@ -1858,3 +1858,25 @@ FP2-P1 launcher setup checks. Verified inherited input and runtime setup through
 FP2-P1 build670 steps 1.1 and 1.2 passed. G1 matched 375 / 114 / 228 records. The candidate adapter was looking for inherited_summary.json while the G1 helper had saved all three successful comparisons as case_summary.json. The original receipts were retained and verified against their launch pins and terminal handles, then sealed by seal_g1.py without reruns. The inherited 9 serial and 3 two-rank fixtures matched build668 Catch counts. The curved fixture passed both FP2-M3 validators. Next run the closure-off N1 identity trial.
 
 FP2-P1 build670 step 1.5 passed. The direct fixtures passed 2,016 Catch assertions. The public witness joined two footprint groups into one and proved the same within classification in 1 prepared node instead of 253. The complete and cropped sample-distance bounds each matched across switches, and each cache run preserved bound bits through eviction and rebuild. The signed default-path N1 trial and then the five shared checks are running in su2-fp2-p1-build670-step1.service.
+
+FP2-P1 implementation and focused fixtures checkpoint 679c781a75 pushed. The closure-off N1 trial is still active under the build670 step 1 supervisor. Record its exact projection before lab or workflow launch.
+
+FP2-P1 build670 step 1, default-N1: passed. Exit 0. Evidence default/build670/N1/trial1/case_summary.json. Gate result equal.
+
+FP2-P1 build670 default N1 qualified in 1121.645 s and exactly matched the build664 projection, including the modeled peak fields. Final cells 373889, hand-over faces 26920, pass/end/state modeled peak 12884891280, proof modeled peak 3760680068 bytes. Continue the five closure-off shared checks.
+
+FP2-P1 build670 step 1, first-collapse: passed. Exit 0. Evidence shared/build670/closure0/first-collapse/case_summary.json. Gate result {'first-collapse': 'passed'}.
+
+FP2-P1 build670 closure-off first collapse passed after 250.896 s. All six accepted counts match, work 90809869 / 108459426, zero upper refinements and terminal owned handles. The host sampler records VmHWM and VmRSS in procfs KiB. The first receipt had labeled this sum as bytes. Preserved it and resealed the unit conversion from the unchanged six-rank raw samples. Correct peak sum 7967969280 bytes, within the job limit. No runner or result rerun was needed.
+
+FP2-P1 build670 step 1, exact-c492: passed. Exit 0. Evidence shared/build670/closure0/exact-c492/case_summary.json. Gate result {'bl': 'passed'}.
+
+FP2-P1 build670 closure-off exact C492 passed with 1394 splits, positive sensed private cells, zero upper refinements, unchanged 388.8 s stage limit and frozen input. The p6 validator recorded its first historical edit difference at index 32 (zero-based) as the required decision evidence. The child exited 0 and the parent and sampled child identities are terminal.
+
+FP2-P1 build670 step 1, merit481: passed. Exit 0. Evidence shared/build670/closure0/merit481/case_summary.json. Gate result {'merit481': 'passed'}.
+
+FP2-P1 build670 step 1, saved-current: passed. Exit 0. Evidence shared/build670/closure0/saved-current/case_summary.json. Gate result {'saved_current': 'passed'}.
+
+FP2-P1 build670 step 1, native2d: passed. Exit 0. Evidence shared/build670/closure0/native2d/case_summary.json. Gate result {'2d1': 'passed', '2d2': 'passed', '2d4': 'passed'}.
+
+FP2-P1 build670 step 1 passed and its checkpoint is sealed in FP2_P1/build670/p1_checkpoint.json. All five shared checks passed with closure 0. Merit481 passed 5947 assertions and retained exact payload identity. The current-target fixture passed 611527 assertions and retained exact payload and planning identity. Native 2D BL and no-BL passed 39 tests per rank at 1, 2 and 4 ranks. Next launch N6P twice, N1 twice, N6 twice, the exact comparisons, N1 ANATOMY, and the five closure-on shared checks.

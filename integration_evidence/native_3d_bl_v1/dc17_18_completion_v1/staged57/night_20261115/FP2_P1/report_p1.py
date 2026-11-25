@@ -39,7 +39,8 @@ def gather(build):
     workflow = load(HERE / 'G5' / folder.name / 'S/case_summary.json')
     data = dict(build=build, build_provenance=cut.read(folder / 'build_status.json'), fixtures=fixture,
                 campaign=campaign, anatomy=anatomy, shared_closure1=shared, S=workflow,
-                production_diff={'path': '../production.diff', 'sha256': cut.sha(HERE / 'production.diff')})
+                production_diff={'path': '../production.diff', 'sha256': cut.sha(HERE / 'production.diff')},
+                focused_public=load(folder / 'public_query_comparison.json'))
     observer = anatomy.get('observer') or {}
     if observer.get('completion') == 'complete':
         trace = Path(anatomy['used']).with_name('anatomy.json')
@@ -72,6 +73,12 @@ def render(data, label):
              '## Step 1', '']
     lines += table(('Part', 'Status', 'Evidence SHA256'), (
         (name, row['status'], row.get('sha256')) for name, row in data['fixtures'].get('parts', {}).items()))
+    query = data['focused_public']
+    if query.get('completion') == 'complete':
+        lines += table(('Closure', 'Prepared nodes', 'Plane groups', 'Complete lower', 'Cropped lower', 'Scope evictions'),
+                       ((key, row['improvement']['prepared_nodes'], row['improvement']['planes']['groups'],
+                         row['lower_complete']['root_lower'], row['lower_cropped']['root_lower'], row['cache']['evictions'])
+                        for key, row in ((key, query[key]) for key in ('off', 'on'))))
     lines += ['## Step 2', '']
     campaign = data['campaign']
     trials = campaign.get('trials', {})
@@ -127,9 +134,11 @@ def render(data, label):
     workflow = data['S']
     lines += ['## Step 3', '', f"S status: {workflow['status']}.", '']
     if workflow['status'] == 'passed':
-        lines += table(('Build', 'Event', 'Native maximum s', 'Other event measurements'), (
-            (version, event['event'], event['native_seconds'], {k: v for k, v in event.items()
-             if k not in ('event', 'native_seconds')}) for version, events in workflow['events'].items() for event in events))
+        lines += table(('Build', 'Event', 'Native maximum s', 'Proof faces', 'Hand-over faces', 'Cells',
+                        'Job peak bytes', 'Minimum timer coverage'), (
+            (version, row['event'], row['native_seconds'], row['proof_faces'], row['handover_faces'],
+             row['actual_mesh_counts']['cells'], row['job_peak_rss_bytes'], row['minimum_timer_coverage'])
+            for version, events in workflow['events'].items() for row in events))
         lines += table(('Build', 'Rank', 'Event', 'Geometry bound s', 'Communication and join wait s', 'Other s'), (
             (version, rank, event, row['geometry_bound'], row['communication_and_join_wait'], row['other'])
             for version, ranks in workflow['final_rank_exclusive_seconds'].items() for rank, events in ranks.items()

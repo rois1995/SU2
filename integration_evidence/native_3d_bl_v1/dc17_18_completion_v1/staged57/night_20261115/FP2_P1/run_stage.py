@@ -35,6 +35,10 @@ def run(build, stage):
         print(f'FP2-P1 step {stage} preparing {argv[-1]}', flush=True)
         code = subprocess.call(argv) if not path.is_file() else None
         raw = cut.read(path) if path.is_file() else {'status': 'missing receipt'}
+        if argv[-1] == 'first-collapse' and raw['subruns']['first-collapse']['switch_receipt'].get(
+                'observed_solver_peak_sum_bytes'):
+            from seal_first_collapse import seal
+            raw = seal(build, stage - 1)
         name = argv[-1]
         details = raw.get('first_difference') or raw.get('identity', {}).get('status')
         if 'subruns' in raw:

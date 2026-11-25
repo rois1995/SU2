@@ -1,0 +1,83 @@
+{
+  "state": "terminal",
+  "host": {
+    "hostname": "pc-rausa",
+    "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+    "procfs_pid1": true,
+    "loadavg": "1.60 1.84 2.35 3/4889 2012130",
+    "mem_available_kib": 34236724,
+    "mem_available_mib": 33434
+  },
+  "root": {
+    "pid": 2011977,
+    "state": "R",
+    "ppid": 2011771,
+    "start_ticks": 108219382,
+    "name": "nice"
+  },
+  "observed_processes": [],
+  "peak_sampled_tree_rss_bytes": 99745792,
+  "peak_hwm_by_pid_start_ticks": {
+    "2011977:108219382": 1527808,
+    "2011978:108219382": 2162688,
+    "2011979:108219382": 15441920,
+    "2011982:108219385": 40316928,
+    "2011983:108219385": 40296448
+  },
+  "exit_code": 0,
+  "seconds": 3.265388814965263,
+  "actual_host_proc": true,
+  "identities": [
+    {
+      "pid": 2011977,
+      "state": "S",
+      "ppid": 2011771,
+      "start_ticks": 108219382,
+      "name": "time",
+      "VmHWM": 1527808,
+      "VmRSS": 1527808,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 2011978,
+      "state": "S",
+      "ppid": 2011977,
+      "start_ticks": 108219382,
+      "name": "timeout",
+      "VmHWM": 2162688,
+      "VmRSS": 2162688,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 2011979,
+      "state": "S",
+      "ppid": 2011978,
+      "start_ticks": 108219382,
+      "name": "mpirun",
+      "VmHWM": 15441920,
+      "VmRSS": 15441920,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 2011982,
+      "state": "R",
+      "ppid": 2011979,
+      "start_ticks": 108219385,
+      "name": "test_driver",
+      "VmHWM": 40316928,
+      "VmRSS": 40316928,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 2011983,
+      "state": "R",
+      "ppid": 2011979,
+      "start_ticks": 108219385,
+      "name": "test_driver",
+      "VmHWM": 40296448,
+      "VmRSS": 40296448,
+      "alive_at_terminal": false
+    }
+  ],
+  "live_owned_descendants": []
+}
