@@ -514,7 +514,7 @@ CNumerics::ResidualType<> CAvgGrad_Flow::ComputeResidual(const CConfig* config) 
     ComputePerturbedRSM(nDim, Eig_Val_Comp, uq_permute, uq_delta_b, uq_urlx,
                         Mean_GradPrimVar+1, Mean_PrimVar[nDim+2], Mean_Eddy_Viscosity,
                         Mean_turb_ke, MeanPerturbedRSM, 0.0, 0.0, nullptr, 3,
-                        uqTangent ? &uqSpectrum : nullptr);
+                        uqTangent ? &uqSpectrum : nullptr, uq_fade_gap);
   }
 
   /* --- If the Stochastic Backscatter Model is active, add random contribution to stress tensor ---*/
@@ -699,7 +699,7 @@ CNumerics::ResidualType<> CAvgGradInc_Flow::ComputeResidual(const CConfig* confi
   if (sstParsedOptions.uq) {
     ComputePerturbedRSM(nDim, Eig_Val_Comp, uq_permute, uq_delta_b, uq_urlx,
                         Mean_GradPrimVar+1, Mean_PrimVar[nDim+2], Mean_Eddy_Viscosity,
-                        Mean_turb_ke, MeanPerturbedRSM);
+                        Mean_turb_ke, MeanPerturbedRSM, 0.0, 0.0, nullptr, 3, nullptr, uq_fade_gap);
   }
 
   /* --- If the Stochastic Backscatter Model is active, add random contribution to stress tensor ---*/
@@ -1038,7 +1038,7 @@ CNumerics::ResidualType<> CGeneralAvgGrad_Flow::ComputeResidual(const CConfig* c
     ComputePerturbedRSM(nDim, Eig_Val_Comp, uq_permute, uq_delta_b, uq_urlx,
                         Mean_GradPrimVar+1, Mean_PrimVar[nDim+2], Mean_Eddy_Viscosity,
                         Mean_turb_ke, MeanPerturbedRSM, 0.0, 0.0, nullptr, 3,
-                        uqTangent ? &uqSpectrum : nullptr);
+                        uqTangent ? &uqSpectrum : nullptr, uq_fade_gap);
   }
 
   /* --- If the Stochastic Backscatter Model is active, add random contribution to stress tensor ---*/

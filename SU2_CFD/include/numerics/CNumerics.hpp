@@ -204,6 +204,7 @@ protected:
   su2double uq_urlx;              /*!< \brief Under-relaxation factor for numerical stability */
   bool uq_permute;                /*!< \brief Flag for eigenvector permutation */
   UQ_JACOBIAN uq_jacobian = UQ_JACOBIAN::NONE; /*!< \brief Implicit Jacobian of the perturbed stress (UQ_JACOBIAN). */
+  passivedouble uq_fade_gap = 0.0; /*!< \brief Diagnostic fade of the perturbation (UQ_FADE_GAP, 0 = off). */
 
   bool nemo;                      /*!< \brief Flag for NEMO problems  */
 
@@ -590,6 +591,7 @@ public:
     passivedouble target[3] = {};   /*!< \brief Target anisotropy eigenvalue of each column. */
     bool permute = false;           /*!< \brief Columns 0 and 2 were swapped (UQ_PERMUTE). */
     bool valid = false;             /*!< \brief False if the stress was set without an eigensystem (k = mu_t = 0). */
+    passivedouble fade = 1.0;       /*!< \brief Fade factor f of the blend (UQ_FADE_GAP); 1 without fade. */
   };
 
   /*! \brief Overflow guard of the tangent pair viscosity, relative to mu_lam + mu_t (deliberately not a stability
@@ -598,6 +600,17 @@ public:
 
   /*! \brief Target eigenvalue differences at or below this are ties (round-off of the barycentric map). */
   static constexpr passivedouble EPMTangentTargetTie = 1e-10;
+
+  /*!
+   * \brief Fade factor of the diagnostic UQ_FADE_GAP, f = g^2 / (g^2 + c^2), in [0, 1].
+   * \note 0 at g = 0, 1/2 at g = c, 1 - (c/g)^2 for g >> c. Finite for every finite g^2 >= 0 when c > 0.
+   * \param[in] gap2 - Square of the eigenvalue gap g (dimensionless anisotropy eigenvalues).
+   * \param[in] fade_gap - Gap scale c > 0.
+   */
+  template<class Scalar>
+  static Scalar EPMFadeFactor(const Scalar& gap2, passivedouble fade_gap) {
+    return gap2 / (gap2 + fade_gap * fade_gap);
+  }
 
   /*!
    * \brief Perturb the Reynolds stress tensor based on parameters.
@@ -612,6 +625,10 @@ public:
    * \param[in] turb_ke: Turbulent kinetic energy.
    * \param[out] MeanPerturbedRSM - Perturbed stress tensor.
    * \param[out] spectrum - Optional passive copy of the eigen data (EPMSpectrum); it does not change the stress.
+   * \param[in] fade_gap - UQ_FADE_GAP c (diagnostic). With c > 0 the blend factor is uq_urlx * f, with f =
+   *            EPMFadeFactor(g^2, c) and g the smallest gap between baseline anisotropy eigenvalues whose target
+   *            eigenvalues differ (the gaps that define the direction of the target; f = 1 if all targets tie, 3C).
+   *            With c = 0 (default) the stress is computed exactly as without this argument.
    */
   template<class Mat1, class Mat2, class Scalar>
   NEVERINLINE static void ComputePerturbedRSM(size_t nDim, size_t uq_eigval_comp, bool uq_permute, Scalar uq_delta_b,
@@ -619,7 +636,7 @@ public:
                                               Scalar viscosity, Scalar turb_ke, Mat2& MeanPerturbedRSM,
                                               double probe_angle = 0.0, double gap_tolerance = 0.0,
                                               bool* ambiguous = nullptr, size_t probe_pair = 3,
-                                              EPMSpectrum* spectrum = nullptr) {
+                                              EPMSpectrum* spectrum = nullptr, passivedouble fade_gap = 0.0) {
     Scalar MeanReynoldsStress[3][3] = {{}};
     ComputeStressTensor(nDim, MeanReynoldsStress, velgrad, viscosity, density, turb_ke, true);
     for (size_t iDim = 0; iDim < 3; iDim++)
@@ -689,6 +706,37 @@ public:
     Eig_Val[1] = 0.5 *c2c + Eig_Val[0];
     Eig_Val[2] = c1c + Eig_Val[1];
 
+    /*--- UQ_FADE_GAP (diagnostic): the target direction is ill-defined where the baseline eigenvalues of a pair with
+     *    different targets tie (s -> 0, and in 2D the out-of-plane crossing s = |theta|/2). Fade the blend there,
+     *    A_eff = A f(g), g = smallest such gap. Baseline eigenvalue b carries target Eig_Val[permute ? 2-b : b]. ---*/
+    const bool fade = fade_gap > 0.0;
+    Scalar fadedUrlx = 0.0;
+    passivedouble fadeValue = 1.0;
+    if (fade) {
+      bool distinct = false;
+      Scalar minGap2 = 0.0;
+      for (size_t i = 0; i < 2; ++i) {
+        for (size_t j = i + 1; j < 3; ++j) {
+          const passivedouble dTarget = SU2_TYPE::GetValue(Eig_Val[uq_permute ? 2-i : i]) -
+                                        SU2_TYPE::GetValue(Eig_Val[uq_permute ? 2-j : j]);
+          if (std::fabs(dTarget) <= EPMTangentTargetTie) continue;
+          const Scalar gap = baseline_eigenvalues[j] - baseline_eigenvalues[i];
+          const Scalar gap2 = gap * gap;
+          if (!distinct || gap2 < minGap2) minGap2 = gap2;
+          distinct = true;
+        }
+      }
+      if (distinct) {
+        const Scalar fadeFactor = EPMFadeFactor(minGap2, fade_gap);
+        fadedUrlx = uq_urlx * fadeFactor;
+        fadeValue = SU2_TYPE::GetValue(fadeFactor);
+      } else {
+        fadedUrlx = uq_urlx;
+      }
+    }
+    /*--- Without the fade, the blend below uses uq_urlx itself (same arithmetic as before the option existed). ---*/
+    const Scalar& blendUrlx = fade ? fadedUrlx : uq_urlx;
+
     // Probe tied/near-tied eigenspaces without weakening the target eigenvalues.
     if (ambiguous) {
       *ambiguous = false;
@@ -726,17 +774,18 @@ public:
       }
       spectrum->permute = uq_permute;
       spectrum->valid = true;
+      spectrum->fade = fadeValue;
     }
 
     CBlasStructure::EigenRecomposition(A_ij, Eig_Vec, Eig_Val, 3);
 
-    /* compute perturbed Reynolds stress matrix; using under-relaxation factor (uq_urlx)*/
+    /* compute perturbed Reynolds stress matrix; using under-relaxation factor (uq_urlx, faded with UQ_FADE_GAP)*/
     for (size_t iDim = 0; iDim < 3; iDim++) {
       for (size_t jDim = 0; jDim < 3; jDim++) {
         auto delta_ij = (jDim==iDim)? 1.0 : 0.0;
         MeanPerturbedRSM[iDim][jDim] = 2.0 * turb_ke * (A_ij[iDim][jDim] + 1.0/3.0 * delta_ij);
         MeanPerturbedRSM[iDim][jDim] = MeanReynoldsStress[iDim][jDim] +
-          uq_urlx*(MeanPerturbedRSM[iDim][jDim] - MeanReynoldsStress[iDim][jDim]);
+          blendUrlx*(MeanPerturbedRSM[iDim][jDim] - MeanReynoldsStress[iDim][jDim]);
       }
     }
   }
@@ -752,7 +801,8 @@ public:
    *          1C and 2C) and, in 2D, the pairs with the out-of-plane eigenvector do not contribute. With exact, dM is
    *          instead the full difference to the isotropic Jacobian, -A mu_t (I + n n^T/3) + sum_p mu_rot,p w_p w_p^T
    *          (signed, no cap; for unit tests against finite differences).
-   * \note Passive (it is only a Jacobian): no AD dependency, nothing on the tape.
+   * \note Passive (it is only a Jacobian): no AD dependency, nothing on the tape. With UQ_FADE_GAP the blend factor
+   *       is urlx * spectrum.fade (frozen f: its derivative df/dg is neglected).
    * \param[in] nDim - 2 or 3.
    * \param[in] spectrum - Eigen data of ComputePerturbedRSM at the face.
    * \param[in] urlx - UQ_URLX (A).
@@ -769,6 +819,8 @@ public:
     for (size_t a = 0; a < 3; ++a)
       for (size_t b = 0; b < 3; ++b) dM[a][b] = 0.0;
     if (!spectrum.valid) return false;
+    /*--- UQ_FADE_GAP: the stress was blended with urlx * f (f frozen here). ---*/
+    if (spectrum.fade != 1.0) urlx *= spectrum.fade;
 
     /*--- Isotropic difference of the exact Jacobian, (1-A) mu_t instead of mu_t. ---*/
     if (exact) {

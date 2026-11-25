@@ -74,6 +74,7 @@ CNumerics::CNumerics(unsigned short val_nDim, unsigned short val_nVar,
   uq_urlx = config->GetUQ_URLX();
   uq_permute = config->GetUQ_Permute();
   uq_jacobian = config->GetUQ_Jacobian();
+  uq_fade_gap = SU2_TYPE::GetValue(config->GetUQ_FadeGap());
 
 }
 

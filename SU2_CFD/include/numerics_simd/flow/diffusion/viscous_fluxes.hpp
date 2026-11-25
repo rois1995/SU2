@@ -85,6 +85,7 @@ protected:
   const su2double uq_delta_b;
   const su2double uq_urlx;
   const bool uq_tangent;
+  const passivedouble uq_fade_gap;
 
   const CVariable* turbVars;
 
@@ -106,6 +107,7 @@ protected:
     uq_delta_b(config.GetUQ_Delta_B()),
     uq_urlx(config.GetUQ_URLX()),
     uq_tangent(config.GetSSTParsedOptions().uq && config.GetUQ_Jacobian() == UQ_JACOBIAN::TANGENT),
+    uq_fade_gap(SU2_TYPE::GetValue(config.GetUQ_FadeGap())),
     turbVars(turbVars_) {
   }
 
@@ -162,7 +164,11 @@ protected:
                             gatherVariables(jPoint, turbVars->GetSolution()));
       if (tangent) {
         addPerturbedRSMWithJacobian(avgV, avgGrad, turb_ke, tau, unitNormal,
-                                    uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx, tangentJac);
+                                    uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx, tangentJac, uq_fade_gap);
+      } else if (uq_fade_gap > 0.0) {
+        /*--- UQ_FADE_GAP (diagnostic). ---*/
+        addPerturbedRSMFaded(avgV, avgGrad, turb_ke, tau,
+                             uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx, uq_fade_gap);
       } else {
         addPerturbedRSM(avgV, avgGrad, turb_ke, tau,
                         uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx);

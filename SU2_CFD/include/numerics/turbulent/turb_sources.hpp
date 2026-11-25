@@ -927,7 +927,8 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
       switch (sstParsedOptions.production) {
         case SST_OPTIONS::UQ:
           ComputePerturbedRSM(nDim, Eig_Val_Comp, uq_permute, uq_delta_b, uq_urlx, PrimVar_Grad_i + idx.Velocity(),
-                            Density_i, Eddy_Viscosity_i, ScalarVar_i[0], MeanPerturbedRSM);
+                            Density_i, Eddy_Viscosity_i, ScalarVar_i[0], MeanPerturbedRSM,
+                            0.0, 0.0, nullptr, 3, nullptr, uq_fade_gap);
           // Retain the legacy 1994 formulation until its omega production is separately defined.
           if (sstParsedOptions.version == SST_OPTIONS::V1994) P_Base = PerturbedStrainMag(ScalarVar_i[0]);
           break;
