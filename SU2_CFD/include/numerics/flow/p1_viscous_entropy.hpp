@@ -27,6 +27,9 @@
 
 #pragma once
 
+#include <type_traits>
+#include <utility>
+
 #include "../../../../Common/include/basic_types/datatype_structure.hpp"
 #include "../../../../Common/include/toolboxes/p1_simplex.hpp"
 #include "../../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -163,9 +166,9 @@ inline void EntropyVariableJacobian(unsigned short nDim, const su2double& gamma,
 }
 
 using EntropyJacobianRow = su2double[MAXNVAR];
-using PicardBlock = su2double[MAXNVAR - 1][MAXNVAR - 1];  /*!< \brief Momentum and energy rows and columns of |T| M. */
+using PicardBlock = su2double[MAXNVAR - 1][MAXNVAR - 1];  /*!< \brief Momentum and energy rows and columns of a Picard coefficient. */
 
-/*--- Round-off tier: multiply |T| M by W, omitting the zero mass row and column of M. ---*/
+/*--- Round-off tier: multiply the Picard coefficient by W, omitting its zero mass row and column. ---*/
 inline void MultiplyPicardBlock(unsigned short nVar, const PicardBlock& block, const EntropyJacobianRow* W,
                                 su2double J[][MAXNVAR]) {
   for (unsigned short j = 0; j < nVar; ++j) J[0][j] = 0.0;
@@ -518,46 +521,51 @@ class Element : public P1Simplex::Geometry {
     }
   }
 
+  /*--- Frozen stress and heat factors for a volume or an unweighted face contraction. ---*/
+  std::pair<su2double, su2double> PicardScales(const su2double& measure) const {
+    const su2double invTheta = 1.0 / theta;
+    return {measure * mu * invTheta, measure * kappa * invTheta * invTheta / gasConst};
+  }
+
   /*!
-   * \brief Round-off tier. In Flux, G_theta = -dw_E y and G_m = dw_m (x) y, with y = g_b and z = g_a.
+   * \brief Round-off tier. In Flux, G_theta = -dw_E y and G_m = dw_m (x) y.
    *        Contracting the stress with z gives A (dw_m + v dw_E) / theta,
    *        A = mu ((y.z) I + y z^T - (2/3) z y^T).
    *        The energy flux adds v^T times that stress contraction and kappa (y.z) dw_E / (R theta^2).
-   *        Store |T| M_ab for the standard test vectors, using M_ba = M_ab^T before applying W.
    */
+  void PicardCoefficient(const su2double* z, const su2double* y, const su2double& stress,
+                         const su2double& heat, PicardBlock& M) const {
+    su2double dot = 0.0;
+    for (unsigned short i = 0; i < nDim; ++i) dot += y[i] * z[i];
+
+    for (unsigned short i = 0; i < nDim; ++i) {
+      for (unsigned short j = 0; j < nDim; ++j)
+        M[i][j] = stress * (y[i] * z[j] - (2.0 / 3.0) * z[i] * y[j]);
+      M[i][i] += stress * dot;
+    }
+
+    M[nDim][nDim] = heat * dot;
+    for (unsigned short i = 0; i < nDim; ++i) {
+      su2double right = 0.0, left = 0.0;
+      for (unsigned short j = 0; j < nDim; ++j) {
+        right += M[i][j] * vel[j];
+        left += vel[j] * M[j][i];
+      }
+      M[i][nDim] = right;
+      M[nDim][i] = left;
+      M[nDim][nDim] += vel[i] * right;
+    }
+  }
+
+  /*--- Store |T| M_ab for the standard test vectors, using M_ba = M_ab^T before applying W. ---*/
   void PicardBlocks(PicardBlock blocks[][MAXNODE]) const {
-    const su2double invTheta = 1.0 / theta;
-    const su2double stress = size * mu * invTheta;
-    const su2double heat = size * kappa * invTheta * invTheta / gasConst;
+    const auto [stress, heat] = PicardScales(size);
     for (unsigned short a = 0; a < nNodes; ++a) {
-      const auto& z = grad[a];
       for (unsigned short b = a; b < nNodes; ++b) {
-        const auto& y = grad[b];
-        su2double dot = 0.0;
-        for (unsigned short i = 0; i < nDim; ++i) dot += y[i] * z[i];
-
-        auto& M = blocks[a][b];
-        for (unsigned short i = 0; i < nDim; ++i) {
-          for (unsigned short j = 0; j < nDim; ++j)
-            M[i][j] = stress * (y[i] * z[j] - (2.0 / 3.0) * z[i] * y[j]);
-          M[i][i] += stress * dot;
-        }
-
-        M[nDim][nDim] = heat * dot;
-        for (unsigned short i = 0; i < nDim; ++i) {
-          su2double right = 0.0, left = 0.0;
-          for (unsigned short j = 0; j < nDim; ++j) {
-            right += M[i][j] * vel[j];
-            left += vel[j] * M[j][i];
-          }
-          M[i][nDim] = right;
-          M[nDim][i] = left;
-          M[nDim][nDim] += vel[i] * right;
-        }
-
+        PicardCoefficient(grad[a], grad[b], stress, heat, blocks[a][b]);
         if (a == b) continue;
         for (unsigned short i = 0; i <= nDim; ++i)
-          for (unsigned short j = 0; j <= nDim; ++j) blocks[b][a][j][i] = M[i][j];
+          for (unsigned short j = 0; j <= nDim; ++j) blocks[b][a][j][i] = blocks[a][b][i][j];
       }
     }
   }
@@ -718,6 +726,66 @@ inline void SymmetryProjector(unsigned short nDim, const su2double* nu, const su
   Px[nDim + 1] = 0.0;
 }
 
+/*--- Add the frozen consistency, penalty and adjoint terms using the volume Picard contraction. ---*/
+template <class Project>
+inline void AddNoSlipWallPicardJacobian(const Element& E, unsigned short nFaceNodes, const unsigned short* faceNodes,
+                                        const su2double* nu, const su2double* weight, const su2double& sigma,
+                                        const su2double& s, const EntropyJacobianRow (*dwdu)[MAXNVAR],
+                                        su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR], const Project& project) {
+  const auto nVar = E.nVar;
+  auto projectRows = [&](unsigned short k, const EntropyJacobianRow* block, EntropyJacobianRow* projected) {
+    for (unsigned short j = 0; j < nVar; ++j) {
+      su2double x[MAXNVAR], Px[MAXNVAR];
+      for (unsigned short i = 0; i < nVar; ++i) x[i] = block[i][j];
+      project(k, x, Px);
+      for (unsigned short i = 0; i < nVar; ++i) projected[i][j] = Px[i];
+    }
+  };
+
+  PicardBlock adjoint[MAXNODE], normal;
+  const auto [stress, heat] = E.PicardScales(1.0);
+  E.PicardCoefficient(nu, nu, stress, heat, normal);
+  for (unsigned short b = 0; b < E.nNodes; ++b) {
+    PicardBlock trace;
+    E.PicardCoefficient(nu, E.grad[b], stress, heat, trace);
+    for (unsigned short i = 0; i <= E.nDim; ++i)
+      for (unsigned short j = 0; j <= E.nDim; ++j) adjoint[b][j][i] = trace[i][j];
+
+    /*--- Consistency: -weight_k P_k K(nu, g_b) W_b. ---*/
+    EntropyJacobianRow block[MAXNVAR];
+    MultiplyPicardBlock(nVar, trace, dwdu[b], block);
+    for (unsigned short k = 0; k < nFaceNodes; ++k) {
+      EntropyJacobianRow projected[MAXNVAR];
+      projectRows(k, block, projected);
+      auto& J = jac[faceNodes[k]][b];
+      for (unsigned short i = 0; i < nVar; ++i)
+        for (unsigned short j = 0; j < nVar; ++j) J[i][j] -= weight[k] * projected[i][j];
+    }
+  }
+
+  for (unsigned short k = 0; k < nFaceNodes; ++k) {
+    const auto a = faceNodes[k];
+    EntropyJacobianRow projectedW[MAXNVAR], block[MAXNVAR], projected[MAXNVAR];
+    projectRows(k, dwdu[a], projectedW);
+
+    /*--- Penalty: weight_k sigma P_k K(nu, nu) P_k W_a. ---*/
+    MultiplyPicardBlock(nVar, normal, projectedW, block);
+    projectRows(k, block, projected);
+    const su2double penaltyWeight = weight[k] * sigma;
+    for (unsigned short i = 0; i < nVar; ++i)
+      for (unsigned short j = 0; j < nVar; ++j) jac[a][a][i][j] += penaltyWeight * projected[i][j];
+
+    if (s == 0.0) continue;
+    /*--- Adjoint: -s weight_k K(g_b, nu) P_k W_a, with K(g_b, nu) = K(nu, g_b)^T. ---*/
+    const su2double adjointWeight = s * weight[k];
+    for (unsigned short b = 0; b < E.nNodes; ++b) {
+      MultiplyPicardBlock(nVar, adjoint[b], projectedW, block);
+      for (unsigned short i = 0; i < nVar; ++i)
+        for (unsigned short j = 0; j < nVar; ++j) jac[b][a][i][j] -= adjointWeight * block[i][j];
+    }
+  }
+}
+
 /*!
  * \brief Weak no-slip wall on the face f of the element E (P1 no-slip notes, section 3.1), SIPG/IIPG/NIPG family.
  *
@@ -753,6 +821,7 @@ inline void SymmetryProjector(unsigned short nDim, const su2double* nu, const su
  *            traction on the body, the energy row the heat flow into the wall. nullptr if not needed.
  * \param[in] symmetry - Viscous symmetry plane (P1_NOSLIP.md, 11.3): P = SymmetryProjector (u.n = 0 only), g = 0, the
  *            same terms and sigma_f (Theorem S1); isothermal and wallVel are ignored.
+ * \param[in] closedFormPicard - Use the closed form for the passive, unmoved Picard Jacobian.
  */
 inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsigned short* faceNodes,
                        const su2double* faceNormal, bool isothermal, const su2double& wallTheta,
@@ -760,7 +829,7 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
                        const su2double (*dwdu)[MAXNVAR][MAXNVAR] = nullptr,
                        su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR] = nullptr, const su2double* shareFrac = nullptr,
                        const su2double (*wallVel)[3] = nullptr, su2double (*faceFlux)[MAXNVAR] = nullptr,
-                       bool symmetry = false) {
+                       bool symmetry = false, bool closedFormPicard = false) {
   const unsigned short nDim = E.nDim, nVar = E.nVar, nNodes = E.nNodes;
 
   su2double area = 0.0;
@@ -868,6 +937,17 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
     for (unsigned short b = 0; b < nNodes; ++b)
       for (unsigned short iVar = 0; iVar < nVar; ++iVar)
         for (unsigned short jVar = 0; jVar < nVar; ++jVar) jac[a][b][iVar][jVar] = 0.0;
+
+  if constexpr (std::is_same_v<su2double, passivedouble>) {
+    if (closedFormPicard && !E.moved && !E.stateDerivative && shareFrac == nullptr) {
+      auto project = [&](unsigned short k, const su2double* x, su2double* Px) {
+        if (fullProjector) return applyProjector(k, x, Px);
+        for (unsigned short i = 0; i < nVar; ++i) Px[i] = mask[i] * x[i];
+      };
+      AddNoSlipWallPicardJacobian(E, nFaceNodes, faceNodes, nu, weight, sigma, s, dwdu, jac, project);
+      return;
+    }
+  }
 
   /*--- Consistency: d(P F_T nu)/du_b = P K(nu, g_b) W_b, for the face rows. ---*/
   for (unsigned short b = 0; b < nNodes; ++b) {
