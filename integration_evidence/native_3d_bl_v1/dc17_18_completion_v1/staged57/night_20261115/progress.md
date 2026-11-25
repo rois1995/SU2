@@ -1988,3 +1988,7 @@ FP2-P2 build672 step 1, off-mpi: passed. Exit 0. Evidence fixtures/build672/off-
 FP2-P2 build672 step 1, curved: passed. Exit 0. Evidence fixtures/build672/curved/case_summary.json.
 
 FP2-P2 build672 G1 identity passed 375, 114, 228 with no unexpected changes. Inherited focused Catch counts were serial 10,314 assertions in nine cases, MPI two ranks 898 / 727 assertions in three cases each, and curved 727 assertions in one case with both checkers passed. Start the closure-off N1 control with the qualified G1 and inherited fixture pins.
+
+FP2-P2 build672 step 1, default-N1: passed. Exit 0. Evidence default/build672/N1/trial1/case_summary.json. Gate result equal.
+
+FP2-P2 build672 N1 control is qualified and exactly equal to sealed build664, including modeled peak. Control elapsed 1151.251 s, step C 913.506 s, Bound 811.483 s. Ten distinct stage keys and complete observer receipt. Work sums classification 463538756, traversal 416021808, scope build 6651129. All 36 Catch assertions passed and the owned processes are terminal. The step 1 sequence proceeds through the default-off shared safeguards.
