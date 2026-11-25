@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 from importlib.util import spec_from_file_location, module_from_spec
 from pathlib import Path
+from tempfile import TemporaryDirectory
 import re
 import runpy
 import sys
@@ -20,6 +21,8 @@ spec.loader.exec_module(runner)
 workflow, sha = runner.workflow, runner.sha
 ORIGINAL_REFERENCE = runner.reference_sources
 ORIGINAL_BOUND = runner.bound
+CAMPAIGN_NAMESPACE = runner.prior.BASE['PRIOR']
+ORIGINAL_CAMPAIGN = CAMPAIGN_NAMESPACE['bind_campaign']
 ORIGINAL_CORE = workflow.core_source
 ORIGINAL_RESTART = workflow.restart_source
 OLD = C3 / 'G5/build664/S/run_receipt.json'
@@ -181,15 +184,48 @@ def bound():
         yield
 
 
+def bind_campaign(mode, inputs):
+    context = ORIGINAL_CAMPAIGN(mode, inputs)
+    context.update(core_source=core_source, restart_source=restart_source)
+    return context
+
+
+def verify_child_scripts(work, label):
+    full = (work / 'full_controller.py').read_text()
+    restart = (work / f'run_restart{label}.py').read_text()
+    assert f'env.update({SETTINGS!r})' in full and f'argv[i:i] = {EXPORTS!r}' in full, work
+    assert repr(f'env.update({SETTINGS!r})\nargv = ["nice"') in restart, work
+    assert repr('"mpirun", ' + ', '.join(map(repr, EXPORTS)) + ', "--oversubscribe"') in restart, work
+
+
 def run():
     is_full = '--full' in sys.argv
+    if is_full:
+        build = Path(sys.argv[1])
+        label = cut.read(build / 'build_status.json')['build']
+        work = work_path(label)
+        if '--retry-full' in sys.argv:
+            work /= runner.FULL_RETRY
+        verify_child_scripts(work, label)
     runner.bound = bound
     runner.work_path = work_path
     runner.prerequisite_sources = prerequisites
     runner.reference_sources = reference
     try:
-        with patch.multiple(workflow, core_source=core_source, restart_source=restart_source):
+        with patch.multiple(workflow, core_source=core_source, restart_source=restart_source), \
+                patch.dict(CAMPAIGN_NAMESPACE, bind_campaign=bind_campaign):
             code = runner.main()
+            if '--self-check' in sys.argv:
+                with TemporaryDirectory(prefix='fp2-p2-s-script-check-') as root:
+                    work = Path(root)
+                    directory = HERE / 'build672'
+                    bind_campaign('on', [SELF])['prepare'](work, 672, directory, runner.prior.config_for('S'))
+                    verify_child_scripts(work, 672)
+                    restart = runpy.run_path(str(work / 'run_restart672.py'))
+                    source = restart['runner_context']().load_base().retargeted_source()
+                    assert f'env.update({SETTINGS!r})' in source
+                    assert all(repr(key) in source for key in SETTINGS)
+                print('Generated S and effective restart controllers contain both process switches.', flush=True)
     except (ValueError, RuntimeError, AssertionError, KeyError, OSError) as error:
         if is_full or '--only' not in sys.argv:
             raise

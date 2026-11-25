@@ -2068,3 +2068,7 @@ FP2-P2 lab OPEN checkpoint f832a4af2b pushed. Saved-current's historical differe
 FP2-P2 S setup stopped before any launch receipt. The P2 adapter replaced the inherited helper basename in a historical path and looked for a nonexistent FP2_D/run_s.py. Preserved the setup-only receipt. Corrected the test driver binding to retain the C3 historical name and use the P2 entry point only for the owned child. Self-checked both paths and inherited S reference/watchdogs. No S attempt or retry was consumed; resume S with unchanged pins and limits.
 
 FP2-P2 corrected S supervisor su2-fp2-p2-build672-s-recovered launched after the original setup service was terminal. The archive has no native or restart launch receipt. Next monitor its full receipt and isolated restart.
+
+FP2-P2 next S attempt was rejected as a launcher-wiring defect: all six actual solver environments omitted both switches. Verified the launcher ancestry against the pinned controller, terminated only the owned MPI launcher and confirmed all handles terminal with no completed event. Preserved S_invalid_switch_launch. Bound both generated scripts inside the inherited campaign namespace. Dry-checked the real generated full and effective restart scripts and added a prelaunch assertion. No eligible closure-on S child has run yet.
+
+FP2-P2 corrected generated-script supervisor su2-fp2-p2-build672-s-bound submitted. Verify recorded process switches and actual six-rank markers as soon as the solver starts.
