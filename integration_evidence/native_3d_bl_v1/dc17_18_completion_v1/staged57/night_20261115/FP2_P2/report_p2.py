@@ -101,11 +101,22 @@ def gather(build):
     anatomy = load(selected_summary(build, 'anatomy-N1'))
     shared = {name: load(shared_path(folder, name)) for name in SHARED}
     workflow = load(HERE / 'G5' / folder.name / 'S/case_summary.json')
+    if workflow['status'] == 'passed':
+        workflow['isolated_restarts'] = {}
+        for version, source in (('build664', 'reference'), ('candidate', 'run')):
+            receipt = Path(workflow[source])
+            sealed = cut.read(receipt)
+            path = Path(sealed['restart'])
+            assert cut.sha(path) == sealed['artifacts'][str(path.relative_to(receipt.parent))]
+            row = cut.read(path)
+            assert row['disk_restart_verified'] and row['standalone_qualified_cfd']
+            workflow['isolated_restarts'][version] = {
+                'receipt': str(path), 'details': row}
     c492 = {}
     for closure in (0, 1):
         path = HERE / 'shared' / folder.name / f'closure{closure}/exact-c492/case_summary.json'
         child = load(path).get('subruns', {}).get('bl', {})
-        if child.get('raw'):
+        if child.get('raw', '').endswith('.json'):
             raw = Path(child['raw'])
             assert cut.sha(raw) == child['raw_sha256']
             detail = cut.read(raw)
@@ -363,6 +374,10 @@ def render(data, label):
             (version, rank, event, row['geometry_bound'], row['communication_and_join_wait'], row['other'])
             for version, ranks in workflow['final_rank_exclusive_seconds'].items() for rank, events in ranks.items()
             for event, row in events.items()))
+        lines += table(('Build', 'Isolated restart', 'Seconds', 'Ranks', 'Points', 'Cells', 'Coordinate error'), (
+            (version, 'passed' if row['disk_restart_verified'] else 'FAILED', row['seconds'], row['ranks'],
+             row['adapted_points'], row['adapted_cells'], row['coordinate_maximum_error'])
+            for version, record in workflow['isolated_restarts'].items() for row in (record['details'],)))
         lines += table(('File', 'Build664 SHA256', 'Candidate SHA256', 'Equal'), (
             (name, data['build664'], data['candidate'], data['equal']) for name, data in workflow['payloads'].items()))
     lines += ['## Build and receipt observations', '']

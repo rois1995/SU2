@@ -2,6 +2,25 @@
 
 ## Fast path stage 2
 
+### FP2-P2 vertex witness, build672
+
+The same-build N1 control and closure-on D1 trial used identical inputs. Step C fell from 913.506 to 419.957 s and nested Bound time fell from 811.483 to 319.598 s. Classification work fell from 463,538,756 to 156,105,696 units, with traversal decreasing from 416,021,808 to 77,469,988 and scope building increasing from 6,651,129 to 37,769,889. The first-collapse work sums were 90,809,869 with closure off and 76,652,506 with closure on, against the 108,459,426 ceiling.
+
+| Closure-on lab case | Trial 1 s | Trial 2 s |
+| --- | ---: | ---: |
+| N1 | 640.378 | 645.077 |
+| N6P | 494.160 | 536.812 |
+| N6 | 742.555 | 792.215 |
+
+All three lab pairs matched exactly. Traced N1 qualified in 680.214 s. It recorded 8 invalid footprint groups across 68,858 plane rows, beside 11,860 across 68,809 for FP2-P1. The trace clock includes collection overhead.
+
+| S event | Build664 native s | Build672 native s | Build672 minimum timer coverage | Build672 job peak bytes |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | 951.321 | 655.988 | 98.015% | 9,586,192,384 |
+| 2 | 689.037 | 350.407 | 99.000% | 9,686,908,928 |
+
+The single opt-in S observation passed both native events, continued CFD and isolated restart (56.881 s). The report gives the per-rank exclusive clocks for geometry bound, communication plus join wait, and other operations. S clocks compare separate runs. All six payloads differ from build664. [FP2-P2 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P2/reports/FP2_P2_672.md)
+
 ### FP2-P1 conforming witness, build670
 
 All six closure-on lab trials qualified with exact same-binary comparisons. The closure-off N1 trial matched build664 in 1,121.645 s. The pass and Bound clocks use the same projection as the stage-2 lab report.

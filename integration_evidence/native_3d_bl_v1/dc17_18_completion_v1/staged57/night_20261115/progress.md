@@ -2072,3 +2072,11 @@ FP2-P2 corrected S supervisor su2-fp2-p2-build672-s-recovered launched after the
 FP2-P2 next S attempt was rejected as a launcher-wiring defect: all six actual solver environments omitted both switches. Verified the launcher ancestry against the pinned controller, terminated only the owned MPI launcher and confirmed all handles terminal with no completed event. Preserved S_invalid_switch_launch. Bound both generated scripts inside the inherited campaign namespace. Dry-checked the real generated full and effective restart scripts and added a prelaunch assertion. No eligible closure-on S child has run yet.
 
 FP2-P2 corrected generated-script supervisor su2-fp2-p2-build672-s-bound submitted. Verify recorded process switches and actual six-rank markers as soon as the solver starts.
+
+FP2-P2 correct S native job launched at 19:24:01 CET. Provenance and all six live owned solver environments attest closure=1 and trace=0 with one MPI export for each; one enabled marker on each rank. Both prior R3 setup defects are preserved, and the first qualifying S attempt is running.
+
+FP2-P2 S event 1 p7p8 proof/resource and f3b timer checks passed. Owned proof faces sum and each rank's surface count are 25188. Job peak and summed process peaks both 9586192384 bytes within 19999490048 bytes. First adapted mesh write observed. Continue uninterrupted to event 2 and the dependent isolated restart.
+
+FP2-P2 S event 2 p7p8 proof/resource and f3b timer checks passed. Owned proof faces sum 20238 matches the surface size on all six ranks. Job and summed process peaks 9686908928 bytes. Continued CFD is active; await terminal workflow validators and isolated restart.
+
+FP2-P2 build672 S completed and the supervisor is terminal. The workflow accepted both events with continued CFD and isolated restart. Native maxima 655.988 / 350.407 s, minimum per-rank timer coverage 98.015% / 99.000%. Proof faces 25188 / 20238, hand-over faces 26480 / 21268, cells 372715 / 352661, peak job RSS 9586192384 / 9686908928 bytes. Isolated restart verified in 56.881 s with zero coordinate error and unchanged pins. All six payload hashes differ from the sealed build664 S. No owned native process remains. The exact final label is FP2-P2: S passed; default path not yet proven. After the report and handbooks are committed and pushed, stop.
