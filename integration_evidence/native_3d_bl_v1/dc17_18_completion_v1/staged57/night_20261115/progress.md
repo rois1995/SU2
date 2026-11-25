@@ -1974,3 +1974,17 @@ FP2-P2 build672 passed, no warnings. Solver SHA256 05686918907f15e159c7867160550
 FP2-P2 build672 step 1, public-on: passed. Exit 0. Evidence fixtures/build672/public-on/case_summary.json.
 
 FP2-P2 checkpoint 687cde6b39 pushed. Both public-query processes and their cross comparison passed. The improvement uses 253 prepared nodes with closure off and 1 with closure on, with 2 and 1 footprint groups. The cropped witness split once (4 to 5 chords) and retained the qualified lower enclosure. Complete/cropped classifications and rebuild bits passed. Evictions were 60 off and 68 on. G1 serial is active.
+
+FP2-P2 build672 step 1, G1-serial: passed. Exit 0. Evidence fixtures/build672/G1-serial/case_summary.json.
+
+FP2-P2 build672 step 1, G1-mpi2: passed. Exit 0. Evidence fixtures/build672/G1-mpi2/case_summary.json.
+
+FP2-P2 build672 step 1, G1-mpi4: passed. Exit 0. Evidence fixtures/build672/G1-mpi4/case_summary.json.
+
+FP2-P2 build672 step 1, off-serial: passed. Exit 0. Evidence fixtures/build672/off-serial/case_summary.json.
+
+FP2-P2 build672 step 1, off-mpi: passed. Exit 0. Evidence fixtures/build672/off-mpi/case_summary.json.
+
+FP2-P2 build672 step 1, curved: passed. Exit 0. Evidence fixtures/build672/curved/case_summary.json.
+
+FP2-P2 build672 G1 identity passed 375, 114, 228 with no unexpected changes. Inherited focused Catch counts were serial 10,314 assertions in nine cases, MPI two ranks 898 / 727 assertions in three cases each, and curved 727 assertions in one case with both checkers passed. Start the closure-off N1 control with the qualified G1 and inherited fixture pins.
