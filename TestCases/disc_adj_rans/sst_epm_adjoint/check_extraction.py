@@ -38,6 +38,21 @@ def read_csv(path):
                 for row in csv.DictReader(stream, skipinitialspace=True)]
 
 
+def fade_gap_of_rows(rows):
+    """UQ_FADE_GAP of an sst_epm_sensitivities.csv (the fade_gap column is written only with a fade; 0 without)."""
+    values = {float(row["fade_gap"]) if row.get("fade_gap") else 0.0 for row in rows}
+    if len(values) != 1:
+        raise ValueError(f"Rows with different fade_gap values: {sorted(values)}")
+    return values.pop()
+
+
+def with_fade_gap(options, fade_gap):
+    """Add UQ_FADE_GAP to the options of an EPM extraction or direct run (only there: plain SST rejects it)."""
+    if fade_gap and (options.get("SST_EPM_POSTPROCESS") == "YES" or options.get("SST_EPM_DIRECT") == "YES"):
+        return dict(options, UQ_FADE_GAP=repr(float(fade_gap)))
+    return options
+
+
 def read_config(path):
     config = {}
     for line in path.read_text().splitlines():
@@ -278,7 +293,11 @@ def main():
     parser.add_argument("--dimension", type=int, choices=(2, 3), default=2)
     parser.add_argument("--ranks", type=int, choices=(1, 2), default=1)
     parser.add_argument("--reference", type=Path, help="serial test directory: reuse its primal and compare sensitivities")
+    parser.add_argument("--fade-gap", type=float, default=0.0,
+                        help="UQ_FADE_GAP of the extraction runs (default 0 = off; the primal stays plain SST)")
     args = parser.parse_args()
+    if not (args.fade_gap >= 0 and math.isfinite(args.fade_gap)):
+        parser.error("--fade-gap must be a finite number >= 0")
     if args.ranks > 1 and args.reference is None:
         parser.error("MPI checks require --reference pointing to the matching serial test")
     binary = args.binary.resolve(strict=True)
@@ -297,7 +316,7 @@ def main():
     def launch(name, overrides):
         directory = root / name
         directory.mkdir()
-        options = dict(config, **overrides)
+        options = with_fade_gap(dict(config, **overrides), args.fade_gap)
         (directory / "run.cfg").write_text("".join(f"{k}= {v}\n" for k, v in options.items()))
         start = time.monotonic()
         with (directory / "run.log").open("w") as log:
@@ -382,6 +401,9 @@ def main():
         assert other_hash == adjoint_hash, \
             f"{name}: {other} differs from {adjoint_restart} (sha256 {other_hash} vs {adjoint_hash})"
     rows = read_csv(on / "sst_epm_sensitivities.csv")
+    assert fade_gap_of_rows(rows) == args.fade_gap, (fade_gap_of_rows(rows), args.fade_gap)
+    field_header = json.loads((on / f"sst_epm_field_{rows[0]['objective']}.json").read_text())
+    assert field_header["uq_fade_gap"] == args.fade_gap, (field_header["uq_fade_gap"], args.fade_gap)
     canonical = {r["case"]: r for r in rows if r["probe_pair"] == "3"}
     assert set(canonical) == {"1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C"}
     assert len({(r["case"], r["probe_pair"]) for r in rows}) == len(rows)
@@ -500,6 +522,7 @@ def main():
     if args.reference:
         serial = args.reference.resolve(strict=True)
         reference = read_csv(serial / "enabled" / "sst_epm_sensitivities.csv")
+        assert fade_gap_of_rows(reference) == args.fade_gap, "The reference used a different --fade-gap"
         assert len(rows) == len(reference)
         for row, ref in zip(rows, reference):
             assert (row["case"], row["probe_pair"]) == (ref["case"], ref["probe_pair"])
@@ -607,7 +630,7 @@ def main():
                "extract_only_status": extract_only_status,
                "field_file_bytes": {"enabled": enabled_info["bytes"]},
                "field_sites": {"enabled": enabled_info["sites"]},
-               "rows": len(rows), "status": "passed_infrastructure_smoke_test"}
+               "rows": len(rows), "fade_gap": args.fade_gap, "status": "passed_infrastructure_smoke_test"}
     if extract_only_status.startswith("passed"):
         summary.update({
             "extract_only_residuals": {k: v for k, v in extracted_history[-1].items() if k.startswith("rms[")},

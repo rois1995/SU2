@@ -157,3 +157,29 @@ reference primal and checks:
   relative when both converge; recorded only otherwise).
 
 It writes `summary.json`. Not run yet: it needs the cluster build.
+
+## Faded EPM (`UQ_FADE_GAP`)
+
+With `UQ_FADE_GAP= c > 0` the classical EPM blends with `A f` per site, `f = g^2/(g^2 + c^2)`,
+`g` the anisotropy eigenvalue gap that defines the direction of the case. The extraction and the
+direct mode accept the same option (it is rejected for a plain SST run without them) and weight
+the change of the case at every site by the `f` of the classical path at the same state:
+
+- extraction: `dtau`, `dpk`, `dpw` (field files and scalar replay) are `f` times the unfaded ones,
+  so `dJ_da_at_zero` is `dJ/dA` at `A = 0` of the faded model (the `A`-dependence of `f` through
+  the state is multiplied by `A`, so it does not enter the derivative). The CSV gets a trailing
+  `fade_gap` column (only when `c > 0`) and the field JSON a `uq_fade_gap` entry;
+- direct mode: `tau0 + A f (tau_m - tau0)` and `clip(P0) + A f (clip(P_m) - clip(P0))`, `f` at
+  the current state. At `A = 1` this is no longer the classical endpoint.
+
+Checks with a fade (same `c` as the classical runs; the primal stays plain SST):
+
+```bash
+python3 TestCases/disc_adj_rans/sst_epm_adjoint/check_extraction.py \
+  /path/to/SU2_CFD_AD build-epm-local/check-2d-fade --fade-gap 0.05
+python3 TestCases/disc_adj_rans/sst_epm_adjoint/check_direct.py \
+  /path/to/SU2_CFD build-epm-local/direct-2d-fade --reference build-epm-local/check-2d-fade
+```
+
+`check_direct.py` takes `c` from the `fade_gap` column of the reference CSV. With a fade its
+`--endpoints` comparison is recorded as a diagnostic only.

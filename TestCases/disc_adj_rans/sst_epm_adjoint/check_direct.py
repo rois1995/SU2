@@ -8,6 +8,10 @@ extraction linearizes. This script checks, from the serial reference directory o
   3. for every case, the central difference (J(h) - J(-h)) / 2h of converged direct runs equals the extracted
      dJ_da_at_zero of the reference CSV (SWAP included);
   4. optionally (--endpoints), A = 1 against the classical endpoint (SST_OPTIONS UQ, UQ_URLX = 1).
+If the reference extraction was faded (fade_gap column of its CSV, check_extraction.py --fade-gap), the direct runs
+use the same UQ_FADE_GAP: residual F0 + A f (Fm - F0), f the fade factor of each site. Stages 1-3 hold unchanged. The
+A = 1 endpoint is then not the classical one (which keeps (1-f) 2/3 rho k in the stress and clips after the blend), so
+stage 4 is recorded as a diagnostic only.
 """
 
 import argparse
@@ -22,7 +26,8 @@ import sys
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from check_extraction import mpi_command, read_config, read_csv  # noqa: E402  (sits next to this script)
+from check_extraction import (fade_gap_of_rows, mpi_command, read_config,  # noqa: E402  (sits next to this script)
+                              read_csv)
 
 MODES = {"1C_KEEP": (1, "NO"), "1C_SWAP": (1, "YES"),
          "2C_KEEP": (2, "NO"), "2C_SWAP": (2, "YES"), "3C": (3, "NO")}
@@ -89,16 +94,22 @@ def endpoint_comparison(j_direct, j_classical, direct_converged, classical_conve
     return result
 
 
-def direct_overrides(mode, amplitude):
+def direct_overrides(mode, amplitude, fade_gap=0.0):
     component, permute = MODES[mode]
-    return {"SST_OPTIONS": "V2003m", "UQ_COMPONENT": str(component), "UQ_PERMUTE": permute,
-            "UQ_DELTA_B": "1", "UQ_URLX": "1", "SST_EPM_DIRECT": "YES", "SST_EPM_DIRECT_AMPLITUDE": repr(amplitude)}
+    options = {"SST_OPTIONS": "V2003m", "UQ_COMPONENT": str(component), "UQ_PERMUTE": permute,
+               "UQ_DELTA_B": "1", "UQ_URLX": "1", "SST_EPM_DIRECT": "YES", "SST_EPM_DIRECT_AMPLITUDE": repr(amplitude)}
+    if fade_gap:
+        options["UQ_FADE_GAP"] = repr(float(fade_gap))
+    return options
 
 
-def classical_overrides(mode):
+def classical_overrides(mode, fade_gap=0.0):
     component, permute = MODES[mode]
-    return {"SST_OPTIONS": "(V2003m, UQ)", "UQ_COMPONENT": str(component), "UQ_PERMUTE": permute,
-            "UQ_DELTA_B": "1", "UQ_URLX": "1"}
+    options = {"SST_OPTIONS": "(V2003m, UQ)", "UQ_COMPONENT": str(component), "UQ_PERMUTE": permute,
+               "UQ_DELTA_B": "1", "UQ_URLX": "1"}
+    if fade_gap:
+        options["UQ_FADE_GAP"] = repr(float(fade_gap))
+    return options
 
 
 def main():
@@ -125,7 +136,9 @@ def main():
         "The reference primal is not converged"
     objective = {"DRAG": "CD", "LIFT": "CL"}[config["OBJECTIVE_FUNCTION"]]
     j0 = float(baseline_history[-1][objective])
-    gradients = canonical_gradients(read_csv(reference / "enabled" / "sst_epm_sensitivities.csv"))
+    reference_rows = read_csv(reference / "enabled" / "sst_epm_sensitivities.csv")
+    gradients = canonical_gradients(reference_rows)
+    fade_gap = fade_gap_of_rows(reference_rows)
     root.mkdir(parents=True, exist_ok=False)
     command = [str(binary), "run.cfg"]
     if args.ranks > 1:
@@ -177,7 +190,7 @@ def main():
     # 1. A = 0 is the plain SST residual: the same iterations from the same restart, bit for bit.
     identity = {"ITER": str(IDENTITY_ITER), "CONV_STARTITER": str(10 * IDENTITY_ITER)}
     plain, plain_history, _ = run("identity/plain", identity, require_converged=False)
-    zero, zero_history, _ = run("identity/direct_zero", dict(identity, **direct_overrides("1C_SWAP", 0.0)),
+    zero, zero_history, _ = run("identity/direct_zero", dict(identity, **direct_overrides("1C_SWAP", 0.0, fade_gap)),
                                 require_converged=False)
     assert plain_history, "identity/plain wrote no history"
     mismatches = history_mismatches(plain_history, zero_history)
@@ -188,7 +201,7 @@ def main():
     assert "EPM direct mode: case 1C_SWAP at amplitude 0" in (zero / "run.log").read_text()
 
     # 2. Guards (SU2_MPI::Error at configuration time).
-    direct = direct_overrides("1C_KEEP", args.step)
+    direct = direct_overrides("1C_KEEP", args.step, fade_gap)
     run_expect_failure("reject/classical_uq", dict(direct, SST_OPTIONS="(V2003m, UQ)"),
                        ["SST_EPM_DIRECT requires MATH_PROBLEM= DIRECT"])
     run_expect_failure("reject/adjoint", dict(direct, MATH_PROBLEM="DISCRETE_ADJOINT"),
@@ -199,14 +212,15 @@ def main():
     run_expect_failure("reject/amplitude_missing", dict(direct, SST_EPM_DIRECT_AMPLITUDE=None),
                        ["requires SST_EPM_DIRECT_AMPLITUDE"])
     run_expect_failure("reject/urlx", dict(direct, UQ_URLX="0.5"), ["UQ_URLX= 1 or unset"])
-    run_expect_failure("reject/3c_swap", dict(direct_overrides("3C", args.step), UQ_PERMUTE="YES"), ["UQ_COMPONENT"])
+    run_expect_failure("reject/3c_swap", dict(direct_overrides("3C", args.step, fade_gap), UQ_PERMUTE="YES"),
+                       ["UQ_COMPONENT"])
 
     # 3. Central differences against the extraction, every case.
     results = {}
     for mode in MODES:
         values = {}
         for sign, label in ((1, "plus"), (-1, "minus")):
-            directory, history, _ = run(f"taylor/{mode}/{label}", direct_overrides(mode, sign * args.step))
+            directory, history, _ = run(f"taylor/{mode}/{label}", direct_overrides(mode, sign * args.step, fade_gap))
             values[label] = float(history[-1][objective])
         results[mode] = taylor(values["plus"], values["minus"], j0, args.step, gradients[mode], rel_tol=args.rel_tol)
         print(f"{mode}: central {results[mode]['central']:.10e} vs dJ_da_at_zero {gradients[mode]:.10e}, "
@@ -216,18 +230,23 @@ def main():
     endpoints = {}
     if args.endpoints:
         for mode in MODES:
-            _, direct_history, direct_converged = run(f"endpoint/{mode}/direct", direct_overrides(mode, 1.0),
+            _, direct_history, direct_converged = run(f"endpoint/{mode}/direct", direct_overrides(mode, 1.0, fade_gap),
                                                       require_converged=False)
-            _, classical_history, classical_converged = run(f"endpoint/{mode}/classical", classical_overrides(mode),
+            _, classical_history, classical_converged = run(f"endpoint/{mode}/classical",
+                                                            classical_overrides(mode, fade_gap),
                                                             require_converged=False)
             endpoints[mode] = endpoint_comparison(float(direct_history[-1][objective]),
                                                   float(classical_history[-1][objective]),
                                                   direct_converged, classical_converged)
+            if fade_gap:
+                # Faded: the two A = 1 residuals differ by design (module docstring); diagnostic only.
+                endpoints[mode]["passed"] = None
+                endpoints[mode]["note"] = "faded: not the same residual, diagnostic only"
 
     failed = [mode for mode, result in results.items() if not result["passed"]]
     failed += [f"endpoint/{mode}" for mode, result in endpoints.items() if result["passed"] is False]
     summary = {"binary": str(binary), "reference": str(reference), "ranks": args.ranks, "objective": objective,
-               "J0": j0, "identity": {"iterations": IDENTITY_ITER, "restart_sha256": plain_hash},
+               "J0": j0, "fade_gap": fade_gap, "identity": {"iterations": IDENTITY_ITER, "restart_sha256": plain_hash},
                "taylor": results, "taylor_rel_tol": args.rel_tol, "endpoints": endpoints, "timings_s": timings,
                "status": "failed: " + ", ".join(failed) if failed else "passed"}
     (root / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")

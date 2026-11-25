@@ -103,6 +103,14 @@ class Overrides(unittest.TestCase):
         self.assertEqual((options["UQ_URLX"], options["UQ_DELTA_B"]), ("1", "1"))
         self.assertEqual(options["UQ_PERMUTE"], "YES")
         self.assertNotIn("SST_EPM_DIRECT", options)
+        self.assertNotIn("UQ_FADE_GAP", options)
+
+    def test_fade_gap(self):
+        """UQ_FADE_GAP only with a fade; the default leaves the options as before."""
+        self.assertNotIn("UQ_FADE_GAP", cd.direct_overrides("1C_KEEP", 0.01))
+        self.assertNotIn("UQ_FADE_GAP", cd.direct_overrides("1C_KEEP", 0.01, 0.0))
+        self.assertEqual(float(cd.direct_overrides("1C_KEEP", 0.01, 0.05)["UQ_FADE_GAP"]), 0.05)
+        self.assertEqual(float(cd.classical_overrides("2C_KEEP", 0.05)["UQ_FADE_GAP"]), 0.05)
 
 
 if __name__ == "__main__":

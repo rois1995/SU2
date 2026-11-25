@@ -112,6 +112,25 @@ def orientation_fields(edge_normal, boundary_normal):
     return fields
 
 
+class FadeGapTests(unittest.TestCase):
+    def test_rows(self):
+        self.assertEqual(ce.fade_gap_of_rows([{"case": "3C"}, {"case": "3C", "fade_gap": ""}]), 0.0)
+        self.assertEqual(ce.fade_gap_of_rows([{"fade_gap": "0.050000000000000003"}, {"fade_gap": "0.05"}]), 0.05)
+        with self.assertRaises(ValueError):
+            ce.fade_gap_of_rows([{"fade_gap": "0.05"}, {"fade_gap": "0.01"}])
+
+    def test_options(self):
+        """Only EPM extraction and direct runs get UQ_FADE_GAP (plain SST rejects it); 0 adds nothing."""
+        plain = {"SOLVER": "RANS"}
+        extraction = dict(plain, SST_EPM_POSTPROCESS="YES")
+        direct = dict(plain, SST_EPM_DIRECT="YES")
+        self.assertIs(ce.with_fade_gap(plain, 0.05), plain)
+        self.assertIs(ce.with_fade_gap(extraction, 0.0), extraction)
+        self.assertEqual(float(ce.with_fade_gap(extraction, 0.05)["UQ_FADE_GAP"]), 0.05)
+        self.assertEqual(float(ce.with_fade_gap(direct, 0.01)["UQ_FADE_GAP"]), 0.01)
+        self.assertNotIn("UQ_FADE_GAP", extraction)
+
+
 class NormalOrientationTests(unittest.TestCase):
     def test_convention_passes(self):
         ce.check_normal_orientation(orientation_fields((1.0, 0.0, 0.0), (1.0, 0.0, 0.0)), ce.FIELD_KINDS)
