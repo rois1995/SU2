@@ -3250,6 +3250,10 @@ void CConfig::SetConfig_Options() {
    * part of the eigenvector-rotation term of the perturbed stress). */
   addEnumOption("UQ_JACOBIAN", uq_jacobian, UQ_Jacobian_Map, UQ_JACOBIAN::NONE);
 
+  /* DESCRIPTION: Diagnostic fade of the classical EPM blend, UQ_URLX f with f = g^2/(g^2 + c^2), where g is the smallest
+   * baseline anisotropy eigenvalue gap that decides the target direction and c this value (0 = off). */
+  addDoubleOption("UQ_FADE_GAP", uq_fade_gap, 0.0);
+
   /* DESCRIPTION: Experimental classical EPM sensitivities after coupled adjoint convergence. */
   addBoolOption("SST_EPM_POSTPROCESS", epmExtraction.enabled, false);
 
@@ -6155,6 +6159,11 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     if (!error.empty()) SU2_MPI::Error(error, CURRENT_FUNCTION);
   }
 
+  {
+    const string error = GetUQFadeGapError();
+    if (!error.empty()) SU2_MPI::Error(error, CURRENT_FUNCTION);
+  }
+
   /*--- EPM direct mode: the scalar-replay hooks stay active for the whole primal run at the fixed amplitude, so the
    *    residual is F0 + A (Fm - F0) and S0 + A (clip(Pm) - clip(P0)), whose A-derivative at 0 the extraction gives. ---*/
   if (epmExtraction.direct) {
@@ -6300,6 +6309,17 @@ string CConfig::GetUQJacobianError() const {
       Kind_Linear_Solver_Prec == Q_IDENTITY)
     return "UQ_JACOBIAN= TANGENT cannot be used with the quantized preconditioners Q_LU_SGS, Q_JACOBI and "
            "Q_IDENTITY (LINEAR_SOLVER_PREC); use e.g. ILU or LU_SGS.";
+  return "";
+}
+
+string CConfig::GetUQFadeGapError() const {
+  if (!(uq_fade_gap >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(uq_fade_gap)))
+    return "UQ_FADE_GAP must be a finite number >= 0 (0 = off).";
+  if (uq_fade_gap == 0.0) return "";
+  /*--- The fade scales the blend of the classical EPM; it does not exist without it (this also excludes
+   *    SST_EPM_DIRECT and SST_EPM_POSTPROCESS, which require SST_OPTIONS without UQ). ---*/
+  if (Kind_Turb_Model != TURB_MODEL::SST || !sstParsedOptions.uq)
+    return "UQ_FADE_GAP > 0 requires the classical EPM (KIND_TURB_MODEL= SST with UQ in SST_OPTIONS).";
   return "";
 }
 
@@ -6963,6 +6983,7 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
                 cout << "\nperturbing the Reynold's Stress Matrix towards " << eig_val_comp << " component turbulence";
                 if (uq_permute) cout << " (permuting eigenvectors)";
                 if (uq_jacobian == UQ_JACOBIAN::TANGENT) cout << "\nwith the tangent pair term in the flow Jacobian";
+                if (uq_fade_gap > 0.0) cout << "\nfaded where the anisotropy eigenvalue gap is below UQ_FADE_GAP= " << uq_fade_gap;
                 break;
               case SST_OPTIONS::COMP_Wilcox:
                 cout << " with compressibility correction of Wilcox";

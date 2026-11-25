@@ -1290,6 +1290,7 @@ private:
   su2double uq_urlx;            /*!< \brief Under-relaxation factor */
   bool uq_permute;              /*!< \brief Permutation of eigenvectors */
   UQ_JACOBIAN uq_jacobian;      /*!< \brief Implicit Jacobian of the classical EPM stress. */
+  su2double uq_fade_gap;        /*!< \brief Diagnostic fade of the classical EPM blend (UQ_FADE_GAP, 0 = off). */
 
   unsigned long pastix_fact_freq;  /*!< \brief (Re-)Factorization frequency for PaStiX */
   unsigned short pastix_verb_lvl;  /*!< \brief Verbosity level for PaStiX */
@@ -9811,6 +9812,23 @@ public:
    *         which SetPostprocessing raises with SU2_MPI::Error.
    */
   string GetUQJacobianError() const;
+
+  /*!
+   * \brief Get the gap scale c of the diagnostic fade of the classical EPM blend (UQ_FADE_GAP, 0 = off).
+   */
+  su2double GetUQ_FadeGap(void) const { return uq_fade_gap; }
+
+  /*!
+   * \brief Set UQ_FADE_GAP (unit tests; not checked by GetUQFadeGapError).
+   */
+  void SetUQ_FadeGap(su2double gap) { uq_fade_gap = gap; }
+
+  /*!
+   * \brief Check UQ_FADE_GAP against the supported configuration.
+   * \return An empty string if UQ_FADE_GAP= 0 or the configuration is supported, otherwise the error message,
+   *         which SetPostprocessing raises with SU2_MPI::Error.
+   */
+  string GetUQFadeGapError() const;
 
   /*!
    * \brief Get information about whether to use wall functions.
