@@ -2,6 +2,20 @@
 
 ## Fast path stage 2
 
+### FP2-P1 conforming witness, build670
+
+All six closure-on lab trials qualified with exact same-binary comparisons. The closure-off N1 trial matched build664 in 1,121.645 s. The pass and Bound clocks use the same projection as the stage-2 lab report.
+
+| Case | Build664 trial 1 s | Build670 closure-on trial 1 s | Build670 closure-on trial 2 s |
+| --- | ---: | ---: | ---: |
+| N6P | 858.019 | 1,283.069 | 1,283.655 |
+| N1 | 1,086.701 | 1,529.068 | 1,527.192 |
+| N6 | 1,507.171 | 2,746.051 | 2,250.350 |
+
+ANATOMY qualified in 1,996.941 s and matched the trace-off N1 projection. Over the 70,362 grouped miss and bypass forwards, the root-enough count rose from 51,772 to 52,249. Result work rose from 480,614,358 to 703,296,684 and prepared nodes rose from 7,552,490 to 50,438,362. These are measured trace comparisons with FP2-M2. The trace clock includes collection overhead.
+
+The closure-on first-collapse check exceeded the 108,459,426 work ceiling. The existing counters attribute the increase from 90,809,869 to 111,921,030 units to scope building (+10,787,910) and traversal (+10,323,251). Both settings built 12,494 scopes and issued 22,889 upper calls. S timings and isolated restart are unevaluated. [FP2-P1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/reports/FP2_P1_670.md)
+
 ### FP2-M3 footprint trace, build668
 
 N1 trace-off and trace-on took 1,126.088 and 1,206.416 s. FP2-M2's baseline and anatomy took 1,180.061 and 1,253.027 s. These trial times include different observation costs. Both M3 projections matched build664 exactly, and the M2-format counts of forwards, prepared nodes, root-enough forwards and result work matched M2 in every bin. The provenance stream was 136,934,750 compressed bytes. Offline analysis took 113.726 s.
