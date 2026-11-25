@@ -1,0 +1,450 @@
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index 2b007a4be7..b668e57744 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -381,27 +381,52 @@ void TraceSurfacePlanes(const SurfaceTraceGroups& trace, const std::map<size_t,
+ }
+ 
+ using WitnessEdge = std::pair<Id, Id>;
++using WitnessBorder = std::vector<std::pair<double, Id>>;
++
++WitnessEdge WitnessKey(Id a, Id b) { return std::minmax(a, b); }
+ 
+ struct WitnessTopology {
+   std::map<Vec, Id> vertices;
+   std::vector<Point> points;
++  std::vector<size_t> open;
+   std::map<WitnessEdge, std::set<size_t>> owners;
+ 
+   std::array<Id, 3> Vertices(const UnionTriangle& chord) {
+     std::array<Id, 3> ids;
+     for (unsigned k = 0; k < 3; ++k) {
+       const auto inserted = vertices.emplace(Values(chord.points[k]), points.size());
+-      if (inserted.second) points.push_back(chord.points[k]);
++      if (inserted.second) {
++        points.push_back(chord.points[k]);
++        open.push_back(0);
++      }
+       ids[k] = inserted.first->second;
+     }
+     return ids;
+   }
+ 
+-  void Update(const std::array<Id, 3>& ids, size_t chord, bool insert) {
++  bool IsOpen(WitnessEdge key) const {
++    const auto edge = owners.find(key);
++    return edge != owners.end() && edge->second.size() == 1;
++  }
++
++  void UpdateOpen(WitnessEdge key, bool was_open) {
++    const bool is_open = IsOpen(key);
++    if (was_open == is_open) return;
++    if (is_open) {
++      ++open[key.first];
++      if (key.second != key.first) ++open[key.second];
++    } else {
++      --open[key.first];
++      if (key.second != key.first) --open[key.second];
++    }
++  }
++
++  void Update(const std::array<Id, 3>& ids, size_t chord, bool insert, bool track_open = false) {
+     for (unsigned k = 0; k < 3; ++k) {
+-      const Id a = ids[k], b = ids[(k + 1) % 3];
+-      UpdateEdge({a, b}, chord, insert);
+-      if (a != b) UpdateEdge({b, a}, chord, insert);
++      const auto key = WitnessKey(ids[k], ids[(k + 1) % 3]);
++      const bool was_open = track_open && IsOpen(key);
++      UpdateEdge(key, chord, insert);
++      if (track_open) UpdateOpen(key, was_open);
+     }
+   }
+ 
+@@ -429,7 +454,7 @@ struct WitnessChain {
+   std::array<Id, 9> ids{};
+   std::array<double, 9> delta{};
+   unsigned length = 0;
+-  enum Status { Skip, Complete, DeadEnd, Long } status = Skip;
++  enum Status { Skip, Complete, Long, Tie } status = Skip;
+ };
+ 
+ std::pair<unsigned, int> WitnessProjection(const Box& normal) {
+@@ -469,68 +494,114 @@ double WitnessLimit(double resolution) {
+   return nearest > exact ? std::nextafter(nearest, -INFINITY) : nearest;
+ }
+ 
++unsigned WitnessAxis(const std::vector<Point>& points) {
++  if (points.empty()) return 0;
++  auto low = Values(points.front()), high = low;
++  for (const auto& point : points) {
++    const auto value = Values(point);
++    for (unsigned d = 0; d < 3; ++d) {
++      low[d] = std::min(low[d], value[d]);
++      high[d] = std::max(high[d], value[d]);
++    }
++  }
++  const Vec extent{high[0] - low[0], high[1] - low[1], high[2] - low[2]};
++  return std::max_element(extent.begin(), extent.end()) - extent.begin();
++}
++
++template <class Work>
++WitnessBorder MakeWitnessBorder(const WitnessTopology& topology, unsigned axis, Work work) {
++  WitnessBorder border;
++  border.reserve(topology.points.size());
++  for (Id id = 0; id < topology.points.size(); ++id) {
++    if (!topology.open[id]) continue;
++    work();
++    border.emplace_back(Values(topology.points[id])[axis], id);
++  }
++  std::sort(border.begin(), border.end());
++  return border;
++}
++
++auto WitnessRange(const WitnessBorder& border, Point base, Point end, unsigned axis, double limit) {
++  const double a = Values(base)[axis], b = Values(end)[axis];
++  const auto [low, high] = std::minmax(a, b);
++  const double lo = std::nextafter(low - limit, -INFINITY);
++  const double hi = std::nextafter(high + limit, INFINITY);
++  const auto first = std::lower_bound(border.begin(), border.end(), lo,
++                                      [](const auto& entry, double value) { return entry.first < value; });
++  const auto last = std::upper_bound(first, border.end(), hi,
++                                     [](double value, const auto& entry) { return value < entry.first; });
++  return std::make_pair(first, last);
++}
++
++struct WitnessFoot {
++  Point base;
++  Vec u;
++  double q;
++  Box exact_base, exact_u;
++
++  WitnessFoot(Point first, Point last) : base(first), u(WitnessDifference(last, first)), q(WitnessDot(u, u)),
++      exact_base(Exact(first)), exact_u(Difference(Exact(last), exact_base)) {}
++
++  bool Candidate(Point point, double limit, double& t, double& delta) const {
++    t = WitnessDot(WitnessDifference(point, base), u) / q;
++    if (!(0 < t && t < 1)) return false;
++    Box foot;
++    for (unsigned d = 0; d < 3; ++d) foot[d] = Add(exact_base[d], Multiply(exact_u[d], t));
++    if (!FiniteWitnessBox(foot)) return false;
++    const auto displacement = Difference(Exact(point), foot);
++    if (!FiniteWitnessBox(displacement)) return false;
++    delta = NormBound(displacement);
++    return std::isfinite(delta) && delta <= limit;
++  }
++};
++
++struct WitnessCandidate {
++  double t, delta;
++  Id id;
++};
++
+ template <class Work>
+-WitnessChain FindWitnessChain(const WitnessTopology& topology, const WitnessChord& parent, size_t index,
+-                              unsigned k, double limit, Work work) {
++WitnessChain FindWitnessChain(const WitnessTopology& topology, const WitnessBorder& border, unsigned axis,
++                              const WitnessChord& parent, unsigned k, double limit, Work work) {
+   WitnessChain chain;
+   const unsigned j = (k + 1) % 3, l = (k + 2) % 3;
+   const Id a = parent.ids[k], b = parent.ids[j], c = parent.ids[l];
+-  const auto edge = topology.owners.find({a, b});
+-  if (edge == topology.owners.end() || edge->second.size() != 1 || !WitnessProjection(WitnessNormal(parent.chord)).second)
+-    return chain;
++  if (!topology.IsOpen(WitnessKey(a, b)) || !WitnessProjection(WitnessNormal(parent.chord)).second) return chain;
+ 
+   const auto base = parent.chord.points[k], end = parent.chord.points[j];
+-  const auto u = WitnessDifference(end, base);
+-  const double q = WitnessDot(u, u);
+-  if (!(q > 0)) return chain;
+-  const auto exact_base = Exact(base);
+-  const auto exact_u = Difference(Exact(end), exact_base);
+-  double current_t = 0;
+-  chain.ids[0] = a;
+-  while (chain.length < 8) {
++  const WitnessFoot foot(base, end);
++  if (!(foot.q > 0)) return chain;
++  const auto [first, last] = WitnessRange(border, base, end, axis, limit);
++  std::array<WitnessCandidate, 7> candidates;
++  unsigned count = 0;
++  for (auto entry = first; entry != last; ++entry) {
+     work();
+-    const Id current = chain.ids[chain.length];
+-    auto adjacency = topology.owners.lower_bound({current, 0});
+-    bool found = false;
+-    Id best = 0;
+-    double best_t = 1, best_delta = 0;
+-    for (; adjacency != topology.owners.end() && adjacency->first.first == current; ++adjacency) {
+-      const auto id = adjacency->first.second;
+-      if (adjacency->second.size() != 1 || *adjacency->second.begin() == index || id == a || id == c) continue;
+-      work();
+-      double t = 1, delta = 0;
+-      if (id != b) {
+-        const auto point = topology.points[id];
+-        t = WitnessDot(WitnessDifference(point, base), u) / q;
+-        if (!(current_t < t && t < 1)) continue;
+-        Box foot;
+-        for (unsigned d = 0; d < 3; ++d) foot[d] = Add(exact_base[d], Multiply(exact_u[d], t));
+-        if (!FiniteWitnessBox(foot)) continue;
+-        const auto displacement = Difference(Exact(point), foot);
+-        if (!FiniteWitnessBox(displacement)) continue;
+-        delta = NormBound(displacement);
+-        if (!std::isfinite(delta) || !(delta <= limit)) continue;
+-      }
+-      if (!found || std::make_pair(t, id) < std::make_pair(best_t, best)) {
+-        found = true;
+-        best = id;
+-        best_t = t;
+-        best_delta = delta;
+-      }
+-    }
+-    if (!found) {
+-      if (chain.length) chain.status = WitnessChain::DeadEnd;
++    const Id id = entry->second;
++    if (id == a || id == b || id == c || !topology.open[id]) continue;
++    double t, delta;
++    if (!foot.Candidate(topology.points[id], limit, t, delta)) continue;
++    if (count == candidates.size()) {
++      chain.status = WitnessChain::Long;
+       return chain;
+     }
+-    chain.ids[++chain.length] = best;
+-    chain.delta[chain.length] = best_delta;
+-    if (best == b) {
+-      chain.status = WitnessChain::Complete;
++    candidates[count++] = {t, delta, id};
++  }
++  if (!count) return chain;
++  std::sort(candidates.begin(), candidates.begin() + count, [](const auto& a, const auto& b) {
++    return std::tie(a.t, a.id) < std::tie(b.t, b.id);
++  });
++  chain.ids[0] = a;
++  for (unsigned i = 0; i < count; ++i) {
++    if (i && candidates[i - 1].t == candidates[i].t) {
++      chain.status = WitnessChain::Tie;
+       return chain;
+     }
+-    current_t = best_t;
++    chain.ids[i + 1] = candidates[i].id;
++    chain.delta[i + 1] = candidates[i].delta;
+   }
+-  chain.status = WitnessChain::Long;
++  chain.length = count + 1;
++  chain.ids[chain.length] = b;
++  chain.status = WitnessChain::Complete;
+   return chain;
+ }
+ 
+@@ -540,16 +611,34 @@ double WitnessAddUp(double a, double b) {
+   return nearest < hi ? std::nextafter(nearest, INFINITY) : nearest;
+ }
+ 
+-bool WitnessFan(const WitnessTopology& topology, const WitnessChord& parent, unsigned k, const WitnessChain& chain,
+-                double original_error, AtlasBudget& budget, std::array<WitnessChord, 8>& fan, witness::Counters& counters) {
++bool WitnessFan(const WitnessTopology& topology, const std::vector<WitnessChord>& working, const WitnessChord& parent,
++                unsigned k, const WitnessChain& chain, double original_error, AtlasBudget& budget,
++                std::array<WitnessChord, 8>& fan, witness::Counters& counters) {
+   const unsigned j = (k + 1) % 3, l = (k + 2) % 3;
+   const Id c = parent.ids[l];
+   for (unsigned i = 1; i < chain.length; ++i) {
+-    if (topology.owners.count({chain.ids[i], c})) {
++    if (topology.owners.count(WitnessKey(chain.ids[i], c))) {
+       ++counters.reject_fan_key;
+       return false;
+     }
+   }
++  for (unsigned i = 0; i < chain.length; ++i) {
++    const Id a = chain.ids[i], b = chain.ids[i + 1];
++    const auto edge = topology.owners.find(WitnessKey(a, b));
++    if (edge == topology.owners.end()) continue;
++    if (edge->second.size() == 1) {
++      const auto& ids = working[*edge->second.begin()].ids;
++      bool forward = false, reverse = false;
++      for (unsigned e = 0; e < 3; ++e) {
++        const Id first = ids[e], last = ids[(e + 1) % 3];
++        forward |= first == a && last == b;
++        reverse |= first == b && last == a;
++      }
++      if (reverse && !forward) continue;
++    }
++    ++counters.reject_chain_key;
++    return false;
++  }
+   const double edge_offset = std::max(parent.offsets[k], parent.offsets[j]);
+   double first_offset = parent.offsets[k];
+   Point first_point = parent.chord.points[k];
+@@ -597,38 +686,48 @@ witness::Result CloseWitness(const std::vector<UnionTriangle>& input, double res
+   const size_t vertices = Mul(input.size(), 3);
+   using Vertices = decltype(topology.vertices);
+   using Owners = decltype(topology.owners);
+-  const size_t vertex_bytes = Mul(vertices, sizeof(Vertices::value_type) + 4 * sizeof(void*) + sizeof(Point));
+-  // Each chord contributes at most six directed incidences, including the edge and owner nodes.
+-  const size_t incidence_bytes = 6 * (sizeof(Owners::value_type) + sizeof(size_t) + 8 * sizeof(void*));
+-  const size_t fixed = sizeof(topology) + sizeof(working) + sizeof(result) + sizeof(WitnessChain) +
+-                       8 * (sizeof(WitnessChord) + sizeof(Box));
++  const size_t vertex_bytes = Mul(vertices, sizeof(Vertices::value_type) + 4 * sizeof(void*) + sizeof(Point) +
++                                              sizeof(size_t) + sizeof(WitnessBorder::value_type));
++  // Each chord contributes at most three unordered incidences, including the edge and owner nodes.
++  const size_t incidence_bytes = 3 * (sizeof(Owners::value_type) + sizeof(size_t) + 8 * sizeof(void*));
++  const size_t fixed = sizeof(topology) + sizeof(working) + sizeof(result) + sizeof(WitnessBorder) +
++                       sizeof(WitnessChain) + sizeof(WitnessFoot) + sizeof(std::array<WitnessCandidate, 7>) +
++                       sizeof(std::array<bool, 8>) + 8 * (sizeof(WitnessChord) + sizeof(Box));
+   auto admit = [&](size_t work_capacity, size_t chords, size_t additional) {
+     AtlasOps::Storage(budget, Add(fixed, vertex_bytes, Mul(work_capacity, sizeof(WitnessChord)),
+                                  Mul(chords, incidence_bytes), additional), "QuerySurfaceUnionAtResolution");
+   };
+   admit(input.size(), input.size(), 0);
+   topology.points.reserve(vertices);
++  topology.open.reserve(vertices);
+   working.reserve(input.size());
+   for (size_t i = 0; i < input.size(); ++i) {
+     AtlasOps::Work(budget, 1);
+     working.push_back({input[i], topology.Vertices(input[i]), {}, i});
+-    topology.Update(working.back().ids, i, true);
++    topology.Update(working.back().ids, i, true, true);
+   }
++  const unsigned axis = WitnessAxis(topology.points);
++  const auto work = [&] { AtlasOps::Work(budget, 1); };
++  const auto border = MakeWitnessBorder(topology, axis, work);
+   const double limit = WitnessLimit(resolution);
+   auto& counters = result.counters;
+-  for (size_t index = 0; index < working.size(); ++index) {
++  for (size_t index = 0; index < working.size() && !counters.cap; ++index) {
+     for (unsigned k = 0; k < 3;) {
+-      AtlasOps::Work(budget, 1);
+-      const auto chain = FindWitnessChain(topology, working[index], index, k, limit,
+-                                          [&] { AtlasOps::Work(budget, 1); });
+-      if (chain.status == WitnessChain::DeadEnd) ++counters.reject_dead_end;
++      work();
++      const auto chain = FindWitnessChain(topology, border, axis, working[index], k, limit, work);
++      if (chain.status == WitnessChain::Tie) ++counters.reject_tie;
+       if (chain.status == WitnessChain::Long) ++counters.reject_long;
+       std::array<WitnessChord, 8> fan;
+       if (chain.status != WitnessChain::Complete ||
+-          !WitnessFan(topology, working[index], k, chain, input[working[index].origin].error, budget, fan, counters)) {
++          !WitnessFan(topology, working, working[index], k, chain, input[working[index].origin].error, budget, fan,
++                      counters)) {
+         ++k;
+         continue;
+       }
++      if (counters.splits == input.size()) {
++        counters.cap = 1;
++        break;
++      }
+       const size_t total = Add(working.size(), chain.length - 1);
+       const size_t capacity = working.capacity();
+       if (total > capacity) {
+@@ -638,6 +737,11 @@ witness::Result CloseWitness(const std::vector<UnionTriangle>& input, double res
+       } else {
+         admit(capacity, total, 0);
+       }
++      const auto parent_edge = WitnessKey(chain.ids[0], chain.ids[chain.length]);
++      std::array<bool, 8> chain_open{};
++      for (unsigned i = 0; i < chain.length; ++i) {
++        chain_open[i] = topology.IsOpen(WitnessKey(chain.ids[i], chain.ids[i + 1]));
++      }
+       topology.Update(working[index].ids, index, false);
+       working[index] = fan[0];
+       topology.Update(fan[0].ids, index, true);
+@@ -645,6 +749,11 @@ witness::Result CloseWitness(const std::vector<UnionTriangle>& input, double res
+         topology.Update(fan[i].ids, working.size(), true);
+         working.push_back(fan[i]);
+       }
++      // Only the parent edge and chain keys can change openness after the entire fan is in place.
++      topology.UpdateOpen(parent_edge, true);
++      for (unsigned i = 0; i < chain.length; ++i) {
++        topology.UpdateOpen(WitnessKey(chain.ids[i], chain.ids[i + 1]), chain_open[i]);
++      }
+       ++counters.splits;
+       counters.children += chain.length;
+       if (chain.length == 2) ++counters.chain2;
+@@ -664,30 +773,47 @@ witness::Result CloseWitness(const std::vector<UnionTriangle>& input, double res
+   return result;
+ }
+ 
+-size_t LeftClosable(const std::vector<UnionTriangle>& input, const std::vector<UnionTriangle>& closed, double resolution) {
++size_t LeftWitnessContacts(const std::vector<UnionTriangle>& input, const std::vector<UnionTriangle>& closed,
++                           double resolution) {
+   WitnessTopology topology;
+   for (const auto& chord : input) topology.Vertices(chord);
+-  std::vector<WitnessChord> working;
+-  working.reserve(closed.size());
++  const unsigned axis = WitnessAxis(topology.points);
++  std::vector<std::array<Id, 3>> ids;
++  ids.reserve(closed.size());
+   for (const auto& chord : closed) {
+-    working.push_back({chord, topology.Vertices(chord), {}, 0});
+-    topology.Update(working.back().ids, working.size() - 1, true);
++    ids.push_back(topology.Vertices(chord));
++    topology.Update(ids.back(), ids.size() - 1, true, true);
+   }
++  const auto border = MakeWitnessBorder(topology, axis, [] {});
+   const double limit = WitnessLimit(resolution);
+-  size_t closable = 0;
+-  for (size_t i = 0; i < working.size(); ++i) {
+-    const auto& chord = working[i];
++  size_t contacts = 0;
++  for (const auto& [key, owners] : topology.owners) {
++    if (owners.size() != 1) continue;
++    const size_t i = *owners.begin();
++    const auto& corners = ids[i];
+     for (unsigned k = 0; k < 3; ++k) {
+-      closable += FindWitnessChain(topology, chord, i, k, limit, [] {}).status == WitnessChain::Complete;
++      const unsigned j = (k + 1) % 3;
++      if (WitnessKey(corners[k], corners[j]) != key) continue;
++      const auto base = closed[i].points[k], end = closed[i].points[j];
++      const WitnessFoot foot(base, end);
++      if (!(foot.q > 0)) break;
++      const auto [first, last] = WitnessRange(border, base, end, axis, limit);
++      for (auto entry = first; entry != last; ++entry) {
++        const Id id = entry->second;
++        if (std::find(corners.begin(), corners.end(), id) != corners.end()) continue;
++        double t, delta;
++        contacts += foot.Candidate(topology.points[id], limit, t, delta);
++      }
++      break;
+     }
+   }
+-  return closable;
++  return contacts;
+ }
+ 
+ void TraceClosedWitness(const std::vector<UnionTriangle>& input, const witness::Result& result, double resolution) {
+   std::string left = "-1";
+   try {
+-    left = std::to_string(LeftClosable(input, result.chords, resolution));
++    left = std::to_string(LeftWitnessContacts(input, result.chords, resolution));
+   } catch (...) {
+   }
+   std::string origins;
+@@ -697,11 +823,12 @@ void TraceClosedWitness(const std::vector<UnionTriangle>& input, const witness::
+   }
+   const auto& c = result.counters;
+   std::fprintf(stderr, "NATIVE_SURFACE_WITNESS_CLOSED chords_in=%zu chords_out=%zu splits=%zu children=%zu"
+-      " chain2=%zu chain3=%zu chain4=%zu chain5_8=%zu reject_dead_end=%zu reject_long=%zu reject_fan_key=%zu"
+-      " reject_not_finite=%zu reject_orientation=%zu reject_projection=%zu left_closable=%s origin=%s\n",
++      " chain2=%zu chain3=%zu chain4=%zu chain5_8=%zu reject_long=%zu reject_tie=%zu reject_fan_key=%zu"
++      " reject_chain_key=%zu reject_not_finite=%zu reject_orientation=%zu reject_projection=%zu"
++      " cap=%zu left_contacts=%s origin=%s\n",
+       input.size(), result.chords.size(), c.splits, c.children, c.chain2, c.chain3, c.chain4, c.chain5_8,
+-      c.reject_dead_end, c.reject_long, c.reject_fan_key, c.reject_not_finite, c.reject_orientation,
+-      c.reject_projection, left.c_str(), origins.c_str());
++      c.reject_long, c.reject_tie, c.reject_fan_key, c.reject_chain_key, c.reject_not_finite, c.reject_orientation,
++      c.reject_projection, c.cap, left.c_str(), origins.c_str());
+ }
+ 
+ UnionTriangle UnionChord(const std::array<Box,10>& controls) {
+diff --git a/Common/src/adaptation/CNativeConformingWitness.hpp b/Common/src/adaptation/CNativeConformingWitness.hpp
+index 102864ab2d..8a1448bcfd 100644
+--- a/Common/src/adaptation/CNativeConformingWitness.hpp
++++ b/Common/src/adaptation/CNativeConformingWitness.hpp
+@@ -17,8 +17,8 @@ struct Chord {
+ 
+ struct Counters {
+   size_t splits = 0, children = 0, chain2 = 0, chain3 = 0, chain4 = 0, chain5_8 = 0;
+-  size_t reject_dead_end = 0, reject_long = 0, reject_fan_key = 0, reject_not_finite = 0;
+-  size_t reject_orientation = 0, reject_projection = 0;
++  size_t reject_long = 0, reject_tie = 0, reject_fan_key = 0, reject_chain_key = 0;
++  size_t reject_not_finite = 0, reject_orientation = 0, reject_projection = 0, cap = 0;
+ };
+ 
+ struct Result {

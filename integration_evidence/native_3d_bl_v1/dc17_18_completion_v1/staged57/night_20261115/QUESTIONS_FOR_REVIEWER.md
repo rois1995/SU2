@@ -268,3 +268,7 @@ How should the report cover all edges with five ranked rows, and which label app
 - 2026-11-24T12:35:32+01:00, FP2-C3 continuation 1 source check, base ae9ef407fa. The introduction names Size as test 9 while the source's lazy test 9 is the forward sample. Used the exact insertion point named in 2.2 after Size and Shape, before ExactlyPositive; placing it in the lazy group would move it after contact screening.
 
 2026-11-25 12:03 CET. FP2-P1, step 2 to step 3 labels. When a required closure-on check fails, should the exact S OPEN label still be used for the unexecuted S, or should the last label stay lab FAILED? Section 5 requires the S OPEN label when S cannot start and separately says to skip dependent steps after FAILED. Reading used: commit the lab FAILED label, then record the unexecuted S and its parts as not evaluated at the exact S OPEN label. This applies both instructions without launching S. Evidence at a920cd3c1f and FP2_P1/reports/first_collapse_r5_670.md.
+
+### 2026-11-25 15:55 CET, FP2-P2 R4
+
+Can the private topology store a single canonical key after removal of adjacency lookup? Options were keeping two directed lookup entries and deduplicating the live-count changes, or storing one canonical key and checking directions in the sole owner's current chord. Used the canonical key. P2 specifies unordered incidences, removes the directed adjacency walk, and derives direction from the local edges of the owner chord. Base dec45f8a71.

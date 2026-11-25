@@ -3094,12 +3094,14 @@ void P1Expect(const witness::Result& result, const P1Chords& expected, const std
   CHECK(actual.chain3 == counts.chain3);
   CHECK(actual.chain4 == counts.chain4);
   CHECK(actual.chain5_8 == counts.chain5_8);
-  CHECK(actual.reject_dead_end == counts.reject_dead_end);
   CHECK(actual.reject_long == counts.reject_long);
+  CHECK(actual.reject_tie == counts.reject_tie);
   CHECK(actual.reject_fan_key == counts.reject_fan_key);
+  CHECK(actual.reject_chain_key == counts.reject_chain_key);
   CHECK(actual.reject_not_finite == counts.reject_not_finite);
   CHECK(actual.reject_orientation == counts.reject_orientation);
   CHECK(actual.reject_projection == counts.reject_projection);
+  CHECK(actual.cap == counts.cap);
 }
 
 std::vector<size_t> P1Originals(size_t size) {
@@ -3112,8 +3114,8 @@ void P1ExpectUnchanged(const P1Chords& input, const witness::Counters& counts = 
   P1Expect(P1Close(input), input, P1Originals(input.size()), counts);
 }
 
-void P1ExpectFan(const std::vector<Point>& chain, Point apex = P1C, Point neighbor = P1D, double displacement = 0.) {
-  const auto input = P1Soup(chain, apex, neighbor);
+void P2ExpectFan(const P1Chords& input, const std::vector<Point>& chain, Point apex = P1C,
+                 double displacement = 0., size_t work = 0) {
   auto expected = input;
   auto origin = P1Originals(input.size());
   const size_t edges = chain.size() - 1;
@@ -3131,7 +3133,13 @@ void P1ExpectFan(const std::vector<Point>& chain, Point apex = P1C, Point neighb
   counts.chain3 = edges == 3;
   counts.chain4 = edges == 4;
   counts.chain5_8 = edges >= 5;
-  P1Expect(P1Close(input), expected, origin, counts);
+  auto budget = GeometryAtlasBudget();
+  P1Expect(witness::Close(input, P1Resolution, budget), expected, origin, counts);
+  if (work) CHECK(budget.work == work);
+}
+
+void P1ExpectFan(const std::vector<Point>& chain, Point apex = P1C, Point neighbor = P1D, double displacement = 0.) {
+  P2ExpectFan(P1Soup(chain, apex, neighbor), chain, apex, displacement);
 }
 
 std::vector<Point> P1Eighths() {
@@ -3167,7 +3175,7 @@ bool P1CoveredFromAbove(Point model, const P1Chord& child) {
 }
 }  // namespace
 
-TEST_CASE("FP2-P1 direct witness closure preserves certificates and chord order", "[.][NativeFP2P1ClosureDirect]") {
+TEST_CASE("FP2-P2 direct witness closure preserves certificates and chord order", "[.][NativeFP2P1ClosureDirect]") {
   SECTION("Depth-one junction between two facets") {
     P1ExpectFan({P1A, P1M, P1B});
   }
@@ -3201,22 +3209,16 @@ TEST_CASE("FP2-P1 direct witness closure preserves certificates and chord order"
   SECTION("Near false neighbor increases the certified error by its offset") {
     P1ExpectFan({P1A, {.5, 0, P1Error}, P1B}, P1C, P1D, P1Error);
   }
-  SECTION("An earlier far spur is excluded and the dead spur wins over the later near chain") {
-    auto input = P1Soup({P1A, P1M, P1B});
-    input.push_back({{P1A, {.25, 0, 0}, {-2, -2, 0}}, P1Error / 2});
-    input.push_back({{P1A, {.125, 1, 0}, {-2, 2, 0}}, P1Error / 2});
-    witness::Counters counts{};
-    counts.reject_dead_end = 2;
-    P1ExpectUnchanged(input, counts);
-  }
-  SECTION("Eight edges reach the endpoint on the last allowed choice") {
+  SECTION("Seven inner vertices give eight children") {
     P1ExpectFan(P1Eighths());
   }
-  SECTION("An eighth choice that still needs a ninth edge is rejected") {
+  SECTION("Eight inner vertices reject the edge") {
     auto chain = P1Eighths();
     chain.insert(chain.begin() + 1, {1. / 16, 0, 0});
     witness::Counters counts{};
-    counts.reject_long = counts.reject_dead_end = 1;
+    counts.reject_long = 1;
+    counts.reject_chain_key = 1;
+    counts.reject_fan_key = 1;
     P1ExpectUnchanged(P1Soup(chain), counts);
   }
   SECTION("A fan edge already in the incidence table blocks closure") {
@@ -3228,12 +3230,15 @@ TEST_CASE("FP2-P1 direct witness closure preserves certificates and chord order"
   }
   SECTION("An inverted child blocks closure") {
     witness::Counters counts{};
-    counts.reject_orientation = counts.reject_dead_end = 1;
+    counts.reject_orientation = 1;
+    counts.reject_chain_key = 2;
     P1ExpectUnchanged(P1Soup({P1A, {.5, 1. / 16, 0}, P1B}, {.5, 1. / 32, 0}), counts);
   }
   SECTION("A zero-area child blocks closure") {
     witness::Counters counts{};
-    counts.reject_orientation = counts.reject_dead_end = 1;
+    counts.reject_orientation = 1;
+    counts.reject_fan_key = 1;
+    counts.reject_chain_key = 1;
     P1ExpectUnchanged(P1Soup({P1A, {.25, 1. / 64, 0}, P1B}, {.5, 1. / 32, 0}), counts);
   }
   SECTION("A parent with zero projection sign is skipped") {
@@ -3248,15 +3253,94 @@ TEST_CASE("FP2-P1 direct witness closure preserves certificates and chord order"
   SECTION("Already conforming chords preserve all bits including signed zero") {
     P1ExpectUnchanged({{{P1A, P1B, {0, 1, -0.}}, P1Error}, {{P1B, P1A, P1D}, P1Error / 2}});
   }
+  SECTION("Half seam with only A-M ends with an open M-B") {
+    P2ExpectFan({{{P1A, P1B, P1C}, P1Error}, {{P1M, P1A, P1D}, P1Error / 2}}, {P1A, P1M, P1B});
+  }
+  SECTION("Half seam with only M-B ends with an open A-M") {
+    P2ExpectFan({{{P1A, P1B, P1C}, P1Error}, {{P1B, P1M, P1D}, P1Error / 2}}, {P1A, P1M, P1B});
+  }
+  SECTION("A corner contact without either half key can split") {
+    P2ExpectFan({{{P1A, P1B, P1C}, P1Error}, {{P1M, {-2, -2, 0}, {2, -2, 0}}, P1Error / 2}},
+                {P1A, P1M, P1B});
+  }
+  SECTION("A closed seam vertex is still charged in the frozen slice") {
+    auto input = P1Soup({P1A, P1M, P1B});
+    // M projects at t=1/2 with offset 1/16 onto the first edge of the later chord.
+    const Point a{.5, -.25, .0625}, b{.5, .25, .0625}, c{.5, 0, 1};
+    input.push_back({{a, b, c}, P1Error / 2});
+    // Four inputs, eight border ids, 16 inspections, 44 slice visits and two children.
+    P2ExpectFan(input, {P1A, P1M, P1B}, P1C, 0., 74);
+  }
+  SECTION("Two candidates at the same parameter reject the edge") {
+    const Point other{.5, 0, .0625};
+    witness::Counters counts{};
+    counts.reject_tie = 1;
+    P1ExpectUnchanged({{{P1A, P1B, P1C}, P1Error},
+                       {{P1M, {.5, -2, -2}, {-2, -2, -2}}, P1Error / 2},
+                       {{other, {.5, -2, 2}, {-2, -2, 2}}, P1Error / 2}}, counts);
+  }
+  SECTION("A chain key with two owners rejects the fan") {
+    witness::Counters counts{};
+    counts.reject_chain_key = 1;
+    P1ExpectUnchanged({{{P1A, P1B, P1C}, P1Error}, {{P1M, P1A, P1D}, P1Error / 2},
+                       {{P1A, P1M, {-2, -2, 0}}, P1Error / 2}}, counts);
+  }
+  SECTION("A chain key with a forward owner rejects the fan") {
+    witness::Counters counts{};
+    counts.reject_chain_key = 1;
+    P1ExpectUnchanged({{{P1A, P1B, P1C}, P1Error}, {{P1A, P1M, P1D}, P1Error / 2}}, counts);
+  }
+  SECTION("A single owner with both directions still rejects the fan") {
+    witness::Counters counts{};
+    counts.reject_chain_key = 1;
+    P1ExpectUnchanged({{{P1A, P1B, P1C}, P1Error}, {{P1M, P1A, P1M}, P1Error / 2}}, counts);
+  }
+  SECTION("Only a sixth certified fan sets the five-input cap") {
+    const Point a0{0, 0, 0}, b0{2, 0, 0}, c0{0, 2, 0}, m0{1, 0, 0}, n0{0, 1, 0};
+    const Point a1{10, 0, 0}, b1{12, 0, 0}, c1{10, 2, 0}, m1{11, 0, 0}, n1{10, 1, 0};
+    const Point a2{0, 10, 0}, b2{2, 10, 0}, c2{0, 12, 0}, m2{1, 10, 0}, n2{0, 11, 0};
+    const P1Chords input{{{a0, b0, c0}, P1Error}, {{a1, b1, c1}, P1Error}, {{a2, b2, c2}, P1Error},
+                         {{m0, m1, m2}, P1Error / 2}, {{n0, n1, n2}, P1Error / 2}};
+    const double error = std::nextafter(P1Error, INFINITY);
+    const P1Chords expected{{{c0, n0, m0}, error}, {{c1, n1, m1}, error}, {{a2, m2, c2}, error},
+                            input[3], input[4], {{m0, b0, c0}, error}, {{n0, a0, m0}, error},
+                            {{m1, b1, c1}, error}, {{n1, a1, m1}, error}, {{m2, b2, c2}, error}};
+    witness::Counters counts{};
+    counts.splits = counts.chain2 = 5;
+    counts.children = 10;
+    counts.cap = 1;
+    auto budget = GeometryAtlasBudget();
+    P1Expect(witness::Close(input, P1Resolution, budget), expected, {0, 1, 2, 3, 4, 0, 0, 1, 1, 2}, counts);
+    CHECK(budget.work == 119);
+  }
+  SECTION("The binary64 outward range end is inclusive") {
+    const double hi = std::nextafter(1. + P1Resolution / 8, INFINITY);
+    const Point end{hi, 0, 0};
+    P1Chords input{{{P1A, P1B, P1C}, P1Error}, {{end, {4, 2, 0}, {4, -2, 0}}, P1Error / 2}};
+    auto budget = GeometryAtlasBudget();
+    P1Expect(witness::Close(input, P1Resolution, budget), input, {0, 1}, {});
+    CHECK(budget.work == 34);
+    input[1].points[0].x = std::nextafter(hi, INFINITY);
+    budget = GeometryAtlasBudget();
+    P1Expect(witness::Close(input, P1Resolution, budget), input, {0, 1}, {});
+    CHECK(budget.work == 30);
+  }
 }
 
-TEST_CASE("FP2-P1 witness child errors cover a curved analytic graph in both directions", "[.][NativeFP2P1ClosureDirect]") {
+TEST_CASE("FP2-P2 witness child errors cover a curved analytic graph in both directions", "[.][NativeFP2P1ClosureDirect]") {
   // The graph has height 4 e x (1-x-y) over the original triangle, with |height| <= e.
   // Dyadic samples and weights in this fixture allow exact binary64 vertical distance checks.
-  double displacement = 0;
-  SECTION("Collinear midpoint") {}
-  SECTION("Off-edge midpoint") { displacement = P1Error; }
-  const auto result = P1Close(P1Soup({P1A, {.5, 0, displacement}, P1B}));
+  P1Chords input;
+  SECTION("Collinear midpoint") { input = P1Soup({P1A, P1M, P1B}); }
+  SECTION("Off-edge midpoint") { input = P1Soup({P1A, {.5, 0, P1Error}, P1B}); }
+  SECTION("Off-edge corner with neither half seam") {
+    const Point corner{.5, 0, P1Error};
+    input = {{{P1A, P1B, P1C}, P1Error}, {{corner, {-2, -2, 0}, {2, -2, 0}}, P1Error / 2}};
+  }
+  SECTION("Collinear midpoint with one half seam") {
+    input = {{{P1A, P1B, P1C}, P1Error}, {{P1M, P1A, P1D}, P1Error / 2}};
+  }
+  const auto result = P1Close(input);
   REQUIRE(result.counters.splits == 1);
 
   std::vector<const P1Chord*> children;

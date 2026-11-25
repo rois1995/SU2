@@ -1958,3 +1958,17 @@ FP2-P1 closure-on merit481 and native2d at 1 / 2 / 4 ranks passed. Saved-current
 FP2-P1 build670 C492 retry ended at the unchanged 600 s wrapper with exit 124. Catch's sole failure line was its report of wrapper SIGTERM. Verification found no earlier result failure. The stage recorded 822 splits, zero upper refinements and the same bounded time-budget stop used by the qualified closure-off fixture. Preserve both attempts and classify C492 OPEN. Lab checkpoint p1_lab_checkpoint.json is sealed FAILED for first-collapse work. All six trials qualified, all three pairs are equal, and ANATOMY passed. Merit481 and native2d passed. Saved-current is OPEN for the historical comparison. No owned test, solver or MPI launcher is live. Commit the lab FAILED label, then record S and its parts as not evaluated.
 
 FP2-P1 lab FAILED checkpoint a91e7f437e pushed. S is not evaluated because the closure-on first-collapse work gate failed. The S record marks both events, isolated restart, per-rank timers, hand-over and mesh counts, job peak and six-payload comparison not evaluated. The default-off implementation is retained. The report and handbook entries are complete. Close with the exact S OPEN label and stop after verifying the push.
+
+## FP2-P2 start and R4 source check
+
+FP2-P2 order archived and SHA256 verified (8e81a43642858f677b906dc5086d3bf593863e97be14e558ffa0a34d19522f76). Base and tracking tip dec45f8a71. No owned build, test or solver process or service. Tracked Common, SU2_CFD and UnitTests clean. Two pre-existing untracked CNativeDistributed3D .orig files left alone. Host precheck observed 35,158 MiB available. Whole-item pre-edit source check recorded in FP2_P2/reports/source_check.md. Next implement vertex selection, check the new hidden cases and run the closure-off qualification.
+
+FP2-P2 production edit is confined to the two witness files. Build671 failed on hidden fixture aggregate initialization and was invalidated by a final hidden-fixture edit that overlapped pinning. Preserved its logs and source manifest. The fixture owner corrected the point initializers and confirmed the final test source frozen before build672. Build672 launched at nice 19, with 35,312 MiB available and no owned job present at launch. Next verify binaries and execute the hidden and inherited tests.
+
+FP2-P2 build672 step 1, direct: passed. Exit None. Evidence fixtures/build672/direct/case_summary.json.
+
+FP2-P2 build672 step 1, public-off: passed. Exit 0. Evidence fixtures/build672/public-off/case_summary.json.
+
+FP2-P2 build672 passed, no warnings. Solver SHA256 05686918907f15e159c786716055015485377a7951e68882c8af56a70075b647 and test-driver SHA256 3859f2c750bee004632c516274fd5ef1af51d2a107e8ad1b68f597a5784db24e. Hidden direct check passed 3,464 assertions in two cases, including both analytic certificates, net live counts, inclusive endpoint work, and the cap. Build and test terminal receipts verified. The step 1 supervisor now runs public, G1, inherited fixtures, N1 control and shared closure-off checks serially under their preflights. D1 remains gated on the step 1 checkpoint.
+
+FP2-P2 build672 step 1, public-on: passed. Exit 0. Evidence fixtures/build672/public-on/case_summary.json.

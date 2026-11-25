@@ -17,8 +17,8 @@ struct Chord {
 
 struct Counters {
   size_t splits = 0, children = 0, chain2 = 0, chain3 = 0, chain4 = 0, chain5_8 = 0;
-  size_t reject_dead_end = 0, reject_long = 0, reject_fan_key = 0, reject_not_finite = 0;
-  size_t reject_orientation = 0, reject_projection = 0;
+  size_t reject_long = 0, reject_tie = 0, reject_fan_key = 0, reject_chain_key = 0;
+  size_t reject_not_finite = 0, reject_orientation = 0, reject_projection = 0, cap = 0;
 };
 
 struct Result {
