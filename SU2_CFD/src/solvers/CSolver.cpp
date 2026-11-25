@@ -5939,8 +5939,6 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
    * the sparsity pattern). ---*/
   const bool fullJacobian = implicit && (config->GetKind_Visc_P1_Jacobian() == VISC_P1_JACOBIAN::FULL);
   const pve::TransportLaw law = fullJacobian ? pve::MakeTransportLaw(*config) : pve::TransportLaw();
-  const bool closedFormPicard = implicit && !fullJacobian && !config->GetVisc_P1_Entropy_Moved() &&
-                               !Jacobian.IsQuantized();
 
   /*--- Weights of the approximate pressure flux Jacobian, as for BC_ENTROPY_P1 (5:1 and 6:1:1). ---*/
   const su2double omegaSelf = (nDim == 2) ? 5.0 / 12.0 : 1.0 / 4.0;
@@ -6051,7 +6049,7 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
     pve::NoSlipWall(simplex, nDim, faceNodes, faceNormal, record.isothermal, record.wallTheta, record.nWallFaces,
                     sipg, penalty, res, implicit ? dwdu : nullptr, implicit ? jac : nullptr,
                     (movedShares && !subSimplex) ? record.share : nullptr,
-                    (movingWall && !symmetry) ? wallVel : nullptr, nullptr, symmetry, closedFormPicard);
+                    (movingWall && !symmetry) ? wallVel : nullptr, nullptr, symmetry);
     if (fullJacobian) {
       for (unsigned short c = 0; c < nNodes; ++c)
         pve::GatherTransportDerivatives(*base_nodes, point[c], gasConst, law, state[c]);

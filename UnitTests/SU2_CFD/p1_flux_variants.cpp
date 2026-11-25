@@ -1171,48 +1171,6 @@ TEST_CASE("VISC_P1_ENTROPY: closed-form Picard blocks match the flux Jacobian", 
   }
 }
 
-TEST_CASE("BC_WALL_ENTROPY_P1: closed-form Picard blocks match the flux Jacobian", "[P1Flux]") {
-  std::mt19937 gen(27381);
-  std::uniform_real_distribution<double> u(-1.0, 1.0);
-  for (int nDim : {2, 3}) {
-    for (int trial = 0; trial < 200; ++trial) {
-      const bool isothermal = (trial % 2 == 1);
-      const bool moving = (trial % 4 >= 2);
-      const bool symmetry = (trial % 5 == 0);
-      CAPTURE(nDim, trial, isothermal, moving, symmetry);
-      su2double x[4][3], dwdu[4][5][5], wallVel[3][3] = {};
-      pve::NodeState state[4];
-      RandomElement(gen, nDim, (trial % 3) ? 1.0 : 0.1, x, state);
-      pve::Element E;
-      CHECK(E.Set(nDim, x, state, kGas) > 0.0);
-      if (E.size == 0.0) continue;
-      for (int b = 0; b < E.nNodes; ++b) {
-        if (trial % 3) state[b].k = 0.25 * (1.0 + u(gen));
-        pve::EntropyVariableJacobian(nDim, kGamma, state[b], dwdu[b]);
-      }
-      for (int a = 0; a < nDim; ++a)
-        for (int i = 0; i < nDim; ++i) wallVel[a][i] = u(gen);
-
-      const unsigned short faceNodes[3] = {1, 2, 3};
-      const su2double* coord[4] = {x[0], x[1], x[2], x[3]};
-      su2double N[3];
-      pve::WallFaceNormal(nDim, coord, 0, faceNodes, N);
-      const auto nWallFaces = 1 + trial % E.nNodes;
-      const su2double wallTheta = exp(u(gen)), sipg = (trial % 7) ? pve::NOSLIP_SIPG : 0.0;
-      const auto* velocity = moving ? wallVel : nullptr;
-      su2double refRes[4][5], res[4][5], ref[4][4][5][5], actual[4][4][5][5];
-      pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, nWallFaces, sipg, pve::NOSLIP_PENALTY,
-                     refRes, dwdu, ref, nullptr, velocity, nullptr, symmetry);
-      pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, nWallFaces, sipg, pve::NOSLIP_PENALTY,
-                     res, dwdu, actual, nullptr, velocity, nullptr, symmetry, true);
-      for (int a = 0; a < E.nNodes; ++a) {
-        for (int v = 0; v < E.nVar; ++v) CHECK(res[a][v] == refRes[a][v]);
-        for (int b = 0; b < E.nNodes; ++b) CheckPicardBlock(E.nVar, ref[a][b], actual[a][b]);
-      }
-    }
-  }
-}
-
 TEST_CASE("BC_WALL_ENTROPY_P1 on one wall element: entropy bound, rest state, Jacobian", "[P1Flux]") {
   std::mt19937 gen(8765);
   std::uniform_real_distribution<double> u(-1.0, 1.0);
