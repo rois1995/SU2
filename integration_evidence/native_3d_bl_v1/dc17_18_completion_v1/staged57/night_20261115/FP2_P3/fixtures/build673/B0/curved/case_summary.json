@@ -1,0 +1,342 @@
+{
+  "build": 673,
+  "binary_sha256": "9f766f8b188c21d44faba37b7e6a7b0b924562fc045fb3baff638d0125311e08",
+  "test_binary_sha256": "b6f2def1c88f60007ebe397d255ec7711dd37871d3d71142b54a007595f47da3",
+  "source_pins_sha256": "79362d52fe64867ce40f0959f9488248e399acd8af531416a9f795c3bbda4944",
+  "mode": "curved",
+  "part": "B0",
+  "status": "passed",
+  "used": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/B0/curved/attempt1/result.json",
+  "details": {
+    "catch": [
+      [
+        [
+          "727",
+          "1"
+        ]
+      ]
+    ],
+    "historical_catch": [
+      [
+        [
+          "727",
+          "1"
+        ]
+      ]
+    ],
+    "trace": {
+      "returncode": 0,
+      "stderr": "",
+      "result": {
+        "passed": true,
+        "matched": 20,
+        "required": 20,
+        "errors": [],
+        "rows": {
+          "FALLBACK": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "group": "proved_1",
+              "calls": "20",
+              "seconds_full": "0.01264146",
+              "work_full": "2380",
+              "full_memo_hits": "0",
+              "replay_calls": "20",
+              "replay_seconds_full": "0.01264146"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "group": "proved_2",
+              "calls": "0",
+              "seconds_full": "0",
+              "work_full": "0",
+              "full_memo_hits": "0",
+              "replay_calls": "0",
+              "replay_seconds_full": "0"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "group": "needs_full",
+              "calls": "0",
+              "seconds_full": "0",
+              "work_full": "0",
+              "full_memo_hits": "0",
+              "replay_calls": "0",
+              "replay_seconds_full": "0"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "group": "direct_eligible",
+              "calls": "0",
+              "seconds_full": "0",
+              "work_full": "0",
+              "full_memo_hits": "0",
+              "replay_calls": "0",
+              "replay_seconds_full": "0"
+            }
+          ],
+          "MEMO": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "at": "start",
+              "authority": "pass",
+              "hits": "0",
+              "misses": "0",
+              "entries": "0",
+              "evictions": "0",
+              "retention_refusals": "0",
+              "bytes": "0",
+              "memo_limit": "4194304",
+              "prepared_limit": "8650504"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "at": "end",
+              "authority": "pass",
+              "hits": "0",
+              "misses": "20",
+              "entries": "20",
+              "evictions": "0",
+              "retention_refusals": "0",
+              "bytes": "8096",
+              "memo_limit": "4194304",
+              "prepared_limit": "8650504"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "at": "start",
+              "authority": "shadow",
+              "hits": "0",
+              "misses": "0",
+              "entries": "0",
+              "evictions": "0",
+              "retention_refusals": "0",
+              "bytes": "0",
+              "memo_limit": "4194304",
+              "prepared_limit": "8650504"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "at": "end",
+              "authority": "shadow",
+              "hits": "0",
+              "misses": "40",
+              "entries": "40",
+              "evictions": "0",
+              "retention_refusals": "0",
+              "bytes": "14976",
+              "memo_limit": "4194304",
+              "prepared_limit": "8650504"
+            }
+          ],
+          "OBSERVER": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "status": "ok",
+              "seconds_observer": "0.0157053",
+              "scratch_bytes": "105032",
+              "ledger_peak": "20517274",
+              "selection_scratch_bytes": "6272",
+              "shadow_bytes": "20218585",
+              "shadow_load_peak": "28208312",
+              "shadow_load_ceiling": "268435456",
+              "rss_before": "38092800",
+              "rss_after": "38850560",
+              "rss_high_water": "38850560"
+            }
+          ],
+          "REPLICA": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "attempted": "20",
+              "agree": "20",
+              "disagree": "0",
+              "resource": "0",
+              "threw": "0"
+            }
+          ],
+          "SUPPORT": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "stage": "1",
+              "interleaved": "0",
+              "calls": "20",
+              "direct_eligible": "0",
+              "empty": "0",
+              "same": "0",
+              "no_larger_box": "0",
+              "same_as_1": "0",
+              "same_as_full": "0",
+              "proved": "20",
+              "fail": "0",
+              "resource": "0",
+              "threw": "0",
+              "k_full_sum": "312",
+              "k_full_calls": "20",
+              "k_small_sum": "160",
+              "k_small_calls": "20",
+              "seconds_select_small": "3.6641999999999999e-05",
+              "seconds_select_full": "9.8084000000000005e-05",
+              "seconds_small": "0.010457239000000002",
+              "work_small": "2576",
+              "classification_work_small": "1996",
+              "selected_pieces_small": "160",
+              "support_pieces_small": "160",
+              "radius_calls": "20",
+              "r_over_tol_sum": "6270.0000000000009",
+              "select_full_resource": "0",
+              "select_full_threw": "0",
+              "full_yes_small_proved": "20",
+              "full_yes_small_other": "0",
+              "full_no_small_proved": "0",
+              "full_no_small_other": "0"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "stage": "2",
+              "interleaved": "0",
+              "calls": "0",
+              "direct_eligible": "0",
+              "empty": "0",
+              "same": "0",
+              "no_larger_box": "0",
+              "same_as_1": "0",
+              "same_as_full": "0",
+              "proved": "0",
+              "fail": "0",
+              "resource": "0",
+              "threw": "0",
+              "k_full_sum": "0",
+              "k_full_calls": "0",
+              "k_small_sum": "0",
+              "k_small_calls": "0",
+              "seconds_select_small": "0",
+              "seconds_select_full": "0",
+              "seconds_small": "0",
+              "work_small": "0",
+              "classification_work_small": "0",
+              "selected_pieces_small": "0",
+              "support_pieces_small": "0",
+              "radius_calls": "0",
+              "r_over_tol_sum": "0",
+              "select_full_resource": "0",
+              "select_full_threw": "0",
+              "full_yes_small_proved": "0",
+              "full_yes_small_other": "0",
+              "full_no_small_proved": "0",
+              "full_no_small_other": "0"
+            }
+          ]
+        }
+      }
+    },
+    "leaf": {
+      "returncode": 0,
+      "stderr": "",
+      "result": {
+        "arithmetic": "Exact rationals from binary64 inputs, using squared distance versus (resolution / 16)^2",
+        "chords": 8,
+        "corners_checked": 24,
+        "depths": {
+          "0": 8
+        },
+        "first_failure": null,
+        "limit": 6.25e-06,
+        "limit_exact": "7378697629483821/1180591620717411303424",
+        "maximum_distance": 0.0,
+        "maximum_distance_squared_exact": "0",
+        "ordinals": {
+          "11": [
+            0
+          ],
+          "12": [
+            0
+          ],
+          "19": [
+            0
+          ],
+          "20": [
+            0
+          ],
+          "27": [
+            0
+          ],
+          "28": [
+            0
+          ],
+          "35": [
+            0
+          ],
+          "36": [
+            0
+          ]
+        },
+        "status": "passed",
+        "witness": {
+          "authority": "0x58538f92e5b0",
+          "chords": "8",
+          "list": "11:0,12:0,19:0,20:0,27:0,28:0,35:0,36:0,",
+          "resolution": "3f1a36e2eb1c432d"
+        }
+      }
+    }
+  },
+  "switches": {
+    "environment": {
+      "SU2_NATIVE_CONFORMING_WITNESS": "0",
+      "SU2_NATIVE_GEOMETRY_WORK_TRACE": "1",
+      "SU2_NATIVE_FP2_M3_FACETS": "0",
+      "SU2_NATIVE_FP2_M2": "0",
+      "SU2_NATIVE_FP2_M2_TABLE": "0",
+      "SU2_NATIVE_FP2_M1": "0"
+    },
+    "query_evidence_ranks": [
+      0
+    ],
+    "rank_marker_counts": {
+      "0": 1
+    },
+    "passed": true,
+    "pins": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/B0/curved/attempt1/command.json": "74448cdcd1b42943be81dc13c27ecb4d4a402fb2f8437459cdbb845cc38ac13a",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/B0/curved/attempt1/test_outer.log": "63c8c06d2c1eaac2891f7f857ad4a26cfdcd9679920757fdff8c21abe7a96bec"
+    },
+    "first_failure": null
+  },
+  "pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/inputs/FAST_PATH_STAGE2_B.md": "c3ce29f5a4a217bc76377a26056e8595b0a6a4a19e93efac921c70604a777ca4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/inputs/FAST_PATH_STAGE2_B.sha256": "1b04b0fd567cc44ef62a68e538181e0abeef6bd3bcda4c483e44198402617404",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_B/source_check.md": "c2aa5142c29adddd474862cfb0ece05dea49e9d20fbba1584c94634df6e7840c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/build673/build_status.json": "e85e62c947d2aa6109f504602c724b399c8759ecb03f0376549d348042773002",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/build673/source_pins.json": "79362d52fe64867ce40f0959f9488248e399acd8af531416a9f795c3bbda4944",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver": "b6f2def1c88f60007ebe397d255ec7711dd37871d3d71142b54a007595f47da3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD": "9f766f8b188c21d44faba37b7e6a7b0b924562fc045fb3baff638d0125311e08",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/inputs/FP2_P3_CLOSURE_DEFAULT.md": "16fec22406c931490718e23e58da2840cd4bb05b1748189d6a12e14bff5c05e5",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/inputs/FP2_P3_CLOSURE_DEFAULT.sha256": "80568b6014c7045b8cf97991c2ade23563431291488ba463e04bc483545fb6ae",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/production.diff": "08ae1739bd4df29b1789aa62de9606322f59483cf70428de42b73541d449672b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/p3_fixtures.py": "774e6ae099a361f14929e0ae8ecd1cdd01e2b185b1f784083bf68d6d01773c8a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P2/run_p2.py": "0aa33a379bea624b6c72457e92c6db7cf77fa2f0eddf8f84a2c35bc0372f1a12",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/reports/source_check.md": "ed88e1011528f91b38652df6fc3138d6d6cb15446d7a3814f84cfa6fa31405ad",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/build673/build_plan.json": "086509f31a224d1626f538774e5939b8ed806e1ccc20a1bc7c174f3ea9f69a35",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/fixtures/build668/curved/case_summary.json": "0a60a28598a484a1d93a56938933b65b94cb3944287ed0943162b03cf91f4c9f",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/fixtures/build668/curved/attempt1/result.json": "852ac1929f343236c54d590fae705c43cc6093d01661f347e0802767c4f2d830",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M1/check_fixture_trace.py": "1d1897e5118aa6244e3dedb3104c329f3892ed2097c57d6e09bf1057361cb051",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_M3/check_leaf_pin.py": "73734ef06d89375fe70e8afc49f390f5b7491be9248e55644fcbd924bca2a149",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/B0/curved/attempt1/fp2_m1_curved_strip.native_ref": "704878b67e31334e6c8d593fdfaec3b00aca80f07eb10579efaf5c4520543038",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/B0/curved/attempt1/command.json": "74448cdcd1b42943be81dc13c27ecb4d4a402fb2f8437459cdbb845cc38ac13a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/B0/curved/attempt1/test_outer.log": "63c8c06d2c1eaac2891f7f857ad4a26cfdcd9679920757fdff8c21abe7a96bec",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/fixtures/build673/B0/curved/attempt1/result.json": "6cb544b30adecbe92a1d1de0d0b89ef94c73362fb890a4c65c8608b1b7198993"
+  }
+}

@@ -2086,3 +2086,7 @@ FP2-P2 build672 S completed and the supervisor is terminal. The workflow accepte
 Archived signed FP2_P3_CLOSURE_DEFAULT.md and verified SHA256 16fec22406c931490718e23e58da2840cd4bb05b1748189d6a12e14bff5c05e5. HEAD and tracking tip both 8f1325ef35. No owned native process or service. Common, SU2_CFD and UnitTests tracked sources clean, with the two pre-existing untracked .orig files left in place. R4 whole-item pre-edit source check in FP2_P3/reports/source_check.md. Next preserve build672 for any required control diagnosis, change the process predicate and marker only, and build the frozen pair.
 
 FP2-P3 Part A build673 passed with no warnings. Solver 9f766f8b188c21d44faba37b7e6a7b0b924562fc045fb3baff638d0125311e08, test driver b6f2def1c88f60007ebe397d255ec7711dd37871d3d71142b54a007595f47da3, source manifest 79362d52fe64867ce40f0959f9488248e399acd8af531416a9f795c3bbda4944. Build672 control pair preserved locally and its two hashes verified. Next B0 focused/curved and public-off, then B1 N1 only after B0 passes.
+
+FP2-P3 build673 B0 passed. Evidence build673/B0.json.
+
+FP2-P3 B0 sealed passed. The serial, two-rank and curved fixtures match build668 Catch counts; the two curved trace checks and hidden public-off proof passed. Focused custom-geometry ranks have no witness-query entry, and the curved and public-off serial ranks show one enabled=0 marker each. Next B1 on the pinned closure-off configuration.
