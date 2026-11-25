@@ -2156,3 +2156,5 @@ FP2-P3 build673 B2c passed. Evidence build673/B2c.json.
 FP2-P3 build673 B passed. Evidence build673/B.json.
 
 FP2-P3 B2c CORE passed both events, continued CFD, all six exact FP1 payload hashes and the isolated restart. Native maxima 1808.734 / 496.878 s, minimum per-rank timer coverage 98.956% / 98.552%, isolated restart 162.568 s and coordinate error 0.0. All owned handles terminal. Part B has a passed aggregate seal.
+
+FP2-P3 B2c checkpoint d5abf580b4. All five closure-off stages passed. Commit the Part B label and start Part C with C1 on frozen build673.
