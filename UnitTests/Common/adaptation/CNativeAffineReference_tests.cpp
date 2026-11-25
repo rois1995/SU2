@@ -2923,3 +2923,352 @@ TEST_CASE("Wall geometry law is planar, symmetric and rejects absent matching su
 #include "fixtures/native_m25_split_observation.inc"
 
 #include "fixtures/native_wall_law_b2_tests.inc"
+
+namespace {
+constexpr double P1PublicTolerance = 1e-4;
+constexpr double P1PublicLength = 1. / 32;
+using P1PublicTriangle = std::array<Point, 3>;
+const std::vector<Id> P1PublicSupport{0, 1};
+
+struct P1PublicReference {
+  std::vector<P1PublicTriangle> top;
+  std::unique_ptr<MappedFacetReference> geometry;
+
+  P1PublicReference() {
+    using namespace SU2Native3D;
+    constexpr double length = P1PublicLength;
+    const Node a{0, {0, 0, 0}}, b{1, {0, length, 0}};
+    const Node left{2, {-length, length / 2, 0}}, right{3, {length, length / 2, 0}};
+    const Node below{4, {0, length / 2, -length}};
+    const std::vector<Facet> facets{
+        {0, 0, {a, b, left}}, {1, 0, {b, a, right}},
+        {2, 0, {left, b, below}}, {3, 0, {a, left, below}},
+        {4, 0, {right, a, below}}, {5, 0, {b, right, below}}};
+    constexpr unsigned powers[10][3] = {
+        {3, 0, 0}, {0, 3, 0}, {0, 0, 3}, {2, 1, 0}, {1, 2, 0},
+        {0, 2, 1}, {0, 1, 2}, {1, 0, 2}, {2, 0, 1}, {1, 1, 1}};
+    MappedFacetReference::CurvedNets controls;
+    std::map<Id, double> errors;
+    for (const auto& facet : facets) {
+      if (facet.id < 2) top.push_back({facet.v[0].p, facet.v[1].p, facet.v[2].p});
+      errors.emplace(facet.id, 1e-12);
+      auto& net = controls[facet.id];
+      for (unsigned q = 0; q < net.size(); ++q) {
+        Point weighted{0, 0, 0};
+        for (unsigned k = 0; k < 3; ++k) {
+          weighted.x += powers[q][k] * facet.v[k].p.x;
+          weighted.y += powers[q][k] * facet.v[k].p.y;
+          weighted.z += powers[q][k] * facet.v[k].p.z;
+        }
+        net[q] = {weighted.x / 3, weighted.y / 3, weighted.z / 3};
+      }
+    }
+    // Perturb only the interior control, so the finer patch keeps the flat shared seam.
+    controls[1][9].z = 1.5e-5;
+    const size_t quota = facets.size() * (size_t(1) << 16);
+    geometry.reset(new MappedFacetReference(std::make_shared<PlanarReference>(facets),
+                                            errors, 1, SIZE_MAX, false, controls, quota));
+  }
+};
+
+double P1PublicUpper(const char* name, const P1PublicTriangle& face,
+                     MappedFacetReference::SurfaceBoundPurpose purpose) {
+  P1PublicReference reference;
+  auto budget = GeometryAtlasBudget();
+  std::fprintf(stderr, "FP2_P1_PUBLIC BEGIN case=%s\n", name);
+  const double bound = reference.geometry->BoundPhysicalSurface(
+      P1PublicSupport, {face}, P1PublicTolerance, budget, purpose,
+      purpose == MappedFacetReference::SurfaceBoundPurpose::ErrorLimit ? P1PublicTolerance : INFINITY);
+  std::fprintf(stderr, "FP2_P1_PUBLIC END case=%s bound=%a\n", name, bound);
+  CHECK(budget.caller_bytes == 0);
+  REQUIRE(std::isfinite(bound));
+  return bound;
+}
+
+void P1PublicEviction() {
+  P1PublicReference reference;
+  const auto& geometry = *reference.geometry;
+  auto query = [&](const char* step, double tolerance) {
+    if (step) std::fprintf(stderr, "FP2_P1_PUBLIC BEGIN case=%s\n", step);
+    auto budget = GeometryAtlasBudget();
+    const auto result = geometry.BoundSurfaceUnion(P1PublicSupport, reference.top, tolerance, budget);
+    CHECK(budget.caller_bytes == 0);
+    REQUIRE(result.within_tolerance);
+    if (step) std::fprintf(stderr, "FP2_P1_PUBLIC END case=%s mesh=%a model=%a\n",
+                           step, result.mesh_to_model, result.model_to_mesh);
+    return result;
+  };
+  const auto first = query("cache_first", P1PublicTolerance);
+  const auto stored = geometry.GeometryStatsSnapshot();
+  REQUIRE(stored.scope_entries == 1);
+  REQUIRE(stored.scope_builds == 1);
+  const auto warm = query("cache_warm", P1PublicTolerance);
+  const auto hit = geometry.GeometryStatsSnapshot();
+  REQUIRE(hit.scope_hits == stored.scope_hits + 1);
+  REQUIRE(hit.scope_builds == stored.scope_builds);
+  CHECK(warm.mesh_to_model == first.mesh_to_model);
+  CHECK(warm.model_to_mesh == first.model_to_mesh);
+
+  // Competing exact tolerances create separate scopes in the same bounded pool.
+  std::fprintf(stderr, "FP2_P1_PUBLIC BEGIN case=cache_competitors\n");
+  for (unsigned i = 1; i <= 96; ++i) query(nullptr, P1PublicTolerance + i * 1e-10);
+  const auto before = geometry.GeometryStatsSnapshot();
+  std::fprintf(stderr, "FP2_P1_PUBLIC END case=cache_competitors evictions=%zu\n",
+               before.evictions - hit.evictions);
+  REQUIRE(before.evictions > hit.evictions);
+  const auto rebuilt = query("cache_rebuilt", P1PublicTolerance);
+  const auto after = geometry.GeometryStatsSnapshot();
+  REQUIRE(after.scope_misses == before.scope_misses + 1);
+  REQUIRE(after.scope_builds == before.scope_builds + 1);
+  REQUIRE(after.scope_hits == before.scope_hits);
+  CHECK(rebuilt.mesh_to_model == first.mesh_to_model);
+  CHECK(rebuilt.model_to_mesh == first.model_to_mesh);
+}
+}
+
+TEST_CASE("Conforming joined witness is exercised by public surface queries",
+          "[.][NativeFP2P1ClosurePublic]") {
+  using Purpose = MappedFacetReference::SurfaceBoundPurpose;
+  constexpr double l = P1PublicLength;
+  const double improved = P1PublicUpper("improvement", {{{-l/8, l/4, 0}, {l/8, l/4, 0}, {0, 3*l/4, 0}}},
+                                        Purpose::Classification);
+  CHECK(improved <= P1PublicTolerance);
+
+  const auto complete = P1PublicUpper("lower_complete", {{{-l, 4*l, 0}, {l, -l, 0}, {l, 4*l, 0}}},
+                                      Purpose::ErrorLimit);
+  const auto cropped = P1PublicUpper("lower_cropped", {{{-l, 4*l, 0}, {l, 3*l/4, 0}, {l, 4*l, 0}}},
+                                     Purpose::ErrorLimit);
+  // The root samples are directly above the seam tip in the XY plane. Every model y is at most l.
+  CHECK(complete > P1PublicTolerance);
+  CHECK(complete <= 7*l/4);
+  CHECK(cropped > complete);
+  CHECK(cropped <= 35*l/16);
+  P1PublicEviction();
+}
+
+#include "../../../Common/src/adaptation/CNativeConformingWitness.hpp"
+#include <cstring>
+
+namespace {
+using P1Chord = witness::Chord;
+using P1Chords = std::vector<P1Chord>;
+
+constexpr double P1Resolution = 1.;
+constexpr double P1Error = 1. / 64;
+constexpr Point P1A{0, 0, 0}, P1B{1, 0, 0}, P1C{0, 1, 0}, P1D{.5, -2, 0}, P1M{.5, 0, 0};
+
+P1Chords P1Soup(const std::vector<Point>& chain, Point apex = P1C, Point neighbor = P1D) {
+  P1Chords chords{{{chain.front(), chain.back(), apex}, P1Error}};
+  for (size_t i = 1; i < chain.size(); ++i)
+    chords.push_back({{chain[i], chain[i - 1], neighbor}, P1Error / 2});
+  return chords;
+}
+
+witness::Result P1Close(const P1Chords& chords) {
+  auto budget = GeometryAtlasBudget();
+  return witness::Close(chords, P1Resolution, budget);
+}
+
+bool P1SameBits(double a, double b) { return std::memcmp(&a, &b, sizeof(double)) == 0; }
+
+void P1Expect(const witness::Result& result, const P1Chords& expected, const std::vector<size_t>& origin,
+              const witness::Counters& counts) {
+  REQUIRE(result.origin == origin);
+  REQUIRE(result.chords.size() == expected.size());
+  for (size_t i = 0; i < result.chords.size(); ++i) {
+    CAPTURE(i);
+    const auto& actual = result.chords[i];
+    const auto& want = expected[i];
+    for (size_t k = 0; k < 3; ++k) {
+      CAPTURE(k);
+      CHECK(P1SameBits(actual.points[k].x, want.points[k].x));
+      CHECK(P1SameBits(actual.points[k].y, want.points[k].y));
+      CHECK(P1SameBits(actual.points[k].z, want.points[k].z));
+    }
+    CHECK(P1SameBits(actual.error, want.error));
+  }
+  const auto& actual = result.counters;
+  CHECK(actual.splits == counts.splits);
+  CHECK(actual.children == counts.children);
+  CHECK(actual.chain2 == counts.chain2);
+  CHECK(actual.chain3 == counts.chain3);
+  CHECK(actual.chain4 == counts.chain4);
+  CHECK(actual.chain5_8 == counts.chain5_8);
+  CHECK(actual.reject_dead_end == counts.reject_dead_end);
+  CHECK(actual.reject_long == counts.reject_long);
+  CHECK(actual.reject_fan_key == counts.reject_fan_key);
+  CHECK(actual.reject_not_finite == counts.reject_not_finite);
+  CHECK(actual.reject_orientation == counts.reject_orientation);
+  CHECK(actual.reject_projection == counts.reject_projection);
+}
+
+std::vector<size_t> P1Originals(size_t size) {
+  std::vector<size_t> origin;
+  for (size_t i = 0; i < size; ++i) origin.push_back(i);
+  return origin;
+}
+
+void P1ExpectUnchanged(const P1Chords& input, const witness::Counters& counts = {}) {
+  P1Expect(P1Close(input), input, P1Originals(input.size()), counts);
+}
+
+void P1ExpectFan(const std::vector<Point>& chain, Point apex = P1C, Point neighbor = P1D, double displacement = 0.) {
+  const auto input = P1Soup(chain, apex, neighbor);
+  auto expected = input;
+  auto origin = P1Originals(input.size());
+  const size_t edges = chain.size() - 1;
+  // Even collinear chain vertices have a positive outward-rounded norm enclosure.
+  const double error = std::nextafter(P1Error + displacement, INFINITY);
+  expected[0] = {{chain[0], chain[1], apex}, error};
+  for (size_t i = 1; i < edges; ++i) {
+    expected.push_back({{chain[i], chain[i + 1], apex}, error});
+    origin.push_back(0);
+  }
+  witness::Counters counts{};
+  counts.splits = 1;
+  counts.children = edges;
+  counts.chain2 = edges == 2;
+  counts.chain3 = edges == 3;
+  counts.chain4 = edges == 4;
+  counts.chain5_8 = edges >= 5;
+  P1Expect(P1Close(input), expected, origin, counts);
+}
+
+std::vector<Point> P1Eighths() {
+  std::vector<Point> points;
+  for (unsigned i = 0; i <= 8; ++i) points.push_back({i / 8., 0, 0});
+  return points;
+}
+
+template <class CheckPoint>
+void P1TriangleGrid(const std::array<Point, 3>& triangle, CheckPoint check) {
+  constexpr unsigned side = 16;
+  for (unsigned i = 0; i <= side; ++i) {
+    for (unsigned j = 0; i + j <= side; ++j) {
+      const double u = i / double(side), v = j / double(side), w = 1 - u - v;
+      const auto& [a, b, c] = triangle;
+      check(Point{w * a.x + u * b.x + v * c.x, w * a.y + u * b.y + v * c.y, w * a.z + u * b.z + v * c.z});
+    }
+  }
+}
+
+double P1ModelHeight(double x, double y) { return 4 * P1Error * x * (1 - x - y); }
+
+/* The analytic graph and the child are both evaluated at the same (x,y).
+ * Their vertical distance is an upper bound for Euclidean distance. */
+bool P1CoveredFromAbove(Point model, const P1Chord& child) {
+  const auto& [a, b, c] = child.points;
+  const double denominator = (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+  const double u = ((model.x - a.x) * (c.y - a.y) - (c.x - a.x) * (model.y - a.y)) / denominator;
+  const double v = ((b.x - a.x) * (model.y - a.y) - (model.x - a.x) * (b.y - a.y)) / denominator;
+  const double w = 1 - u - v;
+  if (u < 0 || v < 0 || w < 0) return false;
+  return std::abs(model.z - (w * a.z + u * b.z + v * c.z)) <= child.error;
+}
+}  // namespace
+
+TEST_CASE("FP2-P1 direct witness closure preserves certificates and chord order", "[.][NativeFP2P1ClosureDirect]") {
+  SECTION("Depth-one junction between two facets") {
+    P1ExpectFan({P1A, P1M, P1B});
+  }
+  SECTION("Depth-one junction within the triangular domain of one facet") {
+    P1ExpectFan({{1, 0, 0}, {.5, .5, 0}, {0, 1, 0}}, {0, 0, 0}, {1, 1, 0});
+  }
+  SECTION("Quartered edge without half-edge keys") {
+    P1ExpectFan({P1A, {.25, 0, 0}, P1M, {.75, 0, 0}, P1B});
+  }
+  SECTION("Mixed half-edge and quarter-edge segments") {
+    P1ExpectFan({P1A, P1M, {.75, 0, 0}, P1B});
+  }
+  SECTION("Two edges on one parent use the same original error") {
+    const Point m{.5, 0, P1Error}, n{0, .5, P1Error}, left{-2, .5, 0};
+    auto input = P1Soup({P1A, m, P1B});
+    input.push_back({{n, P1C, left}, P1Error / 2});
+    input.push_back({{P1A, n, left}, P1Error / 2});
+    auto expected = input;
+    const double error = std::nextafter(2 * P1Error, INFINITY);
+    expected[0] = {{P1C, n, m}, error};
+    expected.push_back({{m, P1B, P1C}, error});
+    expected.push_back({{n, P1A, m}, error});
+    witness::Counters counts{};
+    counts.splits = counts.chain2 = 2;
+    counts.children = 4;
+    P1Expect(P1Close(input), expected, {0, 1, 2, 3, 4, 0, 0}, counts);
+  }
+  SECTION("Far false neighbor is excluded before any choice") {
+    P1ExpectUnchanged(P1Soup({P1A, {.5, 0, .25}, P1B}));
+  }
+  SECTION("Near false neighbor increases the certified error by its offset") {
+    P1ExpectFan({P1A, {.5, 0, P1Error}, P1B}, P1C, P1D, P1Error);
+  }
+  SECTION("An earlier far spur is excluded and the dead spur wins over the later near chain") {
+    auto input = P1Soup({P1A, P1M, P1B});
+    input.push_back({{P1A, {.25, 0, 0}, {-2, -2, 0}}, P1Error / 2});
+    input.push_back({{P1A, {.125, 1, 0}, {-2, 2, 0}}, P1Error / 2});
+    witness::Counters counts{};
+    counts.reject_dead_end = 2;
+    P1ExpectUnchanged(input, counts);
+  }
+  SECTION("Eight edges reach the endpoint on the last allowed choice") {
+    P1ExpectFan(P1Eighths());
+  }
+  SECTION("An eighth choice that still needs a ninth edge is rejected") {
+    auto chain = P1Eighths();
+    chain.insert(chain.begin() + 1, {1. / 16, 0, 0});
+    witness::Counters counts{};
+    counts.reject_long = counts.reject_dead_end = 1;
+    P1ExpectUnchanged(P1Soup(chain), counts);
+  }
+  SECTION("A fan edge already in the incidence table blocks closure") {
+    auto input = P1Soup({P1A, P1M, P1B});
+    input.push_back({{P1M, P1C, {9, 3, 0}}, P1Error / 2});
+    witness::Counters counts{};
+    counts.reject_fan_key = 1;
+    P1ExpectUnchanged(input, counts);
+  }
+  SECTION("An inverted child blocks closure") {
+    witness::Counters counts{};
+    counts.reject_orientation = counts.reject_dead_end = 1;
+    P1ExpectUnchanged(P1Soup({P1A, {.5, 1. / 16, 0}, P1B}, {.5, 1. / 32, 0}), counts);
+  }
+  SECTION("A zero-area child blocks closure") {
+    witness::Counters counts{};
+    counts.reject_orientation = counts.reject_dead_end = 1;
+    P1ExpectUnchanged(P1Soup({P1A, {.25, 1. / 64, 0}, P1B}, {.5, 1. / 32, 0}), counts);
+  }
+  SECTION("A parent with zero projection sign is skipped") {
+    P1ExpectUnchanged(P1Soup({P1A, P1M, P1B}, {-1, 0, 0}));
+  }
+  SECTION("A key shared by three chords is not open") {
+    auto input = P1Soup({P1A, P1M, P1B});
+    input.push_back({{P1B, P1A, {0, -2, 0}}, P1Error / 2});
+    input.push_back({{P1A, P1B, {1, 2, 0}}, P1Error / 2});
+    P1ExpectUnchanged(input);
+  }
+  SECTION("Already conforming chords preserve all bits including signed zero") {
+    P1ExpectUnchanged({{{P1A, P1B, {0, 1, -0.}}, P1Error}, {{P1B, P1A, P1D}, P1Error / 2}});
+  }
+}
+
+TEST_CASE("FP2-P1 witness child errors cover a curved analytic graph in both directions", "[.][NativeFP2P1ClosureDirect]") {
+  // The graph has height 4 e x (1-x-y) over the original triangle, with |height| <= e.
+  // Dyadic samples and weights in this fixture allow exact binary64 vertical distance checks.
+  double displacement = 0;
+  SECTION("Collinear midpoint") {}
+  SECTION("Off-edge midpoint") { displacement = P1Error; }
+  const auto result = P1Close(P1Soup({P1A, {.5, 0, displacement}, P1B}));
+  REQUIRE(result.counters.splits == 1);
+
+  std::vector<const P1Chord*> children;
+  for (size_t i = 0; i < result.chords.size(); ++i) {
+    if (result.origin[i] != 0) continue;
+    const auto& child = result.chords[i];
+    children.push_back(&child);
+    P1TriangleGrid(child.points, [&](Point p) { CHECK(std::abs(p.z - P1ModelHeight(p.x, p.y)) <= child.error); });
+  }
+  REQUIRE(children.size() == 2);
+  P1TriangleGrid({P1A, P1B, P1C}, [&](Point p) {
+    p.z = P1ModelHeight(p.x, p.y);
+    CHECK(std::any_of(children.begin(), children.end(), [p](const auto* child) { return P1CoveredFromAbove(p, *child); }));
+  });
+}

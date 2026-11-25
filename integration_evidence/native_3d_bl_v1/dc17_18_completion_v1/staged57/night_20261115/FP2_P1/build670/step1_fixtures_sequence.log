@@ -1,0 +1,106 @@
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795586615.274278, "sample_seconds": 3.106778621673584, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   33896848 kB", "loadavg": "1.74 2.43 1.87 1/4881 1862089"}
+G1 test: starting
+G1 serial: 375 case records matched in 765.265 s.
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 723, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 719, in main
+    return controller(build, mode, correction)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 668, in controller
+    path, result = run_fixture(build, mode, correction)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 250, in run_fixture
+    'details': details, 'pins': {**pins, **hashes(proof_paths), **marker['log_pins'],
+                                           ^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 41, in hashes
+    return {str(path): a.sha(path) for path in paths}
+                       ^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/source_view.py", line 21, in sha
+    with path.open('rb') as file:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/G1-serial/inherited_summary.json'
+G1-serial sequence exit 1
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795587396.3454096, "sample_seconds": 3.079155206680298, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   34078212 kB", "loadavg": "2.08 2.17 2.01 2/4878 1898262"}
+G1 test: starting
+G1 mpi2: 114 case records matched in 10.304 s.
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 723, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 719, in main
+    return controller(build, mode, correction)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 668, in controller
+    path, result = run_fixture(build, mode, correction)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 250, in run_fixture
+    'details': details, 'pins': {**pins, **hashes(proof_paths), **marker['log_pins'],
+                                           ^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 41, in hashes
+    return {str(path): a.sha(path) for path in paths}
+                       ^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/source_view.py", line 21, in sha
+    with path.open('rb') as file:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/G1-mpi2/inherited_summary.json'
+G1-mpi2 sequence exit 1
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795587422.0367074, "sample_seconds": 3.075221300125122, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   34027288 kB", "loadavg": "2.02 2.16 2.01 1/4864 1899509"}
+G1 test: starting
+G1 mpi4: 228 case records matched in 11.968 s.
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 723, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 719, in main
+    return controller(build, mode, correction)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 668, in controller
+    path, result = run_fixture(build, mode, correction)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 250, in run_fixture
+    'details': details, 'pins': {**pins, **hashes(proof_paths), **marker['log_pins'],
+                                           ^^^^^^^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/run_p1.py", line 41, in hashes
+    return {str(path): a.sha(path) for path in paths}
+                       ^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP0/source_view.py", line 21, in sha
+    with path.open('rb') as file:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/G1-mpi4/inherited_summary.json'
+G1-mpi4 sequence exit 1
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795587447.7583508, "sample_seconds": 3.098571300506592, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   34051556 kB", "loadavg": "2.14 2.19 2.03 1/4860 1900673"}
+off-serial test: starting
+off-serial test: terminal in 2.577 s
+off-serial passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/off-serial/case_summary.json
+off-serial sequence exit 0
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795587466.326283, "sample_seconds": 3.103090524673462, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   34041760 kB", "loadavg": "1.96 2.15 2.02 1/4897 1901552"}
+off-mpi test: starting
+off-mpi test: terminal in 0.750 s
+off-mpi passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/off-mpi/case_summary.json
+off-mpi sequence exit 0
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795587482.8782299, "sample_seconds": 3.0735716819763184, "active_OWNED_heavy_processes": [], "other_busy_observations": [{"pid": 1901669, "comm": "python3", "core_fraction": 0.9858237625522689}], "MemAvailable": "MemAvailable:   34056788 kB", "loadavg": "2.17 2.19 2.03 2/4869 1902359"}
+curved test: starting
+curved test: terminal in 13.590 s
+curved passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/curved/case_summary.json
+curved sequence exit 0
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795587512.602032, "sample_seconds": 3.097254753112793, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   34048916 kB", "loadavg": "2.17 2.20 2.04 2/4867 1903825"}
+public-off test: starting
+public-off test: terminal in 0.406 s
+public-off passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/public-off/case_summary.json
+public-off sequence exit 0
+{"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795587528.8855586, "sample_seconds": 3.108595132827759, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   34050980 kB", "loadavg": "2.12 2.19 2.04 3/4901 1904675"}
+public-on test: starting
+public-on test: terminal in 0.459 s
+public-on passed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/public-on/case_summary.json
+public-on sequence exit 0

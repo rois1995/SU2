@@ -1,0 +1,298 @@
+{
+  "build": 670,
+  "binary_sha256": "533341a9d889f8224fe7183255a0e23fe81cd49623ebe34d7991d19668a3516b",
+  "test_binary_sha256": "924013a3026f33aa90e44126dc36496df15ed495e31afc4ddca53ba7711a7fc4",
+  "source_pins_sha256": "8bbe47410ebbeefb123d404d30c21976e7f976dc7dd49ddad665f2b4060c08e5",
+  "mode": "curved",
+  "status": "done",
+  "used": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/curved/attempt1/result.json",
+  "attempts": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/curved/attempt1/result.json": "2cabde2224dd82656f5585a649f0dfe303e9c7fe9db8d4a32b1efa70e999193f"
+  },
+  "details": {
+    "environment": {
+      "SU2_NATIVE_GEOMETRY_WORK_TRACE": "1",
+      "SU2_NATIVE_FP2_M3_FACETS": "0",
+      "SU2_NATIVE_FP2_M2": "0",
+      "SU2_NATIVE_FP2_M2_TABLE": "0",
+      "SU2_NATIVE_FP2_M1": "0",
+      "SU2_NATIVE_CONFORMING_WITNESS": "0"
+    },
+    "unchanged_assertion_counts": true,
+    "catch_passed": true,
+    "trace": {
+      "returncode": 0,
+      "stdout": "{\n  \"passed\": true,\n  \"matched\": 20,\n  \"required\": 20,\n  \"errors\": [],\n  \"rows\": {\n    \"FALLBACK\": [\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"group\": \"proved_1\",\n        \"calls\": \"20\",\n        \"seconds_full\": \"0.012510105000000001\",\n        \"work_full\": \"2380\",\n        \"full_memo_hits\": \"0\",\n        \"replay_calls\": \"20\",\n        \"replay_seconds_full\": \"0.012510105000000001\"\n      },\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"group\": \"proved_2\",\n        \"calls\": \"0\",\n        \"seconds_full\": \"0\",\n        \"work_full\": \"0\",\n        \"full_memo_hits\": \"0\",\n        \"replay_calls\": \"0\",\n        \"replay_seconds_full\": \"0\"\n      },\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"group\": \"needs_full\",\n        \"calls\": \"0\",\n        \"seconds_full\": \"0\",\n        \"work_full\": \"0\",\n        \"full_memo_hits\": \"0\",\n        \"replay_calls\": \"0\",\n        \"replay_seconds_full\": \"0\"\n      },\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"group\": \"direct_eligible\",\n        \"calls\": \"0\",\n        \"seconds_full\": \"0\",\n        \"work_full\": \"0\",\n        \"full_memo_hits\": \"0\",\n        \"replay_calls\": \"0\",\n        \"replay_seconds_full\": \"0\"\n      }\n    ],\n    \"MEMO\": [\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"at\": \"start\",\n        \"authority\": \"pass\",\n        \"hits\": \"0\",\n        \"misses\": \"0\",\n        \"entries\": \"0\",\n        \"evictions\": \"0\",\n        \"retention_refusals\": \"0\",\n        \"bytes\": \"0\",\n        \"memo_limit\": \"4194304\",\n        \"prepared_limit\": \"8650504\"\n      },\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"at\": \"end\",\n        \"authority\": \"pass\",\n        \"hits\": \"0\",\n        \"misses\": \"20\",\n        \"entries\": \"20\",\n        \"evictions\": \"0\",\n        \"retention_refusals\": \"0\",\n        \"bytes\": \"8096\",\n        \"memo_limit\": \"4194304\",\n        \"prepared_limit\": \"8650504\"\n      },\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"at\": \"start\",\n        \"authority\": \"shadow\",\n        \"hits\": \"0\",\n        \"misses\": \"0\",\n        \"entries\": \"0\",\n        \"evictions\": \"0\",\n        \"retention_refusals\": \"0\",\n        \"bytes\": \"0\",\n        \"memo_limit\": \"4194304\",\n        \"prepared_limit\": \"8650504\"\n      },\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"at\": \"end\",\n        \"authority\": \"shadow\",\n        \"hits\": \"0\",\n        \"misses\": \"40\",\n        \"entries\": \"40\",\n        \"evictions\": \"0\",\n        \"retention_refusals\": \"0\",\n        \"bytes\": \"14976\",\n        \"memo_limit\": \"4194304\",\n        \"prepared_limit\": \"8650504\"\n      }\n    ],\n    \"OBSERVER\": [\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"status\": \"ok\",\n        \"seconds_observer\": \"0.0157219\",\n        \"scratch_bytes\": \"105152\",\n        \"ledger_peak\": \"20517274\",\n        \"selection_scratch_bytes\": \"6272\",\n        \"shadow_bytes\": \"20218585\",\n        \"shadow_load_peak\": \"28208312\",\n        \"shadow_load_ceiling\": \"268435456\",\n        \"rss_before\": \"37888000\",\n        \"rss_after\": \"38641664\",\n        \"rss_high_water\": \"38641664\"\n      }\n    ],\n    \"REPLICA\": [\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"attempted\": \"20\",\n        \"agree\": \"20\",\n        \"disagree\": \"0\",\n        \"resource\": \"0\",\n        \"threw\": \"0\"\n      }\n    ],\n    \"SUPPORT\": [\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"stage\": \"1\",\n        \"interleaved\": \"0\",\n        \"calls\": \"20\",\n        \"direct_eligible\": \"0\",\n        \"empty\": \"0\",\n        \"same\": \"0\",\n        \"no_larger_box\": \"0\",\n        \"same_as_1\": \"0\",\n        \"same_as_full\": \"0\",\n        \"proved\": \"20\",\n        \"fail\": \"0\",\n        \"resource\": \"0\",\n        \"threw\": \"0\",\n        \"k_full_sum\": \"312\",\n        \"k_full_calls\": \"20\",\n        \"k_small_sum\": \"160\",\n        \"k_small_calls\": \"20\",\n        \"seconds_select_small\": \"3.6651000000000005e-05\",\n        \"seconds_select_full\": \"0.00010495599999999999\",\n        \"seconds_small\": \"0.010486374000000001\",\n        \"work_small\": \"2576\",\n        \"classification_work_small\": \"1996\",\n        \"selected_pieces_small\": \"160\",\n        \"support_pieces_small\": \"160\",\n        \"radius_calls\": \"20\",\n        \"r_over_tol_sum\": \"6270.0000000000009\",\n        \"select_full_resource\": \"0\",\n        \"select_full_threw\": \"0\",\n        \"full_yes_small_proved\": \"20\",\n        \"full_yes_small_other\": \"0\",\n        \"full_no_small_proved\": \"0\",\n        \"full_no_small_other\": \"0\"\n      },\n      {\n        \"rank\": \"0\",\n        \"pass\": \"1\",\n        \"stage\": \"2\",\n        \"interleaved\": \"0\",\n        \"calls\": \"0\",\n        \"direct_eligible\": \"0\",\n        \"empty\": \"0\",\n        \"same\": \"0\",\n        \"no_larger_box\": \"0\",\n        \"same_as_1\": \"0\",\n        \"same_as_full\": \"0\",\n        \"proved\": \"0\",\n        \"fail\": \"0\",\n        \"resource\": \"0\",\n        \"threw\": \"0\",\n        \"k_full_sum\": \"0\",\n        \"k_full_calls\": \"0\",\n        \"k_small_sum\": \"0\",\n        \"k_small_calls\": \"0\",\n        \"seconds_select_small\": \"0\",\n        \"seconds_select_full\": \"0\",\n        \"seconds_small\": \"0\",\n        \"work_small\": \"0\",\n        \"classification_work_small\": \"0\",\n        \"selected_pieces_small\": \"0\",\n        \"support_pieces_small\": \"0\",\n        \"radius_calls\": \"0\",\n        \"r_over_tol_sum\": \"0\",\n        \"select_full_resource\": \"0\",\n        \"select_full_threw\": \"0\",\n        \"full_yes_small_proved\": \"0\",\n        \"full_yes_small_other\": \"0\",\n        \"full_no_small_proved\": \"0\",\n        \"full_no_small_other\": \"0\"\n      }\n    ]\n  }\n}\n",
+      "stderr": "",
+      "result": {
+        "passed": true,
+        "matched": 20,
+        "required": 20,
+        "errors": [],
+        "rows": {
+          "FALLBACK": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "group": "proved_1",
+              "calls": "20",
+              "seconds_full": "0.012510105000000001",
+              "work_full": "2380",
+              "full_memo_hits": "0",
+              "replay_calls": "20",
+              "replay_seconds_full": "0.012510105000000001"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "group": "proved_2",
+              "calls": "0",
+              "seconds_full": "0",
+              "work_full": "0",
+              "full_memo_hits": "0",
+              "replay_calls": "0",
+              "replay_seconds_full": "0"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "group": "needs_full",
+              "calls": "0",
+              "seconds_full": "0",
+              "work_full": "0",
+              "full_memo_hits": "0",
+              "replay_calls": "0",
+              "replay_seconds_full": "0"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "group": "direct_eligible",
+              "calls": "0",
+              "seconds_full": "0",
+              "work_full": "0",
+              "full_memo_hits": "0",
+              "replay_calls": "0",
+              "replay_seconds_full": "0"
+            }
+          ],
+          "MEMO": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "at": "start",
+              "authority": "pass",
+              "hits": "0",
+              "misses": "0",
+              "entries": "0",
+              "evictions": "0",
+              "retention_refusals": "0",
+              "bytes": "0",
+              "memo_limit": "4194304",
+              "prepared_limit": "8650504"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "at": "end",
+              "authority": "pass",
+              "hits": "0",
+              "misses": "20",
+              "entries": "20",
+              "evictions": "0",
+              "retention_refusals": "0",
+              "bytes": "8096",
+              "memo_limit": "4194304",
+              "prepared_limit": "8650504"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "at": "start",
+              "authority": "shadow",
+              "hits": "0",
+              "misses": "0",
+              "entries": "0",
+              "evictions": "0",
+              "retention_refusals": "0",
+              "bytes": "0",
+              "memo_limit": "4194304",
+              "prepared_limit": "8650504"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "at": "end",
+              "authority": "shadow",
+              "hits": "0",
+              "misses": "40",
+              "entries": "40",
+              "evictions": "0",
+              "retention_refusals": "0",
+              "bytes": "14976",
+              "memo_limit": "4194304",
+              "prepared_limit": "8650504"
+            }
+          ],
+          "OBSERVER": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "status": "ok",
+              "seconds_observer": "0.0157219",
+              "scratch_bytes": "105152",
+              "ledger_peak": "20517274",
+              "selection_scratch_bytes": "6272",
+              "shadow_bytes": "20218585",
+              "shadow_load_peak": "28208312",
+              "shadow_load_ceiling": "268435456",
+              "rss_before": "37888000",
+              "rss_after": "38641664",
+              "rss_high_water": "38641664"
+            }
+          ],
+          "REPLICA": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "attempted": "20",
+              "agree": "20",
+              "disagree": "0",
+              "resource": "0",
+              "threw": "0"
+            }
+          ],
+          "SUPPORT": [
+            {
+              "rank": "0",
+              "pass": "1",
+              "stage": "1",
+              "interleaved": "0",
+              "calls": "20",
+              "direct_eligible": "0",
+              "empty": "0",
+              "same": "0",
+              "no_larger_box": "0",
+              "same_as_1": "0",
+              "same_as_full": "0",
+              "proved": "20",
+              "fail": "0",
+              "resource": "0",
+              "threw": "0",
+              "k_full_sum": "312",
+              "k_full_calls": "20",
+              "k_small_sum": "160",
+              "k_small_calls": "20",
+              "seconds_select_small": "3.6651000000000005e-05",
+              "seconds_select_full": "0.00010495599999999999",
+              "seconds_small": "0.010486374000000001",
+              "work_small": "2576",
+              "classification_work_small": "1996",
+              "selected_pieces_small": "160",
+              "support_pieces_small": "160",
+              "radius_calls": "20",
+              "r_over_tol_sum": "6270.0000000000009",
+              "select_full_resource": "0",
+              "select_full_threw": "0",
+              "full_yes_small_proved": "20",
+              "full_yes_small_other": "0",
+              "full_no_small_proved": "0",
+              "full_no_small_other": "0"
+            },
+            {
+              "rank": "0",
+              "pass": "1",
+              "stage": "2",
+              "interleaved": "0",
+              "calls": "0",
+              "direct_eligible": "0",
+              "empty": "0",
+              "same": "0",
+              "no_larger_box": "0",
+              "same_as_1": "0",
+              "same_as_full": "0",
+              "proved": "0",
+              "fail": "0",
+              "resource": "0",
+              "threw": "0",
+              "k_full_sum": "0",
+              "k_full_calls": "0",
+              "k_small_sum": "0",
+              "k_small_calls": "0",
+              "seconds_select_small": "0",
+              "seconds_select_full": "0",
+              "seconds_small": "0",
+              "work_small": "0",
+              "classification_work_small": "0",
+              "selected_pieces_small": "0",
+              "support_pieces_small": "0",
+              "radius_calls": "0",
+              "r_over_tol_sum": "0",
+              "select_full_resource": "0",
+              "select_full_threw": "0",
+              "full_yes_small_proved": "0",
+              "full_yes_small_other": "0",
+              "full_no_small_proved": "0",
+              "full_no_small_other": "0"
+            }
+          ]
+        }
+      }
+    },
+    "leaf_pin": {
+      "returncode": 0,
+      "stdout": "{\n  \"arithmetic\": \"Exact rationals from binary64 inputs, using squared distance versus (resolution / 16)^2\",\n  \"chords\": 8,\n  \"corners_checked\": 24,\n  \"depths\": {\n    \"0\": 8\n  },\n  \"first_failure\": null,\n  \"limit\": 6.25e-06,\n  \"limit_exact\": \"7378697629483821/1180591620717411303424\",\n  \"maximum_distance\": 0.0,\n  \"maximum_distance_squared_exact\": \"0\",\n  \"ordinals\": {\n    \"11\": [\n      0\n    ],\n    \"12\": [\n      0\n    ],\n    \"19\": [\n      0\n    ],\n    \"20\": [\n      0\n    ],\n    \"27\": [\n      0\n    ],\n    \"28\": [\n      0\n    ],\n    \"35\": [\n      0\n    ],\n    \"36\": [\n      0\n    ]\n  },\n  \"status\": \"passed\",\n  \"witness\": {\n    \"authority\": \"0x5a5e8d748620\",\n    \"chords\": \"8\",\n    \"list\": \"11:0,12:0,19:0,20:0,27:0,28:0,35:0,36:0,\",\n    \"resolution\": \"3f1a36e2eb1c432d\"\n  }\n}\n",
+      "stderr": "",
+      "result": {
+        "arithmetic": "Exact rationals from binary64 inputs, using squared distance versus (resolution / 16)^2",
+        "chords": 8,
+        "corners_checked": 24,
+        "depths": {
+          "0": 8
+        },
+        "first_failure": null,
+        "limit": 6.25e-06,
+        "limit_exact": "7378697629483821/1180591620717411303424",
+        "maximum_distance": 0.0,
+        "maximum_distance_squared_exact": "0",
+        "ordinals": {
+          "11": [
+            0
+          ],
+          "12": [
+            0
+          ],
+          "19": [
+            0
+          ],
+          "20": [
+            0
+          ],
+          "27": [
+            0
+          ],
+          "28": [
+            0
+          ],
+          "35": [
+            0
+          ],
+          "36": [
+            0
+          ]
+        },
+        "status": "passed",
+        "witness": {
+          "authority": "0x5a5e8d748620",
+          "chords": "8",
+          "list": "11:0,12:0,19:0,20:0,27:0,28:0,35:0,36:0,",
+          "resolution": "3f1a36e2eb1c432d"
+        }
+      }
+    }
+  },
+  "extra_artifacts": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P1/fixtures/build670/curved/attempt1/fp2_m1_curved_strip.native_ref": "704878b67e31334e6c8d593fdfaec3b00aca80f07eb10579efaf5c4520543038"
+  },
+  "correction_of": null
+}
