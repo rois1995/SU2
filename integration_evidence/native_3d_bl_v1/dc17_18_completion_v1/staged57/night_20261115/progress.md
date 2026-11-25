@@ -2014,3 +2014,11 @@ FP2-P2 build672 step D1, campaign-N1-1: passed. Exit 0. Evidence campaign/build6
 FP2-P2 build672 D1 sealed passed, promote=True. Evidence build672/d1_promotion.json.
 
 FP2-P2 D1 qualified on build672 in 640.378 s. Both selected N1 receipts have the ten stage keys and a complete observer at identical settings except closure. Gate D passed, classification 156105696 versus control 463538756 (−307433060 units); step C 419.957 versus 913.506 s, Bound 319.598 versus 811.483 s, traversal 77469988 versus 416021808, scope build 37769889 versus 6651129. The merged startup marker was proven and removed from the derived projection only; raw stdout and pin receipt preserved. D1 promotion is sealed. Next D2 first collapse.
+
+FP2-P2 D1 promotion checkpoint 959caa227e pushed. D1 supervisor terminal. D2 submitted under su2-fp2-p2-build672-d2, guarded by the D1 seal. No step 2.3 trials or safeguards are queued until D2 is sealed.
+
+FP2-P2 build672 step D2, first-collapse: passed. Exit 0. Evidence shared/build672/closure1/first-collapse/case_summary.json. Gate result {'first-collapse': 'passed'}.
+
+FP2-P2 build672 D2 sealed passed, promote=True. Evidence build672/d2_promotion.json.
+
+FP2-P2 D2 passed and promotion is sealed. observed_work: 76652506, work_limit: 108459426, observed_solver_peak_sum_bytes: 6125809664, resource_limit_bytes: 19999490048, seconds_until_stop: 207.34979057405144, captured_ranks: [0, 1, 2, 3, 4, 5]. Zero upper refinements, historical adopted counts 480 / 473 / 346 / 263 / 469 / 464 exact, all six switch markers, all owned processes terminal. Next step 2.3 under both promotion checks.
