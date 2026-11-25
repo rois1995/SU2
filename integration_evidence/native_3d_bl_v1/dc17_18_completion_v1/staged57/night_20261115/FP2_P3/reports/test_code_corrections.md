@@ -1,0 +1,7 @@
+# FP2-P3 test-code corrections
+
+The initial B2a saved481 launcher omitted the N6 inherited binding that selects the qualified curved492 producer for both saved modes. The legacy launcher therefore used curved441 and scalar inputs 0.005499698867956817 and 0.3777507474613889 for saved481. Catch stopped at its first target checkpoint import with one failed assertion and the exception “Mapped target checkpoint predates directional curvature sizing”. It never reached the witness query. The initial receipt highlighted a missing off marker because the launch adapter assumed query entry. The raw log and issued command preserve the earlier checkpoint import failure.
+
+The signed N6 reference command uses `curved492_ramp5_metric_stage_20261113T161313_3653005/target_rank0.bin`, the paired frozen sensor, and scalars 0.0047263575870155755 and 0.28717458874925855. Its check uses the same Catch selector and byte-identical frozen config. Verified the actual merit481 and saved-current launch contracts against their own references. The four target-input differences were isolated to saved481. This is launcher wiring under R3, with no production change or consumed result-gate retry.
+
+The corrected saved481 child completed in its fresh root. It matched the archived N6 command and frozen config, all three historical payload digests, and the ordered planning rows. The previous B2a seal and its failed-input evidence are retained separately. B2a was reselected from the corrected saved481 receipt and the six unchanged independent passes.

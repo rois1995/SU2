@@ -1,0 +1,84 @@
+{
+  "status": "passed",
+  "receipts": {
+    "merit481": {
+      "status": "passed",
+      "raw": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/historical_comparison.json",
+      "raw_sha256": "a4e5acca41cf04ce62761355206996a18dee1adf3998c1060f954e8151cc0db3",
+      "first_failure": null,
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482",
+      "switch_receipt": {
+        "entered": [
+          0
+        ],
+        "no_entry_marker": [],
+        "mismatches": [],
+        "catch": [
+          "All tests passed (5947 assertions in 56 test cases)"
+        ],
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/run.log",
+        "raw": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/run.log",
+        "command": {
+          "closure_setting": "0",
+          "trace_setting": "0",
+          "ranks": 1,
+          "timeout_seconds": 600
+        }
+      },
+      "wait": {
+        "actual_host_proc": true,
+        "controller": {
+          "pid": 279482,
+          "start_ticks": 113364403
+        },
+        "returncode": 0,
+        "elapsed_seconds": 231.97094225883484,
+        "terminal": true
+      },
+      "watchdog": null,
+      "comparison": {
+        "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482",
+        "reference_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_N6/safeguards/cases/geometry_merit505_serial_20261118T171520_2033142",
+        "historical_first_difference": null,
+        "historical_exact": true,
+        "missing_reference_payloads": [],
+        "payloads": {
+          "p6c_gap_scan.jsonl": "53f4ad805400ac8175a30dceebba70ab08e8670cd7b4e3b16eaee1b829ae2bdc"
+        },
+        "reference_payloads": {
+          "p6c_gap_scan.jsonl": "53f4ad805400ac8175a30dceebba70ab08e8670cd7b4e3b16eaee1b829ae2bdc"
+        },
+        "planning_projection": null,
+        "planning_count": 0,
+        "private_work": false,
+        "pins": {
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_N6/safeguards/acceptance_summary.json": "5b8361801e9a94f9c8c204444404d4382348dbf3c0afc49e81a51752dd6e5f29",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/run_c.py": "88bf3edbb407883fde9bede8f444d5b9589278600f402140ed9f6c256c601662",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_N6/safeguards/cases/geometry_merit505_serial_20261118T171520_2033142/p6c_gap_scan.jsonl": "53f4ad805400ac8175a30dceebba70ab08e8670cd7b4e3b16eaee1b829ae2bdc",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/p6c_gap_scan.jsonl": "53f4ad805400ac8175a30dceebba70ab08e8670cd7b4e3b16eaee1b829ae2bdc"
+        }
+      },
+      "pins": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/controller_host_preflight.json": "164483e4b9976c10d27ff48f0810a073c56628b23c094fd26073c92e5209f4f5",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/controller_launch.json": "75525913bc967bb224bf4aadfe2fe6f88e0f42b1a6c5d803eed522be4188550e",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/controller_wait.json": "5944988566f7d7ce616b144d2e42f457a55980446c262f457ea553b0a7b7d14d",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/controller_outer.log": "8bfeea9f321c2f13058499faa1e1f4204302f50aafad5da17049b7c214176331",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/historical_comparison.json": "a4e5acca41cf04ce62761355206996a18dee1adf3998c1060f954e8151cc0db3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/command.json": "83486513c1f64cdd682afd9bfd67284717831d4ca63faff20f791d18c4e42ce3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/status.json": "cd54b6e9fb88ce932ca6d0a7ffb390be62eb5b67d99116d7e82259b9a35ba354",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/pins.json": "1c8eb440292b9420a01b28056356b5c1dccc0669f37e7b0ccfa234ed26b9515d",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/run.log": "4d80952db30948a79105ac44b322af315e4d69caf09cc2a830557ebf519b939e",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/resources.jsonl": "cf935794c3781bac31a47ac55220a2c13d9642a4e500644925bc0fdb2d7d8c70",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/safeguard_process_receipt.json": "0d671a66635f21d4067fb067fd57e3e5dbe24537030abb24ad461a4b32312e00",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/terminal_handles.json": "1500152537dfb8d82d3a14129bc7ee9b1c83bc4f8d5d16c9b400692852037a45",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_N6/safeguards/acceptance_summary.json": "5b8361801e9a94f9c8c204444404d4382348dbf3c0afc49e81a51752dd6e5f29",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N16/run_c.py": "88bf3edbb407883fde9bede8f444d5b9589278600f402140ed9f6c256c601662",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_N6/safeguards/cases/geometry_merit505_serial_20261118T171520_2033142/p6c_gap_scan.jsonl": "53f4ad805400ac8175a30dceebba70ab08e8670cd7b4e3b16eaee1b829ae2bdc",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/merit481/attempt1/cases/geometry_merit496_serial_20261125T211547_279482/p6c_gap_scan.jsonl": "53f4ad805400ac8175a30dceebba70ab08e8670cd7b4e3b16eaee1b829ae2bdc"
+      }
+    }
+  },
+  "pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/shared/build673/closure0/merit481/case_summary.json": "b9a1d39dea0334133d73c2a9e1784e4e7082512479a119127867684dff405be8"
+  }
+}

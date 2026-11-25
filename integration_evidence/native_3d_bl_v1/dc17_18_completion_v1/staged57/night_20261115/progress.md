@@ -2096,3 +2096,29 @@ FP2-P3 B0 checkpoint b36b116e75 pushed. B1 began under su2-fp2-p3-build673-b01 a
 FP2-P3 build673 B1 passed. Evidence build673/B1.json.
 
 FP2-P3 B1 passed in 1189.192 s, complete observer and ten stage rows. Classification 463538756, traversal 416021808, scope build 6651129. The build664 projection, including modeled peaks, matched exactly. One enabled=0 marker with raw and byte-rejoined logs retained. B2a G2 launched after the terminal B1 seal.
+
+FP2-P3 B1 checkpoint 1b9968e2b7 pushed. The B2a supervisor is active with one G2 job. The B2b then B2c service will proceed only after B2a is terminal and its passed seal verifies. It stops on the first unresolved control checkpoint.
+
+FP2-P3 build673 B2a/G2 passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G2.json.
+
+FP2-P3 build673 B2a/GQ passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/GQ.json.
+
+FP2-P3 build673 B2a/G3 passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3.json.
+
+FP2-P3 B2a exact G2 and GQ passed, including scheduling calls and fixedstorage=4120. G2 stopped on all six first-collapse rows at 267.686 s. GQ reached the third quality-window row on all six ranks. G3 passed physically with 1473 positive splits above the 336 minimum and zero upper refinements. All 1113 common N14 edits matched, and observer-adjusted entry work was 5113 on both. G4 and the three saved-state controls follow.
+
+FP2-P3 build673 B2a/G4 passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G4.json.
+
+FP2-P3 build673 B2a/merit481 passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/merit481.json.
+
+FP2-P3 build673 B2a/saved481 FAILED. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/saved481.json.
+
+FP2-P3 B2a initial saved481 red receipt diagnosed as an R3 launch-input mismatch. The actual child failed one Catch assertion before any independent witness-query entry. The N6 saved481 command pins curved492 producer artifacts and scalars 0.0047263575870155755 / 0.28717458874925855; the legacy P3 adapter omitted N6's saved481 binding and launched curved441, which the checkpoint importer rejected. Frozen config bytes match, and merit481 and saved-current command contracts match their own historical inputs. Preserve this attempt, finish saved-current, then re-evaluate only saved481 under the exact N6 binding.
+
+FP2-P3 build673 B2a/saved-current passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/saved-current.json.
+
+FP2-P3 build673 B2a FAILED. Evidence build673/B2a.json.
+
+FP2-P3 B2a reselected from the corrected saved481 attempt. passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/build673/B2a.json.
+
+FP2-P3 B2a reselected passed. Corrected saved481 used the exact N6 curved492 inputs, recorded one off marker, and passed all historical payload and planning comparisons. Original rejected-input launch and both B2a selections are sealed. Saved-current also passed its historical comparison. The held full OFF then CORE supervisor may now proceed.

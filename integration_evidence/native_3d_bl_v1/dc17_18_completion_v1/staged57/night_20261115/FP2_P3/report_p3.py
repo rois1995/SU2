@@ -36,6 +36,14 @@ def collect(label, outcome):
             assert candidate['sha256']==item['sha256'] and candidate['data']['status']==item['status']
             children[name]=candidate
         data['parts'][part]={'status':seal['data']['status'],'seal':seal,'checks':children}
+        if 'scoped' in children:
+            parent=children['scoped']['data']
+            actual={}
+            for name,item in parent['parts'].items():
+                found=read_selection(Path(item['path']))
+                assert found['data']['status']==item['status']
+                actual[name]=found
+            data['parts'][part]['scoped_checks']=actual
         if 'workflow' in children:
             summary=children['workflow']['data']
             runs=[]
@@ -108,6 +116,25 @@ def render(data):
                     pairs.append((part,gate,sub['status'],sub.get('first_difference')))
     lines+=['## Pairs and historical comparisons','']
     lines+=table(('Part','Comparison','Result','First difference'),pairs)
+    g3=[]
+    for part in ('B2a','C4'):
+        if check:=data['parts'][part].get('scoped_checks',{}).get('G3'):
+            row=check['data'].get('result',{})
+            g3.append((part,row.get('accepted_splits'),row.get('common_edit_count'),
+                       row.get('first_mismatch'),row.get('observer_adjusted_entry_work')))
+    if g3:
+        lines+=['## G3 evidence','']
+        lines+=table(('Part','Splits','Common edits','First mismatch','Observer-adjusted entry work'),g3)
+    prefix=[]
+    for gate,check in data['parts']['C3'].get('scoped_checks',{}).items():
+        history=check['data'].get('historical',{})
+        prefix.extend((gate,key,values.get('changed'),values.get('missing'),values.get('extra'))
+                      for key,values in history.get('projected_rows',{}).items())
+        if history:
+            lines += [f"**{gate} historical first difference** {compact(history.get('first_difference'))}",
+                      f"**{gate} historical ownership and decisions** {compact(history.get('ownership'))}",'']
+    if prefix:
+        lines+=table(('Gate','Projected row type','Changed','Missing','Extra'),prefix)
     lines+=['## Workflow measurements','']
     events=[]
     rank_times=[]
@@ -128,6 +155,20 @@ def render(data):
                   'Peak bytes','Timer coverage','Restart s'),events)
     lines+=table(('Part','Trial','Rank','Event','Geometry bound s','Communication and join wait s','Other s'),
                  rank_times)
+    if references:=data['comparisons'].get('C7',{}).get('s_report'):
+        lines+=['## S beside build664 and build672','']
+        lines+=table(('Run','Event','Native s','Proof faces','Hand-over faces','Cells','Job peak bytes'),(
+            (name,event['event'],event['native_seconds'],event.get('proof_faces'),event.get('handover_faces'),
+             event.get('actual_mesh_counts',{}).get('cells'),event.get('job_peak_rss_bytes'))
+            for name,record in references.items() for event in record['events']))
+        lines+=table(('Run','Rank','Event','Geometry bound s','Communication and join wait s','Other s'),(
+            (name,rank,event,seconds['geometry_bound'],seconds['communication_and_join_wait'],seconds['other'])
+            for name,record in references.items() for rank,events_by_rank in record['rank_timers'].items()
+            for event,seconds in events_by_rank.items()))
+        names=tuple(references)
+        lines+=table(('Payload',*names),(
+            (key,*(references[name]['payload_hashes'][key] for name in names))
+            for key in references[names[0]]['payload_hashes']))
     lines+=['## Not evaluated','',*(f'- {name}' for name in data['not_evaluated']),'']
     return '\n'.join(lines)
 

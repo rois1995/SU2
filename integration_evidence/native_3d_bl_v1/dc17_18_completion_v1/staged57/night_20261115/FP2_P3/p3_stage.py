@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from checkpoint import HERE, build_dir, cut, require, seal
+from checkpoint import HERE, build_dir, cut, require, seal, status_of, verify_pins
 from p3_fixtures import run as run_fixtures
 
 CONTROL = ('B0','B1','B2a','B2b','B2c')
@@ -52,6 +52,39 @@ def result(label, part):
     actual={key:build/f'{key}.json' for key in CONTROL}
     assert all(path.exists() for path in actual.values()), actual
     return seal(label,part,actual)[0]
+
+
+
+def reselect_saved481(label):
+    build = build_dir(label)
+    top = build / 'B2a.json'
+    original = HERE / 'scoped' / build.name / 'B2a.json'
+    scoped = cut.read(original)
+    verify_pins(scoped['pins'])
+    corrected = HERE / 'shared' / build.name / 'closure0/saved481_repaired/case_summary.json'
+    new = cut.read(corrected)
+    verify_pins(new['pins'])
+    assert scoped['parts']['saved481']['status'] == 'FAILED' and new['replaces']['classification'].startswith('R3')
+    archive = top.with_name('B2a_before_saved481_repair.json')
+    if not archive.exists():
+        assert cut.read(top)['status'] == 'FAILED'
+        top.rename(archive)
+    scoped['parts']['saved481'] = {'status': new['status'], 'path': str(corrected),
+                                  'first_difference': new['first_difference']}
+    scoped['pins'].update({str(path): cut.sha(path) for path in (original, archive, corrected)})
+    scoped['pins'].update(new['pins'])
+    scoped['status'] = status_of(scoped['parts'].values())
+    scoped['passed'] = scoped['status'] == 'passed'
+    selected = original.with_name('B2a_saved481_reselected.json')
+    if selected.exists():
+        assert cut.read(selected) == scoped
+    else:
+        cut.save(selected, scoped)
+    path, result = seal(label, 'B2a', {'scoped': selected}, ('B0', 'B1'))
+    with (HERE.parent / 'progress.md').open('a') as stream:
+        stream.write(f"\nFP2-P3 B2a reselected from the corrected saved481 attempt. {result['status']}. Receipt {path}.\n")
+    return result['status']
+
 
 
 def record(label,part):

@@ -1,0 +1,272 @@
+{
+  "status": "passed",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284",
+  "seconds_limit": 900,
+  "switch": {
+    "environment": {
+      "SU2_NATIVE_CONFORMING_WITNESS": "0",
+      "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0"
+    },
+    "rank_marker_counts": {
+      "0": 1
+    },
+    "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log",
+    "raw": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log"
+  },
+  "first_difference": null,
+  "result": {
+    "passed": true,
+    "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284",
+    "first_mismatch": null,
+    "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/cases/n14_g3_first_20261117T104157_3163858",
+    "physical_gates": {
+      "executed_successfully": true,
+      "runtime_pins_verified": true,
+      "serial_bounded_command": true,
+      "exact_input_and_target": true,
+      "unchanged_stage_limits": true,
+      "all_private_cells_positive_with_sensors": true,
+      "modeled_storage_within_12GiB": true,
+      "same_frozen_input_contract": true,
+      "same_frozen_configuration": true,
+      "zero_upper_refinements": true,
+      "whole_job_peak_RSS_19073_MiB_serial": true
+    },
+    "terminal_receipt_sha256": "43ee4295982732a25418d249914fc424986997768268133e680cab7412e5f47d",
+    "accepted_splits": 1473,
+    "minimum_splits": 336,
+    "common_edit_count": 1113,
+    "first_mismatch_index": null,
+    "observer_adjusted_entry_work": {
+      "reference": 5113,
+      "candidate": 5113
+    },
+    "report_only_split_rows": {
+      "reference": 1113,
+      "candidate": 1473,
+      "candidate_saved_stage": {
+        "rank": 0,
+        "ranks": 1,
+        "input_cells": 303823,
+        "donor_cells": 303823,
+        "output_cells": 307361,
+        "global_output_cells": 307361,
+        "positive_cells": 307361,
+        "sensor_cells": 307361,
+        "surface_prepared": false,
+        "engine_valid": false,
+        "final_mesh_accepted": false,
+        "same_target_policy": true,
+        "input_parameters_unchanged": true,
+        "exact_transported_input": true,
+        "captured": true,
+        "stage_height": 6.4e-05,
+        "seconds": 459.42073559700003,
+        "maximum_seconds": 388.8,
+        "maximum_work": 233220,
+        "stop": "time_budget",
+        "reason": "Native3D metric update exhausts elapsed-time budget. Local cached demands: geometry_cells=3009, metric_or_height_cells=6169, geometry_edges=0, metric_edges=0. Last local rejection: edge 7280,7284: Native 3D size insertion does not shorten the longest changed-edge frontier.",
+        "work": 6484,
+        "commits": 1473,
+        "moved": 0,
+        "reconnected": 0,
+        "splits": 1473,
+        "collapses": 0,
+        "geometry_work": 158225268,
+        "process_cpu_seconds": 457.510106,
+        "ownership_evaluations": 0,
+        "ownership_changes": 0,
+        "ownership_moved_cells": 0,
+        "geometry_guidance_trials": 682,
+        "geometry_guidance_rejected": 173,
+        "surface_required": 42179,
+        "surface_measured": 42175,
+        "surface_census_complete": false,
+        "surface_geometry_complete": false,
+        "guidance_memo_reserved_bytes": 1082433473,
+        "guidance_memo_live_bytes": 17191992,
+        "guidance_memo_hits": 99208,
+        "strip_memo_hits": 0,
+        "upper_calls": 18295,
+        "upper_work": 165519464,
+        "upper_seconds": 315.81377944099995,
+        "scope_work": 1875230,
+        "scope_seconds": 37.61322973899997,
+        "facet_resolutions": 2,
+        "facet_work": 1258676,
+        "traversal_work": 158903570,
+        "tracked_collective_seconds": 0.24416069900945558,
+        "ownership_seconds": 0,
+        "maximum_work_bytes": 11220372769,
+        "timers_overlap": true,
+        "cpu_includes_MPI_polling": true
+      }
+    },
+    "excluded_legacy_gate": "P6c first 336 edits",
+    "first_difference": null,
+    "identity_is_gate": true,
+    "switch_receipt": {
+      "environment": {
+        "SU2_NATIVE_CONFORMING_WITNESS": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0"
+      },
+      "rank_marker_counts": {
+        "0": 1
+      },
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log",
+      "raw": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log"
+    }
+  },
+  "pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/command.json": "de70a9d8430b8b25dd2d075f0a907328fe60e0d5598d17d36c12ee82bbdce438",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/status.json": "64ab61a8856c4fe66ecfd52cd21b5a7d681887b7dc34cbe462a0eddd30287f60",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/g3_terminal_receipt.json": "43ee4295982732a25418d249914fc424986997768268133e680cab7412e5f47d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/pins.json": "41c95b855c6ab089f388a9acf297053a56b88fd02d220a48b6070c807d08e14c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log": "8f55f08b1d3199133cbb53c51983adf67620dbf92f750a2b25b6fb9b0e6c1aa9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/G3_wait.json": "801ec4db6a6142f073d18de72a631ac9c668dbce410e7182c76755baa900b689",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/G3_host_preflight.json": "b407294d76fc74135248d4083e5a76fa1c1a3470b74565d7b7baf0ccaf6538a3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/g3_primary_launch_identity.json": "e78fe0ce250430d82043b7b1de74dca128b77b04ac31445467f9d38cf8a18c6c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/cheap_bl_receipt.json": "19ac795f4b34b7838626a203b2e05869812245d8ca9ae8dc1642cb45ddf6d8a9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/g3_end_b_gate.json": "9350ce95fca778038da3bea4330b4c25a4f37f55953439291d0e5b0d0e03b7ef",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/nose_target_observation.jsonl": "5663d1fdbd5a22d6a151f1554e8aced584da417f600fc45f7904ab098806b357",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/actual_saved_surface_stage_rank0.json": "b165bd44d8f310db159e14525e0d7c26f3a7a71b6da75396d1f967923ede82f1",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/resources.jsonl": "91de63d49b11d697c072d1083b3d7ffa5d26117411f421730389fca2125a25d0"
+  },
+  "attempts": [
+    {
+      "status": "passed",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284",
+      "seconds_limit": 900,
+      "switch": {
+        "environment": {
+          "SU2_NATIVE_CONFORMING_WITNESS": "0",
+          "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0"
+        },
+        "rank_marker_counts": {
+          "0": 1
+        },
+        "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log",
+        "raw": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log"
+      },
+      "first_difference": null,
+      "result": {
+        "passed": true,
+        "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284",
+        "first_mismatch": null,
+        "reference": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/cases/n14_g3_first_20261117T104157_3163858",
+        "physical_gates": {
+          "executed_successfully": true,
+          "runtime_pins_verified": true,
+          "serial_bounded_command": true,
+          "exact_input_and_target": true,
+          "unchanged_stage_limits": true,
+          "all_private_cells_positive_with_sensors": true,
+          "modeled_storage_within_12GiB": true,
+          "same_frozen_input_contract": true,
+          "same_frozen_configuration": true,
+          "zero_upper_refinements": true,
+          "whole_job_peak_RSS_19073_MiB_serial": true
+        },
+        "terminal_receipt_sha256": "43ee4295982732a25418d249914fc424986997768268133e680cab7412e5f47d",
+        "accepted_splits": 1473,
+        "minimum_splits": 336,
+        "common_edit_count": 1113,
+        "first_mismatch_index": null,
+        "observer_adjusted_entry_work": {
+          "reference": 5113,
+          "candidate": 5113
+        },
+        "report_only_split_rows": {
+          "reference": 1113,
+          "candidate": 1473,
+          "candidate_saved_stage": {
+            "rank": 0,
+            "ranks": 1,
+            "input_cells": 303823,
+            "donor_cells": 303823,
+            "output_cells": 307361,
+            "global_output_cells": 307361,
+            "positive_cells": 307361,
+            "sensor_cells": 307361,
+            "surface_prepared": false,
+            "engine_valid": false,
+            "final_mesh_accepted": false,
+            "same_target_policy": true,
+            "input_parameters_unchanged": true,
+            "exact_transported_input": true,
+            "captured": true,
+            "stage_height": 6.4e-05,
+            "seconds": 459.42073559700003,
+            "maximum_seconds": 388.8,
+            "maximum_work": 233220,
+            "stop": "time_budget",
+            "reason": "Native3D metric update exhausts elapsed-time budget. Local cached demands: geometry_cells=3009, metric_or_height_cells=6169, geometry_edges=0, metric_edges=0. Last local rejection: edge 7280,7284: Native 3D size insertion does not shorten the longest changed-edge frontier.",
+            "work": 6484,
+            "commits": 1473,
+            "moved": 0,
+            "reconnected": 0,
+            "splits": 1473,
+            "collapses": 0,
+            "geometry_work": 158225268,
+            "process_cpu_seconds": 457.510106,
+            "ownership_evaluations": 0,
+            "ownership_changes": 0,
+            "ownership_moved_cells": 0,
+            "geometry_guidance_trials": 682,
+            "geometry_guidance_rejected": 173,
+            "surface_required": 42179,
+            "surface_measured": 42175,
+            "surface_census_complete": false,
+            "surface_geometry_complete": false,
+            "guidance_memo_reserved_bytes": 1082433473,
+            "guidance_memo_live_bytes": 17191992,
+            "guidance_memo_hits": 99208,
+            "strip_memo_hits": 0,
+            "upper_calls": 18295,
+            "upper_work": 165519464,
+            "upper_seconds": 315.81377944099995,
+            "scope_work": 1875230,
+            "scope_seconds": 37.61322973899997,
+            "facet_resolutions": 2,
+            "facet_work": 1258676,
+            "traversal_work": 158903570,
+            "tracked_collective_seconds": 0.24416069900945558,
+            "ownership_seconds": 0,
+            "maximum_work_bytes": 11220372769,
+            "timers_overlap": true,
+            "cpu_includes_MPI_polling": true
+          }
+        },
+        "excluded_legacy_gate": "P6c first 336 edits",
+        "first_difference": null,
+        "identity_is_gate": true,
+        "switch_receipt": {
+          "environment": {
+            "SU2_NATIVE_CONFORMING_WITNESS": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0"
+          },
+          "rank_marker_counts": {
+            "0": 1
+          },
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log",
+          "raw": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log"
+        }
+      },
+      "pins": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/command.json": "de70a9d8430b8b25dd2d075f0a907328fe60e0d5598d17d36c12ee82bbdce438",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/status.json": "64ab61a8856c4fe66ecfd52cd21b5a7d681887b7dc34cbe462a0eddd30287f60",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/g3_terminal_receipt.json": "43ee4295982732a25418d249914fc424986997768268133e680cab7412e5f47d",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/pins.json": "41c95b855c6ab089f388a9acf297053a56b88fd02d220a48b6070c807d08e14c",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/run.log": "8f55f08b1d3199133cbb53c51983adf67620dbf92f750a2b25b6fb9b0e6c1aa9",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/G3_wait.json": "801ec4db6a6142f073d18de72a631ac9c668dbce410e7182c76755baa900b689",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/G3_host_preflight.json": "b407294d76fc74135248d4083e5a76fa1c1a3470b74565d7b7baf0ccaf6538a3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/g3_primary_launch_identity.json": "e78fe0ce250430d82043b7b1de74dca128b77b04ac31445467f9d38cf8a18c6c",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/cheap_bl_receipt.json": "19ac795f4b34b7838626a203b2e05869812245d8ca9ae8dc1642cb45ddf6d8a9",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/g3_end_b_gate.json": "9350ce95fca778038da3bea4330b4c25a4f37f55953439291d0e5b0d0e03b7ef",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/nose_target_observation.jsonl": "5663d1fdbd5a22d6a151f1554e8aced584da417f600fc45f7904ab098806b357",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/actual_saved_surface_stage_rank0.json": "b165bd44d8f310db159e14525e0d7c26f3a7a71b6da75396d1f967923ede82f1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/B2a/G3/attempt1/cases/FP2P3_G3_20261125T210207_261284/resources.jsonl": "91de63d49b11d697c072d1083b3d7ffa5d26117411f421730389fca2125a25d0"
+      }
+    }
+  ]
+}
