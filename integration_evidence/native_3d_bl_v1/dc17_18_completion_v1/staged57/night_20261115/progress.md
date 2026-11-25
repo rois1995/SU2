@@ -2046,3 +2046,7 @@ FP2-P2 build672 step 2, campaign-N6-2: passed. Exit 0. Evidence campaign/build67
 FP2-P2 build672 step 2, compare: passed. Exit 0. Evidence campaign/build672/comparison.json.
 
 FP2-P2 N6 trial 2 qualified in 792.215 s. N6 pair exact. The sealed comparator passed all six trials and all three pairs (N1, N6P, N6). Build664 comparison is exact for N1 and has report-only differences for N6P and N6. Continue traced N1 ANATOMY, then the four closure-on shared checks.
+
+FP2-P2 build672 step 2, anatomy-N1: passed. Exit 0. Evidence anatomy/build672/N1/trial1/case_summary.json. Gate result equal.
+
+FP2-P2 ANATOMY qualified in 680.214 s with a complete observer and an exact trace-off N1 projection. Across 70482 completed miss/bypass forwards: 61785 root enough, 412482 prepared nodes, 174429681 result work. The 68858 PLANES rows report 72944 groups, 72765 accepted, 8 invalid and 931 boundary trimmed. The closure committed 197387 fans and left 649 contacts. Successful scans 68858, failed scans zero, incomplete closure rows zero; cap zero. The raw 99700922-byte sample stays local with SHA256 22f915db427141c6b315a0db49b147e38fdfa8b99ae09826910a025d12992db1. The remaining closure-on shared checks are in sequence.

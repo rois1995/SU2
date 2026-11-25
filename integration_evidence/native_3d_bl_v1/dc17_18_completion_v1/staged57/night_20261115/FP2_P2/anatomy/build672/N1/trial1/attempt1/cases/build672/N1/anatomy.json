@@ -1,0 +1,1264 @@
+{
+  "completion": "complete",
+  "groups": {
+    "0": {
+      "calls_by_class": {
+        "incomplete": 0,
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 4155,
+        "bypass": 0
+      },
+      "calls": 4155,
+      "seconds_by_class": {
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 8.117291952999993,
+        "bypass": 0
+      },
+      "miss_bypass_denominators": {
+        "forwards": 4155,
+        "prepared_nodes": 5531,
+        "root_ratio_forwards": 4155,
+        "root_ratio_present": 4155,
+        "planes_rows": 3838,
+        "model_rows": 4155,
+        "graph_attempts": 5133,
+        "result_work": 4052476,
+        "exclusive_work": 4052476
+      },
+      "prepared_physical_nodes": {
+        "n": 4155,
+        "mean": 1.3311672683513838,
+        "median": 1,
+        "p90": 1,
+        "maximum": 57
+      },
+      "prepared_within_tolerance": 5187,
+      "root_enough": 4075,
+      "root_enough_share": 0.9807460890493381,
+      "root_ratio": {
+        "<=1": {
+          "count": 4075,
+          "share": 0.9807460890493381
+        },
+        "(1,2]": {
+          "count": 19,
+          "share": 0.00457280385078219
+        },
+        "(2,10]": {
+          "count": 61,
+          "share": 0.014681107099879662
+        },
+        ">10": {
+          "count": 0,
+          "share": 0.0
+        },
+        "not_finite": {
+          "count": 0,
+          "share": 0.0
+        },
+        "missing": {
+          "count": 0,
+          "share": 0.0
+        }
+      },
+      "largest_depth": {
+        "n": 4155,
+        "mean": 0.039711191335740074,
+        "median": 0,
+        "p90": 0,
+        "maximum": 4
+      },
+      "means_per_forward": {
+        "support_ids": 135.87533092659447,
+        "witness": 30.504933814681106,
+        "pieces": 236.02984356197354,
+        "graph_attempts": 1.2353790613718412
+      },
+      "forwards_with_model": 4155,
+      "forwards_with_planes": 3838,
+      "forwards_with_planes_share": 0.9237063778580024,
+      "means_per_planes_row": {
+        "triangles": 31.07998957790516,
+        "groups": 1.0812923397602918,
+        "accepted": 1.0721730067743616,
+        "invalid": 0.0,
+        "storage_refused": 0.0,
+        "boundary_trimmed": 0.01485148514851485,
+        "trimmed_triangles": 0.031266284523189164
+      },
+      "graph_within_tolerance": 4370,
+      "graph_within_tolerance_share": 0.8513539840249367,
+      "work_per_forward": 975.3251504211793,
+      "work_per_prepared_physical_node": 732.6841439161092,
+      "result_work_parts": {
+        "coverage": {
+          "work": 187541,
+          "share": 0.04627812724862528
+        },
+        "lift": {
+          "work": 855186,
+          "share": 0.2110280233615202
+        },
+        "other_upper": {
+          "work": 60382,
+          "share": 0.014900026551668659
+        },
+        "distance": {
+          "work": 2599,
+          "share": 0.0006413363089627181
+        },
+        "other_result": {
+          "work": 2946768,
+          "share": 0.7271524865292232
+        }
+      },
+      "root_and_other_work": {
+        "root_upper_work": 1016441,
+        "other_upper_work": 86668,
+        "root_distance_work": 703,
+        "other_distance_work": 1896
+      },
+      "top_operations": [
+        {
+          "operation": "QuerySurfaceUnionAtResolution",
+          "exclusive": 3400659,
+          "share": 0.8391558642173328
+        },
+        {
+          "operation": "BoundPhysicalSurface",
+          "exclusive": 651817,
+          "share": 0.16084413578266718
+        }
+      ],
+      "exclusive_by_operation": {
+        "QuerySurfaceUnionAtResolution": 3400659,
+        "BoundPhysicalSurface": 651817
+      },
+      "trace_row_counts": {
+        "NATIVE_SURFACE_PLANE_REJECT": 57,
+        "NATIVE_SURFACE_BOUND": 0,
+        "NATIVE_SURFACE_REFINE": 0,
+        "NATIVE_SURFACE_UNRESOLVED": 0,
+        "NATIVE_SURFACE_QUERY_OUTER": 4155,
+        "NATIVE_SURFACE_QUERY_INNER": 1022,
+        "NATIVE_SURFACE_FACET_BEGIN": 4002,
+        "NATIVE_SURFACE_FACET_LEAF": 9897,
+        "NATIVE_SURFACE_FACET_END": 4002,
+        "NATIVE_SURFACE_WITNESS": 3838,
+        "NATIVE_SURFACE_WITNESS_CLOSED": 3838,
+        "NATIVE_SURFACE_PLANE_GROUP": 4150,
+        "NATIVE_SURFACE_PLANE_OPEN": 3838,
+        "NATIVE_SURFACE_PLANES": 3838,
+        "NATIVE_SURFACE_MODEL": 4155,
+        "NATIVE_SURFACE_GRAPH": 5133,
+        "NATIVE_SURFACE_DOMAIN": 5531,
+        "NATIVE_GEOMETRY_WORK": 8310,
+        "NATIVE_SURFACE_QUERY_RESULT": 4155,
+        "NATIVE_SURFACE_PLANE_SPLIT": 1587
+      },
+      "plane_sums": {
+        "groups": 4150,
+        "accepted": 4115,
+        "invalid": 0,
+        "boundary_trimmed": 57
+      },
+      "closure": {
+        "chords_in": 115249,
+        "chords_out": 119285,
+        "splits": 4002,
+        "children": 8038,
+        "chain2": 3979,
+        "chain3": 12,
+        "chain4": 11,
+        "chain5_8": 0,
+        "reject_long": 0,
+        "reject_tie": 0,
+        "reject_fan_key": 0,
+        "reject_chain_key": 0,
+        "reject_not_finite": 0,
+        "reject_orientation": 0,
+        "reject_projection": 83,
+        "cap": 0,
+        "left_contacts": 83,
+        "rows_scan_succeeded": 3838,
+        "rows_scan_failed": 0,
+        "forwards_incomplete_closure_row": 0
+      },
+      "direct_eligible": 0,
+      "lower_m": 0,
+      "upper_m": 0.002
+    },
+    "1": {
+      "calls_by_class": {
+        "incomplete": 0,
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 6902,
+        "bypass": 0
+      },
+      "calls": 6902,
+      "seconds_by_class": {
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 37.44533514099987,
+        "bypass": 0
+      },
+      "miss_bypass_denominators": {
+        "forwards": 6902,
+        "prepared_nodes": 23230,
+        "root_ratio_forwards": 6902,
+        "root_ratio_present": 6902,
+        "planes_rows": 6753,
+        "model_rows": 6902,
+        "graph_attempts": 20963,
+        "result_work": 10435095,
+        "exclusive_work": 10435095
+      },
+      "prepared_physical_nodes": {
+        "n": 6902,
+        "mean": 3.365691104027818,
+        "median": 1,
+        "p90": 1,
+        "maximum": 181
+      },
+      "prepared_within_tolerance": 19148,
+      "root_enough": 6314,
+      "root_enough_share": 0.9148073022312373,
+      "root_ratio": {
+        "<=1": {
+          "count": 6314,
+          "share": 0.9148073022312373
+        },
+        "(1,2]": {
+          "count": 240,
+          "share": 0.034772529701535784
+        },
+        "(2,10]": {
+          "count": 13,
+          "share": 0.0018835120254998552
+        },
+        ">10": {
+          "count": 335,
+          "share": 0.048536656041727036
+        },
+        "not_finite": {
+          "count": 0,
+          "share": 0.0
+        },
+        "missing": {
+          "count": 0,
+          "share": 0.0
+        }
+      },
+      "largest_depth": {
+        "n": 6902,
+        "mean": 0.23804694291509707,
+        "median": 0,
+        "p90": 0,
+        "maximum": 5
+      },
+      "means_per_forward": {
+        "support_ids": 154.8410605621559,
+        "witness": 49.15314401622718,
+        "pieces": 1036.3577223993045,
+        "graph_attempts": 3.037235583888728
+      },
+      "forwards_with_model": 6902,
+      "forwards_with_planes": 6753,
+      "forwards_with_planes_share": 0.9784120544769632,
+      "means_per_planes_row": {
+        "triangles": 49.55012586998371,
+        "groups": 1.0707833555456834,
+        "accepted": 1.0639715681919146,
+        "invalid": 0.0002961646675551607,
+        "storage_refused": 0.0,
+        "boundary_trimmed": 0.007256034355101437,
+        "trimmed_triangles": 0.019250703391085443
+      },
+      "graph_within_tolerance": 12010,
+      "graph_within_tolerance_share": 0.5729141821304202,
+      "work_per_forward": 1511.8943784410317,
+      "work_per_prepared_physical_node": 449.20770555316403,
+      "result_work_parts": {
+        "coverage": {
+          "work": 730131,
+          "share": 0.06996879280926527
+        },
+        "lift": {
+          "work": 2690857,
+          "share": 0.25786607596768407
+        },
+        "other_upper": {
+          "work": 327088,
+          "share": 0.03134499494254724
+        },
+        "distance": {
+          "work": 26756,
+          "share": 0.0025640399057219893
+        },
+        "other_result": {
+          "work": 6660263,
+          "share": 0.6382560963747814
+        }
+      },
+      "root_and_other_work": {
+        "root_upper_work": 2487619,
+        "other_upper_work": 1260457,
+        "root_distance_work": 4440,
+        "other_distance_work": 22316
+      },
+      "top_operations": [
+        {
+          "operation": "QuerySurfaceUnionAtResolution",
+          "exclusive": 9221440,
+          "share": 0.8836948777179316
+        },
+        {
+          "operation": "BoundPhysicalSurface",
+          "exclusive": 1213655,
+          "share": 0.11630512228206835
+        }
+      ],
+      "exclusive_by_operation": {
+        "QuerySurfaceUnionAtResolution": 9221440,
+        "BoundPhysicalSurface": 1213655
+      },
+      "trace_row_counts": {
+        "NATIVE_SURFACE_PLANE_REJECT": 51,
+        "NATIVE_SURFACE_BOUND": 0,
+        "NATIVE_SURFACE_REFINE": 0,
+        "NATIVE_SURFACE_UNRESOLVED": 0,
+        "NATIVE_SURFACE_QUERY_OUTER": 6902,
+        "NATIVE_SURFACE_QUERY_INNER": 2795,
+        "NATIVE_SURFACE_FACET_BEGIN": 5392,
+        "NATIVE_SURFACE_FACET_LEAF": 284869,
+        "NATIVE_SURFACE_FACET_END": 5392,
+        "NATIVE_SURFACE_WITNESS": 6753,
+        "NATIVE_SURFACE_WITNESS_CLOSED": 6753,
+        "NATIVE_SURFACE_PLANE_GROUP": 7231,
+        "NATIVE_SURFACE_PLANE_OPEN": 6753,
+        "NATIVE_SURFACE_PLANES": 6753,
+        "NATIVE_SURFACE_MODEL": 6902,
+        "NATIVE_SURFACE_GRAPH": 20963,
+        "NATIVE_SURFACE_DOMAIN": 23230,
+        "NATIVE_GEOMETRY_WORK": 13804,
+        "NATIVE_SURFACE_QUERY_RESULT": 6902,
+        "NATIVE_SURFACE_PLANE_SPLIT": 2329
+      },
+      "plane_sums": {
+        "groups": 7231,
+        "accepted": 7185,
+        "invalid": 2,
+        "boundary_trimmed": 49
+      },
+      "closure": {
+        "chords_in": 324947,
+        "chords_out": 334612,
+        "splits": 9281,
+        "children": 18946,
+        "chain2": 9072,
+        "chain3": 44,
+        "chain4": 155,
+        "chain5_8": 10,
+        "reject_long": 0,
+        "reject_tie": 0,
+        "reject_fan_key": 0,
+        "reject_chain_key": 0,
+        "reject_not_finite": 0,
+        "reject_orientation": 0,
+        "reject_projection": 46,
+        "cap": 0,
+        "left_contacts": 46,
+        "rows_scan_succeeded": 6753,
+        "rows_scan_failed": 0,
+        "forwards_incomplete_closure_row": 0
+      },
+      "direct_eligible": 0,
+      "lower_m": 0.002,
+      "upper_m": 0.005
+    },
+    "2": {
+      "calls_by_class": {
+        "incomplete": 0,
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 20610,
+        "bypass": 0
+      },
+      "calls": 20610,
+      "seconds_by_class": {
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 81.82275476499979,
+        "bypass": 0
+      },
+      "miss_bypass_denominators": {
+        "forwards": 20610,
+        "prepared_nodes": 114170,
+        "root_ratio_forwards": 20610,
+        "root_ratio_present": 20610,
+        "planes_rows": 20064,
+        "model_rows": 20610,
+        "graph_attempts": 100113,
+        "result_work": 40983695,
+        "exclusive_work": 40983695
+      },
+      "prepared_physical_nodes": {
+        "n": 20610,
+        "mean": 5.53954391072295,
+        "median": 1,
+        "p90": 5,
+        "maximum": 1917
+      },
+      "prepared_within_tolerance": 90780,
+      "root_enough": 18420,
+      "root_enough_share": 0.893740902474527,
+      "root_ratio": {
+        "<=1": {
+          "count": 18420,
+          "share": 0.893740902474527
+        },
+        "(1,2]": {
+          "count": 1184,
+          "share": 0.05744784085395439
+        },
+        "(2,10]": {
+          "count": 0,
+          "share": 0.0
+        },
+        ">10": {
+          "count": 1006,
+          "share": 0.04881125667151868
+        },
+        "not_finite": {
+          "count": 0,
+          "share": 0.0
+        },
+        "missing": {
+          "count": 0,
+          "share": 0.0
+        }
+      },
+      "largest_depth": {
+        "n": 20610,
+        "mean": 0.3156720038816109,
+        "median": 0,
+        "p90": 1,
+        "maximum": 6
+      },
+      "means_per_forward": {
+        "support_ids": 235.73095584667638,
+        "witness": 56.05303250849102,
+        "pieces": 1501.2578845220767,
+        "graph_attempts": 4.857496360989811
+      },
+      "forwards_with_model": 20610,
+      "forwards_with_planes": 20064,
+      "forwards_with_planes_share": 0.9735080058224163,
+      "means_per_planes_row": {
+        "triangles": 56.46092503987241,
+        "groups": 1.07505980861244,
+        "accepted": 1.0725179425837321,
+        "invalid": 0.00014952153110047846,
+        "storage_refused": 0.0,
+        "boundary_trimmed": 0.009419856459330144,
+        "trimmed_triangles": 0.03085127591706539
+      },
+      "graph_within_tolerance": 50624,
+      "graph_within_tolerance_share": 0.5056685944882283,
+      "work_per_forward": 1988.534449296458,
+      "work_per_prepared_physical_node": 358.9707891740387,
+      "result_work_parts": {
+        "coverage": {
+          "work": 3410527,
+          "share": 0.08321667921840625
+        },
+        "lift": {
+          "work": 10584524,
+          "share": 0.2582618282709746
+        },
+        "other_upper": {
+          "work": 1727748,
+          "share": 0.04215696022527984
+        },
+        "distance": {
+          "work": 148141,
+          "share": 0.00361463259962285
+        },
+        "other_result": {
+          "work": 25112755,
+          "share": 0.6127498996857165
+        }
+      },
+      "root_and_other_work": {
+        "root_upper_work": 8700753,
+        "other_upper_work": 7022046,
+        "root_distance_work": 15912,
+        "other_distance_work": 132229
+      },
+      "top_operations": [
+        {
+          "operation": "QuerySurfaceUnionAtResolution",
+          "exclusive": 35692470,
+          "share": 0.8708943886099094
+        },
+        {
+          "operation": "BoundPhysicalSurface",
+          "exclusive": 5291225,
+          "share": 0.1291056113900906
+        }
+      ],
+      "exclusive_by_operation": {
+        "QuerySurfaceUnionAtResolution": 35692470,
+        "BoundPhysicalSurface": 5291225
+      },
+      "trace_row_counts": {
+        "NATIVE_SURFACE_PLANE_REJECT": 192,
+        "NATIVE_SURFACE_BOUND": 0,
+        "NATIVE_SURFACE_REFINE": 0,
+        "NATIVE_SURFACE_UNRESOLVED": 0,
+        "NATIVE_SURFACE_QUERY_OUTER": 20610,
+        "NATIVE_SURFACE_QUERY_INNER": 6502,
+        "NATIVE_SURFACE_FACET_BEGIN": 14296,
+        "NATIVE_SURFACE_FACET_LEAF": 163048,
+        "NATIVE_SURFACE_FACET_END": 14296,
+        "NATIVE_SURFACE_WITNESS": 20064,
+        "NATIVE_SURFACE_WITNESS_CLOSED": 20064,
+        "NATIVE_SURFACE_PLANE_GROUP": 21570,
+        "NATIVE_SURFACE_PLANE_OPEN": 20064,
+        "NATIVE_SURFACE_PLANES": 20064,
+        "NATIVE_SURFACE_MODEL": 20610,
+        "NATIVE_SURFACE_GRAPH": 100113,
+        "NATIVE_SURFACE_DOMAIN": 114170,
+        "NATIVE_GEOMETRY_WORK": 41220,
+        "NATIVE_SURFACE_QUERY_RESULT": 20610,
+        "NATIVE_SURFACE_PLANE_SPLIT": 11710
+      },
+      "plane_sums": {
+        "groups": 21570,
+        "accepted": 21519,
+        "invalid": 3,
+        "boundary_trimmed": 189
+      },
+      "closure": {
+        "chords_in": 1094936,
+        "chords_out": 1132832,
+        "splits": 36541,
+        "children": 74437,
+        "chain2": 35815,
+        "chain3": 129,
+        "chain4": 570,
+        "chain5_8": 27,
+        "reject_long": 5,
+        "reject_tie": 0,
+        "reject_fan_key": 0,
+        "reject_chain_key": 0,
+        "reject_not_finite": 0,
+        "reject_orientation": 0,
+        "reject_projection": 91,
+        "cap": 0,
+        "left_contacts": 147,
+        "rows_scan_succeeded": 20064,
+        "rows_scan_failed": 0,
+        "forwards_incomplete_closure_row": 0
+      },
+      "direct_eligible": 0,
+      "lower_m": 0.005,
+      "upper_m": 0.01
+    },
+    "3": {
+      "calls_by_class": {
+        "incomplete": 0,
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 20407,
+        "bypass": 0
+      },
+      "calls": 20407,
+      "seconds_by_class": {
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 114.63865351000004,
+        "bypass": 0
+      },
+      "miss_bypass_denominators": {
+        "forwards": 20407,
+        "prepared_nodes": 153755,
+        "root_ratio_forwards": 20407,
+        "root_ratio_present": 20407,
+        "planes_rows": 20008,
+        "model_rows": 20407,
+        "graph_attempts": 140918,
+        "result_work": 61424316,
+        "exclusive_work": 61424316
+      },
+      "prepared_physical_nodes": {
+        "n": 20407,
+        "mean": 7.5344244621943455,
+        "median": 1,
+        "p90": 5,
+        "maximum": 1725
+      },
+      "prepared_within_tolerance": 120418,
+      "root_enough": 16648,
+      "root_enough_share": 0.8157985005145293,
+      "root_ratio": {
+        "<=1": {
+          "count": 16648,
+          "share": 0.8157985005145293
+        },
+        "(1,2]": {
+          "count": 2787,
+          "share": 0.1365707845347185
+        },
+        "(2,10]": {
+          "count": 0,
+          "share": 0.0
+        },
+        ">10": {
+          "count": 972,
+          "share": 0.04763071495075219
+        },
+        "not_finite": {
+          "count": 0,
+          "share": 0.0
+        },
+        "missing": {
+          "count": 0,
+          "share": 0.0
+        }
+      },
+      "largest_depth": {
+        "n": 20407,
+        "mean": 0.47454304895379035,
+        "median": 0,
+        "p90": 1,
+        "maximum": 8
+      },
+      "means_per_forward": {
+        "support_ids": 244.9560444945362,
+        "witness": 89.3027392561376,
+        "pieces": 3385.225853873671,
+        "graph_attempts": 6.9053756064095655
+      },
+      "forwards_with_model": 20407,
+      "forwards_with_planes": 20008,
+      "forwards_with_planes_share": 0.9804478855294751,
+      "means_per_planes_row": {
+        "triangles": 88.82831867253098,
+        "groups": 1.0801679328268692,
+        "accepted": 1.0780687724910036,
+        "invalid": 4.998000799680128e-05,
+        "storage_refused": 0.0,
+        "boundary_trimmed": 0.013344662135145942,
+        "trimmed_triangles": 0.0428328668532587
+      },
+      "graph_within_tolerance": 71746,
+      "graph_within_tolerance_share": 0.5091329709476433,
+      "work_per_forward": 3009.963051893958,
+      "work_per_prepared_physical_node": 399.4947546421255,
+      "result_work_parts": {
+        "coverage": {
+          "work": 6526796,
+          "share": 0.10625752837036069
+        },
+        "lift": {
+          "work": 21145429,
+          "share": 0.3442517617941403
+        },
+        "other_upper": {
+          "work": 2828606,
+          "share": 0.046050264523906134
+        },
+        "distance": {
+          "work": 214299,
+          "share": 0.003488830058766955
+        },
+        "other_result": {
+          "work": 30709186,
+          "share": 0.49995161525282594
+        }
+      },
+      "root_and_other_work": {
+        "root_upper_work": 13901773,
+        "other_upper_work": 16599058,
+        "root_distance_work": 27915,
+        "other_distance_work": 186384
+      },
+      "top_operations": [
+        {
+          "operation": "QuerySurfaceUnionAtResolution",
+          "exclusive": 55996951,
+          "share": 0.9116414255227523
+        },
+        {
+          "operation": "BoundPhysicalSurface",
+          "exclusive": 5427365,
+          "share": 0.08835857447724774
+        }
+      ],
+      "exclusive_by_operation": {
+        "QuerySurfaceUnionAtResolution": 55996951,
+        "BoundPhysicalSurface": 5427365
+      },
+      "trace_row_counts": {
+        "NATIVE_SURFACE_PLANE_REJECT": 268,
+        "NATIVE_SURFACE_BOUND": 15,
+        "NATIVE_SURFACE_REFINE": 0,
+        "NATIVE_SURFACE_UNRESOLVED": 0,
+        "NATIVE_SURFACE_QUERY_OUTER": 20407,
+        "NATIVE_SURFACE_FACET_BEGIN": 11372,
+        "NATIVE_SURFACE_FACET_LEAF": 82850,
+        "NATIVE_SURFACE_FACET_END": 11372,
+        "NATIVE_SURFACE_WITNESS": 20008,
+        "NATIVE_SURFACE_WITNESS_CLOSED": 20008,
+        "NATIVE_SURFACE_PLANE_GROUP": 21612,
+        "NATIVE_SURFACE_PLANE_OPEN": 20008,
+        "NATIVE_SURFACE_PLANES": 20008,
+        "NATIVE_SURFACE_MODEL": 20407,
+        "NATIVE_SURFACE_GRAPH": 140918,
+        "NATIVE_SURFACE_DOMAIN": 153755,
+        "NATIVE_GEOMETRY_WORK": 40814,
+        "NATIVE_SURFACE_QUERY_RESULT": 20407,
+        "NATIVE_SURFACE_QUERY_INNER": 7504,
+        "NATIVE_SURFACE_PLANE_SPLIT": 18084
+      },
+      "plane_sums": {
+        "groups": 21612,
+        "accepted": 21570,
+        "invalid": 1,
+        "boundary_trimmed": 267
+      },
+      "closure": {
+        "chords_in": 1706645,
+        "chords_out": 1777277,
+        "splits": 68449,
+        "children": 139081,
+        "chain2": 67139,
+        "chain3": 499,
+        "chain4": 767,
+        "chain5_8": 44,
+        "reject_long": 14,
+        "reject_tie": 0,
+        "reject_fan_key": 0,
+        "reject_chain_key": 0,
+        "reject_not_finite": 0,
+        "reject_orientation": 0,
+        "reject_projection": 46,
+        "cap": 0,
+        "left_contacts": 205,
+        "rows_scan_succeeded": 20008,
+        "rows_scan_failed": 0,
+        "forwards_incomplete_closure_row": 0
+      },
+      "direct_eligible": 0,
+      "lower_m": 0.01,
+      "upper_m": 0.02
+    },
+    "4": {
+      "calls_by_class": {
+        "incomplete": 0,
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 18288,
+        "bypass": 0
+      },
+      "calls": 18288,
+      "seconds_by_class": {
+        "direct_only": 0,
+        "hit": 0,
+        "miss": 101.63398212300028,
+        "bypass": 0
+      },
+      "miss_bypass_denominators": {
+        "forwards": 18288,
+        "prepared_nodes": 106236,
+        "root_ratio_forwards": 18288,
+        "root_ratio_present": 18288,
+        "planes_rows": 18076,
+        "model_rows": 18288,
+        "graph_attempts": 86424,
+        "result_work": 56837468,
+        "exclusive_work": 56837468
+      },
+      "prepared_physical_nodes": {
+        "n": 18288,
+        "mean": 5.809055118110236,
+        "median": 1,
+        "p90": 5,
+        "maximum": 2769
+      },
+      "prepared_within_tolerance": 83604,
+      "root_enough": 16304,
+      "root_enough_share": 0.8915135608048994,
+      "root_ratio": {
+        "<=1": {
+          "count": 16304,
+          "share": 0.8915135608048994
+        },
+        "(1,2]": {
+          "count": 1714,
+          "share": 0.09372265966754156
+        },
+        "(2,10]": {
+          "count": 0,
+          "share": 0.0
+        },
+        ">10": {
+          "count": 270,
+          "share": 0.014763779527559055
+        },
+        "not_finite": {
+          "count": 0,
+          "share": 0.0
+        },
+        "missing": {
+          "count": 0,
+          "share": 0.0
+        }
+      },
+      "largest_depth": {
+        "n": 18288,
+        "mean": 0.2485236220472441,
+        "median": 0,
+        "p90": 1,
+        "maximum": 13
+      },
+      "means_per_forward": {
+        "support_ids": 292.718449256343,
+        "witness": 88.87992125984252,
+        "pieces": 4433.2135279965005,
+        "graph_attempts": 4.725721784776903
+      },
+      "forwards_with_model": 18288,
+      "forwards_with_planes": 18076,
+      "forwards_with_planes_share": 0.9884076990376203,
+      "means_per_planes_row": {
+        "triangles": 87.41043372427528,
+        "groups": 1.010068599247621,
+        "accepted": 1.009902633325957,
+        "invalid": 0.00011064394777605666,
+        "storage_refused": 0.0,
+        "boundary_trimmed": 0.020413808364682453,
+        "trimmed_triangles": 0.05620712547023678
+      },
+      "graph_within_tolerance": 49110,
+      "graph_within_tolerance_share": 0.5682449319633435,
+      "work_per_forward": 3107.910542432196,
+      "work_per_prepared_physical_node": 535.0113709100493,
+      "result_work_parts": {
+        "coverage": {
+          "work": 3971280,
+          "share": 0.06987081127540727
+        },
+        "lift": {
+          "work": 19467721,
+          "share": 0.3425156271915561
+        },
+        "other_upper": {
+          "work": 1769317,
+          "share": 0.031129412731756453
+        },
+        "distance": {
+          "work": 199188,
+          "share": 0.0035045192372045847
+        },
+        "other_result": {
+          "work": 31429962,
+          "share": 0.5529796295640755
+        }
+      },
+      "root_and_other_work": {
+        "root_upper_work": 13404215,
+        "other_upper_work": 11804103,
+        "root_distance_work": 14329,
+        "other_distance_work": 184859
+      },
+      "top_operations": [
+        {
+          "operation": "QuerySurfaceUnionAtResolution",
+          "exclusive": 51100185,
+          "share": 0.8990580826014276
+        },
+        {
+          "operation": "BoundPhysicalSurface",
+          "exclusive": 5737283,
+          "share": 0.10094191739857236
+        }
+      ],
+      "exclusive_by_operation": {
+        "QuerySurfaceUnionAtResolution": 51100185,
+        "BoundPhysicalSurface": 5737283
+      },
+      "trace_row_counts": {
+        "NATIVE_SURFACE_PLANE_REJECT": 371,
+        "NATIVE_SURFACE_BOUND": 12,
+        "NATIVE_SURFACE_REFINE": 0,
+        "NATIVE_SURFACE_UNRESOLVED": 0,
+        "NATIVE_SURFACE_QUERY_OUTER": 18288,
+        "NATIVE_SURFACE_QUERY_INNER": 2318,
+        "NATIVE_SURFACE_FACET_BEGIN": 11551,
+        "NATIVE_SURFACE_FACET_LEAF": 77737,
+        "NATIVE_SURFACE_FACET_END": 11551,
+        "NATIVE_SURFACE_WITNESS": 18076,
+        "NATIVE_SURFACE_WITNESS_CLOSED": 18076,
+        "NATIVE_SURFACE_PLANE_GROUP": 18258,
+        "NATIVE_SURFACE_PLANE_OPEN": 18076,
+        "NATIVE_SURFACE_PLANES": 18076,
+        "NATIVE_SURFACE_MODEL": 18288,
+        "NATIVE_SURFACE_GRAPH": 86424,
+        "NATIVE_SURFACE_DOMAIN": 106236,
+        "NATIVE_GEOMETRY_WORK": 36576,
+        "NATIVE_SURFACE_QUERY_RESULT": 18288,
+        "NATIVE_SURFACE_PLANE_SPLIT": 4571
+      },
+      "plane_sums": {
+        "groups": 18258,
+        "accepted": 18255,
+        "invalid": 2,
+        "boundary_trimmed": 369
+      },
+      "closure": {
+        "chords_in": 1500334,
+        "chords_out": 1580031,
+        "splits": 78577,
+        "children": 158274,
+        "chain2": 77805,
+        "chain3": 444,
+        "chain4": 316,
+        "chain5_8": 12,
+        "reject_long": 14,
+        "reject_tie": 0,
+        "reject_fan_key": 0,
+        "reject_chain_key": 0,
+        "reject_not_finite": 0,
+        "reject_orientation": 0,
+        "reject_projection": 0,
+        "cap": 0,
+        "left_contacts": 164,
+        "rows_scan_succeeded": 18076,
+        "rows_scan_failed": 0,
+        "forwards_incomplete_closure_row": 0
+      },
+      "direct_eligible": 0,
+      "lower_m": 0.02,
+      "upper_m": null
+    },
+    "direct_eligible_1": {
+      "calls_by_class": {
+        "incomplete": 0,
+        "direct_only": 2082,
+        "hit": 0,
+        "miss": 120,
+        "bypass": 0
+      },
+      "calls": 2202,
+      "seconds_by_class": {
+        "direct_only": 0.20041851500000035,
+        "hit": 0,
+        "miss": 1.2725357250000002,
+        "bypass": 0
+      },
+      "miss_bypass_denominators": {
+        "forwards": 120,
+        "prepared_nodes": 9560,
+        "root_ratio_forwards": 120,
+        "root_ratio_present": 120,
+        "planes_rows": 119,
+        "model_rows": 120,
+        "graph_attempts": 6427,
+        "result_work": 696631,
+        "exclusive_work": 696631
+      },
+      "prepared_physical_nodes": {
+        "n": 120,
+        "mean": 79.66666666666667,
+        "median": 89,
+        "p90": 145,
+        "maximum": 265
+      },
+      "prepared_within_tolerance": 7200,
+      "root_enough": 24,
+      "root_enough_share": 0.2,
+      "root_ratio": {
+        "<=1": {
+          "count": 24,
+          "share": 0.2
+        },
+        "(1,2]": {
+          "count": 16,
+          "share": 0.13333333333333333
+        },
+        "(2,10]": {
+          "count": 0,
+          "share": 0.0
+        },
+        ">10": {
+          "count": 80,
+          "share": 0.6666666666666666
+        },
+        "not_finite": {
+          "count": 0,
+          "share": 0.0
+        },
+        "missing": {
+          "count": 0,
+          "share": 0.0
+        }
+      },
+      "largest_depth": {
+        "n": 120,
+        "mean": 3.875,
+        "median": 5,
+        "p90": 6,
+        "maximum": 7
+      },
+      "means_per_forward": {
+        "support_ids": 1.0,
+        "witness": 95.21666666666667,
+        "pieces": 201.9,
+        "graph_attempts": 53.55833333333333
+      },
+      "forwards_with_model": 120,
+      "forwards_with_planes": 119,
+      "forwards_with_planes_share": 0.9916666666666667,
+      "means_per_planes_row": {
+        "triangles": 94.5546218487395,
+        "groups": 1.0336134453781514,
+        "accepted": 1.0168067226890756,
+        "invalid": 0.0,
+        "storage_refused": 0.0,
+        "boundary_trimmed": 0.0,
+        "trimmed_triangles": 0.0
+      },
+      "graph_within_tolerance": 3317,
+      "graph_within_tolerance_share": 0.5161039365178155,
+      "work_per_forward": 5805.258333333333,
+      "work_per_prepared_physical_node": 72.86935146443514,
+      "result_work_parts": {
+        "coverage": {
+          "work": 228077,
+          "share": 0.32740001521609
+        },
+        "lift": {
+          "work": 237554,
+          "share": 0.34100406097345654
+        },
+        "other_upper": {
+          "work": 115889,
+          "share": 0.16635636369900278
+        },
+        "distance": {
+          "work": 14352,
+          "share": 0.020602011681937784
+        },
+        "other_result": {
+          "work": 100759,
+          "share": 0.1446375484295129
+        }
+      },
+      "root_and_other_work": {
+        "root_upper_work": 53622,
+        "other_upper_work": 527898,
+        "root_distance_work": 766,
+        "other_distance_work": 13586
+      },
+      "top_operations": [
+        {
+          "operation": "QuerySurfaceUnionAtResolution",
+          "exclusive": 693991,
+          "share": 0.9962103322993091
+        },
+        {
+          "operation": "BoundPhysicalSurface",
+          "exclusive": 2640,
+          "share": 0.0037896677006908964
+        }
+      ],
+      "exclusive_by_operation": {
+        "QuerySurfaceUnionAtResolution": 693991,
+        "BoundPhysicalSurface": 2640
+      },
+      "trace_row_counts": {
+        "NATIVE_SURFACE_PLANE_REJECT": 0,
+        "NATIVE_SURFACE_BOUND": 0,
+        "NATIVE_SURFACE_REFINE": 0,
+        "NATIVE_SURFACE_UNRESOLVED": 0,
+        "NATIVE_SURFACE_QUERY_OUTER": 120,
+        "NATIVE_SURFACE_QUERY_INNER": 120,
+        "NATIVE_SURFACE_FACET_BEGIN": 4,
+        "NATIVE_SURFACE_FACET_LEAF": 832,
+        "NATIVE_SURFACE_FACET_END": 4,
+        "NATIVE_SURFACE_WITNESS": 119,
+        "NATIVE_SURFACE_WITNESS_CLOSED": 119,
+        "NATIVE_SURFACE_PLANE_GROUP": 123,
+        "NATIVE_SURFACE_PLANE_OPEN": 119,
+        "NATIVE_SURFACE_PLANES": 119,
+        "NATIVE_SURFACE_MODEL": 120,
+        "NATIVE_SURFACE_GRAPH": 6427,
+        "NATIVE_SURFACE_DOMAIN": 9560,
+        "NATIVE_GEOMETRY_WORK": 240,
+        "NATIVE_SURFACE_QUERY_RESULT": 120,
+        "NATIVE_SURFACE_PLANE_SPLIT": 20
+      },
+      "plane_sums": {
+        "groups": 123,
+        "accepted": 121,
+        "invalid": 0,
+        "boundary_trimmed": 0
+      },
+      "closure": {
+        "chords_in": 10715,
+        "chords_out": 11252,
+        "splits": 537,
+        "children": 1074,
+        "chain2": 537,
+        "chain3": 0,
+        "chain4": 0,
+        "chain5_8": 0,
+        "reject_long": 0,
+        "reject_tie": 0,
+        "reject_fan_key": 0,
+        "reject_chain_key": 0,
+        "reject_not_finite": 0,
+        "reject_orientation": 0,
+        "reject_projection": 4,
+        "cap": 0,
+        "left_contacts": 4,
+        "rows_scan_succeeded": 119,
+        "rows_scan_failed": 0,
+        "forwards_incomplete_closure_row": 0
+      },
+      "direct_eligible": 1
+    }
+  },
+  "phases": {
+    "collapse_report": {
+      "row_counts": {
+        "NATIVE_SURFACE_QUERY_OUTER": 15958,
+        "NATIVE_SURFACE_QUERY_RESULT": 15958,
+        "NATIVE_GEOMETRY_WORK": 15958
+      },
+      "paired_by_cache": {
+        "hit": 15958,
+        "miss": 0,
+        "bypass": 0
+      },
+      "outer_without_result": 0,
+      "result_without_outer": 0,
+      "exclusive_work": {
+        "BoundPhysicalSurface": 4595911
+      },
+      "segments": 1,
+      "ended_segments": 1
+    },
+    "handover_strict": {
+      "row_counts": {
+        "NATIVE_SURFACE_QUERY_OUTER": 17187,
+        "NATIVE_SURFACE_QUERY_INNER": 1225,
+        "NATIVE_SURFACE_WITNESS": 1226,
+        "NATIVE_SURFACE_WITNESS_CLOSED": 1226,
+        "NATIVE_SURFACE_PLANE_GROUP": 1577,
+        "NATIVE_SURFACE_PLANE_OPEN": 1226,
+        "NATIVE_SURFACE_PLANES": 1226,
+        "NATIVE_SURFACE_MODEL": 1229,
+        "NATIVE_SURFACE_GRAPH": 18714,
+        "NATIVE_SURFACE_DOMAIN": 26109,
+        "NATIVE_GEOMETRY_WORK": 18416,
+        "NATIVE_SURFACE_QUERY_RESULT": 17187,
+        "NATIVE_SURFACE_PLANE_SPLIT": 1658,
+        "NATIVE_SURFACE_PLANE_REJECT": 25
+      },
+      "paired_by_cache": {
+        "hit": 15958,
+        "miss": 1229,
+        "bypass": 0
+      },
+      "outer_without_result": 0,
+      "result_without_outer": 0,
+      "exclusive_work": {
+        "QuerySurfaceUnionAtResolution": 3532114,
+        "BoundPhysicalSurface": 4645271
+      },
+      "segments": 1,
+      "ended_segments": 1
+    },
+    "proof": {
+      "row_counts": {
+        "NATIVE_SURFACE_QUERY_OUTER": 34374,
+        "NATIVE_SURFACE_QUERY_RESULT": 34374,
+        "NATIVE_GEOMETRY_WORK": 34378,
+        "NATIVE_SURFACE_MODEL": 4,
+        "NATIVE_SURFACE_PLANE_GROUP": 17,
+        "NATIVE_SURFACE_PLANE_OPEN": 4,
+        "NATIVE_SURFACE_PLANE_SPLIT": 559,
+        "NATIVE_SURFACE_PLANES": 4,
+        "NATIVE_SURFACE_GRAPH": 183945,
+        "NATIVE_SURFACE_DOMAIN": 172450,
+        "NATIVE_SURFACE_BOUND": 187,
+        "NATIVE_SURFACE_PLANE_REJECT": 3
+      },
+      "paired_by_cache": {
+        "hit": 34374,
+        "miss": 0,
+        "bypass": 0
+      },
+      "outer_without_result": 0,
+      "result_without_outer": 0,
+      "exclusive_work": {
+        "BoundPhysicalSurface": 9290542,
+        "QuerySurfaceUnionAtResolution": 17380589
+      },
+      "segments": 1,
+      "ended_segments": 1
+    },
+    "outside": {
+      "row_counts": {
+        "NATIVE_GEOMETRY_WORK": 463820
+      },
+      "paired_by_cache": {
+        "hit": 0,
+        "miss": 0,
+        "bypass": 0
+      },
+      "outer_without_result": 0,
+      "result_without_outer": 0,
+      "exclusive_work": {
+        "BuildMobilityPolicy": 348386,
+        "BindingParameters": 85963543,
+        "ResolveSingleChart": 8163958,
+        "CoverageTraces": 63180390,
+        "ReferencePointKey": 13846737,
+        "CompareTraces": 1192668,
+        "ValidateFeatureReplacement": 768783
+      },
+      "segments": 0,
+      "ended_segments": 0
+    }
+  },
+  "stream": {
+    "trace_lines": 3470599,
+    "forwards_started": 72564,
+    "forwards_ended": 72564,
+    "forwards_by_length_bin": {
+      "0": 4189,
+      "1": 7721,
+      "2": 21315,
+      "3": 20561,
+      "4": 18778
+    },
+    "sample_forwards_by_length_bin": {
+      "0": 300,
+      "1": 300,
+      "2": 300,
+      "3": 300,
+      "4": 300
+    },
+    "sample_lines": 259356,
+    "unresolved_lines": 0,
+    "error_count": 0,
+    "errors": []
+  }
+}
