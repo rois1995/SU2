@@ -2090,3 +2090,9 @@ FP2-P3 Part A build673 passed with no warnings. Solver 9f766f8b188c21d44faba37b7
 FP2-P3 build673 B0 passed. Evidence build673/B0.json.
 
 FP2-P3 B0 sealed passed. The serial, two-rank and curved fixtures match build668 Catch counts; the two curved trace checks and hidden public-off proof passed. Focused custom-geometry ranks have no witness-query entry, and the curved and public-off serial ranks show one enabled=0 marker each. Next B1 on the pinned closure-off configuration.
+
+FP2-P3 B0 checkpoint b36b116e75 pushed. B1 began under su2-fp2-p3-build673-b01 at 21:19:31, with the specified closure-off setting, M2 observer only, frozen 1E-4 config and 3261-second first wrapper. B2a is queued behind a terminal B1 supervisor and a passed B1 seal.
+
+FP2-P3 build673 B1 passed. Evidence build673/B1.json.
+
+FP2-P3 B1 passed in 1189.192 s, complete observer and ten stage rows. Classification 463538756, traversal 416021808, scope build 6651129. The build664 projection, including modeled peaks, matched exactly. One enabled=0 marker with raw and byte-rejoined logs retained. B2a G2 launched after the terminal B1 seal.
