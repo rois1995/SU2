@@ -236,9 +236,9 @@ using UnionTriangle = witness::Chord;
 bool ConformingWitness() {
   static const bool enabled = [] {
     const char* value = std::getenv("SU2_NATIVE_CONFORMING_WITNESS");
-    if (!value || std::strcmp(value, "1") != 0) return false;
-    std::fprintf(stderr, "NATIVE_SURFACE_CONFORMING_WITNESS enabled=1\n");
-    return true;
+    if (!value || std::strcmp(value, "0") != 0) return true;
+    std::fprintf(stderr, "NATIVE_SURFACE_CONFORMING_WITNESS enabled=0\n");
+    return false;
   }();
   return enabled;
 }
