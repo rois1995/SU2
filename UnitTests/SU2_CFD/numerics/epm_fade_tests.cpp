@@ -27,6 +27,7 @@
 
 #include "catch.hpp"
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/CEPMFieldSites.hpp"
 #include "epm_test_setup.hpp"
 
 #include <algorithm>
@@ -504,6 +505,285 @@ TEST_CASE("UQ_FADE_GAP reaches the scalar flux, the SST source and the scalar ta
   }
 }
 
+/*--- Extraction and direct mode (Task 15): the change of the case is weighted by the fade factor f of the site,
+ *    the f of the classical path at the same state. ---*/
+
+TEST_CASE("UQ_FADE_GAP in the extraction helpers: c = 0 unchanged, c > 0 weights the change by f", "[EPMFade]") {
+  for (unsigned short nDim : {2, 3})
+    for (int state = 0; state < 12; ++state) {
+      passivedouble g[3][3];
+      if (state < 4) {
+        Degenerate(nDim, state, g);
+      } else {
+        const RandomState s(nDim, state);
+        for (int i = 0; i < 3; ++i)
+          for (int j = 0; j < 3; ++j) g[i][j] = s.g[i][j];
+      }
+      for (int mode = 0; mode < 5; ++mode) {
+        const unsigned short comp = mode / 2 + 1;
+        const bool permute = mode % 2 == 1;
+        /*--- c = 0: default argument and explicit 0 give the same bits and f = 1. ---*/
+        passivedouble t0[3][3], tZero[3][3], c0[3][3], cZero[3][3];
+        bool a0 = false, aZero = false, b0 = false, bZero = false;
+        CHECK(CNumerics::EPMCaseTarget(nDim, g, kRho, kMuT, kTke, comp, permute, 0.0, 3, t0, a0) == 1.0);
+        CHECK(CNumerics::EPMCaseTarget(nDim, g, kRho, kMuT, kTke, comp, permute, 0.0, 3, tZero, aZero, 0.0) == 1.0);
+        CHECK(CNumerics::EPMCaseStressCorrection(nDim, g, kRho, kMuT, kTke, comp, permute, 0.0, 3, c0, b0) == 1.0);
+        CHECK(CNumerics::EPMCaseStressCorrection(nDim, g, kRho, kMuT, kTke, comp, permute, 0.0, 3, cZero, bZero,
+                                                 0.0) == 1.0);
+        CHECK(a0 == aZero);
+        CHECK(b0 == bZero);
+        for (int i = 0; i < 3; ++i)
+          for (int j = 0; j < 3; ++j) {
+            CHECK(Same(tZero[i][j], t0[i][j]));
+            CHECK(Same(cZero[i][j], c0[i][j]));
+          }
+
+        for (passivedouble c : {.05, .3}) {
+          /*--- The target itself is not faded; f is the fade of the classical path at the same state. ---*/
+          passivedouble tc[3][3], cc[3][3], rsm[3][3], unused[3][3];
+          bool ac = false, bc = false;
+          const passivedouble f = CNumerics::EPMCaseTarget(nDim, g, kRho, kMuT, kTke, comp, permute, 0.0, 3, tc, ac,
+                                                           c);
+          const auto classical = Perturbed(nDim, mode, .1, g, kRho, kMuT, kTke, c, rsm);
+          const auto unfaded = Perturbed(nDim, mode, .1, g, kRho, kMuT, kTke, 0.0, unused);
+          CHECK(f >= 0.0);
+          CHECK(f <= 1.0);
+          CHECK(f == Approx(classical.fade).epsilon(0).margin(1e-15));
+          CHECK(CNumerics::EPMSpectrumFade(unfaded, c) == Approx(classical.fade).epsilon(0).margin(1e-15));
+          if (mode == 4) CHECK(f == 1.0);
+          CHECK(ac == a0);
+          for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j) CHECK(Same(tc[i][j], t0[i][j]));
+
+          /*--- The correction is f times the unfaded one, bit for bit. ---*/
+          CHECK(Same(CNumerics::EPMCaseStressCorrection(nDim, g, kRho, kMuT, kTke, comp, permute, 0.0, 3, cc, bc, c),
+                     f));
+          CHECK(bc == b0);
+          for (int i = 0; i < nDim; ++i)
+            for (int j = 0; j < nDim; ++j) CHECK(Same(cc[i][j], c0[i][j] * f));
+
+          /*--- Derivation check: the faded classical stress change per unit A, -rho (R_pert(A=1) - R), is
+           *    f (tau_m - tau_0) + f 2/3 rho k I: the extracted change plus the isotropic term of the classical
+           *    baseline (2/3 rho k I, absent from plain SST, #797), weighted by the same f. ---*/
+          passivedouble r1[3][3], r0[3][3];
+          Perturbed(nDim, mode, 1.0, g, kRho, kMuT, kTke, c, r1);
+          Perturbed(nDim, mode, 0.0, g, kRho, kMuT, kTke, 0.0, r0);
+          const passivedouble scale = kRho * (MaxAbs(r1) + MaxAbs(r0)) + MaxAbs(c0);
+          for (int i = 0; i < nDim; ++i)
+            for (int j = 0; j < nDim; ++j)
+              CHECK(-kRho * (r1[i][j] - r0[i][j]) ==
+                    Approx(cc[i][j] + (i == j ? f * 2.0 / 3.0 * kRho * kTke : 0.0)).epsilon(0).margin(1e-13 * scale));
+        }
+      }
+    }
+  /*--- Without an eigensystem (k = mu_t = 0) there is no fade information: f = 1 (the change is zero there). ---*/
+  CNumerics::EPMSpectrum invalid;
+  CHECK(CNumerics::EPMSpectrumFade(invalid, .05) == 1.0);
+}
+
+namespace {
+using Record = CEPMFieldSites::Record;
+
+/*--- Field-extraction record of one site (scalar flux: EDGE, SST source: NODE) at the epm_test point state, with
+ *    UQ_FADE_GAP= c (set after parsing, as SST_EPM_POSTPROCESS cannot be parsed in a primal build). ---*/
+Record FieldRecord(bool flux, unsigned short nDim, bool degenerate, passivedouble c) {
+  std::stringstream options(epm_test::Options(0, false));
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  config.SetUQ_FadeGap(c);
+  auto& epm = config.GetEPMExtraction();
+  epm.active = true;
+  epm.mode = CEPMExtraction::Mode::FIELD;
+  epm.field = std::make_shared<CEPMFieldSites>();
+  epm_test::PointState s(100, nDim, degenerate);
+  const auto numerics = epm_test::MakeNumerics(flux, nDim, config, s);
+  epm.cursor.kind = flux ? CEPMExtraction::SiteKind::EDGE : CEPMExtraction::SiteKind::NODE;
+  epm.cursor.a = 3;
+  epm.cursor.b = flux ? 7 : 0;
+  epm.cursor.set = true;
+  numerics->ComputeResidual(&config);
+  REQUIRE(epm.field->Size() == 1);
+  return epm.field->Data(0);
+}
+
+/*--- Fade factor of the case mode at the stored state of a record. ---*/
+passivedouble RecordFade(unsigned short nDim, const Record& record, int mode, passivedouble c) {
+  passivedouble grad[3][3], target[3][3];
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j) grad[i][j] = record.grad[i * 3 + j];
+  bool ambiguous = false;
+  return CNumerics::EPMCaseTarget(nDim, grad, record.rho, record.mu_t, record.k, mode / 2 + 1, mode % 2 == 1, 0.0, 3,
+                                  target, ambiguous, c);
+}
+
+/*--- d/dA at A = 0 of sum (i+1) R_i of the scalar-amplitude replay (reverse AD; 0 in primal builds). ---*/
+passivedouble ReplayDerivative(bool flux, unsigned short nDim, int mode, passivedouble c) {
+  std::stringstream options(epm_test::Options(mode, false));
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  config.SetUQ_FadeGap(c);
+  auto& epm = config.GetEPMExtraction();
+  epm.mode = CEPMExtraction::Mode::SCALAR_REPLAY;
+  epm.active = true;
+  epm.component = mode / 2 + 1;
+  epm.permute = mode % 2;
+  epm.amplitude = 0.0;
+  epm_test::PointState s(100, nDim);
+  const auto numerics = epm_test::MakeNumerics(flux, nDim, config, s);
+  AD::Reset();
+#ifdef CODI_REVERSE_TYPE
+  AD::PreaccEnabled = true;
+#endif
+  AD::StartRecording();
+  AD::RegisterInput(epm.amplitude);
+  const auto residual = numerics->ComputeResidual(&config);
+  su2double objective = 0;
+  for (int i = 0; i < (flux ? nDim + 2 : 2); ++i) objective += (i + 1) * residual[i];
+  AD::RegisterOutput(objective);
+  AD::StopRecording();
+  SU2_TYPE::SetDerivative(objective, 1);
+  AD::ComputeAdjoint();
+  const passivedouble derivative = SU2_TYPE::GetDerivative(epm.amplitude);
+  AD::ClearAdjoints();
+  return derivative;
+}
+}  // namespace
+
+TEST_CASE("UQ_FADE_GAP weights the field-extraction changes and gradients by f per site", "[EPMFade]") {
+  for (unsigned short nDim : {2, 3})
+    for (bool flux : {true, false})
+      for (bool degenerate : {false, true}) {
+        const auto plain = FieldRecord(flux, nDim, degenerate, 0.0);
+        for (passivedouble c : {.05, .1}) {
+          const auto faded = FieldRecord(flux, nDim, degenerate, c);
+          /*--- Same stored state; only the changes are weighted. ---*/
+          CHECK(Same(faded.rho, plain.rho));
+          CHECK(Same(faded.mu_t, plain.mu_t));
+          CHECK(Same(faded.k, plain.k));
+          for (int k = 0; k < 9; ++k) CHECK(Same(faded.grad[k], plain.grad[k]));
+          if (!flux) {
+            CHECK(Same(faded.pk0, plain.pk0));
+            CHECK(Same(faded.pw0, plain.pw0));
+          }
+          /*--- Sensitivities of the site (any values): the gradient of the faded field is f times the unfaded one,
+           *    for the canonical case and the orientation probes. ---*/
+          auto fs = faded, ps = plain;
+          for (int k = 0; k < 9; ++k) fs.S_tau[k] = ps.S_tau[k] = .1 * (k + 1) - .35;
+          fs.S_pk = ps.S_pk = .7;
+          fs.S_pw = ps.S_pw = -.2;
+
+          for (int mode = 0; mode < 5; ++mode) {
+            const passivedouble f = RecordFade(nDim, plain, mode, c);
+            CHECK(f >= 0.0);
+            CHECK(f <= 1.0);
+            if (mode == 4) CHECK(f == 1.0);
+            /*--- The f of the classical path at the stored state. ---*/
+            passivedouble grad[3][3], rsm[3][3];
+            for (int i = 0; i < 3; ++i)
+              for (int j = 0; j < 3; ++j) grad[i][j] = plain.grad[i * 3 + j];
+            CHECK(f == Approx(Perturbed(nDim, mode, .1, grad, plain.rho, plain.mu_t, plain.k, c, rsm).fade)
+                           .epsilon(0).margin(1e-15));
+            for (int k = 0; k < 9; ++k) CHECK(Same(faded.dtau[mode][k], plain.dtau[mode][k] * f));
+            CHECK(Same(faded.dpk[mode], plain.dpk[mode] * f));
+            CHECK(Same(faded.dpw[mode], plain.dpw[mode] * f));
+
+            passivedouble scale = std::fabs(ps.S_pk * ps.dpk[mode]) + std::fabs(ps.S_pw * ps.dpw[mode]);
+            for (int k = 0; k < 9; ++k) scale += std::fabs(ps.S_tau[k] * ps.dtau[mode][k]);
+            for (unsigned short probe = 0; probe < 4; ++probe) {
+              bool a0 = false, ac = false;
+              const auto g0 = CNumerics::EPMFieldSiteGradient(nDim, ps, mode, probe, a0);
+              const auto gc = CNumerics::EPMFieldSiteGradient(nDim, fs, mode, probe, ac, c);
+              CHECK(ac == a0);
+              CHECK(gc == Approx(f * g0).epsilon(0).margin(1e-12 * (scale + std::fabs(g0))));
+              /*--- c = 0 passed explicitly: bit for bit the default. ---*/
+              bool aZero = false;
+              CHECK(Same(CNumerics::EPMFieldSiteGradient(nDim, ps, mode, probe, aZero, 0.0), g0));
+            }
+          }
+        }
+      }
+}
+
+TEST_CASE("UQ_FADE_GAP: scalar-replay derivative is f times the unfaded one", "[EPMFade]") {
+  for (unsigned short nDim : {2, 3})
+    for (bool flux : {true, false}) {
+      const auto record = FieldRecord(flux, nDim, false, 0.0);
+      for (int mode = 0; mode < 5; ++mode) {
+        const passivedouble plain = ReplayDerivative(flux, nDim, mode, 0.0);
+        for (passivedouble c : {.05, .1}) {
+          const passivedouble f = RecordFade(nDim, record, mode, c);
+          const passivedouble faded = ReplayDerivative(flux, nDim, mode, c);
+          CHECK(faded == Approx(f * plain).epsilon(0).margin(1e-12 * std::fabs(plain) + 1e-15));
+        }
+#ifdef CODI_REVERSE_TYPE
+        /*--- The unfaded derivative is not trivially zero (so the check above means something). ---*/
+        CHECK(std::fabs(plain) > 0.0);
+#endif
+      }
+    }
+}
+
+/*--- SST_EPM_DIRECT is rejected in builds with OpenMP (see epm_direct_tests.cpp). ---*/
+#ifndef HAVE_OMP
+namespace {
+/*--- Plain SST primal in EPM direct mode of the case at the amplitude; UQ_FADE_GAP= c unless c < 0 (unset). The
+ *    options are parsed, so the direct and fade guards run. ---*/
+std::string DirectText(int mode, double amplitude, double c) {
+  std::string text =
+      "SOLVER= RANS\nMATH_PROBLEM= DIRECT\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nSST_OPTIONS= V2003m\n"
+      "SLOPE_LIMITER_FLOW= NONE\nMGLEVEL= 0\nCFL_ADAPT= NO\nUQ_DELTA_B= 1\nUQ_URLX= 1\nUQ_COMPONENT= " +
+      std::to_string(mode / 2 + 1) + "\nUQ_PERMUTE= " + (mode % 2 ? "YES" : "NO") +
+      "\nSST_EPM_DIRECT= YES\nSST_EPM_DIRECT_AMPLITUDE= " + Number(amplitude) + "\n";
+  if (c >= 0) text += "UQ_FADE_GAP= " + Number(c) + "\n";
+  return text;
+}
+
+std::array<passivedouble, 5> DirectResidual(bool flux, unsigned short nDim, const std::string& text) {
+  std::stringstream options(text);
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  REQUIRE(config.GetEPMExtraction().active);
+  epm_test::PointState s(100, nDim);
+  const auto numerics = epm_test::MakeNumerics(flux, nDim, config, s);
+  const auto residual = numerics->ComputeResidual(&config);
+  std::array<passivedouble, 5> out{};
+  for (int i = 0; i < (flux ? nDim + 2 : 2); ++i) out[i] = SU2_TYPE::GetValue(residual[i]);
+  return out;
+}
+}  // namespace
+
+TEST_CASE("SST_EPM_DIRECT with UQ_FADE_GAP is the direct mode at amplitude A f", "[EPMFade]") {
+  for (unsigned short nDim : {2, 3})
+    for (bool flux : {true, false}) {
+      const int n = flux ? nDim + 2 : 2;
+      const auto record = FieldRecord(flux, nDim, false, 0.0);
+      for (int mode = 0; mode < 5; ++mode) {
+        /*--- c = 0 (explicit) is the direct mode without the option, bit for bit. ---*/
+        const auto unset = DirectResidual(flux, nDim, DirectText(mode, .5, -1));
+        const auto off = DirectResidual(flux, nDim, DirectText(mode, .5, 0));
+        for (int i = 0; i < n; ++i) CHECK(Same(off[i], unset[i]));
+
+        const auto base = DirectResidual(flux, nDim, DirectText(mode, 0, -1));
+        for (passivedouble c : {.05, .1}) {
+          const passivedouble f = RecordFade(nDim, record, mode, c);
+          /*--- A = 0 stays the plain SST residual, bit for bit. ---*/
+          const auto zero = DirectResidual(flux, nDim, DirectText(mode, 0, c));
+          for (int i = 0; i < n; ++i) CHECK(Same(zero[i], base[i]));
+          for (double amplitude : {-.5, .25, 1.0}) {
+            /*--- F0 + A f (Fm - F0) (source: pk0 + A f (clip(P_m) - pk0)) = the unfaded direct mode at A f. ---*/
+            const auto faded = DirectResidual(flux, nDim, DirectText(mode, amplitude, c));
+            const auto reference = DirectResidual(flux, nDim, DirectText(mode, amplitude * f, -1));
+            const auto full = DirectResidual(flux, nDim, DirectText(mode, amplitude, -1));
+            passivedouble scale = 1;
+            for (int i = 0; i < n; ++i) scale = std::max({scale, std::fabs(full[i]), std::fabs(base[i])});
+            for (int i = 0; i < n; ++i)
+              CHECK(faded[i] == Approx(reference[i]).epsilon(0).margin(1e-12 * scale));
+            if (mode == 4)
+              for (int i = 0; i < n; ++i) CHECK(Same(faded[i], full[i]));
+          }
+        }
+      }
+    }
+}
+#endif
+
 /*--- Last, so that an abort in CConfig cannot hide the numerical tests above. ---*/
 TEST_CASE("UQ_FADE_GAP option and guards", "[EPMFade]") {
   {
@@ -543,6 +823,24 @@ TEST_CASE("UQ_FADE_GAP option and guards", "[EPMFade]") {
   const std::string noUQ = "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nSST_OPTIONS= V2003m\n";
   CHECK(error(noUQ, .05).find("classical EPM") != std::string::npos);
   CHECK(error(noUQ, 0.0).empty());
+  /*--- The EPM extraction and the direct mode take the fade without the classical EPM (their flags are set directly:
+   *    parsing SST_EPM_POSTPROCESS aborts in a primal build). The value checks still apply. ---*/
+  {
+    std::stringstream options(noUQ);
+    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+    config.SetUQ_FadeGap(.05);
+    auto& epm = config.GetEPMExtraction();
+    epm.enabled = true;
+    CHECK(config.GetUQFadeGapError().empty());
+    epm.enabled = false;
+    epm.direct = true;
+    CHECK(config.GetUQFadeGapError().empty());
+    config.SetUQ_FadeGap(-.05);
+    CHECK(config.GetUQFadeGapError().find("UQ_FADE_GAP must be") != std::string::npos);
+    epm.direct = false;
+    config.SetUQ_FadeGap(.05);
+    CHECK(config.GetUQFadeGapError().find("SST_EPM_POSTPROCESS= YES or SST_EPM_DIRECT= YES") != std::string::npos);
+  }
   CHECK(error("SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SA\n", .05).find("classical EPM") !=
         std::string::npos);
 }
