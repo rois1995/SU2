@@ -80,6 +80,12 @@ Every prepared case contains:
 | `nonlinear_urlx<A>/1C_KEEP`, `1C_SWAP`, `2C_KEEP`, `2C_SWAP`, `3C` | Ordinary direct classical EPM, `(V2003m,UQ)`, `UQ_DELTA_B=1`, `UQ_URLX=A` (`--strengths`, default 0.1 0.25 0.5) | Baseline restart as initial guess |
 | `direct_spec/A<A>/<mode>` (only with `--direct-amplitudes`) | Plain `V2003m` with `SST_EPM_DIRECT=YES`, `SST_EPM_DIRECT_AMPLITUDE=A` in `[-1, 1]`: the path the extraction linearizes | Baseline restart as initial guess |
 
+With `--fade-gap c` (faded EPM, `UQ_FADE_GAP`, `0` or `>= 1e-8`, default `0` = off) the adjoint,
+classical and direct configs get `UQ_FADE_GAP= c`, their folders the suffix `_fade<c>`
+(`adjoint_drag_fade0.05`, `nonlinear_urlx0.1_fade0.05/<mode>`, `direct_spec_fade0.05/A<A>/<mode>`),
+and the manifest `fade_gap`. The plain baseline primal never gets the option (SU2 rejects it there)
+and is shared. With `c = 0` nothing changes.
+
 Each directory has `run.cfg`; paths are relative to that job's working directory.
 All output restarts are local, so endpoint and adjoint runs cannot overwrite the
 baseline. Fresh adjoints use `RESTART_SOL=NO` while still reading the primal;

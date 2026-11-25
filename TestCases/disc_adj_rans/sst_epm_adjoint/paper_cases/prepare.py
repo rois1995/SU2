@@ -41,6 +41,12 @@ STRENGTHS = (0.1, 0.25, 0.5)
 # every mode, SWAP included. The classical sweep above clips after the blend, so its SWAP secants need not tend to
 # dJ_da_at_zero. Opt-in (--direct-amplitudes); A in [-1, 1], A < 0 for central differences.
 DIRECT_AMPLITUDES = ()
+# Faded EPM (UQ_FADE_GAP= c, Task 14/15): the classical blend is A f per site, f = g^2/(g^2+c^2), and the extraction
+# and the direct mode weight the change of the case by the same f. Opt-in (--fade-gap); c is written into the classical,
+# extraction-adjoint and direct configs (never the plain baseline primal, which rejects it), their folders get the
+# suffix _fade<c> and the manifest records c, so that runs with different c cannot mix. c = 0: as without the option.
+FADE_GAP = 0.0
+FADE_GAP_MIN = 1e-8  # CConfig guard: 0 < c < 1e-8 is rejected (c^2 underflow at eigenvalue ties)
 MODES = {"1C_KEEP": (1, "NO"), "1C_SWAP": (1, "YES"),
          "2C_KEEP": (2, "NO"), "2C_SWAP": (2, "YES"), "3C": (3, "NO")}
 
@@ -83,7 +89,12 @@ def strength_label(strength):
     return f"{strength:g}"
 
 
-def prepare(case, output, mesh=None, strengths=STRENGTHS, direct_amplitudes=DIRECT_AMPLITUDES):
+def fade_label(fade_gap):
+    """Config value and folder suffix text of UQ_FADE_GAP (repr: round-trips exactly)."""
+    return repr(float(fade_gap))
+
+
+def prepare(case, output, mesh=None, strengths=STRENGTHS, direct_amplitudes=DIRECT_AMPLITUDES, fade_gap=FADE_GAP):
     strengths = sorted(float(a) for a in strengths)
     if not strengths or len(set(map(strength_label, strengths))) != len(strengths) or \
             not all(0 < a <= 1 for a in strengths):
@@ -93,6 +104,12 @@ def prepare(case, output, mesh=None, strengths=STRENGTHS, direct_amplitudes=DIRE
     if len(set(map(strength_label, direct_amplitudes))) != len(direct_amplitudes) or \
             not all(-1 <= a <= 1 for a in direct_amplitudes):
         raise ValueError(f"Direct amplitudes must be unique values in [-1, 1]: {direct_amplitudes}")
+    fade_gap = float(fade_gap)
+    if not (math.isfinite(fade_gap) and (fade_gap == 0 or fade_gap >= FADE_GAP_MIN)):
+        raise ValueError(f"The fade gap must be 0 (off) or a finite value >= {FADE_GAP_MIN:g}: {fade_gap}")
+    # Extraction-adjoint, classical and direct runs carry c; their folders are named after it.
+    fade = {"UQ_FADE_GAP": fade_label(fade_gap)} if fade_gap > 0 else {}
+    suffix = f"_fade{fade_label(fade_gap)}" if fade_gap > 0 else ""
     metadata = mesh_metadata(mesh, case) if mesh else None
     config = read_config(HERE / "common.cfg")
     config.update(read_config(HERE / f"{case}.cfg"))
@@ -149,23 +166,25 @@ def prepare(case, output, mesh=None, strengths=STRENGTHS, direct_amplitudes=DIRE
                      "status": "not_run", "objective": options["OBJECTIVE_FUNCTION"],
                      "epm_mode": name.split("/")[-1] if strength is not None or direct is not None else None,
                      "urlx": strength, "direct_amplitude": direct})
+        if fade_gap > 0:
+            jobs[-1]["fade_gap"] = float(options["UQ_FADE_GAP"]) if "UQ_FADE_GAP" in options else None
 
     write_job("baseline", {})
     for objective in ("DRAG", "LIFT"):
-        write_job("adjoint_" + objective.lower(), {
+        write_job("adjoint_" + objective.lower() + suffix, dict({
             "MATH_PROBLEM": "DISCRETE_ADJOINT", "OBJECTIVE_FUNCTION": objective,
             "SST_EPM_POSTPROCESS": "YES", "OUTPUT_FILES": "(RESTART)",
-        }, adjoint=True)
+        }, **fade), adjoint=True)
     for strength in strengths:
         for mode, (component, permute) in MODES.items():
-            write_job(f"nonlinear_urlx{strength_label(strength)}/{mode}",
-                      {"SST_OPTIONS": "(V2003m, UQ)", "RESTART_SOL": "YES", "UQ_COMPONENT": str(component),
-                       "UQ_PERMUTE": permute, "UQ_URLX": strength_label(strength)}, strength=strength)
+            write_job(f"nonlinear_urlx{strength_label(strength)}{suffix}/{mode}",
+                      dict({"SST_OPTIONS": "(V2003m, UQ)", "RESTART_SOL": "YES", "UQ_COMPONENT": str(component),
+                            "UQ_PERMUTE": permute, "UQ_URLX": strength_label(strength)}, **fade), strength=strength)
     for amplitude in direct_amplitudes:
         for mode, (component, permute) in MODES.items():
-            write_job(f"direct_spec/A{strength_label(amplitude)}/{mode}",
-                      {"RESTART_SOL": "YES", "UQ_COMPONENT": str(component), "UQ_PERMUTE": permute,
-                       "SST_EPM_DIRECT": "YES", "SST_EPM_DIRECT_AMPLITUDE": strength_label(amplitude)},
+            write_job(f"direct_spec{suffix}/A{strength_label(amplitude)}/{mode}",
+                      dict({"RESTART_SOL": "YES", "UQ_COMPONENT": str(component), "UQ_PERMUTE": permute,
+                            "SST_EPM_DIRECT": "YES", "SST_EPM_DIRECT_AMPLITUDE": strength_label(amplitude)}, **fade),
                       direct=amplitude)
     manifest = {
         "case": case, "status": "prepared_unrun" if mesh else "mesh_required",
@@ -187,6 +206,12 @@ def prepare(case, output, mesh=None, strengths=STRENGTHS, direct_amplitudes=DIRE
                              "nonlinear Taylor verification before derivative claims",
                              "MPI runtime verification before parallel campaign"],
     }
+    if fade_gap > 0:
+        manifest["fade_gap"] = fade_gap
+        manifest["fade_gap_definition"] = (
+            "UQ_FADE_GAP c in the classical (nonlinear_urlx<A>_fade<c>), extraction-adjoint (adjoint_<obj>_fade<c>) "
+            "and direct (direct_spec_fade<c>) configs, not in the plain baseline primal: classical blend A f, "
+            "extraction and direct mode weighted by the same f = g^2/(g^2+c^2) per site")
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     return manifest
 
@@ -200,9 +225,12 @@ def main():
                         help="endpoint strengths UQ_URLX in (0, 1], one nonlinear_urlx<A>/ folder each")
     parser.add_argument("--direct-amplitudes", type=float, nargs="+", default=list(DIRECT_AMPLITUDES),
                         help="SST_EPM_DIRECT amplitudes in [-1, 1], one direct_spec/A<A>/ folder each (default: none)")
+    parser.add_argument("--fade-gap", type=float, default=FADE_GAP,
+                        help="UQ_FADE_GAP c (0 = off, else >= 1e-8) of the classical, extraction-adjoint and direct "
+                             "configs; their folders get the suffix _fade<c> (default: 0, no option written)")
     args = parser.parse_args()
     try:
-        manifest = prepare(args.case, args.output, args.mesh, args.strengths, args.direct_amplitudes)
+        manifest = prepare(args.case, args.output, args.mesh, args.strengths, args.direct_amplitudes, args.fade_gap)
     except (OSError, ValueError) as error:
         parser.exit(1, f"Preparation failed: {error}\n")
     print(f"Prepared {len(manifest['jobs'])} jobs: {manifest['status']}. No solver was launched.")

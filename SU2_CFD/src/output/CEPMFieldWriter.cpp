@@ -180,11 +180,15 @@ void WriteEPMField(const CEPMFieldSites& field, const CConfig& config, const CGe
        << "  \"objective\": \"" << objective << "\",\n"
        << "  \"delta_b\": 1,\n"
        << "  \"urlx\": 1,\n"
-       << "  \"gap_tolerance\": " << CEPMExtraction::gap_tolerance << ",\n"
-       << "  \"uq_fade_gap\": " << SU2_TYPE::GetValue(config.GetUQ_FadeGap()) << ",\n"
-       << "  \"fade_note\": \"with uq_fade_gap c > 0, dtau_*, dpk_* and dpw_* are weighted by the fade factor "
-          "f = g^2/(g^2+c^2) of the case at the site (g: anisotropy eigenvalue gap of the case direction)\",\n"
-       << "  \"mpi_ranks\": " << size << ",\n"
+       << "  \"gap_tolerance\": " << CEPMExtraction::gap_tolerance << ",\n";
+  /*--- UQ_FADE_GAP: only with the fade, so that the file without it is unchanged (as the CSV column). ---*/
+  const passivedouble fade_gap = SU2_TYPE::GetValue(config.GetUQ_FadeGap());
+  if (fade_gap > 0.0) {
+    json << "  \"uq_fade_gap\": " << fade_gap << ",\n"
+         << "  \"fade_note\": \"dtau_*, dpk_* and dpw_* are weighted by the fade factor f = g^2/(g^2+c^2) of the "
+            "case at the site (c = uq_fade_gap, g: anisotropy eigenvalue gap of the case direction)\",\n";
+  }
+  json << "  \"mpi_ranks\": " << size << ",\n"
        << "  \"su2_version\": \"8.6.0 Harrier\",\n"
        << "  \"source_commit\": \"" << JsonEscaped(commit) << "\",\n"
        << "  \"ref_dimensionalization\": \"" << NonDimName(config.GetRef_NonDim()) << "\",\n"

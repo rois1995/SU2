@@ -176,6 +176,75 @@ class PreparationTest(unittest.TestCase):
             self.assertEqual(cli["nonlinear_amplitudes_available"], [0.5])
             self.assertTrue((root / "cli" / "direct_spec/A-0.02/2C_SWAP/run.cfg").is_file())
 
+    def test_fade_gap(self):
+        """UQ_FADE_GAP: the same c in every classical, extraction-adjoint and direct config, never in the baseline; c = 0
+        writes no key and leaves configs and folders as before; folders and manifest carry c > 0."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for case, (dimension, markers) in CASES.items():
+                mesh = root / f"{case}.su2"
+                mesh.write_text(f"NDIME= {dimension}\nNELEM= 1\nNPOIN= 4\nNMARK= {len(markers)}\n" +
+                                "".join(f"MARKER_TAG= {m}\nMARKER_ELEMS= 1\n" for m in sorted(markers)))
+                amplitudes = [0.01, -0.01]
+                plain = prepare(case, root / f"{case}_plain", mesh, direct_amplitudes=amplitudes)
+                zero = prepare(case, root / f"{case}_zero", mesh, direct_amplitudes=amplitudes, fade_gap=0.0)
+                # c = 0: the same folders and byte-identical configs, no key, no manifest entry.
+                self.assertEqual([j["directory"] for j in zero["jobs"]], [j["directory"] for j in plain["jobs"]])
+                self.assertEqual([j["config_sha256"] for j in zero["jobs"]], [j["config_sha256"] for j in plain["jobs"]])
+                self.assertNotIn("fade_gap", zero)
+                for job in zero["jobs"]:
+                    self.assertNotIn("fade_gap", job)
+                    self.assertNotIn("UQ_FADE_GAP", read_config(root / f"{case}_zero" / job["config"]))
+
+                fade = 0.05
+                faded = prepare(case, root / f"{case}_faded", mesh, direct_amplitudes=amplitudes, fade_gap=fade)
+                self.assertEqual(faded["fade_gap"], fade)
+                self.assertIn("UQ_FADE_GAP", faded["fade_gap_definition"])
+                self.assertEqual(len(faded["jobs"]), len(plain["jobs"]))
+                kinds = set()
+                for job in faded["jobs"]:
+                    cfg = read_config(root / f"{case}_faded" / job["config"])
+                    if job["directory"] == "baseline":
+                        self.assertNotIn("UQ_FADE_GAP", cfg)
+                        self.assertIsNone(job["fade_gap"])
+                        self.assertEqual(cfg, read_config(root / f"{case}_plain" / "baseline/run.cfg"))
+                        continue
+                    # All three kinds agree on c, in the config, the folder name and the job record.
+                    self.assertEqual(float(cfg["UQ_FADE_GAP"]), fade)
+                    self.assertEqual(job["fade_gap"], fade)
+                    self.assertIn("_fade0.05", job["directory"])
+                    if job["directory"].startswith("adjoint"):
+                        kinds.add("adjoint")
+                        self.assertEqual(cfg["SST_EPM_POSTPROCESS"], "YES")
+                        self.assertEqual(cfg["SST_OPTIONS"], "V2003m")
+                    elif job["urlx"]:
+                        kinds.add("classical")
+                        self.assertEqual(job["directory"],
+                                         f"nonlinear_urlx{strength_label(job['urlx'])}_fade0.05/{job['epm_mode']}")
+                        self.assertEqual(cfg["SST_OPTIONS"], "(V2003m, UQ)")
+                    else:
+                        kinds.add("direct")
+                        self.assertEqual(job["directory"],
+                                         f"direct_spec_fade0.05/A{strength_label(job['direct_amplitude'])}/"
+                                         f"{job['epm_mode']}")
+                        self.assertEqual(cfg["SST_EPM_DIRECT"], "YES")
+                    # Apart from UQ_FADE_GAP, the config is the unfaded one of the same job.
+                    unfaded_dir = job["directory"].replace("_fade0.05", "")
+                    unfaded = read_config(root / f"{case}_plain" / unfaded_dir / "run.cfg")
+                    cfg.pop("UQ_FADE_GAP")
+                    self.assertEqual(cfg, unfaded)
+                self.assertEqual(kinds, {"adjoint", "classical", "direct"})
+            for bad in (1e-9, -0.05, float("nan"), float("inf")):
+                with self.assertRaises(ValueError):
+                    prepare("naca0012", root / "bad_fade", fade_gap=bad)
+                self.assertFalse((root / "bad_fade").exists())
+            with patch("sys.argv", ["prepare.py", "naca0012", str(root / "cli_fade"), "--fade-gap", "0.03"]):
+                prepare_main()
+            cli = json.loads((root / "cli_fade" / "manifest.json").read_text())
+            self.assertEqual(cli["fade_gap"], 0.03)
+            self.assertEqual(read_config(root / "cli_fade" / "nonlinear_urlx0.1_fade0.03/1C_KEEP/run.cfg")["UQ_FADE_GAP"],
+                             "0.03")
+
     def test_hump_conversion(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

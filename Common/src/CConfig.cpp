@@ -6316,6 +6316,11 @@ string CConfig::GetUQFadeGapError() const {
   if (!(uq_fade_gap >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(uq_fade_gap)))
     return "UQ_FADE_GAP must be a finite number >= 0 (0 = off).";
   if (uq_fade_gap == 0.0) return "";
+  /*--- f = g^2/(g^2+c^2): below about 1e-162, c^2 underflows to 0 and an exact eigenvalue tie (g = 0, e.g. a zero
+   *    velocity gradient) gives 0/0. Gaps far below 1e-8 are round-off anyway. ---*/
+  if (uq_fade_gap < 1e-8)
+    return "UQ_FADE_GAP must be 0 (off) or at least 1e-8 (smaller values make the fade factor 0/0 at eigenvalue "
+           "ties).";
   /*--- The fade scales the blend of the classical EPM, and with the same factor per site the change of the case in
    *    the EPM extraction (SST_EPM_POSTPROCESS) and in the EPM direct mode (SST_EPM_DIRECT); their own guards require
    *    SST_OPTIONS without UQ. Anywhere else it would do nothing. ---*/
@@ -6990,7 +6995,9 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
                   if (GetKind_TimeIntScheme_Flow() != EULER_IMPLICIT)
                     cout << " (no effect: the flow time integration is not implicit)";
                 }
-                if (uq_fade_gap > 0.0) cout << "\nfaded where the anisotropy eigenvalue gap is below UQ_FADE_GAP= " << uq_fade_gap;
+                if (uq_fade_gap > 0.0)
+                  cout << "\nfaded with the smooth weight f = g^2/(g^2+c^2) of the anisotropy eigenvalue gap g, "
+                          "c = UQ_FADE_GAP= " << uq_fade_gap;
                 break;
               case SST_OPTIONS::COMP_Wilcox:
                 cout << " with compressibility correction of Wilcox";
@@ -7010,7 +7017,8 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
             }
             if ((epmExtraction.direct || epmExtraction.enabled) && uq_fade_gap > 0.0) {
               cout << "\nEPM " << (epmExtraction.direct ? "direct mode" : "extraction")
-                   << ": change of the case weighted by the fade factor of UQ_FADE_GAP= " << uq_fade_gap;
+                   << ": change of the case weighted by the smooth fade f = g^2/(g^2+c^2), c = UQ_FADE_GAP= "
+                   << uq_fade_gap;
             }
 
             if (sstParsedOptions.dll){

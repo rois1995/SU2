@@ -403,7 +403,8 @@ def main():
     rows = read_csv(on / "sst_epm_sensitivities.csv")
     assert fade_gap_of_rows(rows) == args.fade_gap, (fade_gap_of_rows(rows), args.fade_gap)
     field_header = json.loads((on / f"sst_epm_field_{rows[0]['objective']}.json").read_text())
-    assert field_header["uq_fade_gap"] == args.fade_gap, (field_header["uq_fade_gap"], args.fade_gap)
+    # Written only with a fade (absent: 0).
+    assert field_header.get("uq_fade_gap", 0.0) == args.fade_gap, (field_header.get("uq_fade_gap"), args.fade_gap)
     canonical = {r["case"]: r for r in rows if r["probe_pair"] == "3"}
     assert set(canonical) == {"1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C"}
     assert len({(r["case"], r["probe_pair"]) for r in rows}) == len(rows)

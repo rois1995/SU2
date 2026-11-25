@@ -819,6 +819,10 @@ TEST_CASE("UQ_FADE_GAP option and guards", "[EPMFade]") {
         std::string::npos);
   CHECK(error(UQText(0, .1), std::numeric_limits<double>::infinity()).find("UQ_FADE_GAP must be") !=
         std::string::npos);
+  /*--- 0 < c < 1e-8: c^2 may underflow, giving 0/0 at an exact tie. ---*/
+  for (double tiny : {1e-9, 1e-200, std::numeric_limits<double>::denorm_min()})
+    CHECK(error(UQText(0, .1), tiny).find("at least 1e-8") != std::string::npos);
+  CHECK(error(UQText(0, .1), 1e-8).empty());
   /*--- No classical EPM. ---*/
   const std::string noUQ = "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nSST_OPTIONS= V2003m\n";
   CHECK(error(noUQ, .05).find("classical EPM") != std::string::npos);
