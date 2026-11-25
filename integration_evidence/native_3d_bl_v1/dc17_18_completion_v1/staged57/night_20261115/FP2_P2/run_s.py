@@ -1,4 +1,5 @@
 """Run FP2-P2 S with its frozen checkpoint, inherited watchdogs and isolated restart."""
+from contextlib import contextmanager
 from importlib.util import spec_from_file_location, module_from_spec
 from pathlib import Path
 import re
@@ -18,6 +19,7 @@ runner = module_from_spec(spec)
 spec.loader.exec_module(runner)
 workflow, sha = runner.workflow, runner.sha
 ORIGINAL_REFERENCE = runner.reference_sources
+ORIGINAL_BOUND = runner.bound
 ORIGINAL_CORE = workflow.core_source
 ORIGINAL_RESTART = workflow.restart_source
 OLD = C3 / 'G5/build664/S/run_receipt.json'
@@ -172,9 +174,16 @@ def observation(path):
                          for name, digest in current['hashes'].items()}}
 
 
+@contextmanager
+def bound():
+    # Keep C3's driver basename for historical source pins and use P2 to launch the child.
+    with ORIGINAL_BOUND(), patch.object(runner.prior, '__file__', str(SELF)):
+        yield
+
+
 def run():
     is_full = '--full' in sys.argv
-    runner.DRIVER = SELF
+    runner.bound = bound
     runner.work_path = work_path
     runner.prerequisite_sources = prerequisites
     runner.reference_sources = reference

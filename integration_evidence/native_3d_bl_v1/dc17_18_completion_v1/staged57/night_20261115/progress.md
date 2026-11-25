@@ -2062,3 +2062,9 @@ FP2-P2 build672 step 2, saved-current: OPEN. Exit 75. Evidence shared/build672/c
 FP2-P2 build672 step 2, native2d: passed. Exit 0. Evidence shared/build672/closure1/native2d/case_summary.json. Gate result {'2d1': 'passed', '2d2': 'passed', '2d4': 'passed'}.
 
 FP2-P2 all closure-on shared runs and supervisor terminal. Native2d passed at 1/2/4 ranks; saved-current qualified in execution and is OPEN on its historical trajectory_working_owned.bin SHA, matching FP2-P1 closure-on. Lab status OPEN under the signed rule, with no failed part. Both promotions, six qualification receipts and all three exact pairs are available to the S launcher.
+
+FP2-P2 lab OPEN checkpoint f832a4af2b pushed. Saved-current's historical difference is the only OPEN part. The lab checkpoint and both promotions were sealed on build672. Submitted a single closure-on, trace-off S workflow and its dependent isolated restart under su2-fp2-p2-build672-s. The launcher verifies both promotions, all three equal pairs and the existing run-S preflights before launching native work.
+
+FP2-P2 S setup stopped before any launch receipt. The P2 adapter replaced the inherited helper basename in a historical path and looked for a nonexistent FP2_D/run_s.py. Preserved the setup-only receipt. Corrected the test driver binding to retain the C3 historical name and use the P2 entry point only for the owned child. Self-checked both paths and inherited S reference/watchdogs. No S attempt or retry was consumed; resume S with unchanged pins and limits.
+
+FP2-P2 corrected S supervisor su2-fp2-p2-build672-s-recovered launched after the original setup service was terminal. The archive has no native or restart launch receipt. Next monitor its full receipt and isolated restart.
