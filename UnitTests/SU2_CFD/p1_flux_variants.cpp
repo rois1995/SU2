@@ -32,6 +32,7 @@
 #include <array>
 #include <map>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <random>
 #include <sstream>
@@ -11283,9 +11284,24 @@ TEST_CASE("Mixed split-pair cache matches indexed residual and Jacobian assembly
     geometry.UpdateP1FluxCoefficients(config);
     config->SetKind_TimeIntScheme(EULER_IMPLICIT);
     CEulerSolver solver(&geometry, config, MESH_0);
-    REQUIRE(solver.Jacobian.HasSplitPairPattern());
-    REQUIRE_FALSE(solver.Jacobian.IsQuantized());
-    REQUIRE(GlobalSum(su2double(geometry.edges->GetSplitNodes().size())) > 0.0);
+    const auto nEdge = geometry.GetnEdge();
+    const auto nSplit = geometry.edges->GetSplitNodes().size();
+    const bool pattern = solver.Jacobian.HasSplitPairPattern();
+    std::ostringstream diagnostic;
+    diagnostic << "Mixed split-pair cache: rank=" << SU2_MPI::GetRank() << " nEdge=" << nEdge
+               << " nPointDomain=" << geometry.GetnPointDomain() << " nSplit=" << nSplit
+               << " HasSplitPairPattern=" << std::boolalpha << pattern << '\n';
+    std::cout << diagnostic.str() << std::flush;
+
+    // Empty edge maps can have a null data pointer.
+    CHECK((pattern || nEdge == 0));
+    CHECK((nEdge > 0 || nSplit == 0));
+    const auto nPatternRanks = GlobalSum(su2double(pattern ? 1 : 0));
+    const auto nSplitGlobal = GlobalSum(su2double(nSplit));
+    const auto nQuantizedRanks = GlobalSum(su2double(solver.Jacobian.IsQuantized() ? 1 : 0));
+    REQUIRE(nPatternRanks > 0.0);
+    REQUIRE(nSplitGlobal > 0.0);
+    REQUIRE(nQuantizedRanks == 0.0);
 
     auto assemble = [&](unsigned short meshLevel) {
       geometry.SetMGLevel(meshLevel);
@@ -11312,7 +11328,7 @@ TEST_CASE("Mixed split-pair cache matches indexed residual and Jacobian assembly
         const auto id = geometry.nodes->GetGlobalIndex(point);
         const su2double U[nVar] = {1.0 + 0.01 * (id % 7), 0.2, 0.02 * (id % 11), 0.01, 2.5};
         nodes->SetSolution(point, U);
-        REQUIRE(nodes->SetPrimVar(point, solver.GetFluidModel()));
+        CHECK(nodes->SetPrimVar(point, solver.GetFluidModel()));
         nodes->SetLambda(point, 3.0 + 0.1 * (id % 7 + pass));
         nodes->SetSensor(point, 0.02 * (id % 3 + pass));
         for (auto v = 0u; v < nVar; ++v)
@@ -11326,12 +11342,14 @@ TEST_CASE("Mixed split-pair cache matches indexed residual and Jacobian assembly
       // The coarse-level guard selects indexed assembly on the same geometry and matrix.
       const auto indexed = assemble(MESH_0 + 1);
       const auto cached = assemble(MESH_0);
-      REQUIRE(indexed.first.size() == cached.first.size());
-      REQUIRE(indexed.second.size() == cached.second.size());
-      if (!indexed.first.empty())
+      const bool sameResidualSize = indexed.first.size() == cached.first.size();
+      const bool sameBlockCount = indexed.second.size() == cached.second.size();
+      CHECK(sameResidualSize);
+      CHECK(sameBlockCount);
+      if (sameResidualSize && !indexed.first.empty())
         CHECK(std::memcmp(indexed.first.data(), cached.first.data(),
                           indexed.first.size() * sizeof(indexed.first.front())) == 0);
-      if (!indexed.second.empty())
+      if (sameBlockCount && !indexed.second.empty())
         CHECK(std::memcmp(indexed.second.data(), cached.second.data(),
                           indexed.second.size() * sizeof(indexed.second.front())) == 0);
     }
