@@ -640,7 +640,7 @@ def main():
     turb_naca0012_sst_muscl_edge.cfg_dir = "rans/naca0012"
     turb_naca0012_sst_muscl_edge.cfg_file = "turb_NACA0012_sst_muscl_edge.cfg"
     turb_naca0012_sst_muscl_edge.test_iter = 10
-    turb_naca0012_sst_muscl_edge.test_vals = [-7.395492, -9.461721, -2.848756, 1.074672, 0.014912, -2.784876, 0.000000]
+    turb_naca0012_sst_muscl_edge.test_vals = [-5.948001, -9.458172, -2.841048, 1.073511, 0.015049, -3.383302, 0.000000]
     turb_naca0012_sst_muscl_edge.timeout = 3200
     test_list.append(turb_naca0012_sst_muscl_edge)
 
@@ -658,7 +658,7 @@ def main():
     turb_naca0012_sst_limiter_eps.cfg_dir = "rans/naca0012"
     turb_naca0012_sst_limiter_eps.cfg_file = "turb_NACA0012_sst_limiter_eps.cfg"
     turb_naca0012_sst_limiter_eps.test_iter = 10
-    turb_naca0012_sst_limiter_eps.test_vals = [-8.162919, -9.358528, -3.590806, 1.071595, 0.015827]
+    turb_naca0012_sst_limiter_eps.test_vals = [-5.949000, -8.703691, -2.220140, 1.070439, 0.015955]
     turb_naca0012_sst_limiter_eps.timeout = 3200
     test_list.append(turb_naca0012_sst_limiter_eps)
 
@@ -667,7 +667,7 @@ def main():
     turb_naca0012_sst_muscl_frozen.cfg_dir = "rans/naca0012"
     turb_naca0012_sst_muscl_frozen.cfg_file = "turb_NACA0012_sst_muscl_frozen.cfg"
     turb_naca0012_sst_muscl_frozen.test_iter = 10
-    turb_naca0012_sst_muscl_frozen.test_vals = [-8.102153, -9.310635, -3.623485, 1.071750, 0.015836, -2.241139, 0.000000]
+    turb_naca0012_sst_muscl_frozen.test_vals = [-5.948974, -8.859476, -2.199125, 1.070635, 0.015972, -3.448503, 0.000000]
     test_list.append(turb_naca0012_sst_muscl_frozen)
 
     # NACA0012 (SST_SUST, FUN3D finest grid results: CL=1.0840, CD=0.01253)
@@ -675,7 +675,7 @@ def main():
     turb_naca0012_sst_sust.cfg_dir   = "rans/naca0012"
     turb_naca0012_sst_sust.cfg_file  = "turb_NACA0012_sst_sust.cfg"
     turb_naca0012_sst_sust.test_iter = 10
-    turb_naca0012_sst_sust.test_vals = [-9.963808, -11.675704, -5.093478, 1.000889, 0.019126, -1.603990]
+    turb_naca0012_sst_sust.test_vals = [-9.963659, -11.675110, -5.092496, 1.000889, 0.019126, -1.604092]
     turb_naca0012_sst_sust.test_vals_aarch64 = [-12.073964, -14.836726, -5.732390, 1.000050, 0.019144, -2.229074]
     turb_naca0012_sst_sust.timeout   = 3200
     test_list.append(turb_naca0012_sst_sust)
@@ -768,7 +768,7 @@ def main():
     turb_naca0012_sst_restart_mg.cfg_file  = "turb_NACA0012_sst_multigrid_restart.cfg"
     turb_naca0012_sst_restart_mg.test_iter = 20
     turb_naca0012_sst_restart_mg.ntest_vals = 5
-    turb_naca0012_sst_restart_mg.test_vals = [-3.692233, -5.056998, 0.830505, -0.008795, 0.078083]
+    turb_naca0012_sst_restart_mg.test_vals = [-3.692691, -5.056997, 0.830506, -0.008795, 0.078083]
     turb_naca0012_sst_restart_mg.timeout   = 3200
     turb_naca0012_sst_restart_mg.tol       = 0.000001
     test_list.append(turb_naca0012_sst_restart_mg)
