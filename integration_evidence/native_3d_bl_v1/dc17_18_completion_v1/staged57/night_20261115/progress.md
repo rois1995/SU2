@@ -2036,3 +2036,13 @@ FP2-P2 N6P trial 1 qualified in 494.160 s, six markers, peak lower bound 4355772
 FP2-P2 build672 step 2, campaign-N6P-2: passed. Exit 0. Evidence campaign/build672/N6P/trial2/case_summary.json. Gate result not evaluated.
 
 FP2-P2 N6P trial 2 qualified in 536.812 s, and the same-binary N6P pair compared exactly. Both trials record 26482 hand-over faces and 371837 cells. Next N6 trial 1.
+
+FP2-P2 build672 step 2, campaign-N6-1: passed. Exit 0. Evidence campaign/build672/N6/trial1/case_summary.json. Gate result not evaluated.
+
+FP2-P2 N6 trial 1 qualified in 742.555 s, six ranks, 4266397696-byte sampled lower bound, hand-over 24530 faces and 368098 final cells. First build664 comparison difference is rank 0 FP2_B proof modeled_peak, 991683460 versus 991683316. Historical comparison is report-only. Next N6 trial 2.
+
+FP2-P2 build672 step 2, campaign-N6-2: passed. Exit 0. Evidence campaign/build672/N6/trial2/case_summary.json. Gate result not evaluated.
+
+FP2-P2 build672 step 2, compare: passed. Exit 0. Evidence campaign/build672/comparison.json.
+
+FP2-P2 N6 trial 2 qualified in 792.215 s. N6 pair exact. The sealed comparator passed all six trials and all three pairs (N1, N6P, N6). Build664 comparison is exact for N1 and has report-only differences for N6P and N6. Continue traced N1 ANATOMY, then the four closure-on shared checks.
