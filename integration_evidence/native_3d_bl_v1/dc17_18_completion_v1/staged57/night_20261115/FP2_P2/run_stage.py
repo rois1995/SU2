@@ -85,6 +85,12 @@ def run(build, stage):
                     wait_host()
                     code = subprocess.call([*PYTHON, str(HERE / 'retry_c492_watchdog.py'), str(build), argv[-2]])
                     raw = cut.read(path)
+        if name == 'saved-current' and raw.get('status') == 'FAILED':
+            finding = raw['subruns']['saved_current']['first_failure']
+            if isinstance(finding, str) and finding.startswith('missing evaluation: [Errno 2]'):
+                from recover_saved_current import recover
+                raw = recover(build, int(argv[-2]))
+                code = {'passed': 0, 'OPEN': 75, 'FAILED': 1}[raw['status']]
         details = raw.get('first_difference') or raw.get('identity', {}).get('status')
         if 'subruns' in raw:
             details = {key: row['first_failure'] or row['missed_comparison'] or row['status']

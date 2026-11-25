@@ -1992,3 +1992,17 @@ FP2-P2 build672 G1 identity passed 375, 114, 228 with no unexpected changes. Inh
 FP2-P2 build672 step 1, default-N1: passed. Exit 0. Evidence default/build672/N1/trial1/case_summary.json. Gate result equal.
 
 FP2-P2 build672 N1 control is qualified and exactly equal to sealed build664, including modeled peak. Control elapsed 1151.251 s, step C 913.506 s, Bound 811.483 s. Ten distinct stage keys and complete observer receipt. Work sums classification 463538756, traversal 416021808, scope build 6651129. All 36 Catch assertions passed and the owned processes are terminal. The step 1 sequence proceeds through the default-off shared safeguards.
+
+FP2-P2 build672 step 1, first-collapse: passed. Exit 0. Evidence shared/build672/closure0/first-collapse/case_summary.json. Gate result {'first-collapse': 'passed'}.
+
+FP2-P2 build672 closure-off first collapse passed all four hard checks and the historical decision comparison. Work 90809869 / 108459426, zero upper refinements, six captured ranks. Sampled sum of solver process peaks 7972147200 bytes / 19999490048 bytes, converted from procfs KiB. Controlled stop at 263.777 s after all six first-collapse exit rows. Next C492 and the rest of the default-off shared checks.
+
+FP2-P2 build672 step 1, exact-c492: passed. Exit 0. Evidence shared/build672/closure0/exact-c492/case_summary.json. Gate result {'bl': 'passed'}.
+
+FP2-P2 build672 step 1, merit481: passed. Exit 0. Evidence shared/build672/closure0/merit481/case_summary.json. Gate result {'merit481': 'passed'}.
+
+FP2-P2 build672 step 1, saved-current: FAILED. Exit 1. Evidence shared/build672/closure0/saved-current/case_summary.json. Gate result {'saved_current': "missing evaluation: [Errno 2] No such file or directory: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_N6/safeguards/cases/curved505_current_target_surface_corrections_serial_20261118T172009_2039448/trajectory_working_owned.bin'"}.
+
+FP2-P2 build672 step 1, native2d: passed. Exit 0. Evidence shared/build672/closure0/native2d/case_summary.json. Gate result {'2d1': 'passed', '2d2': 'passed', '2d4': 'passed'}.
+
+FP2-P2 build672 saved-current initial evaluator failure was a test-harness defect. It could not open two removed historical payloads after the child passed. The same terminal run passed on the authoritative N6 SHA256 values, corroborated by the committed exact build670 reference comparison, plus the original N6 planning rows. All three candidate hashes and the planning rows matched. Original summary and raw evidence retained. Native2d at 1/2/4 ranks passed. Step 1 controller is terminal. Seal the fixture checkpoint, commit, then run D1.
