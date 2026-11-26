@@ -2252,3 +2252,13 @@ FP2-P3 C5 trial 2 isolated restart first finding is runtime_receipt_written=fals
 FP2-P3 build673 C5 passed. Evidence build673/C5.json.
 
 FP2-P3 C5 passed after the isolated-restart observation repair. The second restart verified in 182.920 s with a complete live runtime receipt, unchanged pins, and zero coordinate error. The C5 disk pair is exactly equal on all six payloads. Trial 2 native maxima 1461.688 / 694.065 s. All six new payloads differ from N21 W. FX2 exact row differences against B2b 1530, zero replay findings. Both C5 supervisors terminal. Next C6 CORE pair.
+
+FP2-P3 C5 passed checkpoint 73c863e16f pushed. C6 supervisor su2-fp2-p3-build673-c6 started for the two CORE workflows and isolated restarts. Uses the frozen FP1 CORE config, trace 0 and closure variable absent. This is the final required pair.
+
+FP2-P3 C6 trial 1 launched at 04:32:47 CET with exact FP1 CORE config SHA256 1ec6c26d49d4ec7c62103d5bd096471b5422290cd06c44b2f1073b7489f2b4c1, closure unset, trace 0. Its six first-collapse observations report 80752264 work units, zero upper refinements, and accepted counts 465 / 459 / 428 / 573 / 451 / 445. CORE retains the original report-only comparison. Event 1 construction continues.
+
+FP2-P3 C6 trial 1 CORE event 1 proof, memory and timer gates passed. Owned proof count and all rank surface sizes 68124, job and summed process peaks 11688124416 bytes. Transfer and continued CFD follow.
+
+FP2-P3 C6 trial 1 CORE event 2 proof, resource and timer gates passed. Owned proof count and all rank surface sizes 60402, job and summed process peaks both 13290020864 bytes. Continued CFD and isolated restart precede trial 2.
+
+FP2-P3 C6 trial 1 passed both events, continued CFD and isolated restart. Native maxima 1306.963 / 449.141 s, minimum timer coverage 98.855% / 98.448%. Isolated restart 125.881 s, unchanged pins and zero coordinate error. All six trial-1 payload hashes differ from the FP1 closure-off reference. Trial 2 started at 05:09:44 CET after the first restart was terminal. The exact build673 pair remains required.
