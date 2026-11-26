@@ -1,0 +1,281 @@
+diff --git a/Common/include/adaptation/CNativeLocalCore3D.hpp b/Common/include/adaptation/CNativeLocalCore3D.hpp
+index bd08c50d93..089b3388fc 100644
+--- a/Common/include/adaptation/CNativeLocalCore3D.hpp
++++ b/Common/include/adaptation/CNativeLocalCore3D.hpp
+@@ -68,6 +68,7 @@ struct CoreOptions {
+   bool surface_collapses = false;
+   bool distance_error_cut = false;
+   bool outward_collapses = false;
++  bool surface_collapse_after_volume = false;
+ };
+ 
+ struct PointRow {
+@@ -152,6 +153,7 @@ struct SurfaceCounters {
+   double seconds_v = 0;
+   std::string v_changes;
+   size_t collapses_surface = 0, c_sweeps = 0, c_candidates = 0, c_deferred = 0;
++  size_t c_prepared_directions = 0;
+   std::array<size_t, static_cast<size_t>(SurfaceCollapseRefusal::Contact) + 1> c_refusals{};
+   double c_reverse_max = 0, seconds_c = 0, seconds_c_samples = 0, seconds_c_entity = 0, seconds_c_bound = 0;
+   size_t c_bound_queries = 0, query_scratch_max = 0;
+@@ -168,8 +170,16 @@ struct SurfaceCounters {
+ 
+ void PrintSurfaceFields(std::ostream&, const SurfaceCounters&);
+ 
++struct FinalSurfaceStats {
++  SurfaceCounters surface;
++  size_t bad_before = 0, bad_after = 0, faces_before = 0, faces_after = 0;
++};
++
++void PrintFinalSurfaceFields(std::ostream&, const FinalSurfaceStats&);
++
+ struct PassStats : SweepCounters {
+   SurfaceCounters surface;
++  std::optional<FinalSurfaceStats> final_surface;
+   size_t cells_in = 0, cells_out = 0, points_in = 0, points_out = 0;
+   size_t surface_points = 0, border_points = 0, wall_near_points = 0;
+   double seconds_build = 0, seconds_collapse = 0, seconds_split = 0, seconds_quality = 0, seconds_check = 0,
+@@ -279,7 +289,8 @@ class Mesh {
+                               bool report = true, std::string* near_row = nullptr, double metric_floor = 0);
+   SurfaceCollapseRefusal CollapseSurface(
+       Edge edge, Slot seed, SurfaceGeometry& geometry, uint32_t stamp, SurfaceCounters& counters, bool report,
+-      const std::function<void(const SU2Native3D::SurfaceFace&)>& sink = {}, ContactContext* contact = nullptr);
++      const std::function<void(const SU2Native3D::SurfaceFace&)>& sink = {}, ContactContext* contact = nullptr,
++      size_t* prepared_directions = nullptr);
+   Refusal RemoveEdge(Edge edge, Slot seed, uint32_t stamp, size_t cell_limit, PassStats& stats);
+   Refusal SwapFace(Slot cell, unsigned face, uint32_t stamp, size_t cell_limit, PassStats& stats);
+   Refusal MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& stats, bool* exact_refusal = nullptr);
+@@ -421,7 +432,11 @@ class Mesh {
+                                 const SurfaceEdgeSet& border, const SurfaceEdgeSet& neighbor_locked) const;
+   void SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
+   void SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
+-  void SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote = nullptr);
++  size_t SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote,
++                             size_t* prepared_directions = nullptr);
++  void FinalSurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
++                        RemoteSurface* remote);
++  void ReportSurfaceIncidence(SurfaceCounters& counts) const;
+   void SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
+                    RemoteSurface* remote);
+   void MarkUnresolved();
+diff --git a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+index 742196da07..24f32fe0d5 100644
+--- a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
++++ b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+@@ -993,6 +993,8 @@ struct RemeshRun {
+       options.outward_collapses = true;
+     }
+     for (unsigned pass = 1; pass <= passes; ++pass) {
++      options.surface_collapse_after_volume =
++          surface && options.surface_collapses && pass == passes && core::FP3Probe() != core::CollapseProbe::Engine;
+       const double begin = report ? workers.seconds() : 0;
+       if (surface) budget.caller_bytes = transfer_memory::Add(kernel.caller_bytes, surface->ResidentBytes());
+       auto meeting = core::MeetBorderPoints(workers, working, budget, previous.Bytes(), report);
+@@ -1099,6 +1101,12 @@ struct RemeshRun {
+         PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
+         if (surface) {
+           PrintLocalSurfacePass(workers.rank, pass, counts.surface);
++          if (counts.final_surface) {
++            std::ostringstream row;
++            row << "NATIVE3D_LOCAL_SURFACE_FINAL rank=" << workers.rank << " stage=" << stage << " pass=" << pass;
++            core::PrintFinalSurfaceFields(row, *counts.final_surface);
++            std::cout << row.str() << '\n' << std::flush;
++          }
+           const auto scratch = counts.surface.query_scratch_max;
+           std::cout << "NATIVE3D_LOCAL_SURFACE_BUDGET rank=" << workers.rank << " stage=" << stage
+                     << " pass=" << pass << " overlay_peak=" << surface->PeakBytes()
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
+index 7a51bddb2b..9f0352e80c 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
+@@ -425,7 +425,8 @@ void Mesh::ReportHandoverSurface(const StateSurfaceGeometry& geometry, int rank,
+ // changed metric can still split the patch.
+ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeometry& geometry, uint32_t stamp,
+                                             SurfaceCounters& counters, bool report,
+-                                            const std::function<void(const SurfaceFace&)>& sink, ContactContext* contact) {
++                                            const std::function<void(const SurfaceFace&)>& sink, ContactContext* contact,
++                                            size_t* prepared_directions) {
+   edge = ById(edge);
+   const auto ring = EdgeRing(edge, seed);
+   const auto parents = SurfaceParents(edge, ring);
+@@ -438,6 +439,7 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
+     for (const auto& trial : trials) {
+       count(trial.refusal);
+       counters.c_refused_metric += trial.short_metric;
++      if (prepared_directions && trial.refusal == Reason::None) ++*prepared_directions;
+     }
+   const auto clock = [&] { return report ? SU2_MPI::Wtime() : 0.; };
+   const auto test_contact = [&](const SurfaceCollapseTrial& trial) {
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DPass.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DPass.cpp
+index c01ecbe953..04778bb19f 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DPass.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DPass.cpp
+@@ -489,18 +489,21 @@ PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stat
+     for (const auto& row : cells_)
+       if (row.live && Margin(row.vertices) < BadMargin) ++stats.bad_in;
+   }
+-  // Volume work preserves surface points, faces and edges, so a second surface stage would find nothing.
++  // Volume work preserves the surface but can change the cavities available to a later collapse.
+   if (options.surface_splits && surface) SurfaceWork(*surface, point_ids, cell_limit, stats, remote);
+   LengthWork(point_ids, cell_limit, stats);
+   const auto quality_start = ReportClock(stats);
+   QualityWork(point_ids, cell_limit, stats);
+   if (options.surface_splits && surface) RepairRounds(point_ids, cell_limit, stats);
+-  const auto check_start = ReportClock(stats);
++  const auto quality_end = ReportClock(stats);
++  const bool final_sweep = options.surface_collapse_after_volume && surface;
++  if (final_sweep) FinalSurfaceWork(*surface, point_ids, cell_limit, stats, remote);
++  const auto check_start = final_sweep ? ReportClock(stats) : quality_end;
+   Check();
+   if (stats.report) {
+     MarkWallNear();
+     ReportResult(stats);
+-    stats.seconds_quality = check_start - quality_start;
++    stats.seconds_quality = quality_end - quality_start;
+     stats.seconds_check = ReportClock(stats) - check_start;
+   }
+   return stats;
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
+index 2b571df768..4337a31378 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
+@@ -36,6 +36,10 @@ bool Has(const V& vertices, P point) {
+ 
+ double ReportClock(bool report) { return report ? SU2_MPI::Wtime() : 0.; }
+ 
++constexpr std::array<const char*, static_cast<size_t>(SurfaceCollapseRefusal::Contact)> CollapseRefusalNames = {
++    "protected", "border", "ineligible", "border_keeper", "feature_chord", "link", "near", "outward",
++    "reverse", "topology", "size", "shape", "validity", "distance", "entity", "bound", "contact_remote", "contact"};
++
+ constexpr std::pair<const char*, size_t SurfaceCounters::*> Counts[] = {
+     {"faces_in", &SurfaceCounters::faces_in}, {"faces_out", &SurfaceCounters::faces_out},
+     {"points_in", &SurfaceCounters::points_in}, {"points_out", &SurfaceCounters::points_out},
+@@ -197,10 +201,8 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
+       << " seconds_v=" << s.seconds_v;
+   out << " collapses_surface=" << s.collapses_surface << " c_sweeps=" << s.c_sweeps
+       << " c_candidates=" << s.c_candidates << " c_deferred=" << s.c_deferred;
+-  constexpr std::array<const char*, static_cast<size_t>(SurfaceCollapseRefusal::Bound)> reasons = {
+-      "protected", "border", "ineligible", "border_keeper", "feature_chord", "link", "near", "outward",
+-      "reverse", "topology", "size", "shape", "validity", "distance", "entity", "bound"};
+-  for (size_t i = 0; i < reasons.size(); ++i) out << " c_refused_" << reasons[i] << '=' << s.c_refusals[i + 1];
++  for (size_t i = 0; i < static_cast<size_t>(SurfaceCollapseRefusal::Bound); ++i)
++    out << " c_refused_" << CollapseRefusalNames[i] << '=' << s.c_refusals[i + 1];
+   out << " c_reverse_max=" << s.c_reverse_max << " seconds_c=" << s.seconds_c
+       << " seconds_c_samples=" << s.seconds_c_samples << " seconds_c_entity=" << s.seconds_c_entity
+       << " seconds_c_bound=" << s.seconds_c_bound << " c_bound_queries=" << s.c_bound_queries
+@@ -966,7 +968,8 @@ void Mesh::MarkUnresolved() {
+         for (auto vertex : edge) points_[vertex].unresolved = true;
+ }
+ 
+-void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote) {
++size_t Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote,
++                                size_t* prepared_directions) {
+   if (options_.outward_collapses && allow_border_ && !remote)
+     throw std::invalid_argument("Native local surface contact: parallel step C requires a remote surface set.");
+   // The distance step has released its tables. Reuse the surface reservation for
+@@ -985,6 +988,7 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
+   };
+   std::vector<Edge> deferred;
+   std::map<SurfaceEdge, uint64_t> refused;
++  size_t committed = 0;
+   for (unsigned sweep = 0; sweep < SurfaceCollapseLimit; ++sweep) {
+     ++sweep_;
+     std::vector<EdgeUse> uses;
+@@ -1034,7 +1038,8 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
+             remembered->second >= points_[edge[1]].changed_at) continue;
+       }
+       if (CollapseSurface(edge, seed, geometry, sweep_, stats.surface, stats.report,
+-                          stats.surface_collapse_sink, contact ? &*contact : nullptr) == SurfaceCollapseRefusal::None) {
++                          stats.surface_collapse_sink, contact ? &*contact : nullptr,
++                          prepared_directions) == SurfaceCollapseRefusal::None) {
+         ++accepted;
+       } else if (options_.memory) {
+         refused.insert_or_assign(candidate.ids, change_);
+@@ -1046,9 +1051,70 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
+       if (!stats.surface.c_changes.empty()) stats.surface.c_changes += ',';
+       stats.surface.c_changes += std::to_string(accepted);
+     }
++    committed += accepted;
+     if (!accepted) break;
+   }
+   if (stats.report) stats.surface.seconds_c = ReportClock(true) - begin;
++  return committed;
++}
++
++void PrintFinalSurfaceFields(std::ostream& out, const FinalSurfaceStats& final) {
++  const auto& s = final.surface;
++  out << " candidates=" << s.c_candidates << " prepared_directions=" << s.c_prepared_directions
++      << " collapses=" << s.collapses_surface;
++  for (size_t i = 0; i < CollapseRefusalNames.size(); ++i)
++    out << " c_refused_" << CollapseRefusalNames[i] << '=' << s.c_refusals[i + 1];
++  out << " metric_floor=" << s.c_refused_metric << " bound_queries=" << s.c_bound_queries
++      << " c_sweeps=" << s.c_sweeps << " star_max=" << s.star_max << " v_limit=" << s.v_limit
++      << " seconds=" << s.seconds_c << " seconds_bound=" << s.seconds_c_bound
++      << " bad_before=" << final.bad_before << " bad_after=" << final.bad_after
++      << " repair_seconds=" << s.seconds_v << " faces_before=" << final.faces_before
++      << " faces_after=" << final.faces_after;
++}
++
++void Mesh::ReportSurfaceIncidence(SurfaceCounters& counts) const {
++  std::vector<size_t> incidence(points_.size());
++  for (const auto& cell : cells_)
++    if (cell.live)
++      for (const auto point : cell.vertices) ++incidence[point];
++  for (const auto count : incidence) {
++    counts.star_max = std::max(counts.star_max, count);
++    counts.star_gt100 += count > 100;
++    counts.star_gt1000 += count > 1000;
++  }
++}
++
++void Mesh::FinalSurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
++                            RemoteSurface* remote) {
++  PassStats sweep;
++  sweep.report = stats.report;
++  sweep.surface_collapse_sink = stats.surface_collapse_sink;
++  FinalSurfaceStats final;
++  const auto count_bad = [this] {
++    return std::count_if(cells_.begin(), cells_.end(),
++                         [this](const auto& row) { return row.live && Margin(row.vertices) < BadMargin; });
++  };
++  if (stats.report) {
++    final.faces_before = PhysicalFaces().size();
++    final.bad_before = count_bad();
++  }
++  size_t committed;
++  {
++    const SurfaceQueryScratch scratch(stats.report ? &sweep.surface.query_scratch_max : nullptr);
++    committed = SurfaceCollapseWork(geometry, sweep, remote, &sweep.surface.c_prepared_directions);
++  }
++  if (stats.report) ReportSurfaceIncidence(sweep.surface);
++  if (committed != 0) {
++    MarkUnresolved();
++    RepairRounds(point_ids, cell_limit, sweep);
++  }
++  if (stats.report) {
++    final.faces_after = PhysicalFaces().size();
++    final.bad_after = count_bad();
++    stats.surface.query_scratch_max = std::max(stats.surface.query_scratch_max, sweep.surface.query_scratch_max);
++    final.surface = std::move(sweep.surface);
++    stats.final_surface = std::move(final);
++  }
+ }
+ 
+ void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
+@@ -1099,15 +1165,7 @@ void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t
+       for (const auto edge : FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face)))
+         if (Length(edge) > LongEdge) long_edges.insert(Ids(points_, edge));
+     stats.surface.left_long = long_edges.size();
+-    std::vector<size_t> incidence(points_.size());
+-    for (const auto& cell : cells_)
+-      if (cell.live)
+-        for (const auto point : cell.vertices) ++incidence[point];
+-    for (const auto count : incidence) {
+-      stats.surface.star_max = std::max(stats.surface.star_max, count);
+-      stats.surface.star_gt100 += count > 100;
+-      stats.surface.star_gt1000 += count > 1000;
+-    }
++    ReportSurfaceIncidence(stats.surface);
+     if (stats.surface_sink) stats.surface_sink(stats.surface);
+   }
+ }

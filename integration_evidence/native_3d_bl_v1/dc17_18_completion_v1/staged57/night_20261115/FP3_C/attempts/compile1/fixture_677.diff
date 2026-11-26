@@ -1,0 +1,265 @@
+diff --git a/UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc b/UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc
+index 226432842e..bfdc7e725a 100644
+--- a/UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc
++++ b/UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc
+@@ -912,3 +912,207 @@ TEST_CASE("Step C exchanges cross-pass and local cancellations and builds with r
+     CHECK(CensusWithinTolerance(*state, face->second) == (answer.back() != 0));
+   }
+ }
++
++namespace {
++constexpr Id FinalRemove = GridId(1, 1, 0), FinalKeep = GridId(2, 1, 0), FinalInterior = LastS33Point + 1;
++constexpr Edge FinalEdge{FinalRemove, FinalKeep};
++
++Owned FinalSweepRows(bool interior) {
++  const auto grid = S33();
++  std::vector<Point> points(LastS33Point + 1);
++  std::vector<Tet> tets;
++  for (const auto& entry : grid) {
++    const auto& cell = entry.second.cell;
++    for (const auto& node : cell.v) points[node.id] = node.p;
++    const auto vertices = VertexOrder(cell);
++    const std::set<Id> keys(vertices.begin(), vertices.end());
++    if (interior && keys == std::set<Id>{0, 1, FinalRemove, 21}) {
++      // This free point is interior, with weight .97 at the removable surface
++      // point and .01 at each other corner. Replacing that surface point by
++      // the keeper inverts one child; the shorter free spoke can remove it.
++      for (size_t corner = 0; corner < vertices.size(); ++corner) {
++        auto child = vertices;
++        child[corner] = FinalInterior;
++        tets.push_back(child);
++      }
++    } else {
++      tets.push_back(vertices);
++    }
++  }
++  points[FinalRemove].x = 13. / 8;
++  if (interior) points.push_back({.97 * points[FinalRemove].x + .02, .98, .01});
++  return BoundMesh(points, tets, .25);
++}
++
++local::CoreOptions FinalSweepOptions(bool enabled) {
++  local::CoreOptions options;
++  options.shape_test = false;
++  options.surface_splits = true;
++  options.wall_collapses = true;
++  options.surface_collapses = true;
++  options.short_edge = .25;
++  options.surface_collapse_after_volume = enabled;
++  return options;
++}
++
++bool HasFinalPoint(const local::Mesh& mesh, Id id) {
++  return std::any_of(mesh.Points().begin(), mesh.Points().end(),
++                     [id](const auto& point) { return !point.removed && point.node.id == id; });
++}
++
++auto FirstCollapseCounts(const local::SurfaceCounters& row) {
++  return std::tie(row.faces_before_c, row.points_before_c, row.faces_out, row.points_out, row.c_candidates,
++                  row.collapses_surface, row.c_sweeps, row.c_deferred, row.c_changes, row.c_refusals,
++                  row.c_refused_metric, row.c_bound_queries, row.c_reverse_max, row.c_outward_tried,
++                  row.collapses_outward, row.c_contact_directions, row.c_contact_candidates,
++                  row.c_contact_calls, row.c_contact_rebuilds, row.c_contact_fresh_max, row.short_after_c,
++                  row.v_rounds, row.v_limit, row.v_collapses, row.v_splits, row.v_changes, row.bad_before_v);
++}
++
++std::map<std::string, std::string> FinalSweepFields(const local::PassStats& stats) {
++  REQUIRE(stats.final_surface.has_value());
++  std::ostringstream line;
++  line << "NATIVE3D_LOCAL_SURFACE_FINAL rank=0 stage=0 pass=1";
++  local::PrintFinalSurfaceFields(line, *stats.final_surface);
++  std::cout << line.str() << '\n';
++  std::istringstream input(line.str());
++  std::string token;
++  input >> token;
++  REQUIRE(token == "NATIVE3D_LOCAL_SURFACE_FINAL");
++  std::map<std::string, std::string> fields;
++  while (input >> token) {
++    const auto split = token.find('=');
++    REQUIRE(split != std::string::npos);
++    REQUIRE(fields.emplace(token.substr(0, split), token.substr(split + 1)).second);
++  }
++  std::set<std::string> keys{"rank", "stage", "pass", "candidates", "prepared_directions", "collapses",
++                             "metric_floor", "bound_queries", "c_sweeps", "star_max", "v_limit", "seconds",
++                             "seconds_bound", "bad_before", "bad_after", "repair_seconds", "faces_before",
++                             "faces_after"};
++  for (const auto* reason : {"protected", "border", "ineligible", "border_keeper", "feature_chord", "link",
++                            "near", "outward", "reverse", "topology", "size", "shape", "validity", "distance",
++                            "entity", "bound", "contact_remote", "contact"})
++    keys.emplace(std::string("c_refused_") + reason);
++  REQUIRE(fields.size() == keys.size());
++  for (const auto& key : keys) {
++    REQUIRE(fields.count(key) == 1);
++    CHECK(std::isfinite(std::stod(fields.at(key))));
++    CHECK(std::stod(fields.at(key)) >= 0);
++  }
++  return fields;
++}
++}  // namespace
++
++TEST_CASE("FP3-C final sweep collapses a surface edge unblocked by volume work", "[.][NativeFP2C2][NativeFP3C]") {
++  const auto rows = FinalSweepRows(true);
++  auto options = FinalSweepOptions(false);
++  options.outward_collapses = true;
++  local::Mesh volume_only(rows, false, options);
++  CollapseFixtureGeometry first_geometry(rows, FinalKeep, .02);
++  const auto [edge, seed] = C2Edge(volume_only, FinalEdge);
++  REQUIRE(std::get<0>(local::SurfaceFixtureAccess::TentPrepared(volume_only, edge, seed, first_geometry)) ==
++          C2Refusal::Validity);
++  local::IdSequence point_ids(FinalInterior);
++  const auto first = volume_only.RunPass(point_ids, SIZE_MAX, true, options, &first_geometry);
++  REQUIRE_FALSE(first.final_surface.has_value());
++  REQUIRE(first.surface.collapses_surface == 0);
++  CHECK(first.surface.c_refusals[static_cast<size_t>(C2Refusal::Validity)] == 1);
++  REQUIRE_FALSE(HasFinalPoint(volume_only, FinalInterior));
++  REQUIRE(HasFinalPoint(volume_only, FinalRemove));
++  REQUIRE(first_geometry.removed.empty());
++
++  const auto [ready_edge, ready_seed] = C2Edge(volume_only, FinalEdge);
++  REQUIRE(std::get<0>(local::SurfaceFixtureAccess::TentPrepared(volume_only, ready_edge, ready_seed, first_geometry)) ==
++          C2Refusal::None);
++  local::LocalContactIndex index(volume_only, 4096);
++  local::ContactContext contact{index, nullptr};
++  local::SurfaceCounters expected_stats;
++  std::vector<std::pair<Face, Id>> expected_children;
++  REQUIRE(volume_only.CollapseSurface(ready_edge, ready_seed, first_geometry, 0, expected_stats, true,
++                                     [&](const auto& face) { expected_children.emplace_back(face.v, face.facet); },
++                                     &contact) == C2Refusal::None);
++
++  options.surface_collapse_after_volume = true;
++  local::Mesh sweep(rows, false, options);
++  CollapseFixtureGeometry final_geometry(rows, FinalKeep, .02);
++  local::IdSequence sweep_points(FinalInterior);
++  std::vector<std::pair<Face, Id>> children;
++  local::PassStats report;
++  report.surface_collapse_sink = [&](const auto& face) { children.emplace_back(face.v, face.facet); };
++  const auto result = sweep.RunPass(sweep_points, SIZE_MAX, std::move(report), options, &final_geometry);
++  const auto fields = FinalSweepFields(result);
++  CHECK(FirstCollapseCounts(result.surface) == FirstCollapseCounts(first.surface));
++  CHECK(fields.at("candidates") == "1");
++  CHECK(fields.at("prepared_directions") == "1");
++  CHECK(fields.at("collapses") == "1");
++  CHECK(fields.at("bound_queries") == std::to_string(expected_stats.c_bound_queries));
++  CHECK(fields.at("bad_before") == std::to_string(first.bad_out));
++  CHECK(fields.at("bad_after") == std::to_string(result.bad_out));
++  CHECK(fields.at("faces_before") == std::to_string(first.surface.faces_out));
++  CHECK(fields.at("faces_after") == std::to_string(first.surface.faces_out - 2));
++  CHECK(fields.at("star_max") != "0");
++  CHECK(fields.at("v_limit") == "0");
++  CHECK(result.final_surface->surface.v_rounds > 0);
++  CHECK(final_geometry.removed == std::set<Id>{FinalRemove});
++  CHECK(HasFinalPoint(sweep, FinalKeep));
++  CHECK_FALSE(HasFinalPoint(sweep, FinalRemove));
++  CHECK_FALSE(HasFinalPoint(sweep, FinalInterior));
++  CHECK(children == expected_children);
++  CHECK(OrientedSurface(sweep) == OrientedSurface(volume_only));
++  REQUIRE_NOTHROW(sweep.Check());
++}
++
++TEST_CASE("FP3-C a zero-commit final sweep preserves the written mesh and border endpoints",
++          "[.][NativeFP2C2][NativeFP3C]") {
++  auto rows = FinalSweepRows(false);
++  Id border = FinalRemove;
++  SECTION("the proposed removed point has a border star") { border = FinalRemove; }
++  SECTION("the proposed kept point has a border star") { border = FinalKeep; }
++  const auto other = border == FinalRemove ? FinalKeep : FinalRemove;
++  bool marked = false;
++  for (auto& entry : rows) {
++    auto& row = entry.second;
++    for (unsigned f = 0; f < 4 && !marked; ++f) {
++      const auto face = FaceAt(row.cell, f);
++      if (row.physical[f].present && Holds(face, border) && !Holds(face, other)) {
++        row.physical[f] = {};
++        marked = true;
++      }
++    }
++  }
++  REQUIRE(marked);
++  const auto run = [&](bool enabled) {
++    const auto options = FinalSweepOptions(enabled);
++    local::Mesh mesh(rows, true, options);
++    // Both directed trials must reach the border checks, with no feature veto.
++    CollapseFixtureGeometry geometry(rows, std::numeric_limits<Id>::max(), .02);
++    REQUIRE(mesh.Points()[SlotOf(mesh, border)].border);
++    REQUIRE_FALSE(mesh.Points()[SlotOf(mesh, other)].border);
++    local::IdSequence point_ids(LastS33Point);
++    const auto stats = mesh.RunPass(point_ids, SIZE_MAX, true, options, &geometry);
++    CHECK(stats.surface.collapses_surface == 0);
++    REQUIRE(HasFinalPoint(mesh, border));
++    REQUIRE(HasFinalPoint(mesh, other));
++    CHECK(geometry.removed.empty());
++    if (enabled) {
++      const auto fields = FinalSweepFields(stats);
++      CHECK(fields.at("candidates") == "1");
++      CHECK(fields.at("prepared_directions") == "0");
++      CHECK(fields.at("collapses") == "0");
++      CHECK(fields.at("c_refused_border") == "1");
++      CHECK(fields.at("c_refused_border_keeper") == "1");
++      CHECK(fields.at("bound_queries") == "0");
++      CHECK(fields.at("repair_seconds") == "0");
++      CHECK(fields.at("v_limit") == "0");
++      CHECK(fields.at("faces_before") == fields.at("faces_after"));
++      CHECK(fields.at("bad_before") == fields.at("bad_after"));
++    } else {
++      CHECK_FALSE(stats.final_surface.has_value());
++    }
++    auto written = rows;
++    local::IdSequence cell_ids(rows.rbegin()->first);
++    mesh.WriteBack(written, cell_ids);
++    return std::make_tuple(OwnedBytes(written), point_ids.Peek(), cell_ids.Peek(), OrientedSurface(mesh));
++  };
++  CHECK(run(true) == run(false));
++}
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_volume_handover.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_volume_handover.inc
+index 7e80a2adc9..257bbc1ed3 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_volume_handover.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_volume_handover.inc
+@@ -783,6 +783,18 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation
+   REQUIRE(world.size == (parallel ? 6 : 1));
+   const bool production = partition != ProductionPartition::None;
+   const bool event2 = partition == ProductionPartition::Event2;
++  const char* final_sweep_option = std::getenv("SU2_NATIVE_FP3_FINAL_SWEEP");
++  const bool final_sweep = final_sweep_option && std::strcmp(final_sweep_option, "1") == 0;
++  if (final_sweep_option) {
++    REQUIRE((final_sweep || std::strcmp(final_sweep_option, "0") == 0));
++    REQUIRE((surface_collapses && outward_collapses));
++    const char* effective_probe = std::getenv("SU2_NATIVE_FP3_PROBE");
++    REQUIRE((effective_probe && std::strcmp(effective_probe, "0") == 0));
++    std::ostringstream row;
++    row << "FP3_C LAB_SWEEP rank=" << world.rank << " enabled=" << final_sweep
++        << " probe=" << effective_probe << '\n';
++    std::cout << row.str() << std::flush;
++  }
+   const char* m1_option = std::getenv("SU2_NATIVE_FP2_M1");
+   const bool measure_support = outward_collapses && m1_option && std::strcmp(m1_option, "1") == 0;
+   const char* m2_option = std::getenv("SU2_NATIVE_FP2_M2");
+@@ -874,6 +886,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation
+   std::set<Face> collapse_faces;
+   try {
+     for (unsigned pass = 1; pass <= pass_count; ++pass) {
++      options.surface_collapse_after_volume = final_sweep && pass == pass_count;
+       const auto pass_start = Clock::now();
+       const auto owned = OwnedStorageBytes(input.cells);
+       memory.caller_bytes = transfer_memory::Add(reference_bytes, surface->ResidentBytes());
+@@ -940,7 +953,8 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation
+         mesh.WriteBack(input.cells, cell_ids);
+         const auto pass_seconds = Seconds(pass_start) - measurement_seconds;
+         exact = CountExact(input.cells);
+-        census_matches = bad_matches && faces_out == stats.surface.faces_out && input.cells.size() == stats.cells_out;
++        const auto counted_faces = stats.final_surface ? stats.final_surface->faces_after : stats.surface.faces_out;
++        census_matches = bad_matches && faces_out == counted_faces && input.cells.size() == stats.cells_out;
+         if (!outward_collapses) report_pass(pass_seconds);
+         pass_mesh.reset();
+       };
+@@ -1081,6 +1095,11 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation
+             << " applicable=1";
+         local::PrintSurfaceFields(row, stats.surface);
+         row << '\n';
++        if (stats.final_surface) {
++          row << "NATIVE3D_LOCAL_SURFACE_FINAL rank=" << world.rank << " stage=0 pass=" << pass;
++          local::PrintFinalSurfaceFields(row, *stats.final_surface);
++          row << '\n';
++        }
+         if (bound_observer) bound_observer->Report(row, world.rank, pass);
+         if (continuation) {
+           const auto measurement_start = Clock::now();

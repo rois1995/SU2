@@ -783,6 +783,18 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
   REQUIRE(world.size == (parallel ? 6 : 1));
   const bool production = partition != ProductionPartition::None;
   const bool event2 = partition == ProductionPartition::Event2;
+  const char* final_sweep_option = std::getenv("SU2_NATIVE_FP3_FINAL_SWEEP");
+  const bool final_sweep = final_sweep_option && std::strcmp(final_sweep_option, "1") == 0;
+  if (final_sweep_option) {
+    REQUIRE((final_sweep || std::strcmp(final_sweep_option, "0") == 0));
+    REQUIRE((surface_collapses && outward_collapses));
+    const char* effective_probe = std::getenv("SU2_NATIVE_FP3_PROBE");
+    REQUIRE((effective_probe && std::strcmp(effective_probe, "0") == 0));
+    std::ostringstream row;
+    row << "FP3_C LAB_SWEEP rank=" << world.rank << " enabled=" << final_sweep
+        << " probe=" << effective_probe << '\n';
+    std::cout << row.str() << std::flush;
+  }
   const char* m1_option = std::getenv("SU2_NATIVE_FP2_M1");
   const bool measure_support = outward_collapses && m1_option && std::strcmp(m1_option, "1") == 0;
   const char* m2_option = std::getenv("SU2_NATIVE_FP2_M2");
@@ -874,6 +886,7 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
   std::set<Face> collapse_faces;
   try {
     for (unsigned pass = 1; pass <= pass_count; ++pass) {
+      options.surface_collapse_after_volume = final_sweep && pass == pass_count;
       const auto pass_start = Clock::now();
       const auto owned = OwnedStorageBytes(input.cells);
       memory.caller_bytes = transfer_memory::Add(reference_bytes, surface->ResidentBytes());
@@ -940,7 +953,8 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
         mesh.WriteBack(input.cells, cell_ids);
         const auto pass_seconds = Seconds(pass_start) - measurement_seconds;
         exact = CountExact(input.cells);
-        census_matches = bad_matches && faces_out == stats.surface.faces_out && input.cells.size() == stats.cells_out;
+        const auto counted_faces = stats.final_surface ? stats.final_surface->faces_after : stats.surface.faces_out;
+        census_matches = bad_matches && faces_out == counted_faces && input.cells.size() == stats.cells_out;
         if (!outward_collapses) report_pass(pass_seconds);
         pass_mesh.reset();
       };
@@ -1081,6 +1095,11 @@ void RunVolumeHandover(bool parallel, bool handover = false, SurfaceObservation 
             << " applicable=1";
         local::PrintSurfaceFields(row, stats.surface);
         row << '\n';
+        if (stats.final_surface) {
+          row << "NATIVE3D_LOCAL_SURFACE_FINAL rank=" << world.rank << " stage=0 pass=" << pass;
+          local::PrintFinalSurfaceFields(row, *stats.final_surface);
+          row << '\n';
+        }
         if (bound_observer) bound_observer->Report(row, world.rank, pass);
         if (continuation) {
           const auto measurement_start = Clock::now();

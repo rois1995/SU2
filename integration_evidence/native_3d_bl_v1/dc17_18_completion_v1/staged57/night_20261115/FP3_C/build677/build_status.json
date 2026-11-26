@@ -1,0 +1,38 @@
+{
+  "state": "terminal",
+  "passed": true,
+  "build": 677,
+  "exit_code": 0,
+  "pins_verified": true,
+  "changed": [
+    "Common/include/adaptation/CNativeLocalCore3D.hpp",
+    "Common/src/adaptation/native_engine3d/NativeRemeshRun.inc",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DPass.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp",
+    "UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_volume_handover.inc"
+  ],
+  "source_pins_sha256": "5054062b1f33185d724d3b2d78b62fccb34a6dc16f5d0fa0e9119b7c20dccf6a",
+  "production_diff_sha256": "ef58b6943bfa61c30289a41fd3a2b5488f0e9190a89defcc8850ca902e61f355",
+  "graph_after": {
+    "build.ninja": "59db458e4ffd548de0d37395ab03046b72b2c6144bf0f8b56a0424c83718ad90",
+    "compile_commands.json": "0dea4febacab233fc602fdefef86b38289c1aff1a05c492ef2c5ab04cb5005de"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "7ef8fdd548006f7e812279a6a90f6379dd921e86abbf8d694e530b8d0ef83723",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "a7a74ff418ca2c3a0cd50b04575821fb327e8d9cd5ee95b6b4c0d76c6d41d630",
+  "warnings": [],
+  "new_warnings": [],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 2000497,
+      "start_ticks": 120360401
+    },
+    "returncode": 0,
+    "elapsed_seconds": 493.2809338569641,
+    "terminal": true
+  }
+}

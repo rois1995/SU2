@@ -993,6 +993,8 @@ struct RemeshRun {
       options.outward_collapses = true;
     }
     for (unsigned pass = 1; pass <= passes; ++pass) {
+      options.surface_collapse_after_volume =
+          surface && options.surface_collapses && pass == passes && core::FP3Probe() != core::CollapseProbe::Engine;
       const double begin = report ? workers.seconds() : 0;
       if (surface) budget.caller_bytes = transfer_memory::Add(kernel.caller_bytes, surface->ResidentBytes());
       auto meeting = core::MeetBorderPoints(workers, working, budget, previous.Bytes(), report);
@@ -1099,6 +1101,12 @@ struct RemeshRun {
         PrintLocalPass(workers.rank, pass, counts, workers.seconds() - begin, bytes);
         if (surface) {
           PrintLocalSurfacePass(workers.rank, pass, counts.surface);
+          if (counts.final_surface) {
+            std::ostringstream row;
+            row << "NATIVE3D_LOCAL_SURFACE_FINAL rank=" << workers.rank << " stage=" << stage << " pass=" << pass;
+            core::PrintFinalSurfaceFields(row, *counts.final_surface);
+            std::cout << row.str() << '\n' << std::flush;
+          }
           const auto scratch = counts.surface.query_scratch_max;
           std::cout << "NATIVE3D_LOCAL_SURFACE_BUDGET rank=" << workers.rank << " stage=" << stage
                     << " pass=" << pass << " overlay_peak=" << surface->PeakBytes()

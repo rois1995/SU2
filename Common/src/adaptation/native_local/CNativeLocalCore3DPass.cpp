@@ -489,18 +489,21 @@ PassStats Mesh::RunPass(IdSequence& point_ids, size_t cell_limit, PassStats stat
     for (const auto& row : cells_)
       if (row.live && Margin(row.vertices) < BadMargin) ++stats.bad_in;
   }
-  // Volume work preserves surface points, faces and edges, so a second surface stage would find nothing.
+  // Volume work preserves the surface but can change the cavities available to a later collapse.
   if (options.surface_splits && surface) SurfaceWork(*surface, point_ids, cell_limit, stats, remote);
   LengthWork(point_ids, cell_limit, stats);
   const auto quality_start = ReportClock(stats);
   QualityWork(point_ids, cell_limit, stats);
   if (options.surface_splits && surface) RepairRounds(point_ids, cell_limit, stats);
-  const auto check_start = ReportClock(stats);
+  const auto quality_end = ReportClock(stats);
+  const bool final_sweep = options.surface_collapse_after_volume && surface;
+  if (final_sweep) FinalSurfaceWork(*surface, point_ids, cell_limit, stats, remote);
+  const auto check_start = final_sweep ? ReportClock(stats) : quality_end;
   Check();
   if (stats.report) {
     MarkWallNear();
     ReportResult(stats);
-    stats.seconds_quality = check_start - quality_start;
+    stats.seconds_quality = quality_end - quality_start;
     stats.seconds_check = ReportClock(stats) - check_start;
   }
   return stats;

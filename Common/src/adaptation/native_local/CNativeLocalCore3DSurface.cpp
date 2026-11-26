@@ -36,6 +36,10 @@ bool Has(const V& vertices, P point) {
 
 double ReportClock(bool report) { return report ? SU2_MPI::Wtime() : 0.; }
 
+constexpr std::array<const char*, static_cast<size_t>(SurfaceCollapseRefusal::Contact)> CollapseRefusalNames = {
+    "protected", "border", "ineligible", "border_keeper", "feature_chord", "link", "near", "outward",
+    "reverse", "topology", "size", "shape", "validity", "distance", "entity", "bound", "contact_remote", "contact"};
+
 constexpr std::pair<const char*, size_t SurfaceCounters::*> Counts[] = {
     {"faces_in", &SurfaceCounters::faces_in}, {"faces_out", &SurfaceCounters::faces_out},
     {"points_in", &SurfaceCounters::points_in}, {"points_out", &SurfaceCounters::points_out},
@@ -197,10 +201,8 @@ void PrintSurfaceFields(std::ostream& out, const SurfaceCounters& s) {
       << " seconds_v=" << s.seconds_v;
   out << " collapses_surface=" << s.collapses_surface << " c_sweeps=" << s.c_sweeps
       << " c_candidates=" << s.c_candidates << " c_deferred=" << s.c_deferred;
-  constexpr std::array<const char*, static_cast<size_t>(SurfaceCollapseRefusal::Bound)> reasons = {
-      "protected", "border", "ineligible", "border_keeper", "feature_chord", "link", "near", "outward",
-      "reverse", "topology", "size", "shape", "validity", "distance", "entity", "bound"};
-  for (size_t i = 0; i < reasons.size(); ++i) out << " c_refused_" << reasons[i] << '=' << s.c_refusals[i + 1];
+  for (size_t i = 0; i < static_cast<size_t>(SurfaceCollapseRefusal::Bound); ++i)
+    out << " c_refused_" << CollapseRefusalNames[i] << '=' << s.c_refusals[i + 1];
   out << " c_reverse_max=" << s.c_reverse_max << " seconds_c=" << s.seconds_c
       << " seconds_c_samples=" << s.seconds_c_samples << " seconds_c_entity=" << s.seconds_c_entity
       << " seconds_c_bound=" << s.seconds_c_bound << " c_bound_queries=" << s.c_bound_queries
@@ -966,7 +968,8 @@ void Mesh::MarkUnresolved() {
         for (auto vertex : edge) points_[vertex].unresolved = true;
 }
 
-void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote) {
+size_t Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote,
+                                size_t* prepared_directions) {
   if (options_.outward_collapses && allow_border_ && !remote)
     throw std::invalid_argument("Native local surface contact: parallel step C requires a remote surface set.");
   // The distance step has released its tables. Reuse the surface reservation for
@@ -985,6 +988,7 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
   };
   std::vector<Edge> deferred;
   std::map<SurfaceEdge, uint64_t> refused;
+  size_t committed = 0;
   for (unsigned sweep = 0; sweep < SurfaceCollapseLimit; ++sweep) {
     ++sweep_;
     std::vector<EdgeUse> uses;
@@ -1034,7 +1038,8 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
             remembered->second >= points_[edge[1]].changed_at) continue;
       }
       if (CollapseSurface(edge, seed, geometry, sweep_, stats.surface, stats.report,
-                          stats.surface_collapse_sink, contact ? &*contact : nullptr) == SurfaceCollapseRefusal::None) {
+                          stats.surface_collapse_sink, contact ? &*contact : nullptr,
+                          prepared_directions) == SurfaceCollapseRefusal::None) {
         ++accepted;
       } else if (options_.memory) {
         refused.insert_or_assign(candidate.ids, change_);
@@ -1046,9 +1051,70 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
       if (!stats.surface.c_changes.empty()) stats.surface.c_changes += ',';
       stats.surface.c_changes += std::to_string(accepted);
     }
+    committed += accepted;
     if (!accepted) break;
   }
   if (stats.report) stats.surface.seconds_c = ReportClock(true) - begin;
+  return committed;
+}
+
+void PrintFinalSurfaceFields(std::ostream& out, const FinalSurfaceStats& final) {
+  const auto& s = final.surface;
+  out << " candidates=" << s.c_candidates << " prepared_directions=" << s.c_prepared_directions
+      << " collapses=" << s.collapses_surface;
+  for (size_t i = 0; i < CollapseRefusalNames.size(); ++i)
+    out << " c_refused_" << CollapseRefusalNames[i] << '=' << s.c_refusals[i + 1];
+  out << " metric_floor=" << s.c_refused_metric << " bound_queries=" << s.c_bound_queries
+      << " c_sweeps=" << s.c_sweeps << " star_max=" << s.star_max << " v_limit=" << s.v_limit
+      << " seconds=" << s.seconds_c << " seconds_bound=" << s.seconds_c_bound
+      << " bad_before=" << final.bad_before << " bad_after=" << final.bad_after
+      << " repair_seconds=" << s.seconds_v << " faces_before=" << final.faces_before
+      << " faces_after=" << final.faces_after;
+}
+
+void Mesh::ReportSurfaceIncidence(SurfaceCounters& counts) const {
+  std::vector<size_t> incidence(points_.size());
+  for (const auto& cell : cells_)
+    if (cell.live)
+      for (const auto point : cell.vertices) ++incidence[point];
+  for (const auto count : incidence) {
+    counts.star_max = std::max(counts.star_max, count);
+    counts.star_gt100 += count > 100;
+    counts.star_gt1000 += count > 1000;
+  }
+}
+
+void Mesh::FinalSurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
+                            RemoteSurface* remote) {
+  PassStats sweep;
+  sweep.report = stats.report;
+  sweep.surface_collapse_sink = stats.surface_collapse_sink;
+  FinalSurfaceStats final;
+  const auto count_bad = [this] {
+    return std::count_if(cells_.begin(), cells_.end(),
+                         [this](const auto& row) { return row.live && Margin(row.vertices) < BadMargin; });
+  };
+  if (stats.report) {
+    final.faces_before = PhysicalFaces().size();
+    final.bad_before = count_bad();
+  }
+  size_t committed;
+  {
+    const SurfaceQueryScratch scratch(stats.report ? &sweep.surface.query_scratch_max : nullptr);
+    committed = SurfaceCollapseWork(geometry, sweep, remote, &sweep.surface.c_prepared_directions);
+  }
+  if (stats.report) ReportSurfaceIncidence(sweep.surface);
+  if (committed != 0) {
+    MarkUnresolved();
+    RepairRounds(point_ids, cell_limit, sweep);
+  }
+  if (stats.report) {
+    final.faces_after = PhysicalFaces().size();
+    final.bad_after = count_bad();
+    stats.surface.query_scratch_max = std::max(stats.surface.query_scratch_max, sweep.surface.query_scratch_max);
+    final.surface = std::move(sweep.surface);
+    stats.final_surface = std::move(final);
+  }
 }
 
 void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
@@ -1099,15 +1165,7 @@ void Mesh::SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t 
       for (const auto edge : FaceEdges(OrientedFace(cells_[face.cell].vertices, face.face)))
         if (Length(edge) > LongEdge) long_edges.insert(Ids(points_, edge));
     stats.surface.left_long = long_edges.size();
-    std::vector<size_t> incidence(points_.size());
-    for (const auto& cell : cells_)
-      if (cell.live)
-        for (const auto point : cell.vertices) ++incidence[point];
-    for (const auto count : incidence) {
-      stats.surface.star_max = std::max(stats.surface.star_max, count);
-      stats.surface.star_gt100 += count > 100;
-      stats.surface.star_gt1000 += count > 1000;
-    }
+    ReportSurfaceIncidence(stats.surface);
     if (stats.surface_sink) stats.surface_sink(stats.surface);
   }
 }
