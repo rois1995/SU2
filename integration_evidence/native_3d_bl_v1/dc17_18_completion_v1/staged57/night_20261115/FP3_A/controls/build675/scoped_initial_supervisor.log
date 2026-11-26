@@ -1,0 +1,18 @@
+Nov 26 08:59:55 pc-rausa python3[1056489]: FP3-A GQ: passed at /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/controls/build675/GQ/case_summary.json
+Nov 26 09:00:02 pc-rausa python3[1106450]: {"actual_host_proc": true, "owned_python_helpers_accounted": true, "preflight_script_sha256": "a99ba5704050db95d622dee3f0e393ea59ae296787754f9019d008df946e93ef", "unix": 1795680002.200931, "sample_seconds": 3.0973470211029053, "active_OWNED_heavy_processes": [], "other_busy_observations": [], "MemAvailable": "MemAvailable:   52009640 kB", "loadavg": "6.75 9.69 8.16 1/3428 1106569"}
+Nov 26 09:00:02 pc-rausa python3[1056489]: first-collapse controller: starting
+Nov 26 09:03:54 pc-rausa python3[1056489]: first-collapse controller: terminal in 231.864 s
+Nov 26 09:03:54 pc-rausa python3[1056489]: Traceback (most recent call last):
+Nov 26 09:03:54 pc-rausa python3[1056489]:   File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/run_controls.py", line 578, in <module>
+Nov 26 09:03:54 pc-rausa python3[1056489]:     status = run(args.build, (args.control,) if args.control else CHECKS, args.finalize_measurement_failure)
+Nov 26 09:03:54 pc-rausa python3[1056489]:              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 26 09:03:54 pc-rausa python3[1056489]:   File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/run_controls.py", line 476, in run
+Nov 26 09:03:54 pc-rausa python3[1056489]:     row = shared_control(build, child, name)
+Nov 26 09:03:54 pc-rausa python3[1056489]:           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 26 09:03:54 pc-rausa python3[1056489]:   File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/run_controls.py", line 284, in shared_control
+Nov 26 09:03:54 pc-rausa python3[1056489]:     status = scoped.combine(subruns)
+Nov 26 09:03:54 pc-rausa python3[1056489]:              ^^^^^^^^^^^^^^
+Nov 26 09:03:54 pc-rausa python3[1056489]: AttributeError: module 'run_scoped' has no attribute 'combine'
+Nov 26 09:03:54 pc-rausa systemd[2375]: su2-fp3-a-build675-scoped.service: Main process exited, code=exited, status=1/FAILURE
+Nov 26 09:03:54 pc-rausa systemd[2375]: su2-fp3-a-build675-scoped.service: Failed with result 'exit-code'.
+Nov 26 09:03:54 pc-rausa systemd[2375]: su2-fp3-a-build675-scoped.service: Consumed 2h 22min 16.882s CPU time, 152.8M memory peak, 0B memory swap peak.
