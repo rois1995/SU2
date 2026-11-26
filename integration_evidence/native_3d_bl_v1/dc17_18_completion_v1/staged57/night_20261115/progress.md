@@ -2514,3 +2514,9 @@ FP3-C build677 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2
 FP3-C build677 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/saved-current/case_summary.json.
 
 FP3-C C492 checkpoint 6f25202081 pushed. Merit481 and the native 2D tests at 1/2/4 ranks passed. Saved-current passed against the adopted P3 reference for all three payloads and 1297 ordered planning rows. The two 126680744-byte raw fixture files are still locally available under their hash pins. G3/G4 are next.
+
+FP3-C build677 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/G3/case_summary.json.
+
+FP3-C build677 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/G4/case_summary.json.
+
+FP3-C shared checkpoint 15e92179ea pushed. G3 passed physical gates with 2130 accepted splits, all 1592 common edits identical to P3, observer-adjusted entry work 5113 / 5113 and zero upper refinements. G4 passed the same three pinned native 2D runs. The 13-check scoped seal passed and the supervisor is terminal. The sweep-off N6P lab identity remains for the signed Step 1 seal.
