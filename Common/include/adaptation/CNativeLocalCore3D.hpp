@@ -68,7 +68,6 @@ struct CoreOptions {
   bool surface_collapses = false;
   bool distance_error_cut = false;
   bool outward_collapses = false;
-  bool surface_collapse_after_volume = false;
 };
 
 struct PointRow {
@@ -153,7 +152,6 @@ struct SurfaceCounters {
   double seconds_v = 0;
   std::string v_changes;
   size_t collapses_surface = 0, c_sweeps = 0, c_candidates = 0, c_deferred = 0;
-  size_t c_prepared_directions = 0;
   std::array<size_t, static_cast<size_t>(SurfaceCollapseRefusal::Contact) + 1> c_refusals{};
   double c_reverse_max = 0, seconds_c = 0, seconds_c_samples = 0, seconds_c_entity = 0, seconds_c_bound = 0;
   size_t c_bound_queries = 0, query_scratch_max = 0;
@@ -170,16 +168,8 @@ struct SurfaceCounters {
 
 void PrintSurfaceFields(std::ostream&, const SurfaceCounters&);
 
-struct FinalSurfaceStats {
-  SurfaceCounters surface;
-  size_t bad_before = 0, bad_after = 0, faces_before = 0, faces_after = 0;
-};
-
-void PrintFinalSurfaceFields(std::ostream&, const FinalSurfaceStats&);
-
 struct PassStats : SweepCounters {
   SurfaceCounters surface;
-  std::optional<FinalSurfaceStats> final_surface;
   size_t cells_in = 0, cells_out = 0, points_in = 0, points_out = 0;
   size_t surface_points = 0, border_points = 0, wall_near_points = 0;
   double seconds_build = 0, seconds_collapse = 0, seconds_split = 0, seconds_quality = 0, seconds_check = 0,
@@ -289,8 +279,7 @@ class Mesh {
                               bool report = true, std::string* near_row = nullptr, double metric_floor = 0);
   SurfaceCollapseRefusal CollapseSurface(
       Edge edge, Slot seed, SurfaceGeometry& geometry, uint32_t stamp, SurfaceCounters& counters, bool report,
-      const std::function<void(const SU2Native3D::SurfaceFace&)>& sink = {}, ContactContext* contact = nullptr,
-      size_t* prepared_directions = nullptr);
+      const std::function<void(const SU2Native3D::SurfaceFace&)>& sink = {}, ContactContext* contact = nullptr);
   Refusal RemoveEdge(Edge edge, Slot seed, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal SwapFace(Slot cell, unsigned face, uint32_t stamp, size_t cell_limit, PassStats& stats);
   Refusal MovePoint(Slot point, IdSequence& ids, uint32_t stamp, PassStats& stats, bool* exact_refusal = nullptr);
@@ -432,11 +421,7 @@ class Mesh {
                                 const SurfaceEdgeSet& border, const SurfaceEdgeSet& neighbor_locked) const;
   void SurfaceLength(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
   void SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats);
-  size_t SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote = nullptr,
-                             size_t* prepared_directions = nullptr);
-  void FinalSurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
-                        RemoteSurface* remote);
-  void ReportSurfaceIncidence(SurfaceCounters& counts) const;
+  void SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, RemoteSurface* remote = nullptr);
   void SurfaceWork(SurfaceGeometry& geometry, IdSequence& point_ids, size_t cell_limit, PassStats& stats,
                    RemoteSurface* remote);
   void MarkUnresolved();

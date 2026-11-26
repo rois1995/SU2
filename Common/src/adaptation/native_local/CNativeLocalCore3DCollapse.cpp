@@ -425,8 +425,7 @@ void Mesh::ReportHandoverSurface(const StateSurfaceGeometry& geometry, int rank,
 // changed metric can still split the patch.
 SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeometry& geometry, uint32_t stamp,
                                             SurfaceCounters& counters, bool report,
-                                            const std::function<void(const SurfaceFace&)>& sink, ContactContext* contact,
-                                            size_t* prepared_directions) {
+                                            const std::function<void(const SurfaceFace&)>& sink, ContactContext* contact) {
   edge = ById(edge);
   const auto ring = EdgeRing(edge, seed);
   const auto parents = SurfaceParents(edge, ring);
@@ -439,7 +438,6 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
     for (const auto& trial : trials) {
       count(trial.refusal);
       counters.c_refused_metric += trial.short_metric;
-      if (prepared_directions && trial.refusal == Reason::None) ++*prepared_directions;
     }
   const auto clock = [&] { return report ? SU2_MPI::Wtime() : 0.; };
   const auto test_contact = [&](const SurfaceCollapseTrial& trial) {
