@@ -2306,3 +2306,7 @@ FP3-A G1 matched the required 375 / 114 / 228 case records at serial / 2 / 4 ran
 FP3-A build675 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/controls/build675/G2/case_summary.json.
 
 FP3-A G2 passed the quality-independent first-collapse admission and exact P3 prefix comparison on all six ranks, including scheduling and census calls, integer rows and fixedstorage=4120. First-collapse work 76652506 with sampled summed rank peak 6085292032 bytes against 19999490048. GQ is running under the same ordered scoped supervisor.
+
+FP3-A build675 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/controls/build675/GQ/case_summary.json.
+
+FP3-A GQ passed the third quality-window anchor on all six ranks and exact P3 prefix identity, including scheduling and census calls, integer rows and fixedstorage=4120. Sampled summed rank peak 13680996352 bytes against 19999490048. Elapsed time includes host contention in the resource receipts. Step 1 shared first-collapse check has started.
