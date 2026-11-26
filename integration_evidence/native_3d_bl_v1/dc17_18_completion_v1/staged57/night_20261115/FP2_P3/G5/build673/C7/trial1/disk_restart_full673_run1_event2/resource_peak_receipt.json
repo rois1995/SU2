@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "rank_process_count": 6,
+  "rank_process_peak_hwm_bytes": {
+    "651423:114862757": 160735232,
+    "651424:114862758": 143929344,
+    "651426:114862758": 146817024,
+    "651427:114862758": 143134720,
+    "651429:114862759": 147079168,
+    "651430:114862759": 145973248
+  },
+  "sum_rank_process_peak_hwm_bytes": 887668736,
+  "limit_bytes": 19999490048,
+  "hwm_sample_before_runtime_check": true,
+  "owned_cpu_ids": [
+    0,
+    1
+  ],
+  "affinity_violations": [],
+  "cpu_monitor": {
+    "passed": true,
+    "window_count": 10,
+    "gate_scope": "owned CFD session; user processes are observations only",
+    "window_min_seconds": 3.311410289024934,
+    "window_max_seconds": 21.534466609125957,
+    "covered_seconds": 53.53663098602556,
+    "observed_seconds": 55.72536523011513,
+    "coverage_fraction": 0.960722837166678,
+    "max_busy_processes": 2,
+    "busy_process_limit": 6,
+    "process_scope": "all /proc processes keyed by PID/start_ticks",
+    "window_method": "sample CPU ticks opportunistically; emit when accumulated interval reaches 3s; no added wait"
+  }
+}

@@ -2206,3 +2206,21 @@ FP2-P3 build673 C4/G4 passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIn
 FP2-P3 build673 C4 passed. Evidence build673/C4.json.
 
 FP2-P3 C4 passed G3 physically with 1592 positive splits above the 336 minimum, zero upper refinements and valid storage and resource checks. Across 1113 common edits, the first historical mismatch is zero-based 47, edge [24302,24303] versus [15048,24462]. Observer-adjusted work is 5113 versus 5113. G4 passed the historical Catch comparison for the same C2 native 2D executions at 1, 2 and 4 ranks. Supervisor terminal. C1 through C4 are passed. Next C7, two S workflows and isolated restarts.
+
+FP2-P3 C4 checkpoint 4eb4ef1c19 pushed. C7 service su2-fp2-p3-build673-c7 started after C1 to C4 passed and were sealed. It runs two S workflows in order, each with its isolated restart, on the same frozen pair and default closure. C5 and C6 follow in that order after terminal C7, with the short gates as prerequisites.
+
+FP2-P3 C7 trial 1 verified on all six live solver ranks: closure variable absent, trace 0, no off markers. The frozen FP2-P2 S config SHA256 is 07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382. Event 1 has passed surface hand-over and is in volume work.
+
+FP2-P3 C7 trial 1 event 1 proof, resource and timer gates passed. Owned proof faces sum 25188 and job peak 9601609728 bytes equals the process peak sum. Event 2 has begun its surface work.
+
+FP2-P3 C7 trial 1 all three event-1 payloads hash-identical to FP2-P2 build672 S. This historical observation is separate from the required build673 pair.
+
+FP2-P3 C7 trial 1 event 2 proof, resource and timer gates passed. Owned proof sum and each rank surface size 20238, job and summed process peaks both 9718284288 bytes. Continued CFD and isolated restart precede trial 2.
+
+FP2-P3 C7 trial 1 passed both events, continued CFD and isolated restart. Native maxima 755.140 / 334.665 s. All six payloads match FP2-P2 build672 S. Trial 2 started at 02:26:40 CET after the first restart and receipt terminal verification. The same-build pair comparison remains required.
+
+FP2-P3 C7 trial 2 event 1 proof, memory and timer gates passed. Proof faces 25188, job peak and sum 9599467520 bytes. The continued CFD and second adaptation are underway.
+
+FP2-P3 build673 C7 passed. Evidence build673/C7.json.
+
+FP2-P3 C7 passed both S workflows and both isolated restarts, with six directly hashed payloads equal between the build673 trials and equal to FP2-P2 build672 S. Trial 1 maxima 755.140 / 334.665 s and trial 2 616.416 / 330.623 s. Both prove 25188 / 20238 owned faces. Trial 2 event-2 job peak matches its summed process peaks at 9710854144 bytes. No result difference in the pair and both controllers terminal. Next C5 OFF, two workflows with the signed first-collapse admission.

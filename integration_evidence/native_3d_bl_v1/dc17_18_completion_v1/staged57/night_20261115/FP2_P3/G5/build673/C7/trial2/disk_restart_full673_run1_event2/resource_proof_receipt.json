@@ -1,0 +1,29 @@
+{
+  "sampled_hwm_sum_bytes": 888741888,
+  "sampled_hwm_is_lower_bound": true,
+  "sampled_cpu_coverage": {
+    "passed": true,
+    "window_count": 8,
+    "gate_scope": "owned CFD session; user processes are observations only",
+    "window_min_seconds": 3.390898304991424,
+    "window_max_seconds": 21.157509250100702,
+    "covered_seconds": 45.48139849700965,
+    "observed_seconds": 46.58174855192192,
+    "coverage_fraction": 0.9763780860719349,
+    "max_busy_processes": 2,
+    "busy_process_limit": 6,
+    "process_scope": "all /proc processes keyed by PID/start_ticks",
+    "window_method": "sample CPU ticks opportunistically; emit when accumulated interval reaches 3s; no added wait"
+  },
+  "gnu_time": {
+    "parsed": true,
+    "maxrss_kib": 157568,
+    "maxrss_bytes": 161349632,
+    "rank_count": 6,
+    "upper_bound_bytes": 968097792,
+    "time_exit_status": 0,
+    "method": "6 times largest GNU time descendant MaxRSS; kbytes converted by 1024"
+  },
+  "limit_bytes": 19999490048,
+  "classification": "passed_conservative_upper_bound"
+}
