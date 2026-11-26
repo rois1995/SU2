@@ -2530,3 +2530,9 @@ FP3-C Step 1 checkpoint d460ee3d48 pushed with the signed default-path label. St
 FP3-C N6P ON printed all six stage-0 pass-2 sweep rows. Reported 22885 candidates, 2554 prepared directions and 148 accepted collapses across ranks (53 / 36 / 37 / 7 / 10 / 5). The remaining lab contact, embedding and strict hand-over checks are active. This live count is an observation pending the sealed lab receipt.
 
 FP3-C N6P ON passed every inherited lab gate and all six final sweep rows. The 148 collapses reduced faces 26482 to 26186, with local bad-cell sum 937 to 932. First-repair totals (35 collapses, 451 splits) equal the OFF trial and the sweep ran 493 bound queries. The N6P supervisor is terminal. Push this trial, then start N1 ON.
+
+FP3-C N6P ON checkpoint 1dfcaeef94 pushed. N1 ON launched after N6P was terminal. Its stage-0 pass-1 sweep row and the unchanged lab gates are required before Step 2 can seal.
+
+FP3-C N1 ON printed its complete stage-0 pass-1 row. Live observations: 49186 candidates, 4893 prepared directions, 1976 collapses, 6456 bound queries, 11 sweeps, star max 74 and v_limit=0. Faces 26920 to 22968 and bad cells 223 to 128. The single-rank lab remains active for embedding, contact and strict surviving-child proof.
+
+FP3-C Step 2 passed. N1 ON qualified with one complete last-pass row, 1976 sweep collapses and 22968 hand-over faces (26920 before the sweep), with bad cells 223 to 128. N6P ON qualified with six rows and 148 collapses. Both unchanged lab gate sets passed. N1 supervisor terminal. Seal build677/step2.json and push before the full S1 workflow and isolated restart.
