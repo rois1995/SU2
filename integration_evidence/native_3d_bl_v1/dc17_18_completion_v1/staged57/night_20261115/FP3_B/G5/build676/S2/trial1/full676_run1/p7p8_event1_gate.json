@@ -1,0 +1,7289 @@
+{
+  "event": 1,
+  "passed": true,
+  "gates": {
+    "proof_face_coverage": true,
+    "job_peak_equals_process_peak_sum": true,
+    "job_peak_within_19073_MiB": true,
+    "engine_exit_lower_bound_within_final_peak": true
+  },
+  "proof": {
+    "owned_faces_sum": 26512,
+    "surface_faces_by_rank": [
+      26512,
+      26512,
+      26512,
+      26512,
+      26512,
+      26512
+    ]
+  },
+  "memory": {
+    "job_peak_rss_bytes": 9536933888,
+    "process_peak_sum_bytes": 9536933888,
+    "limit_bytes": 19999490048,
+    "exit_lower_bounds_bytes": [
+      9536933888,
+      9536933888,
+      9536933888,
+      9536933888,
+      9536933888,
+      9536933888
+    ]
+  },
+  "diagnostics": {
+    "final_proof_geometry_bound_calls": 15948,
+    "expected_calls": 31622,
+    "call_count_matches": false,
+    "m18_rank_rows_with_fields": 6,
+    "m20_private_work_rows": 726,
+    "m20_private_work_records": [
+      {
+        "round": "547",
+        "stage": "ownership_staged",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_committed",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "quality_entry",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "548",
+        "private_work_used": "520",
+        "busy_seconds": "1.964781576",
+        "choices": "45",
+        "lost_own": "0",
+        "lost_other": "16",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "549",
+        "private_work_used": "1616",
+        "busy_seconds": "3.4444687730000001",
+        "choices": "37",
+        "lost_own": "0",
+        "lost_other": "14",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "550",
+        "private_work_used": "913",
+        "busy_seconds": "1.7874482009999999",
+        "choices": "38",
+        "lost_own": "0",
+        "lost_other": "19",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "551",
+        "private_work_used": "1027",
+        "busy_seconds": "2.120739532",
+        "choices": "36",
+        "lost_own": "0",
+        "lost_other": "16",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "552",
+        "private_work_used": "1034",
+        "busy_seconds": "2.336755541",
+        "choices": "36",
+        "lost_own": "0",
+        "lost_other": "17",
+        "record": "private_round"
+      },
+      {
+        "round": "552",
+        "stage": "window",
+        "private_work_used": "5110",
+        "busy_seconds": "11.654193623000001",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "553",
+        "private_work_used": "413",
+        "busy_seconds": "2.0914520419999998",
+        "choices": "36",
+        "lost_own": "0",
+        "lost_other": "18",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "554",
+        "private_work_used": "734",
+        "busy_seconds": "1.2114531609999999",
+        "choices": "33",
+        "lost_own": "0",
+        "lost_other": "17",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "555",
+        "private_work_used": "938",
+        "busy_seconds": "1.211419373",
+        "choices": "32",
+        "lost_own": "0",
+        "lost_other": "15",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "556",
+        "private_work_used": "865",
+        "busy_seconds": "1.0400832440000001",
+        "choices": "35",
+        "lost_own": "0",
+        "lost_other": "18",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "557",
+        "private_work_used": "934",
+        "busy_seconds": "1.034381354",
+        "choices": "31",
+        "lost_own": "0",
+        "lost_other": "17",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "558",
+        "private_work_used": "1083",
+        "busy_seconds": "2.3674604440000002",
+        "choices": "30",
+        "lost_own": "0",
+        "lost_other": "16",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "559",
+        "private_work_used": "518",
+        "busy_seconds": "0.70749602300000003",
+        "choices": "27",
+        "lost_own": "0",
+        "lost_other": "14",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "560",
+        "private_work_used": "883",
+        "busy_seconds": "1.2599370480000001",
+        "choices": "26",
+        "lost_own": "0",
+        "lost_other": "14",
+        "record": "private_round"
+      },
+      {
+        "round": "560",
+        "stage": "window",
+        "private_work_used": "6368",
+        "busy_seconds": "10.923682689000003",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "561",
+        "private_work_used": "640",
+        "busy_seconds": "0.73368299100000001",
+        "choices": "24",
+        "lost_own": "0",
+        "lost_other": "13",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "562",
+        "private_work_used": "698",
+        "busy_seconds": "0.87738294900000002",
+        "choices": "24",
+        "lost_own": "0",
+        "lost_other": "10",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "563",
+        "private_work_used": "550",
+        "busy_seconds": "0.81512134300000005",
+        "choices": "26",
+        "lost_own": "0",
+        "lost_other": "14",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "564",
+        "private_work_used": "639",
+        "busy_seconds": "0.58579462000000004",
+        "choices": "27",
+        "lost_own": "0",
+        "lost_other": "13",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "565",
+        "private_work_used": "328",
+        "busy_seconds": "0.92286601700000004",
+        "choices": "29",
+        "lost_own": "0",
+        "lost_other": "15",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "566",
+        "private_work_used": "516",
+        "busy_seconds": "0.74498952100000004",
+        "choices": "27",
+        "lost_own": "0",
+        "lost_other": "16",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "567",
+        "private_work_used": "768",
+        "busy_seconds": "1.91230539",
+        "choices": "28",
+        "lost_own": "0",
+        "lost_other": "13",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "568",
+        "private_work_used": "867",
+        "busy_seconds": "0.62258989399999998",
+        "choices": "24",
+        "lost_own": "0",
+        "lost_other": "13",
+        "record": "private_round"
+      },
+      {
+        "round": "568",
+        "stage": "window",
+        "private_work_used": "5006",
+        "busy_seconds": "7.2147327250000046",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "569",
+        "private_work_used": "516",
+        "busy_seconds": "0.235945559",
+        "choices": "26",
+        "lost_own": "0",
+        "lost_other": "16",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "570",
+        "private_work_used": "747",
+        "busy_seconds": "0.68641444799999995",
+        "choices": "24",
+        "lost_own": "0",
+        "lost_other": "11",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "571",
+        "private_work_used": "690",
+        "busy_seconds": "1.4285082689999999",
+        "choices": "24",
+        "lost_own": "0",
+        "lost_other": "12",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "572",
+        "private_work_used": "790",
+        "busy_seconds": "0.78596726299999997",
+        "choices": "22",
+        "lost_own": "0",
+        "lost_other": "9",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "573",
+        "private_work_used": "996",
+        "busy_seconds": "0.47577845699999999",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "574",
+        "private_work_used": "709",
+        "busy_seconds": "0.26518877000000002",
+        "choices": "21",
+        "lost_own": "0",
+        "lost_other": "9",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "575",
+        "private_work_used": "718",
+        "busy_seconds": "0.223905829",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "576",
+        "private_work_used": "753",
+        "busy_seconds": "0.30937789100000002",
+        "choices": "21",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "round": "576",
+        "stage": "window",
+        "private_work_used": "5919",
+        "busy_seconds": "4.4110864860000056",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "577",
+        "private_work_used": "608",
+        "busy_seconds": "0.43614559200000003",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "578",
+        "private_work_used": "668",
+        "busy_seconds": "0.27149540700000002",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "579",
+        "private_work_used": "829",
+        "busy_seconds": "0.33151919299999999",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "580",
+        "private_work_used": "165",
+        "busy_seconds": "0.106780758",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "10",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "581",
+        "private_work_used": "591",
+        "busy_seconds": "0.210163459",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "582",
+        "private_work_used": "568",
+        "busy_seconds": "0.17309427199999999",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "583",
+        "private_work_used": "482",
+        "busy_seconds": "0.22586620499999999",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "584",
+        "private_work_used": "458",
+        "busy_seconds": "0.22824045400000001",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "round": "584",
+        "stage": "window",
+        "private_work_used": "4369",
+        "busy_seconds": "1.9833053400000082",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "585",
+        "private_work_used": "504",
+        "busy_seconds": "0.52276900299999995",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "586",
+        "private_work_used": "152",
+        "busy_seconds": "0.097001498000000005",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "587",
+        "private_work_used": "206",
+        "busy_seconds": "0.087676456",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "588",
+        "private_work_used": "194",
+        "busy_seconds": "0.60843828200000005",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "589",
+        "private_work_used": "406",
+        "busy_seconds": "0.19373162999999999",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "590",
+        "private_work_used": "0",
+        "busy_seconds": "0.126515088",
+        "choices": "14",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "591",
+        "private_work_used": "87",
+        "busy_seconds": "0.35777534599999999",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "592",
+        "private_work_used": "355",
+        "busy_seconds": "0.255063977",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "round": "592",
+        "stage": "window",
+        "private_work_used": "1904",
+        "busy_seconds": "2.2489712799999921",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "593",
+        "private_work_used": "486",
+        "busy_seconds": "0.320020203",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "594",
+        "private_work_used": "278",
+        "busy_seconds": "0.15375686099999999",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "595",
+        "private_work_used": "516",
+        "busy_seconds": "0.311234607",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "596",
+        "private_work_used": "178",
+        "busy_seconds": "0.10900675899999999",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "597",
+        "private_work_used": "58",
+        "busy_seconds": "0.029662694999999999",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "598",
+        "private_work_used": "0",
+        "busy_seconds": "0.042762136999999999",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "599",
+        "private_work_used": "70",
+        "busy_seconds": "0.087219447000000005",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "600",
+        "private_work_used": "170",
+        "busy_seconds": "0.38927344800000002",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "round": "600",
+        "stage": "window",
+        "private_work_used": "1756",
+        "busy_seconds": "1.4429361569999983",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "601",
+        "private_work_used": "161",
+        "busy_seconds": "0.092523579999999994",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "602",
+        "private_work_used": "0",
+        "busy_seconds": "0.036027203000000001",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "603",
+        "private_work_used": "162",
+        "busy_seconds": "0.038712815999999997",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "604",
+        "private_work_used": "79",
+        "busy_seconds": "0.024993126000000001",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "605",
+        "private_work_used": "181",
+        "busy_seconds": "0.19143015799999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "606",
+        "private_work_used": "0",
+        "busy_seconds": "0.097216549999999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "607",
+        "private_work_used": "22",
+        "busy_seconds": "1.0951055030000001",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "608",
+        "private_work_used": "50",
+        "busy_seconds": "0.090906114999999996",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "round": "608",
+        "stage": "window",
+        "private_work_used": "655",
+        "busy_seconds": "1.6669150510000037",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "609",
+        "private_work_used": "0",
+        "busy_seconds": "0.0031790360000000001",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "610",
+        "private_work_used": "0",
+        "busy_seconds": "0.0090499580000000003",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "611",
+        "private_work_used": "0",
+        "busy_seconds": "2.9529999999999999e-06",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "612",
+        "private_work_used": "194",
+        "busy_seconds": "0.069034946999999999",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "613",
+        "private_work_used": "0",
+        "busy_seconds": "0.011039392",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "614",
+        "private_work_used": "120",
+        "busy_seconds": "0.072951667999999997",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "615",
+        "private_work_used": "70",
+        "busy_seconds": "0.072678994999999996",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "616",
+        "private_work_used": "5",
+        "busy_seconds": "0.0065031749999999999",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "round": "616",
+        "stage": "window",
+        "private_work_used": "389",
+        "busy_seconds": "0.24444012399999338",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "617",
+        "private_work_used": "9",
+        "busy_seconds": "0.031910463",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "618",
+        "private_work_used": "17",
+        "busy_seconds": "0.058563761999999998",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "619",
+        "private_work_used": "145",
+        "busy_seconds": "0.21652533700000001",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "620",
+        "private_work_used": "21",
+        "busy_seconds": "0.039211388",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "621",
+        "private_work_used": "0",
+        "busy_seconds": "0.0097251500000000001",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "622",
+        "private_work_used": "64",
+        "busy_seconds": "0.064195606000000002",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "623",
+        "private_work_used": "25",
+        "busy_seconds": "0.019700183999999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "624",
+        "private_work_used": "73",
+        "busy_seconds": "0.066454804000000006",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "624",
+        "stage": "window",
+        "private_work_used": "354",
+        "busy_seconds": "0.50628669400000348",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "625",
+        "private_work_used": "12",
+        "busy_seconds": "0.039539709999999999",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "626",
+        "private_work_used": "0",
+        "busy_seconds": "0.012389964",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "627",
+        "private_work_used": "9",
+        "busy_seconds": "0.0041032179999999996",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "628",
+        "private_work_used": "5",
+        "busy_seconds": "0.003005134",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "629",
+        "private_work_used": "5",
+        "busy_seconds": "0.0021587389999999998",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "630",
+        "private_work_used": "17",
+        "busy_seconds": "0.10056493699999999",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "631",
+        "private_work_used": "0",
+        "busy_seconds": "5.1789999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "632",
+        "private_work_used": "0",
+        "busy_seconds": "8.54e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "632",
+        "stage": "window",
+        "private_work_used": "48",
+        "busy_seconds": "0.16176773499999797",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "633",
+        "private_work_used": "0",
+        "busy_seconds": "1.4249999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "634",
+        "private_work_used": "0",
+        "busy_seconds": "1.6330000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "635",
+        "private_work_used": "0",
+        "busy_seconds": "6.9800000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "636",
+        "private_work_used": "0",
+        "busy_seconds": "6.0999999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "637",
+        "private_work_used": "0",
+        "busy_seconds": "6.3300000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "638",
+        "private_work_used": "0",
+        "busy_seconds": "6.7800000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "639",
+        "private_work_used": "0",
+        "busy_seconds": "6.8100000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "640",
+        "private_work_used": "0",
+        "busy_seconds": "8.7199999999999997e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "640",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "7.2300000013569843e-06",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "641",
+        "private_work_used": "0",
+        "busy_seconds": "1.04e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "642",
+        "private_work_used": "0",
+        "busy_seconds": "1.36e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "643",
+        "private_work_used": "0",
+        "busy_seconds": "8.9999999999999999e-08",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "644",
+        "private_work_used": "0",
+        "busy_seconds": "6.4000000000000004e-08",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "645",
+        "private_work_used": "0",
+        "busy_seconds": "9.2000000000000003e-08",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "646",
+        "private_work_used": "0",
+        "busy_seconds": "6.7999999999999995e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "647",
+        "private_work_used": "0",
+        "busy_seconds": "5.2900000000000004e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 0,
+        "round": "648",
+        "private_work_used": "0",
+        "busy_seconds": "4.2100000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "648",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "3.0519999967282274e-06",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "649",
+        "private_work_used": "0",
+        "busy_seconds": "1.1000000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "649",
+        "stage": "geometry_repair_entry",
+        "private_work_used": "0",
+        "busy_seconds": "1.0999999986438525e-06",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "rank": 0,
+        "round": "650",
+        "private_work_used": "0",
+        "busy_seconds": "1.3009999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "650",
+        "stage": "exit",
+        "private_work_used": "0",
+        "busy_seconds": "1.3009999975110986e-06",
+        "rank": 0,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_staged",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_committed",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "quality_entry",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "548",
+        "private_work_used": "671",
+        "busy_seconds": "6.5217052520000003",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "549",
+        "private_work_used": "544",
+        "busy_seconds": "1.1495111609999999",
+        "choices": "17",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "550",
+        "private_work_used": "589",
+        "busy_seconds": "1.2619695820000001",
+        "choices": "17",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "551",
+        "private_work_used": "744",
+        "busy_seconds": "1.8941784049999999",
+        "choices": "17",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "552",
+        "private_work_used": "398",
+        "busy_seconds": "0.802420778",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "round": "552",
+        "stage": "window",
+        "private_work_used": "2946",
+        "busy_seconds": "11.629785178000001",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "553",
+        "private_work_used": "175",
+        "busy_seconds": "0.58639238100000002",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "554",
+        "private_work_used": "726",
+        "busy_seconds": "1.7212620279999999",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "555",
+        "private_work_used": "1069",
+        "busy_seconds": "2.4146715809999999",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "556",
+        "private_work_used": "586",
+        "busy_seconds": "0.70042724599999995",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "557",
+        "private_work_used": "929",
+        "busy_seconds": "1.20240758",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "558",
+        "private_work_used": "855",
+        "busy_seconds": "0.84037706700000003",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "559",
+        "private_work_used": "765",
+        "busy_seconds": "0.71731535300000004",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "560",
+        "private_work_used": "1043",
+        "busy_seconds": "0.83089856100000004",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "round": "560",
+        "stage": "window",
+        "private_work_used": "6148",
+        "busy_seconds": "9.0137517969999994",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "561",
+        "private_work_used": "801",
+        "busy_seconds": "0.83905426500000002",
+        "choices": "21",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "562",
+        "private_work_used": "783",
+        "busy_seconds": "1.326933978",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "563",
+        "private_work_used": "755",
+        "busy_seconds": "0.494868009",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "564",
+        "private_work_used": "819",
+        "busy_seconds": "0.47539890000000001",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "565",
+        "private_work_used": "852",
+        "busy_seconds": "0.95095003600000005",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "566",
+        "private_work_used": "577",
+        "busy_seconds": "0.523916457",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "567",
+        "private_work_used": "571",
+        "busy_seconds": "0.76825059299999998",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "568",
+        "private_work_used": "239",
+        "busy_seconds": "0.353560402",
+        "choices": "13",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "round": "568",
+        "stage": "window",
+        "private_work_used": "5397",
+        "busy_seconds": "5.7329326400000014",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "569",
+        "private_work_used": "420",
+        "busy_seconds": "0.45122530599999999",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "570",
+        "private_work_used": "585",
+        "busy_seconds": "0.61740653599999995",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "571",
+        "private_work_used": "769",
+        "busy_seconds": "0.63753514099999997",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "572",
+        "private_work_used": "641",
+        "busy_seconds": "0.405162207",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "573",
+        "private_work_used": "533",
+        "busy_seconds": "0.39751963699999998",
+        "choices": "13",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "574",
+        "private_work_used": "190",
+        "busy_seconds": "0.17754531400000001",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "575",
+        "private_work_used": "645",
+        "busy_seconds": "1.3683394200000001",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "576",
+        "private_work_used": "241",
+        "busy_seconds": "0.26601111399999999",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "round": "576",
+        "stage": "window",
+        "private_work_used": "4024",
+        "busy_seconds": "4.3207446750000038",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "577",
+        "private_work_used": "503",
+        "busy_seconds": "0.24993549400000001",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "578",
+        "private_work_used": "690",
+        "busy_seconds": "0.60122935499999997",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "579",
+        "private_work_used": "399",
+        "busy_seconds": "0.38994686000000001",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "580",
+        "private_work_used": "432",
+        "busy_seconds": "0.76278217999999998",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "581",
+        "private_work_used": "63",
+        "busy_seconds": "0.24449300700000001",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "582",
+        "private_work_used": "216",
+        "busy_seconds": "0.26007324799999998",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "583",
+        "private_work_used": "247",
+        "busy_seconds": "0.27658851800000001",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "584",
+        "private_work_used": "655",
+        "busy_seconds": "1.0859390449999999",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "round": "584",
+        "stage": "window",
+        "private_work_used": "3205",
+        "busy_seconds": "3.8709877069999976",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "585",
+        "private_work_used": "465",
+        "busy_seconds": "0.65384651900000001",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "586",
+        "private_work_used": "501",
+        "busy_seconds": "0.40087420800000001",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "587",
+        "private_work_used": "267",
+        "busy_seconds": "0.23863752499999999",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "588",
+        "private_work_used": "453",
+        "busy_seconds": "0.49852381099999998",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "589",
+        "private_work_used": "222",
+        "busy_seconds": "0.31371174600000001",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "590",
+        "private_work_used": "335",
+        "busy_seconds": "0.221712775",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "591",
+        "private_work_used": "138",
+        "busy_seconds": "0.141875844",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "592",
+        "private_work_used": "269",
+        "busy_seconds": "1.073927055",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "592",
+        "stage": "window",
+        "private_work_used": "2650",
+        "busy_seconds": "3.543109482999995",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "593",
+        "private_work_used": "444",
+        "busy_seconds": "0.94653417299999998",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "594",
+        "private_work_used": "119",
+        "busy_seconds": "0.21326521300000001",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "595",
+        "private_work_used": "107",
+        "busy_seconds": "0.087527469999999996",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "596",
+        "private_work_used": "45",
+        "busy_seconds": "0.23528833499999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "597",
+        "private_work_used": "191",
+        "busy_seconds": "0.12786402299999999",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "598",
+        "private_work_used": "56",
+        "busy_seconds": "0.16653778599999999",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "599",
+        "private_work_used": "168",
+        "busy_seconds": "1.0411120009999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "600",
+        "private_work_used": "55",
+        "busy_seconds": "0.058322882",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "round": "600",
+        "stage": "window",
+        "private_work_used": "1185",
+        "busy_seconds": "2.8764518830000014",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "601",
+        "private_work_used": "160",
+        "busy_seconds": "0.034560843000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "602",
+        "private_work_used": "2",
+        "busy_seconds": "0.039080773999999999",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "603",
+        "private_work_used": "0",
+        "busy_seconds": "0.011154643000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "604",
+        "private_work_used": "0",
+        "busy_seconds": "0.0090882970000000004",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "605",
+        "private_work_used": "1",
+        "busy_seconds": "0.022773689999999999",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "606",
+        "private_work_used": "0",
+        "busy_seconds": "0.015034221",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "607",
+        "private_work_used": "0",
+        "busy_seconds": "0.13034194299999999",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "608",
+        "private_work_used": "1",
+        "busy_seconds": "0.0079730749999999996",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "608",
+        "stage": "window",
+        "private_work_used": "164",
+        "busy_seconds": "0.27000748599999724",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "609",
+        "private_work_used": "0",
+        "busy_seconds": "2.0490000000000002e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "610",
+        "private_work_used": "0",
+        "busy_seconds": "1.031e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "611",
+        "private_work_used": "0",
+        "busy_seconds": "8.0699999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "612",
+        "private_work_used": "0",
+        "busy_seconds": "1.3969999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "613",
+        "private_work_used": "0",
+        "busy_seconds": "9.8599999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "614",
+        "private_work_used": "0",
+        "busy_seconds": "1.37e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "615",
+        "private_work_used": "0",
+        "busy_seconds": "1.079e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "616",
+        "private_work_used": "0",
+        "busy_seconds": "8.8400000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "616",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "9.6030000023006323e-06",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "617",
+        "private_work_used": "0",
+        "busy_seconds": "1.328e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "618",
+        "private_work_used": "0",
+        "busy_seconds": "1.2699999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "619",
+        "private_work_used": "0",
+        "busy_seconds": "9.47e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "620",
+        "private_work_used": "0",
+        "busy_seconds": "3.771e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "621",
+        "private_work_used": "0",
+        "busy_seconds": "1.04e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "622",
+        "private_work_used": "0",
+        "busy_seconds": "7.6799999999999999e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "623",
+        "private_work_used": "0",
+        "busy_seconds": "9.2699999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "624",
+        "private_work_used": "0",
+        "busy_seconds": "1.9269999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "624",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "1.1978000003409761e-05",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "625",
+        "private_work_used": "0",
+        "busy_seconds": "6.7800000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "626",
+        "private_work_used": "0",
+        "busy_seconds": "2.6110000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "627",
+        "private_work_used": "0",
+        "busy_seconds": "7.5390000000000002e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "628",
+        "private_work_used": "0",
+        "busy_seconds": "3.6270000000000002e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "629",
+        "private_work_used": "0",
+        "busy_seconds": "2.6620000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "630",
+        "private_work_used": "0",
+        "busy_seconds": "9.850000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "631",
+        "private_work_used": "0",
+        "busy_seconds": "3.7689999999999998e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "632",
+        "private_work_used": "0",
+        "busy_seconds": "5.6100000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "632",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "2.2432000001515462e-05",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "633",
+        "private_work_used": "0",
+        "busy_seconds": "1.3370000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "634",
+        "private_work_used": "0",
+        "busy_seconds": "1.342e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "635",
+        "private_work_used": "0",
+        "busy_seconds": "8.9999999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "636",
+        "private_work_used": "0",
+        "busy_seconds": "7.0699999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "637",
+        "private_work_used": "0",
+        "busy_seconds": "8.5499999999999997e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "638",
+        "private_work_used": "0",
+        "busy_seconds": "5.8599999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "639",
+        "private_work_used": "0",
+        "busy_seconds": "5.4499999999999997e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "640",
+        "private_work_used": "0",
+        "busy_seconds": "5.6300000000000005e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "640",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "6.8350000006489608e-06",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "641",
+        "private_work_used": "0",
+        "busy_seconds": "8.8400000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "642",
+        "private_work_used": "0",
+        "busy_seconds": "1.18e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "643",
+        "private_work_used": "0",
+        "busy_seconds": "2.0100000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "644",
+        "private_work_used": "0",
+        "busy_seconds": "9.9999999999999995e-08",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "645",
+        "private_work_used": "0",
+        "busy_seconds": "2.17e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "646",
+        "private_work_used": "0",
+        "busy_seconds": "6.0500000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "647",
+        "private_work_used": "0",
+        "busy_seconds": "4.6699999999999999e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 1,
+        "round": "648",
+        "private_work_used": "0",
+        "busy_seconds": "5.5000000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "648",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "3.1420000041748608e-06",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "649",
+        "private_work_used": "0",
+        "busy_seconds": "1.316e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "649",
+        "stage": "geometry_repair_entry",
+        "private_work_used": "0",
+        "busy_seconds": "1.3160000023049179e-06",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "rank": 1,
+        "round": "650",
+        "private_work_used": "0",
+        "busy_seconds": "9.6899999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "650",
+        "stage": "exit",
+        "private_work_used": "0",
+        "busy_seconds": "9.6899999846300489e-07",
+        "rank": 1,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_staged",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_committed",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "quality_entry",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "548",
+        "private_work_used": "1013",
+        "busy_seconds": "10.284579626999999",
+        "choices": "21",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "549",
+        "private_work_used": "624",
+        "busy_seconds": "4.4008214700000003",
+        "choices": "21",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "550",
+        "private_work_used": "1241",
+        "busy_seconds": "5.182983095",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "551",
+        "private_work_used": "693",
+        "busy_seconds": "1.7109628939999999",
+        "choices": "14",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "552",
+        "private_work_used": "782",
+        "busy_seconds": "0.84929071700000003",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "round": "552",
+        "stage": "window",
+        "private_work_used": "4353",
+        "busy_seconds": "22.428637803000001",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "553",
+        "private_work_used": "727",
+        "busy_seconds": "1.0766265180000001",
+        "choices": "13",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "554",
+        "private_work_used": "349",
+        "busy_seconds": "1.181385841",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "555",
+        "private_work_used": "768",
+        "busy_seconds": "2.3135302520000001",
+        "choices": "14",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "556",
+        "private_work_used": "471",
+        "busy_seconds": "0.78706851899999997",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "557",
+        "private_work_used": "427",
+        "busy_seconds": "0.45939689500000003",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "558",
+        "private_work_used": "447",
+        "busy_seconds": "1.30452043",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "559",
+        "private_work_used": "408",
+        "busy_seconds": "0.45025265199999998",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "560",
+        "private_work_used": "2",
+        "busy_seconds": "0.21252828200000001",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "round": "560",
+        "stage": "window",
+        "private_work_used": "3599",
+        "busy_seconds": "7.7853093890000018",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "561",
+        "private_work_used": "482",
+        "busy_seconds": "0.26413960199999997",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "562",
+        "private_work_used": "357",
+        "busy_seconds": "0.16971161000000001",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "563",
+        "private_work_used": "75",
+        "busy_seconds": "0.25114400999999997",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "564",
+        "private_work_used": "86",
+        "busy_seconds": "0.37182943600000001",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "565",
+        "private_work_used": "85",
+        "busy_seconds": "0.32805337499999998",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "566",
+        "private_work_used": "18",
+        "busy_seconds": "0.10324839299999999",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "567",
+        "private_work_used": "180",
+        "busy_seconds": "0.29502152599999998",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "568",
+        "private_work_used": "366",
+        "busy_seconds": "0.168223487",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "round": "568",
+        "stage": "window",
+        "private_work_used": "1649",
+        "busy_seconds": "1.9513714390000025",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "569",
+        "private_work_used": "116",
+        "busy_seconds": "0.13995898700000001",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "570",
+        "private_work_used": "154",
+        "busy_seconds": "0.11926",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "571",
+        "private_work_used": "325",
+        "busy_seconds": "0.58829949299999995",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "572",
+        "private_work_used": "358",
+        "busy_seconds": "0.25167094499999998",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "573",
+        "private_work_used": "305",
+        "busy_seconds": "0.14913958599999999",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "574",
+        "private_work_used": "93",
+        "busy_seconds": "0.027839282",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "575",
+        "private_work_used": "202",
+        "busy_seconds": "1.376177668",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "576",
+        "private_work_used": "405",
+        "busy_seconds": "0.339730162",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "round": "576",
+        "stage": "window",
+        "private_work_used": "1958",
+        "busy_seconds": "2.9920761229999968",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "577",
+        "private_work_used": "40",
+        "busy_seconds": "0.22910800000000001",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "578",
+        "private_work_used": "67",
+        "busy_seconds": "0.33940415400000001",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "579",
+        "private_work_used": "263",
+        "busy_seconds": "3.2157324379999999",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "580",
+        "private_work_used": "366",
+        "busy_seconds": "0.39678964999999999",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "581",
+        "private_work_used": "396",
+        "busy_seconds": "0.35742939000000001",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "582",
+        "private_work_used": "212",
+        "busy_seconds": "0.50560457199999997",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "583",
+        "private_work_used": "143",
+        "busy_seconds": "0.099418997999999995",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "584",
+        "private_work_used": "269",
+        "busy_seconds": "0.27675191300000002",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "round": "584",
+        "stage": "window",
+        "private_work_used": "1756",
+        "busy_seconds": "5.4202391150000011",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "585",
+        "private_work_used": "119",
+        "busy_seconds": "0.099546530999999994",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "586",
+        "private_work_used": "165",
+        "busy_seconds": "0.106598845",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "587",
+        "private_work_used": "70",
+        "busy_seconds": "0.054137979000000003",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "588",
+        "private_work_used": "92",
+        "busy_seconds": "1.2132455310000001",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "589",
+        "private_work_used": "85",
+        "busy_seconds": "0.389610542",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "590",
+        "private_work_used": "51",
+        "busy_seconds": "0.081078269999999994",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "591",
+        "private_work_used": "188",
+        "busy_seconds": "0.44484512799999998",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "592",
+        "private_work_used": "146",
+        "busy_seconds": "0.43558406700000002",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "round": "592",
+        "stage": "window",
+        "private_work_used": "916",
+        "busy_seconds": "2.8246468929999935",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "593",
+        "private_work_used": "5",
+        "busy_seconds": "0.27997889999999998",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "594",
+        "private_work_used": "0",
+        "busy_seconds": "0.040106291000000002",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "595",
+        "private_work_used": "0",
+        "busy_seconds": "0.022040141999999999",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "596",
+        "private_work_used": "160",
+        "busy_seconds": "0.035326398000000002",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "597",
+        "private_work_used": "178",
+        "busy_seconds": "0.50118073900000004",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "598",
+        "private_work_used": "153",
+        "busy_seconds": "0.269789214",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "599",
+        "private_work_used": "73",
+        "busy_seconds": "0.048508741000000001",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "600",
+        "private_work_used": "37",
+        "busy_seconds": "0.037695166000000002",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "round": "600",
+        "stage": "window",
+        "private_work_used": "606",
+        "busy_seconds": "1.2346255910000039",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "601",
+        "private_work_used": "99",
+        "busy_seconds": "0.030856714",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "602",
+        "private_work_used": "32",
+        "busy_seconds": "0.011116229",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "603",
+        "private_work_used": "160",
+        "busy_seconds": "0.099814916000000004",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "604",
+        "private_work_used": "234",
+        "busy_seconds": "0.15562991300000001",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "605",
+        "private_work_used": "261",
+        "busy_seconds": "1.6285586940000001",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "606",
+        "private_work_used": "12",
+        "busy_seconds": "0.039347185999999999",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "607",
+        "private_work_used": "52",
+        "busy_seconds": "0.045580214000000001",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "608",
+        "private_work_used": "160",
+        "busy_seconds": "0.25413478499999997",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "round": "608",
+        "stage": "window",
+        "private_work_used": "1010",
+        "busy_seconds": "2.2650386509999976",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "609",
+        "private_work_used": "72",
+        "busy_seconds": "0.024573945",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "610",
+        "private_work_used": "60",
+        "busy_seconds": "0.024268475000000001",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "611",
+        "private_work_used": "20",
+        "busy_seconds": "0.016885377",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "612",
+        "private_work_used": "23",
+        "busy_seconds": "0.015607737999999999",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "613",
+        "private_work_used": "11",
+        "busy_seconds": "0.050911125000000002",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "614",
+        "private_work_used": "1",
+        "busy_seconds": "0.011425306",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "615",
+        "private_work_used": "0",
+        "busy_seconds": "0.010518530999999999",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "616",
+        "private_work_used": "77",
+        "busy_seconds": "0.074701851999999999",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "616",
+        "stage": "window",
+        "private_work_used": "264",
+        "busy_seconds": "0.22889234899999877",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "617",
+        "private_work_used": "76",
+        "busy_seconds": "0.038498468000000001",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "618",
+        "private_work_used": "153",
+        "busy_seconds": "0.58403036399999997",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "619",
+        "private_work_used": "0",
+        "busy_seconds": "0.019714664",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "620",
+        "private_work_used": "3",
+        "busy_seconds": "0.027354496999999998",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "621",
+        "private_work_used": "0",
+        "busy_seconds": "0.0067748469999999996",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "622",
+        "private_work_used": "0",
+        "busy_seconds": "0.012683405",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "623",
+        "private_work_used": "2",
+        "busy_seconds": "0.019536520000000002",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "624",
+        "private_work_used": "160",
+        "busy_seconds": "0.070653516",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "624",
+        "stage": "window",
+        "private_work_used": "394",
+        "busy_seconds": "0.77924628099999893",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "625",
+        "private_work_used": "43",
+        "busy_seconds": "0.063543960999999996",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "626",
+        "private_work_used": "37",
+        "busy_seconds": "0.035054266000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "627",
+        "private_work_used": "10",
+        "busy_seconds": "0.004961778",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "628",
+        "private_work_used": "0",
+        "busy_seconds": "0.0076443570000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "629",
+        "private_work_used": "1",
+        "busy_seconds": "0.011063833",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "630",
+        "private_work_used": "3",
+        "busy_seconds": "0.026150863999999999",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "631",
+        "private_work_used": "52",
+        "busy_seconds": "0.028176862",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "632",
+        "private_work_used": "160",
+        "busy_seconds": "0.065214965999999999",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "632",
+        "stage": "window",
+        "private_work_used": "306",
+        "busy_seconds": "0.24181088700000686",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "633",
+        "private_work_used": "35",
+        "busy_seconds": "0.056981858000000003",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "634",
+        "private_work_used": "0",
+        "busy_seconds": "0.028120510000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "635",
+        "private_work_used": "3",
+        "busy_seconds": "0.018343215",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "636",
+        "private_work_used": "26",
+        "busy_seconds": "0.013210639999999999",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "637",
+        "private_work_used": "0",
+        "busy_seconds": "8.2799999999999995e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "638",
+        "private_work_used": "0",
+        "busy_seconds": "6.5099999999999999e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "639",
+        "private_work_used": "0",
+        "busy_seconds": "4.6400000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "640",
+        "private_work_used": "0",
+        "busy_seconds": "6.5799999999999999e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "640",
+        "stage": "window",
+        "private_work_used": "64",
+        "busy_seconds": "0.11665882399999816",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "641",
+        "private_work_used": "0",
+        "busy_seconds": "6.4099999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "642",
+        "private_work_used": "0",
+        "busy_seconds": "2.5199999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "643",
+        "private_work_used": "0",
+        "busy_seconds": "1.1000000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "644",
+        "private_work_used": "0",
+        "busy_seconds": "9.9999999999999995e-08",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "645",
+        "private_work_used": "0",
+        "busy_seconds": "9.9e-08",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "646",
+        "private_work_used": "0",
+        "busy_seconds": "7.4499999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "647",
+        "private_work_used": "0",
+        "busy_seconds": "4.5400000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 2,
+        "round": "648",
+        "private_work_used": "0",
+        "busy_seconds": "3.89e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "648",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "2.7900000034719596e-06",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "649",
+        "private_work_used": "0",
+        "busy_seconds": "1.1769999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "649",
+        "stage": "geometry_repair_entry",
+        "private_work_used": "0",
+        "busy_seconds": "1.1770000014621473e-06",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "rank": 2,
+        "round": "650",
+        "private_work_used": "126",
+        "busy_seconds": "0.39881180500000002",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "650",
+        "stage": "exit",
+        "private_work_used": "126",
+        "busy_seconds": "0.39881180500000113",
+        "rank": 2,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_staged",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_committed",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "quality_entry",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "548",
+        "private_work_used": "1262",
+        "busy_seconds": "11.178100298",
+        "choices": "25",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "549",
+        "private_work_used": "1108",
+        "busy_seconds": "3.8431263530000002",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "550",
+        "private_work_used": "954",
+        "busy_seconds": "2.1857583279999999",
+        "choices": "23",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "551",
+        "private_work_used": "898",
+        "busy_seconds": "2.9600993029999998",
+        "choices": "26",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "552",
+        "private_work_used": "1086",
+        "busy_seconds": "2.894402795",
+        "choices": "23",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "round": "552",
+        "stage": "window",
+        "private_work_used": "5308",
+        "busy_seconds": "23.061487077000002",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "553",
+        "private_work_used": "564",
+        "busy_seconds": "1.5453075110000001",
+        "choices": "24",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "554",
+        "private_work_used": "1003",
+        "busy_seconds": "2.3308557780000001",
+        "choices": "24",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "555",
+        "private_work_used": "674",
+        "busy_seconds": "2.5819777419999999",
+        "choices": "22",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "556",
+        "private_work_used": "669",
+        "busy_seconds": "0.69131027300000003",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "557",
+        "private_work_used": "467",
+        "busy_seconds": "0.84170439100000005",
+        "choices": "22",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "558",
+        "private_work_used": "544",
+        "busy_seconds": "1.3917547480000001",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "559",
+        "private_work_used": "1096",
+        "busy_seconds": "2.1310330099999999",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "560",
+        "private_work_used": "911",
+        "busy_seconds": "0.98639866099999995",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "round": "560",
+        "stage": "window",
+        "private_work_used": "5928",
+        "busy_seconds": "12.500342114000006",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "561",
+        "private_work_used": "761",
+        "busy_seconds": "0.59883986099999997",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "562",
+        "private_work_used": "779",
+        "busy_seconds": "0.767025713",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "563",
+        "private_work_used": "1057",
+        "busy_seconds": "0.85496489399999998",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "564",
+        "private_work_used": "1018",
+        "busy_seconds": "0.95441582899999999",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "565",
+        "private_work_used": "871",
+        "busy_seconds": "0.48956349799999999",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "566",
+        "private_work_used": "979",
+        "busy_seconds": "1.2502550240000001",
+        "choices": "23",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "567",
+        "private_work_used": "590",
+        "busy_seconds": "0.29916385400000001",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "568",
+        "private_work_used": "605",
+        "busy_seconds": "1.550082381",
+        "choices": "17",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "round": "568",
+        "stage": "window",
+        "private_work_used": "6660",
+        "busy_seconds": "6.7643110540000038",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "569",
+        "private_work_used": "752",
+        "busy_seconds": "0.69649425799999998",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "570",
+        "private_work_used": "525",
+        "busy_seconds": "1.167164474",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "571",
+        "private_work_used": "521",
+        "busy_seconds": "0.46395256200000001",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "572",
+        "private_work_used": "222",
+        "busy_seconds": "0.15759309799999999",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "573",
+        "private_work_used": "983",
+        "busy_seconds": "0.60795838000000002",
+        "choices": "14",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "574",
+        "private_work_used": "717",
+        "busy_seconds": "0.76568323100000002",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "575",
+        "private_work_used": "516",
+        "busy_seconds": "0.95185138400000002",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "576",
+        "private_work_used": "543",
+        "busy_seconds": "0.43503773600000001",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "round": "576",
+        "stage": "window",
+        "private_work_used": "4779",
+        "busy_seconds": "5.2457351230000029",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "577",
+        "private_work_used": "448",
+        "busy_seconds": "0.68645151400000004",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "578",
+        "private_work_used": "610",
+        "busy_seconds": "1.3226211109999999",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "579",
+        "private_work_used": "794",
+        "busy_seconds": "1.3025982679999999",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "580",
+        "private_work_used": "469",
+        "busy_seconds": "0.79709184799999999",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "581",
+        "private_work_used": "351",
+        "busy_seconds": "0.38212638399999999",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "582",
+        "private_work_used": "330",
+        "busy_seconds": "0.362624006",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "583",
+        "private_work_used": "742",
+        "busy_seconds": "0.29809207900000001",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "584",
+        "private_work_used": "423",
+        "busy_seconds": "0.32306088599999999",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "round": "584",
+        "stage": "window",
+        "private_work_used": "4167",
+        "busy_seconds": "5.4746660959999929",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "585",
+        "private_work_used": "411",
+        "busy_seconds": "0.53580088599999998",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "586",
+        "private_work_used": "315",
+        "busy_seconds": "1.1043435130000001",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "587",
+        "private_work_used": "360",
+        "busy_seconds": "0.47089473599999998",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "588",
+        "private_work_used": "139",
+        "busy_seconds": "0.16589552199999999",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "589",
+        "private_work_used": "330",
+        "busy_seconds": "0.31116191599999998",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "590",
+        "private_work_used": "266",
+        "busy_seconds": "1.16717257",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "591",
+        "private_work_used": "338",
+        "busy_seconds": "0.34058317599999999",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "592",
+        "private_work_used": "161",
+        "busy_seconds": "0.23484169299999999",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "592",
+        "stage": "window",
+        "private_work_used": "2320",
+        "busy_seconds": "4.3306940120000021",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "593",
+        "private_work_used": "322",
+        "busy_seconds": "1.073077933",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "594",
+        "private_work_used": "323",
+        "busy_seconds": "0.145122537",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "595",
+        "private_work_used": "253",
+        "busy_seconds": "0.135728976",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "596",
+        "private_work_used": "243",
+        "busy_seconds": "0.31030727000000002",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "597",
+        "private_work_used": "159",
+        "busy_seconds": "0.063466514000000002",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "598",
+        "private_work_used": "69",
+        "busy_seconds": "0.122144106",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "599",
+        "private_work_used": "202",
+        "busy_seconds": "0.100786736",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "600",
+        "private_work_used": "1",
+        "busy_seconds": "0.13547144",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "600",
+        "stage": "window",
+        "private_work_used": "1572",
+        "busy_seconds": "2.0861055120000103",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "601",
+        "private_work_used": "146",
+        "busy_seconds": "0.38445643400000001",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "602",
+        "private_work_used": "177",
+        "busy_seconds": "0.107062142",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "603",
+        "private_work_used": "137",
+        "busy_seconds": "0.32122463600000001",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "604",
+        "private_work_used": "9",
+        "busy_seconds": "0.18036580399999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "605",
+        "private_work_used": "160",
+        "busy_seconds": "0.145799231",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "606",
+        "private_work_used": "185",
+        "busy_seconds": "0.188276738",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "607",
+        "private_work_used": "186",
+        "busy_seconds": "0.29450862",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "608",
+        "private_work_used": "329",
+        "busy_seconds": "1.887609871",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "608",
+        "stage": "window",
+        "private_work_used": "1329",
+        "busy_seconds": "3.5093034759999924",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "609",
+        "private_work_used": "92",
+        "busy_seconds": "0.40285249200000001",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "610",
+        "private_work_used": "206",
+        "busy_seconds": "0.12270389800000001",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "611",
+        "private_work_used": "234",
+        "busy_seconds": "0.25593204600000002",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "612",
+        "private_work_used": "258",
+        "busy_seconds": "0.18634996500000001",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "613",
+        "private_work_used": "92",
+        "busy_seconds": "0.398953273",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "614",
+        "private_work_used": "224",
+        "busy_seconds": "0.19882787399999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "615",
+        "private_work_used": "83",
+        "busy_seconds": "0.412914212",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "616",
+        "private_work_used": "165",
+        "busy_seconds": "0.33181119399999998",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "616",
+        "stage": "window",
+        "private_work_used": "1354",
+        "busy_seconds": "2.3103449540000014",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "617",
+        "private_work_used": "82",
+        "busy_seconds": "0.091924737000000006",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "618",
+        "private_work_used": "160",
+        "busy_seconds": "0.43121542000000002",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "619",
+        "private_work_used": "69",
+        "busy_seconds": "0.069083016999999997",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "620",
+        "private_work_used": "157",
+        "busy_seconds": "0.51576905699999998",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "621",
+        "private_work_used": "198",
+        "busy_seconds": "0.16832777800000001",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "622",
+        "private_work_used": "142",
+        "busy_seconds": "0.60351398099999998",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "623",
+        "private_work_used": "56",
+        "busy_seconds": "0.27848538299999998",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "624",
+        "private_work_used": "161",
+        "busy_seconds": "0.12567441300000001",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "624",
+        "stage": "window",
+        "private_work_used": "1025",
+        "busy_seconds": "2.2839937860000106",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "625",
+        "private_work_used": "33",
+        "busy_seconds": "0.048933274999999998",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "626",
+        "private_work_used": "81",
+        "busy_seconds": "0.187138686",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "627",
+        "private_work_used": "44",
+        "busy_seconds": "0.034737934999999998",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "628",
+        "private_work_used": "197",
+        "busy_seconds": "0.46080937",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "629",
+        "private_work_used": "52",
+        "busy_seconds": "0.061243208",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "630",
+        "private_work_used": "81",
+        "busy_seconds": "0.034690881999999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "631",
+        "private_work_used": "57",
+        "busy_seconds": "0.13038950099999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "632",
+        "private_work_used": "252",
+        "busy_seconds": "0.34865670799999998",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "632",
+        "stage": "window",
+        "private_work_used": "797",
+        "busy_seconds": "1.3065995649999849",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "633",
+        "private_work_used": "235",
+        "busy_seconds": "0.88596735599999998",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "634",
+        "private_work_used": "56",
+        "busy_seconds": "0.35637277699999997",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "635",
+        "private_work_used": "161",
+        "busy_seconds": "0.085472138000000003",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "636",
+        "private_work_used": "47",
+        "busy_seconds": "0.064216865999999997",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "637",
+        "private_work_used": "9",
+        "busy_seconds": "0.016563586000000002",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "638",
+        "private_work_used": "17",
+        "busy_seconds": "0.010740901000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "639",
+        "private_work_used": "17",
+        "busy_seconds": "0.026181979000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "640",
+        "private_work_used": "28",
+        "busy_seconds": "0.025884839999999999",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "640",
+        "stage": "window",
+        "private_work_used": "570",
+        "busy_seconds": "1.4714004430000074",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "641",
+        "private_work_used": "9",
+        "busy_seconds": "0.0041291540000000003",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "642",
+        "private_work_used": "9",
+        "busy_seconds": "0.0040572170000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "643",
+        "private_work_used": "5",
+        "busy_seconds": "0.00343261",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "644",
+        "private_work_used": "5",
+        "busy_seconds": "0.003472831",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "645",
+        "private_work_used": "153",
+        "busy_seconds": "0.110378327",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "646",
+        "private_work_used": "28",
+        "busy_seconds": "0.058139835000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "647",
+        "private_work_used": "17",
+        "busy_seconds": "0.010433184",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 3,
+        "round": "648",
+        "private_work_used": "28",
+        "busy_seconds": "0.026474890000000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "648",
+        "stage": "window",
+        "private_work_used": "254",
+        "busy_seconds": "0.22051804800000241",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "649",
+        "private_work_used": "28",
+        "busy_seconds": "0.030968923999999998",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "649",
+        "stage": "geometry_repair_entry",
+        "private_work_used": "28",
+        "busy_seconds": "0.030968924000006837",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "rank": 3,
+        "round": "650",
+        "private_work_used": "0",
+        "busy_seconds": "1.0640000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "650",
+        "stage": "exit",
+        "private_work_used": "0",
+        "busy_seconds": "1.0640000027706265e-06",
+        "rank": 3,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_staged",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_committed",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "quality_entry",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "548",
+        "private_work_used": "1064",
+        "busy_seconds": "3.4720488349999998",
+        "choices": "25",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "549",
+        "private_work_used": "853",
+        "busy_seconds": "1.7817835849999999",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "550",
+        "private_work_used": "294",
+        "busy_seconds": "2.3799969910000001",
+        "choices": "14",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "551",
+        "private_work_used": "574",
+        "busy_seconds": "0.50873933299999996",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "552",
+        "private_work_used": "387",
+        "busy_seconds": "0.71423054900000005",
+        "choices": "9",
+        "lost_own": "1",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "round": "552",
+        "stage": "window",
+        "private_work_used": "3172",
+        "busy_seconds": "8.8567992929999999",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "553",
+        "private_work_used": "480",
+        "busy_seconds": "1.3731295809999999",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "554",
+        "private_work_used": "160",
+        "busy_seconds": "0.31635619799999998",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "555",
+        "private_work_used": "165",
+        "busy_seconds": "0.38574482300000001",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "556",
+        "private_work_used": "128",
+        "busy_seconds": "0.092591449000000006",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "557",
+        "private_work_used": "224",
+        "busy_seconds": "0.40244138800000001",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "558",
+        "private_work_used": "173",
+        "busy_seconds": "0.16341881699999999",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "559",
+        "private_work_used": "201",
+        "busy_seconds": "0.047467512000000003",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "560",
+        "private_work_used": "100",
+        "busy_seconds": "0.066733949000000001",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "round": "560",
+        "stage": "window",
+        "private_work_used": "1631",
+        "busy_seconds": "2.8478837170000002",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "561",
+        "private_work_used": "14",
+        "busy_seconds": "0.049696058000000001",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "562",
+        "private_work_used": "124",
+        "busy_seconds": "0.24030828600000001",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "563",
+        "private_work_used": "0",
+        "busy_seconds": "0.047172454000000003",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "564",
+        "private_work_used": "45",
+        "busy_seconds": "0.073776691000000005",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "565",
+        "private_work_used": "0",
+        "busy_seconds": "0.069733548000000006",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "566",
+        "private_work_used": "0",
+        "busy_seconds": "0.039865245000000001",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "567",
+        "private_work_used": "161",
+        "busy_seconds": "0.165619188",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "568",
+        "private_work_used": "33",
+        "busy_seconds": "0.063616967999999996",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "round": "568",
+        "stage": "window",
+        "private_work_used": "377",
+        "busy_seconds": "0.74978843800000128",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "569",
+        "private_work_used": "0",
+        "busy_seconds": "0.020136810000000002",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "570",
+        "private_work_used": "0",
+        "busy_seconds": "3.6519999999999999e-06",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "571",
+        "private_work_used": "0",
+        "busy_seconds": "0.013670941000000001",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "572",
+        "private_work_used": "64",
+        "busy_seconds": "0.76697286499999995",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "573",
+        "private_work_used": "1",
+        "busy_seconds": "0.014837125",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "574",
+        "private_work_used": "0",
+        "busy_seconds": "2.9550000000000001e-06",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "575",
+        "private_work_used": "2",
+        "busy_seconds": "0.046009854000000003",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "576",
+        "private_work_used": "0",
+        "busy_seconds": "0.002678564",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "576",
+        "stage": "window",
+        "private_work_used": "67",
+        "busy_seconds": "0.8643127659999994",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "577",
+        "private_work_used": "52",
+        "busy_seconds": "0.28468575000000002",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "578",
+        "private_work_used": "2",
+        "busy_seconds": "0.038866302999999998",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "579",
+        "private_work_used": "160",
+        "busy_seconds": "1.1739444450000001",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "580",
+        "private_work_used": "1",
+        "busy_seconds": "0.35016101300000002",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "581",
+        "private_work_used": "0",
+        "busy_seconds": "1.731e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "582",
+        "private_work_used": "0",
+        "busy_seconds": "1.7090000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "583",
+        "private_work_used": "0",
+        "busy_seconds": "1.4479999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "584",
+        "private_work_used": "0",
+        "busy_seconds": "2.1909999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "584",
+        "stage": "window",
+        "private_work_used": "215",
+        "busy_seconds": "1.8476645899999991",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "585",
+        "private_work_used": "0",
+        "busy_seconds": "2.294e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "586",
+        "private_work_used": "0",
+        "busy_seconds": "7.54e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "587",
+        "private_work_used": "0",
+        "busy_seconds": "9.2399999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "588",
+        "private_work_used": "0",
+        "busy_seconds": "8.71e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "589",
+        "private_work_used": "0",
+        "busy_seconds": "4.8810000000000004e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "590",
+        "private_work_used": "0",
+        "busy_seconds": "1.1030000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "591",
+        "private_work_used": "0",
+        "busy_seconds": "1.279e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "592",
+        "private_work_used": "0",
+        "busy_seconds": "1.5519999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "592",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "1.3658000000305037e-05",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "593",
+        "private_work_used": "0",
+        "busy_seconds": "8.1699999999999997e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "594",
+        "private_work_used": "0",
+        "busy_seconds": "3.6619999999999998e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "595",
+        "private_work_used": "0",
+        "busy_seconds": "1.5859999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "596",
+        "private_work_used": "0",
+        "busy_seconds": "7.7499999999999999e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "597",
+        "private_work_used": "0",
+        "busy_seconds": "6.7100000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "598",
+        "private_work_used": "0",
+        "busy_seconds": "1.0100000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "599",
+        "private_work_used": "0",
+        "busy_seconds": "8.0500000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "600",
+        "private_work_used": "0",
+        "busy_seconds": "5.99e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "600",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "9.9250000005213224e-06",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "601",
+        "private_work_used": "0",
+        "busy_seconds": "1.759e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "602",
+        "private_work_used": "0",
+        "busy_seconds": "6.8999999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "603",
+        "private_work_used": "0",
+        "busy_seconds": "5.9299999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "604",
+        "private_work_used": "0",
+        "busy_seconds": "2.8210000000000002e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "605",
+        "private_work_used": "0",
+        "busy_seconds": "4.4830000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "606",
+        "private_work_used": "0",
+        "busy_seconds": "6.3499999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "607",
+        "private_work_used": "0",
+        "busy_seconds": "1.372e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "608",
+        "private_work_used": "0",
+        "busy_seconds": "9.9600000000000008e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "608",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "1.3348999999607258e-05",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "609",
+        "private_work_used": "0",
+        "busy_seconds": "2.897e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "610",
+        "private_work_used": "0",
+        "busy_seconds": "8.9299999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "611",
+        "private_work_used": "0",
+        "busy_seconds": "1.423e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "612",
+        "private_work_used": "0",
+        "busy_seconds": "1.5799999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "613",
+        "private_work_used": "0",
+        "busy_seconds": "1.271e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "614",
+        "private_work_used": "0",
+        "busy_seconds": "9.3799999999999996e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "615",
+        "private_work_used": "0",
+        "busy_seconds": "2.238e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "616",
+        "private_work_used": "0",
+        "busy_seconds": "9.95e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "616",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "1.2234999999805041e-05",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "617",
+        "private_work_used": "0",
+        "busy_seconds": "1.2869999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "618",
+        "private_work_used": "0",
+        "busy_seconds": "9.7699999999999992e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "619",
+        "private_work_used": "0",
+        "busy_seconds": "6.9299999999999997e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "620",
+        "private_work_used": "0",
+        "busy_seconds": "5.1399999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "621",
+        "private_work_used": "0",
+        "busy_seconds": "8.1299999999999999e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "622",
+        "private_work_used": "0",
+        "busy_seconds": "9.5799999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "623",
+        "private_work_used": "0",
+        "busy_seconds": "7.1500000000000004e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "624",
+        "private_work_used": "0",
+        "busy_seconds": "1.683e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "624",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "1.2266000000593635e-05",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "625",
+        "private_work_used": "0",
+        "busy_seconds": "6.0100000000000005e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "626",
+        "private_work_used": "0",
+        "busy_seconds": "2.0140000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "627",
+        "private_work_used": "0",
+        "busy_seconds": "5.4909999999999996e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "628",
+        "private_work_used": "0",
+        "busy_seconds": "2.3300000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "629",
+        "private_work_used": "0",
+        "busy_seconds": "3.4060000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "630",
+        "private_work_used": "0",
+        "busy_seconds": "1.0890000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "631",
+        "private_work_used": "0",
+        "busy_seconds": "1.9010000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "632",
+        "private_work_used": "0",
+        "busy_seconds": "5.5799999999999999e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "632",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "1.7389999996453298e-05",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "633",
+        "private_work_used": "0",
+        "busy_seconds": "1.1930000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "634",
+        "private_work_used": "0",
+        "busy_seconds": "1.61e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "635",
+        "private_work_used": "0",
+        "busy_seconds": "8.2799999999999995e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "636",
+        "private_work_used": "0",
+        "busy_seconds": "6.8500000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "637",
+        "private_work_used": "0",
+        "busy_seconds": "5.8599999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "638",
+        "private_work_used": "0",
+        "busy_seconds": "6.13e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "639",
+        "private_work_used": "0",
+        "busy_seconds": "4.9599999999999999e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "640",
+        "private_work_used": "0",
+        "busy_seconds": "5.5400000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "640",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "6.5649999978489859e-06",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "641",
+        "private_work_used": "0",
+        "busy_seconds": "7.92e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "642",
+        "private_work_used": "0",
+        "busy_seconds": "1.09e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "643",
+        "private_work_used": "0",
+        "busy_seconds": "2.5899999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "644",
+        "private_work_used": "0",
+        "busy_seconds": "1.9600000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "645",
+        "private_work_used": "0",
+        "busy_seconds": "1.17e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "646",
+        "private_work_used": "0",
+        "busy_seconds": "5.1500000000000005e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "647",
+        "private_work_used": "0",
+        "busy_seconds": "4.34e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 4,
+        "round": "648",
+        "private_work_used": "0",
+        "busy_seconds": "4.2399999999999999e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "648",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "2.8460000009999931e-06",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "649",
+        "private_work_used": "0",
+        "busy_seconds": "1.3239999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "649",
+        "stage": "geometry_repair_entry",
+        "private_work_used": "0",
+        "busy_seconds": "1.3239999994141272e-06",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "rank": 4,
+        "round": "650",
+        "private_work_used": "0",
+        "busy_seconds": "9.540000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "650",
+        "stage": "exit",
+        "private_work_used": "0",
+        "busy_seconds": "9.54000000774613e-07",
+        "rank": 4,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_staged",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "ownership_committed",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "round": "547",
+        "stage": "quality_entry",
+        "private_work_used": "0",
+        "busy_seconds": "0",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "548",
+        "private_work_used": "829",
+        "busy_seconds": "5.7644896140000004",
+        "choices": "36",
+        "lost_own": "0",
+        "lost_other": "11",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "549",
+        "private_work_used": "727",
+        "busy_seconds": "0.69642669800000001",
+        "choices": "34",
+        "lost_own": "0",
+        "lost_other": "14",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "550",
+        "private_work_used": "1045",
+        "busy_seconds": "2.5897556499999999",
+        "choices": "33",
+        "lost_own": "0",
+        "lost_other": "12",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "551",
+        "private_work_used": "546",
+        "busy_seconds": "1.028430258",
+        "choices": "28",
+        "lost_own": "0",
+        "lost_other": "11",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "552",
+        "private_work_used": "661",
+        "busy_seconds": "0.608189761",
+        "choices": "26",
+        "lost_own": "0",
+        "lost_other": "13",
+        "record": "private_round"
+      },
+      {
+        "round": "552",
+        "stage": "window",
+        "private_work_used": "3808",
+        "busy_seconds": "10.687291981",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "553",
+        "private_work_used": "743",
+        "busy_seconds": "1.034170056",
+        "choices": "25",
+        "lost_own": "0",
+        "lost_other": "10",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "554",
+        "private_work_used": "608",
+        "busy_seconds": "0.86979473200000001",
+        "choices": "25",
+        "lost_own": "0",
+        "lost_other": "12",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "555",
+        "private_work_used": "349",
+        "busy_seconds": "1.0991366309999999",
+        "choices": "21",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "556",
+        "private_work_used": "517",
+        "busy_seconds": "1.55987553",
+        "choices": "22",
+        "lost_own": "0",
+        "lost_other": "13",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "557",
+        "private_work_used": "519",
+        "busy_seconds": "1.035902415",
+        "choices": "19",
+        "lost_own": "0",
+        "lost_other": "10",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "558",
+        "private_work_used": "506",
+        "busy_seconds": "1.6301691140000001",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "11",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "559",
+        "private_work_used": "488",
+        "busy_seconds": "0.26540374300000003",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "12",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "560",
+        "private_work_used": "429",
+        "busy_seconds": "0.69963529599999996",
+        "choices": "20",
+        "lost_own": "0",
+        "lost_other": "12",
+        "record": "private_round"
+      },
+      {
+        "round": "560",
+        "stage": "window",
+        "private_work_used": "4159",
+        "busy_seconds": "8.1940875170000016",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "561",
+        "private_work_used": "358",
+        "busy_seconds": "0.48097736400000002",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "9",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "562",
+        "private_work_used": "485",
+        "busy_seconds": "0.34606217299999997",
+        "choices": "17",
+        "lost_own": "0",
+        "lost_other": "12",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "563",
+        "private_work_used": "269",
+        "busy_seconds": "0.25247698600000001",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "12",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "564",
+        "private_work_used": "398",
+        "busy_seconds": "0.955840939",
+        "choices": "18",
+        "lost_own": "0",
+        "lost_other": "13",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "565",
+        "private_work_used": "508",
+        "busy_seconds": "0.39649041299999999",
+        "choices": "17",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "566",
+        "private_work_used": "286",
+        "busy_seconds": "0.550706476",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "10",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "567",
+        "private_work_used": "375",
+        "busy_seconds": "0.70004907000000005",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "9",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "568",
+        "private_work_used": "492",
+        "busy_seconds": "0.56860891300000005",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "round": "568",
+        "stage": "window",
+        "private_work_used": "3171",
+        "busy_seconds": "4.2512123339999981",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "569",
+        "private_work_used": "340",
+        "busy_seconds": "0.42248838",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "10",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "570",
+        "private_work_used": "341",
+        "busy_seconds": "0.379818288",
+        "choices": "13",
+        "lost_own": "0",
+        "lost_other": "10",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "571",
+        "private_work_used": "215",
+        "busy_seconds": "0.387452507",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "13",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "572",
+        "private_work_used": "160",
+        "busy_seconds": "0.51838477800000005",
+        "choices": "15",
+        "lost_own": "0",
+        "lost_other": "11",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "573",
+        "private_work_used": "312",
+        "busy_seconds": "0.70396154700000002",
+        "choices": "14",
+        "lost_own": "0",
+        "lost_other": "11",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "574",
+        "private_work_used": "275",
+        "busy_seconds": "1.654546509",
+        "choices": "16",
+        "lost_own": "0",
+        "lost_other": "12",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "575",
+        "private_work_used": "236",
+        "busy_seconds": "0.91613654300000003",
+        "choices": "17",
+        "lost_own": "0",
+        "lost_other": "9",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "576",
+        "private_work_used": "320",
+        "busy_seconds": "2.060740477",
+        "choices": "13",
+        "lost_own": "0",
+        "lost_other": "9",
+        "record": "private_round"
+      },
+      {
+        "round": "576",
+        "stage": "window",
+        "private_work_used": "2199",
+        "busy_seconds": "7.0435290289999983",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "577",
+        "private_work_used": "196",
+        "busy_seconds": "0.34975081099999999",
+        "choices": "14",
+        "lost_own": "0",
+        "lost_other": "11",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "578",
+        "private_work_used": "269",
+        "busy_seconds": "0.564189575",
+        "choices": "14",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "579",
+        "private_work_used": "202",
+        "busy_seconds": "0.32152171400000001",
+        "choices": "14",
+        "lost_own": "0",
+        "lost_other": "10",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "580",
+        "private_work_used": "41",
+        "busy_seconds": "0.18204873099999999",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "581",
+        "private_work_used": "385",
+        "busy_seconds": "1.5505924419999999",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "582",
+        "private_work_used": "37",
+        "busy_seconds": "0.094228887999999997",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "10",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "583",
+        "private_work_used": "348",
+        "busy_seconds": "0.69769874700000001",
+        "choices": "12",
+        "lost_own": "0",
+        "lost_other": "7",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "584",
+        "private_work_used": "376",
+        "busy_seconds": "0.67567338700000001",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "round": "584",
+        "stage": "window",
+        "private_work_used": "1854",
+        "busy_seconds": "4.4357042950000043",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "585",
+        "private_work_used": "321",
+        "busy_seconds": "0.22419134800000001",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "586",
+        "private_work_used": "308",
+        "busy_seconds": "0.20600559099999999",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "587",
+        "private_work_used": "175",
+        "busy_seconds": "0.56778196299999995",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "6",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "588",
+        "private_work_used": "328",
+        "busy_seconds": "1.235441408",
+        "choices": "9",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "589",
+        "private_work_used": "11",
+        "busy_seconds": "0.021988780999999999",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "8",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "590",
+        "private_work_used": "232",
+        "busy_seconds": "0.30749786899999998",
+        "choices": "11",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "591",
+        "private_work_used": "429",
+        "busy_seconds": "0.17973687199999999",
+        "choices": "8",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "592",
+        "private_work_used": "38",
+        "busy_seconds": "0.17757716300000001",
+        "choices": "10",
+        "lost_own": "0",
+        "lost_other": "5",
+        "record": "private_round"
+      },
+      {
+        "round": "592",
+        "stage": "window",
+        "private_work_used": "1842",
+        "busy_seconds": "2.9202209950000011",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "593",
+        "private_work_used": "82",
+        "busy_seconds": "0.26230131899999998",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "594",
+        "private_work_used": "160",
+        "busy_seconds": "0.409425753",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "595",
+        "private_work_used": "237",
+        "busy_seconds": "0.109222348",
+        "choices": "7",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "596",
+        "private_work_used": "346",
+        "busy_seconds": "0.19203532800000001",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "597",
+        "private_work_used": "58",
+        "busy_seconds": "0.070769117000000006",
+        "choices": "6",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "598",
+        "private_work_used": "41",
+        "busy_seconds": "0.023640093000000001",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "599",
+        "private_work_used": "67",
+        "busy_seconds": "0.555582786",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "600",
+        "private_work_used": "2",
+        "busy_seconds": "0.020441010999999999",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "round": "600",
+        "stage": "window",
+        "private_work_used": "993",
+        "busy_seconds": "1.6434177550000086",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "601",
+        "private_work_used": "10",
+        "busy_seconds": "0.023205482999999999",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "602",
+        "private_work_used": "0",
+        "busy_seconds": "0.031207236999999999",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "603",
+        "private_work_used": "10",
+        "busy_seconds": "0.004691649",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "604",
+        "private_work_used": "10",
+        "busy_seconds": "0.029519996999999999",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "605",
+        "private_work_used": "3",
+        "busy_seconds": "0.132940052",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "606",
+        "private_work_used": "160",
+        "busy_seconds": "0.103270243",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "607",
+        "private_work_used": "10",
+        "busy_seconds": "0.011132962999999999",
+        "choices": "5",
+        "lost_own": "0",
+        "lost_other": "4",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "608",
+        "private_work_used": "0",
+        "busy_seconds": "0.056483256000000003",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "3",
+        "record": "private_round"
+      },
+      {
+        "round": "608",
+        "stage": "window",
+        "private_work_used": "203",
+        "busy_seconds": "0.39245087999999839",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "609",
+        "private_work_used": "0",
+        "busy_seconds": "0.106641944",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "610",
+        "private_work_used": "0",
+        "busy_seconds": "0.030933840000000001",
+        "choices": "4",
+        "lost_own": "0",
+        "lost_other": "2",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "611",
+        "private_work_used": "160",
+        "busy_seconds": "0.41217304500000002",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "612",
+        "private_work_used": "152",
+        "busy_seconds": "0.48538680699999998",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "613",
+        "private_work_used": "9",
+        "busy_seconds": "0.026446706",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "614",
+        "private_work_used": "42",
+        "busy_seconds": "0.078238511999999996",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "615",
+        "private_work_used": "1",
+        "busy_seconds": "0.036049515999999997",
+        "choices": "3",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "616",
+        "private_work_used": "88",
+        "busy_seconds": "0.059047902999999999",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "616",
+        "stage": "window",
+        "private_work_used": "452",
+        "busy_seconds": "1.2349182730000052",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "617",
+        "private_work_used": "3",
+        "busy_seconds": "0.026610710999999999",
+        "choices": "2",
+        "lost_own": "0",
+        "lost_other": "1",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "618",
+        "private_work_used": "0",
+        "busy_seconds": "0.028325447",
+        "choices": "1",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "619",
+        "private_work_used": "0",
+        "busy_seconds": "1.057e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "620",
+        "private_work_used": "0",
+        "busy_seconds": "2.0140000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "621",
+        "private_work_used": "0",
+        "busy_seconds": "9.6700000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "622",
+        "private_work_used": "0",
+        "busy_seconds": "1.747e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "623",
+        "private_work_used": "0",
+        "busy_seconds": "8.4799999999999997e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "624",
+        "private_work_used": "0",
+        "busy_seconds": "2.3099999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "624",
+        "stage": "window",
+        "private_work_used": "3",
+        "busy_seconds": "0.054945100999994168",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "625",
+        "private_work_used": "0",
+        "busy_seconds": "1.6500000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "626",
+        "private_work_used": "0",
+        "busy_seconds": "2.2740000000000002e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "627",
+        "private_work_used": "0",
+        "busy_seconds": "6.477e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "628",
+        "private_work_used": "0",
+        "busy_seconds": "2.0849999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "629",
+        "private_work_used": "0",
+        "busy_seconds": "2.5859999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "630",
+        "private_work_used": "0",
+        "busy_seconds": "9.4399999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "631",
+        "private_work_used": "0",
+        "busy_seconds": "3.839e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "632",
+        "private_work_used": "0",
+        "busy_seconds": "1.2109999999999999e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "632",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "2.1066000002178953e-05",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "633",
+        "private_work_used": "0",
+        "busy_seconds": "1.6750000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "634",
+        "private_work_used": "0",
+        "busy_seconds": "1.1930000000000001e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "635",
+        "private_work_used": "0",
+        "busy_seconds": "5.9800000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "636",
+        "private_work_used": "0",
+        "busy_seconds": "6.2399999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "637",
+        "private_work_used": "0",
+        "busy_seconds": "8.1500000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "638",
+        "private_work_used": "0",
+        "busy_seconds": "6.5600000000000005e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "639",
+        "private_work_used": "0",
+        "busy_seconds": "4.8800000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "640",
+        "private_work_used": "0",
+        "busy_seconds": "8.8400000000000003e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "640",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "6.9330000016520898e-06",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "641",
+        "private_work_used": "0",
+        "busy_seconds": "7.8100000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "642",
+        "private_work_used": "0",
+        "busy_seconds": "2.4400000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "643",
+        "private_work_used": "0",
+        "busy_seconds": "3.6399999999999998e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "644",
+        "private_work_used": "0",
+        "busy_seconds": "1.8400000000000001e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "645",
+        "private_work_used": "0",
+        "busy_seconds": "2.67e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "646",
+        "private_work_used": "0",
+        "busy_seconds": "6.6400000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "647",
+        "private_work_used": "0",
+        "busy_seconds": "5.82e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "rank": 5,
+        "round": "648",
+        "private_work_used": "0",
+        "busy_seconds": "5.9500000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "648",
+        "stage": "window",
+        "private_work_used": "0",
+        "busy_seconds": "3.6809999954812156e-06",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "649",
+        "private_work_used": "0",
+        "busy_seconds": "1.142e-06",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "649",
+        "stage": "geometry_repair_entry",
+        "private_work_used": "0",
+        "busy_seconds": "1.142000002118948e-06",
+        "rank": 5,
+        "record": "quality_window"
+      },
+      {
+        "rank": 5,
+        "round": "650",
+        "private_work_used": "0",
+        "busy_seconds": "9.9800000000000002e-07",
+        "choices": "0",
+        "lost_own": "0",
+        "lost_other": "0",
+        "record": "private_round"
+      },
+      {
+        "round": "650",
+        "stage": "exit",
+        "private_work_used": "0",
+        "busy_seconds": "9.9799999730976197e-07",
+        "rank": 5,
+        "record": "quality_window"
+      }
+    ],
+    "m21_ownership_memory_rows": 18,
+    "m21_ownership_memory_records": [
+      {
+        "rank": 0,
+        "boundary": "before",
+        "current_rss": "847921152",
+        "process_peak_rss": "892403712",
+        "max_exchange_work_bytes": "2234611252",
+        "bytes_sent": "103631392",
+        "pending_bytes": "0",
+        "outgoing_bytes": "0",
+        "record_bytes": "0"
+      },
+      {
+        "rank": 0,
+        "boundary": "staged",
+        "current_rss": "1012359168",
+        "process_peak_rss": "1230725120",
+        "max_exchange_work_bytes": "3297624836",
+        "bytes_sent": "240779920",
+        "pending_bytes": "802676064",
+        "outgoing_bytes": "21575568",
+        "record_bytes": "36200736"
+      },
+      {
+        "rank": 0,
+        "boundary": "committed",
+        "current_rss": "1012359168",
+        "process_peak_rss": "1230725120",
+        "max_exchange_work_bytes": "3297624836",
+        "bytes_sent": "240779920",
+        "pending_bytes": "802676064",
+        "outgoing_bytes": "21575568",
+        "record_bytes": "36200736"
+      },
+      {
+        "rank": 1,
+        "boundary": "before",
+        "current_rss": "846823424",
+        "process_peak_rss": "905154560",
+        "max_exchange_work_bytes": "2248877924",
+        "bytes_sent": "109924912",
+        "pending_bytes": "0",
+        "outgoing_bytes": "0",
+        "record_bytes": "0"
+      },
+      {
+        "rank": 1,
+        "boundary": "staged",
+        "current_rss": "1031413760",
+        "process_peak_rss": "1380569088",
+        "max_exchange_work_bytes": "3330316660",
+        "bytes_sent": "265458824",
+        "pending_bytes": "810595512",
+        "outgoing_bytes": "26357904",
+        "record_bytes": "36346128"
+      },
+      {
+        "rank": 1,
+        "boundary": "committed",
+        "current_rss": "1031413760",
+        "process_peak_rss": "1380569088",
+        "max_exchange_work_bytes": "3330316660",
+        "bytes_sent": "265458824",
+        "pending_bytes": "810595512",
+        "outgoing_bytes": "26357904",
+        "record_bytes": "36346128"
+      },
+      {
+        "rank": 2,
+        "boundary": "before",
+        "current_rss": "1128660992",
+        "process_peak_rss": "1127636992",
+        "max_exchange_work_bytes": "2459450772",
+        "bytes_sent": "246297312",
+        "pending_bytes": "0",
+        "outgoing_bytes": "0",
+        "record_bytes": "0"
+      },
+      {
+        "rank": 2,
+        "boundary": "staged",
+        "current_rss": "1282551808",
+        "process_peak_rss": "1736454144",
+        "max_exchange_work_bytes": "3713253560",
+        "bytes_sent": "600542328",
+        "pending_bytes": "871151688",
+        "outgoing_bytes": "83386512",
+        "record_bytes": "36509616"
+      },
+      {
+        "rank": 2,
+        "boundary": "committed",
+        "current_rss": "1282551808",
+        "process_peak_rss": "1736454144",
+        "max_exchange_work_bytes": "3713253560",
+        "bytes_sent": "600542328",
+        "pending_bytes": "871151688",
+        "outgoing_bytes": "83386512",
+        "record_bytes": "36509616"
+      },
+      {
+        "rank": 3,
+        "boundary": "before",
+        "current_rss": "1538818048",
+        "process_peak_rss": "1537372160",
+        "max_exchange_work_bytes": "2782036132",
+        "bytes_sent": "461522320",
+        "pending_bytes": "0",
+        "outgoing_bytes": "0",
+        "record_bytes": "0"
+      },
+      {
+        "rank": 3,
+        "boundary": "staged",
+        "current_rss": "1708613632",
+        "process_peak_rss": "2525470720",
+        "max_exchange_work_bytes": "4442067724",
+        "bytes_sent": "1123957216",
+        "pending_bytes": "1091951040",
+        "outgoing_bytes": "175079568",
+        "record_bytes": "42493152"
+      },
+      {
+        "rank": 3,
+        "boundary": "committed",
+        "current_rss": "1708613632",
+        "process_peak_rss": "2525470720",
+        "max_exchange_work_bytes": "4442067724",
+        "bytes_sent": "1123957216",
+        "pending_bytes": "1091951040",
+        "outgoing_bytes": "175079568",
+        "record_bytes": "42493152"
+      },
+      {
+        "rank": 4,
+        "boundary": "before",
+        "current_rss": "860786688",
+        "process_peak_rss": "908423168",
+        "max_exchange_work_bytes": "2230017832",
+        "bytes_sent": "96075440",
+        "pending_bytes": "0",
+        "outgoing_bytes": "0",
+        "record_bytes": "0"
+      },
+      {
+        "rank": 4,
+        "boundary": "staged",
+        "current_rss": "1046257664",
+        "process_peak_rss": "1269579776",
+        "max_exchange_work_bytes": "3410908704",
+        "bytes_sent": "248988936",
+        "pending_bytes": "900882552",
+        "outgoing_bytes": "23043216",
+        "record_bytes": "40684176"
+      },
+      {
+        "rank": 4,
+        "boundary": "committed",
+        "current_rss": "1046257664",
+        "process_peak_rss": "1269579776",
+        "max_exchange_work_bytes": "3410908704",
+        "bytes_sent": "248988936",
+        "pending_bytes": "900882552",
+        "outgoing_bytes": "23043216",
+        "record_bytes": "40684176"
+      },
+      {
+        "rank": 5,
+        "boundary": "before",
+        "current_rss": "824315904",
+        "process_peak_rss": "868876288",
+        "max_exchange_work_bytes": "2215107932",
+        "bytes_sent": "86496168",
+        "pending_bytes": "0",
+        "outgoing_bytes": "0",
+        "record_bytes": "0"
+      },
+      {
+        "rank": 5,
+        "boundary": "staged",
+        "current_rss": "1010475008",
+        "process_peak_rss": "1394135040",
+        "max_exchange_work_bytes": "3433768368",
+        "bytes_sent": "222701936",
+        "pending_bytes": "943543128",
+        "outgoing_bytes": "23642256",
+        "record_bytes": "42633552"
+      },
+      {
+        "rank": 5,
+        "boundary": "committed",
+        "current_rss": "1010475008",
+        "process_peak_rss": "1394135040",
+        "max_exchange_work_bytes": "3433768368",
+        "bytes_sent": "222701936",
+        "pending_bytes": "943543128",
+        "outgoing_bytes": "23642256",
+        "record_bytes": "42633552"
+      }
+    ],
+    "counter_presence_is_non_gating": true
+  }
+}

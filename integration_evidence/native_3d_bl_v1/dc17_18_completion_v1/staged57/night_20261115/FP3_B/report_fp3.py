@@ -3,6 +3,7 @@
 from argparse import ArgumentParser
 import hashlib
 from pathlib import Path
+import re
 import runpy
 import subprocess
 
@@ -43,6 +44,33 @@ def step1(label):
     return record['status']
 
 
+def add_final_memo(case, collection):
+    """Project the finalized union memo counters as report-only observations."""
+    events = collection['events']
+    totals = [[0, 0] for event in events]
+    logs = sorted(case.glob('rank_output/*/rank.*/stdout'))
+    if len(logs) != 6:
+        return collection
+    for log in logs:
+        rank = int(log.parent.name.removeprefix('rank.'))
+        rows = []
+        for line in log.read_text(errors='replace').splitlines():
+            if f'D9_QUERY rank={rank} phase=final_proof site=g ' not in line:
+                continue
+            fields = dict(re.findall(r'(\w+)=(\d+)(?=\s|$)', line))
+            if not {'memo_union_hits', 'upper_calls'} <= fields.keys():
+                return collection
+            rows.append((int(fields['memo_union_hits']), int(fields['upper_calls'])))
+        if len(rows) != len(events):
+            return collection
+        for total, (hits, calls) in zip(totals, rows, strict=True):
+            total[0] += hits
+            total[1] += calls
+    for event, (hits, calls) in zip(events, totals, strict=True):
+        event['final_proof_union_memo'] = {'hits': hits, 'upper_calls': calls, 'fraction': hits / calls if calls else None}
+    return collection
+
+
 def historic():
     payloads = runpy.run_path(str(workflow.PAYLOADS))
     result = {}
@@ -52,7 +80,7 @@ def historic():
             run = read_pin(entry['full_run_receipt'])
             baseline = collect(Path(entry['case']), baseline=True, event_receipts=run['events'])
             assert baseline['status'] == 'passed', baseline['first_difference']
-            result[f'{key} S{trial}'] = baseline
+            result[f'{key} S{trial}'] = add_final_memo(Path(entry['case']), baseline)
     return result
 
 
@@ -128,6 +156,10 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
         md += [f'Production change reverted from `{revert}`. The FP3-A ownership rule stays.', '']
     md += table('Checks', ('Check', 'Status', 'Finding'),
                 [(key, row['status'], row.get('first_difference') or '') for key, row in checks.items()])
+    comparisons = [(name, 'FP3-A S', parts[name].get('historical_comparison')) for name in ('S1', 'S2')]
+    comparisons.append(('S2', 'S1', parts['S2'].get('comparison')))
+    md += table('Six-payload comparisons', ('Run', 'Reference', 'Differing files'),
+                [(name, reference, len(row['differences'])) for name, reference, row in comparisons if row is not None])
     md += table('Full S event results', ('Run', 'Event', 'Workers', 'Native seconds', 'Cells', 'Points',
                                          'Surface faces', 'Job peak bytes', 'Minimum coverage %'),
                 [(name, row['event'], row['worker_stage_count'], row['native_seconds'], row['final_cells'],
@@ -166,12 +198,25 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
            'The load columns use actual samples nearest to those boundaries. Host load was recorded and '
            'uncontrolled. Rank maxima for nested phases are reported independently.', '']
     md += event_tables(measurements)
+    md += table('Final proof union memo', ('Run', 'Event', 'Hits', 'Upper calls', 'Hit %'),
+                [(name, event['event'], memo.get('hits'), memo.get('upper_calls'),
+                  None if memo.get('fraction') is None else 100 * memo['fraction'])
+                 for name, data in measurements.items() for event in data['events']
+                 for memo in (event.get('final_proof_union_memo', {}),)])
     row = parts['probe2']
     data = probes.get('probe2', {})
     md += ['## The behaviour of P3 with the accepted-collapse probe active', '',
            f'Observation status **{row.get("probe_status", row["status"])}**.', '']
-    md += event_tables({**{name: measurements[name] for name in ('S1', 'S2') if name in measurements},
-                        **({'P3 behaviour, probe 2': data} if data else {})})
+    timed = {name: measurements[name] for name in ('S1', 'S2') if name in measurements}
+    if data:
+        timed['P3 behaviour, probe 2'] = data
+    stamps = [event.get(key) for run in timed.values() for event in run['events']
+              for key in ('native_start_utc', 'native_end_utc')]
+    if len(timed) == 3 and len(stamps) == 12 and all(stamps):
+        dates = {stamp[:10] for stamp in stamps}
+        if len(dates) == 1:
+            md += [f'All three workflows were observed on {next(iter(dates))} UTC.', '']
+    md += event_tables(timed)
     if row.get('comparison') is not None:
         comparison = row['comparison']
         md += [f'Compared all six payload hashes with the FP2-P3 S reference. '
@@ -204,7 +249,10 @@ def report(label, validated_commit=None, revert=None):
     probes = {}
     for name, row in parts.items():
         if row.get('collection'):
-            (probes if name.startswith('probe') else measurements)[name] = read_pin(row['collection'])
+            collection = read_pin(row['collection'])
+            if row.get('run'):
+                collection = add_final_memo(Path(read_pin(row['run'])['case']), collection)
+            (probes if name.startswith('probe') else measurements)[name] = collection
         elif row['status'] != 'not evaluated':
             partial = sorted(root(label, name).glob('**/partial_collection.json'))
             full = sorted(root(label, name).glob('**/collection.json'))

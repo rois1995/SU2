@@ -2446,3 +2446,11 @@ FP3-B S1 event 1 passed proof, memory and timer checks. Owned and all per-rank s
 FP3-B S1 event 2 passed proof, timer and resource checks with 21824 owned and per-rank surface faces. Job peak and summed process peaks 10658205696 bytes. All six empty-exit evaluations again show attempts=0 and migrate=0. The quality evaluation committed a 165441-cell exchange. Continued CFD and isolated restart remain.
 
 FP3-B S1 passed both events, transfer, continued CFD and isolated restart. The collector passed the unchanged suppression gate and the new ownership gate across all 12 worker packets. No construction ownership commit. Native maxima 550.5487517619999 / 353.19650578200003 s. All six disk outputs differ from FP3-A, report only. S1 supervisor terminal. Push the passing checkpoint and launch S2 with the identical binary pair, inputs and settings.
+
+FP3-B S1 checkpoint 87351b3d84 pushed. S2 verified byte-identical effective config and probe 0 on all six live ranks. The first adaptation is in local surface preparation.
+
+FP3-B S2 event 1 passed proof, memory and timer checks. Owned and per-rank surface sizes 26512, job peak and summed process peaks 9536933888 bytes. Closed exit again reported zero rounds, accepted collapses and migration, and the quality entry moved the same 216475 cells as S1. Transfer and continued CFD precede event 2.
+
+FP3-B S2 event 2 passed proof, memory and timer checks. Owned and per-rank faces 21824. Job peak equals the process peak sum at 10708992000 bytes. Event 2 repeated the empty-exit migration veto and its 165441-cell quality exchange. Continued CFD, isolated restart and the final Step 3 seal remain.
+
+FP3-B Step 3 passed. S2 passed both events, transfer, continued CFD, suppression and the ownership gate on all 12 worker packets, and isolated restart (exit 0, 82.354 s). All six directly hashed payloads agree with S1 on the frozen pair and identical effective config. Native maxima 565.165098815 / 325.3470135639999 s, minimum coverage 96.304% / 99.195%. No construction ownership commits or quality-to-construction returns. S2 supervisor terminal. Commit and push the passing pair, then run the Step 4 probe-2 timing observation.
