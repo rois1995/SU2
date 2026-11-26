@@ -2408,3 +2408,7 @@ FP3-B G1 passed exact identity on all 375 serial, 114 two-rank and 228 four-rank
 FP3-B build676 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/G2/case_summary.json.
 
 FP3-B G1 checkpoint e46e11e743 pushed. G2 passed the accepted P3 prefix comparison on all six ranks, including scheduling and census calls, integer rows, modeled storage and fixedstorage=4120. First-collapse work 76652506. GQ is running under the same scoped supervisor.
+
+FP3-B build676 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/GQ/case_summary.json.
+
+FP3-B G2 checkpoint d42dcdcbb1 pushed. GQ passed the third quality-window anchor and the exact P3 comparison, including scheduling, census, modeled storage and fixedstorage=4120. The shared first-collapse check is next.
