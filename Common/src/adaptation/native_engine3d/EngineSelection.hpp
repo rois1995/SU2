@@ -22,6 +22,16 @@ class Selection {
         wall_counters(wall_counters) {}
 
   bool coarsening, track_repairs, repair_event, prune_collapses = false, track_splits = false;
+  bool collapse_closed = false;
+  struct CollapseProbeCounts {
+    size_t accepted = 0, volume = 0, unclassified = 0, shared = 0, local = 0;
+    std::array<size_t, 3> surface{};
+    struct Cells {
+      size_t total = 0, bad = 0, unmeasured = 0;
+    } old, fresh;
+    bool incomplete = false;
+  };
+  std::optional<CollapseProbeCounts> collapse_probe;
   const bool quality_only;
   const bool surface_planning;
   bool size_repairs = false, geometry_repairs = false;

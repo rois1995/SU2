@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <iostream>
+#include <sstream>
 
 namespace SU2NativeLocal3D {
 namespace {
@@ -317,6 +319,105 @@ Mesh::SurfaceCollapseTrial Mesh::PrepareSurfaceCollapse(Edge direction, const Ri
     attempt.children.push_back(child);
   }
   return attempt;
+}
+
+void Mesh::ReportHandoverSurface(const StateSurfaceGeometry& geometry, int rank, unsigned stage) const noexcept {
+  constexpr std::array<const char*, static_cast<size_t>(Reason::Contact) + 1> names{
+      "None", "Protected", "Border", "Ineligible", "BorderKeeper", "FeatureChord", "Link", "Near", "Outward",
+      "Reverse", "Topology", "Size", "Shape", "Validity", "Distance", "Entity", "Bound", "ContactRemote", "Contact"};
+  std::array<size_t, names.size()> refusals{};
+  size_t short_edges = 0, prepare_pass = 0, protected_same_curve = 0, unclassified = 0;
+  bool incomplete = false;
+  try {
+    std::map<SurfaceEdge, EdgeUse> seeds;
+    for (const auto face : PhysicalFaces()) {
+      const auto vertices = OrientedFace(cells_[face.cell].vertices, face.face);
+      for (unsigned i = 0; i < 3; ++i) {
+        const auto edge = ById({vertices[i], vertices[(i + 1) % 3]});
+        const SurfaceEdge ids{points_[edge[0]].node.id, points_[edge[1]].node.id};
+        seeds.try_emplace(ids, EdgeUse{edge, face.cell});
+      }
+    }
+    const auto& state = geometry.State();
+    const auto& authority = state.Geometry();
+    const auto& policy = state.Mobility();
+    const auto visit_chains = [&](const auto& binding, const auto& visit) {
+      const auto bound_edge = [&](const SurfaceEdge& edge) {
+        const auto found = policy.features.find(edge);
+        if (found != policy.features.end()) visit(found->second);
+      };
+      if (binding.dimension == 1) {
+        bound_edge(authority.OriginalEdge(binding.feature));
+      } else if (binding.dimension == 0) {
+        authority.ForFacets(binding, [&](Id facet) {
+          const auto& vertices = authority.Reference().Get(facet).v;
+          for (unsigned i = 0; i < 3; ++i) {
+            SurfaceEdge edge{vertices[i].id, vertices[(i + 1) % 3].id};
+            if (edge[0] != binding.feature && edge[1] != binding.feature) continue;
+            if (edge[1] < edge[0]) std::swap(edge[0], edge[1]);
+            bound_edge(edge);
+          }
+        });
+      }
+    };
+    for (const auto& [ids, use] : seeds) {
+      if (!(Length(use.edge) < 0.9)) continue;
+      ++short_edges;
+      const auto ring = EdgeRing(use.edge, use.cell);
+      const auto parents = SurfaceParents(use.edge, ring);
+      const auto first = PrepareSurfaceCollapse(use.edge, ring, parents, geometry).refusal;
+      const auto second = PrepareSurfaceCollapse({use.edge[1], use.edge[0]}, ring, parents, geometry).refusal;
+      if (first == Reason::None || second == Reason::None)
+        ++prepare_pass;
+      else
+        ++refusals[static_cast<size_t>(first)];
+
+      const auto* a = geometry.Find(ids[0]);
+      const auto* b = geometry.Find(ids[1]);
+      if (!a || !b) {
+        ++unclassified;
+        continue;
+      }
+      bool missing_chain = false;
+      const auto matches = [&](const auto& removed, const auto& keeper) {
+        if (authority.MobilityDimension(removed, policy) != 1) return false;
+        std::optional<Id> chain;
+        bool ambiguous = false;
+        visit_chains(removed, [&](Id id) {
+          ambiguous |= chain && *chain != id;
+          chain = id;
+        });
+        if (!chain || ambiguous) {
+          missing_chain = true;
+          return false;
+        }
+        const auto keeper_dimension = authority.MobilityDimension(keeper, policy);
+        if (keeper_dimension > 1) return false;
+        bool found_chain = false, same = false;
+        visit_chains(keeper, [&](Id id) {
+          found_chain = true;
+          same |= id == *chain;
+        });
+        missing_chain |= !found_chain;
+        return same;
+      };
+      const bool lower_removed = matches(a->binding, b->binding);
+      const bool upper_removed = matches(b->binding, a->binding);
+      protected_same_curve += (lower_removed || upper_removed) && geometry.FindTrace(ids);
+      unclassified += missing_chain;
+    }
+  } catch (...) {
+    incomplete = true;
+  }
+  try {
+    std::ostringstream row;
+    row << "NATIVE3D_FP3_HANDOVER_SURFACE rank=" << rank << " stage=" << stage << " checkpoint=last_pass_pre_shift"
+        << " short_surface_edges=" << short_edges << " prepare_pass=" << prepare_pass;
+    for (size_t i = 0; i < names.size(); ++i) row << ' ' << names[i] << '=' << refusals[i];
+    row << " protected_same_curve=" << protected_same_curve << " unclassified=" << unclassified
+        << " proof=not_evaluated status=" << (incomplete ? "incomplete" : "complete") << '\n';
+    std::cout << row.str();
+  } catch (...) {}
 }
 
 // At the same metric and sample inputs, step C makes no edge marked by step L

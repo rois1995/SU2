@@ -156,3 +156,95 @@ TEST_CASE("Native local core is disabled by default", "[.][NativeLocalCore3DOpti
   const auto config = MakeConfig(3, "SOLVER= EULER\n");
   CHECK_FALSE(config->GetAdap_Native_Local_Core());
 }
+
+namespace {
+void CheckConstructionCollapseTrigger(bool mapped) {
+  World world;
+  REQUIRE(world.size == 1);
+  const auto config = MakeRoundConfig(
+      "SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\n"
+      "ADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_NATIVE_LOCAL_CORE= YES\nADAP_NATIVE_LOCAL_SURFACE= YES\n"
+      "ADAP_NATIVE_REPARTITION= NO\nWRT_PERFORMANCE= YES\n",
+      "MARKER_EULER= (wall)\nMARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n");
+  const auto mesh = simplex_test::MakeSimplexMesh(3, 1, [](const passivedouble* p) {
+    return p[2] == 0 ? std::string("wall") : simplex_test::Marker3D(p);
+  });
+  MeshSolution donor(config.get(), mesh, 0);
+  su2activematrix sensor(donor.Fine().GetnPointDomain(), 6);
+  // The vertical edges are short, but every surface vertex is a feature corner.
+  for (size_t p = 0; p < sensor.rows(); ++p) {
+    for (unsigned k = 0; k < 6; ++k) sensor(p, k) = k == 0 || k == 3 ? 1. : k == 5 ? .49 : 0.;
+  }
+  auto reference = std::make_shared<ReferenceState>();
+  if (mapped) {
+    ImportGeometry(*config, donor.Fine(), &sensor, *reference);
+    using SU2NativeGeometry::MappedFacetReference;
+    MappedFacetReference::CurvedNets nets;
+    std::map<Id, double> errors;
+    constexpr unsigned powers[10][3] = {{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},
+                                        {0,2,1},{0,1,2},{2,0,1},{1,0,2},{1,1,1}};
+    for (const auto& face : reference->facets) {
+      errors.emplace(face.id, 1e-12);
+      auto& net = nets[face.id];
+      for (unsigned q = 0; q < 10; ++q)
+        for (unsigned k = 0; k < 3; ++k) {
+          net[q].x += powers[q][k] * face.v[k].p.x / 3;
+          net[q].y += powers[q][k] * face.v[k].p.y / 3;
+          net[q].z += powers[q][k] * face.v[k].p.z / 3;
+        }
+    }
+    auto authority = std::make_shared<MappedFacetReference>(reference->original, errors, 303, SIZE_MAX, false, nets, 0);
+    BoundaryPoints points;
+    std::vector<SurfaceFace> skin;
+    for (const auto& face : reference->facets) {
+      skin.push_back({{face.v[0].id, face.v[1].id, face.v[2].id}, face.id});
+      for (const auto& node : face.v) points.emplace(node.id, BoundaryPoint{node, authority->Vertex(node.id)});
+    }
+    reference->original = PlanarReference::WithParameters(
+        reference->original, std::make_shared<BoundaryParameterState>(authority, points, skin, 1));
+  }
+  bool initial_exit = false;
+  EngineOptions options;
+  options.stage_observer = [&](const StageProgressView& view) {
+    if (initial_exit || std::string(view.stage) != "length_collapse_exit") return;
+    initial_exit = true;
+    if (mapped) {
+      CHECK(view.round == 0);
+      CHECK(view.stats.attempted == 0);
+      CHECK(view.stats.collapse_filtered == 0);
+    } else {
+      CHECK(view.stats.attempted + view.stats.collapse_filtered > 0);
+    }
+  };
+  CNativeRemesher3D remesher(reference, options);
+  std::ostringstream captured;
+  struct Capture {
+    std::streambuf* previous;
+    explicit Capture(std::ostream& sink) : previous(std::cout.rdbuf(sink.rdbuf())) {}
+    ~Capture() { std::cout.rdbuf(previous); }
+  };
+  CRemeshResult result;
+  {
+    const Capture capture(captured);
+    result = remesher.Remesh(*config, donor.Fine(), sensor);
+  }
+  const auto log = captured.str();
+  INFO(log);
+  REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
+  CHECK(initial_exit);
+  CHECK(log.find("NATIVE3D_LOCAL_CORE rank=0 stage=0 pass=1 applicable=1") != std::string::npos);
+  if (mapped) {
+    CHECK(log.find("NATIVE3D_LOCAL_SURFACE_STATE rank=0 stage=0 splits_all=0 removals_all=0") != std::string::npos);
+  } else {
+    CHECK(log.find("NATIVE3D_LOCAL_SURFACE rank=0 applicable=0") != std::string::npos);
+  }
+}
+}  // namespace
+
+TEST_CASE("Step C with zero edits closes construction collapse", "[.][FP3A]") {
+  CheckConstructionCollapseTrigger(true);
+}
+
+TEST_CASE("Volume-only core leaves construction collapse available", "[.][FP3A]") {
+  CheckConstructionCollapseTrigger(false);
+}

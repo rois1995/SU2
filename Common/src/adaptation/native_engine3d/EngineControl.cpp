@@ -571,6 +571,7 @@ void EngineControl::PreparePhaseDirection(EngineContext& context, EnginePhase ne
     construction_claims = next == Phase::Construction;
     stats.split_lane = 0;
     if (next == Phase::Construction) {
+      selection.collapse_closed = context.options.close_construction_collapse;
       generation_window_count = 0;
       selection.queues.edge_history.clear();
       if (world.maximum(improvement_changed)) length_blocks_dirty = {{true, true}};
@@ -1337,6 +1338,22 @@ RoundDecision RoundHead::EndLengthGeneration() {
     else
       ++stats.length_split_passes;
     EngineReports::EmitLengthPass(context, atlas_budget);
+    if (coarsening && selection.collapse_probe) {
+      const auto& probe = *selection.collapse_probe;
+      try {
+        std::ostringstream row;
+        row << "NATIVE3D_FP3_ENGINE_COLLAPSE rank=" << world.rank << " accepted=" << probe.accepted
+            << " removed_volume=" << probe.volume << " removed_surface_2=" << probe.surface[2]
+            << " removed_surface_1=" << probe.surface[1] << " removed_surface_0=" << probe.surface[0]
+            << " unclassified=" << probe.unclassified << " shared=" << probe.shared << " local=" << probe.local
+            << " old_cells=" << probe.old.total << " old_bad=" << probe.old.bad
+            << " old_unmeasured=" << probe.old.unmeasured << " fresh_cells=" << probe.fresh.total
+            << " fresh_bad=" << probe.fresh.bad << " fresh_unmeasured=" << probe.fresh.unmeasured
+            << " status=" << (probe.incomplete ? "incomplete" : "complete") << '\n';
+        std::cout << row.str();
+      } catch (...) {}
+      selection.collapse_probe.reset();
+    }
     if (!EngineControl::ObserveProgress(context, working, atlas_budget,
                                         coarsening ? "length_collapse_exit" : "length_split_exit"))
       return FinishRound();
@@ -1485,6 +1502,7 @@ RoundDecision RoundHead::StartMetricCleanup() {
         try {
           directory->BeginConstructionPass();
           construction_claims = true;
+          selection.collapse_closed = false;
           context.queues.LengthDirection(context, true);
           selection.ChangePhase(false, working, field_identity);
         } catch (const std::exception& e) {

@@ -703,6 +703,7 @@ class SlotCommit {
   const SU2NativeGeometry::BoundaryCoverage& no_coverage;
   bool curved;
   size_t diagnostic_rejection_limit;
+  std::optional<Selection::CollapseProbeCounts> collapse_observation;
 
   bool FinishSlot();
   void AppendCorrectionRefusal();
@@ -713,6 +714,7 @@ class SlotCommit {
   template <class Observe>
   bool PrepareParametersAndObserve(Observe& observe_transaction);
   void RecordRejectedSlot();
+  void ObserveCollapse(const std::vector<OwnedCell>& metric_rows) noexcept;
   void RouteApprovedRows();
   void ExchangeSlotRoutes();
   bool RouteSlot();
@@ -957,6 +959,54 @@ void SlotCommit::RecordRejectedSlot() {
                                    result.reason);
 }
 
+void SlotCommit::ObserveCollapse(const std::vector<OwnedCell>& metric_rows) noexcept {
+  if (!context.census.selection->collapse_probe || !*context.control.coarsening) return;
+  const auto& old = *slot_state.old;
+  const auto& fresh = *slot_state.fresh;
+  const auto removed = round_state.choice->edge[1];
+  auto& probe = collapse_observation.emplace();
+  probe.accepted = 1;
+  probe.shared = std::any_of(slot_state.dependencies->cells.begin(), slot_state.dependencies->cells.end(),
+                             [&](const auto& dep) { return dep.owner != context.world.rank; });
+  probe.local = !probe.shared;
+  if (std::any_of(old.surface.begin(), old.surface.end(), [&](const auto& face) {
+        return std::find(face.v.begin(), face.v.end(), removed) != face.v.end();
+      })) {
+    try {
+      const auto* state = context.geometry.Parameters();
+      if (state) {
+        const auto dimension = state->Geometry().MobilityDimension(old.parameters.at(removed).binding, state->Mobility());
+        ++probe.surface.at(dimension);
+      } else {
+        probe.unclassified = 1;
+        probe.incomplete = true;
+      }
+    } catch (...) {
+      probe.unclassified = 1;
+      probe.incomplete = true;
+    }
+  } else
+    probe.volume = 1;
+  const auto measure = [&](const auto& cells, const auto& tensors, auto& values) {
+    values.total = cells.size();
+    for (const auto& cell : cells) {
+      const auto row = std::find_if(tensors.begin(), tensors.end(),
+                                    [&](const auto& entry) { return entry.cell.id == cell.id; });
+      if (row != tensors.end() && row->sensor_present) {
+        try {
+          values.bad += SU2NativeLocal3D::NodalMargin(*row) < SU2NativeLocal3D::BadMargin;
+          continue;
+        } catch (...) {
+          probe.incomplete = true;
+        }
+      }
+      ++values.unmeasured;
+    }
+  };
+  measure(old.cells, slot_state.imported->cells, probe.old);
+  measure(fresh.cells, metric_rows, probe.fresh);
+}
+
 // Routes verified cells to original owners using the per-slot parent layout.
 void SlotCommit::RouteApprovedRows() {
   auto& coarsening = *context.control.coarsening;
@@ -1000,6 +1050,7 @@ void SlotCommit::RouteApprovedRows() {
     metric_rows.push_back(row);
   }
   PublishMetrics(imported.cells, metric_rows);
+  ObserveCollapse(metric_rows);
   std::map<Face, Id> physical;
   for (auto face : fresh.surface) physical.emplace(Key(face.v), face.facet);
   for (size_t i = 0; i < fresh.cells.size(); ++i) {
@@ -1239,6 +1290,23 @@ void SlotCommit::RecordAcceptedSlot() {
     construction_changed = true;
     construction_generation_changed = true;
     ++stats.accepted;
+    if (collapse_observation) {
+      auto& total = *context.census.selection->collapse_probe;
+      const auto& slot = *collapse_observation;
+      total.accepted += slot.accepted;
+      total.volume += slot.volume;
+      total.unclassified += slot.unclassified;
+      total.shared += slot.shared;
+      total.local += slot.local;
+      for (size_t d = 0; d < total.surface.size(); ++d) total.surface[d] += slot.surface[d];
+      total.old.total += slot.old.total;
+      total.old.bad += slot.old.bad;
+      total.old.unmeasured += slot.old.unmeasured;
+      total.fresh.total += slot.fresh.total;
+      total.fresh.bad += slot.fresh.bad;
+      total.fresh.unmeasured += slot.fresh.unmeasured;
+      total.incomplete |= slot.incomplete;
+    }
     wall_counters.Accepted();
     if (!coarsening) wall_counters.ObserveSplit(choice.geometric);
     if (options.timings && lane_slots[slot].required_primary_split)

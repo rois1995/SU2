@@ -26,6 +26,7 @@ using SU2Native3D::Id;
 using SU2Native3D::MetricMeasures;
 using SU2Native3D::Node;
 using SU2Native3D::Owned;
+using SU2Native3D::OwnedCell;
 using SU2Native3D::Point;
 using SU2Native3D::Tensor;
 using SU2Native3D::World;
@@ -46,8 +47,13 @@ constexpr unsigned PassCount = 2;
 
 Face OrientedFace(Vertices vertices, unsigned face);
 class SurfaceGeometry;
+class StateSurfaceGeometry;
 class RemoteSurface;
 struct ContactContext;
+
+enum class CollapseProbe { None, Core, Engine };
+CollapseProbe FP3Probe();
+double NodalMargin(const OwnedCell& row);
 
 struct CoreOptions {
   bool memory = true;
@@ -261,6 +267,7 @@ class Mesh {
   double Length(Edge edge) const;
   MetricMeasures Shape(Vertices vertices) const;
   double Margin(Vertices vertices) const;
+  void ReportHandoverSurface(const StateSurfaceGeometry&, int rank, unsigned stage) const noexcept;
   void Check() const;
   void WriteBack(Owned& owned, IdSequence& ids) const;
 

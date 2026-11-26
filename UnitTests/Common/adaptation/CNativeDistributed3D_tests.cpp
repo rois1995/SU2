@@ -5743,3 +5743,58 @@ TEST_CASE("N22 deferred census joins a one-rank memory refusal", "[.][NativeN22C
   CHECK((refused.stats.initial_cells == 0) == (world.rank == 0));
   CHECK(Bytes(input) == saved);
 }
+
+TEST_CASE("Closed construction collapse exits normally and leaves metric cleanup available", "[.][FP3A]") {
+  World world;
+  REQUIRE(world.size == 1);
+  const bool close = GENERATE(false, true);
+  const std::array<Node, 4> nodes{{{0, {0, 0, 0}}, {1, {1, 0, 0}}, {2, {0, 1, 0}}, {3, {0, 0, .01}}}};
+  Fixture fixture;
+  fixture.patch.cells.push_back({0, nodes});
+  for (const auto& face : Incidence(fixture.patch.cells).Boundary()) {
+    const Id facet = fixture.facets.size();
+    fixture.facets.push_back({facet, int(facet) + 10, {nodes[face[0]], nodes[face[1]], nodes[face[2]]}});
+    fixture.patch.surface.push_back({face, facet});
+  }
+  const PlanarReference geometry(fixture.facets);
+  const auto input = WithUniformSensor(Partition(Rows(fixture.patch), world), Tensor{});
+  EngineOptions options;
+  CHECK_FALSE(options.close_construction_collapse);
+  options.close_construction_collapse = close;
+  options.maximum_rounds = 512;
+  options.maximum_work = 32768;
+  bool initial_exit = false, split_exit = false, cleanup_entry = false, cleanup_exit = false;
+  uint64_t cleanup_candidates = 0;
+  options.stage_observer = [&](const StageProgressView& view) {
+    const std::string stage = view.stage;
+    const auto examined = view.stats.attempted + view.stats.collapse_filtered;
+    if (stage == "length_collapse_exit" && !initial_exit) {
+      initial_exit = true;
+      CHECK(view.phase == EnginePhase::Construction);
+      CHECK(view.stats.length_collapses == 0);
+      if (close) {
+        CHECK(view.round == 0);
+        CHECK(examined == 0);
+      } else {
+        CHECK(examined > 0);
+      }
+    } else if (stage == "length_split_exit") {
+      CHECK(initial_exit);
+      split_exit = true;
+    } else if (stage == "metric_cleanup_entry") {
+      cleanup_entry = true;
+      cleanup_candidates = examined;
+    } else if (stage == "metric_cleanup_exit") {
+      CHECK(cleanup_entry);
+      CHECK(examined > cleanup_candidates);
+      cleanup_exit = true;
+    }
+  };
+  const auto result = AdaptMetric(world, input, Uniform(input, Tensor{}), geometry, {}, options);
+  INFO(result.reason);
+  CHECK(initial_exit);
+  CHECK(split_exit);
+  CHECK(cleanup_entry);
+  CHECK(cleanup_exit);
+  CHECK(result.stats.stop == EngineStop::OperatorStagnation);
+}

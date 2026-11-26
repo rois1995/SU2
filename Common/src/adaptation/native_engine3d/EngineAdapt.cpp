@@ -71,6 +71,7 @@ struct EngineRun {
                                     options.surface_tolerance, options.wall_heights, bidirectional,
                                     bool(surface_target), &wall_counters);
     auto& selection = selection_lifetime.Get();
+    selection.collapse_closed = options.close_construction_collapse;
     selection.queues.split_lanes = bidirectional;
     ContextValue construction_claims_lifetime(context.exchange.construction_claims, bidirectional);
     ContextValue edge_progress_lifetime(context.census.edge_progress);
@@ -243,6 +244,9 @@ struct EngineRun {
     auto& ready = *context.control.ready;
     auto& world = context.world;
     auto& surface_target = context.surface_target;
+    if (context.options.timings && context.bidirectional && !surface_target &&
+        SU2NativeLocal3D::FP3Probe() == SU2NativeLocal3D::CollapseProbe::Engine)
+      selection.collapse_probe.emplace();
     // Construction requests missing edges only; improvement also imports centroid support.
     ContextValue ownership_evaluated_lifetime(context.ownership.ownership_evaluated,
                                               std::array<bool, 2>{{false, false}});

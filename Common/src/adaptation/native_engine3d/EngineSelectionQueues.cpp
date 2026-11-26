@@ -79,7 +79,7 @@ bool Selection::Candidate(long double length) const {
 
 // Refreshes both directed queue entries without reopening a rejected edge.
 void Selection::Queue(Edge edge, long double length, bool insert) {
-  if (repair_event || !Candidate(length)) return;
+  if (repair_event || (coarsening && collapse_closed) || !Candidate(length)) return;
   for (unsigned i = 0; i < (coarsening ? 2u : 1u); ++i) {
     Edge key = edge;
     std::sort(key.begin(), key.end());

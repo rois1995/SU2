@@ -296,6 +296,7 @@ bool EngineOwnership::MigrateOwnership(EngineContext& context, bool quality,
   std::unique_ptr<Directory> pending_directory;
   Selection pending_selection(coarsening, repairing, geometry, stats, options.timings, options.surface_tolerance,
                               options.wall_heights, bidirectional, bool(surface_target), &wall_counters);
+  pending_selection.collapse_closed = selection.collapse_closed;
   pending_selection.queues.split_lanes = selection.queues.split_lanes;
   pending_selection.queues.lane = selection.queues.lane;
   pending_selection.size_repairs = selection.size_repairs;

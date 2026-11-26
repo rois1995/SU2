@@ -7,6 +7,7 @@
 #include "../../../include/adaptation/CNativeLocalCore3D.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <limits>
 #include <stdexcept>
 
@@ -146,13 +147,8 @@ double Mesh::Length(const PointRow& a, const PointRow& b) {
 
 double Mesh::Length(Edge edge) const { return Length(points_[edge[0]], points_[edge[1]]); }
 
-MetricMeasures Mesh::Shape(Vertices vertices) const {
-  SU2Native3D::Tetrahedron tet;
-  std::array<const Tensor*, 4> tensors;
-  for (unsigned k = 0; k < 4; ++k) {
-    tet[k] = points_[vertices[k]].node.p;
-    tensors[k] = &points_[vertices[k]].tensor;
-  }
+namespace {
+MetricMeasures NodalShape(const SU2Native3D::Tetrahedron& tet, const std::array<const Tensor*, 4>& tensors) {
   const auto m = MeanTensor(tensors);
   const double det =
       m.xx * (m.yy * m.zz - m.yz * m.yz) - m.xy * (m.xy * m.zz - m.xz * m.yz) + m.xz * (m.xy * m.yz - m.xz * m.yy);
@@ -178,9 +174,42 @@ MetricMeasures Mesh::Shape(Vertices vertices) const {
   return {q, j, std::sqrt(sum / 6), std::sqrt(longest)};
 }
 
-double Mesh::Margin(Vertices vertices) const {
-  const auto shape = Shape(vertices);
+double ShapeMargin(const MetricMeasures& shape) {
   return std::min(shape.mean_ratio / SU2Native3D::MinimumMeanRatio,
                   shape.minimum_scaled_jacobian / SU2Native3D::MinimumScaledJacobian);
+}
+}  // namespace
+
+MetricMeasures Mesh::Shape(Vertices vertices) const {
+  SU2Native3D::Tetrahedron tet;
+  std::array<const Tensor*, 4> tensors;
+  for (unsigned k = 0; k < 4; ++k) {
+    tet[k] = points_[vertices[k]].node.p;
+    tensors[k] = &points_[vertices[k]].tensor;
+  }
+  return NodalShape(tet, tensors);
+}
+
+double Mesh::Margin(Vertices vertices) const { return ShapeMargin(Shape(vertices)); }
+
+double NodalMargin(const OwnedCell& row) {
+  SU2Native3D::Tetrahedron tet;
+  std::array<const Tensor*, 4> tensors;
+  for (unsigned k = 0; k < 4; ++k) {
+    tet[k] = row.cell.v[k].p;
+    tensors[k] = &row.sensor[k];
+  }
+  return ShapeMargin(NodalShape(tet, tensors));
+}
+
+CollapseProbe FP3Probe() {
+  static const auto probe = [] {
+    const auto* value = std::getenv("SU2_NATIVE_FP3_PROBE");
+    if (!value || !value[0] || value[1]) return CollapseProbe::None;
+    if (value[0] == '1') return CollapseProbe::Core;
+    if (value[0] == '2') return CollapseProbe::Engine;
+    return CollapseProbe::None;
+  }();
+  return probe;
 }
 }  // namespace SU2NativeLocal3D

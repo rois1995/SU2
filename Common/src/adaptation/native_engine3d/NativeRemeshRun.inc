@@ -678,6 +678,7 @@ struct RemeshRun {
     auto& worker_source = mesh.worker_source;
     World workers(comm);
     auto kernel = control;
+    kernel.close_construction_collapse = false;
     kernel.idle_peak_rss_bytes = stats.workers < parent.size ? idle_peak : 0;
     if (control.geometry_workspace_bytes) kernel.shared_geometry_budget = &target_event_budget;
     kernel.maximum_seconds = worker_seconds;
@@ -697,12 +698,21 @@ struct RemeshRun {
       std::vector<DonorCell> stage_source;
       WorkerTrial trial{workers, kernel, worker_seconds, worker_start, valid, detail, stage_source, begin};
       if (config.GetAdap_Native_Local_Core()) {
-        const bool applicable = !input.composition && !construction && kernel.wall_heights.empty() &&
-                                kernel.region_walls.empty() &&
-                                !workers.maximum(std::any_of(mesh.working.begin(), mesh.working.end(),
-                                                             [](const auto& row) { return !row.second.sensor_present; }));
-        if (applicable) {
-          if (RunLocalCore(mesh, trial, preparation))
+        const bool eligible = !input.composition && !construction && kernel.wall_heights.empty() &&
+                              kernel.region_walls.empty();
+        const bool surface_requested = config.GetAdap_Native_Local_Surface();
+        int eligibility = 2;
+        if (eligible) {
+          const bool missing_sensor = std::any_of(mesh.working.begin(), mesh.working.end(),
+                                                  [](const auto& row) { return !row.second.sensor_present; });
+          const int local = missing_sensor ? 2 : (surface_requested && !LocalSurfaceEligible(preparation) ? 1 : 0);
+          eligibility = workers.maximum(local);
+        }
+        if (eligibility < 2) {
+          const auto outcome = RunLocalCore(mesh, trial, preparation, surface_requested && eligibility == 0);
+          kernel.close_construction_collapse = outcome.step_c_completed &&
+              SU2NativeLocal3D::FP3Probe() != SU2NativeLocal3D::CollapseProbe::Engine;
+          if (outcome.installed_surface)
             kernel.caller_bytes = transfer_memory::Add(
                 Held(preparation), transfer_memory::Bytes(imported.original),
                 worker_source == &imported.original ? 0 : transfer_memory::Bytes(*worker_source));
@@ -870,16 +880,16 @@ struct RemeshRun {
     std::cout << " seconds=" << seconds << std::endl;
   }
 
+  static bool LocalSurfaceEligible(const ReferencePreparation& preparation) {
+    const auto& original = preparation.pending->state.original;
+    const auto* state = original ? original->Parameters() : nullptr;
+    return state && state->EntityGeometry() && state->Mobility().identity;
+  }
+
   std::unique_ptr<SU2NativeLocal3D::StateSurfaceGeometry> BeginLocalSurface(const ReferencePreparation& preparation,
                                                                           const Owned& working, WorkerTrial& trial) {
     auto& workers = trial.workers;
     const auto& original = preparation.pending->state.original;
-    const auto* state = original ? original->Parameters() : nullptr;
-    if (!state || !state->EntityGeometry() || !state->Mobility().identity) {
-      if (control.timings)
-        std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << workers.rank << " applicable=0" << std::endl;
-      return {};
-    }
     const auto& kernel = trial.kernel;
     std::unique_ptr<SU2NativeLocal3D::StateSurfaceGeometry> surface;
     CLocalFailure local;
@@ -941,15 +951,21 @@ struct RemeshRun {
   }
 
   // Replace the working volume before the existing current-nodal snapshot.
-  bool RunLocalCore(WorkerMesh& mesh, WorkerTrial& trial, ReferencePreparation& preparation) {
+  struct LocalCoreOutcome {
+    bool installed_surface, step_c_completed;
+  };
+
+  LocalCoreOutcome RunLocalCore(WorkerMesh& mesh, WorkerTrial& trial, ReferencePreparation& preparation,
+                               bool enable_surface) {
     namespace core = SU2NativeLocal3D;
     SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::Construction);
     SU2NativeTiming3D::Scope topology(SU2NativeTiming3D::Operation::Topology);
     auto& workers = trial.workers;
     auto& working = mesh.working;
     const auto& kernel = trial.kernel;
-    const auto surface = config.GetAdap_Native_Local_Surface() ? BeginLocalSurface(preparation, working, trial)
-                                                               : nullptr;
+    const auto surface = enable_surface ? BeginLocalSurface(preparation, working, trial) : nullptr;
+    if (control.timings && config.GetAdap_Native_Local_Surface() && !surface)
+      std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << workers.rank << " applicable=0" << std::endl;
     Id point_base = 0, cell_base = 0;
     const auto visit = [&](const Cell& cell) {
       cell_base = std::max(cell_base, cell.id);
@@ -1051,6 +1067,8 @@ struct RemeshRun {
                                                       contact_bytes, screen_bytes));
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get(),
                                      remote ? &*remote : nullptr);
+          if (report && pass == passes && core::FP3Probe() == core::CollapseProbe::Core)
+            pass_mesh.ReportHandoverSurface(*surface, workers.rank, stage);
           remote.reset();
           if (options.outward_collapses)
             surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
@@ -1141,7 +1159,8 @@ struct RemeshRun {
         error("Unknown shifted mesh probe error");
       }
     }
-    return surface && InstallLocalSurface(preparation, working, trial, *surface, budget, exchange_seconds);
+    const bool installed = surface && InstallLocalSurface(preparation, working, trial, *surface, budget, exchange_seconds);
+    return {installed, options.surface_collapses};
   }
 
   // Replaces the private stage donor snapshot only after the existing vote.
