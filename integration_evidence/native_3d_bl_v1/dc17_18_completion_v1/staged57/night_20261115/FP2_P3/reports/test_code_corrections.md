@@ -11,3 +11,9 @@ The corrected saved481 child completed in its fresh root. It matched the archive
 The first B2b seal selected the `-n 19` from `nice -n 19` when it read a command containing `mpirun -n 6`. It failed during provenance sealing after accepted events, six matching disk payloads, continued CFD and a verified isolated restart. The actual launch and restart commands contain the required switches, MPI exports and six ranks. The raw main rank logs show six OFF markers and the no-query restart shows zero. The exact FX2 row comparison has zero differences.
 
 The receipt check now looks for the rank flag after the MPI launcher token. The original launcher remains byte-pinned. The correction reuses the terminal controls and rechecks host identities, source and helper pins, payloads on disk, the restart's artifact hashes, and switch counts. The original failed receipt, summary and top seal are archived beside their respective corrected selections.
+
+## C2 first-collapse source pin binding
+
+The initial controller stopped before native launch at the inherited assertion requiring disjoint source pin maps. The signed order and its checksum were present with identical digests in both the primary build manifest and the P3 supplement. The setup log and terminal wait identify the exact assertion. The following missing case status was a consequence of that setup stop.
+
+In the corrected fresh attempt, the two files remain in the primary manifest. The supplemental builder verifies the two digests before omitting those duplicates. The inherited source pin validator, switch settings and first-collapse result checks are used as written.

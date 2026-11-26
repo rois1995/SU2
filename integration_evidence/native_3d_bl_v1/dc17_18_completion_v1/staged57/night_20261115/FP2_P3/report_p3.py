@@ -191,6 +191,25 @@ def render(data):
         lines+=table(('Part','Model rows','Prepared nodes','Work'),(
             (part,row['rows'],row['prepared_nodes'],row['work'])
             for part,row in data['curved_model_rows'].items()))
+    shared=data['parts']['C2'].get('checks',{})
+    if collapse:=shared.get('first-collapse'):
+        receipt=collapse['data']['subruns']['first-collapse'].get('switch_receipt')
+        if receipt:
+            lines+=table(('First-collapse ranks','Upper work','Work limit','Seconds to stop','Peak bytes'),[(
+                receipt['captured_ranks'],receipt['observed_work'],receipt['work_limit'],
+                receipt['seconds_until_stop'],receipt['observed_solver_peak_sum_bytes'])])
+    if c492:=shared.get('exact-c492'):
+        trial=c492['data']['subruns']['bl']
+        if c492['data']['status']=='passed':
+            raw=Path(trial['raw'])
+            verify_pins({str(raw):trial['raw_sha256']})
+            row=cut.read(raw)
+            stage=cut.read(raw.with_name('actual_saved_surface_stage_rank0.json'))
+            lines+=table(('C492 split count','Native admission s','Stop reason','Seconds through final proof',
+                          'First differing RunA edit'),[(
+                row['actual_splits'],stage['maximum_seconds'],stage['stop'],stage['seconds'],
+                row['first_differing_edit'])])
+            lines+=['The final proof and result accounting follow the native time-budget stop.','']
     pairs=[]
     for part,details in data['comparisons'].items():
         for key in ('pair','historical_payloads','off_comparison'):
@@ -204,6 +223,9 @@ def render(data):
                 row=selected['data']
                 if row.get('pair'):
                     pairs.append((part,name,row['pair']['status'],row['pair'].get('first_difference')))
+                    if first:=row['pair'].get('reference'):
+                        pairs.append((part,f'{name} historical',first['historical_exact'],
+                                      first['historical_first_difference']))
                 for gate,sub in row.get('parts',{}).items():
                     pairs.append((part,gate,sub['status'],sub.get('first_difference')))
     lines+=['## Pairs and historical comparisons','']

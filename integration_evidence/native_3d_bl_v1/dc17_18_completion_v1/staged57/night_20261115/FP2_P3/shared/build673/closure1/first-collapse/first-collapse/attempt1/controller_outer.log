@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/run_shared.py", line 720, in <module>
+    first(args.attempt_dir, build, args.closure)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/run_shared.py", line 72, in first
+    ns['main']()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/run_p5_first_collapse_gate.py", line 442, in main
+    pins_before = verify_pins()
+                  ^^^^^^^^^^^^^
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/purpose_query_fix_20261114/run_p5_first_collapse_gate.py", line 94, in verify_pins
+    assert not (pins.keys() & extra.keys())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

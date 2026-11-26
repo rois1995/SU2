@@ -2166,3 +2166,19 @@ FP2-P3 C1 default G1 matched the exact adopted case, result and failed-assertion
 FP2-P3 build673 C1 passed. Evidence build673/C1.json.
 
 FP2-P3 C1 passed all ten sealed checks. Focused and curved fixtures completed, the curved trace and leaf pins passed, and the direct and public fixtures passed. In the public improvement case, the prepared physical nodes were 253 off and 1 on, with footprint groups 2 and 1. The complete and cropped lower-bound and cache checks also passed. C1 controller terminal. Next C2, beginning with the hard first-collapse checks.
+
+FP2-P3 C1 passed checkpoint eaa458e420 pushed. C2 service su2-fp2-p3-build673-c2 launched first collapse, exact C492, merit481, native 2D at 1/2/4 ranks and the two saved_current executions on build673 in sequence. Production diff remains confined to ConformingWitness().
+
+FP2-P3 C2 first-collapse setup stopped before native launch. The inherited validator requires disjoint primary and supplemental pin maps. The P3 adapter added the signed order and checksum again even though the primary build manifest already pins both files byte for byte; it stopped at the duplicate-key assertion before writing a case status. This is an R3 launcher defect. Preserve the original setup, let C492 and the other independent C2 checks finish, then run first collapse with the deduplicated manifest on the same pair and unchanged gates.
+
+FP2-P3 C2 exact C492 passed its executed-state checks with the unchanged 388.8 s configured stage and 1646 positive splits, zero upper refinements, and byte-identical frozen input and target. First RunA edit difference is zero-based index 32, edge [24240,24242] versus [24242,24427]. That comparison is report-only. Merit481 follows, then native 2D and the saved_current pair.
+
+FP2-P3 C2 C492 clocks: native bounded work stopped with time_budget at the configured 388.8 s selection deadline. The saved-state 461.175 s includes the subsequent terminal proof and result accounting in EngineControl::Finish. The inherited test exit was zero and all executed-state checks passed. The clocks are reported separately.
+
+FP2-P3 C2 merit481 and native 2D at 1, 2 and 4 ranks passed. The saved_current pair is in progress. First-collapse repair is queued behind the terminal C2 supervisor and a check that the original C2 seal's only red receipt is the duplicate-pin launcher error.
+
+FP2-P3 build673 C2 FAILED. Evidence build673/C2.json.
+
+FP2-P3 C2 saved_current passed both executions and their direct disk SHA256 and planning comparison. All three payloads and all 1297 ordered planning rows are identical across the pair. The original C2 controller is terminal and marked FAILED only for the prelaunch first-collapse duplicate-pin defect. No C3 launch until the corrected first-collapse result is selected.
+
+FP2-P3 C2 reselected passed. Corrected first collapse captured all six exits and stopped in 216.782 s against 1500 s. Work 76652506 against 108459426, sampled solver peak sum 8009142272 bytes against 19999490048, no upper refinements, and accepted-by-rank vector 480 / 473 / 346 / 263 / 469 / 464. No off markers at default on. C492, merit481, native 2D and the saved_current pair remain sealed and passed. The original setup error is archived. Both C2 controllers are terminal. Next C3 candidate prefixes.
