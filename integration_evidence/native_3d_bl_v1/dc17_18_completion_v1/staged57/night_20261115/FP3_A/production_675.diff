@@ -1,0 +1,739 @@
+diff --git a/Common/include/adaptation/CNativeEngine3D.hpp b/Common/include/adaptation/CNativeEngine3D.hpp
+index 189b9e6220..11e97af665 100644
+--- a/Common/include/adaptation/CNativeEngine3D.hpp
++++ b/Common/include/adaptation/CNativeEngine3D.hpp
+@@ -142,6 +142,7 @@ struct EngineOptions {
+   size_t stage_observer_bytes=0;  // Additional observer storage reserved in every runtime admission while installed.
+   PhaseOwnership phase_ownership=PhaseOwnership::Automatic;  // DiagnosticAlways exercises migration without a profitability veto.
+   bool timings = false;
++  bool close_construction_collapse = false;
+   bool report_rejected_neighborhood = false;       // Print-only final remesh worker census.
+   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
+   size_t repair_batch = 0;  // Candidates on one rank per repair round. Zero uses candidate_batch.
+diff --git a/Common/include/adaptation/CNativeLocalCore3D.hpp b/Common/include/adaptation/CNativeLocalCore3D.hpp
+index 805e912034..bd08c50d93 100644
+--- a/Common/include/adaptation/CNativeLocalCore3D.hpp
++++ b/Common/include/adaptation/CNativeLocalCore3D.hpp
+@@ -26,6 +26,7 @@ using SU2Native3D::Id;
+ using SU2Native3D::MetricMeasures;
+ using SU2Native3D::Node;
+ using SU2Native3D::Owned;
++using SU2Native3D::OwnedCell;
+ using SU2Native3D::Point;
+ using SU2Native3D::Tensor;
+ using SU2Native3D::World;
+@@ -46,9 +47,14 @@ constexpr unsigned PassCount = 2;
+ 
+ Face OrientedFace(Vertices vertices, unsigned face);
+ class SurfaceGeometry;
++class StateSurfaceGeometry;
+ class RemoteSurface;
+ struct ContactContext;
+ 
++enum class CollapseProbe { None, Core, Engine };
++CollapseProbe FP3Probe();
++double NodalMargin(const OwnedCell& row);
++
+ struct CoreOptions {
+   bool memory = true;
+   bool shape_test = true;
+@@ -261,6 +267,7 @@ class Mesh {
+   double Length(Edge edge) const;
+   MetricMeasures Shape(Vertices vertices) const;
+   double Margin(Vertices vertices) const;
++  void ReportHandoverSurface(const StateSurfaceGeometry&, int rank, unsigned stage) const noexcept;
+   void Check() const;
+   void WriteBack(Owned& owned, IdSequence& ids) const;
+ 
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 8e556289a5..f6c6a98864 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -20,6 +20,7 @@
+ #include "../../include/adaptation/CNativeWallGeometryLaw3D.hpp"
+ #include "../../include/adaptation/CNativeLaneCensus3D.hpp"
+ #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
++#include "../../include/adaptation/CNativeLocalCore3D.hpp"
+ #include <cassert>
+ #include <chrono>
+ #include <cmath>
+diff --git a/Common/src/adaptation/native_engine3d/EngineAdapt.cpp b/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
+index 2acaa8cc0e..c66768dc15 100644
+--- a/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
+@@ -71,6 +71,7 @@ struct EngineRun {
+                                     options.surface_tolerance, options.wall_heights, bidirectional,
+                                     bool(surface_target), &wall_counters);
+     auto& selection = selection_lifetime.Get();
++    selection.collapse_closed = options.close_construction_collapse;
+     selection.queues.split_lanes = bidirectional;
+     ContextValue construction_claims_lifetime(context.exchange.construction_claims, bidirectional);
+     ContextValue edge_progress_lifetime(context.census.edge_progress);
+@@ -243,6 +244,9 @@ struct EngineRun {
+     auto& ready = *context.control.ready;
+     auto& world = context.world;
+     auto& surface_target = context.surface_target;
++    if (context.options.timings && context.bidirectional && !surface_target &&
++        SU2NativeLocal3D::FP3Probe() == SU2NativeLocal3D::CollapseProbe::Engine)
++      selection.collapse_probe.emplace();
+     // Construction requests missing edges only; improvement also imports centroid support.
+     ContextValue ownership_evaluated_lifetime(context.ownership.ownership_evaluated,
+                                               std::array<bool, 2>{{false, false}});
+diff --git a/Common/src/adaptation/native_engine3d/EngineCommit.cpp b/Common/src/adaptation/native_engine3d/EngineCommit.cpp
+index 439681dab4..171e422f40 100644
+--- a/Common/src/adaptation/native_engine3d/EngineCommit.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineCommit.cpp
+@@ -703,6 +703,7 @@ class SlotCommit {
+   const SU2NativeGeometry::BoundaryCoverage& no_coverage;
+   bool curved;
+   size_t diagnostic_rejection_limit;
++  std::optional<Selection::CollapseProbeCounts> collapse_observation;
+ 
+   bool FinishSlot();
+   void AppendCorrectionRefusal();
+@@ -713,6 +714,7 @@ class SlotCommit {
+   template <class Observe>
+   bool PrepareParametersAndObserve(Observe& observe_transaction);
+   void RecordRejectedSlot();
++  void ObserveCollapse(const std::vector<OwnedCell>& metric_rows) noexcept;
+   void RouteApprovedRows();
+   void ExchangeSlotRoutes();
+   bool RouteSlot();
+@@ -957,6 +959,54 @@ void SlotCommit::RecordRejectedSlot() {
+                                    result.reason);
+ }
+ 
++void SlotCommit::ObserveCollapse(const std::vector<OwnedCell>& metric_rows) noexcept {
++  if (!context.census.selection->collapse_probe || !*context.control.coarsening) return;
++  const auto& old = *slot_state.old;
++  const auto& fresh = *slot_state.fresh;
++  const auto removed = round_state.choice->edge[1];
++  auto& probe = collapse_observation.emplace();
++  probe.accepted = 1;
++  probe.shared = std::any_of(slot_state.dependencies->cells.begin(), slot_state.dependencies->cells.end(),
++                             [&](const auto& dep) { return dep.owner != context.world.rank; });
++  probe.local = !probe.shared;
++  if (std::any_of(old.surface.begin(), old.surface.end(), [&](const auto& face) {
++        return std::find(face.v.begin(), face.v.end(), removed) != face.v.end();
++      })) {
++    try {
++      const auto* state = context.geometry.Parameters();
++      if (state) {
++        const auto dimension = state->Geometry().MobilityDimension(old.parameters.at(removed).binding, state->Mobility());
++        ++probe.surface.at(dimension);
++      } else {
++        probe.unclassified = 1;
++        probe.incomplete = true;
++      }
++    } catch (...) {
++      probe.unclassified = 1;
++      probe.incomplete = true;
++    }
++  } else
++    probe.volume = 1;
++  const auto measure = [&](const auto& cells, const auto& tensors, auto& values) {
++    values.total = cells.size();
++    for (const auto& cell : cells) {
++      const auto row = std::find_if(tensors.begin(), tensors.end(),
++                                    [&](const auto& entry) { return entry.cell.id == cell.id; });
++      if (row != tensors.end() && row->sensor_present) {
++        try {
++          values.bad += SU2NativeLocal3D::NodalMargin(*row) < SU2NativeLocal3D::BadMargin;
++          continue;
++        } catch (...) {
++          probe.incomplete = true;
++        }
++      }
++      ++values.unmeasured;
++    }
++  };
++  measure(old.cells, slot_state.imported->cells, probe.old);
++  measure(fresh.cells, metric_rows, probe.fresh);
++}
++
+ // Routes verified cells to original owners using the per-slot parent layout.
+ void SlotCommit::RouteApprovedRows() {
+   auto& coarsening = *context.control.coarsening;
+@@ -1000,6 +1050,7 @@ void SlotCommit::RouteApprovedRows() {
+     metric_rows.push_back(row);
+   }
+   PublishMetrics(imported.cells, metric_rows);
++  ObserveCollapse(metric_rows);
+   std::map<Face, Id> physical;
+   for (auto face : fresh.surface) physical.emplace(Key(face.v), face.facet);
+   for (size_t i = 0; i < fresh.cells.size(); ++i) {
+@@ -1239,6 +1290,23 @@ void SlotCommit::RecordAcceptedSlot() {
+     construction_changed = true;
+     construction_generation_changed = true;
+     ++stats.accepted;
++    if (collapse_observation) {
++      auto& total = *context.census.selection->collapse_probe;
++      const auto& slot = *collapse_observation;
++      total.accepted += slot.accepted;
++      total.volume += slot.volume;
++      total.unclassified += slot.unclassified;
++      total.shared += slot.shared;
++      total.local += slot.local;
++      for (size_t d = 0; d < total.surface.size(); ++d) total.surface[d] += slot.surface[d];
++      total.old.total += slot.old.total;
++      total.old.bad += slot.old.bad;
++      total.old.unmeasured += slot.old.unmeasured;
++      total.fresh.total += slot.fresh.total;
++      total.fresh.bad += slot.fresh.bad;
++      total.fresh.unmeasured += slot.fresh.unmeasured;
++      total.incomplete |= slot.incomplete;
++    }
+     wall_counters.Accepted();
+     if (!coarsening) wall_counters.ObserveSplit(choice.geometric);
+     if (options.timings && lane_slots[slot].required_primary_split)
+diff --git a/Common/src/adaptation/native_engine3d/EngineControl.cpp b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+index 820e9b4f42..e130bd6c25 100644
+--- a/Common/src/adaptation/native_engine3d/EngineControl.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+@@ -571,6 +571,7 @@ void EngineControl::PreparePhaseDirection(EngineContext& context, EnginePhase ne
+     construction_claims = next == Phase::Construction;
+     stats.split_lane = 0;
+     if (next == Phase::Construction) {
++      selection.collapse_closed = context.options.close_construction_collapse;
+       generation_window_count = 0;
+       selection.queues.edge_history.clear();
+       if (world.maximum(improvement_changed)) length_blocks_dirty = {{true, true}};
+@@ -1337,6 +1338,22 @@ RoundDecision RoundHead::EndLengthGeneration() {
+     else
+       ++stats.length_split_passes;
+     EngineReports::EmitLengthPass(context, atlas_budget);
++    if (coarsening && selection.collapse_probe) {
++      const auto& probe = *selection.collapse_probe;
++      try {
++        std::ostringstream row;
++        row << "NATIVE3D_FP3_ENGINE_COLLAPSE rank=" << world.rank << " accepted=" << probe.accepted
++            << " removed_volume=" << probe.volume << " removed_surface_2=" << probe.surface[2]
++            << " removed_surface_1=" << probe.surface[1] << " removed_surface_0=" << probe.surface[0]
++            << " unclassified=" << probe.unclassified << " shared=" << probe.shared << " local=" << probe.local
++            << " old_cells=" << probe.old.total << " old_bad=" << probe.old.bad
++            << " old_unmeasured=" << probe.old.unmeasured << " fresh_cells=" << probe.fresh.total
++            << " fresh_bad=" << probe.fresh.bad << " fresh_unmeasured=" << probe.fresh.unmeasured
++            << " status=" << (probe.incomplete ? "incomplete" : "complete") << '\n';
++        std::cout << row.str();
++      } catch (...) {}
++      selection.collapse_probe.reset();
++    }
+     if (!EngineControl::ObserveProgress(context, working, atlas_budget,
+                                         coarsening ? "length_collapse_exit" : "length_split_exit"))
+       return FinishRound();
+@@ -1485,6 +1502,7 @@ RoundDecision RoundHead::StartMetricCleanup() {
+         try {
+           directory->BeginConstructionPass();
+           construction_claims = true;
++          selection.collapse_closed = false;
+           context.queues.LengthDirection(context, true);
+           selection.ChangePhase(false, working, field_identity);
+         } catch (const std::exception& e) {
+diff --git a/Common/src/adaptation/native_engine3d/EngineOwnership.cpp b/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
+index 17b81f47fd..75f5bd09cf 100644
+--- a/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
+@@ -296,6 +296,7 @@ bool EngineOwnership::MigrateOwnership(EngineContext& context, bool quality,
+   std::unique_ptr<Directory> pending_directory;
+   Selection pending_selection(coarsening, repairing, geometry, stats, options.timings, options.surface_tolerance,
+                               options.wall_heights, bidirectional, bool(surface_target), &wall_counters);
++  pending_selection.collapse_closed = selection.collapse_closed;
+   pending_selection.queues.split_lanes = selection.queues.split_lanes;
+   pending_selection.queues.lane = selection.queues.lane;
+   pending_selection.size_repairs = selection.size_repairs;
+diff --git a/Common/src/adaptation/native_engine3d/EngineSelection.hpp b/Common/src/adaptation/native_engine3d/EngineSelection.hpp
+index 507a592998..30c48e4776 100644
+--- a/Common/src/adaptation/native_engine3d/EngineSelection.hpp
++++ b/Common/src/adaptation/native_engine3d/EngineSelection.hpp
+@@ -22,6 +22,16 @@ class Selection {
+         wall_counters(wall_counters) {}
+ 
+   bool coarsening, track_repairs, repair_event, prune_collapses = false, track_splits = false;
++  bool collapse_closed = false;
++  struct CollapseProbeCounts {
++    size_t accepted = 0, volume = 0, unclassified = 0, shared = 0, local = 0;
++    std::array<size_t, 3> surface{};
++    struct Cells {
++      size_t total = 0, bad = 0, unmeasured = 0;
++    } old, fresh;
++    bool incomplete = false;
++  };
++  std::optional<CollapseProbeCounts> collapse_probe;
+   const bool quality_only;
+   const bool surface_planning;
+   bool size_repairs = false, geometry_repairs = false;
+diff --git a/Common/src/adaptation/native_engine3d/EngineSelectionQueues.cpp b/Common/src/adaptation/native_engine3d/EngineSelectionQueues.cpp
+index f8f3d339ae..e7d85cbfba 100644
+--- a/Common/src/adaptation/native_engine3d/EngineSelectionQueues.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineSelectionQueues.cpp
+@@ -79,7 +79,7 @@ bool Selection::Candidate(long double length) const {
+ 
+ // Refreshes both directed queue entries without reopening a rejected edge.
+ void Selection::Queue(Edge edge, long double length, bool insert) {
+-  if (repair_event || !Candidate(length)) return;
++  if (repair_event || (coarsening && collapse_closed) || !Candidate(length)) return;
+   for (unsigned i = 0; i < (coarsening ? 2u : 1u); ++i) {
+     Edge key = edge;
+     std::sort(key.begin(), key.end());
+diff --git a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+index 0c172e2d6d..742196da07 100644
+--- a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
++++ b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+@@ -678,6 +678,7 @@ struct RemeshRun {
+     auto& worker_source = mesh.worker_source;
+     World workers(comm);
+     auto kernel = control;
++    kernel.close_construction_collapse = false;
+     kernel.idle_peak_rss_bytes = stats.workers < parent.size ? idle_peak : 0;
+     if (control.geometry_workspace_bytes) kernel.shared_geometry_budget = &target_event_budget;
+     kernel.maximum_seconds = worker_seconds;
+@@ -697,12 +698,21 @@ struct RemeshRun {
+       std::vector<DonorCell> stage_source;
+       WorkerTrial trial{workers, kernel, worker_seconds, worker_start, valid, detail, stage_source, begin};
+       if (config.GetAdap_Native_Local_Core()) {
+-        const bool applicable = !input.composition && !construction && kernel.wall_heights.empty() &&
+-                                kernel.region_walls.empty() &&
+-                                !workers.maximum(std::any_of(mesh.working.begin(), mesh.working.end(),
+-                                                             [](const auto& row) { return !row.second.sensor_present; }));
+-        if (applicable) {
+-          if (RunLocalCore(mesh, trial, preparation))
++        const bool eligible = !input.composition && !construction && kernel.wall_heights.empty() &&
++                              kernel.region_walls.empty();
++        const bool surface_requested = config.GetAdap_Native_Local_Surface();
++        int eligibility = 2;
++        if (eligible) {
++          const bool missing_sensor = std::any_of(mesh.working.begin(), mesh.working.end(),
++                                                  [](const auto& row) { return !row.second.sensor_present; });
++          const int local = missing_sensor ? 2 : (surface_requested && !LocalSurfaceEligible(preparation) ? 1 : 0);
++          eligibility = workers.maximum(local);
++        }
++        if (eligibility < 2) {
++          const auto outcome = RunLocalCore(mesh, trial, preparation, surface_requested && eligibility == 0);
++          kernel.close_construction_collapse = outcome.step_c_completed &&
++              SU2NativeLocal3D::FP3Probe() != SU2NativeLocal3D::CollapseProbe::Engine;
++          if (outcome.installed_surface)
+             kernel.caller_bytes = transfer_memory::Add(
+                 Held(preparation), transfer_memory::Bytes(imported.original),
+                 worker_source == &imported.original ? 0 : transfer_memory::Bytes(*worker_source));
+@@ -870,16 +880,16 @@ struct RemeshRun {
+     std::cout << " seconds=" << seconds << std::endl;
+   }
+ 
++  static bool LocalSurfaceEligible(const ReferencePreparation& preparation) {
++    const auto& original = preparation.pending->state.original;
++    const auto* state = original ? original->Parameters() : nullptr;
++    return state && state->EntityGeometry() && state->Mobility().identity;
++  }
++
+   std::unique_ptr<SU2NativeLocal3D::StateSurfaceGeometry> BeginLocalSurface(const ReferencePreparation& preparation,
+                                                                           const Owned& working, WorkerTrial& trial) {
+     auto& workers = trial.workers;
+     const auto& original = preparation.pending->state.original;
+-    const auto* state = original ? original->Parameters() : nullptr;
+-    if (!state || !state->EntityGeometry() || !state->Mobility().identity) {
+-      if (control.timings)
+-        std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << workers.rank << " applicable=0" << std::endl;
+-      return {};
+-    }
+     const auto& kernel = trial.kernel;
+     std::unique_ptr<SU2NativeLocal3D::StateSurfaceGeometry> surface;
+     CLocalFailure local;
+@@ -941,15 +951,21 @@ struct RemeshRun {
+   }
+ 
+   // Replace the working volume before the existing current-nodal snapshot.
+-  bool RunLocalCore(WorkerMesh& mesh, WorkerTrial& trial, ReferencePreparation& preparation) {
++  struct LocalCoreOutcome {
++    bool installed_surface, step_c_completed;
++  };
++
++  LocalCoreOutcome RunLocalCore(WorkerMesh& mesh, WorkerTrial& trial, ReferencePreparation& preparation,
++                               bool enable_surface) {
+     namespace core = SU2NativeLocal3D;
+     SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::Construction);
+     SU2NativeTiming3D::Scope topology(SU2NativeTiming3D::Operation::Topology);
+     auto& workers = trial.workers;
+     auto& working = mesh.working;
+     const auto& kernel = trial.kernel;
+-    const auto surface = config.GetAdap_Native_Local_Surface() ? BeginLocalSurface(preparation, working, trial)
+-                                                               : nullptr;
++    const auto surface = enable_surface ? BeginLocalSurface(preparation, working, trial) : nullptr;
++    if (control.timings && config.GetAdap_Native_Local_Surface() && !surface)
++      std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << workers.rank << " applicable=0" << std::endl;
+     Id point_base = 0, cell_base = 0;
+     const auto visit = [&](const Cell& cell) {
+       cell_base = std::max(cell_base, cell.id);
+@@ -1051,6 +1067,8 @@ struct RemeshRun {
+                                                       contact_bytes, screen_bytes));
+           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get(),
+                                      remote ? &*remote : nullptr);
++          if (report && pass == passes && core::FP3Probe() == core::CollapseProbe::Core)
++            pass_mesh.ReportHandoverSurface(*surface, workers.rank, stage);
+           remote.reset();
+           if (options.outward_collapses)
+             surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
+@@ -1141,7 +1159,8 @@ struct RemeshRun {
+         error("Unknown shifted mesh probe error");
+       }
+     }
+-    return surface && InstallLocalSurface(preparation, working, trial, *surface, budget, exchange_seconds);
++    const bool installed = surface && InstallLocalSurface(preparation, working, trial, *surface, budget, exchange_seconds);
++    return {installed, options.surface_collapses};
+   }
+ 
+   // Replaces the private stage donor snapshot only after the existing vote.
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
+index c1b5d8e06e..7a51bddb2b 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
+@@ -10,6 +10,8 @@
+ #include <algorithm>
+ #include <cmath>
+ #include <limits>
++#include <iostream>
++#include <sstream>
+ 
+ namespace SU2NativeLocal3D {
+ namespace {
+@@ -319,6 +321,105 @@ Mesh::SurfaceCollapseTrial Mesh::PrepareSurfaceCollapse(Edge direction, const Ri
+   return attempt;
+ }
+ 
++void Mesh::ReportHandoverSurface(const StateSurfaceGeometry& geometry, int rank, unsigned stage) const noexcept {
++  constexpr std::array<const char*, static_cast<size_t>(Reason::Contact) + 1> names{
++      "None", "Protected", "Border", "Ineligible", "BorderKeeper", "FeatureChord", "Link", "Near", "Outward",
++      "Reverse", "Topology", "Size", "Shape", "Validity", "Distance", "Entity", "Bound", "ContactRemote", "Contact"};
++  std::array<size_t, names.size()> refusals{};
++  size_t short_edges = 0, prepare_pass = 0, protected_same_curve = 0, unclassified = 0;
++  bool incomplete = false;
++  try {
++    std::map<SurfaceEdge, EdgeUse> seeds;
++    for (const auto face : PhysicalFaces()) {
++      const auto vertices = OrientedFace(cells_[face.cell].vertices, face.face);
++      for (unsigned i = 0; i < 3; ++i) {
++        const auto edge = ById({vertices[i], vertices[(i + 1) % 3]});
++        const SurfaceEdge ids{points_[edge[0]].node.id, points_[edge[1]].node.id};
++        seeds.try_emplace(ids, EdgeUse{edge, face.cell});
++      }
++    }
++    const auto& state = geometry.State();
++    const auto& authority = state.Geometry();
++    const auto& policy = state.Mobility();
++    const auto visit_chains = [&](const auto& binding, const auto& visit) {
++      const auto bound_edge = [&](const SurfaceEdge& edge) {
++        const auto found = policy.features.find(edge);
++        if (found != policy.features.end()) visit(found->second);
++      };
++      if (binding.dimension == 1) {
++        bound_edge(authority.OriginalEdge(binding.feature));
++      } else if (binding.dimension == 0) {
++        authority.ForFacets(binding, [&](Id facet) {
++          const auto& vertices = authority.Reference().Get(facet).v;
++          for (unsigned i = 0; i < 3; ++i) {
++            SurfaceEdge edge{vertices[i].id, vertices[(i + 1) % 3].id};
++            if (edge[0] != binding.feature && edge[1] != binding.feature) continue;
++            if (edge[1] < edge[0]) std::swap(edge[0], edge[1]);
++            bound_edge(edge);
++          }
++        });
++      }
++    };
++    for (const auto& [ids, use] : seeds) {
++      if (!(Length(use.edge) < 0.9)) continue;
++      ++short_edges;
++      const auto ring = EdgeRing(use.edge, use.cell);
++      const auto parents = SurfaceParents(use.edge, ring);
++      const auto first = PrepareSurfaceCollapse(use.edge, ring, parents, geometry).refusal;
++      const auto second = PrepareSurfaceCollapse({use.edge[1], use.edge[0]}, ring, parents, geometry).refusal;
++      if (first == Reason::None || second == Reason::None)
++        ++prepare_pass;
++      else
++        ++refusals[static_cast<size_t>(first)];
++
++      const auto* a = geometry.Find(ids[0]);
++      const auto* b = geometry.Find(ids[1]);
++      if (!a || !b) {
++        ++unclassified;
++        continue;
++      }
++      bool missing_chain = false;
++      const auto matches = [&](const auto& removed, const auto& keeper) {
++        if (authority.MobilityDimension(removed, policy) != 1) return false;
++        std::optional<Id> chain;
++        bool ambiguous = false;
++        visit_chains(removed, [&](Id id) {
++          ambiguous |= chain && *chain != id;
++          chain = id;
++        });
++        if (!chain || ambiguous) {
++          missing_chain = true;
++          return false;
++        }
++        const auto keeper_dimension = authority.MobilityDimension(keeper, policy);
++        if (keeper_dimension > 1) return false;
++        bool found_chain = false, same = false;
++        visit_chains(keeper, [&](Id id) {
++          found_chain = true;
++          same |= id == *chain;
++        });
++        missing_chain |= !found_chain;
++        return same;
++      };
++      const bool lower_removed = matches(a->binding, b->binding);
++      const bool upper_removed = matches(b->binding, a->binding);
++      protected_same_curve += (lower_removed || upper_removed) && geometry.FindTrace(ids);
++      unclassified += missing_chain;
++    }
++  } catch (...) {
++    incomplete = true;
++  }
++  try {
++    std::ostringstream row;
++    row << "NATIVE3D_FP3_HANDOVER_SURFACE rank=" << rank << " stage=" << stage << " checkpoint=last_pass_pre_shift"
++        << " short_surface_edges=" << short_edges << " prepare_pass=" << prepare_pass;
++    for (size_t i = 0; i < names.size(); ++i) row << ' ' << names[i] << '=' << refusals[i];
++    row << " protected_same_curve=" << protected_same_curve << " unclassified=" << unclassified
++        << " proof=not_evaluated status=" << (incomplete ? "incomplete" : "complete") << '\n';
++    std::cout << row.str();
++  } catch (...) {}
++}
++
+ // At the same metric and sample inputs, step C makes no edge marked by step L
+ // and no face marked by step D's samples. Conformity, feature demand or a
+ // changed metric can still split the patch.
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
+index 09b13359ca..f4432f56c3 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
+@@ -7,6 +7,7 @@
+ #include "../../../include/adaptation/CNativeLocalCore3D.hpp"
+ #include <algorithm>
+ #include <cmath>
++#include <cstdlib>
+ #include <limits>
+ #include <stdexcept>
+ 
+@@ -146,13 +147,8 @@ double Mesh::Length(const PointRow& a, const PointRow& b) {
+ 
+ double Mesh::Length(Edge edge) const { return Length(points_[edge[0]], points_[edge[1]]); }
+ 
+-MetricMeasures Mesh::Shape(Vertices vertices) const {
+-  SU2Native3D::Tetrahedron tet;
+-  std::array<const Tensor*, 4> tensors;
+-  for (unsigned k = 0; k < 4; ++k) {
+-    tet[k] = points_[vertices[k]].node.p;
+-    tensors[k] = &points_[vertices[k]].tensor;
+-  }
++namespace {
++MetricMeasures NodalShape(const SU2Native3D::Tetrahedron& tet, const std::array<const Tensor*, 4>& tensors) {
+   const auto m = MeanTensor(tensors);
+   const double det =
+       m.xx * (m.yy * m.zz - m.yz * m.yz) - m.xy * (m.xy * m.zz - m.xz * m.yz) + m.xz * (m.xy * m.yz - m.xz * m.yy);
+@@ -178,9 +174,42 @@ MetricMeasures Mesh::Shape(Vertices vertices) const {
+   return {q, j, std::sqrt(sum / 6), std::sqrt(longest)};
+ }
+ 
+-double Mesh::Margin(Vertices vertices) const {
+-  const auto shape = Shape(vertices);
++double ShapeMargin(const MetricMeasures& shape) {
+   return std::min(shape.mean_ratio / SU2Native3D::MinimumMeanRatio,
+                   shape.minimum_scaled_jacobian / SU2Native3D::MinimumScaledJacobian);
+ }
++}  // namespace
++
++MetricMeasures Mesh::Shape(Vertices vertices) const {
++  SU2Native3D::Tetrahedron tet;
++  std::array<const Tensor*, 4> tensors;
++  for (unsigned k = 0; k < 4; ++k) {
++    tet[k] = points_[vertices[k]].node.p;
++    tensors[k] = &points_[vertices[k]].tensor;
++  }
++  return NodalShape(tet, tensors);
++}
++
++double Mesh::Margin(Vertices vertices) const { return ShapeMargin(Shape(vertices)); }
++
++double NodalMargin(const OwnedCell& row) {
++  SU2Native3D::Tetrahedron tet;
++  std::array<const Tensor*, 4> tensors;
++  for (unsigned k = 0; k < 4; ++k) {
++    tet[k] = row.cell.v[k].p;
++    tensors[k] = &row.sensor[k];
++  }
++  return ShapeMargin(NodalShape(tet, tensors));
++}
++
++CollapseProbe FP3Probe() {
++  static const auto probe = [] {
++    const auto* value = std::getenv("SU2_NATIVE_FP3_PROBE");
++    if (!value || !value[0] || value[1]) return CollapseProbe::None;
++    if (value[0] == '1') return CollapseProbe::Core;
++    if (value[0] == '2') return CollapseProbe::Engine;
++    return CollapseProbe::None;
++  }();
++  return probe;
++}
+ }  // namespace SU2NativeLocal3D
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index 5a7aa719b4..f184c31e43 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -5743,3 +5743,58 @@ TEST_CASE("N22 deferred census joins a one-rank memory refusal", "[.][NativeN22C
+   CHECK((refused.stats.initial_cells == 0) == (world.rank == 0));
+   CHECK(Bytes(input) == saved);
+ }
++
++TEST_CASE("Closed construction collapse exits normally and leaves metric cleanup available", "[.][FP3A]") {
++  World world;
++  REQUIRE(world.size == 1);
++  const bool close = GENERATE(false, true);
++  const std::array<Node, 4> nodes{{{0, {0, 0, 0}}, {1, {1, 0, 0}}, {2, {0, 1, 0}}, {3, {0, 0, .01}}}};
++  Fixture fixture;
++  fixture.patch.cells.push_back({0, nodes});
++  for (const auto& face : Incidence(fixture.patch.cells).Boundary()) {
++    const Id facet = fixture.facets.size();
++    fixture.facets.push_back({facet, int(facet) + 10, {nodes[face[0]], nodes[face[1]], nodes[face[2]]}});
++    fixture.patch.surface.push_back({face, facet});
++  }
++  const PlanarReference geometry(fixture.facets);
++  const auto input = WithUniformSensor(Partition(Rows(fixture.patch), world), Tensor{});
++  EngineOptions options;
++  CHECK_FALSE(options.close_construction_collapse);
++  options.close_construction_collapse = close;
++  options.maximum_rounds = 512;
++  options.maximum_work = 32768;
++  bool initial_exit = false, split_exit = false, cleanup_entry = false, cleanup_exit = false;
++  uint64_t cleanup_candidates = 0;
++  options.stage_observer = [&](const StageProgressView& view) {
++    const std::string stage = view.stage;
++    const auto examined = view.stats.attempted + view.stats.collapse_filtered;
++    if (stage == "length_collapse_exit" && !initial_exit) {
++      initial_exit = true;
++      CHECK(view.phase == EnginePhase::Construction);
++      CHECK(view.stats.length_collapses == 0);
++      if (close) {
++        CHECK(view.round == 0);
++        CHECK(examined == 0);
++      } else {
++        CHECK(examined > 0);
++      }
++    } else if (stage == "length_split_exit") {
++      CHECK(initial_exit);
++      split_exit = true;
++    } else if (stage == "metric_cleanup_entry") {
++      cleanup_entry = true;
++      cleanup_candidates = examined;
++    } else if (stage == "metric_cleanup_exit") {
++      CHECK(cleanup_entry);
++      CHECK(examined > cleanup_candidates);
++      cleanup_exit = true;
++    }
++  };
++  const auto result = AdaptMetric(world, input, Uniform(input, Tensor{}), geometry, {}, options);
++  INFO(result.reason);
++  CHECK(initial_exit);
++  CHECK(split_exit);
++  CHECK(cleanup_entry);
++  CHECK(cleanup_exit);
++  CHECK(result.stats.stop == EngineStop::OperatorStagnation);
++}
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp
+index 635834be2b..6fae380f52 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp
+@@ -156,3 +156,95 @@ TEST_CASE("Native local core is disabled by default", "[.][NativeLocalCore3DOpti
+   const auto config = MakeConfig(3, "SOLVER= EULER\n");
+   CHECK_FALSE(config->GetAdap_Native_Local_Core());
+ }
++
++namespace {
++void CheckConstructionCollapseTrigger(bool mapped) {
++  World world;
++  REQUIRE(world.size == 1);
++  const auto config = MakeRoundConfig(
++      "SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\n"
++      "ADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_NATIVE_LOCAL_CORE= YES\nADAP_NATIVE_LOCAL_SURFACE= YES\n"
++      "ADAP_NATIVE_REPARTITION= NO\nWRT_PERFORMANCE= YES\n",
++      "MARKER_EULER= (wall)\nMARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n");
++  const auto mesh = simplex_test::MakeSimplexMesh(3, 1, [](const passivedouble* p) {
++    return p[2] == 0 ? std::string("wall") : simplex_test::Marker3D(p);
++  });
++  MeshSolution donor(config.get(), mesh, 0);
++  su2activematrix sensor(donor.Fine().GetnPointDomain(), 6);
++  // The vertical edges are short, but every surface vertex is a feature corner.
++  for (size_t p = 0; p < sensor.rows(); ++p) {
++    for (unsigned k = 0; k < 6; ++k) sensor(p, k) = k == 0 || k == 3 ? 1. : k == 5 ? .49 : 0.;
++  }
++  auto reference = std::make_shared<ReferenceState>();
++  if (mapped) {
++    ImportGeometry(*config, donor.Fine(), &sensor, *reference);
++    using SU2NativeGeometry::MappedFacetReference;
++    MappedFacetReference::CurvedNets nets;
++    std::map<Id, double> errors;
++    constexpr unsigned powers[10][3] = {{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},
++                                        {0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
++    for (const auto& face : reference->facets) {
++      errors.emplace(face.id, 1e-12);
++      auto& net = nets[face.id];
++      for (unsigned q = 0; q < 10; ++q)
++        for (unsigned k = 0; k < 3; ++k) {
++          net[q].x += powers[q][k] * face.v[k].p.x / 3;
++          net[q].y += powers[q][k] * face.v[k].p.y / 3;
++          net[q].z += powers[q][k] * face.v[k].p.z / 3;
++        }
++    }
++    auto authority = std::make_shared<MappedFacetReference>(reference->original, errors, 303, SIZE_MAX, false, nets, 0);
++    BoundaryPoints points;
++    std::vector<SurfaceFace> skin;
++    for (const auto& face : reference->facets) {
++      skin.push_back({{face.v[0].id, face.v[1].id, face.v[2].id}, face.id});
++      for (const auto& node : face.v) points.emplace(node.id, BoundaryPoint{node, authority->Vertex(node.id)});
++    }
++    reference->original = PlanarReference::WithParameters(
++        reference->original, std::make_shared<BoundaryParameterState>(authority, points, skin, 1));
++  }
++  bool initial_exit = false;
++  EngineOptions options;
++  options.stage_observer = [&](const StageProgressView& view) {
++    if (initial_exit || std::string(view.stage) != "length_collapse_exit") return;
++    initial_exit = true;
++    if (mapped) {
++      CHECK(view.round == 0);
++      CHECK(view.stats.attempted == 0);
++      CHECK(view.stats.collapse_filtered == 0);
++    } else {
++      CHECK(view.stats.attempted + view.stats.collapse_filtered > 0);
++    }
++  };
++  CNativeRemesher3D remesher(reference, options);
++  std::ostringstream captured;
++  struct Capture {
++    std::streambuf* previous;
++    explicit Capture(std::ostream& sink) : previous(std::cout.rdbuf(sink.rdbuf())) {}
++    ~Capture() { std::cout.rdbuf(previous); }
++  };
++  CRemeshResult result;
++  {
++    const Capture capture(captured);
++    result = remesher.Remesh(*config, donor.Fine(), sensor);
++  }
++  const auto log = captured.str();
++  INFO(log);
++  REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
++  CHECK(initial_exit);
++  CHECK(log.find("NATIVE3D_LOCAL_CORE rank=0 stage=0 pass=1 applicable=1") != std::string::npos);
++  if (mapped) {
++    CHECK(log.find("NATIVE3D_LOCAL_SURFACE_STATE rank=0 stage=0 splits_all=0 removals_all=0") != std::string::npos);
++  } else {
++    CHECK(log.find("NATIVE3D_LOCAL_SURFACE rank=0 applicable=0") != std::string::npos);
++  }
++}
++}  // namespace
++
++TEST_CASE("Step C with zero edits closes construction collapse", "[.][FP3A]") {
++  CheckConstructionCollapseTrigger(true);
++}
++
++TEST_CASE("Volume-only core leaves construction collapse available", "[.][FP3A]") {
++  CheckConstructionCollapseTrigger(false);
++}

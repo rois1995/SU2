@@ -182,7 +182,7 @@ void CheckConstructionCollapseTrigger(bool mapped) {
     MappedFacetReference::CurvedNets nets;
     std::map<Id, double> errors;
     constexpr unsigned powers[10][3] = {{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},
-                                        {0,2,1},{0,1,2},{2,0,1},{1,0,2},{1,1,1}};
+                                        {0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
     for (const auto& face : reference->facets) {
       errors.emplace(face.id, 1e-12);
       auto& net = nets[face.id];
