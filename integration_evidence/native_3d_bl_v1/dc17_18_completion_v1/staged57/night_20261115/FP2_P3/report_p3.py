@@ -251,7 +251,10 @@ def render(data):
         prefix.extend((gate,key,values.get('changed'),values.get('missing'),values.get('extra'))
                       for key,values in history.get('projected_rows',{}).items())
         if history:
-            lines += [f"**{gate} historical first difference** {compact(history.get('first_difference'))}",
+            first=history['first_difference']
+            if first and {'file','row','key'} <= first.keys():
+                first={key:first[key] for key in ('file','row','key')}
+            lines += [f"**{gate} historical first difference** {compact(first)}",
                       f"**{gate} historical ownership and decisions** {compact(history.get('ownership'))}",'']
     if prefix:
         lines+=table(('Gate','Projected row type','Changed','Missing','Extra'),prefix)

@@ -2182,3 +2182,17 @@ FP2-P3 build673 C2 FAILED. Evidence build673/C2.json.
 FP2-P3 C2 saved_current passed both executions and their direct disk SHA256 and planning comparison. All three payloads and all 1297 ordered planning rows are identical across the pair. The original C2 controller is terminal and marked FAILED only for the prelaunch first-collapse duplicate-pin defect. No C3 launch until the corrected first-collapse result is selected.
 
 FP2-P3 C2 reselected passed. Corrected first collapse captured all six exits and stopped in 216.782 s against 1500 s. Work 76652506 against 108459426, sampled solver peak sum 8009142272 bytes against 19999490048, no upper refinements, and accepted-by-rank vector 480 / 473 / 346 / 263 / 469 / 464. No off markers at default on. C492, merit481, native 2D and the saved_current pair remain sealed and passed. The original setup error is archived. Both C2 controllers are terminal. Next C3 candidate prefixes.
+
+FP2-P3 C2 passed checkpoint bfa3e03e88 pushed. C3 started under su2-fp2-p3-build673-c3. The controller sequence is two G2 captures, then two GQ captures on unchanged inputs and stopping anchors with the closure switch absent. Candidate-pair equality is the gate. Historical differences will be reported. C4 follows after terminal C3.
+
+FP2-P3 build673 C3/G2 passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/C3/G2.json.
+
+FP2-P3 C3 G2 passed both admissible captures and the exact candidate-pair comparator, including scheduling and the census rule. Both first-collapse work sums 76652506, the six accepted counts exact, zero upper refinements. The first historical change is rank 0 atlas_work 20350736 versus 15662380 at the first-collapse row. C3 GQ capture 1 started at 01:27:24 CET.
+
+FP2-P3 C3 GQ capture 1 passed the unchanged third quality-window anchor on all six ranks, stopping after 666.881 s. Its embedded first-collapse gate passed at 76652506 work units. The controller was terminal before capture 2 started at 01:38:58 CET. Pair identity remains pending.
+
+FP2-P3 build673 C3/GQ passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/C3/GQ.json.
+
+FP2-P3 build673 C3 passed. Evidence build673/C3.json.
+
+FP2-P3 C3 passed both GQ captures and their exact pair comparison, including scheduling calls and census. Each completed all six third quality windows and the embedded first-collapse gates. First historical GQ difference is the same rank-0 atlas_work as G2. GQ historical coverage by projected type includes 510 changed stage rows, 510 storage rows, 62 timer rows, one missing timer row and one extra timer row. The group comparison and ownership evidence are sealed. C3 supervisor terminal. Next C4 G3 physical check and rebound G4.
