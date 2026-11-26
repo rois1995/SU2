@@ -2,6 +2,16 @@
 
 ## Fast path stage 3
 
+### FP3-C final core surface-collapse sweep, build677
+
+| Run | Native event 1 / 2 s | Quality phase event 1 / 2 s | Final proof event 1 / 2 s | Surface faces event 1 / 2 |
+| --- | ---: | ---: | ---: | ---: |
+| B S1 | 550.549 / 353.197 | 138.280 / 37.995 | 49.618 / 57.950 | 26512 / 21824 |
+| B S2 | 565.165 / 325.347 | 133.961 / 36.232 | 51.468 / 49.342 | 26512 / 21824 |
+| S1 | 568.257 / 342.176 | 157.265 / 68.799 | 41.914 / 91.717 | 26238 / 21508 |
+
+S1 recorded 213 accepted collapses against the 273 adoption threshold. The candidate was removed and FP3-B remains the ordinary S reference. Phase clocks are exclusive rank maxima. The report records per-rank sweep and repair times and the host load at the event boundaries. [FP3-C report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/reports/FP3_C_677.md)
+
 ### FP3-B mode S ownership at the closed collapse exit, build676
 
 | Run | Native event 1 / 2 s | Construction event 1 / 2 s | Quality event 1 / 2 s | Final proof event 1 / 2 s | Preparation event 1 / 2 s |

@@ -92,10 +92,21 @@ def write_report(path, record):
         adoption = record['adoption']
         if adoption:
             print(f'\nThe sealed S1 result was **Y = {adoption["Y"]}** from {adoption["rank_stage_rows"]} '
-                  f'rank and stage rows. The threshold was {adoption["threshold"]}.', file=out)
+                  f'rank and stage rows. The threshold was {adoption["threshold"]}. '
+                  f'[S1 adoption seal](../G5/build{record["build"]}/S1/adoption.json)', file=out)
         if record['revert_commit']:
-            print(f'Production and dependent fixture sources were restored in `{record["revert_commit"]}`. '
+            print(f'\nProduction and dependent fixture sources were restored in `{record["revert_commit"]}`. '
                   'FP3-B supplies the ordinary S reference.', file=out)
+        restored = record.get('restored_build')
+        if restored:
+            matched = [name for name, key in (('solver', 'binary_sha256'), ('test driver', 'test_binary_sha256'))
+                       if restored['matches_build676'][key]]
+            matches = f' The {" and ".join(matched)} matched build676 by SHA256.' if matched else ''
+            print(f'\nBoth restored targets built successfully.{matches} '
+                  '[Restore build receipt](../restore_build/build_status.json)', file=out)
+        if record['checks'].get('saved-current', {}).get('status') == 'passed':
+            print('\nThe two oversized saved-current files are retained locally under their recorded hashes. '
+                  f'[Saved-current seal](../controls/build{record["build"]}/saved-current/case_summary.json)', file=out)
         table(out, 'Gates', ('Check', 'Status', 'First finding'),
               [(name, row['status'], row.get('first_difference') or '') for name, row in record['checks'].items()])
         for name, row in record['lab'].items():
@@ -196,6 +207,11 @@ def report(label, validated_commit=None, revert_commit=None):
                          for name, row in checks.items()},
               'lab': {name: brief(row) for name, row in lab.items()},
               's_receipts': {name: brief(row) for name, row in s.items()}, 'workflows': measurements}
+    restore = HERE / 'restore_build/build_status.json'
+    if revert_commit and restore.is_file():
+        rebuilt = cut.read(restore)
+        assert rebuilt['passed'] and rebuilt['commit'] == revert_commit
+        record['restored_build'] = {**rebuilt, 'receipt': path_pin(restore)}
     cut.save(HERE / f'reports/FP3_C_{label}.json', record)
     write_report(HERE / f'reports/FP3_C_{label}.md', record)
     if validated_commit:
