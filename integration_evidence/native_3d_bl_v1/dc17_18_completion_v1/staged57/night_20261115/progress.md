@@ -2494,3 +2494,7 @@ FP3-C G1 passed exact identity for all 375 serial, 114 two-rank and 228 four-ran
 FP3-C build677 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/G2/case_summary.json.
 
 FP3-C G1 checkpoint 26aa2e634a pushed. G2 passed the accepted P3 prefix identity on all six ranks, including census and scheduling calls, integer rows and fixedstorage=4120. GQ follows under the same scoped supervisor.
+
+FP3-C build677 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/GQ/case_summary.json.
+
+FP3-C G2 checkpoint f8d3b7e6de pushed. GQ passed the third quality-window anchor and accepted P3 prefix identity on six ranks, including scheduling, census, integer rows and fixedstorage=4120. The shared first-collapse gate is running.
