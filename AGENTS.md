@@ -141,6 +141,18 @@ R13. Questions (user order, 2026-11-17). When you have a question about an
 - Timer coverage gate (95 % on each rank): the smallest value is now 95.23 % (N22 part C, event 2, rank 5). The gate does
   not change. Do not start a step that removes more named time before the reviewer's text for it says how the unattributed
   time gets names.
+- References in force since FP2-P3 (the witness closure is the default):
+  `R/night_20261115/FP2_P3/accepted_reference.json`. A run with the default (closure on) uses its entries:
+  OFF for G5, CORE and S for these modes, G2, GQ, G3 and `saved_current`. The older references (N21 W, FP1,
+  N14, the N22 capture, the old `saved_current` case) stay for a control run with
+  `SU2_NATIVE_CONFORMING_WITNESS=0`; that value is a control, not a supported setting. The references of G1
+  and G4 do not change. For G2 and GQ with the default, bind the prefix identity check, the scheduling calls
+  included, to the accepted P3 capture with the comparator of N22 part C and its census rule; the
+  first-collapse admission in both prefix controllers is the unchanged work limit, the exact counts and zero
+  refinements. The historical work value 90,809,869 and the FX1 scheduling table belong to the control with
+  the closure off. G5 OFF with the default uses the first-collapse admission of FP2-P3 item C5 and the
+  accepted P3 OFF files. The limits and the count reference of the shared first-collapse check do not
+  change.
 
 
 ## 3. State (history; do not repeat a passed check)

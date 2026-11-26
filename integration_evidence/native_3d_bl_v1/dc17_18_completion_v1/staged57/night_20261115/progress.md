@@ -2274,3 +2274,5 @@ FP2-P3 C6 trial 2 final event proof, memory and timer gates passed. Owned sum an
 FP2-P3 build673 C6 passed. Evidence build673/C6.json.
 
 FP2-P3 C6 passed both CORE workflows and both isolated restarts, with all six disk hashes identical within the pair and all six different from the historical FP1 control. Trial 2 maxima 1303.863 / 448.316 s, minimum per-rank coverage 98.859% / 98.429%, and isolated restart 140.762 s with zero coordinate error and verified pins. Supervisor terminal, no owned native job. Part B and all seven C checks are passed. Next publish the signed references and close.
+
+FP2-P3 C6 passed checkpoint bab6bcf0ef pushed. All signed gates passed on build673. Published the verified reference JSON and both report formats. The reference identifies the validated commit and the AGENTS.md blob used for the frozen source pins. Appended the signed references block in section 2a and updated the handoff and timings. The 18 FP1 cohorts and the time rule are unevaluated. All owned handles are terminal. Final label FP2-P3: accepted; the closure is the default. Stop after commit and push.

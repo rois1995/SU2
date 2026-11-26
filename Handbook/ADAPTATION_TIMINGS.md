@@ -2,6 +2,25 @@
 
 ## Fast path stage 2
 
+### FP2-P3 witness closure by default, build673
+
+| Workflow | Closure-off control, event 1 / 2 s | Default-on trial 1 s | Default-on trial 2 s |
+| --- | ---: | ---: | ---: |
+| OFF | 1984.549 / 1187.970 | 1538.497 / 754.698 | 1461.688 / 694.065 |
+| CORE | 1808.734 / 496.878 | 1306.963 / 449.141 | 1303.863 / 448.316 |
+| S | 951.321 / 689.037 (build664) | 755.140 / 334.665 | 616.416 / 330.623 |
+
+The prior opt-in S run on build672 took 655.988 / 350.407 s. The clocks are native rank maxima. Host conditions varied between runs, and the timing rule was unevaluated.
+
+| S timing scope | Geometry bound, event 1 / 2 rank-s | Communication and join wait rank-s | Other rank-s |
+| --- | ---: | ---: | ---: |
+| Build664 pre-closure | 2030.8 / 1170.5 | 2805.7 / 2568.4 | 825.6 / 389.0 |
+| Build672 opt-in | 1011.1 / 522.9 | 1964.8 / 1110.2 | 906.0 / 462.0 |
+| Default-on trial 1 | 1270.3 / 502.6 | 2129.2 / 1045.2 | 1075.4 / 452.6 |
+| Default-on trial 2 | 978.5 / 495.4 | 1789.6 / 1037.3 | 878.3 / 443.3 |
+
+The timing groups sum exclusive clocks over the six ranks. The report gives the same breakdown by rank for each workflow. [FP2-P3 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/reports/FP2_P3_673.md)
+
 ### FP2-P2 vertex witness, build672
 
 The same-build N1 control and closure-on D1 trial used identical inputs. Step C fell from 913.506 to 419.957 s and nested Bound time fell from 811.483 to 319.598 s. Classification work fell from 463,538,756 to 156,105,696 units, with traversal decreasing from 416,021,808 to 77,469,988 and scope building increasing from 6,651,129 to 37,769,889. The first-collapse work sums were 90,809,869 with closure off and 76,652,506 with closure on, against the 108,459,426 ceiling.

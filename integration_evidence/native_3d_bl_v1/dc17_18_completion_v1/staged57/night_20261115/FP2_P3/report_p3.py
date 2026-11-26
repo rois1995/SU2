@@ -7,6 +7,7 @@ from checkpoint import HERE, ORDER, build_dir, cut, fingerprint, verify_pins
 
 PARTS=('B0','B1','B2a','B2b','B2c','B','C1','C2','C3','C4','C7','C5','C6')
 NEVER=('18 FP1 cohorts','time rule')
+ACCEPTED='FP2-P3: accepted; the closure is the default'
 
 
 def file_pin(path):
@@ -82,7 +83,7 @@ def collect(label, outcome):
 
 
 def accepted_reference(data, commit):
-    assert data['label']=='FP2-P3: accepted; the closure is the default'
+    assert data['label']==ACCEPTED
     assert all(part['status']=='passed' for part in data['parts'].values())
     checks={name:{key:part['seal'][key] for key in ('path','sha256')}
             for name,part in data['parts'].items()}
@@ -140,7 +141,12 @@ def accepted_reference(data, commit):
         assert len(row['payloads'])==3
         trials.append({'case':str(case),'payload_hashes':row['payloads'],
                        'planning_projection':file_pin(row['planning_projection'])})
+    work_order=Path(cut.REPO)/'AGENTS.md'
+    manifest=build_dir(data['build'])/'source_pins.json'
+    digest=cut.read(manifest)[str(work_order)]
+    verify_pins({str(work_order):digest})
     return {'accepted':True,'accepted_commit':commit,'order_sha256':data['order_sha256'],
+            'validation_work_order':{'commit':commit,'path':'AGENTS.md','sha256':digest},
             **fingerprint(data['build_receipt']['data']),'gate_receipts':checks,'workflows':workflows,
             'prefixes':prefixes,'G3':physical,
             'saved_current':{'reference_case':trials[0]['case'],'trials':trials,
@@ -163,7 +169,10 @@ def table(columns,rows):
 
 
 def render(data):
-    lines=[f"# FP2-P3 build{data['build']}",'',data['label'],'',
+    lines=[f"# FP2-P3 build{data['build']}",'',data['label'],'']
+    if commit:=data.get('accepted_commit'):
+        lines+=[f"Validated snapshot `{commit}`.",'']
+    lines+=[
            '[Signed order](../inputs/FP2_P3_CLOSURE_DEFAULT.md) · '
            '[Source check](source_check.md) · [Production diff](../production.diff) · '
            '[Test code corrections](test_code_corrections.md)','',
@@ -180,6 +189,21 @@ def render(data):
                 if isinstance(value,dict) and 'status' in value:
                     results.append((f'{key} {name}',value['status'],value.get('first_difference')))
     lines+=table(('Gate','Status','First finding'),results)
+    fixtures=data['parts']['C1'].get('checks',{})
+    g1=[]
+    public=[]
+    for name,selection in fixtures.items():
+        detail=selection['data'].get('details',{})
+        if name.startswith('G1-'):
+            g1.append((name,detail['records'],detail['expected_records'],
+                       detail['wait']['elapsed_seconds']))
+        if 'public_trace' in detail and not detail['public_trace']['returncode']:
+            improvement=detail['public_trace']['result']['improvement']
+            public.append((name,improvement['prepared_nodes'],improvement['planes']['groups']))
+    if g1:
+        lines+=table(('G1 cohort','Case records','Expected records','Elapsed s'),g1)
+    if public:
+        lines+=table(('Public improvement case','Prepared physical nodes','Footprint groups'),public)
     lines+=['## Control measurements','']
     if ctl:=data['parts']['B1'].get('checks',{}).get('N1'):
         row=ctl['data']
@@ -302,10 +326,13 @@ if __name__=='__main__':
     parser.add_argument('label')
     parser.add_argument('--accepted-commit')
     args=parser.parse_args()
+    assert (args.label==ACCEPTED)==bool(args.accepted_commit)
     data=collect(args.build,args.label)
+    if args.accepted_commit:
+        data['accepted_commit']=args.accepted_commit
+        reference=accepted_reference(data,args.accepted_commit)
     path=HERE/'reports'/f'FP2_P3_{args.build}'
     cut.save(path.with_suffix('.json'),data)
     path.with_suffix('.md').write_text(render(data))
     if args.accepted_commit:
-        reference=accepted_reference(data,args.accepted_commit)
         cut.save(HERE/'accepted_reference.json',reference)
