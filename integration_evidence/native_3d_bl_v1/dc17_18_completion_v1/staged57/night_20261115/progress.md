@@ -2392,3 +2392,7 @@ FP3-B Step 0 complete at base 3ebfcfd3a7. Verified and archived order SHA256 5ca
 FP3-B Step 0 checkpoint 516d59a15b pushed. The production patch touches only ShouldMigrate in EngineOwnership.cpp. The hidden 2-rank case compares zero-attempt Automatic ownership decisions for the same skewed box. Build676 will freeze the source, fixture, order and existing reference snapshot.
 
 FP3-B build676 passed warning-free with verified frozen inputs and terminal handles. Solver SHA256 61b8f27def11e3582fc35c55a41e70cd1c4e519752d7033a1e9d31fcf7e6a7c1 and test driver 8c13e8f1822950c23295f63f7a33840f41a9e235d682180e9f1014de5d4bb96f. Adapter self-checks passed, including the signed ownership gate rejecting A's observed migrate=1. Start the hidden 2-rank case before scoped Step 1.
+
+FP3-B build676 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/hidden/case_summary.json.
+
+FP3-B build checkpoint 1364bb5ee0 pushed. The 2-rank Automatic ownership fixture passed 10 assertions per rank. Both runs had attempts=0, predicted_gain=1092.3507718018589 and predicted_cost=6. Each rank reported migrate=1 with the open queue and migrate=0 with the closed queue. Hidden supervisor terminal. Start G1, G2/GQ, the five shared checks and G3/G4 on the frozen pair.
