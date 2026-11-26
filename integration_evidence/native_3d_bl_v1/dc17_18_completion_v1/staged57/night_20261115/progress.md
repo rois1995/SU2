@@ -2476,3 +2476,7 @@ FP3-C Step 0 checkpoint 1ff5a6607e pushed. Build677 began against the five produ
 FP3-C build677 compile attempt 1 is terminal (exit 1). The existing hidden fixture wrapper calls SurfaceCollapseWork with two arguments, so the declaration must keep the former default null remote pointer. Preserved the log, original patches and pin receipts in FP3_C/attempts/compile1. No result gates ran. Restore the default argument and refreeze the build.
 
 FP3-C build677 compiled and linked both targets warning-free. Solver SHA256 7ef8fdd548006f7e812279a6a90f6379dd921e86abbf8d694e530b8d0ef83723 and test driver a7a74ff418ca2c3a0cd50b04575821fb327e8d9cd5ee95b6b4c0d76c6d41d630. Source pins verified and build supervisor terminal. The hidden serial and two-rank suite started on the frozen pair.
+
+FP3-C build677 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/hidden/case_summary.json.
+
+FP3-C candidate checkpoint 8d63cbaf80 pushed. Hidden Step 1 passed 5793 assertions across 10 serial cases, and 1992 / 1328 assertions across 2 two-rank cases per rank. The volume-unblocked final sweep accepted one collapse after the legacy validity refusal, ran four bound queries, and reduced faces 60 to 58. Both border cases committed zero, had zero repair time and preserved write-back. Hidden supervisor terminal. Next G1, G2/GQ, the five shared checks and G3/G4, then N6P sweep-off identity.
