@@ -1,0 +1,56 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/G3/attempt1/cases/FP3B_G3_20261126T134720_1722588",
+  "case_exit_code": 0,
+  "actual_host_proc": true,
+  "host_preflight_sha256": "156741cf2be53899a353598f680aa49e8f7320615ba8a4ad85cc39ce94d7b6e0",
+  "elapsed_seconds": 619.1852910518646,
+  "filter": "[NativeActualSavedSurfaceStage3D]",
+  "ranks": 1,
+  "nice": 19,
+  "sampled_process_tree_peak_rss_bytes": 3392831488,
+  "sampled_process_tree_cap_bytes": 19999490048,
+  "sampled_process_tree_within_cap": true,
+  "identities": [
+    {
+      "pid": 1723173,
+      "state": "S",
+      "start_ticks": 119314988,
+      "name": "time",
+      "alive": false
+    },
+    {
+      "pid": 1723174,
+      "state": "S",
+      "start_ticks": 119314988,
+      "name": "timeout",
+      "alive": false
+    },
+    {
+      "pid": 1723175,
+      "state": "R",
+      "start_ticks": 119314988,
+      "name": "test_driver",
+      "alive": false
+    },
+    {
+      "pid": 1723176,
+      "state": "S",
+      "start_ticks": 119314988,
+      "name": "orted",
+      "alive": false
+    }
+  ],
+  "all_owned_handles_terminal": true,
+  "pins_sha256": "7515bc52977ea9bf8afffb97bb7cd4122aac2387a47c3a1ee1162910fce3502b",
+  "run_log_sha256": "e4a5a9427d6738059999dd9e8af0915b47c6c5a68f0a5e652f6d69a9a394e5f9",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 619.1617205142975,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 3373854720,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "passed": true
+}

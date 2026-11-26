@@ -2430,3 +2430,9 @@ FP3-B build676 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2
 FP3-B build676 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/saved-current/case_summary.json.
 
 FP3-B merit481 and native 2D at 1, 2 and 4 ranks passed. Saved-current matched all three P3 payloads and all 1297 ordered planning rows. The two raw saved-current files over the remote's file size limit remain locally pinned. G3 runs next, then G4 reuses the same 2D runs.
+
+FP3-B build676 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/G3/case_summary.json.
+
+FP3-B build676 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/G4/case_summary.json.
+
+FP3-B shared checks checkpoint ad5a4d1a94 pushed. G3 passed physically with 1184 accepted splits against 336 and zero upper refinements. All 1184 common edits match accepted P3 and observer-adjusted entry work is 5113 vs 5113. G4 passed the three pinned 2D executions. All 13 Step 1 checks are sealed and passed; supervisor terminal. Full CORE and full OFF unevaluated as ordered. Commit and push the signed Step 1 label, then start S1 and its isolated restart.
