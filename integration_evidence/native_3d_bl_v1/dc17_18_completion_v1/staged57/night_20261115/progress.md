@@ -2262,3 +2262,15 @@ FP2-P3 C6 trial 1 CORE event 1 proof, memory and timer gates passed. Owned proof
 FP2-P3 C6 trial 1 CORE event 2 proof, resource and timer gates passed. Owned proof count and all rank surface sizes 60402, job and summed process peaks both 13290020864 bytes. Continued CFD and isolated restart precede trial 2.
 
 FP2-P3 C6 trial 1 passed both events, continued CFD and isolated restart. Native maxima 1306.963 / 449.141 s, minimum timer coverage 98.855% / 98.448%. Isolated restart 125.881 s, unchanged pins and zero coordinate error. All six trial-1 payload hashes differ from the FP1 closure-off reference. Trial 2 started at 05:09:44 CET after the first restart was terminal. The exact build673 pair remains required.
+
+FP2-P3 C6 trial 1 qualified checkpoint 1ad06dafed pushed. Trial 2 matches the frozen config and actual closure-absent setting, plus all six report-only first-collapse counts, work 80752264 and zero upper refinements. Trial 2 event 1 continues.
+
+FP2-P3 C6 trial 2 event 1 proof, memory and timer gates passed. Owned proof sum and all rank surface sizes 68124, job and summed process peaks 11693744128 bytes. Continued CFD and event 2 follow.
+
+FP2-P3 C6 event-1 mesh, sidecar and transfer restart match between the two trials. Trial 2 has entered the final event.
+
+FP2-P3 C6 trial 2 final event proof, memory and timer gates passed. Owned sum and all surface sizes 60402, job and summed process peaks 13285830656 bytes. Continued CFD and isolated restart are the remaining executions before the CORE pair seal.
+
+FP2-P3 build673 C6 passed. Evidence build673/C6.json.
+
+FP2-P3 C6 passed both CORE workflows and both isolated restarts, with all six disk hashes identical within the pair and all six different from the historical FP1 control. Trial 2 maxima 1303.863 / 448.316 s, minimum per-rank coverage 98.859% / 98.429%, and isolated restart 140.762 s with zero coordinate error and verified pins. Supervisor terminal, no owned native job. Part B and all seven C checks are passed. Next publish the signed references and close.
