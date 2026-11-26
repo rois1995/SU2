@@ -2350,3 +2350,11 @@ FP3-A CORE event 2 passed its owned-face proof, memory and timer gate receipts. 
 FP3-A CORE full native workflow reached normal exit with continued CFD and all six owned ranks terminal. All six standing-gate payload hashes match accepted P3 CORE. The isolated restart is active and its startup receipt verified effective probe 0 and the executing inode on all six ranks.
 
 FP3-A Step 1 passed. CORE passed both adaptation events, transfer, continued CFD and the isolated restart with probe 0 on all six owned ranks in both jobs. All six CORE payload hashes matched accepted P3 exactly. The CORE supervisor is terminal. Step 1 sealed in build675/step1.json. Commit and push the signed label “FP3-A: default paths unchanged”, then launch S1.
+
+FP3-A S1 service is running from the pushed Step 1 checkpoint 36e71f96f7. All six live ranks verified probe 0. Event 1 completed surface hand-over and all six initial engine collapse stage rows show rounds=0 and length_collapses=0. All six paired collapse LENGTH rows show collapse_accepted=0. Split work follows. The complete suppression and workflow receipts await both events and isolated restart.
+
+FP3-A S1 event 1 proof, job memory and timer receipts passed. Owned and all per-rank surface sizes 26530. Job peak and summed process peaks 9718820864 bytes. The two observed geometry-only returns began directly in split lane 1, with cumulative construction collapses still zero. Event 2 has entered metric preparation after continued CFD.
+
+FP3-A S1 event 2 proof, timers and resource gates passed. Owned faces 21838. Job peak and summed process peaks 10628263936 bytes. The event-2 initial collapse exits also show zero rounds and zero accepted collapses on all six ranks. Continued CFD and isolated restart precede the final Step 2 seal.
+
+FP3-A S1 passed all standing gates, continued CFD, isolated restart and suppression on 12 worker packets. Native maxima 638.248103707 / 324.557819773 s, minimum per-rank timer coverage 98.325% / 99.449%. Both event purpose flags are time OPEN for the user against the 10% thresholds. S1 supervisor terminal. Commit and push the qualified S1 receipt, then start S2 on the identical frozen pair.
