@@ -2436,3 +2436,13 @@ FP3-B build676 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_Nativ
 FP3-B build676 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/G4/case_summary.json.
 
 FP3-B shared checks checkpoint ad5a4d1a94 pushed. G3 passed physically with 1184 accepted splits against 336 and zero upper refinements. All 1184 common edits match accepted P3 and observer-adjusted entry work is 5113 vs 5113. G4 passed the three pinned 2D executions. All 13 Step 1 checks are sealed and passed; supervisor terminal. Full CORE and full OFF unevaluated as ordered. Commit and push the signed Step 1 label, then start S1 and its isolated restart.
+
+FP3-B Step 1 checkpoint 914ddc3028 pushed. S1 launched with the frozen mode-S config SHA256 07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382 and verified effective probe 0 on all six live ranks. Surface preparation in event 1 is in progress.
+
+FP3-B S1 event 1 took the initial collapse exit at zero rounds and accepted collapses. All six owned ranks evaluated construction ownership at attempts=0 and reported migrate=0. The raw gain and cost were 5294993240.6770782 and 371825, matching the FP3-A decision input. Split and quality work follow.
+
+FP3-B S1 event 1 passed proof, memory and timer checks. Owned and all per-rank surface sizes are 26512. Reported job and summed process peaks agree at 9514311680 bytes. Native maximum 550.5487517619999 s. The complete first event has no ownership or suppression finding. Its quality evaluation committed a single 216475-cell exchange. Transfer and continued CFD precede event 2.
+
+FP3-B S1 event 2 passed proof, timer and resource checks with 21824 owned and per-rank surface faces. Job peak and summed process peaks 10658205696 bytes. All six empty-exit evaluations again show attempts=0 and migrate=0. The quality evaluation committed a 165441-cell exchange. Continued CFD and isolated restart remain.
+
+FP3-B S1 passed both events, transfer, continued CFD and isolated restart. The collector passed the unchanged suppression gate and the new ownership gate across all 12 worker packets. No construction ownership commit. Native maxima 550.5487517619999 / 353.19650578200003 s. All six disk outputs differ from FP3-A, report only. S1 supervisor terminal. Push the passing checkpoint and launch S2 with the identical binary pair, inputs and settings.
