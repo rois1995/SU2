@@ -2196,3 +2196,13 @@ FP2-P3 build673 C3/GQ passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIn
 FP2-P3 build673 C3 passed. Evidence build673/C3.json.
 
 FP2-P3 C3 passed both GQ captures and their exact pair comparison, including scheduling calls and census. Each completed all six third quality windows and the embedded first-collapse gates. First historical GQ difference is the same rank-0 atlas_work as G2. GQ historical coverage by projected type includes 510 changed stage rows, 510 storage rows, 62 timer rows, one missing timer row and one extra timer row. The group comparison and ownership evidence are sealed. C3 supervisor terminal. Next C4 G3 physical check and rebound G4.
+
+FP2-P3 C3 passed checkpoint 755e3015af pushed. C4 started under su2-fp2-p3-build673-c4. G3 runs with the closure variable absent and keeps its physical gates. The historical common edits and adjusted entry work are reported. G4 will re-evaluate the C2 native 2D executions against the historical summaries.
+
+FP2-P3 build673 C4/G3 passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/C4/G3.json.
+
+FP2-P3 build673 C4/G4 passed. Receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/scoped/build673/C4/G4.json.
+
+FP2-P3 build673 C4 passed. Evidence build673/C4.json.
+
+FP2-P3 C4 passed G3 physically with 1592 positive splits above the 336 minimum, zero upper refinements and valid storage and resource checks. Across 1113 common edits, the first historical mismatch is zero-based 47, edge [24302,24303] versus [15048,24462]. Observer-adjusted work is 5113 versus 5113. G4 passed the historical Catch comparison for the same C2 native 2D executions at 1, 2 and 4 ranks. Supervisor terminal. C1 through C4 are passed. Next C7, two S workflows and isolated restarts.
