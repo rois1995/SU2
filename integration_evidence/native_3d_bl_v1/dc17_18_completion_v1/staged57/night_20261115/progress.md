@@ -2328,3 +2328,9 @@ FP3-A build675 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Version
 FP3-A remaining shared checks passed: exact C492 exited zero with all frozen-input, tolerance, refinement and physical checks; merit481 passed; native 2D passed at 1, 2 and 4 ranks. The single saved-current run matched all three P3 payloads and all 1297 ordered planning rows. G3 physical and identity now running; G4 consumes the sealed shared 2D executions.
 
 The remote declined the first shared-check checkpoint because each of two pinned saved-current volumes exceeds its 100 MiB file limit. Both raw files stay on disk at their receipt paths. Amended only the unpublished checkpoint to omit those two raw Git objects; their hashes and all saved-current comparison receipts stay in the checkpoint.
+
+FP3-A build675 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/controls/build675/G3/case_summary.json.
+
+FP3-A build675 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/controls/build675/G4/case_summary.json.
+
+FP3-A G3 passed at 1616 accepted splits against the 336 minimum with zero upper refinements. All 1592 common accepted edges and points match P3, and observer-adjusted entry work is 5113 on both. G4 passed the historical 1-, 2- and 4-rank projections using the same shared native 2D executions. All 13 scoped checks are sealed and passed. Scoped supervisor terminal. Start the remaining Step 1 control, one full CORE workflow and isolated restart.
