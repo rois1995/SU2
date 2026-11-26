@@ -17,3 +17,9 @@ The receipt check now looks for the rank flag after the MPI launcher token. The 
 The initial controller stopped before native launch at the inherited assertion requiring disjoint source pin maps. The signed order and its checksum were present with identical digests in both the primary build manifest and the P3 supplement. The setup log and terminal wait identify the exact assertion. The following missing case status was a consequence of that setup stop.
 
 In the corrected fresh attempt, the two files remain in the primary manifest. The supplemental builder verifies the two digests before omitting those duplicates. The inherited source pin validator, switch settings and first-collapse result checks are used as written.
+
+## C5 trial two restart live observation
+
+The repeat's native restart exited 0, its exact pins verified, and it passed the resource gate at 1817374720 bytes. Its wrapper exited 1 because the required live-runtime receipt was absent (false versus required true). The first failed runtime sample recorded EIO. The inherited permanent error latch then prevented all later runtime samples. The original log has no inode or digest mismatch.
+
+Reused the FP2-C3 qualified correction for an incomplete EIO sample. It allows the next observation attempt, still requires a complete six-rank executable and ELF sample, and preserves every other runtime observation failure. The corrected attempt repeats only isolated restart at the unchanged 600 s wrapper from the same sealed event hashes. Its archive, corrected helper, and new runtime evidence are bound in the recovered receipt.

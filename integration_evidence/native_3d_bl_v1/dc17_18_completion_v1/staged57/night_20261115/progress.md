@@ -2234,3 +2234,21 @@ FP2-P3 C5 trial 1 OFF event 1 proof, resource and timer gates passed. Owned sum 
 FP2-P3 C5 trial 1 OFF event 2 proof, resource and timer gates passed. Owned sum and each rank surface size 62732, job and summed process peaks both 17507598336 bytes against 19999490048. Continued CFD and isolated restart are next, followed by the repeat.
 
 FP2-P3 C5 trial 1 passed both events, continued CFD and isolated restart. Native maxima 1538.497 / 754.698 s and minimum per-rank coverage 98.867% / 99.185%. All six trial-1 payloads differ from the historical closure-off run. The trial-1 OFF logs produce 1530 report-only exact differences against B2b and zero replay findings. Trial 2 started at 03:38:19 CET after terminal restart verification. The build673 pair is still required.
+
+FP2-P3 C5 trial 1 qualified checkpoint 605b86c7f4 pushed. Trial 2 first-collapse admission passed all six ranks with the same exact accepted counts, 76652506 work units, and zero upper refinements. Event 1 continues with the same default closure and frozen config.
+
+FP2-P3 C5 trial 2 OFF event 1 proof, resource and timer gates passed. Owned proof count and every rank's surface size 66900, job peak 13875433472 bytes. Transfer and continued CFD precede event 2.
+
+FP2-P3 C5 trial 2 event 1 mesh, sidecar and transferred restart all match trial 1 on disk. Event 2 has entered native construction.
+
+FP2-P3 C5 trial 2 event 2 proof, memory and timer gates passed. Owned proof count and surface size 62732, job and summed process peaks both 17633882112 bytes. Continued CFD and isolated restart precede the final pair SHA256 check.
+
+FP2-P3 C5 trial 2 completed continued CFD and all six disk hashes match trial 1. The isolated restart started at 04:21:50 CET. The official C5 pair seal follows that restart and the FX2 report comparison.
+
+FP2-P3 build673 C5 FAILED. Evidence build673/C5.json.
+
+FP2-P3 C5 trial 2 isolated restart first finding is runtime_receipt_written=false versus required true. The native restart child exited 0, all input/source pins verified, all owned handles terminal, and the resource gate passed at 1817374720 bytes. The startup sampler latched EIO and the unmodified wrapper exited 1. This is the same collector wiring defect documented and corrected in FP2-C3 build664. The failed receipt is retained. Reuse the already qualified EIO-only incomplete-sample correction and repeat only the isolated restart at the same 600 s wrapper, from the six identical sealed event payloads.
+
+FP2-P3 build673 C5 passed. Evidence build673/C5.json.
+
+FP2-P3 C5 passed after the isolated-restart observation repair. The second restart verified in 182.920 s with a complete live runtime receipt, unchanged pins, and zero coordinate error. The C5 disk pair is exactly equal on all six payloads. Trial 2 native maxima 1461.688 / 694.065 s. All six new payloads differ from N21 W. FX2 exact row differences against B2b 1530, zero replay findings. Both C5 supervisors terminal. Next C6 CORE pair.
