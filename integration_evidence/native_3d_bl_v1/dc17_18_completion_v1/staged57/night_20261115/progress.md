@@ -2412,3 +2412,7 @@ FP3-B G1 checkpoint e46e11e743 pushed. G2 passed the accepted P3 prefix comparis
 FP3-B build676 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/GQ/case_summary.json.
 
 FP3-B G2 checkpoint d42dcdcbb1 pushed. GQ passed the third quality-window anchor and the exact P3 comparison, including scheduling, census, modeled storage and fixedstorage=4120. The shared first-collapse check is next.
+
+FP3-B build676 Step 1 first-collapse passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/first-collapse/case_summary.json.
+
+FP3-B GQ checkpoint 802f5b1e57 pushed. Shared first-collapse passed with exact per-rank accepted counts 480 / 473 / 346 / 263 / 469 / 464, work 76652506 against 108459426, zero upper refinements and all hard gates. C492 follows.
