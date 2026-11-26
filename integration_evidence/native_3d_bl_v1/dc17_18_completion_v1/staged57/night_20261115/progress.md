@@ -2358,3 +2358,11 @@ FP3-A S1 event 1 proof, job memory and timer receipts passed. Owned and all per-
 FP3-A S1 event 2 proof, timers and resource gates passed. Owned faces 21838. Job peak and summed process peaks 10628263936 bytes. The event-2 initial collapse exits also show zero rounds and zero accepted collapses on all six ranks. Continued CFD and isolated restart precede the final Step 2 seal.
 
 FP3-A S1 passed all standing gates, continued CFD, isolated restart and suppression on 12 worker packets. Native maxima 638.248103707 / 324.557819773 s, minimum per-rank timer coverage 98.325% / 99.449%. Both event purpose flags are time OPEN for the user against the 10% thresholds. S1 supervisor terminal. Commit and push the qualified S1 receipt, then start S2 on the identical frozen pair.
+
+FP3-A S1 checkpoint c05aaccd33 pushed. S2 launched with the same effective S config SHA256 07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382 and the same binary pair and inputs. The S2 live startup receipt checked probe 0 on all six ranks. Surface preparation is underway.
+
+FP3-A S2 event 1 passed proof, memory and timer gates. All six ranks again took the initial collapse exit at zero rounds and zero accepted collapses. Owned proof and surface size are 26530, matching S1. Job peak and process peak sum are 9688662016 bytes. Payload writing and continued CFD precede event 2.
+
+FP3-A S2 event 2 proof, memory, timer gates and subsequent continued CFD passed. Owned and all per-rank surface counts 21838. Job peak equals its process peak sum at 10572832768 bytes. The full native child exited 0. Both sealed direct six-file hashes agree with S1 and the collector passed suppression on all 12 packets. The isolated restart is active with a startup receipt.
+
+FP3-A Step 3 passed. S2 passed both events, continued CFD, suppression on 12 packets and isolated restart. All six disk payloads match S1. Native maxima 804.734869088 / 247.877283714 s, minimum per-rank timer coverage 98.186% / 99.457%. The time flag is OPEN for event 1; event 2 meets its 10% threshold on S2. Neither S trial logged a metric cleanup pair. S2 supervisor terminal. Commit and push the pair checkpoint, then start the independent Step 4 core probe with value 1.

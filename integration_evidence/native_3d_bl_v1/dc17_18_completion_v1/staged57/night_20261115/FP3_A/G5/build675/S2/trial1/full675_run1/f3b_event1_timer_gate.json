@@ -1,0 +1,3119 @@
+{
+  "event": 1,
+  "passed": true,
+  "ranks": [
+    {
+      "rank": 0,
+      "ledger": {
+        "summary": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "0",
+          "ranks": "6",
+          "root_seconds": "804.78847460100008",
+          "sumexclusive": "804.78847460100712",
+          "unattributed": "13.645947781000118",
+          "coverage": "0.98304405665381134",
+          "fixedstorage": "4120"
+        },
+        "rows": [
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "preparation",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "1.6284334500000002",
+            "exclusive_seconds": "1.3099999995880296e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "preparation",
+            "operation": "import",
+            "calls": "16682",
+            "inclusive_call_seconds": "5.5772978930006385",
+            "exclusive_seconds": "3.1835187439999406"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "preparation",
+            "operation": "mobility_policy",
+            "calls": "3",
+            "inclusive_call_seconds": "92.075479541999997",
+            "exclusive_seconds": "31.471330676000004"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "preparation",
+            "operation": "census",
+            "calls": "2",
+            "inclusive_call_seconds": "37.748433464000001",
+            "exclusive_seconds": "2.6858117280060583"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "preparation",
+            "operation": "geometry_bound",
+            "calls": "52587",
+            "inclusive_call_seconds": "14.320518867000043",
+            "exclusive_seconds": "14.320518867000043"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "preparation",
+            "operation": "geometry_preparation",
+            "calls": "1",
+            "inclusive_call_seconds": "29.518818467000003",
+            "exclusive_seconds": "29.518818467000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "preparation",
+            "operation": "communication",
+            "calls": "274",
+            "inclusive_call_seconds": "18.606561075000002",
+            "exclusive_seconds": "13.042624484999999"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "metric",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5488359280000004",
+            "exclusive_seconds": "1.7400000018596984e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "metric",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "1.0722408290000001",
+            "exclusive_seconds": "0.64754279400000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "metric",
+            "operation": "communication",
+            "calls": "23005",
+            "inclusive_call_seconds": "1.8165051609999865",
+            "exclusive_seconds": "1.6756045999999858"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "metric",
+            "operation": "metric_normalization",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5488357540000002",
+            "exclusive_seconds": "1.2256883600000017"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "unattributed",
+            "calls": "764",
+            "inclusive_call_seconds": "474.94923197899988",
+            "exclusive_seconds": "0.15001596699996414"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "import",
+            "calls": "8646",
+            "inclusive_call_seconds": "1.026058913000002",
+            "exclusive_seconds": "0.85031310100000135"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "target_composition",
+            "calls": "1",
+            "inclusive_call_seconds": "2.1800000000000002e-07",
+            "exclusive_seconds": "2.1800000000000002e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.181e-06",
+            "exclusive_seconds": "1.181e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "census",
+            "calls": "379",
+            "inclusive_call_seconds": "26.296415514",
+            "exclusive_seconds": "19.455054620999999"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "geometry_bound",
+            "calls": "81911",
+            "inclusive_call_seconds": "447.12524982399879",
+            "exclusive_seconds": "238.45435154600318"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "geometry_projection",
+            "calls": "40",
+            "inclusive_call_seconds": "0.014986151999999997",
+            "exclusive_seconds": "0.014986151999999997"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "candidate",
+            "calls": "1187",
+            "inclusive_call_seconds": "0.88523081199999998",
+            "exclusive_seconds": "0.070253858999999863"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "scheduling",
+            "calls": "1883",
+            "inclusive_call_seconds": "20.164037661000009",
+            "exclusive_seconds": "10.745764006000007"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "topology",
+            "calls": "783",
+            "inclusive_call_seconds": "317.00040466500042",
+            "exclusive_seconds": "68.129566560998271"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "communication",
+            "calls": "77649",
+            "inclusive_call_seconds": "82.47994326599742",
+            "exclusive_seconds": "62.077023324999786"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "metric_normalization",
+            "calls": "1294",
+            "inclusive_call_seconds": "0.10543791499999997",
+            "exclusive_seconds": "0.015455164000000002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "output",
+            "calls": "29",
+            "inclusive_call_seconds": "0.18557090800000003",
+            "exclusive_seconds": "0.18557090800000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "construction",
+            "operation": "clearance",
+            "calls": "72",
+            "inclusive_call_seconds": "5.1394664169999995",
+            "exclusive_seconds": "0.4748902829999998"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "unattributed",
+            "calls": "518",
+            "inclusive_call_seconds": "309.8844494289998",
+            "exclusive_seconds": "0.064876398999984514"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "import",
+            "calls": "5494",
+            "inclusive_call_seconds": "0.31932483200000034",
+            "exclusive_seconds": "0.31932483200000034"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "census",
+            "calls": "183",
+            "inclusive_call_seconds": "22.438090454999994",
+            "exclusive_seconds": "10.507800937000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "geometry_bound",
+            "calls": "10083",
+            "inclusive_call_seconds": "30.380669241000081",
+            "exclusive_seconds": "23.914813240000008"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "geometry_projection",
+            "calls": "8572",
+            "inclusive_call_seconds": "1.7066522980000021",
+            "exclusive_seconds": "1.7066522980000021"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "quality_optimization",
+            "calls": "357",
+            "inclusive_call_seconds": "24.704494348000004",
+            "exclusive_seconds": "8.0843678169999897"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "old_cavity_measurement",
+            "calls": "22059",
+            "inclusive_call_seconds": "0.024472254999999991",
+            "exclusive_seconds": "0.024472254999999991"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "candidate",
+            "calls": "6818",
+            "inclusive_call_seconds": "77.300934438000198",
+            "exclusive_seconds": "7.1302784050000056"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "scheduling",
+            "calls": "951",
+            "inclusive_call_seconds": "10.658596518000001",
+            "exclusive_seconds": "5.8448189340000019"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "topology",
+            "calls": "314",
+            "inclusive_call_seconds": "19.373824593000023",
+            "exclusive_seconds": "0.30060514299999902"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "communication",
+            "calls": "42223",
+            "inclusive_call_seconds": "62.241496321999371",
+            "exclusive_seconds": "46.449981690999678"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "metric_normalization",
+            "calls": "7793",
+            "inclusive_call_seconds": "0.45666612800000084",
+            "exclusive_seconds": "0.45666612800000084"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "output",
+            "calls": "182",
+            "inclusive_call_seconds": "0.25873707899999998",
+            "exclusive_seconds": "0.25873707899999998"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "join_wait",
+            "calls": "157",
+            "inclusive_call_seconds": "111.48349724999997",
+            "exclusive_seconds": "111.48349724999997"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "quality",
+            "operation": "clearance",
+            "calls": "290",
+            "inclusive_call_seconds": "15.940654192",
+            "exclusive_seconds": "6.4027086180000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "final_proof",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "62.230316003000006",
+            "exclusive_seconds": "1.0500000513502528e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "final_proof",
+            "operation": "geometry_bound",
+            "calls": "5284",
+            "inclusive_call_seconds": "34.458721460999861",
+            "exclusive_seconds": "34.458721460999861"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "final_proof",
+            "operation": "communication",
+            "calls": "16",
+            "inclusive_call_seconds": "13.225048102999999",
+            "exclusive_seconds": "13.225048102999999"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "final_proof",
+            "operation": "certification",
+            "calls": "2",
+            "inclusive_call_seconds": "72.820910921999996",
+            "exclusive_seconds": "14.546546334000139"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "transfer",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7827972270000005",
+            "exclusive_seconds": "5.7799999986229977e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "transfer",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7827966490000007",
+            "exclusive_seconds": "7.6851358220000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "transfer",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.2920000000000001e-06",
+            "exclusive_seconds": "1.2920000000000001e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "0",
+            "phase": "transfer",
+            "operation": "communication",
+            "calls": "22",
+            "inclusive_call_seconds": "0.097695093999999982",
+            "exclusive_seconds": "0.097659534999999978"
+          }
+        ],
+        "gates": {
+          "positive_root": true,
+          "unique_operation_rows": true,
+          "exclusive_total_telescopes": true,
+          "nonnegative_root_residual": true,
+          "named_rows_match_summary": true,
+          "coverage_matches_rows": true,
+          "valid_operation_records": true,
+          "named_coverage_at_least_95_percent": true
+        },
+        "passed": true,
+        "named_seconds": 791.142526820007,
+        "root_residual_seconds": 13.431054426993228
+      },
+      "legacy_join": {
+        "join_seconds": 111.483567782,
+        "windows": 28,
+        "exit_rows": 1
+      },
+      "join_wait_seconds": 111.48349724999997,
+      "join_relative_difference": 6.32667230039908e-07,
+      "join_within_one_percent": true,
+      "quality_unattributed_seconds": 0.06487639899998451,
+      "prediction_quality_gap_15_to_25": false,
+      "prediction_coverage_96p5_to_97": false
+    },
+    {
+      "rank": 1,
+      "ledger": {
+        "summary": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "1",
+          "ranks": "6",
+          "root_seconds": "804.78459886400003",
+          "sumexclusive": "804.7845988640006",
+          "unattributed": "13.924055954999425",
+          "coverage": "0.98269840653678764",
+          "fixedstorage": "4120"
+        },
+        "rows": [
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "preparation",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "1.628413007",
+            "exclusive_seconds": "3.339999998797083e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "preparation",
+            "operation": "import",
+            "calls": "16682",
+            "inclusive_call_seconds": "5.6176417880024783",
+            "exclusive_seconds": "3.0859860269997492"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "preparation",
+            "operation": "mobility_policy",
+            "calls": "3",
+            "inclusive_call_seconds": "86.658174243000005",
+            "exclusive_seconds": "30.674940314999997"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "preparation",
+            "operation": "census",
+            "calls": "2",
+            "inclusive_call_seconds": "37.748453671999997",
+            "exclusive_seconds": "2.8419996910077501"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "preparation",
+            "operation": "geometry_bound",
+            "calls": "58723",
+            "inclusive_call_seconds": "12.793482243000257",
+            "exclusive_seconds": "12.793482243000257"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "preparation",
+            "operation": "geometry_preparation",
+            "calls": "1",
+            "inclusive_call_seconds": "25.865868600000002",
+            "exclusive_seconds": "25.865868600000002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "preparation",
+            "operation": "communication",
+            "calls": "274",
+            "inclusive_call_seconds": "24.244478485000005",
+            "exclusive_seconds": "18.826831475999988"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "metric",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "3.548548609",
+            "exclusive_seconds": "1.6299999971991497e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "metric",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "1.0722477050000001",
+            "exclusive_seconds": "0.57883374600000004"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "metric",
+            "operation": "communication",
+            "calls": "23005",
+            "inclusive_call_seconds": "1.7561078149999885",
+            "exclusive_seconds": "1.6166864029999879"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "metric",
+            "operation": "metric_normalization",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5485484460000003",
+            "exclusive_seconds": "1.3530282970000096"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "unattributed",
+            "calls": "764",
+            "inclusive_call_seconds": "475.03090223000027",
+            "exclusive_seconds": "0.35635413899996615"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "import",
+            "calls": "8646",
+            "inclusive_call_seconds": "0.77628812499999189",
+            "exclusive_seconds": "0.62934591399999273"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "target_composition",
+            "calls": "15",
+            "inclusive_call_seconds": "3.1080000000000006e-06",
+            "exclusive_seconds": "3.1080000000000006e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "2.1610000000000001e-06",
+            "exclusive_seconds": "2.1610000000000001e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "census",
+            "calls": "379",
+            "inclusive_call_seconds": "26.301387268000006",
+            "exclusive_seconds": "11.679581175000008"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "geometry_bound",
+            "calls": "70159",
+            "inclusive_call_seconds": "423.96300965800151",
+            "exclusive_seconds": "229.64168005299908"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "geometry_projection",
+            "calls": "64",
+            "inclusive_call_seconds": "0.021427352999999996",
+            "exclusive_seconds": "0.021427352999999996"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "candidate",
+            "calls": "1182",
+            "inclusive_call_seconds": "0.85997749100000032",
+            "exclusive_seconds": "0.2691008770000004"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "scheduling",
+            "calls": "1883",
+            "inclusive_call_seconds": "23.205515252999991",
+            "exclusive_seconds": "14.101789421000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "topology",
+            "calls": "783",
+            "inclusive_call_seconds": "317.06361388100004",
+            "exclusive_seconds": "68.522403211000409"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "communication",
+            "calls": "77649",
+            "inclusive_call_seconds": "97.319517699995316",
+            "exclusive_seconds": "74.429185800995086"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "metric_normalization",
+            "calls": "2034",
+            "inclusive_call_seconds": "0.15957858699999994",
+            "exclusive_seconds": "0.078488814999999948"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "output",
+            "calls": "29",
+            "inclusive_call_seconds": "0.175479093",
+            "exclusive_seconds": "0.175479093"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "construction",
+            "operation": "clearance",
+            "calls": "72",
+            "inclusive_call_seconds": "5.2377289230000006",
+            "exclusive_seconds": "0.78909126999999979"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "unattributed",
+            "calls": "519",
+            "inclusive_call_seconds": "310.12277235100015",
+            "exclusive_seconds": "0.065249738000010604"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "import",
+            "calls": "5712",
+            "inclusive_call_seconds": "0.30384576600000013",
+            "exclusive_seconds": "0.30384576600000013"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "census",
+            "calls": "183",
+            "inclusive_call_seconds": "17.116252389",
+            "exclusive_seconds": "5.0329225790000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "geometry_bound",
+            "calls": "9190",
+            "inclusive_call_seconds": "35.724904566000056",
+            "exclusive_seconds": "28.838471173999917"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "geometry_projection",
+            "calls": "6145",
+            "inclusive_call_seconds": "1.2410644490000022",
+            "exclusive_seconds": "1.2410644490000022"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "quality_optimization",
+            "calls": "358",
+            "inclusive_call_seconds": "24.952484866999963",
+            "exclusive_seconds": "5.9037413219999992"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "old_cavity_measurement",
+            "calls": "18904",
+            "inclusive_call_seconds": "0.015592981999999922",
+            "exclusive_seconds": "0.015592981999999922"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "candidate",
+            "calls": "7477",
+            "inclusive_call_seconds": "78.287607428999607",
+            "exclusive_seconds": "7.0362539039999978"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "scheduling",
+            "calls": "951",
+            "inclusive_call_seconds": "10.602335123999991",
+            "exclusive_seconds": "4.2393258340000006"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "topology",
+            "calls": "314",
+            "inclusive_call_seconds": "19.314564742000002",
+            "exclusive_seconds": "0.27252430599999983"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "communication",
+            "calls": "42223",
+            "inclusive_call_seconds": "68.63388764799889",
+            "exclusive_seconds": "52.836678072998943"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "metric_normalization",
+            "calls": "8348",
+            "inclusive_call_seconds": "0.43293795400000085",
+            "exclusive_seconds": "0.43293795400000085"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "output",
+            "calls": "182",
+            "inclusive_call_seconds": "0.27231116199999983",
+            "exclusive_seconds": "0.27231116199999983"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "join_wait",
+            "calls": "157",
+            "inclusive_call_seconds": "110.8163850579999",
+            "exclusive_seconds": "110.8163850579999"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "quality",
+            "operation": "clearance",
+            "calls": "290",
+            "inclusive_call_seconds": "16.005587606000017",
+            "exclusive_seconds": "5.6326141039999928"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "final_proof",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "62.230313281000001",
+            "exclusive_seconds": "9.6999997367674951e-08"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "final_proof",
+            "operation": "geometry_bound",
+            "calls": "1098",
+            "inclusive_call_seconds": "16.335924215999967",
+            "exclusive_seconds": "16.335924215999967"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "final_proof",
+            "operation": "communication",
+            "calls": "16",
+            "inclusive_call_seconds": "34.281518742999999",
+            "exclusive_seconds": "34.281518742999999"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "final_proof",
+            "operation": "certification",
+            "calls": "2",
+            "inclusive_call_seconds": "72.900082802",
+            "exclusive_seconds": "11.612870225000041"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "transfer",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7803262190000009",
+            "exclusive_seconds": "2.1100000058282831e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "transfer",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7803260080000003",
+            "exclusive_seconds": "7.4967704450000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "transfer",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.2130000000000001e-06",
+            "exclusive_seconds": "1.2130000000000001e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "1",
+            "phase": "transfer",
+            "operation": "communication",
+            "calls": "22",
+            "inclusive_call_seconds": "0.28382348099999999",
+            "exclusive_seconds": "0.28355435000000001"
+          }
+        ],
+        "gates": {
+          "positive_root": true,
+          "unique_operation_rows": true,
+          "exclusive_total_telescopes": true,
+          "nonnegative_root_residual": true,
+          "named_rows_match_summary": true,
+          "coverage_matches_rows": true,
+          "valid_operation_records": true,
+          "named_coverage_at_least_95_percent": true
+        },
+        "passed": true,
+        "named_seconds": 790.8605429090011,
+        "root_residual_seconds": 13.502451272998997
+      },
+      "legacy_join": {
+        "join_seconds": 110.81645361900001,
+        "windows": 28,
+        "exit_rows": 1
+      },
+      "join_wait_seconds": 110.8163850579999,
+      "join_relative_difference": 6.186897151175029e-07,
+      "join_within_one_percent": true,
+      "quality_unattributed_seconds": 0.0652497380000106,
+      "prediction_quality_gap_15_to_25": false,
+      "prediction_coverage_96p5_to_97": false
+    },
+    {
+      "rank": 2,
+      "ledger": {
+        "summary": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "2",
+          "ranks": "6",
+          "root_seconds": "804.78458933500008",
+          "sumexclusive": "804.78458933500826",
+          "unattributed": "13.945443314999864",
+          "coverage": "0.98267183107156286",
+          "fixedstorage": "4120"
+        },
+        "rows": [
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "preparation",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "1.6284240460000001",
+            "exclusive_seconds": "2.1800000005178788e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "preparation",
+            "operation": "import",
+            "calls": "16682",
+            "inclusive_call_seconds": "5.8759136590001777",
+            "exclusive_seconds": "3.6831768680000314"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "preparation",
+            "operation": "mobility_policy",
+            "calls": "3",
+            "inclusive_call_seconds": "88.59273210500001",
+            "exclusive_seconds": "30.631861116000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "preparation",
+            "operation": "census",
+            "calls": "2",
+            "inclusive_call_seconds": "37.748474666",
+            "exclusive_seconds": "3.5528153840033561"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "preparation",
+            "operation": "geometry_bound",
+            "calls": "89894",
+            "inclusive_call_seconds": "12.613512696000177",
+            "exclusive_seconds": "12.613512696000177"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "preparation",
+            "operation": "geometry_preparation",
+            "calls": "1",
+            "inclusive_call_seconds": "27.956771565",
+            "exclusive_seconds": "27.956771565"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "preparation",
+            "operation": "communication",
+            "calls": "274",
+            "inclusive_call_seconds": "20.65023016100001",
+            "exclusive_seconds": "15.472704345999999"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "metric",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5435920960000002",
+            "exclusive_seconds": "6.2000000244921694e-08"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "metric",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "1.0700507749999999",
+            "exclusive_seconds": "0.64223772999999995"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "metric",
+            "operation": "communication",
+            "calls": "23005",
+            "inclusive_call_seconds": "1.6631070990000083",
+            "exclusive_seconds": "1.5458495569999959"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "metric",
+            "operation": "metric_normalization",
+            "calls": "1",
+            "inclusive_call_seconds": "3.543592034",
+            "exclusive_seconds": "1.3555047470000092"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "unattributed",
+            "calls": "764",
+            "inclusive_call_seconds": "474.99601836799991",
+            "exclusive_seconds": "0.21486031600001432"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "import",
+            "calls": "8646",
+            "inclusive_call_seconds": "0.84898626399999688",
+            "exclusive_seconds": "0.7515784049999964"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.903e-06",
+            "exclusive_seconds": "1.903e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "census",
+            "calls": "379",
+            "inclusive_call_seconds": "26.287998909000002",
+            "exclusive_seconds": "16.444850434999999"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "geometry_bound",
+            "calls": "45046",
+            "inclusive_call_seconds": "274.77182111800118",
+            "exclusive_seconds": "144.64154994199947"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "geometry_projection",
+            "calls": "8",
+            "inclusive_call_seconds": "0.0035808840000000003",
+            "exclusive_seconds": "0.0035808840000000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "candidate",
+            "calls": "1180",
+            "inclusive_call_seconds": "1.054175057000001",
+            "exclusive_seconds": "0.1097805280000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "scheduling",
+            "calls": "1883",
+            "inclusive_call_seconds": "22.060933107999983",
+            "exclusive_seconds": "13.387965972999996"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "topology",
+            "calls": "783",
+            "inclusive_call_seconds": "317.03240929499998",
+            "exclusive_seconds": "84.315918741999766"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "communication",
+            "calls": "77649",
+            "inclusive_call_seconds": "161.0141433340053",
+            "exclusive_seconds": "139.99200330700577"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "metric_normalization",
+            "calls": "1681",
+            "inclusive_call_seconds": "0.06441693500000012",
+            "exclusive_seconds": "0.041175810000000049"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "output",
+            "calls": "29",
+            "inclusive_call_seconds": "0.16328354800000003",
+            "exclusive_seconds": "0.16328354800000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "construction",
+            "operation": "clearance",
+            "calls": "72",
+            "inclusive_call_seconds": "5.4176211870000008",
+            "exclusive_seconds": "0.61230323700000011"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "unattributed",
+            "calls": "510",
+            "inclusive_call_seconds": "329.36216996899998",
+            "exclusive_seconds": "0.049897476999991697"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "import",
+            "calls": "5531",
+            "inclusive_call_seconds": "0.30654913300000164",
+            "exclusive_seconds": "0.30654913300000164"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "census",
+            "calls": "183",
+            "inclusive_call_seconds": "18.459676067999986",
+            "exclusive_seconds": "6.3138371290000013"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "geometry_bound",
+            "calls": "10403",
+            "inclusive_call_seconds": "82.17036230300036",
+            "exclusive_seconds": "61.859584928999809"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "geometry_projection",
+            "calls": "6952",
+            "inclusive_call_seconds": "1.4788971699999975",
+            "exclusive_seconds": "1.4788971699999975"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "quality_optimization",
+            "calls": "349",
+            "inclusive_call_seconds": "44.17301975699997",
+            "exclusive_seconds": "7.152899208999993"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "old_cavity_measurement",
+            "calls": "19243",
+            "inclusive_call_seconds": "0.026295581999999987",
+            "exclusive_seconds": "0.026295581999999987"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "candidate",
+            "calls": "7426",
+            "inclusive_call_seconds": "146.61334974500031",
+            "exclusive_seconds": "8.5812591620000198"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "scheduling",
+            "calls": "951",
+            "inclusive_call_seconds": "10.812371342999993",
+            "exclusive_seconds": "4.8163764060000016"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "topology",
+            "calls": "314",
+            "inclusive_call_seconds": "19.420028613000007",
+            "exclusive_seconds": "0.29419748499999909"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "communication",
+            "calls": "42223",
+            "inclusive_call_seconds": "66.348640659999276",
+            "exclusive_seconds": "50.811392572999658"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "metric_normalization",
+            "calls": "8119",
+            "inclusive_call_seconds": "0.48356880099999905",
+            "exclusive_seconds": "0.48356880099999905"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "output",
+            "calls": "182",
+            "inclusive_call_seconds": "0.27788924500000006",
+            "exclusive_seconds": "0.27788924500000006"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "join_wait",
+            "calls": "157",
+            "inclusive_call_seconds": "76.371901612000073",
+            "exclusive_seconds": "76.371901612000073"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "quality",
+            "operation": "clearance",
+            "calls": "290",
+            "inclusive_call_seconds": "15.987486730999994",
+            "exclusive_seconds": "4.1386536400000029"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "final_proof",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "62.225913365000004",
+            "exclusive_seconds": "1.4900000167017424e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "final_proof",
+            "operation": "geometry_bound",
+            "calls": "2480",
+            "inclusive_call_seconds": "48.817963642000009",
+            "exclusive_seconds": "48.817963642000009"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "final_proof",
+            "operation": "communication",
+            "calls": "16",
+            "inclusive_call_seconds": "0.22794546000000004",
+            "exclusive_seconds": "0.22794546000000004"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "final_proof",
+            "operation": "certification",
+            "calls": "2",
+            "inclusive_call_seconds": "74.140511173999997",
+            "exclusive_seconds": "13.180004113999997"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "transfer",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7815047150000005",
+            "exclusive_seconds": "7.1000000012588771e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "transfer",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7815040050000004",
+            "exclusive_seconds": "7.6698148310000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "transfer",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.158e-06",
+            "exclusive_seconds": "1.158e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "2",
+            "phase": "transfer",
+            "operation": "communication",
+            "calls": "22",
+            "inclusive_call_seconds": "0.11224732999999998",
+            "exclusive_seconds": "0.11168801599999999"
+          }
+        ],
+        "gates": {
+          "positive_root": true,
+          "unique_operation_rows": true,
+          "exclusive_total_telescopes": true,
+          "nonnegative_root_residual": true,
+          "named_rows_match_summary": true,
+          "coverage_matches_rows": true,
+          "valid_operation_records": true,
+          "named_coverage_at_least_95_percent": true
+        },
+        "passed": true,
+        "named_seconds": 790.8391460200081,
+        "root_residual_seconds": 13.680684382991899
+      },
+      "legacy_join": {
+        "join_seconds": 76.371960584,
+        "windows": 28,
+        "exit_rows": 1
+      },
+      "join_wait_seconds": 76.37190161200007,
+      "join_relative_difference": 7.721682078480306e-07,
+      "join_within_one_percent": true,
+      "quality_unattributed_seconds": 0.0498974769999917,
+      "prediction_quality_gap_15_to_25": false,
+      "prediction_coverage_96p5_to_97": false
+    },
+    {
+      "rank": 3,
+      "ledger": {
+        "summary": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "3",
+          "ranks": "6",
+          "root_seconds": "804.78458305000004",
+          "sumexclusive": "804.78458305000458",
+          "unattributed": "14.598303923999733",
+          "coverage": "0.98186060688603827",
+          "fixedstorage": "4120"
+        },
+        "rows": [
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "preparation",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "1.6284266870000002",
+            "exclusive_seconds": "2.0300000014294994e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "preparation",
+            "operation": "import",
+            "calls": "16682",
+            "inclusive_call_seconds": "6.3887520929999688",
+            "exclusive_seconds": "4.6914583879999414"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "preparation",
+            "operation": "mobility_policy",
+            "calls": "3",
+            "inclusive_call_seconds": "85.723373938000009",
+            "exclusive_seconds": "30.610429870000004"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "preparation",
+            "operation": "census",
+            "calls": "2",
+            "inclusive_call_seconds": "37.748458683999999",
+            "exclusive_seconds": "7.2394610320000439"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "preparation",
+            "operation": "geometry_bound",
+            "calls": "157985",
+            "inclusive_call_seconds": "10.662028990000989",
+            "exclusive_seconds": "10.662028990000989"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "preparation",
+            "operation": "geometry_preparation",
+            "calls": "1",
+            "inclusive_call_seconds": "24.947251140000002",
+            "exclusive_seconds": "24.947251140000002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "preparation",
+            "operation": "communication",
+            "calls": "274",
+            "inclusive_call_seconds": "20.292165799000006",
+            "exclusive_seconds": "15.287628583"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "metric",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5434583550000003",
+            "exclusive_seconds": "7.3999999905538516e-08"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "metric",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "1.0722393180000001",
+            "exclusive_seconds": "0.67661968700000008"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "metric",
+            "operation": "communication",
+            "calls": "23005",
+            "inclusive_call_seconds": "1.7030381780000003",
+            "exclusive_seconds": "1.5176688959999947"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "metric",
+            "operation": "metric_normalization",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5434582810000004",
+            "exclusive_seconds": "1.3491696980000074"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "unattributed",
+            "calls": "764",
+            "inclusive_call_seconds": "475.03934190699982",
+            "exclusive_seconds": "0.32895278799999805"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "import",
+            "calls": "8646",
+            "inclusive_call_seconds": "1.025527442000002",
+            "exclusive_seconds": "0.94182899099999984"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "target_composition",
+            "calls": "5",
+            "inclusive_call_seconds": "1.0990000000000002e-06",
+            "exclusive_seconds": "1.0990000000000002e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.514e-06",
+            "exclusive_seconds": "1.514e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "census",
+            "calls": "379",
+            "inclusive_call_seconds": "26.302434755000004",
+            "exclusive_seconds": "17.851438301000002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "geometry_bound",
+            "calls": "49689",
+            "inclusive_call_seconds": "236.48412004499895",
+            "exclusive_seconds": "123.63805181699919"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "geometry_projection",
+            "calls": "37",
+            "inclusive_call_seconds": "0.012278682000000001",
+            "exclusive_seconds": "0.012278682000000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "candidate",
+            "calls": "1180",
+            "inclusive_call_seconds": "0.86443456699999943",
+            "exclusive_seconds": "0.18636136900000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "scheduling",
+            "calls": "1883",
+            "inclusive_call_seconds": "23.148340961999999",
+            "exclusive_seconds": "16.858204258000008"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "topology",
+            "calls": "783",
+            "inclusive_call_seconds": "317.02894017200003",
+            "exclusive_seconds": "142.17890238499993"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "communication",
+            "calls": "77649",
+            "inclusive_call_seconds": "116.60945188800646",
+            "exclusive_seconds": "97.694105304005475"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "metric_normalization",
+            "calls": "1757",
+            "inclusive_call_seconds": "0.077144619999999844",
+            "exclusive_seconds": "0.050641118999999957"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "output",
+            "calls": "29",
+            "inclusive_call_seconds": "0.26652112300000003",
+            "exclusive_seconds": "0.26652112300000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "construction",
+            "operation": "clearance",
+            "calls": "72",
+            "inclusive_call_seconds": "5.1167705689999998",
+            "exclusive_seconds": "0.6748073790000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "unattributed",
+            "calls": "545",
+            "inclusive_call_seconds": "343.99131034700008",
+            "exclusive_seconds": "0.081820495999997647"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "import",
+            "calls": "5887",
+            "inclusive_call_seconds": "0.38082438399999968",
+            "exclusive_seconds": "0.38082438399999968"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "census",
+            "calls": "183",
+            "inclusive_call_seconds": "16.717654949999989",
+            "exclusive_seconds": "4.5282157750000014"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "geometry_bound",
+            "calls": "29588",
+            "inclusive_call_seconds": "60.516252250000264",
+            "exclusive_seconds": "49.993327661000066"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "geometry_projection",
+            "calls": "13254",
+            "inclusive_call_seconds": "2.7496130559999967",
+            "exclusive_seconds": "2.7496130559999967"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "quality_optimization",
+            "calls": "384",
+            "inclusive_call_seconds": "58.840571554999968",
+            "exclusive_seconds": "18.708331392999984"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "old_cavity_measurement",
+            "calls": "22312",
+            "inclusive_call_seconds": "0.053663176000000125",
+            "exclusive_seconds": "0.053663176000000125"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "candidate",
+            "calls": "10423",
+            "inclusive_call_seconds": "153.38418314800037",
+            "exclusive_seconds": "7.1707168960000294"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "scheduling",
+            "calls": "951",
+            "inclusive_call_seconds": "10.613641195000003",
+            "exclusive_seconds": "3.9040586620000006"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "topology",
+            "calls": "314",
+            "inclusive_call_seconds": "19.313174471999975",
+            "exclusive_seconds": "0.23213716299999937"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "communication",
+            "calls": "42223",
+            "inclusive_call_seconds": "72.02070197099917",
+            "exclusive_seconds": "56.681424303999016"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "metric_normalization",
+            "calls": "9926",
+            "inclusive_call_seconds": "0.52025111799999946",
+            "exclusive_seconds": "0.52025111799999946"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "output",
+            "calls": "182",
+            "inclusive_call_seconds": "0.2257421680000001",
+            "exclusive_seconds": "0.2257421680000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "join_wait",
+            "calls": "157",
+            "inclusive_call_seconds": "72.78304908600002",
+            "exclusive_seconds": "72.78304908600002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "quality",
+            "operation": "clearance",
+            "calls": "290",
+            "inclusive_call_seconds": "15.979791214000004",
+            "exclusive_seconds": "4.9116093490000052"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "final_proof",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "62.225913459000004",
+            "exclusive_seconds": "1.1600000249245568e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "final_proof",
+            "operation": "geometry_bound",
+            "calls": "1349",
+            "inclusive_call_seconds": "22.73746412900001",
+            "exclusive_seconds": "22.73746412900001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "final_proof",
+            "operation": "communication",
+            "calls": "16",
+            "inclusive_call_seconds": "26.821619650999995",
+            "exclusive_seconds": "26.821619650999995"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "final_proof",
+            "operation": "certification",
+            "calls": "2",
+            "inclusive_call_seconds": "74.321439761999997",
+            "exclusive_seconds": "12.666829562999991"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "transfer",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7825424110000005",
+            "exclusive_seconds": "4.4400000032140952e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "transfer",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7825419670000002",
+            "exclusive_seconds": "7.5409989670000002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "transfer",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.3030000000000001e-06",
+            "exclusive_seconds": "1.3030000000000001e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "3",
+            "phase": "transfer",
+            "operation": "communication",
+            "calls": "22",
+            "inclusive_call_seconds": "0.24196472300000002",
+            "exclusive_seconds": "0.24154169700000003"
+          }
+        ],
+        "gates": {
+          "positive_root": true,
+          "unique_operation_rows": true,
+          "exclusive_total_telescopes": true,
+          "nonnegative_root_residual": true,
+          "named_rows_match_summary": true,
+          "coverage_matches_rows": true,
+          "valid_operation_records": true,
+          "named_coverage_at_least_95_percent": true
+        },
+        "passed": true,
+        "named_seconds": 790.1862791260047,
+        "root_residual_seconds": 14.1875298029953
+      },
+      "legacy_join": {
+        "join_seconds": 72.78310649800001,
+        "windows": 28,
+        "exit_rows": 1
+      },
+      "join_wait_seconds": 72.78304908600002,
+      "join_relative_difference": 7.888094195489095e-07,
+      "join_within_one_percent": true,
+      "quality_unattributed_seconds": 0.08182049599999765,
+      "prediction_quality_gap_15_to_25": false,
+      "prediction_coverage_96p5_to_97": false
+    },
+    {
+      "rank": 4,
+      "ledger": {
+        "summary": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "4",
+          "ranks": "6",
+          "root_seconds": "804.78460485800008",
+          "sumexclusive": "804.78460485801122",
+          "unattributed": "14.029076340999545",
+          "coverage": "0.98256791164205382",
+          "fixedstorage": "4120"
+        },
+        "rows": [
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "preparation",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "1.6284212930000002",
+            "exclusive_seconds": "2.0800000011256259e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "preparation",
+            "operation": "import",
+            "calls": "16682",
+            "inclusive_call_seconds": "5.5881636420024998",
+            "exclusive_seconds": "3.2175935629997499"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "preparation",
+            "operation": "mobility_policy",
+            "calls": "3",
+            "inclusive_call_seconds": "86.353852996000015",
+            "exclusive_seconds": "29.722118463999998"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "preparation",
+            "operation": "census",
+            "calls": "2",
+            "inclusive_call_seconds": "37.748427562000003",
+            "exclusive_seconds": "2.7274258420082056"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "preparation",
+            "operation": "geometry_bound",
+            "calls": "55997",
+            "inclusive_call_seconds": "9.4822274020001593",
+            "exclusive_seconds": "9.4822274020001593"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "preparation",
+            "operation": "geometry_preparation",
+            "calls": "1",
+            "inclusive_call_seconds": "27.223144560000001",
+            "exclusive_seconds": "27.223144560000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "preparation",
+            "operation": "communication",
+            "calls": "274",
+            "inclusive_call_seconds": "26.790044625000007",
+            "exclusive_seconds": "21.704947285000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "metric",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5433527410000001",
+            "exclusive_seconds": "9.9999999836342113e-08"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "metric",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "1.072249864",
+            "exclusive_seconds": "0.60340443500000007"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "metric",
+            "operation": "communication",
+            "calls": "23005",
+            "inclusive_call_seconds": "1.68741596",
+            "exclusive_seconds": "1.5447092459999956"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "metric",
+            "operation": "metric_normalization",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5433526410000002",
+            "exclusive_seconds": "1.3952389599999955"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "unattributed",
+            "calls": "764",
+            "inclusive_call_seconds": "475.01146133100013",
+            "exclusive_seconds": "0.43262588799997886"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "import",
+            "calls": "8646",
+            "inclusive_call_seconds": "1.0342712249999995",
+            "exclusive_seconds": "0.82405190999999822"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.871e-06",
+            "exclusive_seconds": "1.871e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "census",
+            "calls": "379",
+            "inclusive_call_seconds": "26.289092406000009",
+            "exclusive_seconds": "19.360609802000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "geometry_bound",
+            "calls": "62907",
+            "inclusive_call_seconds": "259.28241697200059",
+            "exclusive_seconds": "146.92370909500008"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "geometry_projection",
+            "calls": "2",
+            "inclusive_call_seconds": "0.00044923000000000001",
+            "exclusive_seconds": "0.00044923000000000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "candidate",
+            "calls": "1180",
+            "inclusive_call_seconds": "0.79264956100000028",
+            "exclusive_seconds": "0.015481516000000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "scheduling",
+            "calls": "1883",
+            "inclusive_call_seconds": "24.015318934999993",
+            "exclusive_seconds": "14.513231618000002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "topology",
+            "calls": "783",
+            "inclusive_call_seconds": "317.0438138819996",
+            "exclusive_seconds": "78.96745797799889"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "communication",
+            "calls": "77649",
+            "inclusive_call_seconds": "161.2528546680052",
+            "exclusive_seconds": "139.12267846000498"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "metric_normalization",
+            "calls": "1191",
+            "inclusive_call_seconds": "0.11046290899999991",
+            "exclusive_seconds": "0.0046221470000000018"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "output",
+            "calls": "29",
+            "inclusive_call_seconds": "0.21482000200000004",
+            "exclusive_seconds": "0.21482000200000004"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "construction",
+            "operation": "clearance",
+            "calls": "72",
+            "inclusive_call_seconds": "5.1167597629999992",
+            "exclusive_seconds": "0.29029890599999986"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "unattributed",
+            "calls": "282",
+            "inclusive_call_seconds": "300.97439493100001",
+            "exclusive_seconds": "0.046325066999979854"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "import",
+            "calls": "2826",
+            "inclusive_call_seconds": "0.12103419199999917",
+            "exclusive_seconds": "0.12103419199999917"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "census",
+            "calls": "183",
+            "inclusive_call_seconds": "21.118746018000003",
+            "exclusive_seconds": "8.6363708270000004"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "geometry_bound",
+            "calls": "4786",
+            "inclusive_call_seconds": "24.291478433999853",
+            "exclusive_seconds": "19.140837912999967"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "geometry_projection",
+            "calls": "3404",
+            "inclusive_call_seconds": "0.69565880699999949",
+            "exclusive_seconds": "0.69565880699999949"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "quality_optimization",
+            "calls": "121",
+            "inclusive_call_seconds": "15.812470360000003",
+            "exclusive_seconds": "3.2630526500000014"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "old_cavity_measurement",
+            "calls": "8887",
+            "inclusive_call_seconds": "0.0088948530000000168",
+            "exclusive_seconds": "0.0088948530000000168"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "candidate",
+            "calls": "2265",
+            "inclusive_call_seconds": "48.668134895000051",
+            "exclusive_seconds": "3.2297163730000125"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "scheduling",
+            "calls": "951",
+            "inclusive_call_seconds": "10.592996430000001",
+            "exclusive_seconds": "4.0469117729999962"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "topology",
+            "calls": "314",
+            "inclusive_call_seconds": "19.308194361999998",
+            "exclusive_seconds": "0.16040732900000026"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "communication",
+            "calls": "42223",
+            "inclusive_call_seconds": "69.974150594999813",
+            "exclusive_seconds": "54.221518572999599"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "metric_normalization",
+            "calls": "2786",
+            "inclusive_call_seconds": "0.16896813499999935",
+            "exclusive_seconds": "0.16896813499999935"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "output",
+            "calls": "182",
+            "inclusive_call_seconds": "0.17220399600000003",
+            "exclusive_seconds": "0.17220399600000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "join_wait",
+            "calls": "157",
+            "inclusive_call_seconds": "126.08060640600011",
+            "exclusive_seconds": "126.08060640600011"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "quality",
+            "operation": "clearance",
+            "calls": "290",
+            "inclusive_call_seconds": "15.974293372000009",
+            "exclusive_seconds": "2.9422004919999982"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "final_proof",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "62.227199811000006",
+            "exclusive_seconds": "1.1099999852604014e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "final_proof",
+            "operation": "geometry_bound",
+            "calls": "4646",
+            "inclusive_call_seconds": "35.908284426000158",
+            "exclusive_seconds": "35.908284426000158"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "final_proof",
+            "operation": "communication",
+            "calls": "16",
+            "inclusive_call_seconds": "12.959374485",
+            "exclusive_seconds": "12.959374485"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "final_proof",
+            "operation": "certification",
+            "calls": "2",
+            "inclusive_call_seconds": "72.270915036000005",
+            "exclusive_seconds": "13.359540788999846"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "transfer",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7817245230000003",
+            "exclusive_seconds": "3.1699999958334502e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "transfer",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7817242060000007",
+            "exclusive_seconds": "7.4482649560000009"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "transfer",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.178e-06",
+            "exclusive_seconds": "1.178e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "4",
+            "phase": "transfer",
+            "operation": "communication",
+            "calls": "22",
+            "inclusive_call_seconds": "0.33397708599999998",
+            "exclusive_seconds": "0.33345807199999999"
+          }
+        ],
+        "gates": {
+          "positive_root": true,
+          "unique_operation_rows": true,
+          "exclusive_total_telescopes": true,
+          "nonnegative_root_residual": true,
+          "named_rows_match_summary": true,
+          "coverage_matches_rows": true,
+          "valid_operation_records": true,
+          "named_coverage_at_least_95_percent": true
+        },
+        "passed": true,
+        "named_seconds": 790.7555285170117,
+        "root_residual_seconds": 13.550124649988334
+      },
+      "legacy_join": {
+        "join_seconds": 126.08068160200004,
+        "windows": 28,
+        "exit_rows": 1
+      },
+      "join_wait_seconds": 126.08060640600011,
+      "join_relative_difference": 5.96411749769153e-07,
+      "join_within_one_percent": true,
+      "quality_unattributed_seconds": 0.046325066999979854,
+      "prediction_quality_gap_15_to_25": false,
+      "prediction_coverage_96p5_to_97": false
+    },
+    {
+      "rank": 5,
+      "ledger": {
+        "summary": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "5",
+          "ranks": "6",
+          "root_seconds": "804.78461523600004",
+          "sumexclusive": "804.78461523600799",
+          "unattributed": "13.614258370999963",
+          "coverage": "0.98308335160332594",
+          "fixedstorage": "4120"
+        },
+        "rows": [
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "preparation",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "1.6284213620000001",
+            "exclusive_seconds": "2.1000000005599873e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "preparation",
+            "operation": "import",
+            "calls": "16682",
+            "inclusive_call_seconds": "5.5733043460003451",
+            "exclusive_seconds": "2.9642175120000478"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "preparation",
+            "operation": "mobility_policy",
+            "calls": "3",
+            "inclusive_call_seconds": "78.700201198000002",
+            "exclusive_seconds": "23.829275447000004"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "preparation",
+            "operation": "census",
+            "calls": "2",
+            "inclusive_call_seconds": "37.748425789000002",
+            "exclusive_seconds": "2.2485227930069449"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "preparation",
+            "operation": "geometry_bound",
+            "calls": "57591",
+            "inclusive_call_seconds": "16.182117318999538",
+            "exclusive_seconds": "16.182117318999538"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "preparation",
+            "operation": "geometry_preparation",
+            "calls": "1",
+            "inclusive_call_seconds": "31.594118119000001",
+            "exclusive_seconds": "31.594118119000001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "preparation",
+            "operation": "communication",
+            "calls": "274",
+            "inclusive_call_seconds": "23.36823625000001",
+            "exclusive_seconds": "17.426623518000021"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "metric",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5435308650000001",
+            "exclusive_seconds": "6.0999999718092113e-08"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "metric",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "1.072243912",
+            "exclusive_seconds": "0.64537496500000002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "metric",
+            "operation": "communication",
+            "calls": "23005",
+            "inclusive_call_seconds": "1.7296597859999994",
+            "exclusive_seconds": "1.5797387420000006"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "metric",
+            "operation": "metric_normalization",
+            "calls": "1",
+            "inclusive_call_seconds": "3.5435308040000004",
+            "exclusive_seconds": "1.3184170969999855"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "unattributed",
+            "calls": "764",
+            "inclusive_call_seconds": "474.94288028500074",
+            "exclusive_seconds": "0.12436072000001491"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "import",
+            "calls": "8646",
+            "inclusive_call_seconds": "0.72499258399998989",
+            "exclusive_seconds": "0.62324830099999162"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "target_composition",
+            "calls": "12",
+            "inclusive_call_seconds": "2.6050000000000005e-06",
+            "exclusive_seconds": "2.6050000000000005e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.5680000000000001e-06",
+            "exclusive_seconds": "1.5680000000000001e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "census",
+            "calls": "379",
+            "inclusive_call_seconds": "26.278465982000004",
+            "exclusive_seconds": "15.06266322700001"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "geometry_bound",
+            "calls": "60095",
+            "inclusive_call_seconds": "381.08873331000041",
+            "exclusive_seconds": "201.93024694399801"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "geometry_projection",
+            "calls": "37",
+            "inclusive_call_seconds": "0.010943636999999997",
+            "exclusive_seconds": "0.010943636999999997"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "candidate",
+            "calls": "1180",
+            "inclusive_call_seconds": "0.86686083100000022",
+            "exclusive_seconds": "0.045421591000000011"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "scheduling",
+            "calls": "1883",
+            "inclusive_call_seconds": "19.682823382000009",
+            "exclusive_seconds": "11.888862510000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "topology",
+            "calls": "783",
+            "inclusive_call_seconds": "316.98355969599947",
+            "exclusive_seconds": "56.796407999000863"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "communication",
+            "calls": "77649",
+            "inclusive_call_seconds": "136.68454209100389",
+            "exclusive_seconds": "113.61129389000359"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "metric_normalization",
+            "calls": "1186",
+            "inclusive_call_seconds": "0.11528572899999995",
+            "exclusive_seconds": "0.0065439949999999917"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "output",
+            "calls": "29",
+            "inclusive_call_seconds": "0.21951122700000003",
+            "exclusive_seconds": "0.21951122700000003"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "construction",
+            "operation": "clearance",
+            "calls": "72",
+            "inclusive_call_seconds": "5.1156812329999992",
+            "exclusive_seconds": "0.28892398399999969"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "unattributed",
+            "calls": "508",
+            "inclusive_call_seconds": "349.56196424000041",
+            "exclusive_seconds": "0.057779854000009179"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "import",
+            "calls": "4830",
+            "inclusive_call_seconds": "0.26673058300000169",
+            "exclusive_seconds": "0.26673058300000169"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "census",
+            "calls": "183",
+            "inclusive_call_seconds": "19.238687611",
+            "exclusive_seconds": "6.9406906360000002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "geometry_bound",
+            "calls": "18565",
+            "inclusive_call_seconds": "73.692629328000251",
+            "exclusive_seconds": "61.498878856999802"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "geometry_projection",
+            "calls": "12187",
+            "inclusive_call_seconds": "2.7864487599999874",
+            "exclusive_seconds": "2.7864487599999874"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "quality_optimization",
+            "calls": "347",
+            "inclusive_call_seconds": "64.389188245000028",
+            "exclusive_seconds": "14.712297872999995"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "old_cavity_measurement",
+            "calls": "19620",
+            "inclusive_call_seconds": "0.030140094000000037",
+            "exclusive_seconds": "0.030140094000000037"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "candidate",
+            "calls": "8306",
+            "inclusive_call_seconds": "165.71600128700013",
+            "exclusive_seconds": "5.9887086410000041"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "scheduling",
+            "calls": "951",
+            "inclusive_call_seconds": "10.521391843000012",
+            "exclusive_seconds": "4.0992099420000043"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "topology",
+            "calls": "314",
+            "inclusive_call_seconds": "19.320962625",
+            "exclusive_seconds": "0.20900988099999884"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "communication",
+            "calls": "42223",
+            "inclusive_call_seconds": "70.69486146199938",
+            "exclusive_seconds": "54.881390851999093"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "metric_normalization",
+            "calls": "7769",
+            "inclusive_call_seconds": "0.36340466999999854",
+            "exclusive_seconds": "0.36340466999999854"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "output",
+            "calls": "182",
+            "inclusive_call_seconds": "0.16892980399999996",
+            "exclusive_seconds": "0.16892980399999996"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "join_wait",
+            "calls": "157",
+            "inclusive_call_seconds": "67.353690972999942",
+            "exclusive_seconds": "67.353690972999942"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "quality",
+            "operation": "clearance",
+            "calls": "290",
+            "inclusive_call_seconds": "15.973285724000002",
+            "exclusive_seconds": "3.5895203869999976"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "final_proof",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "62.225894869000001",
+            "exclusive_seconds": "1.5899999539215059e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "final_proof",
+            "operation": "geometry_bound",
+            "calls": "1123",
+            "inclusive_call_seconds": "16.251345676000017",
+            "exclusive_seconds": "16.251345676000017"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "final_proof",
+            "operation": "communication",
+            "calls": "16",
+            "inclusive_call_seconds": "32.872218530000005",
+            "exclusive_seconds": "32.872218530000005"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "final_proof",
+            "operation": "certification",
+            "calls": "2",
+            "inclusive_call_seconds": "74.280562859",
+            "exclusive_seconds": "13.102330503999978"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "transfer",
+            "operation": "unattributed",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7829333960000007",
+            "exclusive_seconds": "1.8400000012519513e-07"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "transfer",
+            "operation": "import",
+            "calls": "1",
+            "inclusive_call_seconds": "7.7829332120000005",
+            "exclusive_seconds": "7.3813588440000002"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "transfer",
+            "operation": "mobility_policy",
+            "calls": "1",
+            "inclusive_call_seconds": "1.728e-06",
+            "exclusive_seconds": "1.728e-06"
+          },
+          {
+            "root": "remesh",
+            "boundary": "final",
+            "rank": "5",
+            "phase": "transfer",
+            "operation": "communication",
+            "calls": "22",
+            "inclusive_call_seconds": "0.40210852200000002",
+            "exclusive_seconds": "0.40157264000000004"
+          }
+        ],
+        "gates": {
+          "positive_root": true,
+          "unique_operation_rows": true,
+          "exclusive_total_telescopes": true,
+          "nonnegative_root_residual": true,
+          "named_rows_match_summary": true,
+          "coverage_matches_rows": true,
+          "valid_operation_records": true,
+          "named_coverage_at_least_95_percent": true
+        },
+        "passed": true,
+        "named_seconds": 791.1703568650079,
+        "root_residual_seconds": 13.432117182992215
+      },
+      "legacy_join": {
+        "join_seconds": 67.35376230000003,
+        "windows": 28,
+        "exit_rows": 1
+      },
+      "join_wait_seconds": 67.35369097299994,
+      "join_relative_difference": 1.0589905841953259e-06,
+      "join_within_one_percent": true,
+      "quality_unattributed_seconds": 0.05777985400000918,
+      "prediction_quality_gap_15_to_25": false,
+      "prediction_coverage_96p5_to_97": false
+    }
+  ],
+  "scope": "95%coverage and1%join agreement are gates; reviewer ranges are predictions, reported without tuning."
+}
