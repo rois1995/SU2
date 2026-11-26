@@ -30,6 +30,7 @@ write = workflow.sealed_write
 base = p3.BASE
 FINGERPRINTS = p3.FINGERPRINTS
 restart_source = p3.restart_source
+core_source = p3.core_source
 
 
 class FailedCheck(RuntimeError):
@@ -55,6 +56,35 @@ def check_pins(pins):
 
 def settings(part):
     return {p3.TRACE: '0', PROBE: str(PARTS[part][1])}
+
+
+
+def bound_core(part, retry=False):
+    source = core_source(part, retry)
+    anchor = '            elapsed = time.monotonic() - start\n            receipts.write('
+    observation = '''
+            probe_path = case / "fp3_rank_probe_environment.json"
+            if not probe_path.is_file():
+                probe_by_rank = {}
+                for row in sampled:
+                    if row["comm"] != "SU2_CFD":
+                        continue
+                    try:
+                        values = dict(entry.split(b"=", 1) for entry in
+                                      (Path("/proc") / str(row["pid"]) / "environ").read_bytes().split(b"\\0")
+                                      if entry.startswith((b"OMPI_COMM_WORLD_RANK=", b"SU2_NATIVE_FP3_PROBE=")))
+                    except OSError:
+                        continue
+                    rank = values.get(b"OMPI_COMM_WORLD_RANK", b"")
+                    if rank.isdigit():
+                        value = values.get(b"SU2_NATIVE_FP3_PROBE")
+                        probe_by_rank[int(rank)] = {"rank": int(rank), "pid": row["pid"],
+                                                  "start_ticks": row["start_ticks"],
+                                                  "probe": value.decode() if value is not None else None}
+                if set(probe_by_rank) == set(range(6)):
+                    save(probe_path, {"ranks": [probe_by_rank[rank] for rank in range(6)]})
+'''
+    return workflow.replace_once(source, anchor, observation.lstrip('\n') + anchor)
 
 
 def bind_restart_failure(source):
@@ -105,12 +135,21 @@ def bound_restart(part, name, label, build_dir):
     addition = f'            old_observation, new_observation = {inherited!r}, {corrected!r}\n'
     addition += '            assert source.count(old_observation) == 1, old_observation\n'
     addition += '            source = source.replace(old_observation, new_observation, 1)\n'
+    old_probe = '    return {"pid": pid, "start_ticks": proc_stat(pid)["start_ticks"],'
+    new_probe = '''    values = (proc / "environ").read_bytes().split(b"\\0")
+    probe = next((entry.split(b"=", 1)[1].decode() for entry in values
+                  if entry.startswith(b"SU2_NATIVE_FP3_PROBE=")), None)
+    return {"pid": pid, "start_ticks": proc_stat(pid)["start_ticks"], "probe": probe,'''
+    addition += f'            old_probe, new_probe = {old_probe!r}, {new_probe!r}\n'
+    addition += '            assert source.count(old_probe) == 1, old_probe\n'
+    addition += '            source = source.replace(old_probe, new_probe, 1)\n'
     return template, workflow.replace_once(source, anchor, addition + anchor)
 
 
 @contextmanager
 def bound():
-    with patch.multiple(p3, HERE=HERE, SELF=SELF, settings=settings, restart_source=bound_restart,
+    with patch.multiple(p3, HERE=HERE, SELF=SELF, settings=settings, core_source=bound_core,
+                        restart_source=bound_restart,
                         MODES={part: mode for part, (mode, _) in PARTS.items()}):
         yield
 
@@ -130,9 +169,14 @@ def effective_receipt(part, case, command, *, restart=False):
     output = [path for log in logs.values() for path in (log, log.with_name('stdout'))]
     for path in output:
         assert p3.MARKER not in path.read_text(errors='replace'), path
+    live = case / ('loaded_runtime_startup.json' if restart else 'fp3_rank_probe_environment.json')
+    live_ranks = cut.read(live)['ranks']
+    assert [row['rank'] for row in live_ranks] == list(range(6)), live
+    assert all(row['probe'] == settings(part)[PROBE] for row in live_ranks), live_ranks
     if restart:
         assert re.search(r'(?m)^ADAP_LOOP\s*=\s*NO\s*$', (case / 'run.cfg').read_text()), case
     return {'effective_environment': {p3.SWITCH: None, **settings(part)}, 'command': path_pin(command),
+            'live_rank_environment': path_pin(live),
             'rank_count': len(logs), 'mpi_exports': list(settings(part)),
             'logs': {str(path): sha(path) for path in output}}
 
@@ -270,6 +314,7 @@ def envelope(work, label, part, build, events, hashes, restart, collected):
         if manifest.is_file():
             required += [manifest, work / f'run_restart{label}_1800.py',
                          work / 'restart_retry_start_load.json', work / 'restart_retry_timing.json']
+    required.extend(Path(row['live_rank_environment']['path']) for row in switches.values())
     if collected:
         required.append(collected)
     workflow.verify_helpers(work)
@@ -523,7 +568,10 @@ def self_check(label):
                 restart = runpy.run_path(str(work / f'run_restart{label}.py'))
                 source = restart['runner_context']().load_base().retargeted_source()
                 assert all(value in source for _, value in p3.restart_edits(part))
-                assert 'runtime_sample_eio.jsonl' in source
+                assert 'runtime_sample_eio.jsonl' in source and '"probe": probe' in source
+                full = (work / 'full_controller.py').read_text()
+                assert 'fp3_rank_probe_environment.json' in full
+                compile(source, '<restart self-check>', 'exec')
         print(part, 'generated full and restart scripts verified', flush=True)
     old = [{'native_maximum_seconds': {'1': 100, '2': 200}},
            {'native_maximum_seconds': {'1': 99, '2': 201}}]
