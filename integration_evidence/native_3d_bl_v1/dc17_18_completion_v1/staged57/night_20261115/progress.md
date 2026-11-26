@@ -2396,3 +2396,11 @@ FP3-B build676 passed warning-free with verified frozen inputs and terminal hand
 FP3-B build676 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/hidden/case_summary.json.
 
 FP3-B build checkpoint 1364bb5ee0 pushed. The 2-rank Automatic ownership fixture passed 10 assertions per rank. Both runs had attempts=0, predicted_gain=1092.3507718018589 and predicted_cost=6. Each rank reported migrate=1 with the open queue and migrate=0 with the closed queue. Hidden supervisor terminal. Start G1, G2/GQ, the five shared checks and G3/G4 on the frozen pair.
+
+FP3-B build676 Step 1 G1-serial passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/G1-serial/case_summary.json.
+
+FP3-B build676 Step 1 G1-mpi2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/G1-mpi2/case_summary.json.
+
+FP3-B build676 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/G1-mpi4/case_summary.json.
+
+FP3-B G1 passed exact identity on all 375 serial, 114 two-rank and 228 four-rank case records, including failed assertions. Probe 0 was verified in all three launches, with MPI export where ranked. G2 and GQ are next in the same scoped supervisor.
