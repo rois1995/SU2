@@ -2294,3 +2294,11 @@ FP3-A build675 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_N
 FP3-A build675 hidden passed all three cases and 41 assertions. The mapped fixture completed step C with zero edits and reached the ordinary initial exit in zero rounds. The volume-only fixture retained collapse candidates. The direct engine fixture exercised both flag states and verified that strict cleanup still examines candidates. Supervisor terminal. Start ordered G1, prefix, shared and G3/G4 controls, followed by full CORE.
 
 FP3-A full-workflow harness also captures the effective probe value from the live environment of each of the six owned ranks. Full runs reuse the existing process census; isolated restarts use the existing live runtime sample. The generated scripts passed dry checks for all five roles and both watchdog settings. The scoped controller is running with its separate pinned inputs.
+
+FP3-A build675 Step 1 G1-serial passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/controls/build675/G1-serial/case_summary.json.
+
+FP3-A build675 Step 1 G1-mpi2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/controls/build675/G1-mpi2/case_summary.json.
+
+FP3-A build675 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/controls/build675/G1-mpi4/case_summary.json.
+
+FP3-A G1 matched the required 375 / 114 / 228 case records at serial / 2 / 4 ranks, including all failed-assertion identities. All three launches recorded probe 0 and the ranked launchers verified MPI export. G2 candidate capture is running, followed by GQ.
