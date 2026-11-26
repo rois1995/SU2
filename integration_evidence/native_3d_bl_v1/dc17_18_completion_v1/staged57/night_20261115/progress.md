@@ -2366,3 +2366,11 @@ FP3-A S2 event 1 passed proof, memory and timer gates. All six ranks again took 
 FP3-A S2 event 2 proof, memory, timer gates and subsequent continued CFD passed. Owned and all per-rank surface counts 21838. Job peak equals its process peak sum at 10572832768 bytes. The full native child exited 0. Both sealed direct six-file hashes agree with S1 and the collector passed suppression on all 12 packets. The isolated restart is active with a startup receipt.
 
 FP3-A Step 3 passed. S2 passed both events, continued CFD, suppression on 12 packets and isolated restart. All six disk payloads match S1. Native maxima 804.734869088 / 247.877283714 s, minimum per-rank timer coverage 98.186% / 99.457%. The time flag is OPEN for event 1; event 2 meets its 10% threshold on S2. Neither S trial logged a metric cleanup pair. S2 supervisor terminal. Commit and push the pair checkpoint, then start the independent Step 4 core probe with value 1.
+
+FP3-A S2 checkpoint e7333a390e pushed. Core probe started with live probe 1 on all six ranks. Event 1 emitted all six complete last-pass pre-shift rows. The rank-local edge incidence totals are 23919 short surface edges, 1868 prepare passes and 652 protected same-curve edges, with zero unclassified. The full workflow and six-file comparison to S1/S2 are in progress.
+
+FP3-A core probe event 1 passed the standing proof, memory and timer checks. Proof faces 26530. Transfer completed and continued CFD is proceeding toward the next adaptation.
+
+FP3-A core probe event 2 emitted all six complete rows. Event 2 rank-local incidence totals are 19598 short surface edges, 936 passes and 711 protected same-curve edges, with zero unclassified. The collector has 12 complete raw observations across the two events. Full standing workflow completion and payload comparison remain.
+
+FP3-A Step 4 core probe finished complete. The standing two-event workflow and continued CFD passed. All six direct hashes are identical to the accepted build675 S pair and all 12 probe rows are complete. Probe 1 supervisor terminal. Commit and push the observation, then launch the lab control with probe value 2.

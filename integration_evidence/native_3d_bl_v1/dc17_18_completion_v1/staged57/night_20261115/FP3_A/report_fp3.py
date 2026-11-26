@@ -125,10 +125,13 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
                   row['core_last_pass_short_edges_sum'], row['short_edges_at_initial_collapse_exit_sum'],
                   row['short_edges_at_last_length_boundary_sum'])
                  for name, data in measurements.items() for event in data['events'] for row in event['worker_stages']])
-    md += table('Split generations by rank', ('Run', 'Event', 'Stage', 'Rank', 'Generation', 'Accepted', 'Seconds'),
+    md += table('Split generations by rank', ('Run', 'Event', 'Stage', 'Rank', 'Generation sequence', 'Cumulative splits', 'Seconds'),
                 [(name, row['event'], row['stage'], row['rank'], i, generation['split_accepted'],
                   generation['seconds_since_previous_length_boundary']) for name, data in measurements.items()
                  for row in data['worker_stages'] for i, generation in enumerate(row['split_generations'])])
+    md += table('Completed metric cleanup counts', ('Run', 'Rank-local pairs'),
+                [(name, sum(len(row['metric_cleanups']) for row in data['worker_stages']))
+                 for name, data in measurements.items()])
     md += table('Metric cleanup by rank', ('Run', 'Event', 'Stage', 'Rank', 'Entry round', 'Exit round', 'Accepted'),
                 [(name, row['event'], row['stage'], row['rank'], cleanup['entry']['rounds'],
                   cleanup['exit']['rounds'], cleanup['accepted']) for name, data in measurements.items()
@@ -142,7 +145,11 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
         comparison = row.get('comparison')
         md += [f'## {name}', '', f'Observation status **{row.get("probe_status", row["status"])}**.', '']
         if comparison is not None:
-            md += [f'Six-payload comparison equal **{comparison["equal"]}**.', '']
+            reference = 'the accepted FP3-A S pair' if name == 'probe1' else 'the FP2-P3 S reference'
+            different = len(comparison['differences'])
+            md += [f'Compared all six payload hashes with {reference}. Differing files **{different}**.', '']
+            if different:
+                md += [f'First difference `{comparison["first_difference"]}`.', '']
         if name == 'probe1':
             md += ['Totals sum rank-local edge incidences. Proof was not evaluated by the probe.', '']
         md += table('By event, worker stage and rank', ('Event', 'Stage', 'Rank', 'Status', *fields),

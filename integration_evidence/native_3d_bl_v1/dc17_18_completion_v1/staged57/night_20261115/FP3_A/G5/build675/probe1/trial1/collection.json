@@ -1,0 +1,1974 @@
+{
+  "status": "passed",
+  "failure_kind": null,
+  "first_difference": null,
+  "measurement_issues": [],
+  "result_issues": [],
+  "events": [
+    {
+      "event": 1,
+      "worker_stage_count": 1,
+      "native_seconds": 782.8142896749999,
+      "final_cells": 379083,
+      "final_points": 69168,
+      "final_surface_faces": 26530,
+      "job_peak_rss_bytes": 9697107968,
+      "minimum_timer_coverage": 0.9838653618717742,
+      "worker_stages": [
+        {
+          "stage": 0,
+          "ranks": 6,
+          "handover_to_first_collapse_exit_seconds_max": 34.0,
+          "collapse_length_elapsed_seconds_max": 33.623072591,
+          "collapse_pass_seconds_max": 3.0020225340001083,
+          "core_last_pass_bad_out_sum": 896,
+          "quality_entry_bad_union_sum": 1115,
+          "quality_seconds_max": 394.211137749,
+          "core_last_pass_short_edges_sum": 100674,
+          "short_edges_at_initial_collapse_exit_sum": 99635,
+          "short_edges_at_last_length_boundary_sum": 105571,
+          "split_generation_count_by_rank": {
+            "0": 5,
+            "1": 5,
+            "2": 5,
+            "3": 5,
+            "4": 5,
+            "5": 5
+          }
+        }
+      ]
+    },
+    {
+      "event": 2,
+      "worker_stage_count": 1,
+      "native_seconds": 268.25477098,
+      "final_cells": 360551,
+      "final_points": 64451,
+      "final_surface_faces": 21838,
+      "job_peak_rss_bytes": 10612367360,
+      "minimum_timer_coverage": 0.9938833795103855,
+      "worker_stages": [
+        {
+          "stage": 0,
+          "ranks": 6,
+          "handover_to_first_collapse_exit_seconds_max": 38.0,
+          "collapse_length_elapsed_seconds_max": 38.352790332,
+          "collapse_pass_seconds_max": 0.8086292400000019,
+          "core_last_pass_bad_out_sum": 183,
+          "quality_entry_bad_union_sum": 183,
+          "quality_seconds_max": 97.55834299799999,
+          "core_last_pass_short_edges_sum": 91054,
+          "short_edges_at_initial_collapse_exit_sum": 89015,
+          "short_edges_at_last_length_boundary_sum": 87968,
+          "split_generation_count_by_rank": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1
+          }
+        }
+      ]
+    }
+  ],
+  "worker_stages": [
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 0,
+      "seed_line": 516,
+      "seed": {
+        "cells": 28066,
+        "edges": 37220,
+        "lt_1e_2": 0,
+        "lt_0_1": 251,
+        "line": 516,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 26480,
+        "points": 13242,
+        "line": 514,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 34.0,
+      "collapse_length_elapsed_seconds": 33.604216489,
+      "collapse_pass_seconds": 2.9302309179999497,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 533,
+            "elapsed_seconds": 33.628649688
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 11633,
+            "long_local_edges": 0,
+            "cells": 28066,
+            "line": 517,
+            "elapsed_seconds": 33.604216489
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [
+        {
+          "quality_exit": {
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 890,
+            "elapsed_seconds": 448.18009576
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 929,
+            "elapsed_seconds": 448.955015158
+          },
+          "direction": "geometry_split"
+        },
+        {
+          "quality_exit": {
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 1035,
+            "elapsed_seconds": 454.396078144
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 1074,
+            "elapsed_seconds": 454.982277953
+          },
+          "direction": "geometry_split"
+        }
+      ],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 36,
+          "short_local_edges": 21601,
+          "long_local_edges": 0,
+          "cells": 60761,
+          "line": 545,
+          "elapsed_seconds": 53.431722979,
+          "seconds_since_previous_length_boundary": 19.803073290999997
+        },
+        {
+          "split_accepted": 39,
+          "short_local_edges": 21622,
+          "long_local_edges": 0,
+          "cells": 60765,
+          "line": 560,
+          "elapsed_seconds": 57.323990401,
+          "seconds_since_previous_length_boundary": 3.8922674220000033
+        },
+        {
+          "split_accepted": 41,
+          "short_local_edges": 21629,
+          "long_local_edges": 0,
+          "cells": 60768,
+          "line": 575,
+          "elapsed_seconds": 59.633070875,
+          "seconds_since_previous_length_boundary": 2.309080473999998
+        },
+        {
+          "split_accepted": 41,
+          "short_local_edges": 20498,
+          "long_local_edges": 0,
+          "cells": 55171,
+          "line": 934,
+          "elapsed_seconds": 449.339133276,
+          "seconds_since_previous_length_boundary": 0.3841181180000035
+        },
+        {
+          "split_accepted": 41,
+          "short_local_edges": 20498,
+          "long_local_edges": 0,
+          "cells": 55171,
+          "line": 1079,
+          "elapsed_seconds": 455.40400111,
+          "seconds_since_previous_length_boundary": 0.4217231570000308
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 638,
+          "exit_line": 890,
+          "seconds": 331.648517631
+        },
+        {
+          "entry_line": 952,
+          "exit_line": 1035,
+          "seconds": 4.714955159999988
+        },
+        {
+          "entry_line": 1097,
+          "exit_line": 1147,
+          "seconds": 57.84325871200002
+        }
+      ],
+      "quality_seconds": 394.206731503,
+      "core_last_pass_bad_out": 448,
+      "core_last_pass_short_out": 15905,
+      "quality_entry_bad_union": 193,
+      "final_engine": {
+        "rounds": 528,
+        "length_collapses": 0,
+        "length_splits": 41,
+        "cells": 55171,
+        "associations": 13267,
+        "working_faces": 26530,
+        "job_peak_rss_lower": 9697107968,
+        "line": 1147,
+        "elapsed_seconds": 513.637438385
+      }
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 1,
+      "seed_line": 181,
+      "seed": {
+        "cells": 32975,
+        "edges": 43032,
+        "lt_1e_2": 0,
+        "lt_0_1": 147,
+        "line": 181,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 26480,
+        "points": 13242,
+        "line": 179,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 34.0,
+      "collapse_length_elapsed_seconds": 33.604866077,
+      "collapse_pass_seconds": 3.0020225340001083,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 198,
+            "elapsed_seconds": 33.628532258
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 12554,
+            "long_local_edges": 32,
+            "cells": 32975,
+            "line": 182,
+            "elapsed_seconds": 33.604866077
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [
+        {
+          "quality_exit": {
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 555,
+            "elapsed_seconds": 448.190481029
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 594,
+            "elapsed_seconds": 448.956694145
+          },
+          "direction": "geometry_split"
+        },
+        {
+          "quality_exit": {
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 700,
+            "elapsed_seconds": 454.395544006
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 739,
+            "elapsed_seconds": 454.981522548
+          },
+          "direction": "geometry_split"
+        }
+      ],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 213,
+          "short_local_edges": 11893,
+          "long_local_edges": 140,
+          "cells": 55467,
+          "line": 210,
+          "elapsed_seconds": 53.432107667,
+          "seconds_since_previous_length_boundary": 19.803575408999997
+        },
+        {
+          "split_accepted": 331,
+          "short_local_edges": 12354,
+          "long_local_edges": 14,
+          "cells": 55983,
+          "line": 225,
+          "elapsed_seconds": 57.307873041,
+          "seconds_since_previous_length_boundary": 3.8757653740000038
+        },
+        {
+          "split_accepted": 349,
+          "short_local_edges": 12441,
+          "long_local_edges": 0,
+          "cells": 56046,
+          "line": 240,
+          "elapsed_seconds": 59.629959174,
+          "seconds_since_previous_length_boundary": 2.322086132999999
+        },
+        {
+          "split_accepted": 349,
+          "short_local_edges": 14967,
+          "long_local_edges": 0,
+          "cells": 64957,
+          "line": 599,
+          "elapsed_seconds": 449.341322108,
+          "seconds_since_previous_length_boundary": 0.384627963000014
+        },
+        {
+          "split_accepted": 349,
+          "short_local_edges": 14986,
+          "long_local_edges": 0,
+          "cells": 64964,
+          "line": 744,
+          "elapsed_seconds": 455.404540573,
+          "seconds_since_previous_length_boundary": 0.42301802500003305
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 303,
+          "exit_line": 555,
+          "seconds": 331.610641839
+        },
+        {
+          "entry_line": 617,
+          "exit_line": 700,
+          "seconds": 4.71104483900001
+        },
+        {
+          "entry_line": 762,
+          "exit_line": 812,
+          "seconds": 57.82762458499997
+        }
+      ],
+      "quality_seconds": 394.14931126299996,
+      "core_last_pass_bad_out": 169,
+      "core_last_pass_short_out": 14799,
+      "quality_entry_bad_union": 246,
+      "final_engine": {
+        "rounds": 528,
+        "length_collapses": 0,
+        "length_splits": 349,
+        "cells": 64964,
+        "associations": 13267,
+        "working_faces": 26530,
+        "job_peak_rss_lower": 9697107968,
+        "line": 812,
+        "elapsed_seconds": 513.618379145
+      }
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 2,
+      "seed_line": 206,
+      "seed": {
+        "cells": 86374,
+        "edges": 107293,
+        "lt_1e_2": 0,
+        "lt_0_1": 66,
+        "line": 206,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 26480,
+        "points": 13242,
+        "line": 204,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 34.0,
+      "collapse_length_elapsed_seconds": 33.618767332,
+      "collapse_pass_seconds": 2.963665209000048,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 223,
+            "elapsed_seconds": 33.633216137
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 18486,
+            "long_local_edges": 173,
+            "cells": 86374,
+            "line": 207,
+            "elapsed_seconds": 33.618767332
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [
+        {
+          "quality_exit": {
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 579,
+            "elapsed_seconds": 448.181634704
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 617,
+            "elapsed_seconds": 448.955009214
+          },
+          "direction": "geometry_split"
+        },
+        {
+          "quality_exit": {
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 723,
+            "elapsed_seconds": 454.393118146
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 761,
+            "elapsed_seconds": 455.040000602
+          },
+          "direction": "geometry_split"
+        }
+      ],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 129,
+          "short_local_edges": 15947,
+          "long_local_edges": 89,
+          "cells": 64226,
+          "line": 235,
+          "elapsed_seconds": 53.432290802,
+          "seconds_since_previous_length_boundary": 19.799074665
+        },
+        {
+          "split_accepted": 214,
+          "short_local_edges": 16194,
+          "long_local_edges": 4,
+          "cells": 64566,
+          "line": 250,
+          "elapsed_seconds": 57.315391533,
+          "seconds_since_previous_length_boundary": 3.883100731000006
+        },
+        {
+          "split_accepted": 218,
+          "short_local_edges": 16210,
+          "long_local_edges": 0,
+          "cells": 64584,
+          "line": 265,
+          "elapsed_seconds": 59.63232209,
+          "seconds_since_previous_length_boundary": 2.316930556999999
+        },
+        {
+          "split_accepted": 219,
+          "short_local_edges": 16845,
+          "long_local_edges": 0,
+          "cells": 63886,
+          "line": 622,
+          "elapsed_seconds": 449.34242846,
+          "seconds_since_previous_length_boundary": 0.38741924600003586
+        },
+        {
+          "split_accepted": 219,
+          "short_local_edges": 16870,
+          "long_local_edges": 0,
+          "cells": 63894,
+          "line": 766,
+          "elapsed_seconds": 455.40394774,
+          "seconds_since_previous_length_boundary": 0.3639471379999577
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 327,
+          "exit_line": 579,
+          "seconds": 331.58817095999996
+        },
+        {
+          "entry_line": 640,
+          "exit_line": 723,
+          "seconds": 4.705203566000023
+        },
+        {
+          "entry_line": 784,
+          "exit_line": 833,
+          "seconds": 57.824119996000036
+        }
+      ],
+      "quality_seconds": 394.117494522,
+      "core_last_pass_bad_out": 94,
+      "core_last_pass_short_out": 21888,
+      "quality_entry_bad_union": 86,
+      "final_engine": {
+        "rounds": 528,
+        "length_collapses": 0,
+        "length_splits": 219,
+        "cells": 63894,
+        "associations": 13267,
+        "working_faces": 26530,
+        "job_peak_rss_lower": 9697107968,
+        "line": 833,
+        "elapsed_seconds": 513.617803059
+      }
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 3,
+      "seed_line": 193,
+      "seed": {
+        "cells": 166771,
+        "edges": 203632,
+        "lt_1e_2": 0,
+        "lt_0_1": 153,
+        "line": 193,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 26480,
+        "points": 13242,
+        "line": 191,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 34.0,
+      "collapse_length_elapsed_seconds": 33.623072591,
+      "collapse_pass_seconds": 2.6359975730000045,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 210,
+            "elapsed_seconds": 33.628540122
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 31658,
+            "long_local_edges": 406,
+            "cells": 166771,
+            "line": 194,
+            "elapsed_seconds": 33.623072591
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [
+        {
+          "quality_exit": {
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 571,
+            "elapsed_seconds": 448.195880354
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 610,
+            "elapsed_seconds": 448.957850359
+          },
+          "direction": "geometry_split"
+        },
+        {
+          "quality_exit": {
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 716,
+            "elapsed_seconds": 454.397133058
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 755,
+            "elapsed_seconds": 454.982143106
+          },
+          "direction": "geometry_split"
+        }
+      ],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 159,
+          "short_local_edges": 14284,
+          "long_local_edges": 177,
+          "cells": 68692,
+          "line": 222,
+          "elapsed_seconds": 53.435698351,
+          "seconds_since_previous_length_boundary": 19.807158229000002
+        },
+        {
+          "split_accepted": 232,
+          "short_local_edges": 14807,
+          "long_local_edges": 10,
+          "cells": 69276,
+          "line": 237,
+          "elapsed_seconds": 57.318631607,
+          "seconds_since_previous_length_boundary": 3.882933256000001
+        },
+        {
+          "split_accepted": 234,
+          "short_local_edges": 14839,
+          "long_local_edges": 0,
+          "cells": 69293,
+          "line": 252,
+          "elapsed_seconds": 59.633151956,
+          "seconds_since_previous_length_boundary": 2.3145203489999986
+        },
+        {
+          "split_accepted": 235,
+          "short_local_edges": 15238,
+          "long_local_edges": 0,
+          "cells": 65334,
+          "line": 615,
+          "elapsed_seconds": 449.340101304,
+          "seconds_since_previous_length_boundary": 0.38225094499995294
+        },
+        {
+          "split_accepted": 236,
+          "short_local_edges": 15240,
+          "long_local_edges": 0,
+          "cells": 65333,
+          "line": 760,
+          "elapsed_seconds": 455.4057313,
+          "seconds_since_previous_length_boundary": 0.4235881939999899
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 315,
+          "exit_line": 571,
+          "seconds": 331.671723041
+        },
+        {
+          "entry_line": 633,
+          "exit_line": 716,
+          "seconds": 4.713925130999996
+        },
+        {
+          "entry_line": 778,
+          "exit_line": 828,
+          "seconds": 57.825489576999985
+        }
+      ],
+      "quality_seconds": 394.211137749,
+      "core_last_pass_bad_out": 55,
+      "core_last_pass_short_out": 29884,
+      "quality_entry_bad_union": 257,
+      "final_engine": {
+        "rounds": 528,
+        "length_collapses": 0,
+        "length_splits": 236,
+        "cells": 65333,
+        "associations": 13267,
+        "working_faces": 26530,
+        "job_peak_rss_lower": 9697107968,
+        "line": 828,
+        "elapsed_seconds": 513.618622106
+      }
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 4,
+      "seed_line": 143,
+      "seed": {
+        "cells": 31346,
+        "edges": 40255,
+        "lt_1e_2": 0,
+        "lt_0_1": 141,
+        "line": 143,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 26480,
+        "points": 13242,
+        "line": 141,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 34.0,
+      "collapse_length_elapsed_seconds": 33.604091386,
+      "collapse_pass_seconds": 2.946062129000154,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 160,
+            "elapsed_seconds": 33.629821405
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 11982,
+            "long_local_edges": 19,
+            "cells": 31346,
+            "line": 144,
+            "elapsed_seconds": 33.604091386
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [
+        {
+          "quality_exit": {
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 516,
+            "elapsed_seconds": 448.181593808
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 554,
+            "elapsed_seconds": 448.956658035
+          },
+          "direction": "geometry_split"
+        },
+        {
+          "quality_exit": {
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 660,
+            "elapsed_seconds": 454.394060369
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 698,
+            "elapsed_seconds": 454.981537882
+          },
+          "direction": "geometry_split"
+        }
+      ],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 19,
+          "short_local_edges": 24393,
+          "long_local_edges": 0,
+          "cells": 65094,
+          "line": 172,
+          "elapsed_seconds": 53.434253797,
+          "seconds_since_previous_length_boundary": 19.804432391999995
+        },
+        {
+          "split_accepted": 19,
+          "short_local_edges": 24393,
+          "long_local_edges": 0,
+          "cells": 65094,
+          "line": 187,
+          "elapsed_seconds": 57.30808646,
+          "seconds_since_previous_length_boundary": 3.8738326630000017
+        },
+        {
+          "split_accepted": 19,
+          "short_local_edges": 24393,
+          "long_local_edges": 0,
+          "cells": 65094,
+          "line": 202,
+          "elapsed_seconds": 59.640413471,
+          "seconds_since_previous_length_boundary": 2.332327011000004
+        },
+        {
+          "split_accepted": 19,
+          "short_local_edges": 24606,
+          "long_local_edges": 0,
+          "cells": 64505,
+          "line": 559,
+          "elapsed_seconds": 449.341776467,
+          "seconds_since_previous_length_boundary": 0.38511843200001294
+        },
+        {
+          "split_accepted": 19,
+          "short_local_edges": 24606,
+          "long_local_edges": 0,
+          "cells": 64505,
+          "line": 703,
+          "elapsed_seconds": 455.404298431,
+          "seconds_since_previous_length_boundary": 0.4227605489999746
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 264,
+          "exit_line": 516,
+          "seconds": 331.577494509
+        },
+        {
+          "entry_line": 577,
+          "exit_line": 660,
+          "seconds": 4.708402366999962
+        },
+        {
+          "entry_line": 721,
+          "exit_line": 770,
+          "seconds": 57.82691927600007
+        }
+      ],
+      "quality_seconds": 394.11281615200005,
+      "core_last_pass_bad_out": 24,
+      "core_last_pass_short_out": 9169,
+      "quality_entry_bad_union": 103,
+      "final_engine": {
+        "rounds": 528,
+        "length_collapses": 0,
+        "length_splits": 19,
+        "cells": 64505,
+        "associations": 13267,
+        "working_faces": 26530,
+        "job_peak_rss_lower": 9697107968,
+        "line": 770,
+        "elapsed_seconds": 513.618060115
+      }
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 5,
+      "seed_line": 191,
+      "seed": {
+        "cells": 26293,
+        "edges": 35860,
+        "lt_1e_2": 0,
+        "lt_0_1": 420,
+        "line": 191,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 26480,
+        "points": 13242,
+        "line": 189,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 34.0,
+      "collapse_length_elapsed_seconds": 33.603749397,
+      "collapse_pass_seconds": 2.9825790780001107,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 208,
+            "elapsed_seconds": 33.628571967
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 13322,
+            "long_local_edges": 19,
+            "cells": 26293,
+            "line": 192,
+            "elapsed_seconds": 33.603749397
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [
+        {
+          "quality_exit": {
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 565,
+            "elapsed_seconds": 448.182859463
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 492,
+            "length_collapses": 0,
+            "line": 604,
+            "elapsed_seconds": 448.959195981
+          },
+          "direction": "geometry_split"
+        },
+        {
+          "quality_exit": {
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 710,
+            "elapsed_seconds": 454.398944422
+          },
+          "construction_entry": {
+            "split_lane": 1,
+            "rounds": 527,
+            "length_collapses": 0,
+            "line": 749,
+            "elapsed_seconds": 454.981626591
+          },
+          "direction": "geometry_split"
+        }
+      ],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 6,
+          "short_local_edges": 11465,
+          "long_local_edges": 0,
+          "cells": 60547,
+          "line": 220,
+          "elapsed_seconds": 53.431707566,
+          "seconds_since_previous_length_boundary": 19.803135599
+        },
+        {
+          "split_accepted": 8,
+          "short_local_edges": 11474,
+          "long_local_edges": 0,
+          "cells": 60552,
+          "line": 235,
+          "elapsed_seconds": 57.316141896,
+          "seconds_since_previous_length_boundary": 3.8844343299999977
+        },
+        {
+          "split_accepted": 10,
+          "short_local_edges": 11484,
+          "long_local_edges": 0,
+          "cells": 60558,
+          "line": 250,
+          "elapsed_seconds": 59.629587635,
+          "seconds_since_previous_length_boundary": 2.3134457390000023
+        },
+        {
+          "split_accepted": 10,
+          "short_local_edges": 13371,
+          "long_local_edges": 0,
+          "cells": 65216,
+          "line": 609,
+          "elapsed_seconds": 449.340911761,
+          "seconds_since_previous_length_boundary": 0.3817157799999791
+        },
+        {
+          "split_accepted": 10,
+          "short_local_edges": 13371,
+          "long_local_edges": 0,
+          "cells": 65216,
+          "line": 754,
+          "elapsed_seconds": 455.408389148,
+          "seconds_since_previous_length_boundary": 0.42676255700001775
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 313,
+          "exit_line": 565,
+          "seconds": 331.642085171
+        },
+        {
+          "entry_line": 627,
+          "exit_line": 710,
+          "seconds": 4.715386368999987
+        },
+        {
+          "entry_line": 772,
+          "exit_line": 822,
+          "seconds": 57.82496548199998
+        }
+      ],
+      "quality_seconds": 394.182437022,
+      "core_last_pass_bad_out": 106,
+      "core_last_pass_short_out": 9029,
+      "quality_entry_bad_union": 230,
+      "final_engine": {
+        "rounds": 528,
+        "length_collapses": 0,
+        "length_splits": 10,
+        "cells": 65216,
+        "associations": 13267,
+        "working_faces": 26530,
+        "job_peak_rss_lower": 9697107968,
+        "line": 822,
+        "elapsed_seconds": 513.619876409
+      }
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 0,
+      "seed_line": 1640,
+      "seed": {
+        "cells": 47459,
+        "edges": 60036,
+        "lt_1e_2": 0,
+        "lt_0_1": 125,
+        "line": 1640,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 21842,
+        "points": 10923,
+        "line": 1638,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 38.0,
+      "collapse_length_elapsed_seconds": 38.350010701,
+      "collapse_pass_seconds": 0.7637889019999804,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 1656,
+            "elapsed_seconds": 38.360493993
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 15504,
+            "long_local_edges": 0,
+            "cells": 47459,
+            "line": 1641,
+            "elapsed_seconds": 38.350010701
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 1,
+          "short_local_edges": 21723,
+          "long_local_edges": 0,
+          "cells": 59458,
+          "line": 1668,
+          "elapsed_seconds": 46.796288934,
+          "seconds_since_previous_length_boundary": 8.435794941000005
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 1728,
+          "exit_line": 1804,
+          "seconds": 97.539082527
+        }
+      ],
+      "quality_seconds": 97.539082527,
+      "core_last_pass_bad_out": 34,
+      "core_last_pass_short_out": 19900,
+      "quality_entry_bad_union": 55,
+      "final_engine": {
+        "rounds": 43,
+        "length_collapses": 0,
+        "length_splits": 1,
+        "cells": 58668,
+        "associations": 10921,
+        "working_faces": 21838,
+        "job_peak_rss_lower": 10612367360,
+        "line": 1804,
+        "elapsed_seconds": 169.689659248
+      }
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 1,
+      "seed_line": 1054,
+      "seed": {
+        "cells": 80293,
+        "edges": 99340,
+        "lt_1e_2": 0,
+        "lt_0_1": 38,
+        "line": 1054,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 21842,
+        "points": 10923,
+        "line": 1052,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 38.0,
+      "collapse_length_elapsed_seconds": 38.352790332,
+      "collapse_pass_seconds": 0.8061221659999944,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 1070,
+            "elapsed_seconds": 38.359965936
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 15154,
+            "long_local_edges": 5,
+            "cells": 80293,
+            "line": 1055,
+            "elapsed_seconds": 38.352790332
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 3,
+          "short_local_edges": 11337,
+          "long_local_edges": 0,
+          "cells": 64912,
+          "line": 1082,
+          "elapsed_seconds": 46.796323706,
+          "seconds_since_previous_length_boundary": 8.43635777
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 1142,
+          "exit_line": 1218,
+          "seconds": 97.55834299799999
+        }
+      ],
+      "quality_seconds": 97.55834299799999,
+      "core_last_pass_bad_out": 15,
+      "core_last_pass_short_out": 16189,
+      "quality_entry_bad_union": 37,
+      "final_engine": {
+        "rounds": 43,
+        "length_collapses": 0,
+        "length_splits": 3,
+        "cells": 62214,
+        "associations": 10921,
+        "working_faces": 21838,
+        "job_peak_rss_lower": 10612367360,
+        "line": 1218,
+        "elapsed_seconds": 169.707677223
+      }
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 2,
+      "seed_line": 1068,
+      "seed": {
+        "cells": 64750,
+        "edges": 81113,
+        "lt_1e_2": 0,
+        "lt_0_1": 136,
+        "line": 1068,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 21842,
+        "points": 10923,
+        "line": 1066,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 38.0,
+      "collapse_length_elapsed_seconds": 38.350969101,
+      "collapse_pass_seconds": 0.8081957960000139,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 1084,
+            "elapsed_seconds": 38.360136255
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 13795,
+            "long_local_edges": 8,
+            "cells": 64750,
+            "line": 1069,
+            "elapsed_seconds": 38.350969101
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 4,
+          "short_local_edges": 11741,
+          "long_local_edges": 0,
+          "cells": 56397,
+          "line": 1096,
+          "elapsed_seconds": 46.794874518,
+          "seconds_since_previous_length_boundary": 8.434738263
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 1156,
+          "exit_line": 1232,
+          "seconds": 97.53899130200001
+        }
+      ],
+      "quality_seconds": 97.53899130200001,
+      "core_last_pass_bad_out": 38,
+      "core_last_pass_short_out": 13955,
+      "quality_entry_bad_union": 6,
+      "final_engine": {
+        "rounds": 43,
+        "length_collapses": 0,
+        "length_splits": 4,
+        "cells": 60853,
+        "associations": 10921,
+        "working_faces": 21838,
+        "job_peak_rss_lower": 10612367360,
+        "line": 1232,
+        "elapsed_seconds": 169.690626317
+      }
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 3,
+      "seed_line": 1057,
+      "seed": {
+        "cells": 69667,
+        "edges": 86929,
+        "lt_1e_2": 0,
+        "lt_0_1": 77,
+        "line": 1057,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 21842,
+        "points": 10923,
+        "line": 1055,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 38.0,
+      "collapse_length_elapsed_seconds": 38.352042999,
+      "collapse_pass_seconds": 0.8086292400000019,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 1073,
+            "elapsed_seconds": 38.360882302
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 14562,
+            "long_local_edges": 37,
+            "cells": 69667,
+            "line": 1058,
+            "elapsed_seconds": 38.352042999
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 16,
+          "short_local_edges": 11227,
+          "long_local_edges": 0,
+          "cells": 65557,
+          "line": 1085,
+          "elapsed_seconds": 46.796123339,
+          "seconds_since_previous_length_boundary": 8.435241036999997
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 1145,
+          "exit_line": 1221,
+          "seconds": 97.543413717
+        }
+      ],
+      "quality_seconds": 97.543413717,
+      "core_last_pass_bad_out": 23,
+      "core_last_pass_short_out": 15572,
+      "quality_entry_bad_union": 18,
+      "final_engine": {
+        "rounds": 43,
+        "length_collapses": 0,
+        "length_splits": 16,
+        "cells": 60073,
+        "associations": 10921,
+        "working_faces": 21838,
+        "job_peak_rss_lower": 10612367360,
+        "line": 1221,
+        "elapsed_seconds": 169.691957088
+      }
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 4,
+      "seed_line": 1001,
+      "seed": {
+        "cells": 50798,
+        "edges": 65152,
+        "lt_1e_2": 0,
+        "lt_0_1": 28,
+        "line": 1001,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 21842,
+        "points": 10923,
+        "line": 999,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 38.0,
+      "collapse_length_elapsed_seconds": 38.350388272,
+      "collapse_pass_seconds": 0.7551406369999754,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 1017,
+            "elapsed_seconds": 38.360344432
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 15098,
+            "long_local_edges": 26,
+            "cells": 50798,
+            "line": 1002,
+            "elapsed_seconds": 38.350388272
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 11,
+          "short_local_edges": 21676,
+          "long_local_edges": 0,
+          "cells": 58720,
+          "line": 1029,
+          "elapsed_seconds": 46.799654663,
+          "seconds_since_previous_length_boundary": 8.439310231
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 1090,
+          "exit_line": 1167,
+          "seconds": 97.546795345
+        }
+      ],
+      "quality_seconds": 97.546795345,
+      "core_last_pass_bad_out": 28,
+      "core_last_pass_short_out": 14102,
+      "quality_entry_bad_union": 47,
+      "final_engine": {
+        "rounds": 43,
+        "length_collapses": 0,
+        "length_splits": 11,
+        "cells": 58648,
+        "associations": 10921,
+        "working_faces": 21838,
+        "job_peak_rss_lower": 10612367360,
+        "line": 1167,
+        "elapsed_seconds": 169.696868972
+      }
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 5,
+      "seed_line": 1058,
+      "seed": {
+        "cells": 47048,
+        "edges": 60284,
+        "lt_1e_2": 0,
+        "lt_0_1": 68,
+        "line": 1058,
+        "elapsed_seconds": null
+      },
+      "handover": {
+        "cells": null,
+        "faces": 21842,
+        "points": 10923,
+        "line": 1056,
+        "elapsed_seconds": null
+      },
+      "handover_to_first_collapse_exit_seconds": 38.0,
+      "collapse_length_elapsed_seconds": 38.349335393,
+      "collapse_pass_seconds": 0.7290046309999809,
+      "collapse_pass_time_status": "measured",
+      "construction_exits": [
+        {
+          "stage": {
+            "rounds": 0,
+            "length_collapses": 0,
+            "line": 1074,
+            "elapsed_seconds": 38.359783541
+          },
+          "length": {
+            "collapse_accepted": 0,
+            "short_local_edges": 14902,
+            "long_local_edges": 11,
+            "cells": 47048,
+            "line": 1059,
+            "elapsed_seconds": 38.349335393
+          },
+          "completed_cleanup_increase": 0
+        }
+      ],
+      "construction_reentries": [],
+      "metric_cleanups": [],
+      "split_generations": [
+        {
+          "split_accepted": 29,
+          "short_local_edges": 10264,
+          "long_local_edges": 0,
+          "cells": 55272,
+          "line": 1086,
+          "elapsed_seconds": 46.795260806,
+          "seconds_since_previous_length_boundary": 8.435477265000003
+        }
+      ],
+      "quality_spans": [
+        {
+          "entry_line": 1146,
+          "exit_line": 1222,
+          "seconds": 97.540313897
+        }
+      ],
+      "quality_seconds": 97.540313897,
+      "core_last_pass_bad_out": 45,
+      "core_last_pass_short_out": 11336,
+      "quality_entry_bad_union": 20,
+      "final_engine": {
+        "rounds": 43,
+        "length_collapses": 0,
+        "length_splits": 29,
+        "cells": 60095,
+        "associations": 10921,
+        "working_faces": 21838,
+        "job_peak_rss_lower": 10612367360,
+        "line": 1222,
+        "elapsed_seconds": 169.692877374
+      }
+    }
+  ],
+  "log_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/G5/build675/probe1/trial1/full675_run1/rank_output/1/rank.0/stdout": "97473d45fce465b45f0a9684143efbaab51276ebf866803d49b8056e38726349",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/G5/build675/probe1/trial1/full675_run1/rank_output/1/rank.1/stdout": "4c0e6f38fa69ed883dac4caff29109823839640eea892b265d43302b4514afa3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/G5/build675/probe1/trial1/full675_run1/rank_output/1/rank.2/stdout": "b2d10d56fd46cb6d061f6dd3a07739ba0b2666b6d8f45a5a3e327b2b9923394b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/G5/build675/probe1/trial1/full675_run1/rank_output/1/rank.3/stdout": "fc63fc0f88ab89a7984d903103d86d3cf86d059f3f9e8252c6eeff5858bd4f77",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/G5/build675/probe1/trial1/full675_run1/rank_output/1/rank.4/stdout": "39179361db3ad1e9af69f200fa83861b8d5f12e30e3da1de704c7faaee3fe20d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/G5/build675/probe1/trial1/full675_run1/rank_output/1/rank.5/stdout": "c44d6df93adbbfcb16879f87c7dd55653c767f78de6180ad36a0803f9085dd4e"
+  },
+  "probe": 1,
+  "probe_rows": [
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 0,
+      "line": 502,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 5349,
+      "prepare_pass": 463,
+      "None": 0,
+      "Protected": 695,
+      "Border": 771,
+      "Ineligible": 0,
+      "BorderKeeper": 432,
+      "FeatureChord": 3,
+      "Link": 188,
+      "Near": 294,
+      "Outward": 0,
+      "Reverse": 1618,
+      "Topology": 0,
+      "Size": 222,
+      "Shape": 149,
+      "Validity": 514,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 200,
+      "unclassified": 0
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 1,
+      "line": 167,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 4162,
+      "prepare_pass": 482,
+      "None": 0,
+      "Protected": 460,
+      "Border": 696,
+      "Ineligible": 0,
+      "BorderKeeper": 325,
+      "FeatureChord": 0,
+      "Link": 110,
+      "Near": 202,
+      "Outward": 0,
+      "Reverse": 1261,
+      "Topology": 0,
+      "Size": 84,
+      "Shape": 118,
+      "Validity": 424,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 117,
+      "unclassified": 0
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 2,
+      "line": 192,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 4101,
+      "prepare_pass": 437,
+      "None": 0,
+      "Protected": 160,
+      "Border": 584,
+      "Ineligible": 0,
+      "BorderKeeper": 290,
+      "FeatureChord": 0,
+      "Link": 202,
+      "Near": 140,
+      "Outward": 0,
+      "Reverse": 1605,
+      "Topology": 0,
+      "Size": 246,
+      "Shape": 85,
+      "Validity": 352,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 40,
+      "unclassified": 0
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 3,
+      "line": 179,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 4383,
+      "prepare_pass": 140,
+      "None": 0,
+      "Protected": 232,
+      "Border": 408,
+      "Ineligible": 0,
+      "BorderKeeper": 143,
+      "FeatureChord": 10,
+      "Link": 123,
+      "Near": 164,
+      "Outward": 0,
+      "Reverse": 2473,
+      "Topology": 0,
+      "Size": 324,
+      "Shape": 66,
+      "Validity": 300,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 57,
+      "unclassified": 0
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 4,
+      "line": 129,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 2401,
+      "prepare_pass": 219,
+      "None": 0,
+      "Protected": 394,
+      "Border": 610,
+      "Ineligible": 0,
+      "BorderKeeper": 167,
+      "FeatureChord": 0,
+      "Link": 78,
+      "Near": 40,
+      "Outward": 0,
+      "Reverse": 549,
+      "Topology": 0,
+      "Size": 115,
+      "Shape": 33,
+      "Validity": 196,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 105,
+      "unclassified": 0
+    },
+    {
+      "event": 1,
+      "stage": 0,
+      "rank": 5,
+      "line": 177,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 3523,
+      "prepare_pass": 127,
+      "None": 0,
+      "Protected": 439,
+      "Border": 1007,
+      "Ineligible": 0,
+      "BorderKeeper": 241,
+      "FeatureChord": 14,
+      "Link": 78,
+      "Near": 87,
+      "Outward": 0,
+      "Reverse": 1117,
+      "Topology": 0,
+      "Size": 118,
+      "Shape": 62,
+      "Validity": 233,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 133,
+      "unclassified": 0
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 0,
+      "line": 1626,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 4755,
+      "prepare_pass": 271,
+      "None": 0,
+      "Protected": 317,
+      "Border": 764,
+      "Ineligible": 0,
+      "BorderKeeper": 316,
+      "FeatureChord": 64,
+      "Link": 214,
+      "Near": 95,
+      "Outward": 0,
+      "Reverse": 2157,
+      "Topology": 0,
+      "Size": 125,
+      "Shape": 87,
+      "Validity": 345,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 105,
+      "unclassified": 0
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 1,
+      "line": 1040,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 2188,
+      "prepare_pass": 143,
+      "None": 0,
+      "Protected": 127,
+      "Border": 596,
+      "Ineligible": 0,
+      "BorderKeeper": 236,
+      "FeatureChord": 39,
+      "Link": 59,
+      "Near": 36,
+      "Outward": 0,
+      "Reverse": 484,
+      "Topology": 0,
+      "Size": 257,
+      "Shape": 24,
+      "Validity": 187,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 46,
+      "unclassified": 0
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 2,
+      "line": 1054,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 3580,
+      "prepare_pass": 36,
+      "None": 0,
+      "Protected": 217,
+      "Border": 558,
+      "Ineligible": 0,
+      "BorderKeeper": 205,
+      "FeatureChord": 60,
+      "Link": 79,
+      "Near": 84,
+      "Outward": 0,
+      "Reverse": 1880,
+      "Topology": 0,
+      "Size": 214,
+      "Shape": 61,
+      "Validity": 186,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 90,
+      "unclassified": 0
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 3,
+      "line": 1043,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 3200,
+      "prepare_pass": 100,
+      "None": 0,
+      "Protected": 358,
+      "Border": 400,
+      "Ineligible": 0,
+      "BorderKeeper": 156,
+      "FeatureChord": 63,
+      "Link": 94,
+      "Near": 94,
+      "Outward": 0,
+      "Reverse": 1329,
+      "Topology": 0,
+      "Size": 219,
+      "Shape": 89,
+      "Validity": 298,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 134,
+      "unclassified": 0
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 4,
+      "line": 987,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 3516,
+      "prepare_pass": 212,
+      "None": 0,
+      "Protected": 596,
+      "Border": 452,
+      "Ineligible": 0,
+      "BorderKeeper": 168,
+      "FeatureChord": 176,
+      "Link": 117,
+      "Near": 90,
+      "Outward": 0,
+      "Reverse": 1022,
+      "Topology": 0,
+      "Size": 195,
+      "Shape": 77,
+      "Validity": 411,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 243,
+      "unclassified": 0
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "rank": 5,
+      "line": 1044,
+      "status": "complete",
+      "kind": "NATIVE3D_FP3_HANDOVER_SURFACE",
+      "checkpoint": "last_pass_pre_shift",
+      "proof": "not_evaluated",
+      "short_surface_edges": 2359,
+      "prepare_pass": 174,
+      "None": 0,
+      "Protected": 254,
+      "Border": 454,
+      "Ineligible": 0,
+      "BorderKeeper": 204,
+      "FeatureChord": 87,
+      "Link": 73,
+      "Near": 59,
+      "Outward": 0,
+      "Reverse": 638,
+      "Topology": 0,
+      "Size": 109,
+      "Shape": 64,
+      "Validity": 243,
+      "Distance": 0,
+      "Entity": 0,
+      "Bound": 0,
+      "ContactRemote": 0,
+      "Contact": 0,
+      "protected_same_curve": 93,
+      "unclassified": 0
+    }
+  ],
+  "probe_totals": [
+    {
+      "event": 1,
+      "stage": 0,
+      "status": "complete",
+      "ranks_reported": 6,
+      "scope": "sum of rank-local edge incidences",
+      "counts": {
+        "short_surface_edges": 23919,
+        "prepare_pass": 1868,
+        "None": 0,
+        "Protected": 2380,
+        "Border": 4076,
+        "Ineligible": 0,
+        "BorderKeeper": 1598,
+        "FeatureChord": 27,
+        "Link": 779,
+        "Near": 927,
+        "Outward": 0,
+        "Reverse": 8623,
+        "Topology": 0,
+        "Size": 1109,
+        "Shape": 513,
+        "Validity": 2019,
+        "Distance": 0,
+        "Entity": 0,
+        "Bound": 0,
+        "ContactRemote": 0,
+        "Contact": 0,
+        "protected_same_curve": 652,
+        "unclassified": 0
+      }
+    },
+    {
+      "event": 2,
+      "stage": 0,
+      "status": "complete",
+      "ranks_reported": 6,
+      "scope": "sum of rank-local edge incidences",
+      "counts": {
+        "short_surface_edges": 19598,
+        "prepare_pass": 936,
+        "None": 0,
+        "Protected": 1869,
+        "Border": 3224,
+        "Ineligible": 0,
+        "BorderKeeper": 1285,
+        "FeatureChord": 489,
+        "Link": 636,
+        "Near": 458,
+        "Outward": 0,
+        "Reverse": 7510,
+        "Topology": 0,
+        "Size": 1119,
+        "Shape": 402,
+        "Validity": 1670,
+        "Distance": 0,
+        "Entity": 0,
+        "Bound": 0,
+        "ContactRemote": 0,
+        "Contact": 0,
+        "protected_same_curve": 711,
+        "unclassified": 0
+      }
+    }
+  ],
+  "probe_issues": [],
+  "probe_status": "complete"
+}
