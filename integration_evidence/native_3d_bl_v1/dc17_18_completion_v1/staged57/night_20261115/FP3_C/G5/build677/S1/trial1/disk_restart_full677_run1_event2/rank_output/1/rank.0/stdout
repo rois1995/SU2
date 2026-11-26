@@ -1,0 +1,311 @@
+
+-------------------------------------------------------------------------
+|    ___ _   _ ___                                                      |
+|   / __| | | |_  )   Release 8.5.0 "Harrier"                           |
+|   \__ \ |_| |/ /                                                      |
+|   |___/\___//___|   Suite (Computational Fluid Dynamics Code)         |
+|                                                                       |
+-------------------------------------------------------------------------
+| SU2 Project Website: https://su2code.github.io                        |
+|                                                                       |
+| The SU2 Project is maintained by the SU2 Foundation                   |
+| (http://su2foundation.org)                                            |
+-------------------------------------------------------------------------
+| Copyright 2012-2026, SU2 Contributors                                 |
+|                                                                       |
+| SU2 is free software; you can redistribute it and/or                  |
+| modify it under the terms of the GNU Lesser General Public            |
+| License as published by the Free Software Foundation; either          |
+| version 2.1 of the License, or (at your option) any later version.    |
+|                                                                       |
+| SU2 is distributed in the hope that it will be useful,                |
+| but WITHOUT ANY WARRANTY; without even the implied warranty of        |
+| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
+| Lesser General Public License for more details.                       |
+|                                                                       |
+| You should have received a copy of the GNU Lesser General Public      |
+| License along with SU2. If not, see <http://www.gnu.org/licenses/>.   |
+-------------------------------------------------------------------------
+
+Parsing config file for zone 0
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible Euler equations.
+Mach number: 0.8395.
+Angle of attack (AoA): 3.06 deg, and angle of sideslip (AoS): 0 deg.
+Reading and writing binary SU2 native restart files.
+Read flow solution from: accepted508_input.
+Dimensional simulation.
+The reference area is 0.7532 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 0.64607 m.
+Reference origin for moment evaluation is (0.25, 0, 0).
+Surface(s) where the force coefficients are evaluated: WING3D.
+
+Surface(s) plotted in the output file: WING3D.
+Input mesh file name: accepted508.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+Second order integration in space, with slope limiter.
+Venkatakrishnan slope-limiting method, with constant: 1.
+The reference element size is: 1. 
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Local time stepping (steady state simulation).
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using LU-SGS preconditioning.
+Convergence criteria of the linear solver: 0.0001.
+Max number of linear iterations: 5.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:        1
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 1.
+Begin convergence monitoring at iteration 10.
+Residual minimum value: 1e-10.
+Cauchy series min. value: 1e-06.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
++------------------------------------+
+Writing the convergence history file every 1 inner iterations.
+Writing the screen convergence history every 10 inner iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: continued508_history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: flow.
+Restart file name: continued508_restart.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                         Euler wall|                             WING3D|
++-----------------------------------------------------------------------+
+|                          Far-field|                           FARFIELD|
++-----------------------------------------------------------------------+
+|                     Symmetry plane|                           SYMMETRY|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: INNER_ITER, RMS_DENSITY, LIFT, DRAG
+History output group(s): ITER, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE, METRIC, ADAP_SENSOR
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Three dimensional problem.
+64192 grid points before partitioning.
+359230 volume elements before partitioning.
+3 surface markers.
+11386 boundary elements in index 0 (Marker = WING3D).
+2707 boundary elements in index 1 (Marker = FARFIELD).
+7415 boundary elements in index 2 (Marker = SYMMETRY).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (12711 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+71337 vertices including ghost points. 
+378461 interior elements including halo cells. 
+378461 tetrahedra.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 2.19611e+06.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 32984.6. Mean K: 438.075. Standard deviation K: 1973.62.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|         5.8612|        85.3986|
+|     CV Face Area Aspect Ratio|        1.02462|         520.39|
+|           CV Sub-Volume Ratio|              1|        2322.15|
+|                     CV Volume|    1.52023e-12|        2018.78|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=6 time_iter=0 total=9.2144401289999998 other=1.0909999987873675e-06 cpu=2.0292599999999998 cpu_other=0 process_peak_rss=149721088 partition=1.9368783139999999 partition_cpu=0.14937599999999998 migration=3.7592171900000002 migration_cpu=1.138568 preprocess=3.5183435340000004 preprocess_cpu=0.74131599999999997
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=1 ranks=6 time_iter=0 total=9.4112785390000013 other=1.2680000009979153e-06 cpu=2.5921289999999999 cpu_other=1.000000000139778e-06 process_peak_rss=144302080 partition=2.1314071099999996 partition_cpu=0.70537099999999997 migration=3.9990119850000001 migration_cpu=1.0706009999999999 preprocess=3.2808581760000006 preprocess_cpu=0.81615599999999999
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=2 ranks=6 time_iter=0 total=9.2210085209999999 other=1.4369999998820049e-06 cpu=2.2632140000000001 cpu_other=9.9999999991773336e-07 process_peak_rss=146194432 partition=1.9444464999999997 partition_cpu=0.15203 migration=3.897037825 migration_cpu=1.075763 preprocess=3.3795227590000003 preprocess_cpu=1.03542
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=3 ranks=6 time_iter=0 total=9.2517055720000005 other=9.3200000073068168e-07 cpu=1.9666089999999998 cpu_other=0 process_peak_rss=142581760 partition=1.9695433459999996 partition_cpu=0.217752 migration=3.8606121190000007 migration_cpu=0.98718299999999992 preprocess=3.4215491749999991 preprocess_cpu=0.76167399999999996
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=4 ranks=6 time_iter=0 total=9.2396080069999993 other=1.5189999986731095e-06 cpu=2.5457809999999998 cpu_other=9.9999999991773336e-07 process_peak_rss=144920576 partition=1.9510716509999999 partition_cpu=0.46365199999999995 migration=3.8659646749999999 migration_cpu=0.980375 preprocess=3.4225701620000004 preprocess_cpu=1.101753
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=5 ranks=6 time_iter=0 total=9.2210925420000009 other=2.6160000006214545e-06 cpu=2.6536249999999999 cpu_other=9.9999999991773336e-07 process_peak_rss=144986112 partition=1.9364394300000001 partition_cpu=0.75137500000000002 migration=3.8155959369999994 migration_cpu=0.89366099999999993 preprocess=3.4690545590000008 preprocess_cpu=1.008588
+Semi-span length = 1.21846 m.
+Wetted area = 1.55861 m^2.
+Area projection in the x-plane = 0.0743634 m^2, y-plane = 0.0180771 m^2, z-plane = 0.760132 m^2.
+Max. coordinate in the x-direction = 1.14408 m, y-direction = 1.21846 m, z-direction = 0.0394304 m.
+Min. coordinate in the x-direction = 3.3772e-06 m, y-direction = -1.06253e-13 m, z-direction = -0.0394304 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Inviscid flow: Computing density based on free-stream
+temperature and pressure using the ideal gas law.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|                        -|                         -|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+|            Velocity-X|       285.272|             1|       m/s|       285.272|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|        0.8395|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Euler). MG level: 0.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+
+------------------------------ Begin Solver -----------------------------
+
+Simulation Run using the Single-zone Driver
++---------------------------------------------------+
+|  Inner_Iter|    rms[Rho]|          CL|          CD|
++---------------------------------------------------+
+|           0|   -2.166141|    0.269700|    0.016693|
+
+----------------------------- Compute Metric ----------------------------
+Quadratic Hessian fits (owned point-sensor pairs): 48514 first ring, 15678 grown stencil, 0 WLS fallbacks.
+Quadratic Hessian thin-stencil cubic/quartic corrections: 0 point-sensor fits; unsupported quartics retain cubic/quadratic fits.
+Quadratic Hessian relative weighted fit residual: mean 0.140697, maximum 0.950361; 51224 fits above 0.05; minimum QR pivot ratio 0.00318594. Second-ring MPI: 6557 requested owner neighborhoods, 101265 exported samples.
+WARNING: Large quadratic fit residuals remain after stencil comparison; inspect sensor noise and nonsmooth flow features. No resolved curvature was discarded.
+Hessian recovery: 2.06106 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 0.000264824.
+Maximum density: 1.04616e+07.
+Maximum cell AR: 18.9552.
+Mesh complexity after native constraints: 50000 (ADAP_COMPLEXITY= 50000).
+Sensor metric complexity before gradation: 5399.51.
+Sensor-only donor complexity after gradation: 50000.
+Native geometric integration: 0 points, preparation 0.0288114 s.
+Native metric work: 8 complexity trials, 648 total gradation sweeps, 9837162 owned-point visits; gradation 51.5395 s, halo 4.49407 s, sweep reductions 25.9783 s (maximum accumulated rank times).
+Native gradation tensor updates: 5866486 of 9837162 owned-point visits.
+Native sensor gradation: 81 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+Sharp wall points: 406, the isotropic corner metric (ADAP_ISO_CORNER) is applied in 2D only, the metric is not changed.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=6 time_iter=0 total=52.790168221999991 other=1.074799999400966e-05 cpu=24.215159 cpu_other=1.0000000003174137e-05 process_peak_rss=163090432 sensor_frames=0.056175302999999843 sensor_frames_cpu=0.0079340000000000001 geometry_rule=0.024309396999999677 geometry_rule_cpu=0.00019699999999999999 complexity_gradation_audit=52.696689394000003 complexity_gradation_audit_cpu=24.202694999999999 publication=0.0088372740000011163 publication_cpu=0.0033529999999999996 halo=0.00017389199999229277 halo_cpu=4.8000000000000001e-05 original_family=0.0039722140000009176 original_family_cpu=0.00092199999999999997 nested_gradation=51.536614022000016 nested_gradation_halo=3.0302111829999276 nested_gradation_reduction=7.4431542349999944 complexity=49999.999735387813 bracketed=1 original_family_bytes=2317264 original_family_replay=0
+NATIVE3D_STAGE stage=metric_build rank=1 ranks=6 time_iter=0 total=52.790711117000001 other=1.4395999997418585e-05 cpu=25.334023999999999 cpu_other=1.4000000000180535e-05 process_peak_rss=146530304 sensor_frames=0.054356131000000474 sensor_frames_cpu=0.0080070000000000002 geometry_rule=0.022825303999999491 geometry_rule_cpu=0.000127 complexity_gradation_audit=52.694212530000001 complexity_gradation_audit_cpu=25.321417 publication=0.014953961000003346 publication_cpu=0.0034189999999999997 halo=0.00039746599999546106 halo_cpu=0.000174 original_family=0.0039513290000030565 original_family_cpu=0.00086599999999999991 nested_gradation=51.534353847999995 nested_gradation_halo=2.6866408290000265 nested_gradation_reduction=6.2303658280001173 complexity=49999.999735387813 bracketed=1 original_family_bytes=2326704 original_family_replay=0
+NATIVE3D_STAGE stage=metric_build rank=2 ranks=6 time_iter=0 total=52.794352594000003 other=1.9511999994392681e-05 cpu=12.888302999999999 cpu_other=1.8999999999991246e-05 process_peak_rss=148815872 sensor_frames=0.043893705000000338 sensor_frames_cpu=0.023993999999999998 geometry_rule=0.043792071000000377 geometry_rule_cpu=0.018321 complexity_gradation_audit=52.691023857000005 complexity_gradation_audit_cpu=12.836231999999999 publication=0.011071962999992024 publication_cpu=0.0073749999999999996 halo=0.00055605500000410757 halo_cpu=0.00027700000000000001 original_family=0.0039954310000069881 original_family_cpu=0.002085 nested_gradation=51.532479701000007 nested_gradation_halo=4.4940743119999382 nested_gradation_reduction=18.324516712000005 complexity=49999.999735387813 bracketed=1 original_family_bytes=2327472 original_family_replay=0
+NATIVE3D_STAGE stage=metric_build rank=3 ranks=6 time_iter=0 total=52.794647669 other=2.0643000006259626e-05 cpu=11.367777999999999 cpu_other=2.0000000001019203e-05 process_peak_rss=144941056 sensor_frames=0.057334713999999565 sensor_frames_cpu=0.0086420000000000004 geometry_rule=0.030643243000000098 geometry_rule_cpu=0.000111 complexity_gradation_audit=52.689169256 complexity_gradation_audit_cpu=11.353589999999999 publication=0.012929640999999492 publication_cpu=0.0039979999999999998 halo=0.00061756099999854541 halo_cpu=0.00025700000000000001 original_family=0.0039326109999962 original_family_cpu=0.00116 nested_gradation=51.530100237000006 nested_gradation_halo=2.6056574959999068 nested_gradation_reduction=24.468525114000116 complexity=49999.999735387813 bracketed=1 original_family_bytes=2497104 original_family_replay=0
+NATIVE3D_STAGE stage=metric_build rank=4 ranks=6 time_iter=0 total=52.794612627999996 other=4.3433999991293604e-05 cpu=12.271003 cpu_other=4.300000000156956e-05 process_peak_rss=147410944 sensor_frames=0.048217251000000516 sensor_frames_cpu=0.024083 geometry_rule=0.032951427000000422 geometry_rule_cpu=0.016449999999999999 complexity_gradation_audit=52.694212877999995 complexity_gradation_audit_cpu=12.221098 publication=0.01496034900000609 publication_cpu=0.0072749999999999993 halo=0.00035159399999429297 halo_cpu=0.00022799999999999999 original_family=0.0038756950000049528 original_family_cpu=0.0018259999999999999 nested_gradation=51.539528938999986 nested_gradation_halo=3.4844978930000963 nested_gradation_reduction=25.978314956999881 complexity=49999.999735387813 bracketed=1 original_family_bytes=2283008 original_family_replay=0
+NATIVE3D_STAGE stage=metric_build rank=5 ranks=6 time_iter=0 total=52.790348717999997 other=4.5212999985722035e-05 cpu=12.277249999999999 cpu_other=4.3999999999044803e-05 process_peak_rss=147476480 sensor_frames=0.059191008999999184 sensor_frames_cpu=0.0084700000000000001 geometry_rule=0.027530752000000547 geometry_rule_cpu=9.7e-05 complexity_gradation_audit=52.693979456999998 complexity_gradation_audit_cpu=12.263892999999999 publication=0.0056592279999989614 publication_cpu=0.0037629999999999999 halo=0.0001334429999957365 halo_cpu=5.6999999999999996e-05 original_family=0.0038096160000122836 original_family_cpu=0.00092599999999999996 nested_gradation=51.532762522999995 nested_gradation_halo=3.9788605070001282 nested_gradation_reduction=25.578162150999916 complexity=49999.999735387813 bracketed=1 original_family_bytes=2403504 original_family_replay=0
+NATIVE3D_STAGE stage=metric rank=0 ranks=6 time_iter=0 total=54.865738160000006 other=2.1159000006321094e-05 cpu=24.734991999999998 cpu_other=1.8000000000739647e-05 process_peak_rss=163090432 setup=2.5516000000891381e-05 setup_cpu=2.4000000000000001e-05 sensors=0.00071025199999930066 sensors_cpu=0.00071199999999999996 hessian=2.0677674110000002 hessian_cpu=0.51715500000000003 construction=52.797213822000003 construction_cpu=24.217082999999999
+NATIVE3D_STAGE stage=metric rank=1 ranks=6 time_iter=0 total=54.860215150000002 other=3.1360000107838459e-06 cpu=25.797319999999999 cpu_other=1.9999999985031991e-06 process_peak_rss=146530304 setup=1.3307999999767617e-05 setup_cpu=1.2e-05 sensors=0.00044415500000027919 sensors_cpu=0.000444 hessian=2.0652610409999994 hessian_cpu=0.46028599999999997 construction=52.794493509999995 construction_cpu=25.336575999999997
+NATIVE3D_STAGE stage=metric rank=2 ranks=6 time_iter=0 total=54.861591589 other=2.7069999930517952e-06 cpu=13.758488999999999 cpu_other=1.0000000010279564e-06 process_peak_rss=148815872 setup=1.6176999999117925e-05 setup_cpu=1.4999999999999999e-05 sensors=0.00056090600000047175 sensors_cpu=0.00056099999999999998 hessian=2.0616347809999986 hessian_cpu=0.866892 construction=52.799377018000001 construction_cpu=12.891019999999999
+NATIVE3D_STAGE stage=metric rank=3 ranks=6 time_iter=0 total=54.858930473000001 other=3.0559999970591889e-06 cpu=11.903131 cpu_other=2.9999999995311555e-06 process_peak_rss=144941056 setup=2.6892000001055294e-05 setup_cpu=2.4999999999999998e-05 sensors=0.00063200399999985279 sensors_cpu=0.00063299999999999999 hessian=2.0584399109999989 hessian_cpu=0.53235199999999994 construction=52.799828610000006 construction_cpu=11.370118
+NATIVE3D_STAGE stage=metric rank=4 ranks=6 time_iter=0 total=54.862746236 other=4.3960000013498757e-06 cpu=12.94211 cpu_other=2.0000000002795559e-06 process_peak_rss=147410944 setup=1.207699999916656e-05 setup_cpu=9.9999999999999991e-06 sensors=0.00034064500000141607 sensors_cpu=0.00034099999999999999 hessian=2.0639415939999992 hessian_cpu=0.66861399999999993 construction=52.798447523999997 construction_cpu=12.273142999999999
+NATIVE3D_STAGE stage=metric rank=5 ranks=6 time_iter=0 total=54.863936046999996 other=2.5989999983266898e-06 cpu=12.796401999999999 cpu_other=1.0000000010279564e-06 process_peak_rss=147476480 setup=1.7415000000298164e-05 setup_cpu=1.4999999999999999e-05 sensors=0.00062275600000027964 sensors_cpu=0.00062299999999999996 hessian=2.0643057159999998 hessian_cpu=0.51708699999999996 construction=52.798987560999997 construction_cpu=12.278675999999999
+Metric computed in 54.8681 s.
+NATIVE3D_TIMER root=metric boundary=final rank=0 phase=metric operation=sensors calls=1 inclusive_call_seconds=0.00070966300000000003 exclusive_seconds=0.00070966300000000003
+NATIVE3D_TIMER root=metric boundary=final rank=0 phase=metric operation=hessian calls=1 inclusive_call_seconds=2.067764978 exclusive_seconds=2.067764978
+NATIVE3D_TIMER root=metric boundary=final rank=0 phase=metric operation=target_composition calls=1 inclusive_call_seconds=52.797211539000003 exclusive_seconds=52.797211539000003
+NATIVE3D_TIMER_SUMMARY root=metric boundary=final rank=0 ranks=6 root_seconds=54.868160290000006 sumexclusive=54.868160290000006 unattributed=0.0024741100000014171 coverage=0.99995490809265475 fixedstorage=4120
+
+----------------------------- Solver Exit -------------------------------
+
+Maximum number of iterations reached (ITER = 1) before convergence.
++-----------------------------------------------------------------------+
+|      Convergence Field     |     Value    |   Criterion  |  Converged |
++-----------------------------------------------------------------------+
+|                    rms[Rho]|      -2.16614|         < -10|          No|
++-----------------------------------------------------------------------+
+-------------------------------------------------------------------------
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |continued508_restart.dat           |
+|                                   |                     (574.299 MB/s)|
++-----------------------------------------------------------------------+
+
+--------------------------- Finalizing Solver ---------------------------
+Deleted CNumerics container.
+Deleted CIntegration container.
+Deleted CSolver container.
+Deleted CIteration container.
+Deleted CInterface container.
+Deleted CGeometry container.
+Deleted CFreeFormDefBox class.
+Deleted CSurfaceMovement class.
+Deleted CVolumetricMovement class.
+Deleted CConfig container.
+Deleted nInst container.
+Deleted COutput class.
+-------------------------------------------------------------------------
+
+
+-------------------------- Performance Summary --------------------------
+Simulation totals:
+   Wall-clock time (hrs):   0.0188463 |            Core-hrs:    0.113078
+                   Cores:           6 |          DOFs/point:           5
+             Points/core:     10698.7 |   Ghost points/core:     1190.83
+ Ghost/Owned Point Ratio:    0.111307 | 
+
+Preprocessing phase:
+       Preproc. Time (s):     11.8611 |   Preproc. Time (%):     17.4823
+
+Compute phase:
+        Compute Time (s):     55.8795 |    Compute Time (%):     82.3616
+         Iteration count:           1 |         Avg. s/iter:     55.8795
+     Core-s/iter/Mpoints:     4699.91 |           Mpoints/s:  0.00127662
+
+Output phase:
+         Output Time (s):     0.10589 |     Output Time (%):    0.156073
+            Output count:           1 |       Avg. s/output:     0.10589
+ Restart Aggr. BW (MB/s):     574.299 |           MB/s/core:     95.7166
+-------------------------------------------------------------------------
+
+
+------------------------- Exit Success (SU2_CFD) ------------------------
+

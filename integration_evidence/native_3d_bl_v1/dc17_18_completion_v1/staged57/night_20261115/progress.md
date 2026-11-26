@@ -2536,3 +2536,17 @@ FP3-C N6P ON checkpoint 1dfcaeef94 pushed. N1 ON launched after N6P was terminal
 FP3-C N1 ON printed its complete stage-0 pass-1 row. Live observations: 49186 candidates, 4893 prepared directions, 1976 collapses, 6456 bound queries, 11 sweeps, star max 74 and v_limit=0. Faces 26920 to 22968 and bad cells 223 to 128. The single-rank lab remains active for embedding, contact and strict surviving-child proof.
 
 FP3-C Step 2 passed. N1 ON qualified with one complete last-pass row, 1976 sweep collapses and 22968 hand-over faces (26920 before the sweep), with bad cells 223 to 128. N6P ON qualified with six rows and 148 collapses. Both unchanged lab gate sets passed. N1 supervisor terminal. Seal build677/step2.json and push before the full S1 workflow and isolated restart.
+
+FP3-C Step 2 checkpoint a39d804cac pushed. S1 launched with N1 and all earlier owned handles terminal. Its workflow and isolation receipts and complete worker-stage sweep rows must pass before the S1 count is used. S2 remains gated on Y >= 273.
+
+FP3-C S1 startup verified probe 0 on all six live ranks and mode-S effective cfg SHA256 07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382. Event 1 is in local core preparation.
+
+FP3-C S1 event 1 emitted six final-sweep rows in stage 0, pass 2 with 149 collapses (53 / 36 / 38 / 7 / 10 / 5). Each rank reached the initial engine collapse exit with zero attempts and Automatic ownership migrate=0. Event 1 split, quality and final proof are active. The count remains provisional until both events and isolated restart seal.
+
+FP3-C S1 event 1 passed physical, proof, timer and join checks. Owned proof and all rank surface sizes 26238. Job peak and summed process peaks equal 9547976704 bytes. Transfer completed, and continued CFD leads into event 2.
+
+FP3-C S1 event 2 emitted six stage-0 pass-2 final-sweep rows with 64 collapses. The two raw event counts are 149 and 64, provisional sum 213. Adoption disposition awaits complete release of both workflow gates, continued CFD, isolated restart and the joined final measurement.
+
+FP3-C S1 event 2 passed physical, proof, timer and join checks. Owned proof and all rank surface sizes 21508. Job peak and summed process peaks equal 10906611712 bytes. Continued CFD and isolated restart remain before adoption disposition.
+
+FP3-C Step 3 passed. Both S1 events, transfer, continued CFD, the A suppression and B ownership gates, complete sweep evidence, and isolated restart passed. Native maxima 568.257274163 / 342.176183723 s. Minimum timer coverage by event 97.671% / 99.530%. The 12 rows seal Y=213 (149 / 64), disposition Y < 273. All six S1 hashes differ from FP3-B as a historical observation. All owned handles are terminal. Push the qualified S1 evidence, then restore only FP3-C production and dependent hidden test sources. S2 is unevaluated.
