@@ -112,7 +112,8 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
                   None if row['minimum_timer_coverage'] is None else 100 * row['minimum_timer_coverage'])
                  for name, data in measurements.items() for row in data['events']])
     md += ['', 'Core `bad_out` uses nodal tensors. Engine `bad_union` uses centroid-target q and J.',
-           'Each time maximum is taken over the participating ranks. Short-edge sums count rank-local incidences.', '']
+           'Each time maximum is taken over the participating ranks. Hand-over intervals use whole-second '
+           'launcher timestamps. Short-edge sums count rank-local incidences.', '']
     md += table('S worker stages', ('Run', 'Event', 'Stage', 'Ranks', 'Hand-over to initial exit s (max)',
                                     'Raw collapse elapsed s (max)', 'Collapse pass s (max)',
                                     'Core bad_out sum', 'Engine bad_union sum', 'Quality seconds (max)',
@@ -193,6 +194,7 @@ def report(label, validated_commit=None, revert=None):
     cut.save(HERE / f'reports/FP3_A_{label}.json', record)
     write_report(label, status, checks, measurements, probes, parts, revert)
     if validated_commit:
+        verify_build(label)
         assert accepted and not revert
         assert all(parts[name]['status'] != 'not evaluated' for name in ('probe1', 'probe2'))
         work_order = cut.read(directory / 'source_pins.json')[str(cut.REPO / 'AGENTS.md')]
@@ -221,6 +223,11 @@ def report(label, validated_commit=None, revert=None):
             **{key: build[key] for key in FINGERPRINTS}, 'accepted': True, 'accepted_commit': validated_commit,
             'order_sha256': ORDER_SHA, 'validation_work_order': {
                 'commit': validated_commit, 'path': 'AGENTS.md', 'sha256': work_order},
+            'gate_receipts': {
+                'step1': path_pin(directory / 'step1.json'),
+                'S1': path_pin(root(label, 'S1') / 'case_summary.json'),
+                'S2': path_pin(root(label, 'S2') / 'case_summary.json'),
+            },
             'workflows': {'S': {'reference_case': runs[0]['case'], 'runs': runs}}, 'pins': pins})
     print(status)
 

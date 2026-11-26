@@ -2334,3 +2334,19 @@ FP3-A build675 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_Nativ
 FP3-A build675 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/controls/build675/G4/case_summary.json.
 
 FP3-A G3 passed at 1616 accepted splits against the 336 minimum with zero upper refinements. All 1592 common accepted edges and points match P3, and observer-adjusted entry work is 5113 on both. G4 passed the historical 1-, 2- and 4-rank projections using the same shared native 2D executions. All 13 scoped checks are sealed and passed. Scoped supervisor terminal. Start the remaining Step 1 control, one full CORE workflow and isolated restart.
+
+FP3-A CORE checkpoint 669db1c5fd pushed and CORE service started. The effective FP1 CORE config matched SHA256 1ec6c26d49d4ec7c62103d5bd096471b5422290cd06c44b2f1073b7489f2b4c1. The launch receipt records absent witness override, trace 0 and probe 0 with explicit MPI export. The first live sample independently verified probe 0 on all six owned ranks. Next both events, continued CFD, isolated restart and six-file comparison to P3 CORE.
+
+FP3-A CORE first-collapse observations from all six ranks match the P3 report: work 80752264 and zero upper refinements. The inherited S/CORE controller first-collapse comparison is report-only. Event 1 has entered the split generations.
+
+FP3-A CORE event 1 reached quality at round 18364, the P3 entry round. No result finding. The resource monitor shows six owned solver ranks; the host load increased from about 4 at preflight to 12 during this event. Continue through proof and transfer under the existing limits.
+
+FP3-A CORE event 1 physical proof, memory and timer gates passed. The owned proof sum and all six recorded surface sizes are 68124. The job peak and sum of process peaks are both 11717271552 bytes. The event-1 mesh SHA256 matches accepted P3 CORE. Sidecar and transfer restart hashes will be checked after those writes are complete. Continued CFD, event 2 and isolated restart remain.
+
+FP3-A CORE event-1 mesh and now-complete sidecar both match accepted P3 CORE on disk. Event 2 has entered metric preparation after continued CFD. The workflow controller will seal and hash all six payloads when their writes and validations are terminal.
+
+FP3-A CORE event 2 passed its owned-face proof, memory and timer gate receipts. Continued CFD after the second adaptation is active. The isolated restart and final six-file comparison follow terminal workflow verification.
+
+FP3-A CORE full native workflow reached normal exit with continued CFD and all six owned ranks terminal. All six standing-gate payload hashes match accepted P3 CORE. The isolated restart is active and its startup receipt verified effective probe 0 and the executing inode on all six ranks.
+
+FP3-A Step 1 passed. CORE passed both adaptation events, transfer, continued CFD and the isolated restart with probe 0 on all six owned ranks in both jobs. All six CORE payload hashes matched accepted P3 exactly. The CORE supervisor is terminal. Step 1 sealed in build675/step1.json. Commit and push the signed label “FP3-A: default paths unchanged”, then launch S1.
