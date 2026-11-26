@@ -2502,3 +2502,7 @@ FP3-C G2 checkpoint f8d3b7e6de pushed. GQ passed the third quality-window anchor
 FP3-C build677 Step 1 first-collapse passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/first-collapse/case_summary.json.
 
 FP3-C GQ checkpoint cba62da82c pushed. Shared first-collapse passed the exact accepted count vector 480 / 473 / 346 / 263 / 469 / 464 and zero upper refinements. Work 76652506 against 108459426, with observed summed solver peak 5560573952 bytes. Exact C492 is running.
+
+FP3-C build677 Step 1 exact-c492 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/exact-c492/case_summary.json.
+
+FP3-C first-collapse checkpoint 7fceb447cc pushed. Exact C492 passed on its first 600 s helper attempt with native exit 0, a terminal handle and 598.507 s controller elapsed. No retry. The inherited independent shared checks continue with merit481, native 2D and saved-current.
