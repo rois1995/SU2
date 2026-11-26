@@ -2490,3 +2490,7 @@ FP3-C build677 Step 1 G1-mpi2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_
 FP3-C build677 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/G1-mpi4/case_summary.json.
 
 FP3-C G1 passed exact identity for all 375 serial, 114 two-rank and 228 four-rank case records and their failed assertions. Probe 0 was verified for each launch. G2 is active under the same scoped supervisor.
+
+FP3-C build677 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/G2/case_summary.json.
+
+FP3-C G1 checkpoint 26aa2e634a pushed. G2 passed the accepted P3 prefix identity on all six ranks, including census and scheduling calls, integer rows and fixedstorage=4120. GQ follows under the same scoped supervisor.
