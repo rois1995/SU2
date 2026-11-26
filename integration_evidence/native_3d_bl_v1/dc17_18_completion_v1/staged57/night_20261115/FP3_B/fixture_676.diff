@@ -1,0 +1,67 @@
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index f184c31e43..2c264a5ebd 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -5798,3 +5798,62 @@ TEST_CASE("Closed construction collapse exits normally and leaves metric cleanup
+   CHECK(cleanup_exit);
+   CHECK(result.stats.stop == EngineStop::OperatorStagnation);
+ }
++
++TEST_CASE("Automatic ownership declines a profitable empty collapse exit only when closed", "[.][FP3B][mpi]") {
++  World world;
++  REQUIRE(world.size == 2);
++  const auto fixture = Box();
++  const PlanarReference geometry(fixture.facets);
++  Owned input;
++  for (const auto& row : Rows(fixture.patch))
++    if ((row.cell.id == 0 ? 1 : 0) == world.rank) input.emplace(row.cell.id, row);
++  // All edges are long, and the 5:1 partition produces a profitable estimate without any collapse attempt.
++  const auto donors = Uniform(input, Tensor{16, 0, 0, 16, 0, 16});
++  EngineOptions options;
++  options.phase_ownership = PhaseOwnership::Automatic;
++  options.maximum_work = 8192;
++  options.maximum_rounds = 1;
++  options.timings = true;
++
++  const auto evaluate = [&](bool closed) {
++    options.close_construction_collapse = closed;
++    std::ostringstream captured;
++    {
++      struct RestoreOutput {
++        std::streambuf* previous;
++        ~RestoreOutput() { std::cout.rdbuf(previous); }
++      } restore{std::cout.rdbuf(captured.rdbuf())};
++      AdaptMetric(world, input, donors, geometry, {}, options);
++    }
++    return captured.str();
++  };
++
++  const auto open_log = evaluate(false);
++  const auto closed_log = evaluate(true);
++  const auto read_decision = [&](const std::string& log, bool closed) {
++    std::vector<std::string> decisions;
++    std::istringstream lines(log);
++    for (std::string line; std::getline(lines, line);)
++      if (line.find("NATIVE3D_PHASE_OWNERSHIP ") == 0 && line.find(" quality=0 evaluate=1 ") != std::string::npos)
++        decisions.push_back(line);
++    INFO(log);
++    REQUIRE(decisions.size() == 1);
++    std::cout << decisions.front() << '\n';
++    std::map<std::string, double> fields;
++    std::istringstream words(decisions.front());
++    for (std::string word; words >> word;) {
++      const auto equal = word.find('=');
++      if (equal != std::string::npos) fields.emplace(word.substr(0, equal), std::stod(word.substr(equal + 1)));
++    }
++    CHECK(fields.at("attempts") == 0);
++    CHECK(OwnershipExchangePays(fields.at("predicted_imbalance"), fields.at("demand_sum"), fields.at("global_cells"),
++                                fields.at("measured"), fields.at("attempts")));
++    CHECK(fields.at("migrate") == (closed ? 0 : 1));
++    fields.erase("migrate");
++    return fields;
++  };
++
++  const auto open = read_decision(open_log, false);
++  const auto closed = read_decision(closed_log, true);
++  CHECK(open == closed);
++}

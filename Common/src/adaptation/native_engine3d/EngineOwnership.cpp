@@ -257,8 +257,9 @@ bool EngineOwnership::ShouldMigrate(EngineContext& context, bool quality, uint64
   const double measured = TimedAllreduce(double(stats.initial_cells) + double(stats.updated_cells),
                                          CPassiveComm::Op::SUM, world.comm);
   double predicted_gain, predicted_cost;
-  const bool pays = OwnershipExchangePays(imbalance, demand_sum, double(global_cells), measured, attempts,
-                                           &predicted_gain, &predicted_cost);
+  const bool raw_pays = OwnershipExchangePays(imbalance, demand_sum, double(global_cells), measured, attempts,
+                                               &predicted_gain, &predicted_cost);
+  const bool pays = raw_pays && (quality || !context.census.selection->collapse_closed);
   stats.ownership_predicted_gain += predicted_gain;
   stats.ownership_predicted_cost += predicted_cost;
   const bool locally_eligible = options.phase_ownership == SU2Native3D::PhaseOwnership::DiagnosticAlways || pays;
