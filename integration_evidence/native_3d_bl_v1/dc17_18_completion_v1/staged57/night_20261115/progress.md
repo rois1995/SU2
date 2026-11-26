@@ -2506,3 +2506,11 @@ FP3-C GQ checkpoint cba62da82c pushed. Shared first-collapse passed the exact ac
 FP3-C build677 Step 1 exact-c492 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/exact-c492/case_summary.json.
 
 FP3-C first-collapse checkpoint 7fceb447cc pushed. Exact C492 passed on its first 600 s helper attempt with native exit 0, a terminal handle and 598.507 s controller elapsed. No retry. The inherited independent shared checks continue with merit481, native 2D and saved-current.
+
+FP3-C build677 Step 1 merit481 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/merit481/case_summary.json.
+
+FP3-C build677 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/native2d/case_summary.json.
+
+FP3-C build677 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/saved-current/case_summary.json.
+
+FP3-C C492 checkpoint 6f25202081 pushed. Merit481 and the native 2D tests at 1/2/4 ranks passed. Saved-current passed against the adopted P3 reference for all three payloads and 1297 ordered planning rows. The two 126680744-byte raw fixture files are still locally available under their hash pins. G3/G4 are next.
