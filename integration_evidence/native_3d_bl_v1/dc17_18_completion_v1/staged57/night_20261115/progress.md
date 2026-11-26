@@ -2454,3 +2454,15 @@ FP3-B S2 event 1 passed proof, memory and timer checks. Owned and per-rank surfa
 FP3-B S2 event 2 passed proof, memory and timer checks. Owned and per-rank faces 21824. Job peak equals the process peak sum at 10708992000 bytes. Event 2 repeated the empty-exit migration veto and its 165441-cell quality exchange. Continued CFD, isolated restart and the final Step 3 seal remain.
 
 FP3-B Step 3 passed. S2 passed both events, transfer, continued CFD, suppression and the ownership gate on all 12 worker packets, and isolated restart (exit 0, 82.354 s). All six directly hashed payloads agree with S1 on the frozen pair and identical effective config. Native maxima 565.165098815 / 325.3470135639999 s, minimum coverage 96.304% / 99.195%. No construction ownership commits or quality-to-construction returns. S2 supervisor terminal. Commit and push the passing pair, then run the Step 4 probe-2 timing observation.
+
+FP3-B S repeat checkpoint 5ae01a5f88 pushed. Step 4 started on the frozen build676/config with S2 terminal and no other owned heavy workload. Host available memory 41639 MiB and load 4.92 / 8.85 / 10.20 immediately before launching the probe-2 service. This measures the behaviour of P3 with the accepted-collapse probe active. Its six outputs compare with P3 S for observation.
+
+FP3-B probe-2 startup verified the live lab value 2 on all six executing ranks. Event 1 entered the open construction-collapse pass after hand-over. The S pair is sealed and the time observation is in progress.
+
+FP3-B probe-2 event 1 emitted six complete engine-collapse observations with 1576 accepted edits, matching the previous control count. All six open-queue ownership evaluations reported migrate=0. Rank 0 reported attempts=26995 and predicted_gain=199330.89584470828. The run proceeds through split and quality work before the final proof.
+
+FP3-B probe-2 event 1 passed the physical, proof, timer and memory checks. The owned and all per-rank surface sizes are 25188, equal to P3 S. Job peak and process peak sum are 9577570304 bytes. Transfer completed and continued CFD leads to event 2.
+
+FP3-B probe-2 event 2 emitted six complete engine-collapse rows with 1286 accepted edits, matching the earlier control. There are 12 complete observations across both events. Final proof, continued CFD and the direct P3 S hash comparison remain.
+
+FP3-B Step 4 observation complete. Both events and continued CFD passed. Event 2 had 20238 owned and per-rank faces and job peak equal to the process sum at 9681195008 bytes. All 12 probe rows are complete and all six payload hashes match FP2-P3 mode S. Native maxima 991.781079355 / 574.7290292550001 s. The two S trials and the probe ran on 2026-11-26 UTC with variable recorded load. All owned handles including the observation supervisor are terminal. Commit and push the observation, then publish the accepted S reference and final reports.

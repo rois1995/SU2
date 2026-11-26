@@ -146,6 +146,10 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
     md = [f'# FP3-B build{label}', '', f'**{status}**', '',
           'Full CORE and full OFF are unevaluated under this order.',
           'The [pre-edit source check](source_check.md) records the R4 readings.', '']
+    saved = checks.get('saved-current', {})
+    if saved.get('status') == 'passed':
+        md += ['The two 126,680,744-byte saved-current fixture files are retained locally with their SHA256 pins. '
+               f'[Saved-current receipt](../controls/build{label}/saved-current/case_summary.json)', '']
     watchdog = HERE / f'controls/build{label}/exact-c492/bl/first_watchdog_receipt.json'
     if watchdog.is_file():
         seconds = cut.read(watchdog)['watchdog']['seconds']
@@ -156,6 +160,9 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
         md += [f'Production change reverted from `{revert}`. The FP3-A ownership rule stays.', '']
     md += table('Checks', ('Check', 'Status', 'Finding'),
                 [(key, row['status'], row.get('first_difference') or '') for key, row in checks.items()])
+    md += [f'[Step 1 seal](../build{label}/step1.json) · '
+           f'[S1 seal](../G5/build{label}/S1/case_summary.json) · '
+           f'[S2 seal](../G5/build{label}/S2/case_summary.json)', '']
     comparisons = [(name, 'FP3-A S', parts[name].get('historical_comparison')) for name in ('S1', 'S2')]
     comparisons.append(('S2', 'S1', parts['S2'].get('comparison')))
     md += table('Six-payload comparisons', ('Run', 'Reference', 'Differing files'),
