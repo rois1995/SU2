@@ -1,5 +1,22 @@
 # Adaptation timings and computational work
 
+## Fast path stage 3
+
+### FP3-A mode S construction collapse, build675
+
+| Run | Native event 1 / 2 s | Initial collapse pass event 1 / 2 s | Quality event 1 / 2 s |
+| --- | ---: | ---: | ---: |
+| P3 S1 | 755.140 / 334.665 | 161.461 / 144.435 | 210.656 / 59.684 |
+| P3 S2 | 616.416 / 330.623 | 143.135 / 143.619 | 209.787 / 59.496 |
+| S1 | 638.248 / 324.558 | 3.420 / 1.170 | 300.891 / 95.797 |
+| S2 | 804.735 / 247.877 | 2.321 / 0.720 | 281.243 / 84.896 |
+
+Each clock is the maximum over the six ranks for its own scope. The initial pass clock subtracts that worker stage’s initialization and seed time from the collapse LENGTH elapsed. Phase maxima and nested clocks are reported independently.
+
+Both FP3-A runs had zero rounds and zero accepted edits at every initial engine collapse exit. The final proof covered 26,530 and 21,838 faces, and minimum named timer coverage across the pair was 98.186%. Each run passed both events and isolated restart, and all six payload hashes agreed.
+
+The native 10% targets against the faster FP2-P3 S trials were 554.775 s and 297.561 s. Both event-1 comparisons and the S1 event-2 comparison remain OPEN. S2 met the event-2 target. Host load varied between the trials. [FP3-A report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_A/reports/FP3_A_675.md)
+
 ## Fast path stage 2
 
 ### FP2-P3 witness closure by default, build673

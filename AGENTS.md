@@ -154,6 +154,11 @@ R13. Questions (user order, 2026-11-17). When you have a question about an
   accepted P3 OFF files. The limits and the count reference of the shared first-collapse check do not
   change.
 
+- Since FP3-A the S reference is the `workflows.S` entry of
+  `R/night_20261115/FP3_A/accepted_reference.json` (in mode S the engine makes no construction collapse
+  after step C completed; the optional improvement cleanup stays). Ordinary S runs use it. The FP2-P3 record
+  stays in force for OFF, CORE, G2, GQ, G3 and `saved_current`, and its S entry stays as the reference of the old
+  behaviour (`SU2_NATIVE_FP3_PROBE=2`, a lab control).
 
 ## 3. State (history; do not repeat a passed check)
 

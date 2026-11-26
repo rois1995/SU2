@@ -159,7 +159,7 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
                     [(entry['event'], entry['stage'], entry['ranks_reported'], entry['status'],
                       *((entry['counts'] or {}).get(field) for field in fields))
                      for entry in data.get('probe_totals', [])])
-    (HERE / f'reports/FP3_A_{label}.md').write_text('\n'.join(md) + '\n')
+    (HERE / f'reports/FP3_A_{label}.md').write_text('\n'.join(md).rstrip() + '\n')
 
 
 def report(label, validated_commit=None, revert=None):
