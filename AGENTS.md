@@ -160,6 +160,11 @@ R13. Questions (user order, 2026-11-17). When you have a question about an
   stays in force for OFF, CORE, G2, GQ, G3 and `saved_current`, and its S entry stays as the reference of the old
   behaviour (`SU2_NATIVE_FP3_PROBE=2`, a lab control).
 
+- Since FP3-B the S reference is the `workflows.S` entry of
+  `R/night_20261115/FP3_B/accepted_reference.json` (no ownership exchange at a construction-collapse exit whose
+  pass was closed). It replaces the S entry of FP3-A for ordinary S runs. The FP2-P3 record stays for OFF, CORE,
+  G2, GQ, G3 and `saved_current`; its S entry stays the reference of the lab control value `2`.
+
 ## 3. State (history; do not repeat a passed check)
 
 Items N1 to N18 and the cut (N4 phases A to D, N6): see the table of work order 2 in your evidence and the handbooks.

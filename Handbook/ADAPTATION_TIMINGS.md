@@ -2,6 +2,20 @@
 
 ## Fast path stage 3
 
+### FP3-B mode S ownership at the closed collapse exit, build676
+
+| Run | Native event 1 / 2 s | Construction event 1 / 2 s | Quality event 1 / 2 s | Final proof event 1 / 2 s | Preparation event 1 / 2 s |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| P3 S2 | 616.416 / 330.623 | 334.489 / 228.094 | 170.660 / 43.239 | 39.126 / 16.258 | 54.728 / 33.800 |
+| A S2 | 804.735 / 247.877 | 400.694 / 112.625 | 222.963 / 42.240 | 62.230 / 42.656 | 94.245 / 39.935 |
+| S1 | 550.549 / 353.197 | 278.721 / 157.283 | 138.280 / 37.995 | 49.618 / 57.950 | 64.360 / 78.428 |
+| S2 | 565.165 / 325.347 | 253.108 / 124.816 | 133.961 / 36.232 | 51.468 / 49.342 | 94.321 / 96.102 |
+| P3 behaviour, probe 2 | 991.781 / 574.729 | 568.794 / 405.426 | 273.041 / 68.586 | 52.827 / 27.395 | 64.103 / 55.288 |
+
+FP3-B made zero construction ownership commits. Each S trial moved 216,475 and 165,441 cells at the quality entry, and both proved 26,512 and 21,824 owned faces. Minimum named timer coverage across the pair was 96.304%. All six files matched within the pair.
+
+The table uses the per-rank exclusive phase totals from the event receipts. The FP3-A table below uses elapsed quality spans from the worker stages. Final-proof reverse rank maxima were 40.109 / 48.923 s in S1 and 41.746 / 40.409 s in S2. The corresponding share maxima were 9.481 / 8.972 s and 9.692 / 8.877 s. The report records host load at the event boundaries. These are observations under uncontrolled host load. [FP3-B report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/reports/FP3_B_676.md)
+
 ### FP3-A mode S construction collapse, build675
 
 | Run | Native event 1 / 2 s | Initial collapse pass event 1 / 2 s | Quality event 1 / 2 s |
