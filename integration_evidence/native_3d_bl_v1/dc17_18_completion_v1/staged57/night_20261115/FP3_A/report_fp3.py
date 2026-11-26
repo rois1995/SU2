@@ -95,6 +95,12 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
                'because two shared Bernstein controls were transposed. Build675 corrects only their fixture order. '
                'The candidate production sources and all admission values are identical. '
                '[Raw Catch log](../controls/build674/hidden/attempt1/test_outer.log)', '']
+    supervisor_log = HERE / f'controls/build{label}/scoped_initial_supervisor.log'
+    if supervisor_log.is_file():
+        md += ['The first scoped supervisor selected the wrong historical module after first-collapse had finished. '
+               'The continuation bound the P3 evaluator by path, verified the terminal receipts, and sealed the '
+               'same execution. [Initial supervisor log](../controls/build'
+               f'{label}/scoped_initial_supervisor.log)', '']
     if revert:
         md += [f'Production change reverted from `{revert}`. The engine construction-collapse pass stays.', '']
     md += table('Checks', ('Check', 'Status', 'Finding'),
