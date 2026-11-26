@@ -2374,3 +2374,13 @@ FP3-A core probe event 1 passed the standing proof, memory and timer checks. Pro
 FP3-A core probe event 2 emitted all six complete rows. Event 2 rank-local incidence totals are 19598 short surface edges, 936 passes and 711 protected same-curve edges, with zero unclassified. The collector has 12 complete raw observations across the two events. Full standing workflow completion and payload comparison remain.
 
 FP3-A Step 4 core probe finished complete. The standing two-event workflow and continued CFD passed. All six direct hashes are identical to the accepted build675 S pair and all 12 probe rows are complete. Probe 1 supervisor terminal. Commit and push the observation, then launch the lab control with probe value 2.
+
+FP3-A core probe checkpoint c2ab9f6694 pushed. Engine probe started with live probe 2 on all six owned ranks and the frozen S config. Lab-only control restores ordinary engine construction collapse. Collect the two worker-stage tables and compare its six outputs against P3 S before publication.
+
+FP3-A engine probe event 1 emitted all six complete rows at the first collapse exit. There were 1576 accepted commits: 886 volume, 646 surface dimension 2, 44 surface dimension 1, zero dimension 0 and zero unclassified. Shared cavities 144. The local-core nodal Margin criterion found 199 bad old cells and 1091 bad fresh cells in those counted cavities, with no unmeasured cells. The lab workflow proceeds through splits and quality.
+
+FP3-A engine probe event 1 passed proof, memory and timer checks. Owned and per-rank surface faces 25188 as in P3 S. Job and summed process peaks both 9574350848 bytes. Continued CFD led to the second adaptation.
+
+FP3-A engine probe event 2 emitted all six complete rows. There were 1286 accepted commits: 779 volume, 446 surface dimension 2, 61 surface dimension 1, zero dimension 0 and zero unclassified. Shared cavities 119. Nodal Margin counted 54 bad old cells and 933 bad fresh cells, with no unmeasured cells. Twelve probe rows are complete across both events. Continue to the final proof and six-file P3 comparison.
+
+FP3-A Step 4 engine probe finished complete. Both physical events and continued CFD passed, and all 12 worker observations are complete. All six directly hashed outputs match the P3 S reference. Engine probe and other owned execution handles are terminal. Both Step 4 observations are sealed. Commit and push the engine observation, then publish the S reference and final label.
