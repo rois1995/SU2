@@ -118,6 +118,12 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
     md = [f'# FP3-B build{label}', '', f'**{status}**', '',
           'Full CORE and full OFF are unevaluated under this order.',
           'The [pre-edit source check](source_check.md) records the R4 readings.', '']
+    watchdog = HERE / f'controls/build{label}/exact-c492/bl/first_watchdog_receipt.json'
+    if watchdog.is_file():
+        seconds = cut.read(watchdog)['watchdog']['seconds']
+        md += [f'C492 reached the {seconds} s helper watchdog without a recorded result finding. Its prescribed '
+               f'{3 * seconds} s helper retry used the same native limits and effective probe value. '
+               f'[First watchdog receipt](../controls/build{label}/exact-c492/bl/first_watchdog_receipt.json)', '']
     if revert:
         md += [f'Production change reverted from `{revert}`. The FP3-A ownership rule stays.', '']
     md += table('Checks', ('Check', 'Status', 'Finding'),

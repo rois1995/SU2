@@ -1,0 +1,105 @@
+{
+  "state": "terminal",
+  "host": {
+    "hostname": "pc-rausa",
+    "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+    "procfs_pid1": true,
+    "loadavg": "4.11 4.98 6.96 2/3574 1717226",
+    "mem_available_kib": 44262012,
+    "mem_available_mib": 43224
+  },
+  "root": {
+    "pid": 1717098,
+    "state": "R",
+    "ppid": 1716944,
+    "start_ticks": 119298560,
+    "name": "nice"
+  },
+  "observed_processes": [],
+  "peak_sampled_tree_rss_bytes": 173899776,
+  "peak_hwm_by_pid_start_ticks": {
+    "1717098:119298560": 1523712,
+    "1717099:119298560": 2138112,
+    "1717100:119298560": 15474688,
+    "1717103:119298563": 38989824,
+    "1717104:119298563": 38551552,
+    "1717105:119298563": 38649856,
+    "1717106:119298564": 38572032
+  },
+  "exit_code": 0,
+  "seconds": 3.249373918864876,
+  "actual_host_proc": true,
+  "identities": [
+    {
+      "pid": 1717098,
+      "state": "S",
+      "ppid": 1716944,
+      "start_ticks": 119298560,
+      "name": "time",
+      "VmHWM": 1523712,
+      "VmRSS": 1523712,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 1717099,
+      "state": "S",
+      "ppid": 1717098,
+      "start_ticks": 119298560,
+      "name": "timeout",
+      "VmHWM": 2138112,
+      "VmRSS": 2138112,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 1717100,
+      "state": "S",
+      "ppid": 1717099,
+      "start_ticks": 119298560,
+      "name": "mpirun",
+      "VmHWM": 15474688,
+      "VmRSS": 15474688,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 1717103,
+      "state": "R",
+      "ppid": 1717100,
+      "start_ticks": 119298563,
+      "name": "test_driver",
+      "VmHWM": 38989824,
+      "VmRSS": 38989824,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 1717104,
+      "state": "R",
+      "ppid": 1717100,
+      "start_ticks": 119298563,
+      "name": "test_driver",
+      "VmHWM": 38551552,
+      "VmRSS": 38551552,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 1717105,
+      "state": "R",
+      "ppid": 1717100,
+      "start_ticks": 119298563,
+      "name": "test_driver",
+      "VmHWM": 38649856,
+      "VmRSS": 38649856,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 1717106,
+      "state": "R",
+      "ppid": 1717100,
+      "start_ticks": 119298564,
+      "name": "test_driver",
+      "VmHWM": 38572032,
+      "VmRSS": 38572032,
+      "alive_at_terminal": false
+    }
+  ],
+  "live_owned_descendants": []
+}

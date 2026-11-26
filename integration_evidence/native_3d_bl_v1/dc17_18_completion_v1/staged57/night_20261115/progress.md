@@ -2416,3 +2416,17 @@ FP3-B G2 checkpoint d42dcdcbb1 pushed. GQ passed the third quality-window anchor
 FP3-B build676 Step 1 first-collapse passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/first-collapse/case_summary.json.
 
 FP3-B GQ checkpoint 802f5b1e57 pushed. Shared first-collapse passed with exact per-rank accepted counts 480 / 473 / 346 / 263 / 469 / 464, work 76652506 against 108459426, zero upper refinements and all hard gates. C492 follows.
+
+FP3-B shared first-collapse checkpoint 1c39d14ff3 pushed. Exact C492 attempt 1 hit the 600 s helper watchdog (exit 124) with no recorded result failure. The controller verified the terminal original attempt and its unchanged launch contract, including probe 0, and started the prescribed 1800 s helper retry with the same native limits. Evidence in controls/build676/exact-c492/bl/first_watchdog_receipt.json.
+
+FP3-B build676 Step 1 exact-c492 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/exact-c492/case_summary.json.
+
+FP3-B exact C492 passed on the single 1800 s helper retry. Native exit 0 and every executed-state, runtime-pin, frozen-input, fixture limit, positivity, storage and upper-refinement gate passed. Both attempts remain preserved. Next merit481, native 2D and saved-current.
+
+FP3-B build676 Step 1 merit481 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/merit481/case_summary.json.
+
+FP3-B build676 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/native2d/case_summary.json.
+
+FP3-B build676 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_B/controls/build676/saved-current/case_summary.json.
+
+FP3-B merit481 and native 2D at 1, 2 and 4 ranks passed. Saved-current matched all three P3 payloads and all 1297 ordered planning rows. The two raw saved-current files over the remote's file size limit remain locally pinned. G3 runs next, then G4 reuses the same 2D runs.
