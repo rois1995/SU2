@@ -2524,3 +2524,9 @@ FP3-C shared checkpoint 15e92179ea pushed. G3 passed physical gates with 2130 ac
 FP3-C scoped checkpoint c1d95970f0 pushed. N6P OFF launched on the same frozen pair after the scoped supervisor exited. This lab trial must match the selected FP2-P2 build672 measurement with an empty repeat difference list before Step 1 passes.
 
 FP3-C Step 1 passed. N6P OFF qualified with 26482 strict hand-over faces and an empty exact repeat difference list against the selected FP2-P2 build672 measurement. All six live test ranks printed sweep=0 and probe=0. The 13 scoped checks and N6P OFF are sealed in build677/step1.json. Full CORE and OFF workflows unevaluated. Push the signed Step 1 label, then start the two sweep-on trials separately.
+
+FP3-C Step 1 checkpoint d460ee3d48 pushed with the signed default-path label. Step 2 N6P ON launched after OFF was terminal, using the same input and observer settings. Require one final sweep row on each of the six ranks in pass 2 of stage 0.
+
+FP3-C N6P ON printed all six stage-0 pass-2 sweep rows. Reported 22885 candidates, 2554 prepared directions and 148 accepted collapses across ranks (53 / 36 / 37 / 7 / 10 / 5). The remaining lab contact, embedding and strict hand-over checks are active. This live count is an observation pending the sealed lab receipt.
+
+FP3-C N6P ON passed every inherited lab gate and all six final sweep rows. The 148 collapses reduced faces 26482 to 26186, with local bad-cell sum 937 to 932. First-repair totals (35 collapses, 451 splits) equal the OFF trial and the sweep ran 493 bound queries. The N6P supervisor is terminal. Push this trial, then start N1 ON.
