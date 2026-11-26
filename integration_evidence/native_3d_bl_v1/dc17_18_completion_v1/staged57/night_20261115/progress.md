@@ -2480,3 +2480,13 @@ FP3-C build677 compiled and linked both targets warning-free. Solver SHA256 7ef8
 FP3-C build677 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/hidden/case_summary.json.
 
 FP3-C candidate checkpoint 8d63cbaf80 pushed. Hidden Step 1 passed 5793 assertions across 10 serial cases, and 1992 / 1328 assertions across 2 two-rank cases per rank. The volume-unblocked final sweep accepted one collapse after the legacy validity refusal, ran four bound queries, and reduced faces 60 to 58. Both border cases committed zero, had zero repair time and preserved write-back. Hidden supervisor terminal. Next G1, G2/GQ, the five shared checks and G3/G4, then N6P sweep-off identity.
+
+FP3-C hidden checkpoint 2f87e12cde pushed. Scoped supervisor started with 41648 MiB available and load 7.87 / 10.58 / 10.50 in host preflight. Run all remaining scoped controls on build677 before the N6P OFF lab trial.
+
+FP3-C build677 Step 1 G1-serial passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/G1-serial/case_summary.json.
+
+FP3-C build677 Step 1 G1-mpi2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/G1-mpi2/case_summary.json.
+
+FP3-C build677 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/G1-mpi4/case_summary.json.
+
+FP3-C G1 passed exact identity for all 375 serial, 114 two-rank and 228 four-rank case records and their failed assertions. Probe 0 was verified for each launch. G2 is active under the same scoped supervisor.
