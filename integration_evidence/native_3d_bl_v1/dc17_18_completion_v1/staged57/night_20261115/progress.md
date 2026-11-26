@@ -2498,3 +2498,7 @@ FP3-C G1 checkpoint 26aa2e634a pushed. G2 passed the accepted P3 prefix identity
 FP3-C build677 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/GQ/case_summary.json.
 
 FP3-C G2 checkpoint f8d3b7e6de pushed. GQ passed the third quality-window anchor and accepted P3 prefix identity on six ranks, including scheduling, census, integer rows and fixedstorage=4120. The shared first-collapse gate is running.
+
+FP3-C build677 Step 1 first-collapse passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/controls/build677/first-collapse/case_summary.json.
+
+FP3-C GQ checkpoint cba62da82c pushed. Shared first-collapse passed the exact accepted count vector 480 / 473 / 346 / 263 / 469 / 464 and zero upper refinements. Work 76652506 against 108459426, with observed summed solver peak 5560573952 bytes. Exact C492 is running.
