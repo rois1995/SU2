@@ -89,6 +89,12 @@ def write_report(label, status, checks, measurements, probes, parts, revert):
     md = [f'# FP3-A build{label}', '', f'**{status}**', '',
           'The full OFF workflow was not evaluated under this order.',
           'The [pre-edit source check](source_check.md) records the R4 readings.', '']
+    fixture_failure = HERE / 'controls/build674/hidden/attempt1/test_outer.log'
+    if fixture_failure.is_file() and label != 674:
+        md += ['Build674 ran two hidden cases successfully. The mapped fixture stopped during authority construction '
+               'because two shared Bernstein controls were transposed. Build675 corrects only their fixture order. '
+               'The candidate production sources and all admission values are identical. '
+               '[Raw Catch log](../controls/build674/hidden/attempt1/test_outer.log)', '']
     if revert:
         md += [f'Production change reverted from `{revert}`. The engine construction-collapse pass stays.', '']
     md += table('Checks', ('Check', 'Status', 'Finding'),

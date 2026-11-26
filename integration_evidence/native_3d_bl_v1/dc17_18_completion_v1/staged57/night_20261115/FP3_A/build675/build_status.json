@@ -1,0 +1,45 @@
+{
+  "state": "terminal",
+  "passed": true,
+  "build": 675,
+  "exit_code": 0,
+  "pins_verified": true,
+  "changed": [
+    "Common/include/adaptation/CNativeEngine3D.hpp",
+    "Common/include/adaptation/CNativeLocalCore3D.hpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/native_engine3d/EngineAdapt.cpp",
+    "Common/src/adaptation/native_engine3d/EngineCommit.cpp",
+    "Common/src/adaptation/native_engine3d/EngineControl.cpp",
+    "Common/src/adaptation/native_engine3d/EngineOwnership.cpp",
+    "Common/src/adaptation/native_engine3d/EngineSelection.hpp",
+    "Common/src/adaptation/native_engine3d/EngineSelectionQueues.cpp",
+    "Common/src/adaptation/native_engine3d/NativeRemeshRun.inc",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp"
+  ],
+  "source_pins_sha256": "04bf2e2bf4ecc1133939104269a033206f953b050f8b1d4087827422b2c29f08",
+  "production_diff_sha256": "4b9cdd9df9550d996084baf9e983f554197a05159420a69dcf37c81331b7de18",
+  "graph_after": {
+    "build.ninja": "59db458e4ffd548de0d37395ab03046b72b2c6144bf0f8b56a0424c83718ad90",
+    "compile_commands.json": "0dea4febacab233fc602fdefef86b38289c1aff1a05c492ef2c5ab04cb5005de"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "28bb4f8cf2d0d4d4847e60e9910d38fce5b2b2f1244fb4bb30dd72ecbd4e6144",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "c6f5d8c276081691000606e18c177360ec4f28e53b3bb5982036460e563f972a",
+  "warnings": [],
+  "new_warnings": [],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 1054416,
+      "start_ticks": 117012575
+    },
+    "returncode": 0,
+    "elapsed_seconds": 17.84316921234131,
+    "terminal": true
+  }
+}
