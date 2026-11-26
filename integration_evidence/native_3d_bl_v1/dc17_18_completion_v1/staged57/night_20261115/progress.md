@@ -2224,3 +2224,13 @@ FP2-P3 C7 trial 2 event 1 proof, memory and timer gates passed. Proof faces 2518
 FP2-P3 build673 C7 passed. Evidence build673/C7.json.
 
 FP2-P3 C7 passed both S workflows and both isolated restarts, with six directly hashed payloads equal between the build673 trials and equal to FP2-P2 build672 S. Trial 1 maxima 755.140 / 334.665 s and trial 2 616.416 / 330.623 s. Both prove 25188 / 20238 owned faces. Trial 2 event-2 job peak matches its summed process peaks at 9710854144 bytes. No result difference in the pair and both controllers terminal. Next C5 OFF, two workflows with the signed first-collapse admission.
+
+FP2-P3 C7 passed checkpoint 798d02c2af pushed. C5 supervisor su2-fp2-p3-build673-c5 started. It runs two OFF workflows with default closure and the signed first-collapse work/accepted-count/refinement admission, plus both isolated restarts. C6 CORE pair follows after terminal C5.
+
+FP2-P3 C5 trial 1 launched at 02:48:25 CET with the frozen FX2 OFF config SHA256 5c0fe04144c7bb230ec7f71e26c87bf7d0150cdf5c89caa6e840ba20f3ae2d56, closure variable absent and trace 0. Its signed first-collapse admission passed all six ranks, exact accepted counts, 76652506 work units within 108459426 and zero upper refinements. Full event 1 proceeds.
+
+FP2-P3 C5 trial 1 OFF event 1 proof, resource and timer gates passed. Owned sum and each rank surface size 66900, job and summed process peaks both 13803257856 bytes. Continued CFD proceeds to event 2.
+
+FP2-P3 C5 trial 1 OFF event 2 proof, resource and timer gates passed. Owned sum and each rank surface size 62732, job and summed process peaks both 17507598336 bytes against 19999490048. Continued CFD and isolated restart are next, followed by the repeat.
+
+FP2-P3 C5 trial 1 passed both events, continued CFD and isolated restart. Native maxima 1538.497 / 754.698 s and minimum per-rank coverage 98.867% / 99.185%. All six trial-1 payloads differ from the historical closure-off run. The trial-1 OFF logs produce 1530 report-only exact differences against B2b and zero replay findings. Trial 2 started at 03:38:19 CET after terminal restart verification. The build673 pair is still required.

@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "mpirun",
+    "-x",
+    "SU2_NATIVE_GEOMETRY_WORK_TRACE",
+    "--oversubscribe",
+    "--bind-to",
+    "none",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+    "run.cfg"
+  ],
+  "wrapper": {
+    "pid": 727970,
+    "start_ticks": 115278855
+  },
+  "saved_checkpoint": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/G5/build673/C5/trial1/full673_run1",
+  "source_attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/G5/build673/C5/trial1/full673_run1",
+  "initial_available_bytes": 50839379968,
+  "loadavg": "5.61 7.41 7.63 1/3276 728065\n",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_mpi_yield_when_idle": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/adapted-disk508-lc1m2act",
+    "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0"
+  },
+  "scope": "Actual isolated steady CFD disk restart on R3 P7/P8 accepted event2 mesh and matching following-CFD state; one further CFD iteration; no adaptation or convergence claim."
+}
