@@ -402,6 +402,8 @@ protected:
   void SetActDisk_BEM_VLAD(CGeometry *geometry, CSolver **solver_container,
                            CConfig *config, unsigned short iMesh, bool Output);
 
+public:
+  /*--- Public for the ES4 solver checks (UnitTests/SU2_CFD/p1_flux_variants.cpp), which call them on a test mesh. ---*/
   /*!
    * \brief Compute the max eigenvalue.
    * \param[in] geometry - Geometrical definition of the problem.
@@ -439,6 +441,8 @@ protected:
    * \param[in] config - Definition of the particular problem.
    */
   void SetCentered_Dissipation_Sensor(CGeometry *geometry, const CConfig *config);
+
+protected:
 
   /*!
    * \brief A virtual member.
