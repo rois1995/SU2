@@ -1,0 +1,1109 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1",
+  "status": "passed",
+  "first_difference": null,
+  "wrapper_seconds": 21,
+  "probe": {
+    "variable": "SU2_NATIVE_FP3_PROBE",
+    "value": "0",
+    "ranks": 2,
+    "mpi_exported": true
+  },
+  "comparison": {
+    "candidate_returncode": 9,
+    "candidate_sources": [
+      {
+        "rank": "0",
+        "sha256": "63f50eba7b28dbcf01dc86c25dcfc0f45ec910154c9a9d2ca224e56ff40ae29d",
+        "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.0/stdout"
+      },
+      {
+        "rank": "1",
+        "sha256": "e4d8d891776590442964324dba2534c7728741506e6e32f56fa8b28d60494e70",
+        "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.1/stdout"
+      }
+    ],
+    "candidate_totals": [
+      {
+        "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "coordinate relaxation alone"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "coordinate relaxation precedes enabled enrichment"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "Complete quality-entry census"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "Geometry demand waits for closed shape and size"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "Late quality ownership preserves residual geometry-only mode"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "Exhausted residual geometry rebuilds before another coarsening pass"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "10",
+          "successes": "12586"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResultsCases",
+        "rank": "0",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "2",
+          "successes": "55"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "10",
+          "successes": "12586"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResultsCases",
+        "rank": "0",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "2",
+          "successes": "55"
+        }
+      },
+      {
+        "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "coordinate relaxation alone"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "coordinate relaxation precedes enabled enrichment"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "Complete quality-entry census"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "Geometry demand waits for closed shape and size"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "Late quality ownership preserves residual geometry-only mode"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "Exhausted residual geometry rebuilds before another coarsening pass"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "9",
+          "successes": "10811"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResultsCases",
+        "rank": "1",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "1",
+          "successes": "56"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "9",
+          "successes": "10811"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResultsCases",
+        "rank": "1",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "1",
+          "successes": "56"
+        }
+      }
+    ],
+    "changes": [],
+    "elapsed_seconds": 9.728611946105957,
+    "identity_pass": true,
+    "records": 114,
+    "reference_returncode": 9,
+    "reference_totals": [
+      {
+        "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "coordinate relaxation alone"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "coordinate relaxation precedes enabled enrichment"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "Complete quality-entry census"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "Geometry demand waits for closed shape and size"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "Late quality ownership preserves residual geometry-only mode"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [
+          "Exhausted residual geometry rebuilds before another coarsening pass"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "10",
+          "successes": "12546"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResultsCases",
+        "rank": "0",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "2",
+          "successes": "55"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResults",
+        "rank": "0",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "10",
+          "successes": "12546"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResultsCases",
+        "rank": "0",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "2",
+          "successes": "55"
+        }
+      },
+      {
+        "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "coordinate relaxation alone"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "coordinate relaxation precedes enabled enrichment"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "Complete quality-entry census"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "Geometry demand waits for closed shape and size"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "Late quality ownership preserves residual geometry-only mode"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "Completed metric size hands residual curved geometry to a quality census",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [
+          "Exhausted residual geometry rebuilds before another coarsening pass"
+        ],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "0",
+          "successes": "0"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "9",
+          "successes": "10805"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResultsCases",
+        "rank": "1",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "1",
+          "successes": "56"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResults",
+        "rank": "1",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "9",
+          "successes": "10805"
+        }
+      },
+      {
+        "case": "",
+        "kind": "OverallResultsCases",
+        "rank": "1",
+        "sections": [],
+        "values": {
+          "expectedFailures": "0",
+          "failures": "1",
+          "successes": "56"
+        }
+      }
+    ],
+    "reporter_totals_equal": false,
+    "unexpected_changes": []
+  },
+  "pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/run_controls.py": "bf85bc276f7b6b025ffe8cb609b7c6dc4e4a8a3ff16dfc77fc1bf8dc9ef626ef",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/inputs/FP3_D_EXCHANGE_ON_CELL_IMBALANCE.md": "57482de37bd4f8a13f7299a0dcef6e9a5b4ba30da3826dc007da2b66c9da8f15",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/inputs/FP3_D_EXCHANGE_ON_CELL_IMBALANCE.sha256": "f676d465c9dcc4e92d5d79eec4c3da7640f1fb543ad54d255398b91f7fb55042",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/reports/source_check.md": "e893385869e93602064563109cb6bd9213c237645847c964882df839b2ad2d2f",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/accepted_reference.json": "9d191c742b37e6c0dcba284442966d00068475ce74ba2d3d0a527373a2f53734",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/run_scoped.py": "9d5af23a91294347058af3a3d209e53f1a98466b62463c4cef1150926687a252",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/build_fp3.py": "f6bfb1595032ff4e3e8b45b98bcff2f4bdfcb7a193b6bed1a7160d108ce47c01",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/build678/build_status.json": "514c96e5efefac8cbffc85191cc5ac4ea78a265cdf61c937bbea45c7ed5746dd",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/build678/source_pins.json": "45df068517b60f4f5781f89da525a867712655800bca686e0bd33f4fb816339b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/adopted_reference/G1_candidate_mpi2.json": "67e5a8a8aa3639596a8047c9f49d0b2390c9b07f400941465e1cd32273ed64eb",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/adopted_reference/G1_shared_reference_manifest.json": "89212fb62e7ceef726425be38b5cf13014d96623ca1e6a11a3b202151ec91b4c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N14/section6_12/validation/adopted_reference/G1_actual_selection.json": "c77aaab17801b2a6e8a0332f865f4ec89cb598d685d7747451f5aa52f47b60cd",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N10/parse_g1_identity.py": "4bf4deb04b0b35b20ffba8270b237c610b87bb1e01fa51bf7d8f73ba57249aaa",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP1/run_g1.py": "daf93acd11605d05f104efdf7167ded5a7df8705ecaa8f29de08cb49bd842c79",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP2_P3/p3_fixtures.py": "774e6ae099a361f14929e0ae8ecd1cdd01e2b185b1f784083bf68d6d01773c8a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/command.json": "385b2e9661e8c8d5b074b5fc6a323e5a6478b0279390afc5ca3331a4f86b336f",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/pins.json": "95962d310b9016fe3cbdd9ce6c1851cac0744110765be4dcd2e132667e45b8ea",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/deadline_expiry_rank0_manifest.json": "055ccb917ac004e03ecb1bff83f5eae2c01068d2c1738a2ab233a4b21fa33f00",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/deadline_expiry_rank1_manifest.json": "c5221684e3ccf53f929a19a6f5489f6d52fcbd2ba3ada051035f002abf4f54fc",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/test_wait.json": "66ef9e96f5be88ece618d13f44ae61c1bf37c765c316e8ddbf71b81dbd73897b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/status.json": "c5988d207778a62cf4bbe31bb42b7687bbad8cc9b1bd92857ab0291cdfaa241b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/test_host_preflight.json": "f9a908a7675a4599e077976d61468a094694ad19d454c0398d57ed79ebca040b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/test_launch.json": "718c1bf64834763f9b87c373664bb498d856a693c7a580f2702bd323908d7b33",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/comparison.json": "ff234b816f552395f060bb93131783d9b1b1e3f6a42d61cc003f29df37a4641d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/time.txt": "d58826039feac0e169062705e52d74f261bf0060a08d1c193a59c3459f63d5f3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/test_outer.log": "29db59ba707c760ad67e0487be2ea17781579373eb4097d40b727b233468fb92",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.1/stderr": "5fd2aac3f1279a877d5298f5a7b773e24813a3a7e35ab4f706c8dcc44349b853",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.1/stdout": "e4d8d891776590442964324dba2534c7728741506e6e32f56fa8b28d60494e70",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.0/stderr": "7b90b25c2c64064d42e375b7e541d34753690a5a43bab5088f21d2affe3db50a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.0/stdout": "63f50eba7b28dbcf01dc86c25dcfc0f45ec910154c9a9d2ca224e56ff40ae29d"
+  },
+  "attempts": [
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1",
+      "status": "passed",
+      "first_difference": null,
+      "wrapper_seconds": 21,
+      "probe": {
+        "variable": "SU2_NATIVE_FP3_PROBE",
+        "value": "0",
+        "ranks": 2,
+        "mpi_exported": true
+      },
+      "comparison": {
+        "candidate_returncode": 9,
+        "candidate_sources": [
+          {
+            "rank": "0",
+            "sha256": "63f50eba7b28dbcf01dc86c25dcfc0f45ec910154c9a9d2ca224e56ff40ae29d",
+            "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.0/stdout"
+          },
+          {
+            "rank": "1",
+            "sha256": "e4d8d891776590442964324dba2534c7728741506e6e32f56fa8b28d60494e70",
+            "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.1/stdout"
+          }
+        ],
+        "candidate_totals": [
+          {
+            "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "coordinate relaxation alone"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "coordinate relaxation precedes enabled enrichment"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "Complete quality-entry census"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "Geometry demand waits for closed shape and size"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "Late quality ownership preserves residual geometry-only mode"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "Exhausted residual geometry rebuilds before another coarsening pass"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "10",
+              "successes": "12586"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResultsCases",
+            "rank": "0",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "2",
+              "successes": "55"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "10",
+              "successes": "12586"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResultsCases",
+            "rank": "0",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "2",
+              "successes": "55"
+            }
+          },
+          {
+            "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "coordinate relaxation alone"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "coordinate relaxation precedes enabled enrichment"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "Complete quality-entry census"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "Geometry demand waits for closed shape and size"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "Late quality ownership preserves residual geometry-only mode"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "Exhausted residual geometry rebuilds before another coarsening pass"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "9",
+              "successes": "10811"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResultsCases",
+            "rank": "1",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "1",
+              "successes": "56"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "9",
+              "successes": "10811"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResultsCases",
+            "rank": "1",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "1",
+              "successes": "56"
+            }
+          }
+        ],
+        "changes": [],
+        "elapsed_seconds": 9.728611946105957,
+        "identity_pass": true,
+        "records": 114,
+        "reference_returncode": 9,
+        "reference_totals": [
+          {
+            "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "coordinate relaxation alone"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "coordinate relaxation precedes enabled enrichment"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "Complete quality-entry census"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "Geometry demand waits for closed shape and size"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "Late quality ownership preserves residual geometry-only mode"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [
+              "Exhausted residual geometry rebuilds before another coarsening pass"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "10",
+              "successes": "12546"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResultsCases",
+            "rank": "0",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "2",
+              "successes": "55"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResults",
+            "rank": "0",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "10",
+              "successes": "12546"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResultsCases",
+            "rank": "0",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "2",
+              "successes": "55"
+            }
+          },
+          {
+            "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "coordinate relaxation alone"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Metric optimizer moves an interior apex to satisfy requested first height",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "coordinate relaxation precedes enabled enrichment"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "Complete quality-entry census"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "Geometry demand waits for closed shape and size"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "Late quality ownership preserves residual geometry-only mode"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "Completed metric size hands residual curved geometry to a quality census",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [
+              "Exhausted residual geometry rebuilds before another coarsening pass"
+            ],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "0",
+              "successes": "0"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "9",
+              "successes": "10805"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResultsCases",
+            "rank": "1",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "1",
+              "successes": "56"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResults",
+            "rank": "1",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "9",
+              "successes": "10805"
+            }
+          },
+          {
+            "case": "",
+            "kind": "OverallResultsCases",
+            "rank": "1",
+            "sections": [],
+            "values": {
+              "expectedFailures": "0",
+              "failures": "1",
+              "successes": "56"
+            }
+          }
+        ],
+        "reporter_totals_equal": false,
+        "unexpected_changes": []
+      },
+      "pins": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/command.json": "385b2e9661e8c8d5b074b5fc6a323e5a6478b0279390afc5ca3331a4f86b336f",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/pins.json": "95962d310b9016fe3cbdd9ce6c1851cac0744110765be4dcd2e132667e45b8ea",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/deadline_expiry_rank0_manifest.json": "055ccb917ac004e03ecb1bff83f5eae2c01068d2c1738a2ab233a4b21fa33f00",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/deadline_expiry_rank1_manifest.json": "c5221684e3ccf53f929a19a6f5489f6d52fcbd2ba3ada051035f002abf4f54fc",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/test_wait.json": "66ef9e96f5be88ece618d13f44ae61c1bf37c765c316e8ddbf71b81dbd73897b",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/status.json": "c5988d207778a62cf4bbe31bb42b7687bbad8cc9b1bd92857ab0291cdfaa241b",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/test_host_preflight.json": "f9a908a7675a4599e077976d61468a094694ad19d454c0398d57ed79ebca040b",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/test_launch.json": "718c1bf64834763f9b87c373664bb498d856a693c7a580f2702bd323908d7b33",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/comparison.json": "ff234b816f552395f060bb93131783d9b1b1e3f6a42d61cc003f29df37a4641d",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/time.txt": "d58826039feac0e169062705e52d74f261bf0060a08d1c193a59c3459f63d5f3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/test_outer.log": "29db59ba707c760ad67e0487be2ea17781579373eb4097d40b727b233468fb92",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.1/stderr": "5fd2aac3f1279a877d5298f5a7b773e24813a3a7e35ab4f706c8dcc44349b853",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.1/stdout": "e4d8d891776590442964324dba2534c7728741506e6e32f56fa8b28d60494e70",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.0/stderr": "7b90b25c2c64064d42e375b7e541d34753690a5a43bab5088f21d2affe3db50a",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/attempt1/rank_output/1/rank.0/stdout": "63f50eba7b28dbcf01dc86c25dcfc0f45ec910154c9a9d2ca224e56ff40ae29d"
+      }
+    }
+  ],
+  "build": 678,
+  "binary_sha256": "ce64d6b0badfc9d44c221bb7c0c467dd655bd3d92afcc1d78fd2ed57e4a3577e",
+  "test_binary_sha256": "afab9d4f43cc3c37771f9e2af1400497192d14abdb6868c5eb4060053a42f6db",
+  "source_pins_sha256": "45df068517b60f4f5781f89da525a867712655800bca686e0bd33f4fb816339b",
+  "name": "G1-mpi2",
+  "passed": true
+}

@@ -2566,3 +2566,13 @@ FP3-D hidden measurement intake found one harness issue. The legacy two-rank chi
 FP3-D build678 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/hidden/case_summary.json.
 
 FP3-D build checkpoint a74db3c08d pushed. Hidden Step 1 passed: 44 assertions per rank on legacy two-rank, 129 per rank on probe 0 with three ranks, and 123 per rank on separate probe 3. Ratios 2.25 / 1.75 / 2.00 gave cells decisions 1 / 0 / 0 against raw 0 / 1 / 1. Probe 3 gave the FP3-B construction veto. The hidden supervisor is terminal. Start the scoped G1, G2/GQ, shared gates and G3/G4.
+
+FP3-D hidden checkpoint 592815bee5 pushed. The remaining 13-check scoped supervisor started on build678 with the hidden seal already passed.
+
+FP3-D build678 Step 1 G1-serial passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-serial/case_summary.json.
+
+FP3-D build678 Step 1 G1-mpi2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi2/case_summary.json.
+
+FP3-D build678 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi4/case_summary.json.
+
+FP3-D G1 passed all exact case and failed-assertion comparisons: 375 serial, 114 two-rank and 228 four-rank records. G2 runs under the same scoped supervisor.
