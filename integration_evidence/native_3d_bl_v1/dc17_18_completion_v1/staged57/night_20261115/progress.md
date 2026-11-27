@@ -2618,3 +2618,15 @@ FP3-D S1 event 1 passed physical, proof, memory and timer checks, with 26520 own
 FP3-D S1 event 2 passed physical, proof, memory and timer checks. Owned/per-rank faces 21754 and peak/summed peaks 9338847232 bytes. Construction and quality-entry ratios were 1.3000526892421949 and 1.3004296506269335. Both declined migration with policy=cells, even though quality raw gain was 1106799.183769566 against 2 × 359129. Continued CFD, joined gate evidence and isolated restart remain.
 
 FP3-D Step 2 passed. S1 qualified both events, transfer, continued CFD, isolated restart and all 12 worker packets for suppression and exchange. One construction exchange moved 202212 cells in event 1; event 2 made none. Native maxima 476.856938552 / 156.960299521 s, minimum timer coverage 97.931% / 99.166%. All six payloads differ from B (report only). S1 terminal. Start S2 on the identical frozen inputs.
+
+FP3-D S1 checkpoint 23fbba44cd pushed. S2 started with all earlier owned handles terminal and the same build678 pair, inputs and mode-S settings. Require standing, suppression, exchange and isolated restart gates plus six matching hashes.
+
+FP3-D S2 startup verified probe 0 on all six live ranks and a byte-identical effective config to S1. Event 1 has entered local surface preparation.
+
+FP3-D S2 event 1 repeated S1’s initial ratio 2.6911208229677941 and the 202212-cell construction exchange. Quality entry repeated ratio 1.1047315879397253 and migrate=0. Proof and continued CFD are pending.
+
+FP3-D S2 event 1 passed physical, proof, timer and memory gates. Owned and all per-rank faces 26520. Job peak equals summed peaks at 9228029952 bytes. Continued CFD leads to the second adaptation.
+
+FP3-D S2 event 2 repeated the two initial negative exchange decisions and passed physical, proof, timer and memory gates. Owned and per-rank faces 21754, peak and summed process peaks 9362997248 bytes. Continued CFD, isolated restart and six-file repeat are being sealed.
+
+FP3-D Step 3 passed. S2 passed standing, suppression and exchange gates and isolated restart (62.030 s). The six payloads exactly match S1. Native maxima 522.446705095 / 184.999543899 s and minimum coverage 98.088% / 98.992%. Both trials moved 202212 cells only at the initial event-1 construction evaluation. Event-2 proof union work 13421812 and memo hit fraction 0.7994108983799706 in both. S2 terminal. Next the probe-3 time observation against B.
