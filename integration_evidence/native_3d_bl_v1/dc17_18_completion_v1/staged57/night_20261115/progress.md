@@ -2804,3 +2804,9 @@ DEF1 build681 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2_
 DEF1 build681 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/saved-current/case_summary.json.
 
 DEF1 prefix checkpoint 3ae169fe41 pushed. All five shared groups passed on build681: first-collapse, exact C492, merit481, native 2D at 1/2/4 ranks and saved-current. Existing explicit values were preserved and only missing legacy keys were inserted where applicable. G3 is now active and G4 follows from the pinned 2D receipts.
+
+DEF1 build681 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G3/case_summary.json.
+
+DEF1 build681 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G4/case_summary.json.
+
+DEF1 shared checkpoint aa53267e68 pushed. All 13 scoped checks passed. G3 accepted 1582 splits, all 1582 common edits identical, observer-adjusted entry work 5113/5113 and zero upper refinements. G4 passed on the pinned 1/2/4-rank 2D executions. Scoped supervisor terminal. Start the one G5 S with isolated restart on the derived legacy configs.
