@@ -2674,3 +2674,9 @@ FP3-E build680 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_
 FP3-E build680 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/hidden/case_summary.json.
 
 FP3-E build checkpoint 917a345d65 pushed. Step 1 repeat G1 passed 375/114/228 exact records (serial/two/four ranks). The seven hidden variants passed, including E serial, two-rank all-valid/incomplete inputs, and inactive probes 3 and 4. G2 native launch authenticated the basename-specific sidecar. G2/GQ and shared checks remain.
+
+FP3-E build680 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/G2/case_summary.json.
+
+FP3-E build680 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/GQ/case_summary.json.
+
+FP3-E G1 and hidden checkpoint 84293b6de0 pushed. Build680 G2 and GQ both passed the unchanged P3/N22 comparator with equal decisions and modeled storage and fixedstorage=4120. First-collapse work 76652506 against 108459426, exact rank counts and zero upper refinements. The independent shared-engine checks are next under the scoped controller.
