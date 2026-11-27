@@ -36,6 +36,7 @@
 #include "../../include/numerics/flow/p1_positive_update.hpp"
 #include "../../include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../include/numerics/flow/jst_weak_wall.hpp"
+#include "../../include/numerics/flow/jst_entropy_fourth.hpp"
 #include "../../include/numerics/flow/p1_sst_matched.hpp"
 #include "../../include/numerics/flow/p1_boundary_closure.hpp"
 #include "../../include/numerics/flow/p1_pair_jst.hpp"
@@ -50,6 +51,8 @@
 #include "../../include/numerics/flow/tecno_adjoint.hpp"
 #include "../../include/output/COutput.hpp"
 #include "../../include/output/CTurboOutput.hpp"
+
+void CommPointData(CGeometry* geometry, const CConfig* config, su2double* data, unsigned short count);
 
 CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
                            unsigned short iMesh, const bool navier_stokes) :
@@ -336,6 +339,15 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
     nodes = new CEulerVariable(Density_Inf, Velocity_Inf, Energy_Inf, nPoint, nDim, nVar, config);
   }
   SetBaseClassPointerToNodes();
+
+  if (config->GetJST_Entropy_Fourth(iMesh)) {
+    nodes->ESFourthBoundary.resize(nPoint) = su2double(0.0);
+    for (auto i = 0ul; i < nPointDomain; ++i) nodes->ESFourthBoundary(i) = geometry->nodes->GetPhysicalBoundary(i);
+    CommPointData(geometry, config, nodes->ESFourthBoundary.data(), 1);
+    nodes->ESFourthEdgeWeight.resize(geometry->GetnEdge());
+    nodes->ESFourthNodal.resize(nPoint, nVar + 1);
+    ESFourthW.resize(nPoint, nVar);
+  }
 
   if (iMesh == MESH_0) {
     nodes->NonPhysicalEdgeCounter.resize(geometry->GetnEdge()) = 0;
@@ -1791,7 +1803,7 @@ void CEulerSolver::CommonPreprocessing(CGeometry *geometry, CSolver **solver_con
     if (!center_jst_mat) SetMax_Eigenvalue(geometry, config);
     if (center_jst || center_jst_ke || center_jst_mat) {
       SetCentered_Dissipation_Sensor(geometry, config);
-      if (!center_jst_ke) SetUndivided_Laplacian(geometry, config);
+      if (!center_jst_ke && !config->GetJST_Entropy_Fourth(iMesh)) SetUndivided_Laplacian(geometry, config);
     }
   }
   if (config->GetKind_Upwind_Flow() == UPWIND::MSW && !Output) {
@@ -1963,6 +1975,10 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
       nodes->MatchedKineBounds[1] = solver_container[TURB_SOL]->GetScalarUpperLimit(0);)
     }
   }
+  if (config->GetJST_Entropy_Fourth(iMesh)) {
+    SetEntropyFourthWeights(*geometry, *config, turbMatched);
+    SetEntropyFourthNodal(geometry, config);
+  }
   EdgeFluxResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && (config->GetSplit_Edge_Flux() || config->GetEdge_Form_P1_Mixed())) SplitEdgeResidual(geometry, config, turbMatched);
   if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config, turbMatched);
@@ -2098,6 +2114,24 @@ void CEulerSolver::PrepareP1SplitPairs(const CGeometry& geometry, bool meanDiss,
   P1SplitPairsVersion = version;
 }
 
+void CEulerSolver::AddEntropyFourthPair(unsigned long pair, unsigned long i, unsigned long k, su2double* flux,
+                                       bool implicit, const P1PairJST::Params& par, su2double (*jac_i)[P1PairJST::MAX_NVAR],
+                                       su2double (*jac_k)[P1PairJST::MAX_NVAR]) const {
+  const su2double a = ESFourthPairWeight(pair);
+  if (a == 0.0) return;
+  const auto& boundary = nodes->ESFourthBoundary;
+  const auto& nodal = nodes->ESFourthNodal;
+  const auto s_ik = JSTEntropyFourth::StencilFlag(boundary(i), boundary(k));
+  const auto s_ki = JSTEntropyFourth::StencilFlag(boundary(k), boundary(i));
+  JSTEntropyFourth::AddCouplingFlux(nVar, a, s_ik, s_ki, nodal[i], nodal[k], flux);
+  if (implicit) {
+    su2double d_i, d_k;
+    JSTEntropyFourth::JacobianCoefficients(a, s_ik, s_ki, nodal(i, nVar), nodal(k, nVar), d_i, d_k);
+    P1PairJST::AddSurrogateJacobian(nDim, par.gamma, P1SplitJSTNodes[i].vel, par.fixFactor * d_i, jac_i);
+    P1PairJST::AddSurrogateJacobian(nDim, par.gamma, P1SplitJSTNodes[k].vel, -par.fixFactor * d_k, jac_k);
+  }
+}
+
 void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched) {
   SU2_ZONE_SCOPED
 
@@ -2190,32 +2224,14 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
     jst.kappa4 = config->GetKappa_4th_Flow();
     jst.fixFactor = config->GetCent_Jac_Fix_Factor();
     jst.weakWall = config->GetJST_Weak_Wall_Diss();
-    /*--- The nodal data of the edge kernel; with matched k the dissipated energy is rho (H - k), its Laplacian
-     * L(rho H) - L(rho k) (extra column of the undivided Laplacian). ---*/
+    const bool entropyFourth = config->GetJST_Entropy_Fourth_Pairs(geometry->GetMGLevel());
     auto jstNode = [&](unsigned long iPoint) {
-      P1PairJST::Node N;
-      const su2double density = nodes->GetDensity(iPoint);
-      su2double enthalpy = nodes->GetEnthalpy(iPoint);
-      if (turbMatched) enthalpy -= tke(iPoint);
-      N.diss[0] = density;
-      for (auto iDim = 0u; iDim < nDim; ++iDim) {
-        N.vel[iDim] = nodes->GetVelocity(iPoint, iDim);
-        N.diss[iDim + 1] = density * N.vel[iDim];
-      }
-      N.diss[nDim + 1] = density * enthalpy;
-      for (auto iVar = 0u; iVar < nVar; ++iVar) N.lapl[iVar] = nodes->GetUndivided_Laplacian(iPoint, iVar);
-      if (turbMatched) N.lapl[nDim + 1] -= nodes->GetUndivided_Laplacian(iPoint, nVar);
-      N.soundSpeed = nodes->GetSoundSpeed(iPoint);
-      N.sensor = nodes->GetSensor(iPoint);
-      N.lambda = nodes->GetLambda(iPoint);
-      N.nNeighbor = meanDiss ? nodes->GetJSTPairNeighbor()(iPoint) : su2double(geometry->nodes->GetnNeighbor(iPoint));
-      if (jst.weakWall) N.wall = nodes->GetJSTWallNode()(iPoint);
-      return N;
+      return JSTNode(*geometry, iPoint, meanDiss, jst.weakWall, turbMatched, !entropyFourth);
     };
     BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
       if (useCache) {
         PrepareP1SplitPairs(*geometry, meanDiss, alignedDiss);
-        if (pairDiss) {
+        if (pairDiss && !entropyFourth) {
           P1SplitJSTNodes.resize(nPoint);
           for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) P1SplitJSTNodes[iPoint] = jstNode(iPoint);
         }
@@ -2240,12 +2256,19 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
                                                         geometry->nodes->GetCoord(iPoint),
                                                         geometry->nodes->GetCoord(kPoint), alignedNormal);
           const su2double share = meanDiss ? geometry->edges->GetSplitShare()(iSplit) : su2double(1.0);
-          if (cachedPair)
+          if (entropyFourth) {
+            const auto& Ni = P1SplitJSTNodes[iPoint];
+            const auto& Nk = P1SplitJSTNodes[kPoint];
+            P1PairJST::AddPairDissipation(nDim, jst, Ni, Nk, dissNormal, flux, implicit, dissJac_i, dissJac_k,
+                                         share, cachedPair ? &cachedPair->shareFactor : nullptr, false);
+            AddEntropyFourthPair(iSplit, iPoint, kPoint, flux, implicit, jst, dissJac_i, dissJac_k);
+          } else if (cachedPair) {
             P1PairJST::AddPairDissipation(nDim, jst, P1SplitJSTNodes[iPoint], P1SplitJSTNodes[kPoint], dissNormal,
                                          flux, implicit, dissJac_i, dissJac_k, share, &cachedPair->shareFactor);
-          else
+          } else {
             P1PairJST::AddPairDissipation(nDim, jst, jstNode(iPoint), jstNode(kPoint), dissNormal, flux, implicit,
                                          dissJac_i, dissJac_k, share);
+          }
         }
         const su2double massFlux = flux[0];
         if (turbMatched) addPairKine(iPoint, kPoint, flux);
@@ -2645,6 +2668,139 @@ void CommPointData(CGeometry* geometry, const CConfig* config, su2double* data, 
   }
 }
 }  // namespace
+
+P1PairJST::Node CEulerSolver::JSTNode(const CGeometry& geometry, unsigned long point, bool meanDiss, bool weakWall,
+                                     const CVariable* turbMatched, bool readLaplacian) const {
+  P1PairJST::Node N;
+  const su2double density = nodes->GetDensity(point);
+  su2double enthalpy = nodes->GetEnthalpy(point);
+  if (turbMatched) enthalpy -= turbMatched->GetSolution(point, 0);
+  N.diss[0] = density;
+  for (auto d = 0u; d < nDim; ++d) {
+    N.vel[d] = nodes->GetVelocity(point, d);
+    N.diss[d + 1] = density * N.vel[d];
+  }
+  N.diss[nDim + 1] = density * enthalpy;
+  if (readLaplacian) {
+    for (auto v = 0u; v < nVar; ++v) N.lapl[v] = nodes->GetUndivided_Laplacian(point, v);
+    if (turbMatched) N.lapl[nDim + 1] -= nodes->GetUndivided_Laplacian(point, nVar);
+  }
+  N.soundSpeed = nodes->GetSoundSpeed(point);
+  N.sensor = nodes->GetSensor(point);
+  N.lambda = nodes->GetLambda(point);
+  N.nNeighbor = meanDiss ? nodes->JSTPairNeighbor(point) : su2double(geometry.nodes->GetnNeighbor(point));
+  if (weakWall) N.wall = nodes->JSTWallNode(point);
+  return N;
+}
+
+void CEulerSolver::SetEntropyFourthWeights(const CGeometry& geometry, const CConfig& config,
+                                           const CVariable* turbMatched) {
+  SU2_ZONE_SCOPED
+  const bool pairs = config.GetJST_Entropy_Fourth_Pairs(geometry.GetMGLevel());
+  const bool aligned = config.GetEdge_Form_P1() && config.GetEdge_Form_P1_Diss_Aligned();
+  const bool projected = aligned || config.GetEdge_Diss_Projected();
+  const bool meanDiss = config.GetEdge_Form_P1() && config.GetEdge_Form_P1_Mixed_Diss_Mean();
+  const P1PairJST::Params par{Gamma, config.GetKappa_2nd_Flow(), config.GetKappa_4th_Flow(),
+                             config.GetCent_Jac_Fix_Factor(), config.GetJST_Weak_Wall_Diss()};
+  const auto& splitNodes = geometry.edges->GetSplitNodes();
+  SU2_OMP_SAFE_GLOBAL_ACCESS(
+    P1SplitJSTNodes.resize(nPoint);
+    if (pairs) ESFourthPairWeight.resize(splitNodes.size());
+  )
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto i = 0ul; i < nPoint; ++i)
+    P1SplitJSTNodes[i] = JSTNode(geometry, i, meanDiss, par.weakWall, turbMatched, false);
+  END_SU2_OMP_FOR
+
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+    auto& a = nodes->ESFourthEdgeWeight(e);
+    a = 0.0;
+    if (i >= nPointDomain && k >= nPointDomain) continue;
+    const auto& Ni = P1SplitJSTNodes[i];
+    const auto& Nk = P1SplitJSTNodes[k];
+    const auto* normal = aligned ? geometry.edges->GetFormNormal()[e] : geometry.edges->GetNormal(e);
+    const auto radius = P1PairJST::TrueEdgeRadius(nDim, Ni, Nk, normal, projected, geometry.nodes->GetCoord(i),
+                                                geometry.nodes->GetCoord(k));
+    a = JSTEntropyFourth::CouplingWeight(P1PairJST::FourthCoefficient(par, Ni, Nk, radius));
+  }
+  END_SU2_OMP_FOR
+
+  if (!pairs) return;
+  const auto& normals = geometry.edges->GetSplitNormal();
+  const auto& shares = geometry.edges->GetSplitShare();
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto e = 0ul; e < splitNodes.size(); ++e) {
+    const auto i = splitNodes[e][0], k = splitNodes[e][1];
+    auto& a = ESFourthPairWeight(e);
+    a = 0.0;
+    if (i >= nPointDomain && k >= nPointDomain) continue;
+    su2double projectedNormal[3];
+    const auto* normal = P1PairJST::DissipationNormal(nDim, config.GetEdge_Form_P1_Mixed_Diss_Aligned(), normals[e],
+                                                     geometry.nodes->GetCoord(i), geometry.nodes->GetCoord(k),
+                                                     projectedNormal);
+    const auto& Ni = P1SplitJSTNodes[i];
+    const auto& Nk = P1SplitJSTNodes[k];
+    const auto radius = P1PairJST::SpectralRadius(nDim, Ni, Nk, normal);
+    const auto share = shares(e);
+    a = JSTEntropyFourth::CouplingWeight(P1PairJST::FourthCoefficient(par, Ni, Nk, radius, share), share);
+  }
+  END_SU2_OMP_FOR
+}
+
+void CEulerSolver::SetEntropyFourthNodal(CGeometry* geometry, const CConfig* config) {
+  SU2_ZONE_SCOPED
+  using P1BoundaryClosure::EsState;
+  auto state = [&](unsigned long i) {
+    EsState S;
+    S.rho = nodes->GetDensity(i);
+    S.p = nodes->GetPressure(i);
+    for (auto d = 0u; d < nDim; ++d) S.vel[d] = P1SplitJSTNodes[i].vel[d];
+    return S;
+  };
+  auto& nodal = nodes->ESFourthNodal;
+  const auto& boundary = nodes->ESFourthBoundary;
+  auto add = [&](unsigned long i, unsigned long k, su2double a) {
+    if (a == 0.0 || JSTEntropyFourth::StencilFlag(boundary(i), boundary(k)) == 0.0) return;
+    JSTEntropyFourth::AddStencilDifference(nVar, a, ESFourthW[i], ESFourthW[k], nodal[i]);
+    nodal(i, nVar) += a;
+  };
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto i = 0ul; i < nPoint; ++i)
+    P1BoundaryClosure::EsEntropyVariables(nDim, Gamma, state(i), ESFourthW[i]);
+  END_SU2_OMP_FOR
+
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto i = 0ul; i < nPointDomain; ++i) {
+    for (auto v = 0u; v <= nVar; ++v) nodal(i, v) = 0.0;
+    for (const auto e : geometry->nodes->GetEdges(i)) {
+      const auto i0 = geometry->edges->GetNode(e, 0);
+      const auto k = (i0 == i) ? geometry->edges->GetNode(e, 1) : i0;
+      add(i, k, nodes->ESFourthEdgeWeight(e));
+    }
+  }
+  END_SU2_OMP_FOR
+
+  if (config->GetJST_Entropy_Fourth_Pairs(geometry->GetMGLevel())) {
+    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      const auto& pairs = geometry->edges->GetSplitNodes();
+      for (auto e = 0ul; e < pairs.size(); ++e) {
+        const auto i = pairs[e][0], k = pairs[e][1];
+        if (i < nPointDomain) add(i, k, ESFourthPairWeight(e));
+        if (k < nPointDomain) add(k, i, ESFourthPairWeight(e));
+      }
+    }
+    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  }
+
+  /*--- Replace x_i with q_i = J_i x_i and send (q_i, S_i) to the halos. ---*/
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto i = 0ul; i < nPointDomain; ++i)
+    JSTEntropyFourth::EnthalpyStateAction(nDim, Gamma, state(i), nodal[i], nodal[i]);
+  END_SU2_OMP_FOR
+  CommPointData(geometry, config, nodal.data(), nVar + 1);
+}
 
 void CEulerSolver::SetJSTPairNeighbor(CGeometry *geometry, const CConfig *config) {
   /*--- n_i = sum_k pi_ik on the owned nodes (all their split pairs are on this rank), copied to the halos, whose split

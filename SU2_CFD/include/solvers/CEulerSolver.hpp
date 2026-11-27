@@ -58,6 +58,16 @@ protected:
   vector<SplitPairData> P1SplitPairs;
   unsigned long P1SplitPairsVersion = 0;
   vector<P1PairJST::Node> P1SplitJSTNodes;
+  su2activevector ESFourthPairWeight;
+  su2activematrix ESFourthW;
+
+  P1PairJST::Node JSTNode(const CGeometry& geometry, unsigned long point, bool meanDiss, bool weakWall,
+                         const CVariable* turbMatched, bool readLaplacian) const;
+  void SetEntropyFourthWeights(const CGeometry& geometry, const CConfig& config, const CVariable* turbMatched);
+  void SetEntropyFourthNodal(CGeometry* geometry, const CConfig* config);
+  void AddEntropyFourthPair(unsigned long pair, unsigned long i, unsigned long k, su2double* flux, bool implicit,
+                            const P1PairJST::Params& par, su2double (*jac_i)[P1PairJST::MAX_NVAR],
+                            su2double (*jac_k)[P1PairJST::MAX_NVAR]) const;
 
   /*! \brief Cache the four block refs, pi^0.3 and projected normal in split-pair order (bitwise target). */
   void PrepareP1SplitPairs(const CGeometry& geometry, bool meanDiss, bool alignedDiss);
@@ -420,6 +430,8 @@ protected:
    * \param[in] config - Definition of the particular problem.
    */
   void SetJSTPairNeighbor(CGeometry *geometry, const CConfig *config);
+
+  const su2activevector& GetESFourthPairWeight() const { return ESFourthPairWeight; }
 
   /*!
    * \brief Compute the dissipation sensor for centered schemes.

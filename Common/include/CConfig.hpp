@@ -101,6 +101,7 @@ private:
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
   bool JST_Weak_Wall_Diss;     /*!< \brief JST fourth-order term off on edges that leave a weak no-slip wall (P1_WALL_DISSIPATION.md). */
+  bool JST_Entropy_Fourth;    /*!< \brief Use A^T J A w for the fine-grid JST fourth difference. */
   bool MMS_Source_Dual_Quad;   /*!< \brief MMS source integrated over the actual dual cell (moved or median), not s(x_i)|V_i|. */
   bool SST_Energy_Consistent;  /*!< \brief SST: k diffusion in the energy flux and production from the stress work (no SSTm energy approximations). */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
@@ -10186,6 +10187,12 @@ public:
    *        BC_WALL_ENTROPY_P1, in the residual and in the Jacobian of JST and JST_MAT.
    */
   bool GetJST_Weak_Wall_Diss() const { return JST_Weak_Wall_Diss; }
+
+  bool GetJST_Entropy_Fourth() const { return JST_Entropy_Fourth; }
+  bool GetJST_Entropy_Fourth(unsigned iMesh) const { return iMesh == MESH_0 && GetJST_Entropy_Fourth(); }
+  bool GetJST_Entropy_Fourth_Pairs(unsigned iMesh) const {
+    return GetJST_Entropy_Fourth(iMesh) && GetEdge_Form_P1_Mixed_Diss() && GetEdge_Form_P1_Mixed_Diss_Mean();
+  }
 
   /*!
    * \brief MMS_SOURCE_DUAL_QUADRATURE: the manufactured source of node i is the integral of s over the dual cell

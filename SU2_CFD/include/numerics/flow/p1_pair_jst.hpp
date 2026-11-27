@@ -189,6 +189,41 @@ inline void AddSurrogateJacobian(unsigned short nDim, su2double gamma, const su2
   }
 }
 
+/*--- chi = eps4 lambda, with the share contribution pi^0.3 already in lambda. ---*/
+inline su2double SharedRadius(su2double radius, const Node& Ni, const Node& Nk, su2double share,
+                             const su2double* shareFactor) {
+  su2double lambda = CorrectedRadius(radius, Ni, Nk);
+  if (share != 1.0) {
+    const su2double factor = shareFactor ? *shareFactor : ShareFactor(share);
+    lambda *= factor;
+  }
+  return lambda;
+}
+
+inline su2double FourthCoefficient(const Params& par, const Node& Ni, const Node& Nk, su2double radius,
+                                  su2double share = 1.0, const su2double* shareFactor = nullptr) {
+  if (radius == 0.0) return 0.0;
+  return DissipationCoefficients(par, Ni, Nk).eps4 * SharedRadius(radius, Ni, Nk, share, shareFactor);
+}
+
+/*--- For true edges, the SIMD projection uses the signed area n.e/|e|. ---*/
+inline su2double TrueEdgeRadius(unsigned short nDim, const Node& Ni, const Node& Nk, const su2double* normal,
+                               bool projected, const su2double* coord_i, const su2double* coord_k) {
+  if (!projected) return SpectralRadius(nDim, Ni, Nk, normal);
+  su2double edge[3], dot = 0.0, edge2 = 0.0;
+  for (auto d = 0u; d < nDim; ++d) {
+    edge[d] = coord_k[d] - coord_i[d];
+    dot += normal[d] * edge[d];
+    edge2 += edge[d] * edge[d];
+  }
+  const su2double invLength = 1.0 / sqrt(edge2);
+  const su2double area = dot * invLength;
+  const su2double scale = area * invLength;
+  su2double projVel = 0.0;
+  for (auto d = 0u; d < nDim; ++d) projVel += 0.5 * (Ni.vel[d] + Nk.vel[d]) * (scale * edge[d]);
+  return fabs(projVel) + 0.5 * (Ni.soundSpeed + Nk.soundSpeed) * area;
+}
+
 /*!
  * \brief Adds the JST term of the pair (i, k) to its flux (from i to k) and, if implicit, the surrogate blocks to
  *        d flux/dU_i and d flux/dU_k.
@@ -199,19 +234,25 @@ inline void AddSurrogateJacobian(unsigned short nDim, su2double gamma, const su2
 template <class Matrix>
 inline void AddPairDissipation(unsigned short nDim, const Params& par, const Node& Ni, const Node& Nk,
                                const su2double* normal, su2double* flux, bool implicit, Matrix& jac_i, Matrix& jac_k,
-                               su2double share = 1.0, const su2double* shareFactor = nullptr) {
+                               su2double share = 1.0, const su2double* shareFactor = nullptr,
+                               bool laplacianFourth = true) {
   const unsigned short nVar = nDim + 2;
   /*--- Only an edge projection can vanish (n_ik perpendicular to e_ik): no term, and the stretching factor
    * (Lambda/lambda)^0.3 is not defined at lambda = 0. EDGE_FORM_P1_MIXED_DISS_MEAN scales the corrected radius by
    * pi^0.3 (ShareFactor); the nodal data of Ni and Nk are already the pi-weighted ones. ---*/
   const su2double radius = SpectralRadius(nDim, Ni, Nk, normal);
   if (radius == 0.0) return;
-  su2double lambda = CorrectedRadius(radius, Ni, Nk);
-  if (share != 1.0) {
-    const su2double factor = shareFactor ? *shareFactor : ShareFactor(share);
-    lambda *= factor;
-  }
+  const su2double lambda = SharedRadius(radius, Ni, Nk, share, shareFactor);
   const Coefficients eps = DissipationCoefficients(par, Ni, Nk);
+
+  if (!laplacianFourth) {
+    for (auto v = 0u; v < nVar; ++v) flux[v] += (eps.eps2 * (Ni.diss[v] - Nk.diss[v])) * lambda;
+    if (implicit) {
+      AddSurrogateJacobian(nDim, par.gamma, Ni.vel, par.fixFactor * eps.eps2Jac * lambda, jac_i);
+      AddSurrogateJacobian(nDim, par.gamma, Nk.vel, -par.fixFactor * eps.eps2Jac * lambda, jac_k);
+    }
+    return;
+  }
 
   for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
     flux[iVar] += (eps.eps2 * (Ni.diss[iVar] - Nk.diss[iVar]) - eps.eps4 * (Ni.lapl[iVar] - Nk.lapl[iVar])) * lambda;

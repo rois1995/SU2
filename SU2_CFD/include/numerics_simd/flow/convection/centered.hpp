@@ -32,6 +32,7 @@
 #include "../variables.hpp"
 #include "common.hpp"
 #include "../../../numerics/flow/p1_sst_matched.hpp"
+#include "../../../numerics/flow/jst_entropy_fourth.hpp"
 #include "../../../variables/CEulerVariable.hpp"
 #include "../../../../../Common/include/geometry/CGeometry.hpp"
 
@@ -451,7 +452,7 @@ public:
     const auto derived = static_cast<const Derived*>(this);
 
     derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, projVel, avgV, V,
-                          diffU, iPoint, jPoint, geometry, solution, rUnitNormal);
+                          diffU, iPoint, jPoint, geometry, solution, rUnitNormal, iEdge);
 
     /*--- Matched k: mdot k_up with the final mass flux (stored below for the SST k convection), and the Jacobian
      * L(k_up) Jhat T(k) of the hat Jacobian (D1), before the viscous terms whose Jacobian is already w.r.t. U. ---*/
@@ -513,16 +514,50 @@ private:
   const su2double kappa2;
   const su2double kappa4;
   const bool meanDiss; /*!< \brief EDGE_FORM_P1_MIXED_DISS_MEAN: neighbour weights of the pair graph (fine grid). */
+  const bool entropyFourth;
+
+  template<class PrimVarType>
+  FORCEINLINE void AddEntropyFourth(const Int& iEdge, const Int& iPoint, const Int& jPoint,
+                                     const CEulerVariable& solution, const CPair<PrimVarType>& V,
+                                     const VectorDbl<nVar>& diffU, const Double& lambda, const Double& eps2,
+                                     const Double& eps2Jac, bool implicit, VectorDbl<nVar>& flux,
+                                     MatrixDbl<nVar>& jac_i, MatrixDbl<nVar>& jac_j) const {
+    for (size_t v = 0; v < nVar; ++v) flux(v) += (eps2 * diffU(v)) * lambda;
+    Double dissip_i = fixFactor * eps2Jac * lambda;
+    Double dissip_j = -fixFactor * eps2Jac * lambda;
+    if (kappa4 != 0.0) {
+      const auto a = gatherVariables(iEdge, solution.ESFourthEdgeWeight);
+      const auto b_i = gatherVariables(iPoint, solution.ESFourthBoundary);
+      const auto b_j = gatherVariables(jPoint, solution.ESFourthBoundary);
+      const auto s_ij = JSTEntropyFourth::StencilFlag(b_i, b_j);
+      const auto s_ji = JSTEntropyFourth::StencilFlag(b_j, b_i);
+      const auto& nodal = solution.ESFourthNodal;
+      JSTEntropyFourth::AddCouplingFlux(nVar, a, s_ij, s_ji, gatherVariables<nVar>(iPoint, nodal),
+                                      gatherVariables<nVar>(jPoint, nodal), flux);
+      if (implicit) {
+        Double d_i, d_j;
+        JSTEntropyFourth::JacobianCoefficients(a, s_ij, s_ji, gatherVariables(iPoint, nodal, nVar),
+                                               gatherVariables(jPoint, nodal, nVar), d_i, d_j);
+        dissip_i = fixFactor * (eps2Jac * lambda + d_i);
+        dissip_j = -fixFactor * (eps2Jac * lambda + d_j);
+      }
+    }
+    if (implicit) {
+      scalarDissipationJacobian(V.i, gamma, dissip_i, jac_i, Base::getTke(iPoint));
+      scalarDissipationJacobian(V.j, gamma, dissip_j, jac_j, Base::getTke(jPoint));
+    }
+  }
 
 public:
   /*!
    * \brief Constructor, forward everything to base.
    */
   template<class... Ts>
-  CJSTScheme(const CConfig& config, Ts&... args) : Base(config, args...),
+  CJSTScheme(const CConfig& config, unsigned iMesh, Ts&... args) : Base(config, iMesh, args...),
     kappa2(config.GetKappa_2nd_Flow()),
     kappa4(config.GetKappa_4th_Flow()),
-    meanDiss(Base::edgeForm && config.GetEdge_Form_P1_Mixed_Diss_Mean()) {
+    meanDiss(Base::edgeForm && config.GetEdge_Form_P1_Mixed_Diss_Mean()),
+    entropyFourth(config.GetJST_Entropy_Fourth(iMesh)) {
   }
 
   /*!
@@ -544,7 +579,7 @@ public:
                                 const CGeometry& geometry,
                                 const CEulerVariable& solution,
                                 const VectorDbl<nDim>&,
-                                Ts&...) const {
+                                const Int& iEdge, Ts&...) const {
 
     Double lambda = abs(projVel) + avgV.speedSound()*area;
     lambda = correctedSpectralRadius(iPoint, jPoint, lambda, stretchParam, solution);
@@ -579,6 +614,12 @@ public:
     }
 
     /*--- Update flux and Jacobians with dissipation terms. ---*/
+
+    if (entropyFourth) {
+      AddEntropyFourth(iEdge, iPoint, jPoint, solution, V, diffU, lambda, eps2, eps2Jac,
+                       implicit, flux, jac_i, jac_j);
+      return;
+    }
 
     auto lapl_i = gatherVariables<nVar>(iPoint, solution.GetUndivided_Laplacian());
     auto lapl_j = gatherVariables<nVar>(jPoint, solution.GetUndivided_Laplacian());

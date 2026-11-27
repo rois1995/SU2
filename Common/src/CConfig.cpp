@@ -1863,6 +1863,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("BC_WALL_ENTROPY_P1", BC_Wall_Entropy_P1, false);
   /*!\brief JST_WEAK_WALL_DISSIPATION \n DESCRIPTION: JST and JST_MAT: eps4 = 0 and eps2 = 0 on every edge with exactly one end on a weak no-slip wall of BC_WALL_ENTROPY_P1, in the residual and in the Jacobian; edges along the wall and all other edges are unchanged (P1_WALL_DISSIPATION.md; the eps2 part drives the wall-node slip, T6 study). The wall node Laplacian has only boundary neighbours, so on such an edge eps4 lam (L_k - L_s) is a first or second difference that competes with the no-slip penalty (backward slip); setting it to zero is the continuation L_s = L_k on that edge. Needs BC_WALL_ENTROPY_P1, no periodic boundaries. Fine grid only. \ingroup Config \default false */
   addBoolOption("JST_WEAK_WALL_DISSIPATION", JST_Weak_Wall_Diss, false);
+  /*!\brief JST_ENTROPY_FOURTH_DIFFERENCE \n DESCRIPTION: Experimental entropy-stable fourth difference for fine-grid JST-P1ES or JST-PD. \ingroup Config \default false */
+  addBoolOption("JST_ENTROPY_FOURTH_DIFFERENCE", JST_Entropy_Fourth, false);
   /*!\brief MMS_SOURCE_DUAL_QUADRATURE \n DESCRIPTION: Verification only. The manufactured source of node i is the integral of s over the dual cell V_i of the residual (moved dual of MOD_CENTROIDS, or median), by a 7-point degree-5 rule on the sub-triangles node / edge midpoint / element dual point, instead of s(x_i)|V_i|. The flux residual of a vertex scheme is the integral of div F over V_i, so the one-point rule puts an error of size grad(s).(xbar_i - x_i)|V_i| in each node, with xbar_i the centroid of V_i; on the moved dual xbar_i - x_i jumps with the element shape. Steady, 2D, fine grid, no grid motion. \ingroup Config \default false */
   addBoolOption("MMS_SOURCE_DUAL_QUADRATURE", MMS_Source_Dual_Quad, false);
   /*!\brief P1_WALL_FORCES \n DESCRIPTION: Output only. Wall forces from the boundary fluxes of the scheme instead of the nodal values: the friction force is the weighted SIPG traction -Fhat of BC_WALL_ENTROPY_P1 per wall vertex (consistency and penalty terms, moved shares and mixed sub-simplex weights included, without the adjoint term), skin friction its tangential part over the vertex area, heat flux its energy part over the vertex area; the pressure force is the closure C pressure at the entropy projected face points on BC_WALL_ENTROPY_P1 walls and, with BC_ENTROPY_P1, on Euler walls. The nodal values are kept as the history fields *_NODAL and the surface fields SKIN_FRICTION_NODAL, HEAT_FLUX_NODAL. Needs BC_WALL_ENTROPY_P1 in viscous runs, BC_ENTROPY_P1 in inviscid runs (closure C pressure force of the Euler walls), static meshes, no FIXED_CL_MODE. \ingroup Config \default false */
@@ -6380,6 +6382,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Turb_Visc_P1_Galerkin) active.push_back("TURB_VISC_P1_GALERKIN");
   if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
   if (JST_Weak_Wall_Diss) active.push_back("JST_WEAK_WALL_DISSIPATION");
+  if (JST_Entropy_Fourth) active.push_back("JST_ENTROPY_FOURTH_DIFFERENCE");
   if (SST_Energy_Consistent) active.push_back("SST_ENERGY_CONSISTENT");
   if (P1_Wall_Forces) active.push_back("P1_WALL_FORCES");
   if (Visc_P1_Entropy_Moved) active.push_back("VISC_P1_ENTROPY_MOVED");
@@ -6783,6 +6786,19 @@ void CConfig::CheckP1FluxOptions() const {
         if (Marker_PyCustom[iMarker] == Marker_Isothermal[jMarker])
           SU2_MPI::Error(name + "not available for the custom marker " + Marker_PyCustom[iMarker] + ".", CURRENT_FUNCTION);
     }
+  }
+  if (JST_Entropy_Fourth) {
+    const string name = "JST_ENTROPY_FOURTH_DIFFERENCE: ";
+    if (Kind_ConvNumScheme_Flow != SPACE_CENTERED || Kind_Centered_Flow != CENTERED::JST)
+      SU2_MPI::Error(name + "needs CONV_NUM_METHOD_FLOW= JST.", CURRENT_FUNCTION);
+    if (!Edge_Form_P1 && !Edge_Diss_Projected)
+      SU2_MPI::Error(name + "needs EDGE_FORM_P1 or EDGE_DISS_PROJECTED.", CURRENT_FUNCTION);
+    if (Edge_Form_P1_Mixed_Diss && !Edge_Form_P1_Mixed_Diss_Mean)
+      SU2_MPI::Error(name + "needs EDGE_FORM_P1_MIXED_DISS_MEAN with split-pair dissipation.", CURRENT_FUNCTION);
+    if (nMarker_PerBound || GetDynamic_Grid())
+      SU2_MPI::Error(name + "requires a stationary mesh without periodic boundaries.", CURRENT_FUNCTION);
+    if (Kind_FluidModel != STANDARD_AIR && Kind_FluidModel != IDEAL_GAS)
+      SU2_MPI::Error(name + "needs FLUID_MODEL= STANDARD_AIR or IDEAL_GAS.", CURRENT_FUNCTION);
   }
   if (JST_Weak_Wall_Diss) {
     /*--- P1_WALL_DISSIPATION.md: only the fourth-order term of JST and JST_MAT is changed, at the weak no-slip walls.

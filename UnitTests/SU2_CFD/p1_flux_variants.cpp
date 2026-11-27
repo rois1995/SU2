@@ -53,6 +53,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_closure.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_weak_wall.hpp"
+#include "../../SU2_CFD/include/numerics/flow/jst_entropy_fourth.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_strong_slip.hpp"
 #include "../../SU2_CFD/include/gradients/correctGradientsSymmetry.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_sst_matched.hpp"
@@ -61,6 +62,8 @@
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
 #include "../../SU2_CFD/include/solvers/CEulerSolver.hpp"
+#include "../../SU2_CFD/include/solvers/CSolverFactory.hpp"
+#include "../../SU2_CFD/include/variables/CNSVariable.hpp"
 #include "tecno_adjoint_checks.hpp"
 
 namespace {
@@ -76,7 +79,7 @@ inline unsigned long Lattice(unsigned long i, unsigned long j, unsigned long k, 
  *        moves every point (x, y, z) after the stretch (e.g. bends the box so that the bottom wall is curved).
  */
 void WriteSimplexMesh(const std::string& name, int nDim, unsigned long n, double jitter, double stretch,
-                      void (*map)(double*) = nullptr) {
+                      void (*map)(double*) = nullptr, bool alternateDiagonals = true) {
   if (SU2_MPI::GetRank() != MASTER_NODE) return;
 
   std::mt19937 gen(1234);
@@ -91,7 +94,7 @@ void WriteSimplexMesh(const std::string& name, int nDim, unsigned long n, double
     for (auto i = 0ul; i < n; ++i) {
       for (auto j = 0ul; j < n; ++j) {
         const unsigned long q[] = {id(i, j), id(i + 1, j), id(i + 1, j + 1), id(i, j + 1)};
-        if ((i + j) % 2 == 0) {
+        if (!alternateDiagonals || (i + j) % 2 == 0) {
           elems << "5 " << q[0] << " " << q[1] << " " << q[2] << "\n5 " << q[0] << " " << q[2] << " " << q[3] << "\n";
         } else {
           elems << "5 " << q[0] << " " << q[1] << " " << q[3] << "\n5 " << q[1] << " " << q[2] << " " << q[3] << "\n";
@@ -289,14 +292,16 @@ struct MeshCase {
   std::unique_ptr<CConfig> config;
   std::unique_ptr<CGeometry> geometry;
 
-  explicit MeshCase(const std::string& mesh, const std::string& extra = "") {
+  explicit MeshCase(const std::string& mesh, const std::string& extra = "",
+                    const std::string& solver = "EULER", bool noSlip = false) {
     SU2_MPI::Barrier(SU2_MPI::GetComm());
     auto* buf = std::cout.rdbuf();
     std::cout.rdbuf(nullptr);
 
     std::stringstream options;
-    options << "SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= " << mesh << "\n"
-            << "MARKER_EULER= ( bottom )\nMARKER_FAR= ( rest )\n"
+    options << "SOLVER= " << solver << "\nMESH_FORMAT= SU2\nMESH_FILENAME= " << mesh << "\n"
+            << (noSlip ? "MARKER_HEATFLUX= ( bottom, 0.0 )\n" : "MARKER_EULER= ( bottom )\n")
+            << "MARKER_FAR= ( rest )\n"
             << "MACH_NUMBER= 0.5\nINIT_OPTION= TD_CONDITIONS\n" << extra;
     config = std::unique_ptr<CConfig>(new CConfig(options, SU2_COMPONENT::SU2_CFD, false));
     {
@@ -12079,5 +12084,572 @@ TEST_CASE("TURB_VISC_P1_GALERKIN: off by default, the edge options are unchanged
     CHECK(ptg::ElementDiffusionReplacesEdges(*configOn, MESH_0, on));
     CHECK_FALSE(on.viscous);
     CHECK(on.convective);
+  }
+}
+
+namespace {
+namespace es4test {
+using Row = std::array<su2double, 4>;
+using Block = std::array<su2mixedfloat, 16>;
+using State = P1BoundaryClosure::EsState;
+constexpr double GasGamma = 1.4;
+constexpr double turbulentK = 0.03;
+constexpr auto option = "JST_ENTROPY_FOURTH_DIFFERENCE= ";
+
+enum class Field { Nonuniform, Uniform, OddPlus, OddMinus };
+
+struct SolversDeleter {
+  void operator()(CSolver** solvers) const {
+    for (auto i = 0u; i < MAX_SOLS; ++i) delete solvers[i];
+    delete[] solvers;
+  }
+};
+
+struct Fixture : MeshCase {
+  std::unique_ptr<CSolver*, SolversDeleter> solvers;
+  CEulerSolver* flow;
+  CEulerVariable* nodes;
+  std::vector<su2double> sensor;
+  std::vector<bool> boundary;
+  std::vector<State> state;
+
+  Fixture(const std::string& mesh, const std::string& opts, bool es4, bool fourth,
+          Field field = Field::Nonuniform, bool sst = false, bool wall = false, bool flipHalo = false)
+      : MeshCase(mesh, Options(opts, es4, fourth, sst, wall), sst ? "RANS" : wall ? "NAVIER_STOKES" : "EULER", wall),
+        sensor(geometry->GetnPoint()), boundary(geometry->GetnPoint()), state(geometry->GetnPoint()) {
+    geometry->PreprocessP2PComms(geometry.get(), config.get());
+    geometry->InitiateComms(geometry.get(), config.get(), MPI_QUANTITIES::NEIGHBORS);
+    geometry->CompleteComms(geometry.get(), config.get(), MPI_QUANTITIES::NEIGHBORS);
+    geometry->UpdateP1FluxCoefficients(config.get());
+    config->SetKind_TimeIntScheme(EULER_IMPLICIT);
+    const auto nOwn = geometry->GetnPointDomain();
+    std::vector<bool> rawHalo;
+    for (auto i = 0ul; i < geometry->GetnPoint(); ++i) {
+      const auto* xy = geometry->nodes->GetCoord(i);
+      boundary[i] = xy[0] == 0 || xy[0] == 1 || xy[1] == 0 || xy[1] == 1;
+      if (flipHalo && i >= nOwn) {
+        rawHalo.push_back(geometry->nodes->GetPhysicalBoundary(i));
+        geometry->nodes->SetPhysicalBoundary(i, !boundary[i]);
+      }
+    }
+    solvers.reset(CSolverFactory::CreateSolverContainer(config->GetKind_Solver(), config.get(), geometry.get(), MESH_0));
+    flow = static_cast<CEulerSolver*>(solvers.get()[FLOW_SOL]);
+    nodes = static_cast<CEulerVariable*>(flow->GetNodes());
+    for (size_t i = 0; i < rawHalo.size(); ++i) geometry->nodes->SetPhysicalBoundary(nOwn + i, rawHalo[i]);
+    SetState(field, sst, wall);
+    flow->SetCentered_Dissipation_Sensor(geometry.get(), config.get());
+    for (auto i = 0ul; i < geometry->GetnPoint(); ++i) {
+      const auto id = geometry->nodes->GetGlobalIndex(i);
+      sensor[i] = nodes->GetSensor(i);
+      // Fixed global-index coefficients isolate MPI assembly from the legacy sensor.
+      nodes->SetSensor(i, field == Field::Nonuniform && id % 17 == 0 ? 0.3 : 0.0);
+      nodes->SetLambda(i, field == Field::Nonuniform ? 0.6 + 0.03 * (id % 7) : 0.6);
+    }
+    if (!es4) flow->SetUndivided_Laplacian(geometry.get(), config.get());
+  }
+
+  static std::string Options(const std::string& opts, bool es4, bool fourth, bool sst, bool wall) {
+    std::string text = opts + "TIME_DISCRE_FLOW= EULER_IMPLICIT\nEDGE_COLORING_GROUP_SIZE= 1\nMGLEVEL= 0\n" +
+                       option + (es4 ? "YES\n" : "NO\n") +
+                       (fourth ? "JST_SENSOR_COEFF= ( 0.5, 0.025 )\n" : "JST_SENSOR_COEFF= ( 0.5, 0.0 )\n");
+    if (sst) text += "KIND_TURB_MODEL= SST\nMUSCL_TURB= NO\n";
+    if (wall) text += "BC_WALL_ENTROPY_P1= YES\nVISC_P1_ENTROPY= YES\n"
+                      "CONDUCTIVITY_MODEL= CONSTANT_PRANDTL\nJST_WEAK_WALL_DISSIPATION= YES\n";
+    return text;
+  }
+
+  void SetState(Field field, bool sst, bool wall) {
+    for (auto i = 0ul; i < geometry->GetnPoint(); ++i) {
+      auto& s = state[i];
+      const auto id = geometry->nodes->GetGlobalIndex(i);
+      const auto* xy = geometry->nodes->GetCoord(i);
+      if (field == Field::Nonuniform) {
+        s.vel[0] = 0.16;
+        s.vel[1] = -0.08;
+        s.rho += 0.02 * (id % 9);
+        s.p += (xy[0] >= 0.5 ? 0.37 : 0.0) + 0.03 * (id % 5);
+        s.vel[0] += 0.014 * (id % 6);
+        s.vel[1] -= 0.016 * (id % 4);
+      }
+      if (field == Field::OddPlus || field == Field::OddMinus) {
+        const auto parity = (id / 9 + id % 9) % 2;
+        s.rho += (field == Field::OddPlus ? 1e-4 : -1e-4) * (parity ? -1 : 1);
+      }
+      Row U;
+      P1BoundaryClosure::EsConservative(2, GasGamma, s, U.data());
+      if (sst) {
+        U[3] += s.rho * turbulentK;
+        solvers.get()[TURB_SOL]->GetNodes()->SetSolution(i, 0, turbulentK);
+      }
+      nodes->SetSolution(i, U.data());
+      if (sst || wall)
+        REQUIRE(static_cast<CNSVariable*>(nodes)->SetPrimVar(i, 0.0, sst ? turbulentK : 0.0, flow->GetFluidModel()));
+      else
+        REQUIRE(nodes->SetPrimVar(i, flow->GetFluidModel()));
+    }
+  }
+
+  void Assemble(bool flipHalo = false) {
+    if (flipHalo) {
+      for (auto i = geometry->GetnPointDomain(); i < geometry->GetnPoint(); ++i)
+        geometry->nodes->SetPhysicalBoundary(i, !boundary[i]);
+    }
+    flow->LinSysRes.SetValZero();
+    flow->Jacobian.SetValZero();
+    flow->Centered_Residual(geometry.get(), solvers.get(), nullptr, config.get(), MESH_0, 0);
+  }
+
+  std::vector<Row> TrueEdgeFluxes() {
+    std::unique_ptr<CNumericsSIMD> kernel(CNumericsSIMD::CreateNumerics(*config, 2, MESH_0));
+    const auto nEdge = geometry->GetnEdge();
+    CSysVector<su2double> edgeFlux(nEdge, nEdge, 4);
+    SparseMatrixType unused;
+    config->SetKind_TimeIntScheme(EULER_EXPLICIT);
+    Double mask = 0.0;
+    mask[0] = 1.0;
+    std::vector<Row> out(nEdge);
+    for (auto e = 0ul; e < nEdge; ++e) {
+      kernel->ComputeFlux(Int(e), *config, *geometry, *nodes, UpdateType::REDUCTION, mask, edgeFlux, unused, nullptr);
+      std::copy_n(edgeFlux.GetBlock(e), 4, out[e].begin());
+    }
+    config->SetKind_TimeIntScheme(EULER_IMPLICIT);
+    return out;
+  }
+};
+
+struct Coupling {
+  unsigned long i, k, index;
+  bool split;
+  su2double chi, share;
+};
+
+/*--- Independent reconstruction from the raw normals, Lambda, pressure sensor and pi. ---*/
+su2double RawChi(const Fixture& f, unsigned long i, unsigned long k, const su2double* n, bool projection,
+                 bool split, su2double share) {
+  auto count = [&](unsigned long point) -> su2double {
+    if (f.config->GetEdge_Form_P1_Mixed_Diss_Mean()) return f.nodes->JSTPairNeighbor(point);
+    return f.geometry->nodes->GetnNeighbor(point);
+  };
+  const auto& si = f.state[i];
+  const auto& sk = f.state[k];
+  const auto* xi = f.geometry->nodes->GetCoord(i);
+  const auto* xk = f.geometry->nodes->GetCoord(k);
+  const su2double ex = xk[0] - xi[0], ey = xk[1] - xi[1];
+  const auto dx = 0.5 * (si.vel[0] + sk.vel[0]), dy = 0.5 * (si.vel[1] + sk.vel[1]);
+  auto area = std::hypot(n[0], n[1]);
+  auto speedArea = dx * n[0] + dy * n[1];
+  if (projection) {
+    area = (n[0] * ex + n[1] * ey) / std::hypot(ex, ey);
+    speedArea = area / std::hypot(ex, ey) * (dx * ex + dy * ey);
+    if (split) area = std::abs(area);
+  }
+  const auto radius = std::abs(speedArea) + 0.5 * (f.nodes->GetSoundSpeed(i) + f.nodes->GetSoundSpeed(k)) * area;
+  if (radius == 0.0) return 0.0;
+  const auto phi_i = std::pow(f.nodes->GetLambda(i) / (4.0 * radius), 0.3);
+  const auto phi_k = std::pow(f.nodes->GetLambda(k) / (4.0 * radius), 0.3);
+  const auto scale = 3.0 * (count(i) + count(k)) / (count(i) * count(k));
+  const auto eps2 = 0.25 * (f.nodes->GetSensor(i) + f.nodes->GetSensor(k)) * scale;
+  const auto eps4 = std::max(0.0, f.config->GetKappa_4th_Flow() - eps2) * scale * scale / 4.0;
+  const auto keep = !f.config->GetJST_Weak_Wall_Diss() || f.nodes->JSTWallNode(i) == f.nodes->JSTWallNode(k);
+  return keep * eps4 * std::pow(share, 0.3) * radius * (4.0 * phi_i * phi_k / (phi_i + phi_k));
+}
+
+std::vector<Coupling> Graph(const Fixture& f) {
+  const auto& edges = *f.geometry->edges;
+  const auto nOwn = f.geometry->GetnPointDomain();
+  const bool aligned = f.config->GetEdge_Form_P1_Diss_Aligned();
+  std::vector<Coupling> graph;
+  for (auto e = 0ul; e < f.geometry->GetnEdge(); ++e) {
+    const auto i = edges.GetNode(e, 0), k = edges.GetNode(e, 1);
+    if (i >= nOwn && k >= nOwn) {
+      CHECK(f.nodes->ESFourthEdgeWeight(e) == 0.0);
+      continue;
+    }
+    const auto* n = aligned ? edges.GetFormNormal()[e] : edges.GetNormal(e);
+    const auto chi = RawChi(f, i, k, n, aligned || f.config->GetEdge_Diss_Projected(), false, 1.0);
+    graph.push_back({i, k, e, false, chi, 1.0});
+  }
+  if (!f.config->GetEdge_Form_P1_Mixed_Diss_Mean()) return graph;
+  for (auto e = 0ul; e < edges.GetSplitNodes().size(); ++e) {
+    const auto i = edges.GetSplitNodes()[e][0], k = edges.GetSplitNodes()[e][1];
+    if (i >= nOwn && k >= nOwn) {
+      CHECK(f.flow->GetESFourthPairWeight()(e) == 0.0);
+      continue;
+    }
+    const auto share = edges.GetSplitShare()(e);
+    const auto chi = RawChi(f, i, k, edges.GetSplitNormal()[e], true, true, share);
+    graph.push_back({i, k, e, true, chi, share});
+    const auto a = f.flow->GetESFourthPairWeight()(e);
+    CHECK(a * a == Approx(share * chi).epsilon(1e-12));
+  }
+  return graph;
+}
+
+void LegacyParity(Fixture& active, Fixture& legacy, Fixture& zero, const std::vector<Coupling>& graph) {
+  const auto full = legacy.TrueEdgeFluxes(), base = zero.TrueEdgeFluxes();
+  const auto nPoint = legacy.geometry->GetnPointDomain();
+  double masked = 0.0;
+  std::vector<Row> predicted(nPoint), incident(nPoint);
+  for (const auto& e : graph) {
+    CAPTURE(e.index, e.split, active.geometry->nodes->GetGlobalIndex(e.i), active.geometry->nodes->GetGlobalIndex(e.k));
+    if (active.config->GetJST_Weak_Wall_Diss() && active.nodes->JSTWallNode(e.i) != active.nodes->JSTWallNode(e.k)) {
+      CHECK(e.chi == 0.0);
+      ++masked;
+    }
+    for (auto v = 0u; v < 4; ++v) {
+      const auto jump = legacy.nodes->GetUndivided_Laplacian(e.i, v) - legacy.nodes->GetUndivided_Laplacian(e.k, v);
+      const auto expected = -e.chi * jump;
+      if (!e.split) {
+        const auto weight = active.nodes->ESFourthEdgeWeight(e.index);
+        CHECK(weight * weight == Approx(e.chi).epsilon(1e-12));
+        CHECK(full[e.index][v] - base[e.index][v] ==
+              Approx(expected).epsilon(1e-12).margin(4e-15 * std::abs(base[e.index][v])));
+      }
+      if (e.i < nPoint) {
+        predicted[e.i][v] += expected;
+        incident[e.i][v] += std::abs(expected);
+      }
+      if (e.k < nPoint) {
+        predicted[e.k][v] -= expected;
+        incident[e.k][v] += std::abs(expected);
+      }
+    }
+  }
+  if (active.config->GetJST_Weak_Wall_Diss()) CHECK(GlobalSum(masked) > 0.0);
+  legacy.Assemble();
+  zero.Assemble();
+  for (auto i = 0ul; i < nPoint; ++i) {
+    const auto* fullRow = legacy.flow->LinSysRes.GetBlock(i);
+    const auto* baseRow = zero.flow->LinSysRes.GetBlock(i);
+    for (auto v = 0u; v < 4; ++v)
+      CHECK(fullRow[v] - baseRow[v] == Approx(predicted[i][v]).margin(1e-12 * incident[i][v] + 5e-15));
+  }
+}
+
+struct Expected {
+  std::vector<Row> w, x, q, residual, xScale, rScale;
+  std::vector<su2double> sum;
+};
+
+Expected Apply(const Fixture& f, const std::vector<Coupling>& graph) {
+  const auto n = f.geometry->GetnPoint();
+  Expected out{std::vector<Row>(n), std::vector<Row>(n), std::vector<Row>(n),
+               std::vector<Row>(n), std::vector<Row>(n), std::vector<Row>(n), std::vector<su2double>(n)};
+  for (auto i = 0ul; i < n; ++i) P1BoundaryClosure::EsEntropyVariables(2, GasGamma, f.state[i], out.w[i].data());
+  auto add = [&](unsigned long i, unsigned long k, double a) {
+    if (f.boundary[i] && !f.boundary[k]) return;
+    out.sum[i] += a;
+    for (auto v = 0u; v < 4; ++v) {
+      const auto term = a * (out.w[i][v] - out.w[k][v]);
+      out.x[i][v] += term;
+      out.xScale[i][v] += std::abs(term);
+    }
+  };
+  for (const auto& e : graph) {
+    const auto a = std::sqrt(e.share * e.chi);
+    add(e.i, e.k, a);
+    add(e.k, e.i, a);
+  }
+  for (auto i = 0ul; i < n; ++i) {
+    // Use the analytic primitive Jacobians independently of EnthalpyStateAction.
+    su2double dP[5][5], dU[5][5];
+    P1BoundaryClosure::EsProjectionJacobian(2, GasGamma, f.state[i], dP);
+    P1BoundaryClosure::EsConservativeJacobian(2, GasGamma, f.state[i], dU);
+    dU[3][3] += 1.0;
+    for (auto v = 0u; v < 4; ++v)
+      for (auto p = 0u; p < 4; ++p)
+        for (auto j = 0u; j < 4; ++j) out.q[i][v] += dU[v][p] * dP[p][j] * out.x[i][j];
+  }
+  return out;
+}
+
+/*--- The test reconstructs the global directed graph by exchanging independent q rows in global-ID order. ---*/
+void ExpectedTranspose(const Fixture& f, const std::vector<Coupling>& graph, Expected& out) {
+  const auto nOwn = f.geometry->GetnPointDomain();
+  const auto nGlobal = f.geometry->GetGlobal_nPointDomain();
+  std::vector<su2double> local(4 * nGlobal), global(local.size());
+  for (auto i = 0ul; i < nOwn; ++i) {
+    const auto id = f.geometry->nodes->GetGlobalIndex(i);
+    std::copy_n(out.q[i].data(), 4, local.data() + 4 * id);
+  }
+  SU2_MPI::Allreduce(local.data(), global.data(), global.size(), MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  for (const auto& e : graph) {
+    const auto idI = f.geometry->nodes->GetGlobalIndex(e.i), idK = f.geometry->nodes->GetGlobalIndex(e.k);
+    const bool s = !f.boundary[e.i] || f.boundary[e.k], t = !f.boundary[e.k] || f.boundary[e.i];
+    const auto a = std::sqrt(e.share * e.chi);
+    for (auto v = 0u; v < 4; ++v) {
+      const auto flux = a * (s * global[4 * idI + v] - t * global[4 * idK + v]);
+      out.residual[e.i][v] += flux;
+      out.residual[e.k][v] -= flux;
+      out.rScale[e.i][v] += std::abs(flux);
+      out.rScale[e.k][v] += std::abs(flux);
+    }
+  }
+}
+
+Row FourthRow(const Fixture& f, const Fixture& zero, unsigned long i, double k = 0.0) {
+  Row row{};
+  for (auto v = 0u; v < 4; ++v) row[v] = f.flow->LinSysRes(i, v) - zero.flow->LinSysRes(i, v);
+  // Constant k gives k_face * R_rho on both paths. Remove it to recover the hat-energy row.
+  row[3] -= k * row[0];
+  return row;
+}
+
+void CheckIdentity(const Fixture& full, const Fixture& zero, const Expected& expected, bool sst = false) {
+  Row sum{}, scale{};
+  double rate = 0.0, production = 0.0, magnitude = 0.0;
+  for (auto i = 0ul; i < full.geometry->GetnPointDomain(); ++i) {
+    CAPTURE(i, full.geometry->nodes->GetGlobalIndex(i));
+    const auto r = FourthRow(full, zero, i, sst ? turbulentK : 0.0);
+    double term = 0.0;
+    for (auto v = 0u; v < 4; ++v) {
+      CHECK(r[v] == Approx(expected.residual[i][v]).margin(1e-12 * expected.rScale[i][v] + 5e-15));
+      CHECK(full.nodes->ESFourthNodal(i, v) == Approx(expected.q[i][v]).epsilon(1e-12).margin(1e-14));
+      term -= expected.w[i][v] * r[v];
+      production -= expected.x[i][v] * expected.q[i][v];
+      sum[v] += r[v];
+      scale[v] += expected.rScale[i][v];
+    }
+    CHECK(full.nodes->ESFourthNodal(i, 4) == Approx(expected.sum[i]).epsilon(1e-12));
+    rate += term;
+    magnitude += std::abs(term);
+  }
+  rate = GlobalSum(rate);
+  production = GlobalSum(production);
+  magnitude = GlobalSum(magnitude);
+  CAPTURE(rate, production, magnitude, std::abs(rate - production) / magnitude);
+  CHECK(std::abs(rate - production) <= 1e-12 * magnitude);
+  CHECK(production < 0.0);
+  double conservation = 0.0;
+  for (auto v = 0u; v < 4; ++v) {
+    const auto error = std::abs(GlobalSum(sum[v])) / GlobalSum(scale[v]);
+    CAPTURE(v, error);
+    CHECK(error < 1e-12);
+    conservation = std::max(conservation, error);
+  }
+  if (SU2_MPI::GetRank() == MASTER_NODE)
+    std::cout << "ES4 entropy rate " << rate << ", relative identity error "
+              << std::abs(rate - production) / magnitude << ", relative conservation error " << conservation << '\n';
+}
+
+std::string RankSuffix() {
+  return std::to_string(SU2_MPI::GetSize()) + "_" + std::to_string(SU2_MPI::GetRank()) + ".csv";
+}
+
+std::vector<Row> LegacySecond(Fixture& legacy) {
+  const auto nOwn = legacy.geometry->GetnPointDomain();
+  for (auto i = 0ul; i < legacy.geometry->GetnPoint(); ++i) legacy.nodes->SetSensor(i, 0.0);
+  legacy.Assemble();
+  std::vector<Row> difference(nOwn);
+  for (auto i = 0ul; i < nOwn; ++i) {
+    const auto* central = legacy.flow->LinSysRes.GetBlock(i);
+    for (auto v = 0u; v < 4; ++v) difference[i][v] = -central[v];
+  }
+  for (auto i = 0ul; i < legacy.geometry->GetnPoint(); ++i) legacy.nodes->SetSensor(i, legacy.sensor[i]);
+  legacy.Assemble();
+  for (auto i = 0ul; i < nOwn; ++i) {
+    const auto* centered = legacy.flow->LinSysRes.GetBlock(i);
+    for (auto v = 0u; v < 4; ++v) difference[i][v] += centered[v];
+  }
+  return difference;
+}
+
+void SaveRows(const Fixture& full, const Fixture& zero, const Expected& expected, const std::vector<Coupling>& graph,
+              const std::vector<Row>& second) {
+  const auto nOwn = full.geometry->GetnPointDomain();
+  const auto& points = *full.geometry->nodes;
+  std::ofstream rows("es4_rows_" + RankSuffix());
+  rows.precision(17);
+  rows << "id,sensor,r0,r1,r2,r3,x0,x1,x2,x3,sr0,sr1,sr2,sr3,sx0,sx1,sx2,sx3,eps20,eps21,eps22,eps23\n";
+  for (auto i = 0ul; i < nOwn; ++i) {
+    rows << points.GetGlobalIndex(i) << ',' << full.sensor[i];
+    for (const auto& row : {FourthRow(full, zero, i), expected.x[i], expected.rScale[i], expected.xScale[i], second[i]})
+      for (const auto value : row) rows << ',' << value;
+    rows << '\n';
+  }
+  REQUIRE(rows.good());
+  std::ofstream weights("es4_weights_" + RankSuffix());
+  weights.precision(17);
+  weights << "i,k,split,a\n";
+  for (const auto& e : graph) {
+    auto i = points.GetGlobalIndex(e.i), k = points.GetGlobalIndex(e.k);
+    if (i > k) std::swap(i, k);
+    const auto a = e.split ? full.flow->GetESFourthPairWeight()(e.index) : full.nodes->ESFourthEdgeWeight(e.index);
+    weights << i << ',' << k << ',' << e.split << ',' << a << '\n';
+  }
+  REQUIRE(weights.good());
+}
+
+void CheckFixtureCoverage(const Fixture& f, const std::vector<Coupling>& graph) {
+  const auto nOwn = f.geometry->GetnPointDomain();
+  unsigned zero = 0, asymmetric = 0, split = 0, cross = 0, splitCross = 0;
+  double minWeight = std::numeric_limits<double>::max(), maxWeight = 0.0;
+  for (const auto& e : graph) {
+    const bool asymmetricEntry = f.boundary[e.i] != f.boundary[e.k];
+    const bool partition = (e.i < nOwn) != (e.k < nOwn);
+    if (e.chi == 0.0) {
+      ++zero;
+      continue;
+    }
+    const auto a = std::sqrt(e.chi * e.share);
+    minWeight = std::min(minWeight, a);
+    maxWeight = std::max(maxWeight, a);
+    asymmetric += asymmetricEntry;
+    split += e.split;
+    cross += partition && asymmetricEntry;
+    splitCross += partition && e.split;
+  }
+  CHECK(GlobalSum(zero) > 0.0);
+  CHECK(GlobalSum(asymmetric) > 0.0);
+  CHECK(GlobalSum(split) > 0.0);
+  CHECK(GlobalMax(maxWeight) > 1.01 * -GlobalMax(-minWeight));
+  if (SU2_MPI::GetSize() == 2) {
+    CHECK(GlobalSum(cross) > 0.0);
+    CHECK(GlobalSum(splitCross) > 0.0);
+    double mismatch = 0.0;
+    for (auto i = nOwn; i < f.geometry->GetnPoint(); ++i) {
+      CHECK(f.nodes->ESFourthBoundary(i) == f.boundary[i]);
+      mismatch += f.geometry->nodes->GetPhysicalBoundary(i) != f.boundary[i];
+    }
+    CHECK(GlobalSum(mismatch) > 0.0);
+  }
+}
+
+std::vector<Block> Blocks(const Fixture& f) {
+  std::vector<Block> blocks;
+  auto& jacobian = f.flow->Jacobian;
+  for (auto i = 0ul; i < f.geometry->GetnPointDomain(); ++i) {
+    auto save = [&](unsigned long k) { std::copy_n(jacobian.GetBlock(i, k), 16, blocks.emplace_back().begin()); };
+    save(i);
+    jacobian.ForEachOffDiagColumn(i, save);
+  }
+  return blocks;
+}
+}  // namespace es4test
+}  // namespace
+
+TEST_CASE("S1 ES4 true and split coefficients match the legacy flux", "[ES4][ES4Solver]") {
+  using namespace es4test;
+  const std::string mesh = "es4_coefficients.su2";
+  WriteMixedMesh(mesh, 2, 7, 0.18, 1.0);
+  const std::string median = MixedOptions;
+  const std::string projected = "CONV_NUM_METHOD_FLOW= JST\nEDGE_DISS_PROJECTED= YES\nBC_WEAK_P1= YES\n";
+  const std::string aligned = MixedMeanOptions + "EDGE_FORM_P1_DISS_ALIGNED= YES\nMOD_CENTROIDS_EXPONENT= 0\n";
+  for (const auto& opts : {median, projected, aligned}) {
+    const bool wall = opts == aligned;
+    CAPTURE(opts);
+    Fixture active(mesh, opts, true, true, Field::Nonuniform, false, wall);
+    Fixture legacy(mesh, opts, false, true, Field::Nonuniform, false, wall);
+    Fixture zero(mesh, opts, false, false, Field::Nonuniform, false, wall);
+    for (auto* f : {&active, &legacy, &zero}) f->flow->SetMax_Eigenvalue(f->geometry.get(), f->config.get());
+    active.Assemble();
+    const auto graph = Graph(active);
+    LegacyParity(active, legacy, zero, graph);
+
+    // Recover the split coefficient separately from the real scalar pair flux.
+    for (const auto& e : graph) {
+      if (!e.split) continue;
+      P1PairJST::Node Ni, Nk;
+      auto fill = [&](P1PairJST::Node& N, unsigned long i) {
+        const auto* nodes = active.nodes;
+        N.vel[0] = nodes->GetVelocity(i, 0);
+        N.vel[1] = nodes->GetVelocity(i, 1);
+        N.soundSpeed = nodes->GetSoundSpeed(i);
+        N.nNeighbor = nodes->JSTPairNeighbor(i);
+        N.lambda = nodes->GetLambda(i);
+        N.sensor = nodes->GetSensor(i);
+        N.wall = nodes->JSTWallNode(i);
+      };
+      fill(Ni, e.i);
+      fill(Nk, e.k);
+      Ni.lapl[0] = 1.0;
+      su2double buffer[3], ji[5][5]{}, jk[5][5]{};
+      Row flux{};
+      const auto& g = *active.geometry;
+      const auto* n = P1PairJST::DissipationNormal(2, true, g.edges->GetSplitNormal()[e.index],
+                                                  g.nodes->GetCoord(e.i), g.nodes->GetCoord(e.k), buffer);
+      P1PairJST::Params jst;
+      jst.kappa4 = 0.025;
+      jst.weakWall = true;
+      P1PairJST::AddPairDissipation(2, jst, Ni, Nk, n, flux.data(), false, ji, jk, e.share);
+      CHECK(-flux[0] == Approx(e.chi).epsilon(1e-12).margin(1e-16));
+    }
+  }
+}
+
+TEST_CASE("S2 S3 ES4 residual identity and partition-crossing transpose", "[ES4][ES4Solver]") {
+  using namespace es4test;
+  const std::string mesh = "es4_mixed.su2";
+  WriteMixedMesh(mesh, 2, 7, 0.18, 1.0);
+  for (auto mode = 0; mode < 3; ++mode) {
+    const bool sst = (mode == 2);
+    const auto& opts = mode == 1 ? MixedOptions : MixedMeanOptions;
+    Fixture full(mesh, opts, true, true, Field::Nonuniform, sst, false, true);
+    Fixture zero(mesh, opts, true, false, Field::Nonuniform, sst, false, true);
+    full.Assemble(true);
+    zero.Assemble(true);
+    const auto graph = Graph(full);
+    auto expected = Apply(full, graph);
+    ExpectedTranspose(full, graph, expected);
+    CheckIdentity(full, zero, expected, sst);
+    if (mode == 0) {
+      CheckFixtureCoverage(full, graph);
+      Fixture legacy(mesh, opts, false, false);
+      SaveRows(full, zero, expected, graph, LegacySecond(legacy));
+    }
+    if (mode == 1) CHECK(full.flow->GetESFourthPairWeight().empty());
+  }
+}
+
+TEST_CASE("S2 ES4 uniform and odd-even recovery through centered assembly", "[ES4][ES4Solver]") {
+  using namespace es4test;
+  const std::string mesh = "es4_regular.su2";
+  const auto equilateral = [](double* p) {
+    p[0] -= 0.5 * p[1];
+    p[1] *= std::sqrt(3.0) / 2.0;
+  };
+  WriteSimplexMesh(mesh, 2, 8, 0.0, 1.0, equilateral, false);
+  const std::string opts = "CONV_NUM_METHOD_FLOW= JST\nEDGE_DISS_PROJECTED= YES\n";
+  Fixture uniform(mesh, opts, true, true, Field::Uniform);
+  Fixture uniformZero(mesh, opts, true, false, Field::Uniform);
+  uniform.Assemble();
+  uniformZero.Assemble();
+  for (auto i = 0ul; i < uniform.geometry->GetnPointDomain(); ++i) CHECK(FourthRow(uniform, uniformZero, i) == Row{});
+
+  Fixture plus(mesh, opts, true, true, Field::OddPlus), plusZero(mesh, opts, true, false, Field::OddPlus);
+  Fixture minus(mesh, opts, true, true, Field::OddMinus), minusZero(mesh, opts, true, false, Field::OddMinus);
+  Fixture oldPlus(mesh, opts, false, true, Field::OddPlus), oldPlusZero(mesh, opts, false, false, Field::OddPlus);
+  Fixture oldMinus(mesh, opts, false, true, Field::OddMinus), oldMinusZero(mesh, opts, false, false, Field::OddMinus);
+  for (auto* f : {&plus, &plusZero, &minus, &minusZero, &oldPlus, &oldPlusZero, &oldMinus, &oldMinusZero}) f->Assemble();
+  double checked = 0.0;
+  for (auto i = 0ul; i < plus.geometry->GetnPointDomain(); ++i) {
+    // The two-ring of the center (4,4) is interior and has equal weights at the uniform state.
+    if (plus.geometry->nodes->GetGlobalIndex(i) != 4 * 9 + 4) continue;
+    ++checked;
+    const auto rp = FourthRow(plus, plusZero, i), rm = FourthRow(minus, minusZero, i);
+    const auto lp = FourthRow(oldPlus, oldPlusZero, i), lm = FourthRow(oldMinus, oldMinusZero, i);
+    CHECK(std::abs(lp[0] - lm[0]) > 1e-6);
+    for (auto v = 0u; v < 4; ++v)
+      CHECK(rp[v] - rm[v] == Approx(lp[v] - lm[v]).epsilon(2e-6).margin(2e-11));
+  }
+  CHECK(GlobalSum(checked) == 1.0);
+}
+
+TEST_CASE("S4 ES4 kappa4 zero preserves residual and Jacobian bits", "[ES4][ES4Solver]") {
+  using namespace es4test;
+  const std::string mesh = "es4_isolation.su2";
+  WriteMixedMesh(mesh, 2, 7, 0.18, 1.0);
+  for (const bool sst : {false, true}) {
+    CAPTURE(sst);
+    Fixture on(mesh, MixedMeanOptions, true, false, Field::Nonuniform, sst);
+    Fixture off(mesh, MixedMeanOptions, false, false, Field::Nonuniform, sst);
+    on.Assemble();
+    off.Assemble();
+    for (auto i = 0ul; i < on.geometry->GetnPointDomain(); ++i) {
+      CHECK(std::memcmp(on.flow->LinSysRes.GetBlock(i), off.flow->LinSysRes.GetBlock(i), sizeof(Row)) == 0);
+    }
+    const auto a = Blocks(on), b = Blocks(off);
+    REQUIRE(a.size() == b.size());
+    if (!a.empty()) CHECK(std::memcmp(a.data(), b.data(), a.size() * sizeof(Block)) == 0);
   }
 }
