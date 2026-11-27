@@ -2600,3 +2600,9 @@ FP3-D build678 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2
 FP3-D build678 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/saved-current/case_summary.json.
 
 FP3-D C492 checkpoint 95931412aa pushed. Merit481 and native 2D at 1/2/4 ranks passed. Saved-current matched all three accepted P3 payloads and 1297 planning rows. Two oversized saved-current files stay local under their SHA256 pins. G3 and G4 are next.
+
+FP3-D build678 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G3/case_summary.json.
+
+FP3-D build678 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G4/case_summary.json.
+
+FP3-D shared checkpoint 8c4f438f93 pushed. G3 passed with 1549 splits and all 1549 common edits identical, entry work 5113 vs 5113 and no upper refinements. G4 passed the same pinned 2D runs. All 13 scoped checks passed, supervisor terminal, and Step 1 is sealed. Full CORE and OFF unevaluated. Start the first mode S run and isolated restart.
