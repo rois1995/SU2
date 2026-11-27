@@ -2588,3 +2588,7 @@ FP3-D G2 checkpoint 8567684830 pushed. GQ passed the third quality-window anchor
 FP3-D build678 Step 1 first-collapse passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/first-collapse/case_summary.json.
 
 FP3-D GQ checkpoint 980eb6eca2 pushed. Shared first-collapse matched 480 / 473 / 346 / 263 / 469 / 464, zero upper refinements and work 76652506 against 108459426. Summed solver peak 6094295040 bytes; exact C492 is running.
+
+FP3-D build678 Step 1 exact-c492 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/exact-c492/case_summary.json.
+
+FP3-D shared first-collapse checkpoint 78f8fb241b pushed. Exact C492 passed on attempt 1, exit 0 with terminal controller and no watchdog retry. Controller elapsed 619.988 s includes launch and collection. Merit481, 2D and saved-current follow.
