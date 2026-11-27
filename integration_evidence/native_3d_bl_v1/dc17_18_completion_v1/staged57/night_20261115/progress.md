@@ -2664,3 +2664,13 @@ FP3-E build679 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_N
 FP3-E G1 failure checkpoint 9af44cc88f pushed. Build679 hidden aggregate passed all seven variants, including E serial and two-rank probes 0/3/4. Prefix/shared/G3 children stayed before native launch because the inherited child lookup also required the basename-specific signed SHA256 sidecar. R3 recovery preserves both manifests and all helper errors. Scoped supervisor terminal and owned process list empty. Moved the fixture include to the appended cases, restoring all original G1 source lines. Next compile the fixture-only wiring repeat as build680 and rerun Step 1.
 
 FP3-E wiring correction 04f7bcd8ea pushed. Build680 compiled only the fixture and relinked only the test driver, exit 0 with zero warnings. The solver is byte-identical to build679; the new test driver SHA256 is 30894ce213376c318597cbe5fd0064733d12b8c254f884b2db20fc0a7bdd650c. Build supervisor terminal. Launch the Step 1 repeat with the original comparator, pinned references, and no gate changes.
+
+FP3-E build680 Step 1 G1-serial passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/G1-serial/case_summary.json.
+
+FP3-E build680 Step 1 G1-mpi2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/G1-mpi2/case_summary.json.
+
+FP3-E build680 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/G1-mpi4/case_summary.json.
+
+FP3-E build680 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/hidden/case_summary.json.
+
+FP3-E build checkpoint 917a345d65 pushed. Step 1 repeat G1 passed 375/114/228 exact records (serial/two/four ranks). The seven hidden variants passed, including E serial, two-rank all-valid/incomplete inputs, and inactive probes 3 and 4. G2 native launch authenticated the basename-specific sidecar. G2/GQ and shared checks remain.
