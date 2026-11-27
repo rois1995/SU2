@@ -9,6 +9,7 @@ import sys
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from build_fp3 import verify_build
 from legacy_config import BASE, FULL_REF, HERE, NIGHT, committed, derived, prepared, verify_case
 
 FP3 = NIGHT / 'FP3_E'
@@ -131,8 +132,6 @@ def sources(build, scoped, historical):
 
 
 def run(label):
-    from build_fp3 import verify_build
-
     check_order()
     build = verify_build(label)
     build_path = HERE / f'build{label}'
@@ -192,6 +191,7 @@ def run(label):
 
 def self_check(label):
     check_order()
+    verify_build(label)
     payloads = runpy.run_path(str(workflow.PAYLOADS))
     reference, _ = inherited_reference(payloads)
     full, restart = reference_configuration()

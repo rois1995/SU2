@@ -1,0 +1,23 @@
+Nov 27 22:22:39 pc-rausa systemd[2375]: Started su2-def1-g5s681.service - /usr/bin/python3 -B /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/run_full.py 681.
+Nov 27 22:22:40 pc-rausa python3[4079460]: Traceback (most recent call last):
+Nov 27 22:22:40 pc-rausa python3[4079460]:   File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/run_full.py", line 234, in <module>
+Nov 27 22:22:40 pc-rausa python3[4079460]:     raise SystemExit({'passed': 0, 'FAILED': 1, 'OPEN': 75}[run(args.label)])
+Nov 27 22:22:40 pc-rausa python3[4079460]:                                                             ^^^^^^^^^^^^^^^
+Nov 27 22:22:40 pc-rausa python3[4079460]:   File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/run_full.py", line 137, in run
+Nov 27 22:22:40 pc-rausa python3[4079460]:     build = verify_build(label)
+Nov 27 22:22:40 pc-rausa python3[4079460]:             ^^^^^^^^^^^^^^^^^^^
+Nov 27 22:22:40 pc-rausa python3[4079460]:   File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/build_fp3.py", line 96, in verify_build
+Nov 27 22:22:40 pc-rausa python3[4079460]:     receipt = cut.read(out / 'build_status.json')
+Nov 27 22:22:40 pc-rausa python3[4079460]:               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 27 22:22:40 pc-rausa python3[4079460]:   File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/N4/section6_3_after_N11/phase_C/run_cut_step.py", line 26, in read
+Nov 27 22:22:40 pc-rausa python3[4079460]:     return json.loads(Path(path).read_text())
+Nov 27 22:22:40 pc-rausa python3[4079460]:                       ^^^^^^^^^^^^^^^^^^^^^^
+Nov 27 22:22:40 pc-rausa python3[4079460]:   File "/usr/lib/python3.12/pathlib.py", line 1029, in read_text
+Nov 27 22:22:40 pc-rausa python3[4079460]:     with self.open(mode='r', encoding=encoding, errors=errors) as f:
+Nov 27 22:22:40 pc-rausa python3[4079460]:          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 27 22:22:40 pc-rausa python3[4079460]:   File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+Nov 27 22:22:40 pc-rausa python3[4079460]:     return io.open(self, mode, buffering, encoding, errors, newline)
+Nov 27 22:22:40 pc-rausa python3[4079460]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 27 22:22:40 pc-rausa python3[4079460]: FileNotFoundError: [Errno 2] No such file or directory: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/build681/build_status.json'
+Nov 27 22:22:40 pc-rausa systemd[2375]: su2-def1-g5s681.service: Main process exited, code=exited, status=1/FAILURE
+Nov 27 22:22:40 pc-rausa systemd[2375]: su2-def1-g5s681.service: Failed with result 'exit-code'.
