@@ -2698,3 +2698,13 @@ FP3-E build680 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_Nativ
 FP3-E build680 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/G4/case_summary.json.
 
 FP3-E shared checkpoint b916b04aa3 pushed. Step 1 passed all 13 checks and build680/step1.json is sealed. G3 accepted 1708 splits and matched all 1592 common edits, observer-adjusted entry work 5113/5113 and zero upper refinements. G4 passed the same pinned 1/2/4-rank native 2D executions. Full CORE and OFF workflows unevaluated. Scoped supervisor terminal. Commit the exact default-path label, then run S1 with its isolated restart.
+
+FP3-E Step 1 checkpoint 53d419b643 pushed. S1 launched alone on build680 after the scoped service was terminal. The live environment receipt authenticated probe 0 on all six main ranks. Step 2 requires both events, continued CFD and isolated restart plus the suppression, cell-ratio exchange and independent STALL gates.
+
+FP3-E S1 event 1 live traces agree on all six ranks: round 496 observed window 16, debt/best 2.6439464058519597, best four windows before 2.7767601227386178, bad 9, stalled=1. At completed round 497 every rank reported taken=1 by=stall failed=none. Construction returned to quality at round 500 and geometry repair entered at round 523. Standing, joined and repeat gates remain pending.
+
+FP3-E S1 event 1 closed at round 524. Physical, proof, memory and timer checks passed, with 26522 owned and per-rank surface faces and a whole-job peak equal to summed peaks at 9264414720 bytes. Continued CFD and event 2 are underway.
+
+FP3-E S1 event 2 passed physical, proof, memory and timer checks, closed at round 105 with two valid stall observations and no fire. Owned/per-rank faces 21708 and peak/summed peaks 9522749440 bytes. The full solver completed and the collector passed suppression, exchange and STALL across both events. Isolated restart running.
+
+FP3-E Step 2 passed on build680. S1 passed both events, transfer, continued CFD and isolated restart (69.114 s). The collector passed suppression, exchange and STALL across both events, with 16/2 independent debt observations and maximum relative error 3.1752560264874067e-16 / 0. Native maxima 394.945421646 / 239.101785951 s and minimum timer coverage 97.828% / 99.549%. All six payloads differ from D (report only). Both S1 handles are terminal. Next S2 on the same frozen inputs.
