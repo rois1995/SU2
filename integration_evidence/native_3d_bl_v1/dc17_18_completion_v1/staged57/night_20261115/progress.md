@@ -2744,3 +2744,13 @@ CL1 cycle 1 reached its 2000-iteration cap with finite history through Inner_Ite
 CL1 event 2 reached worker exit round 164 and entered cycle 2 on a 66544-point mesh, CFL 5, transferred solution. The publication and cycle transition are present; per-event certification, transfer, and continued-flow checks will be joined after terminal.
 
 CL1 cycle 2 reached the 2000 cap. The named history ends Inner_Iter 1999 / Adap_Iter 4000 with rms[Rho] -5.651942866. Cauchy CL 2.12931e-6 and CD 1.66539e-5. Mesh, native reference, restart and both VTUs are on disk. Checkpoint the scoped live cycles 0–2; final driver summaries and gates are pending. Event 3 underway.
+
+CL1 cycles 0–2 checkpoint 8d343ea491 pushed. Event 3 worker exit was round 77. Publication and transfer completed with zero inadmissible states reported, and cycle 3 started on a 65505-point mesh at CFL 5. Final per-event gates await terminal evidence.
+
+CL1 cycle 3 reached the 2000 cap with Inner_Iter 1999 / Adap_Iter 6000, rms[Rho] -5.712576447, Cauchy CL 4.02738e-7 and CD 8.60035e-6. Mesh, native reference, restart and both VTUs are present. Final remesh event 4 underway.
+
+CL1 event 4 reached worker exit round 39. Transfer reported zero inadmissible states, and cycle 4 started on the published 64697-point mesh at CFL 5. All four native remeshes reached output and replacement. Wait for final CFD/output and six terminal rank wait4 receipts.
+
+CL1 solver terminal naturally, wait exit 0 after 4274.908 s. All six solver ranks reaped, terminal high-water sum 9650843648 bytes against 19999490048. Cycle 4 reached cap 2000 with rms[Rho] -6.185394756, Cauchy CL 1.08373e-7 and CD 6.05808e-6. Final mesh, sidecar, restart and both VTUs present. Run saved-file checks and the unchanged shock measure.
+
+CL1 final. All 24 per-event gates and the terminal memory gate passed. Native maxima 478.324061810 / 139.007944914 / 161.499878885 / 311.183813821 s. All four adapted cycles reached cap 2000, and cycle 0 reached its one-iteration cap by design. The unchanged measure produced five JSON lines. Median realized shock-normal edge extent input 0.01718250445, minimum 0.01486801966 on mesh 1, final 0.01871649851. Verified all 23 local mesh, sidecar, restart and VTU output hashes. Six-file and first-collapse identity, two-run rule and isolated restart were unevaluated. No production, config-after-launch or reference changes. Final label “CL1: loop run DONE; convergence cap reached on cycles 1, 2, 3, 4”. Stop after commit and push.

@@ -454,6 +454,24 @@ def render_shock(lines, named):
     lines.extend(['## Shock measurements', '',
                   'The metric on cycle k requests sizes for mesh k+1. The realized size is the median edge '
                   'extent along the in-surface shock normal. A second strong rise sets the lambda flag.', ''])
+    cl1 = named[0][1]
+    metrics = cl1['shock']['cycles']
+    normal_key, jump_key = B_FIELDS[1:3]
+    fields = [metrics[cycle].get('B_direction_aware', {}) for cycle in range(5)]
+    if all(row.get(normal_key) is not None and row.get(jump_key) is not None for row in fields):
+        first, last = fields[0], fields[-1]
+        lines.extend([
+            f'The median shock-normal edge extent was {first[normal_key]:.5f} on the input, '
+            f'{min(row[normal_key] for row in fields):.5f} at its smallest, and {last[normal_key]:.5f} on mesh 4. '
+            f'The median Mach jump across a sampled edge rose from {first[jump_key]:.4f} to {last[jump_key]:.4f}.',
+            '',
+        ])
+        if all(left.get(B_FIELDS[3], 0) > right[normal_key] for left, right in zip(fields, fields[1:])):
+            lines.extend(['In all four pairs, the previous cycle’s median shock-normal metric size was larger '
+                          'than the next mesh’s median measured extent.', ''])
+        if all(cycle['status'] == 'cap reached' for cycle in cl1['cycles'][1:]):
+            lines.extend(['All four adapted solves reached their iteration cap. These measurements characterize '
+                          'the capped flow solves.', ''])
     b_rows, c_rows, pairs = [], [], []
     for name, record in named:
         measured = record['shock']['cycles']
