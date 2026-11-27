@@ -2680,3 +2680,15 @@ FP3-E build680 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_Nativ
 FP3-E build680 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/GQ/case_summary.json.
 
 FP3-E G1 and hidden checkpoint 84293b6de0 pushed. Build680 G2 and GQ both passed the unchanged P3/N22 comparator with equal decisions and modeled storage and fixedstorage=4120. First-collapse work 76652506 against 108459426, exact rank counts and zero upper refinements. The independent shared-engine checks are next under the scoped controller.
+
+FP3-E build680 Step 1 first-collapse passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/first-collapse/case_summary.json.
+
+FP3-E build680 Step 1 exact-c492 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/exact-c492/case_summary.json.
+
+FP3-E build680 Step 1 merit481 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/merit481/case_summary.json.
+
+FP3-E build680 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/native2d/case_summary.json.
+
+FP3-E build680 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/saved-current/case_summary.json.
+
+FP3-E prefix checkpoint 21a4f9f00a pushed. All five shared groups passed on build680: first-collapse, exact C492 on attempt 1, merit481, native 2D at 1/2/4 ranks, and saved-current with all three hashes and the planning projection equal. G3 has launched under the same scoped controller. G4 follows from the pinned 2D runs.
