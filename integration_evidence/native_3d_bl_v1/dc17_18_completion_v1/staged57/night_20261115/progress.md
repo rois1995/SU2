@@ -2736,3 +2736,11 @@ CL1 setup checkpoint 23de3d6c57 pushed. The first setup supervisor stopped befor
 CL1 setup fix 0463ccef51 pushed. The one solver invocation launched with a 21600 s watchdog and active host preflight. All six rank start receipts show nice 19, trace 0 and probe 0. Checkout 0463ccef51 and solver source 62a270c4d6 recorded separately. Cycle 0 started on the 61330-point input with cap 1 and CFL 1.
 
 CL1 cycle 0 reached its prescribed cap of one iteration. The convergence summary listed Cauchy[CL] and Cauchy[CD], both 1 against 1e-7. Restart and both nonempty ParaView outputs are on disk. Native event 1 underway.
+
+CL1 launch/cycle-0 checkpoint 994fa26327 pushed. Event 1 reached worker exit round 581 and published the mesh and native reference. Cycle 1 started from the transferred solution on 69165 points at CFL 5, with finite history through iteration 180 at observation. Final gate validation uses the terminal logs and restart.
+
+CL1 cycle 1 reached its 2000-iteration cap with finite history through Inner_Iter 1999 and Adap_Iter 2000. Final rms[Rho] -5.132198156; convergence summary Cauchy CL 4.10265e-7 and CD 2.86217e-6 against 1e-7. Both VTUs and the mesh, sidecar and restart are present. Event 2 underway.
+
+CL1 event 2 reached worker exit round 164 and entered cycle 2 on a 66544-point mesh, CFL 5, transferred solution. The publication and cycle transition are present; per-event certification, transfer, and continued-flow checks will be joined after terminal.
+
+CL1 cycle 2 reached the 2000 cap. The named history ends Inner_Iter 1999 / Adap_Iter 4000 with rms[Rho] -5.651942866. Cauchy CL 2.12931e-6 and CD 1.66539e-5. Mesh, native reference, restart and both VTUs are on disk. Checkpoint the scoped live cycles 0–2; final driver summaries and gates are pending. Event 3 underway.
