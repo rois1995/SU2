@@ -2772,3 +2772,5 @@ DEF1 normal lab setup correction 3580e87816 pushed. Build681 normal lab passed f
 DEF1 normal lab checkpoint 82a5f7f3c2 pushed. Standard reverse-AD target failed before linking in unchanged CBoundaryLayerMetric.cpp at 2619/3299 and is terminal. Preserve its logs. R3 uses the exact Meson AD objects and CommonAD dependencies to link the required focused Catch driver without touching production or the normal pair.
 
 DEF1 focused reverse-AD driver built and linked successfully with the Meson AD options from the frozen build681 source. SHA256 eff1710be85cc8db2f9257e929ac86e244747312b324aaf8471899ba55a4bb52. Next execute the required GOAL CConfig cohort.
+
+DEF1 AD build checkpoint 38f4f725b9 pushed. The focused GOAL CConfig cohort passed all 31 reverse-AD assertions, including omitted norm, inherited scalar, explicit scalar warning and per-level override. Supervisor terminal. Start the scoped standing gates with legacy keys bound to the sealed inputs.

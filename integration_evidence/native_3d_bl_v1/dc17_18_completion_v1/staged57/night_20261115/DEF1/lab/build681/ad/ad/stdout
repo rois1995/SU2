@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Catch name="test_driver_AD" filters="[def1_ad]">
+  <Group name="test_driver_AD">
+    <TestCase name="DEF1 AD GOAL config defaults and inherited scalar" tags="[!hide][.][def1_ad]" filename="../../UnitTests/Common/adaptation/DEF1Options_tests.cpp" line="75">
+      <Section name="Omitted scalar uses L1, including an inherited default" filename="../../UnitTests/Common/adaptation/DEF1Options_tests.cpp" line="78">
+        <OverallResults successes="12" failures="0" expectedFailures="0"/>
+      </Section>
+      <Section name="Explicit scalar is retained and still warned about" filename="../../UnitTests/Common/adaptation/DEF1Options_tests.cpp" line="87">
+        <OverallResults successes="13" failures="0" expectedFailures="0"/>
+      </Section>
+      <Section name="Per-level list supersedes the implicit GOAL scalar" filename="../../UnitTests/Common/adaptation/DEF1Options_tests.cpp" line="99">
+        <OverallResults successes="6" failures="0" expectedFailures="0"/>
+      </Section>
+      <OverallResult success="true"/>
+    </TestCase>
+    <OverallResults successes="31" failures="0" expectedFailures="0"/>
+    <OverallResultsCases successes="1" failures="0" expectedFailures="0"/>
+  </Group>
+  <OverallResults successes="31" failures="0" expectedFailures="0"/>
+  <OverallResultsCases successes="1" failures="0" expectedFailures="0"/>
+</Catch>

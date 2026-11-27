@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "mode": "ad",
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/build681/test_driver_AD",
+  "binary_sha256": "eff1710be85cc8db2f9257e929ac86e244747312b324aaf8471899ba55a4bb52",
+  "runner_sha256": "9a6d30afc54f8991e127111710c0f3b1ea346e400d0f9a337c25a76d8905a343",
+  "cases": [
+    {
+      "case": "ad",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/build681/test_driver_AD",
+        "[def1_ad]",
+        "-r",
+        "xml"
+      ],
+      "returncode": 0,
+      "binary_sha256": "eff1710be85cc8db2f9257e929ac86e244747312b324aaf8471899ba55a4bb52",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "OMPI_MCA_osc": "pt2pt",
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+      },
+      "stdout": "c810b2e9902c9eb1f9557a33437c93eb16a075da143213b6f77138301a66f37f",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host_preflight": "271d8233258a746521e6c0268066c41029398d2f3e5bf3f2a1b705c35f13281a",
+      "passed": true,
+      "selected_tests": [
+        "DEF1 AD GOAL config defaults and inherited scalar"
+      ],
+      "expected_test_count": 1
+    }
+  ]
+}
