@@ -2648,3 +2648,5 @@ FP3-D observation checkpoint b7e3602511 pushed. Published the build678 accepted 
 FP3-E Step 0 completed before any production edit. Authenticated the reviewer text and its archived SHA256. HEAD and upstream are c53e7dbce2, tracked source trees clean at intake, no owned job on the host. Recorded all guard-uniformity checks and readings in FP3_E/reports/source_check.md. Next implement and freeze build679, then run Step 1.
 
 FP3-E Step 0 checkpoint c29eea1d45 pushed. Production and hidden fixture source frozen for build679. The charged state is 56 bytes on the current ABI (sizeof State at admission); all new timers are scoped to the single array SUM of active windows. Next build the candidate pair and execute Step 1.
+
+FP3-E candidate 62a270c4d6 pushed. Build679 compiled and linked both targets with zero warnings and terminal exit 0. Solver e423a3d84f8872723b23344005e171bb3971cf2f8f562adc74c77cc752f109e3; test driver 38ef429af062582e9d7867c29026faf03857d89cc5692edf4ce6d6bb41f9cfc3. The adapters passed their self-checks, including a temporary D S1 trace replay that recovered round 496. Next execute the signed Step 1 controls and hidden checks.
