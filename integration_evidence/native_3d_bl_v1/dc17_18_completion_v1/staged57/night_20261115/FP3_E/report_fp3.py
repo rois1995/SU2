@@ -215,7 +215,11 @@ def stall_tables(measurements):
 def write_report(label, status, checks, measurements, probes, parts, revert):
     md = [f'# FP3-E build{label}', '', f'**{status}**', '',
           'Full CORE and full OFF are unevaluated under this order.',
-          'The [pre-edit source check](source_check.md) records the R4 readings.', '']
+          'The [pre-edit source check](source_check.md) records the R4 readings.',
+          'Build679 G1 failed on a fixture include that shifted existing assertion locations by one line. '
+          'Build680 restores those locations and repeats G1 with the same comparator. The inherited scoped '
+          'helpers also needed the basename-specific SHA256 sidecar before they could start native work. '
+          '[G1 diagnosis](G1_build679_diagnosis.md) · [Scoped helper disposition](scoped_build679_harness.md)', '']
     saved = checks.get('saved-current', {})
     if saved.get('status') == 'passed':
         md += ['The two 126,680,744-byte saved-current fixture files are retained locally with their SHA256 pins. '
@@ -344,6 +348,10 @@ def report(label, validated_commit=None, revert=None):
 
     record = {'status': status, 'build': label, 'reverted_production_commit': revert,
               'source_check': path_pin(HERE / 'reports/source_check.md'),
+              'initial_attempt_diagnostics': [
+                  path_pin(HERE / 'reports' / name)
+                  for name in ('G1_build679_diagnosis.md', 'scoped_build679_harness.md')
+              ],
               'checks': {name: brief(row) for name, row in checks.items()},
               'measurements': measurements, 'probe_runs': {name: brief(parts[name]) for name in ('probe4',)},
               'probe_measurements': probes}

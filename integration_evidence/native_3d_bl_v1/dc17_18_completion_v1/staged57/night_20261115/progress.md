@@ -2692,3 +2692,9 @@ FP3-E build680 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2
 FP3-E build680 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/saved-current/case_summary.json.
 
 FP3-E prefix checkpoint 21a4f9f00a pushed. All five shared groups passed on build680: first-collapse, exact C492 on attempt 1, merit481, native 2D at 1/2/4 ranks, and saved-current with all three hashes and the planning projection equal. G3 has launched under the same scoped controller. G4 follows from the pinned 2D runs.
+
+FP3-E build680 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/G3/case_summary.json.
+
+FP3-E build680 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build680/G4/case_summary.json.
+
+FP3-E shared checkpoint b916b04aa3 pushed. Step 1 passed all 13 checks and build680/step1.json is sealed. G3 accepted 1708 splits and matched all 1592 common edits, observer-adjusted entry work 5113/5113 and zero upper refinements. G4 passed the same pinned 1/2/4-rank native 2D executions. Full CORE and OFF workflows unevaluated. Scoped supervisor terminal. Commit the exact default-path label, then run S1 with its isolated restart.
