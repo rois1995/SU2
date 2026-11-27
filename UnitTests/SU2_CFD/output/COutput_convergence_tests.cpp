@@ -43,7 +43,7 @@ namespace {
 
 std::unique_ptr<CConfig> MakeConvergenceConfig(const std::string& fields, bool nemo, bool multizone) {
   std::stringstream options;
-  options << "SOLVER= " << (nemo ? "NEMO_EULER" : "EULER") << '\n';
+  options << "SOLVER= " << (nemo ? "NEMO_EULER" : "EULER") << "\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n";
   if (nemo) {
     options << "GAS_MODEL= AIR-5\n"
             << "GAS_COMPOSITION= (0.77, 0.23, 0.0, 0.0, 0.0)\n"

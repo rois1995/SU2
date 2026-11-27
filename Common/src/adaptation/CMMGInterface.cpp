@@ -31,7 +31,9 @@
 #include <array>
 #include <climits>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
+#include <limits>
 #include <set>
 
 #include "../../include/CConfig.hpp"
@@ -245,6 +247,44 @@ std::vector<CMMGInterface::LocalParameter> CMMGInterface::WallLocalParameters(co
     local.push_back(param);
   }
   return local;
+}
+
+std::vector<CMMGInterface::LocalParameter> CMMGInterface::BuildLocalParameters(const CSimplexMesh& mesh) const {
+  for (const auto& entry : markerHausd) {
+    const auto present = std::any_of(mesh.markers.begin(), mesh.markers.end(),
+                                     [&](const auto& marker) { return marker.name == entry.first; });
+    if (!present)
+      SU2_MPI::Error("ADAP_HAUSD marker " + entry.first + " is absent from the gathered mesh.", CURRENT_FUNCTION);
+  }
+  if (!localOverride.empty()) return localOverride;
+
+  auto rows = params.localWallHmax ? WallLocalParameters(mesh) : std::vector<LocalParameter>{};
+  if (markerHausd.empty()) return rows;
+  for (const auto& marker : mesh.markers) {
+    const auto tolerance = markerHausd.find(marker.name);
+    if (tolerance == markerHausd.end()) continue;
+    auto row = std::find_if(rows.begin(), rows.end(), [&](const auto& value) { return value.ref == marker.ref; });
+    if (row == rows.end())
+      rows.push_back({marker.ref, params.hmin, params.hmax, tolerance->second});
+    else
+      row->hausd = tolerance->second;
+  }
+  return rows;
+}
+
+void CMMGInterface::ReportParameters() const {
+  const auto oldPrecision = cout.precision(std::numeric_limits<double>::max_digits10);
+  const auto oldFlags = cout.flags();
+  cout << std::defaultfloat << "MMG_PARAMETERS dim=" << nDim << " hmin=" << params.hmin << " hmax=" << params.hmax
+       << " hgrad=" << params.hgrad << " hausd=" << params.hausd << " local_rows=" << localParams.size() << '\n';
+  for (const auto& row : localParams) {
+    const auto marker = std::find_if(markerInfo.begin(), markerInfo.end(),
+                                     [&](const auto& item) { return item.ref == row.ref; });
+    cout << "MMG_LOCAL_PARAMETER marker=" << (marker != markerInfo.end() ? marker->name : "<unknown>")
+         << " ref=" << row.ref << " hmin=" << row.hmin << " hmax=" << row.hmax << " hausd=" << row.hausd << '\n';
+  }
+  cout.flags(oldFlags);
+  cout.precision(oldPrecision);
 }
 
 void CMMGInterface::CheckSupport(const CConfig& config, const CGeometry& geometry) {
@@ -572,6 +612,8 @@ CMMGInterface::CMMGInterface(const CConfig& config) : mmg(new MMGData) {
   params.hmax = SU2_TYPE::GetValue(config.GetAdap_Hmax());
   params.hgrad = SU2_TYPE::GetValue(config.GetAdap_Hgrad());
   params.hausd = SU2_TYPE::GetValue(config.GetAdap_Hausd());
+  markerHausd = config.GetAdap_MarkerHausd();
+  reportParameters = config.GetWrt_Performance();
   params.angle = SU2_TYPE::GetValue(config.GetAdap_Angle());
   params.surface = config.GetAdap_Surface();
   params.boundaryLayer = (config.GetnAdap_BL() > 0);
@@ -609,9 +651,7 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
     info.ref = marker.ref;
     markerInfo.push_back(info);
   }
-  localParams.clear();
-  if (!localOverride.empty()) localParams = localOverride;
-  else if (params.localWallHmax) localParams = WallLocalParameters(mesh);
+  localParams = BuildLocalParameters(mesh);
 
   /*--- MMG arrays: 1-based indices. ---*/
   std::vector<double> coord(mesh.coord.begin(), mesh.coord.end());
@@ -721,6 +761,7 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
 CMMGInterface::Status CMMGInterface::Remesh() {
   if (mmg->mesh == nullptr) SU2_MPI::Error("No mesh loaded into MMG.", CURRENT_FUNCTION);
 
+  if (reportParameters) ReportParameters();
   int ok = 1, ier = MMG5_STRONGFAILURE;
   if (nDim == 2) {
     ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_verbose, params.verbosity);
@@ -1030,7 +1071,11 @@ CRemeshResult CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geome
     cout << "MMG" << mesh.nDim << "D status " << (success ? "SUCCESS" : "LOWFAILURE") << ", " << mmgTime - extractTime
          << " s (with the validation of input and output), extraction " << extractTime - startTime << " s";
     if (size > 1) cout << " (gathered from " << size << " ranks), slices sent " << endTime - mmgTime << " s";
-    cout << "." << endl;
+    const auto oldPrecision = cout.precision(std::numeric_limits<double>::max_digits10);
+    const auto oldFlags = cout.flags();
+    cout << std::defaultfloat << " total_seconds=" << endTime - startTime << "." << endl;
+    cout.flags(oldFlags);
+    cout.precision(oldPrecision);
     if (!config.GetAdap_Surface())
       cout << "Volume only (ADAP_SURFACE= NO): boundary points and faces kept (checked)." << endl;
   }

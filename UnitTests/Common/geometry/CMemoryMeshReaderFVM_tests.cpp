@@ -84,7 +84,7 @@ std::unique_ptr<CConfig> MakeConfig(unsigned short nDim, const string& meshFile)
                                        "MARKER_HEATFLUX= (lower_b, 0.0, lower_a, 0.0)\n"
                                      : "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n"
                                        "MARKER_HEATFLUX= (z_minus_b, 0.0, z_minus_a, 0.0)\n";
-  stringstream options("SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nMESH_FORMAT= SU2\n"
+  stringstream options("SOLVER= RANS\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nMESH_FORMAT= SU2\n"
                        "MESH_FILENAME= " + meshFile + "\n" + markers +
                        "MGLEVEL= 3\nMG_MIN_MESHSIZE= " + (nDim == 2 ? "20" : "50") + "\n");
   auto origBuf = cout.rdbuf();

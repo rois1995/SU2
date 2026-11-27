@@ -35,7 +35,7 @@ void CheckRunState(bool unsteady) {
   const string timeOptions = unsteady ? "TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"
                                         "TIME_STEP= 0.1\nTIME_ITER= 20\nINNER_ITER= 5\n"
                                       : "ITER= 100\n";
-  stringstream options("SOLVER= EULER\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nMGLEVEL= 2\nCFL_NUMBER= 5\n"
+  stringstream options("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nMGLEVEL= 2\nCFL_NUMBER= 5\n"
                        "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n" + timeOptions);
   auto origBuf = cout.rdbuf();
   cout.rdbuf(nullptr);
@@ -75,7 +75,7 @@ TEST_CASE("Config run state, steady", "[Adaptation]") { CheckRunState(false); }
 TEST_CASE("Config run state, time domain", "[Adaptation]") { CheckRunState(true); }
 
 TEST_CASE("Config run state, full multigrid", "[Adaptation]") {
-  stringstream options("SOLVER= EULER\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nMGLEVEL= 2\nCFL_NUMBER= 5\n"
+  stringstream options("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nMGLEVEL= 2\nCFL_NUMBER= 5\n"
                        "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\nITER= 100\n"
                        "MGCYCLE= FULLMG_CYCLE\n");
   auto origBuf = cout.rdbuf();

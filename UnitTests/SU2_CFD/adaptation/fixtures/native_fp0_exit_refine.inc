@@ -43,7 +43,7 @@ TEST_CASE("FP0 refines the saved valid frozen-volume exit", "[.][NativeFastPathE
 
     std::ifstream config_stream(config_path);
     if (!config_stream) throw std::runtime_error("Cannot open pinned FP0 configuration.");
-    const CConfig config(config_stream, SU2_COMPONENT::SU2_CFD, false);
+    auto pinned = legacy_metric_test::Stream(config_stream); const CConfig config(pinned, SU2_COMPONENT::SU2_CFD, false);
     if (config.GetnAdap_BL() || options.surface_tolerance != SU2_TYPE::GetValue(config.GetAdap_Hausd()) ||
         options.wall_heights.tolerance != SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol()) ||
         options.maximum_seconds > SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()))

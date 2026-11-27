@@ -5,7 +5,7 @@ TEST_CASE("Actual curved BL surface cavities preserve complete dependencies", "[
   const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
   const auto* contexts=std::getenv("SU2_NATIVE_BL_CAVITY_CONTEXTS");
   REQUIRE(cfg);REQUIRE(ref);REQUIRE(contexts);
-  std::ifstream configFile(cfg);REQUIRE(bool(configFile));CConfig config(configFile,SU2_COMPONENT::SU2_CFD,false);
+  std::ifstream configFile(cfg);REQUIRE(bool(configFile));auto pinned = legacy_metric_test::Stream(configFile); CConfig config(pinned,SU2_COMPONENT::SU2_CFD,false);
   const auto ceiling=config.GetAdap_Native_MemoryLimit();REQUIRE(ceiling>0);
   auto reference=std::make_shared<ReferenceState>();bool loaded=false;size_t loadPeak=0;std::string reason;
   REQUIRE(LoadReference(ref,*reference,loaded,reason,ceiling,0,loadPeak));REQUIRE(loaded);

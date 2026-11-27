@@ -262,7 +262,7 @@ TEST_CASE("Native3D configured work and time ceilings preserve CFD and BDF donor
   World world;const int workers=world.size>1 ? world.size/2 : 1;
   auto cfg=[&](unsigned long budget,double seconds) {
     std::ostringstream options;
-    options<<"SOLVER= EULER\nTIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"
+    options<<"SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nTIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"
       <<"TIME_STEP= 0.01\nMAX_TIME= 0.02\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
       <<"ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
       <<"ADAP_UNSTEADY_METRIC= WINDOW_AVERAGE\nADAP_NATIVE_RANKS= "<<workers
@@ -657,7 +657,7 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
 TEST_CASE("Native first-row transactions replay original fields without solver initialization", "[.][NativeFirstRowReplay3D]") {
   World world;const auto* folder=std::getenv("SU2_NATIVE_FIRST_ROW_ROOT");REQUIRE(folder);
   const std::string root(folder);std::ifstream configFile(root+"/run.cfg");REQUIRE(configFile.good());
-  CConfig config(configFile,SU2_COMPONENT::SU2_CFD,false);ReferenceState reference;
+  auto pinned = legacy_metric_test::Stream(configFile); CConfig config(pinned,SU2_COMPONENT::SU2_CFD,false);ReferenceState reference;
   REQUIRE(LoadReference(root+"/Coarse.su2.native_ref",reference));REQUIRE(reference.original);
   std::ifstream sensorFile(root+"/sensor_original.bin",std::ios::binary);uint64_t count=0;
   sensorFile.read(reinterpret_cast<char*>(&count),8);REQUIRE(count>0);REQUIRE(count<=10000000);

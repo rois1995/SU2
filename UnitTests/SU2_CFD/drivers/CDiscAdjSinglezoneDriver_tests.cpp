@@ -79,7 +79,7 @@ struct Mute {
 const std::string kName = "da_swap";
 
 std::string CommonOptions(bool upwind = false) {
-  return "SOLVER= EULER\nMACH_NUMBER= 0.5\nAOA= 5.0\n"
+  return "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 5.0\n"
          "FREESTREAM_PRESSURE= 101325.0\nFREESTREAM_TEMPERATURE= 288.15\nREF_DIMENSIONALIZATION= DIMENSIONAL\n"
          "MESH_FORMAT= SU2\nMESH_FILENAME= " + kName + ".su2\n"
          "MARKER_FAR= (left, right, upper)\nMARKER_EULER= (lower_a, lower_b)\nMARKER_MONITORING= (lower_a, lower_b)\n"

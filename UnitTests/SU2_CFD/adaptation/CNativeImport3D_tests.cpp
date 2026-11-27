@@ -185,7 +185,7 @@ void OutputRoundTrip(World& world,const std::string& name,const CReaderSlices& s
   for(const auto& format:formats) {
     const auto stem=name+"_written_"+format,file=stem+(format=="CGNS"?".cgns":".su2");
     std::string tags;for(auto tag:reference.marker_names){if(!tags.empty())tags+=", ";tags+=tag;}
-    std::stringstream options("SOLVER= EULER\nMGLEVEL= 0\nMESH_FORMAT= "+format+"\nMESH_OUT_FORMAT= "+format+"\nMESH_FILENAME= "+file+"\nMARKER_FAR= ("+tags+")\n");
+    std::stringstream options("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMGLEVEL= 0\nMESH_FORMAT= "+format+"\nMESH_OUT_FORMAT= "+format+"\nMESH_FILENAME= "+file+"\nMARKER_FAR= ("+tags+")\n");
     std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(options,SU2_COMPONENT::SU2_CFD,false);}
     MeshSolution output(config.get(),slices,0);{Mute mute;CMeshOutput::WriteMesh(config.get(),&output.Fine(),stem);}
     std::unique_ptr<CMeshReaderBase> reader;
@@ -494,7 +494,7 @@ TEST_CASE("Native3D driver publishes only accepted mesh and transfers affine BDF
   const bool conservative=GENERATE(false,true),detail=GENERATE(false,true);
   const auto name="runtime_"+std::string(conservative?"conservative":"barycentric")+"_m"+std::to_string(m)+"_d"+std::to_string(detail);
   if(!world.rank){simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),name+".su2");std::ofstream cfg(name+".cfg");
-    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
        <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
        <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<m<<"\nWRT_PERFORMANCE= "<<(detail?"YES":"NO")<<"\n"
@@ -557,7 +557,7 @@ TEST_CASE("Native3D actual metric-to-replacement lifecycle preserves CFD state",
     if (!world.rank) {
       simplex_test::WriteSU2Mesh(BoxMesh(3, 1, false), name + ".su2");
       std::ofstream cfg(name + ".cfg");
-      cfg << "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= " << name << ".su2\n"
+      cfg << "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= " << name << ".su2\n"
           << "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
           << "COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
           << "ADAP_HMIN= 0.5\nADAP_HMAX= 0.5000000000000001\nADAP_COMPLEXITY= 8\nADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= " << workers << "\n"
@@ -691,7 +691,7 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     simplex_test::WriteSU2Mesh(mesh,"envelope_input.su2");
     std::ofstream cfg("envelope.cfg");
     cfg<<"% Manufactured target: n="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" height_power="<<height_power<<" wedge="<<wedge<<" repeat="<<repeat<<"\n"
-       <<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= envelope_input.su2\n"
+       <<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= envelope_input.su2\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n"
        <<(wedge?"MARKER_FAR= (x_minus, y_minus, wedge_oblique, z_plus, z_minus_a, z_minus_b)\n":"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n")
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
        <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nWRT_PERFORMANCE= "<<(detail?"YES":"NO")<<"\n"
@@ -877,7 +877,7 @@ TEST_CASE("Native3D acceptance veto retains current and BDF state before publica
   REQUIRE(veto==1);
   if(!world.rank) {
     simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),"veto_input.su2");
-    std::ofstream cfg("veto.cfg");cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nMGLEVEL= 0\nMESH_FILENAME= veto_input.su2\n"
+    std::ofstream cfg("veto.cfg");cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nMGLEVEL= 0\nMESH_FILENAME= veto_input.su2\n"
       <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus_a, z_minus_b, z_plus)\n"
       <<"TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 0.01\nMAX_TIME= 0.02\n"
       <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\n"
@@ -1243,7 +1243,7 @@ TEST_CASE("Curved native3D runtime refines geometry, publishes and transfers con
   const std::string name="curved_runtime_m"+std::to_string(m),filename=name+".cfg";
   if(!world.rank) {
     simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),name+".su2");std::ofstream cfg(filename);
-    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
        <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
        <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<m<<"\nADAP_NATIVE_MAX_WORK= 256\nADAP_HAUSD= .003\n"
@@ -1368,7 +1368,7 @@ TEST_CASE("Curved native3D repeated conservative events preserve domain accounti
   const auto name="curved_lifecycle_"+std::string(growth?"grow":"shrink")+"_m"+std::to_string(workers);
   if(!world.rank) {
     simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),name+".su2");std::ofstream cfg(name+".cfg");
-    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
        <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
        <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nADAP_NATIVE_MAX_WORK= 4096\nADAP_HAUSD= .003\n"
@@ -1422,7 +1422,7 @@ TEST_CASE("Solved three-dimensional Euler pressure supplies repeated native curv
     auto mesh=BoxMesh(3,2,false);
     for(size_t p=0;p<mesh.coord.size();p+=3){const auto x=mesh.coord[p],y=mesh.coord[p+1],z=mesh.coord[p+2];mesh.coord[p+2]=z+(1-z)*amplitude*x*(1-x)*y*(1-y);}
     simplex_test::WriteSU2Mesh(mesh,name+".su2");std::ofstream cfg(name+".cfg");
-    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
        <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\nMARKER_EULER= (z_minus_a, z_minus_b)\n"
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
        <<"ADAP_COMPLEXITY= 6\nADAP_HMIN= .3\nADAP_HMAX= 2\nADAP_ARMAX= 2\n"
@@ -1520,7 +1520,7 @@ TEST_CASE("Native sphere cylinder and disk rims adapt through full distributed r
   const auto name=std::string(sphere?"sphere":"cylinder")+"_axis"+std::to_string(tilted)+"_m"+std::to_string(workers);
   if(!world.rank) {
     simplex_test::WriteSU2Mesh(PrimitiveMesh(sphere,tilted),name+".su2");std::ofstream cfg(name+".cfg");
-    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
        <<(sphere?"MARKER_FAR= (sphere)\n":"MARKER_FAR= (cylinder, cap0, cap1)\n")
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
        <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nADAP_NATIVE_MAX_WORK= 4096\nADAP_HAUSD= "<<(sphere?.22:.04)<<"\n"
@@ -1651,7 +1651,7 @@ TEST_CASE("Resolved three-dimensional Euler vortex drives native curved adaptati
       mesh.coord[p]=-2+4*u;mesh.coord[p+1]=-2+4*v;mesh.coord[p+2]=z+(1-z)*amplitude*u*(1-u)*v*(1-v);
     }
     simplex_test::WriteSU2Mesh(mesh,name+".su2");std::ofstream cfg(name+".cfg");
-    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nREF_DIMENSIONALIZATION= FREESTREAM_VEL_EQ_ONE\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 0\nREF_DIMENSIONALIZATION= FREESTREAM_VEL_EQ_ONE\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
        <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus)\nMARKER_EULER= (z_plus, z_minus_a, z_minus_b)\n"
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
        <<"ADAP_COMPLEXITY= 400\nADAP_HMIN= .2\nADAP_HMAX= .9\nADAP_ARMAX= 2\nADAP_HAUSD= .003\n"
@@ -1721,7 +1721,7 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
   const std::string name="policy_m"+std::to_string(workers);
   auto configText=[&](bool walls) {
     std::ostringstream cfg;
-    cfg<<"SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.2\nAOA= 0\n"
+    cfg<<"SOLVER= RANS\nADAP_NORM= 1.0\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.2\nAOA= 0\n"
        <<"REYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
        <<"MARKER_FAR= (far)\nMARKER_HEATFLUX= (wall,0)\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
        <<"ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_ISO_CORNER= NO\n"
@@ -1858,7 +1858,7 @@ namespace {
 
 TEST_CASE("Cold native cylinder BL construction and release use the same original sensor and smooth policy", "[.][NativeCurvedBLConstruction3D]") {
   World world;const auto seed=PrimitiveMesh(false,false);
-  std::stringstream text("SOLVER= RANS\nKIND_TURB_MODEL= SA\nMACH_NUMBER= .2\nAOA= 90\nREYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 1\n"
+  std::stringstream text("SOLVER= RANS\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nKIND_TURB_MODEL= SA\nMACH_NUMBER= .2\nAOA= 90\nREYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 1\n"
       "MESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMARKER_FAR= (cap0,cap1)\nMARKER_HEATFLUX= (cylinder,0)\nMGLEVEL= 0\n"
       "COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
       "ADAP_BL_MARKER= (cylinder)\nADAP_BL_FIRST_HEIGHT= (.05)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.2)\nADAP_HAUSD= .04\n");
@@ -3062,7 +3062,7 @@ TEST_CASE("Accepted Euler import reports rank-local edge and wall shells", "[.][
   REQUIRE(mesh_path != nullptr);
   REQUIRE(std::string(mesh_path).size() > 0);
   std::stringstream options;
-  options << "SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= " << mesh_path << "\n"
+  options << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= SU2\nMESH_FILENAME= " << mesh_path << "\n"
           << "MARKER_FAR= (FARFIELD)\nMARKER_EULER= (WING3D)\nMARKER_SYM= (SYMMETRY)\n"
           << "MGLEVEL= 0\n";
   Mute mute;
@@ -3435,7 +3435,7 @@ TEST_CASE("Accepted Euler import measures bounded actual split operators", "[.][
   const auto* mesh_path = std::getenv("SU2_NATIVE_D9_MESH");
   REQUIRE(mesh_path != nullptr);
   std::stringstream options;
-  options << "SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= " << mesh_path << "\n"
+  options << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= SU2\nMESH_FILENAME= " << mesh_path << "\n"
           << "MARKER_FAR= (FARFIELD)\nMARKER_EULER= (WING3D)\nMARKER_SYM= (SYMMETRY)\n"
           << "MGLEVEL= 0\nADAP_HAUSD= 1e-4\n";
   Mute mute;

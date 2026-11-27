@@ -109,7 +109,7 @@ LabInput LoadMesh(ReferenceState* kept = nullptr, bool parallel = false, bool ke
   const char* sensor = std::getenv("SU2_NATIVE_FROZEN_SENSOR3D");
   REQUIRE(config);
   REQUIRE(sensor);
-  std::string config_path(config);
+  auto config_path = legacy_metric_test::DriverFile(config);
   LabDriver driver(config_path.data(), 1, SU2_MPI::GetComm());
   auto& geometry = driver.Geometry();
   su2activematrix metric;

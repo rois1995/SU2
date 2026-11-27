@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -295,6 +296,10 @@ class CMMGInterface {
   Status status = Status::STRONGFAILURE; /*!< \brief Status of the last Remesh. */
   std::vector<bool> fixedBoundary;     /*!< \brief Fixed surface: boundary points of the loaded mesh. */
   std::vector<passivedouble> fixedCoord; /*!< \brief Fixed surface: coordinates of the loaded mesh. */
+  std::map<std::string, double> markerHausd;
+  bool reportParameters = false;
+  std::vector<LocalParameter> BuildLocalParameters(const CSimplexMesh& mesh) const;
+  void ReportParameters() const;
   std::vector<LocalParameter> localParams; /*!< \brief Local parameters of the loaded mesh, set by Remesh. */
   std::vector<LocalParameter> localOverride; /*!< \brief Local parameters given by SetLocalParameters. */
   mutable std::vector<long> fixedSource; /*!< \brief Fixed surface: input index of each point of the last GetMesh

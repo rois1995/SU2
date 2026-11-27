@@ -1458,6 +1458,7 @@ private:
    class of COptionBase that turns the string into a value) ---*/
 
   map<string, COptionBase*> option_map;
+  map<string, double> Adap_MarkerHausd;  /*!< \brief MMG-only boundary tolerance overrides by marker name. */
 
 
   // All of the addXxxOptions take in the name of the option, and a reference to the field of that option
@@ -10472,6 +10473,7 @@ public:
    * \brief Get the Hausdorff distance that controls the approximation of the boundaries by the remesher.
    */
   su2double GetAdap_Hausd(void) const { return Adap_Hausd; }
+  const map<string, double>& GetAdap_MarkerHausd() const { return Adap_MarkerHausd; }
 
   /*!
    * \brief Get the sharp angle detection threshold of the remesher (degrees).

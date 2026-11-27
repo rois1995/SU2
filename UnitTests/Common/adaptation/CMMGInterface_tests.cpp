@@ -102,7 +102,7 @@ struct SimplexMeshCase {
   SimplexMeshCase(const CSimplexMesh& mesh, const string& markers) {
     meshFile = "mmg_interface_test_" + std::to_string(mesh.nDim) + "d.su2";
     simplex_test::WriteSU2Mesh(mesh, meshFile);
-    stringstream options("SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= " + meshFile + "\n" + markers +
+    stringstream options("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= SU2\nMESH_FILENAME= " + meshFile + "\n" + markers +
                          "ADAP_HMIN= 1e-4\nADAP_HMAX= 10\n");
     auto origBuf = cout.rdbuf();
     cout.rdbuf(nullptr);

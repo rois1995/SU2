@@ -318,7 +318,7 @@ TEST_CASE("Adjoint transfer: curved boundary and marker order", "[AdjointTransfe
   /*--- The target config lists the markers in another order than the donor config. ---*/
   {
     auto configA = MakeConfig(2, "SOLVER= EULER\n");
-    stringstream options("SOLVER= EULER\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
+    stringstream options("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
                          "MARKER_FAR= (lower_b, upper, lower_a, right, left)\nMGLEVEL= 2\nMG_MIN_MESHSIZE= 4\n");
     std::unique_ptr<CConfig> configB;
     {

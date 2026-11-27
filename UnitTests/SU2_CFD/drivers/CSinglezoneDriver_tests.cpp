@@ -148,7 +148,7 @@ TEST_CASE("Steady adaptation consumes its completed metric; public remeshing ref
   if (SU2_MPI::GetRank() == MASTER_NODE) {
     simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), name + ".su2");
     std::ofstream cfg(name + ".cfg");
-    cfg << "SOLVER= EULER\nMACH_NUMBER= 0.5\nAOA= 0\nMGLEVEL= 0\n"
+    cfg << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 0\nMGLEVEL= 0\n"
            "MESH_FORMAT= SU2\nMESH_FILENAME= " << name << ".su2\n"
            "MARKER_FAR= (left, right, upper, lower_a, lower_b)\n"
            "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nITER= 1\nCFL_NUMBER= 1\n"
@@ -176,7 +176,7 @@ TEST_CASE("Steady adaptation consumes its completed metric; public remeshing ref
 
 TEST_CASE("Time window state, same mesh, Euler with multigrid", "[Adaptation]") {
   /*--- Convected vortex. ---*/
-  CheckSameMeshResolve("fp_state_euler", "SOLVER= EULER\nKIND_VERIFICATION_SOLUTION= INVISCID_VORTEX\n"
+  CheckSameMeshResolve("fp_state_euler", "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nKIND_VERIFICATION_SOLUTION= INVISCID_VORTEX\n"
                                          "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus)\n"
                                          "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= YES\n"
                                          "SLOPE_LIMITER_FLOW= VENKATAKRISHNAN\nMGLEVEL= 2\n");
@@ -189,7 +189,7 @@ TEST_CASE("Physical time step of UNST_CFL_NUMBER kept by a mesh replacement and 
   simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(2, 8, simplex_test::Marker2D), name + ".su2");
   {
     std::ofstream cfg(name + ".cfg");
-    cfg << "SOLVER= EULER\nMACH_NUMBER= 0.5\nAOA= 5.0\n"
+    cfg << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 5.0\n"
            "FREESTREAM_DENSITY= 1.0\nFREESTREAM_PRESSURE= 1.0\nFREESTREAM_TEMPERATURE= 1.0\n"
            "FLUID_MODEL= IDEAL_GAS\nGAMMA_VALUE= 1.4\nGAS_CONSTANT= 1.0\nREF_DIMENSIONALIZATION= DIMENSIONAL\n"
            "INIT_OPTION= TD_CONDITIONS\nMESH_FORMAT= SU2\nMESH_FILENAME= " << name << ".su2\n"
@@ -268,7 +268,7 @@ TEST_CASE("Discarded window solve writes no file (fixed CL entering finite diffe
   fs::current_path(dir);
   {
     std::ofstream cfg(name + ".cfg");
-    cfg << "SOLVER= EULER\nMACH_NUMBER= 0.5\nAOA= 2.0\n"
+    cfg << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nAOA= 2.0\n"
            "FREESTREAM_DENSITY= 1.0\nFREESTREAM_PRESSURE= 1.0\nFREESTREAM_TEMPERATURE= 1.0\n"
            "FLUID_MODEL= IDEAL_GAS\nGAMMA_VALUE= 1.4\nGAS_CONSTANT= 1.0\nREF_DIMENSIONALIZATION= DIMENSIONAL\n"
            "INIT_OPTION= TD_CONDITIONS\nREF_AREA= 1.0\n"
@@ -319,7 +319,7 @@ TEST_CASE("Discarded window solve writes no file (fixed CL entering finite diffe
 
 TEST_CASE("Time window state, same mesh, RANS", "[Adaptation]") {
   /*--- Boundary layer starting on a wall from the free stream (eddy viscosity, wall distance). ---*/
-  CheckSameMeshResolve("fp_state_rans", "SOLVER= RANS\nKIND_TURB_MODEL= SA\nVISCOSITY_MODEL= CONSTANT_VISCOSITY\n"
+  CheckSameMeshResolve("fp_state_rans", "SOLVER= RANS\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nKIND_TURB_MODEL= SA\nVISCOSITY_MODEL= CONSTANT_VISCOSITY\n"
                                         "MARKER_HEATFLUX= (y_minus, 0.0)\nMARKER_FAR= (x_minus, x_plus, y_plus)\n"
                                         "MU_CONSTANT= 1e-3\nCONV_NUM_METHOD_FLOW= JST\nCONV_NUM_METHOD_TURB= SCALAR_UPWIND\n"
                                         "MUSCL_TURB= NO\nMGLEVEL= 2\n");

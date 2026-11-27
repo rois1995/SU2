@@ -110,7 +110,7 @@ LoadedMesh LoadMesh() {
   const char* sensor = std::getenv("SU2_NATIVE_FROZEN_SENSOR3D");
   REQUIRE(config);
   REQUIRE(sensor);
-  std::string config_path(config);
+  auto config_path = legacy_metric_test::DriverFile(config);
   FP0Driver driver(config_path.data(), 1, SU2_MPI::GetComm());
   auto& geometry = driver.Geometry();
   auto metric = ReadFrozenSensor(geometry, sensor);

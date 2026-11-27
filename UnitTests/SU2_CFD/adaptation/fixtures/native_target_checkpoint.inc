@@ -2,7 +2,7 @@
 namespace native_target_checkpoint_test {
 std::unique_ptr<CConfig> Config(double hmin=1e-6,const std::string& extra={}) {
   std::ostringstream text;
-  text<<"SOLVER= NAVIER_STOKES\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nREYNOLDS_NUMBER= 1e6\n"
+  text<<"SOLVER= NAVIER_STOKES\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nREYNOLDS_NUMBER= 1e6\n"
       <<"MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nCOMPUTE_METRIC= YES\nADAP_SENSOR= MACH\n"
       <<"ADAP_REMESHER= NATIVE_CAVITY\nADAP_BL_METHOD= FIRST_ROW\nADAP_HMIN= "<<hmin<<"\nADAP_HMAX= 10\n"
       <<"ADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.01)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.1)\nADAP_ANGLE= 60\n"<<extra;
@@ -126,7 +126,7 @@ TEST_CASE("Saved actual BL target isolates storage-accounting cost", "[.][Native
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
   const auto* target=std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D");REQUIRE(cfg);REQUIRE(ref);REQUIRE(target);
-  std::ifstream configFile(cfg);REQUIRE(bool(configFile));CConfig config(configFile,SU2_COMPONENT::SU2_CFD,false);
+  std::ifstream configFile(cfg);REQUIRE(bool(configFile));auto pinned = legacy_metric_test::Stream(configFile); CConfig config(pinned,SU2_COMPONENT::SU2_CFD,false);
   const auto ceiling=config.GetAdap_Native_MemoryLimit();
   auto reference=std::make_shared<ReferenceState>();bool loaded=false;std::string reason;size_t peak=0;
   REQUIRE(LoadReference(ref,*reference,loaded,reason,ceiling,0,peak));REQUIRE(loaded);

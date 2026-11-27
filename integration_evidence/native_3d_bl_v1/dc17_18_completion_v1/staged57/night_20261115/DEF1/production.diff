@@ -1,0 +1,338 @@
+diff --git a/Common/include/CConfig.hpp b/Common/include/CConfig.hpp
+index 0cbc1ecb91..d7d28412d5 100644
+--- a/Common/include/CConfig.hpp
++++ b/Common/include/CConfig.hpp
+@@ -1458,6 +1458,7 @@ private:
+    class of COptionBase that turns the string into a value) ---*/
+ 
+   map<string, COptionBase*> option_map;
++  map<string, double> Adap_MarkerHausd;  /*!< \brief MMG-only boundary tolerance overrides by marker name. */
+ 
+ 
+   // All of the addXxxOptions take in the name of the option, and a reference to the field of that option
+@@ -10472,6 +10473,7 @@ public:
+    * \brief Get the Hausdorff distance that controls the approximation of the boundaries by the remesher.
+    */
+   su2double GetAdap_Hausd(void) const { return Adap_Hausd; }
++  const map<string, double>& GetAdap_MarkerHausd() const { return Adap_MarkerHausd; }
+ 
+   /*!
+    * \brief Get the sharp angle detection threshold of the remesher (degrees).
+diff --git a/Common/include/adaptation/CAdaptationOptions.hpp b/Common/include/adaptation/CAdaptationOptions.hpp
+new file mode 100644
+index 0000000000..4ff37187d5
+--- /dev/null
++++ b/Common/include/adaptation/CAdaptationOptions.hpp
+@@ -0,0 +1,18 @@
++/*!
++ * \file CAdaptationOptions.hpp
++ * \brief Scalar adaptation defaults shared with configuration fixtures.
++ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
++ * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
++ */
++#pragma once
++
++#include "../basic_types/datatype_structure.hpp"
++
++namespace SU2Adaptation {
++
++inline su2double EffectiveNorm(bool goal, bool supplied, su2double scalar) {
++  if (goal && !supplied) return 1.0;
++  return scalar;
++}
++
++}  // namespace SU2Adaptation
+diff --git a/Common/include/adaptation/CMMGInterface.hpp b/Common/include/adaptation/CMMGInterface.hpp
+index e399227310..a675f5d2cb 100644
+--- a/Common/include/adaptation/CMMGInterface.hpp
++++ b/Common/include/adaptation/CMMGInterface.hpp
+@@ -26,6 +26,7 @@
+ 
+ #pragma once
+ 
++#include <map>
+ #include <memory>
+ #include <string>
+ #include <vector>
+@@ -295,6 +296,10 @@ class CMMGInterface {
+   Status status = Status::STRONGFAILURE; /*!< \brief Status of the last Remesh. */
+   std::vector<bool> fixedBoundary;     /*!< \brief Fixed surface: boundary points of the loaded mesh. */
+   std::vector<passivedouble> fixedCoord; /*!< \brief Fixed surface: coordinates of the loaded mesh. */
++  std::map<std::string, double> markerHausd;
++  bool reportParameters = false;
++  std::vector<LocalParameter> BuildLocalParameters(const CSimplexMesh& mesh) const;
++  void ReportParameters() const;
+   std::vector<LocalParameter> localParams; /*!< \brief Local parameters of the loaded mesh, set by Remesh. */
+   std::vector<LocalParameter> localOverride; /*!< \brief Local parameters given by SetLocalParameters. */
+   mutable std::vector<long> fixedSource; /*!< \brief Fixed surface: input index of each point of the last GetMesh
+diff --git a/Common/src/CConfig.cpp b/Common/src/CConfig.cpp
+index d3eb1cf7af..dbdb5a9d0e 100644
+--- a/Common/src/CConfig.cpp
++++ b/Common/src/CConfig.cpp
+@@ -26,11 +26,13 @@
+  */
+ 
+ #define ENABLE_MAPS
++#include <cstdlib>
+ #include <utility>
+ #include <limits>
+ 
+ #include "../include/CConfig.hpp"
+ #include "../include/adaptation/CAdapSensorOptions.hpp"
++#include "../include/adaptation/CAdaptationOptions.hpp"
+ #include "../include/adaptation/CAdapSensorExpression.hpp"
+ #undef ENABLE_MAPS
+ 
+@@ -43,6 +45,62 @@
+ 
+ using namespace PrintingToolbox;
+ 
++namespace {
++class COptionAdapHausd final : public COptionScalar<su2double> {
++  map<string, double>& markers;
++
++ public:
++  COptionAdapHausd(su2double& scalar, map<string, double>& markerValues)
++      : COptionScalar("su2double", "ADAP_HAUSD", scalar, 0.01), markers(markerValues) {}
++
++  string SetValue(const vector<string>& values) override {
++    if (values.size() != 1) return "ADAP_HAUSD: marker list requires parenthesized comma-separated fields.";
++    auto raw = values.front();
++    trim(raw);
++    if (raw.empty()) return "ADAP_HAUSD: empty field in marker list.";
++    if (raw.find(',') == string::npos && raw.front() != '(') {
++      const auto error = COptionScalar::SetValue(values);
++      if (error.empty()) markers.clear();
++      return error;
++    }
++    if (raw.front() != '(' || raw.back() != ')')
++      return "ADAP_HAUSD: marker list requires parenthesized comma-separated fields.";
++
++    vector<string> fields;
++    raw = raw.substr(1, raw.size() - 2);
++    size_t begin = 0;
++    do {
++      const auto end = raw.find(',', begin);
++      auto token = raw.substr(begin, end == string::npos ? end : end - begin);
++      trim(token);
++      if (token.empty()) return "ADAP_HAUSD: empty field in marker list.";
++      fields.push_back(std::move(token));
++      if (end == string::npos) break;
++      begin = end + 1;
++    } while (true);
++    if (fields.size() % 2 != 0) return "ADAP_HAUSD: marker list must contain name/value pairs.";
++
++    map<string, double> parsed;
++    for (size_t i = 0; i < fields.size(); i += 2) {
++      const auto& marker = fields[i];
++      const auto& value = fields[i + 1];
++      const char* beginValue = value.c_str();
++      char* endValue = nullptr;
++      const double distance = std::strtod(beginValue, &endValue);
++      if (endValue == beginValue || *endValue != '\0')
++        return "ADAP_HAUSD: invalid number for marker " + marker + ".";
++      if (!std::isfinite(distance) || distance <= 0.0)
++        return "ADAP_HAUSD: value for marker " + marker + " must be finite and > 0.";
++      if (!parsed.emplace(marker, distance).second) return "ADAP_HAUSD: duplicate marker " + marker + ".";
++    }
++    COptionBase::SetValue(values);
++    field = def;
++    markers = std::move(parsed);
++    return "";
++  }
++};
++}  // namespace
++
+ #ifdef PROFILE
+ #ifdef HAVE_MKL
+ #include "mkl.h"
+@@ -3276,8 +3334,8 @@ void CConfig::SetConfig_Options() {
+   addStringListOption("ADAP_SENSOR", nAdap_Sensor, Adap_Sensor);
+   /*!\brief ADAP_CUSTOM_SENSORS \n DESCRIPTION: Ordered named expressions for adaptation. \ingroup Config */
+   addStringOption("ADAP_CUSTOM_SENSORS", Adap_CustomSensors, "");
+-  /*!\brief ADAP_NORM \n DESCRIPTION: Lp-norm for mesh adaptation \ingroup Config */
+-  addDoubleOption("ADAP_NORM", Adap_Norm, 1.0);
++  /*!\brief ADAP_NORM \n DESCRIPTION: Lp-norm for mesh adaptation, default 2.0 (GOAL uses 1.0 when omitted) \ingroup Config */
++  addDoubleOption("ADAP_NORM", Adap_Norm, 2.0);
+   /*!\brief ADAP_HMAX \n DESCRIPTION: Maximum cell size, applied to the final (intersected) metric \ingroup Config */
+   addDoubleOption("ADAP_HMAX", Adap_Hmax, 10.0);
+   /*!\brief ADAP_HMIN \n DESCRIPTION: Minimum cell size, applied to the final (intersected) metric \ingroup Config */
+@@ -3289,10 +3347,12 @@ void CConfig::SetConfig_Options() {
+    * the sensor metric BEFORE the gradation of MMG (the mesh can be larger).
+    * If ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX do not allow it, the closest complexity is used with a warning. \ingroup Config */
+   addUnsignedLongOption("ADAP_COMPLEXITY", Adap_Complexity, 10000);
+-  /*!\brief ADAP_HGRAD \n DESCRIPTION: Size gradation of the remesher (ratio of neighbouring edge lengths, > 1) \ingroup Config */
+-  addDoubleOption("ADAP_HGRAD", Adap_Hgrad, 1.3);
+-  /*!\brief ADAP_HAUSD \n DESCRIPTION: Hausdorff distance between the remeshed and the original boundaries \ingroup Config */
+-  addDoubleOption("ADAP_HAUSD", Adap_Hausd, 0.01);
++  /*!\brief ADAP_HGRAD \n DESCRIPTION: Size gradation of the remesher (ratio of neighbouring edge lengths, default 1.6) \ingroup Config */
++  addDoubleOption("ADAP_HGRAD", Adap_Hgrad, 1.6);
++  /*!\brief ADAP_HAUSD \n DESCRIPTION: MMG boundary approximation tolerance, scalar or (marker, value, ...).
++   * Native remeshing uses one absolute geometry tolerance (scalar only). \ingroup Config */
++  all_options.emplace("ADAP_HAUSD", true);
++  option_map.emplace("ADAP_HAUSD", new COptionAdapHausd(Adap_Hausd, Adap_MarkerHausd));
+   /*!\brief ADAP_ANGLE \n DESCRIPTION: Sharp angle detection threshold of the remesher, in degrees \ingroup Config */
+   addDoubleOption("ADAP_ANGLE", Adap_Angle, 45.0);
+   /*!\brief ADAP_ISO_CORNER \n DESCRIPTION: Isotropic metric at sharp corners of walls (2D): where the wall turns by more
+@@ -6301,6 +6361,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
+         goalError("engine inflow/exhaust boundaries are not available with the adaptation loop.");
+     }
+     Adap_Adj_Lambda = true;
++    Adap_Norm = SU2Adaptation::EffectiveNorm(true, OptionIsSet("ADAP_NORM"), Adap_Norm);
+     if (Adap_Norm != 1.0 && SU2_MPI::GetRank() == MASTER_NODE) {
+       cout << "WARNING: ADAP_SENSOR= GOAL is the L1-optimal metric of the goal-oriented estimate; ADAP_NORM= "
+            << Adap_Norm << " is used as given." << endl;
+@@ -6466,6 +6527,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
+   if (!(Adap_Hgrad > 1.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hgrad))) {
+     SU2_MPI::Error("ADAP_HGRAD must be a finite value > 1.", CURRENT_FUNCTION);
+   }
++  if (!Adap_MarkerHausd.empty() && Kind_Adap_Remesher == ADAP_REMESHER::NATIVE_CAVITY) {
++    SU2_MPI::Error("ADAP_HAUSD per marker is available only with ADAP_REMESHER= MMG; the native remesher uses one value.",
++                   CURRENT_FUNCTION);
++  }
+   if (!(Adap_Hausd > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hausd))) {
+     SU2_MPI::Error("ADAP_HAUSD must be a finite value > 0.", CURRENT_FUNCTION);
+   }
+@@ -9212,6 +9277,12 @@ bool CConfig::TokenizeString(string & str, string & option_name,
+   //cout << "option_name = |" << option_name << "|" << endl;
+   //cout << "pos = " << pos << ": last_pos = " << last_pos << endl;
+ 
++  // Preserve empty comma fields for the MMG marker form while retaining ordinary scalar tokenization.
++  if (option_name == "ADAP_HAUSD" &&
++      (value_part.find(',') != string::npos || value_part.find_first_not_of(delimiters) == string::npos)) {
++    option_value.assign(1, value_part);
++    return true;
++  }
+   // now fill the option value vector
+   option_value.clear();
+   last_pos = value_part.find_first_not_of(delimiters, 0);
+diff --git a/Common/src/adaptation/CMMGInterface.cpp b/Common/src/adaptation/CMMGInterface.cpp
+index 5fbf79a572..ead3144fb2 100644
+--- a/Common/src/adaptation/CMMGInterface.cpp
++++ b/Common/src/adaptation/CMMGInterface.cpp
+@@ -31,7 +31,9 @@
+ #include <array>
+ #include <climits>
+ #include <cmath>
++#include <iomanip>
+ #include <iostream>
++#include <limits>
+ #include <set>
+ 
+ #include "../../include/CConfig.hpp"
+@@ -247,6 +249,44 @@ std::vector<CMMGInterface::LocalParameter> CMMGInterface::WallLocalParameters(co
+   return local;
+ }
+ 
++std::vector<CMMGInterface::LocalParameter> CMMGInterface::BuildLocalParameters(const CSimplexMesh& mesh) const {
++  for (const auto& entry : markerHausd) {
++    const auto present = std::any_of(mesh.markers.begin(), mesh.markers.end(),
++                                     [&](const auto& marker) { return marker.name == entry.first; });
++    if (!present)
++      SU2_MPI::Error("ADAP_HAUSD marker " + entry.first + " is absent from the gathered mesh.", CURRENT_FUNCTION);
++  }
++  if (!localOverride.empty()) return localOverride;
++
++  auto rows = params.localWallHmax ? WallLocalParameters(mesh) : std::vector<LocalParameter>{};
++  if (markerHausd.empty()) return rows;
++  for (const auto& marker : mesh.markers) {
++    const auto tolerance = markerHausd.find(marker.name);
++    if (tolerance == markerHausd.end()) continue;
++    auto row = std::find_if(rows.begin(), rows.end(), [&](const auto& value) { return value.ref == marker.ref; });
++    if (row == rows.end())
++      rows.push_back({marker.ref, params.hmin, params.hmax, tolerance->second});
++    else
++      row->hausd = tolerance->second;
++  }
++  return rows;
++}
++
++void CMMGInterface::ReportParameters() const {
++  const auto oldPrecision = cout.precision(std::numeric_limits<double>::max_digits10);
++  const auto oldFlags = cout.flags();
++  cout << std::defaultfloat << "MMG_PARAMETERS dim=" << nDim << " hmin=" << params.hmin << " hmax=" << params.hmax
++       << " hgrad=" << params.hgrad << " hausd=" << params.hausd << " local_rows=" << localParams.size() << '\n';
++  for (const auto& row : localParams) {
++    const auto marker = std::find_if(markerInfo.begin(), markerInfo.end(),
++                                     [&](const auto& item) { return item.ref == row.ref; });
++    cout << "MMG_LOCAL_PARAMETER marker=" << (marker != markerInfo.end() ? marker->name : "<unknown>")
++         << " ref=" << row.ref << " hmin=" << row.hmin << " hmax=" << row.hmax << " hausd=" << row.hausd << '\n';
++  }
++  cout.flags(oldFlags);
++  cout.precision(oldPrecision);
++}
++
+ void CMMGInterface::CheckSupport(const CConfig& config, const CGeometry& geometry) {
+   if (config.GetMultizone_Problem() || config.GetnZone() > 1 || config.GetnMarker_ZoneInterface() > 0) {
+     SU2_MPI::Error("Mesh adaptation does not support multizone problems or sliding meshes.", CURRENT_FUNCTION);
+@@ -572,6 +612,8 @@ CMMGInterface::CMMGInterface(const CConfig& config) : mmg(new MMGData) {
+   params.hmax = SU2_TYPE::GetValue(config.GetAdap_Hmax());
+   params.hgrad = SU2_TYPE::GetValue(config.GetAdap_Hgrad());
+   params.hausd = SU2_TYPE::GetValue(config.GetAdap_Hausd());
++  markerHausd = config.GetAdap_MarkerHausd();
++  reportParameters = config.GetWrt_Performance();
+   params.angle = SU2_TYPE::GetValue(config.GetAdap_Angle());
+   params.surface = config.GetAdap_Surface();
+   params.boundaryLayer = (config.GetnAdap_BL() > 0);
+@@ -609,9 +651,7 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
+     info.ref = marker.ref;
+     markerInfo.push_back(info);
+   }
+-  localParams.clear();
+-  if (!localOverride.empty()) localParams = localOverride;
+-  else if (params.localWallHmax) localParams = WallLocalParameters(mesh);
++  localParams = BuildLocalParameters(mesh);
+ 
+   /*--- MMG arrays: 1-based indices. ---*/
+   std::vector<double> coord(mesh.coord.begin(), mesh.coord.end());
+@@ -721,6 +761,7 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
+ CMMGInterface::Status CMMGInterface::Remesh() {
+   if (mmg->mesh == nullptr) SU2_MPI::Error("No mesh loaded into MMG.", CURRENT_FUNCTION);
+ 
++  if (reportParameters) ReportParameters();
+   int ok = 1, ier = MMG5_STRONGFAILURE;
+   if (nDim == 2) {
+     ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_verbose, params.verbosity);
+@@ -1030,7 +1071,11 @@ CRemeshResult CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geome
+     cout << "MMG" << mesh.nDim << "D status " << (success ? "SUCCESS" : "LOWFAILURE") << ", " << mmgTime - extractTime
+          << " s (with the validation of input and output), extraction " << extractTime - startTime << " s";
+     if (size > 1) cout << " (gathered from " << size << " ranks), slices sent " << endTime - mmgTime << " s";
+-    cout << "." << endl;
++    const auto oldPrecision = cout.precision(std::numeric_limits<double>::max_digits10);
++    const auto oldFlags = cout.flags();
++    cout << std::defaultfloat << " total_seconds=" << endTime - startTime << "." << endl;
++    cout.flags(oldFlags);
++    cout.precision(oldPrecision);
+     if (!config.GetAdap_Surface())
+       cout << "Volume only (ADAP_SURFACE= NO): boundary points and faces kept (checked)." << endl;
+   }
+diff --git a/config_template.cfg b/config_template.cfg
+index bce0af52f8..3e29124c93 100644
+--- a/config_template.cfg
++++ b/config_template.cfg
+@@ -2882,7 +2882,8 @@ NUM_METHOD_HESS= GREEN_GAUSS
+ ADAP_HESSIAN_NOISE= 0.0
+ %
+ % Lp-norm, target complexity, min/max cell size, max aspect ratio of the metric
+-ADAP_NORM= 1.0
++% GOAL uses 1.0 when ADAP_NORM is not set.
++ADAP_NORM= 2.0
+ % Native remesher: the complexity of the metric AFTER its gradation. MMG remesher: the complexity of
+ % the sensor metric BEFORE the gradation of MMG (the mesh can be larger).
+ ADAP_COMPLEXITY= 10000
+@@ -2894,12 +2895,14 @@ ADAP_ARMAX= 1E6
+ ADAP_ISO_CORNER= YES
+ %
+ % Remesher: size gradation, Hausdorff distance of the boundaries, sharp angle (deg)
+-ADAP_HGRAD= 1.3
++ADAP_HGRAD= 1.6
+ % Native curved geometry uses this absolute error in mesh coordinate units,
+ % independent of ADAP_BL_FIRST_HEIGHT and ADAP_BL_H0_RAMP. For metre coordinates,
+ % 1E-4 is 0.1 mm; convert a chord fraction to these units before setting this value.
+ % First-height and validity gates remain separate. Discrete curved-reference
+ % adoption is still under development; this applies to declared curved authorities.
++% MMG boundary approximation tolerance: scalar or pairs (MARKER, value, ...).
++% Unlisted MMG markers use 0.01 in list form. The native remesher uses one absolute geometry tolerance.
+ ADAP_HAUSD= 0.01
+ ADAP_ANGLE= 45.0
+ %

@@ -36,7 +36,7 @@
 TEST_CASE("NTS blending has a minimum of 0.05", "[Upwind/central blending]") {
   std::stringstream config_options;
 
-  config_options << "SOLVER= NAVIER_STOKES" << std::endl;
+  config_options << "SOLVER= NAVIER_STOKES\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n" << std::endl;
   config_options << "ROE_LOW_DISSIPATION= "
                  << "NTS" << std::endl;
   config_options << "REYNOLDS_NUMBER= 5" << std::endl;
@@ -133,7 +133,7 @@ struct NEMOViscousFixture {
   const std::array<su2double, nDim> normal{0.6, 0.8};
 
   NEMOViscousFixture() {
-    options << "SOLVER= NEMO_NAVIER_STOKES\n"
+    options << "SOLVER= NEMO_NAVIER_STOKES\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n"
             << "GAS_MODEL= AIR-5\n"
             << "GAS_COMPOSITION= (0.77, 0.23, 0.0, 0.0, 0.0)\n"
             << "FLUID_MODEL= SU2_NONEQ\n"

@@ -59,7 +59,7 @@ struct PredictorTest {
     const std::string markers = nDim == 2 ? "MARKER_FAR= (lower_a, lower_b, upper, left, right)\n"
                                           : "MARKER_FAR= (z_minus_a, z_minus_b, z_plus, x_minus, x_plus, y_minus, "
                                             "y_plus)\n";
-    std::stringstream ss("SOLVER= EULER\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMGLEVEL= 0\n" +
+    std::stringstream ss("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMGLEVEL= 0\n" +
                          markers);
     config = std::make_unique<CConfig>(ss, SU2_COMPONENT::SU2_CFD, false);
     CMemoryMeshReaderFVM reader(config.get(), mesh, 0, 1);

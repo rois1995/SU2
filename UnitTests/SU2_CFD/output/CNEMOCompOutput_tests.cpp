@@ -43,7 +43,7 @@ namespace {
 
 std::unique_ptr<CConfig> MakeNEMOConfig(bool multizone) {
   std::stringstream options;
-  options << "SOLVER= NEMO_EULER\n"
+  options << "SOLVER= NEMO_EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n"
           << "GAS_MODEL= AIR-5\n"
           << "GAS_COMPOSITION= (0.77, 0.23, 0.0, 0.0, 0.0)\n"
           << "FLUID_MODEL= SU2_NONEQ\n"

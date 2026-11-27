@@ -14,7 +14,7 @@ TEST_CASE("Solved curved RANS survives native BL construction removal and restar
   const std::string name="curved_rans_m"+std::to_string(workers);
   auto configText=[&](bool layers) {
     std::ostringstream cfg;
-    cfg<<"SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= .2\nAOA= 90\n"
+    cfg<<"SOLVER= RANS\nADAP_NORM= 1.0\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= .2\nAOA= 90\n"
        <<"REYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 1\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
        <<"MARKER_FAR= (cap0,cap1)\nMARKER_HEATFLUX= (cylinder,0)\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
        <<"ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_ISO_CORNER= NO\n"

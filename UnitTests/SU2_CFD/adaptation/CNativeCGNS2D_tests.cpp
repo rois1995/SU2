@@ -30,7 +30,7 @@ class CGNSDriver : public CSinglezoneDriver {
 };
 std::string Options(const std::string& name, bool output, const std::string& input = "") {
   std::ostringstream text;
-  text << "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\n"
+  text << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\n"
        << "MESH_FORMAT= " << (input.empty() ? "SU2" : "CGNS") << "\nMESH_FILENAME= "
        << (input.empty() ? name + ".su2" : input) << "\n"
        << "MARKER_FAR= (left, right, upper, lower_a, lower_b)\n"

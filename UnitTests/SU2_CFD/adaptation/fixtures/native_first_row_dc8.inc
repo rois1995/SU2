@@ -1187,7 +1187,7 @@ std::unique_ptr<State> LoadA1(const std::string& wp0b) {
   const std::string annulus=wp0b+"/../../mapped_component_geometry_v1/annulus_n1/affine_annulus_bl_budget_20_m1";
   ReferenceState rejected;if(!LoadReference(annulus+"_rejected_rank0.native_ref",rejected)||!rejected.original||!rejected.original->Mapped())throw std::runtime_error("DC7 annulus reference");
   std::ifstream cfgFile(annulus+".cfg");if(!cfgFile)throw std::runtime_error("DC7 annulus cfg");
-  std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(cfgFile,SU2_COMPONENT::SU2_CFD,false);}
+  std::unique_ptr<CConfig> config;{Mute mute;auto pinned = legacy_metric_test::Stream(cfgFile);config=std::make_unique<CConfig>(pinned,SU2_COMPONENT::SU2_CFD,false);}
   std::ifstream in(wp0b+"/annulus_case.txt");std::string tag;int version;in>>tag>>version;if(tag!="SU2_JUNCTION_ANNULUS")throw std::runtime_error("DC7 annulus case");
   std::string key;double core=0;Id recordedCell=0;double recordedQ=0,recordedJ=0;in>>key>>core;in>>key>>recordedCell>>recordedQ>>recordedJ;
   size_t count=0;in>>key>>count;std::vector<DonorCell> donors;
@@ -1258,7 +1258,7 @@ std::unique_ptr<State> LoadM6Cut(const std::string& path) {
   }
   auto& field=m6cache[cfg+"|"+ref+"|"+std::to_string(parameter)];
   if(!field.layers) {
-    std::ifstream cfgFile(cfg);if(!cfgFile)throw std::runtime_error("DC7 M6 cfg");std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(cfgFile,SU2_COMPONENT::SU2_CFD,false);}
+    std::ifstream cfgFile(cfg);if(!cfgFile)throw std::runtime_error("DC7 M6 cfg");std::unique_ptr<CConfig> config;{Mute mute;auto pinned = legacy_metric_test::Stream(cfgFile);config=std::make_unique<CConfig>(pinned,SU2_COMPONENT::SU2_CFD,false);}
     ReferenceState reference;if(!LoadReference(ref,reference)||!reference.original)throw std::runtime_error("DC7 M6 reference");
     field.layers=CBoundaryLayerMetric::FromNativeReference(reference,*config);
     field.layers->ConfigureOuterNormal(SU2_TYPE::GetValue(config->GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config->GetAdap_BL_OuterGrowthMax()));

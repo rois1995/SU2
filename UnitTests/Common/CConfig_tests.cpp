@@ -34,7 +34,7 @@ namespace {
 
 /*--- Minimal incompressible case on a box mesh, the options under test are appended to it. ---*/
 const std::string base_options =
-    "SOLVER= INC_NAVIER_STOKES\n"
+    "SOLVER= INC_NAVIER_STOKES\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n"
     "MESH_FORMAT= BOX\n"
     "MESH_BOX_SIZE= 5,5,5\n"
     "MESH_BOX_LENGTH= 1,1,1\n"

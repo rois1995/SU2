@@ -35,7 +35,7 @@
 
 struct UnitQuadTestCase {
   std::string config_options =
-      "SOLVER= NAVIER_STOKES\n"
+      "SOLVER= NAVIER_STOKES\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n"
       "KIND_VERIFICATION_SOLUTION=MMS_NS_UNIT_QUAD\n"
       "MESH_FORMAT= BOX\n"
       "INIT_OPTION=TD_CONDITIONS\n"

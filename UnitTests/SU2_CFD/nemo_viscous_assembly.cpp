@@ -45,7 +45,7 @@ namespace {
  */
 struct NEMOViscousAssemblyCase {
   const std::string configOptions =
-      "SOLVER= NEMO_NAVIER_STOKES\n"
+      "SOLVER= NEMO_NAVIER_STOKES\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n"
       "GAS_MODEL= AIR-5\n"
       "GAS_COMPOSITION= (0.77, 0.23, 0.0, 0.0, 0.0)\n"
       "FLUID_MODEL= SU2_NONEQ\n"

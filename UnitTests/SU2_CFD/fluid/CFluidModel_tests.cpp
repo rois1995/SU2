@@ -96,7 +96,7 @@ TEST_CASE("Test case for ideal gas fluid model") {
 TEST_CASE("Test case for data-driven fluid model") {
   std::stringstream config_options;
 
-  config_options << "SOLVER=RANS" << std::endl;
+  config_options << "SOLVER=RANS\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n" << std::endl;
   config_options << "KIND_TURB_MODEL=SA" << std::endl;
   config_options << "SA_OPTIONS= NONE" << std::endl;
   config_options << "REYNOLDS_NUMBER=1e6" << std::endl;

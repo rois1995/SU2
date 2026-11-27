@@ -53,7 +53,7 @@ passivedouble MaxAll(passivedouble value) { return CPassiveComm::Allreduce(value
 
 /*--- Config of a flow solver with a feature metric (its storage is resized to the GOAL fields by the tests). ---*/
 std::unique_ptr<CConfig> GoalConfig(const string& markers, const string& extra = "") {
-  stringstream options("SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\n"
+  stringstream options("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\n"
                        "MESH_FILENAME= unused.su2\n" + markers + "MGLEVEL= 0\nCOMPUTE_METRIC= YES\n"
                        "ADAP_SENSOR= (MACH)\nADAP_HMIN= 1e-6\nADAP_HMAX= 1e3\nADAP_ARMAX= 1e8\n"
                        "ADAP_COMPLEXITY= 400\n" + extra);
@@ -702,7 +702,7 @@ struct GoalBox {
   GoalBox(const string& markers, const string& method, const string& size, const string& length, const string& offset,
           passivedouble angle, const string& extra = "", const std::function<void(su2double*)>& map = nullptr) {
     const string aoa = (extra.find("AOA=") == string::npos) ? "AOA= " + std::to_string(angle * 180.0 / PI_NUMBER) + "\n" : "";
-    const string options = "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\n" +
+    const string options = "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMATH_PROBLEM= DIRECT\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\n" +
                            markers + "MESH_BOX_SIZE= " + size + "\nMESH_BOX_LENGTH= " + length +
                            "\nMESH_BOX_OFFSET= " + offset + "\nCOMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\n"
                            "NUM_METHOD_HESS= " + method + "\n" + aoa + extra;

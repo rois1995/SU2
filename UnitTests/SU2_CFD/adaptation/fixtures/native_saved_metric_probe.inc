@@ -1,7 +1,7 @@
 // Real saved-state sensor/Hessian/metric initialization, without Solve or a CFD time advance.
 TEST_CASE("Native3D selects a budget profile from a saved CFD state without advancing it", "[.][NativeSavedMetric3D]") {
   World world;const auto* configFile=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(configFile);
-  auto driver=std::make_unique<TetraDriver>(const_cast<char*>(configFile),1,world.comm);
+  auto pinned = legacy_metric_test::DriverFile(configFile); auto driver=std::make_unique<TetraDriver>(pinned.data(),1,world.comm);
   auto backend=driver->Backend();driver->Preprocess(0);
   REQUIRE_FALSE(driver->Config().GetTime_Domain());
   auto current=[](const CGeometry& geometry,const CSolver& solver) {

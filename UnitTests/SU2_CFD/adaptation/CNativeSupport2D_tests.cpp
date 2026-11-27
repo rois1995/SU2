@@ -71,7 +71,7 @@ TEST_CASE("Native support failure: unvalidated fixed-point windows remain disabl
 TEST_CASE("Native config failure: worker count exceeds CFD communicator", "[NativeInvalidWorkerCount][.]") {
   // MakeConfig mutes cout; expected-failure subprocesses need the actual diagnostic.
   std::stringstream options;
-  options << "SOLVER= EULER\nADAP_REMESHER= NATIVE_CAVITY\nADAP_NATIVE_RANKS= "
+  options << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nADAP_REMESHER= NATIVE_CAVITY\nADAP_NATIVE_RANKS= "
           << SU2_MPI::GetSize() + 1 << '\n';
   CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
   FAIL("Invalid worker count passed configuration validation.");

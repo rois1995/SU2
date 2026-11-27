@@ -71,7 +71,7 @@ TEST_CASE("WP-0(b) D2 column points and D3 insertion through existing operators"
   if(wanted("annulus")&&!done("annulus")) {
     std::ostringstream log,json;json<<std::setprecision(17);
     ReferenceState rejected;REQUIRE(LoadReference(annulus+"_rejected_rank0.native_ref",rejected));REQUIRE(rejected.original);REQUIRE(rejected.original->Mapped());
-    std::ifstream cfgFile(annulus+".cfg");REQUIRE(cfgFile.good());std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(cfgFile,SU2_COMPONENT::SU2_CFD,false);}
+    std::ifstream cfgFile(annulus+".cfg");REQUIRE(cfgFile.good());std::unique_ptr<CConfig> config;{Mute mute;auto pinned = legacy_metric_test::Stream(cfgFile);config=std::make_unique<CConfig>(pinned,SU2_COMPONENT::SU2_CFD,false);}
     std::ifstream in(root+"/annulus_case.txt");std::string tag;int version;in>>tag>>version;REQUIRE(tag=="SU2_JUNCTION_ANNULUS");
     std::string key;double core=0;Id recordedCell=0;double recordedQ=0,recordedJ=0;in>>key>>core;REQUIRE(key=="core");in>>key>>recordedCell>>recordedQ>>recordedJ;REQUIRE(key=="recorded");
     size_t count=0;in>>key>>count;REQUIRE(key=="donors");std::vector<DonorCell> donors;

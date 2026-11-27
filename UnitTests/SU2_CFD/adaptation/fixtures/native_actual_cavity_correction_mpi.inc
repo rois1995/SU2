@@ -7,7 +7,7 @@ TEST_CASE("Saved M6 visibility correction publishes across actual owners", "[.][
   const auto* targetPath=std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D");
   const auto* capture=std::getenv("SU2_NATIVE_BL_PLANNING_CAPTURE");
   REQUIRE(configPath);REQUIRE(referencePath);REQUIRE(targetPath);REQUIRE(capture);
-  std::ifstream configFile(configPath);REQUIRE(bool(configFile));CConfig config(configFile,SU2_COMPONENT::SU2_CFD,false);
+  std::ifstream configFile(configPath);REQUIRE(bool(configFile));auto pinned = legacy_metric_test::Stream(configFile); CConfig config(pinned,SU2_COMPONENT::SU2_CFD,false);
   const size_t ceiling=config.GetAdap_Native_MemoryLimit();REQUIRE(ceiling>0);
   auto reference=std::make_shared<ReferenceState>();bool loaded=false;std::string reason;size_t loadPeak=0;
   REQUIRE(LoadReference(referencePath,*reference,loaded,reason,ceiling,0,loadPeak));REQUIRE(loaded);REQUIRE(reference->original);

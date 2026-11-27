@@ -69,7 +69,7 @@ std::unique_ptr<CConfig> MakeConfig(unsigned short nDim, const string& meshFile,
           ? markerOptions
           : (nDim == 2) ? "MARKER_FAR= (left, right, upper, lower_a, lower_b)\n"
                         : "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n";
-  std::stringstream options("SOLVER= EULER\nMGLEVEL= 0\nMESH_FORMAT= " + meshFormat + "\nMESH_FILENAME= " + meshFile +
+  std::stringstream options("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMGLEVEL= 0\nMESH_FORMAT= " + meshFormat + "\nMESH_FILENAME= " + meshFile +
                             "\n" + (outFormat.empty() ? "" : "MESH_OUT_FORMAT= " + outFormat + "\n") + markers);
   auto* origBuf = std::cout.rdbuf(nullptr);
   auto config = std::make_unique<CConfig>(options, SU2_COMPONENT::SU2_CFD, false);

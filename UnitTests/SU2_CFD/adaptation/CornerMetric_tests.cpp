@@ -75,7 +75,7 @@ struct CornerTest {
     Mute mute;
     const string solverOption = (options.find("SOLVER=") == string::npos) ? "SOLVER= EULER\n" : "";
     stringstream ss(solverOption + "MACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMGLEVEL= 0\n"
-                    "COMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\nADAP_NORM= 2\nNUM_METHOD_HESS= GREEN_GAUSS\n" +
+                    "COMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\nADAP_NORM= 2\nADAP_HGRAD= 1.3\nNUM_METHOD_HESS= GREEN_GAUSS\n" +
                     options);
     config = std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
     CMemoryMeshReaderFVM reader(config.get(), mesh, 0, 1);

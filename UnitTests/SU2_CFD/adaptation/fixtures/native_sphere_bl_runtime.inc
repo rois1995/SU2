@@ -7,7 +7,7 @@ struct SphereRuntimeTurbulence {
 }
 TEST_CASE("Native closed-sphere BL follows actual RANS replacement and restart", "[.][NativeSphereBLRuntime3D]") {
   World world;const char* cfg=std::getenv("SU2_NATIVE_SPHERE_BL_CFG");REQUIRE(cfg);
-  const auto begin=world.seconds();auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg),1,world.comm);
+  const auto begin=world.seconds();auto pinned = legacy_metric_test::DriverFile(cfg); auto driver=std::make_unique<TetraDriver>(pinned.data(),1,world.comm);
   const bool restart=driver->Config().GetRestart();const bool walls=driver->Config().GetnAdap_BL()!=0;
   if(restart)driver->Preprocess(driver->Config().GetRestart_Iter());
   else {

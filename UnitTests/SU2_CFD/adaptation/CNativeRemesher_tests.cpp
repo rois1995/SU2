@@ -44,7 +44,7 @@ TEST_CASE("Native SU2 backend: eight replacements preserve reference and affine 
   if (world.rank == 0) {
     simplex_test::WriteSU2Mesh(BoxMesh(2, 6, true), name + ".su2");
     std::ofstream cfg(name + ".cfg");
-    cfg << "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\n"
+    cfg << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\n"
            "MESH_FORMAT= SU2\nMESH_FILENAME= "
         << name
         << ".su2\n"
@@ -175,7 +175,7 @@ TEST_CASE("Native rejected candidate is exported without publishing CFD state", 
   if (world.rank == 0) {
     simplex_test::WriteSU2Mesh(BoxMesh(2, 3, true), name + ".su2");
     std::ofstream cfg(name + ".cfg");
-    cfg << "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "
+    cfg << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "
         << name << ".su2\nMARKER_FAR= (left, right, upper)\nMARKER_EULER= (lower_a, lower_b)\n"
            "COMPUTE_METRIC= YES\nADAP_SENSOR= MACH\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\n"
            "ADAP_HAUSD= 1e-8\nADAP_NATIVE_RANKS= "

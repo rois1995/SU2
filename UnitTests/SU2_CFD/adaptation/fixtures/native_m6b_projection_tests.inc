@@ -258,7 +258,7 @@ TEST_CASE("Accepted Euler wall projection reports M6b shell orientations", "[.][
   REQUIRE(path != nullptr);
   REQUIRE(std::string(path).size() > 0);
   std::stringstream options;
-  options << "SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= " << path << "\n"
+  options << "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= SU2\nMESH_FILENAME= " << path << "\n"
           << "MARKER_FAR= (FARFIELD)\nMARKER_EULER= (WING3D)\nMARKER_SYM= (SYMMETRY)\nMGLEVEL= 0\nADAP_HAUSD= 1e-4\n";
   Mute mute;
   CConfig config(options, SU2_COMPONENT::SU2_CFD, false);

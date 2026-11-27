@@ -84,7 +84,7 @@ std::unique_ptr<State> LoadM6CutA(const std::string& path) {
         // feature angle no wall edge can exceed disables D1 and leaves every other BL ingredient unchanged
         for(std::string line;std::getline(lines,line);){if(line.rfind("ADAP_ANGLE",0)==0){line="ADAP_ANGLE= 179.999";++replaced;}out<<line<<"\n";}
         if(replaced!=1)throw std::runtime_error("DC10 M6 cfg: ADAP_ANGLE not found once");cfgText=out.str();}
-      std::istringstream buffer(cfgText);std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(buffer,SU2_COMPONENT::SU2_CFD,false);}
+      std::istringstream buffer(cfgText);std::unique_ptr<CConfig> config;{Mute mute;auto pinned = legacy_metric_test::Stream(buffer);config=std::make_unique<CConfig>(pinned,SU2_COMPONENT::SU2_CFD,false);}
       auto layers=CBoundaryLayerMetric::FromNativeReference(reference,*config);
       layers->ConfigureOuterNormal(SU2_TYPE::GetValue(config->GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config->GetAdap_BL_OuterGrowthMax()));
       layers->SelectOuterNormal(parameter);layers->FreezeOuterNormal();

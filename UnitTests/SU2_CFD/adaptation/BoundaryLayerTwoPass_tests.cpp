@@ -25,7 +25,7 @@
  */
 
 #include "catch.hpp"
-
+#include "../../Common/adaptation/LegacyMetricConfig.hpp"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -124,9 +124,9 @@ struct Mute {
 std::unique_ptr<CConfig> MakeConfig(const string& options) {
   const bool quiet = getenv("SU2_TEST_VERBOSE") == nullptr;
   std::unique_ptr<Mute> mute(quiet ? new Mute : nullptr);
-  stringstream ss("SOLVER= NAVIER_STOKES\nREYNOLDS_NUMBER= 1e6\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\n"
+  stringstream ss(legacy_metric_test::Pin("SOLVER= NAVIER_STOKES\nREYNOLDS_NUMBER= 1e6\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\n"
                   "MESH_FILENAME= unused.su2\nMGLEVEL= 0\nCOMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\n"
-                  "MARKER_HEATFLUX= (wall, 0.0)\nMARKER_FAR= (farfield)\n" + options);
+                  "MARKER_HEATFLUX= (wall, 0.0)\nMARKER_FAR= (farfield)\n" + options));
   return std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
 }
 
@@ -1108,12 +1108,12 @@ std::unique_ptr<CConfig> LensConfig(bool split, const string& extra = "") {
   const bool quiet = getenv("SU2_TEST_VERBOSE") == nullptr;
   std::unique_ptr<Mute> mute(quiet ? new Mute : nullptr);
   const string walls = split ? "wall, wall2" : "wall";
-  stringstream ss("SOLVER= NAVIER_STOKES\nREYNOLDS_NUMBER= 1e6\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\n"
+  stringstream ss(legacy_metric_test::Pin("SOLVER= NAVIER_STOKES\nREYNOLDS_NUMBER= 1e6\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\n"
                   "MESH_FILENAME= unused.su2\nMGLEVEL= 0\nCOMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\n"
                   "MARKER_HEATFLUX= (" + string(split ? "wall, 0.0, wall2, 0.0" : "wall, 0.0") + ")\n"
                   "MARKER_FAR= (farfield)\nADAP_HMIN= 1e-5\nADAP_HMAX= 1\nADAP_ARMAX= 1e4\nADAP_BL_MARKER= (" + walls +
                   ")\nADAP_BL_FIRST_HEIGHT= (1e-4)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (0.02)\n"
-                  "ADAP_BL_METHOD= TWO_PASS\nADAP_BL_REFERENCE= bl_twopass_test.dat\nADAP_SURFACE= YES\n" + extra);
+                  "ADAP_BL_METHOD= TWO_PASS\nADAP_BL_REFERENCE= bl_twopass_test.dat\nADAP_SURFACE= YES\n" + extra));
   return std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
 }
 
@@ -1707,7 +1707,7 @@ TEST_CASE("Fixed analytic metric, repeated two-pass remeshes (developer, M3.3, h
                     "ADAP_HMIN= 1e-6\nADAP_ARMAX= 1e4\nADAP_BL_MARKER= (" + wallName + ")\nADAP_BL_GROWTH= (1.15)\n"
                     "ADAP_BL_THICKNESS= (0.05)\nADAP_BL_METHOD= TWO_PASS\nADAP_SURFACE= YES\n" +
                     (getenv("SU2_TEST_EXTRA") ? getenv("SU2_TEST_EXTRA") : ""));
-    config.reset(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
+    auto pinned = legacy_metric_test::Stream(ss); config.reset(new CConfig(pinned, SU2_COMPONENT::SU2_CFD, false));
   }
   CReferenceWall reference(mesh, {wallName}, SU2_TYPE::GetValue(config->GetAdap_Angle()));
   for (int cycle = 1; cycle <= 3; ++cycle) {

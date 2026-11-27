@@ -7,7 +7,7 @@ using namespace dc13;
 using SU2NativeBLPipeline3D::RowRegistry;
 std::unique_ptr<CConfig> BoxConfig(const std::string& extra) {
   std::stringstream ss(
-      "SOLVER= NAVIER_STOKES\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nREYNOLDS_NUMBER= 1e6\n"
+      "SOLVER= NAVIER_STOKES\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nREYNOLDS_NUMBER= 1e6\n"
       "MARKER_HEATFLUX= (wall, 0.0, top, 0.0)\nMARKER_SYM= (symmetry, symmetry2)\nMARKER_FAR= (outer)\n"
       "COMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\nADAP_HMIN= 1e-6\nADAP_HMAX= 10\nADAP_REMESHER= NATIVE_CAVITY\n"
       "ADAP_BL_METHOD= FIRST_ROW\nADAP_BL_MARKER= (wall, top)\nADAP_BL_FIRST_HEIGHT= (4e-3, 6e-3)\nADAP_BL_GROWTH= (1.2, 1.15)\n"
@@ -324,7 +324,7 @@ TEST_CASE("Explicitly initialize the recorded first-height stage of a verified s
   World world;REQUIRE(world.size==1);
   const auto* path=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(path);
   std::ifstream input(path);REQUIRE(bool(input));std::unique_ptr<CConfig> config;
-  {Mute mute;config=std::make_unique<CConfig>(input,SU2_COMPONENT::SU2_CFD,false);}
+  {Mute mute;auto pinned = legacy_metric_test::Stream(input);config=std::make_unique<CConfig>(pinned,SU2_COMPONENT::SU2_CFD,false);}
   REQUIRE(config->GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW);
   REQUIRE(config->GetAdap_BL_H0Ramp()>0);REQUIRE(config->GetAdap_BL_RampEvent()==0);
   const auto mesh=config->GetMesh_FileName();

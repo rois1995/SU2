@@ -51,7 +51,7 @@
  */
 struct GradientTestBase {
   const string configOptions =
-      "SOLVER= NAVIER_STOKES\n"
+      "SOLVER= NAVIER_STOKES\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n"
       "MESH_FORMAT= BOX\n"
       "INIT_OPTION= TD_CONDITIONS\n"
       "MARKER_HEATFLUX= (y_minus, 0.0, y_plus, 0.0)\n"
@@ -183,7 +183,7 @@ TEST_CASE("Adaptation GG boundary recovery restores affine consistency on stretc
     std::unique_ptr<CConfig> config;
     {
       transfer_test::Mute mute;
-      stringstream options("SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
+      stringstream options("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
                            "MARKER_FAR= (far)\nMARKER_EULER= (wall)\nCOMPUTE_METRIC= YES\n"
                            "ADAP_SENSOR= (PRESSURE)\nNUM_METHOD_HESS= GREEN_GAUSS\n");
       config = std::make_unique<CConfig>(options, SU2_COMPONENT::SU2_CFD, false);
@@ -595,7 +595,7 @@ struct AdaptBoxTest {
                unsigned long boxSize = 8, const string& solverKind = "EULER",
                passivedouble angle = 0.0, bool fullMirror = false) {
     const string configOptions =
-        "SOLVER= " + solverKind + "\n"
+        "SOLVER= " + solverKind + "\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\n"
         "MATH_PROBLEM= DIRECT\n"
         "MESH_FORMAT= BOX\n"
         "INIT_OPTION= TD_CONDITIONS\n" + markers +
@@ -913,7 +913,7 @@ std::array<passivedouble, 12> pressureHessianErrors(unsigned short nDim, unsigne
   {
     transfer_test::Mute mute;
     stringstream options(string(
-        "SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
+        "SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
         "MARKER_FAR= (far)\nMARKER_EULER= (wall)\nCOMPUTE_METRIC= YES\n"
         "ADAP_SENSOR= (PRESSURE)\nNUM_METHOD_HESS= ") + method + "\n");
     config = std::make_unique<CConfig>(options, SU2_COMPONENT::SU2_CFD, false);
@@ -1193,7 +1193,7 @@ TEST_CASE("Restart readers accept long filenames in ASCII and binary", "[Restart
       CHECK(file.good());
     }
     SU2_MPI::Barrier(SU2_MPI::GetComm());
-    stringstream options(string("SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMARKER_FAR= (far)\n") +
+    stringstream options(string("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMARKER_FAR= (far)\n") +
                          "SOLUTION_FILENAME= " + base + "\nREAD_BINARY_RESTART= " + (binary ? "YES\n" : "NO\n"));
     transfer_test::Mute mute;
     CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
@@ -1428,7 +1428,7 @@ TEST_CASE("QR scalar symmetry preserves normal curvature on rotated planes and w
         std::unique_ptr<CConfig> config;
         {
           transfer_test::Mute mute;
-          stringstream options(string("SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
+          stringstream options(string("SOLVER= EULER\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
                                       "MARKER_FAR= (far)\nMARKER_EULER= (wall)\nMARKER_SYM= (") +
                                (twoPlanes ? "sym, sym2" : "sym") + ")\nCOMPUTE_METRIC= YES\n"
                                "ADAP_SENSOR= (MACH, PRESSURE)\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\n"

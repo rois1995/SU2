@@ -877,7 +877,7 @@ TEST_CASE("MPI adaptation: corner metric across the partitions", "[AdaptationMPI
     Mute mute;
     stringstream ss(
         "SOLVER= EULER\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMGLEVEL= 0\n"
-        "COMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\nADAP_NORM= 2\nNUM_METHOD_HESS= GREEN_GAUSS\n"
+        "COMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\nADAP_NORM= 2\nADAP_HGRAD= 1.3\nNUM_METHOD_HESS= GREEN_GAUSS\n"
         "MARKER_EULER= (wall)\nMARKER_FAR= (far)\nADAP_COMPLEXITY= 2000\nADAP_HMIN= 1e-4\nADAP_HMAX= 10\n"
         "ADAP_ARMAX= 1000\n");
     CConfig config(ss, SU2_COMPONENT::SU2_CFD, false);

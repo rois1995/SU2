@@ -8,7 +8,7 @@ while(std::getline(stageInput,line)) {
 // Existing x32 continuation: five halvings, plus two final-height events in a complete workflow.
 stageText+="ADAP_BL_H0_RAMP= 5\n";
 std::stringstream stageStream(stageText);std::unique_ptr<CConfig> staged;
-{Mute mute;staged=std::make_unique<CConfig>(stageStream,SU2_COMPONENT::SU2_CFD,false);}
+{Mute mute;auto pinned = legacy_metric_test::Stream(stageStream);staged=std::make_unique<CConfig>(pinned,SU2_COMPONENT::SU2_CFD,false);}
 REQUIRE(staged->GetAdap_BL_H0Ramp()==5);
 std::map<Id,Point> edgePoints;
 for(const auto& row:current.mesh)for(auto n:row.second.cell.v)if(n.id==6032||n.id==6072)edgePoints.emplace(n.id,n.p);

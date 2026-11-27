@@ -116,7 +116,7 @@ TEST_CASE("Native realistic airfoil: actual sensor/BL targets and three changed 
   const std::string cfg = "native_airfoil.cfg";
   if (world.rank == 0) {
     std::ofstream output(cfg);
-    output << options.str();
+    output << legacy_metric_test::Pin(options.str());
   }
   SU2_MPI::Barrier(SU2_MPI::GetComm());
   auto driver = std::make_unique<AirfoilDriver>(const_cast<char*>(cfg.c_str()), 1, SU2_MPI::GetComm());
@@ -347,7 +347,7 @@ TEST_CASE("Native frozen airfoil: identical input metric for MPI scaling", "[Nat
   const auto metricPath = std::getenv("SU2_NATIVE_FROZEN_METRIC");
   REQUIRE(configPath != nullptr);
   REQUIRE(metricPath != nullptr);
-  auto driver = std::make_unique<AirfoilDriver>(const_cast<char*>(configPath), 1, SU2_MPI::GetComm());
+  auto config = legacy_metric_test::DriverFile(configPath); auto driver = std::make_unique<AirfoilDriver>(config.data(), 1, SU2_MPI::GetComm());
   auto& geometry = driver->Geometry();
   std::ifstream input(metricPath);
   REQUIRE(input.good());

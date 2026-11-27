@@ -26,11 +26,13 @@
  */
 
 #define ENABLE_MAPS
+#include <cstdlib>
 #include <utility>
 #include <limits>
 
 #include "../include/CConfig.hpp"
 #include "../include/adaptation/CAdapSensorOptions.hpp"
+#include "../include/adaptation/CAdaptationOptions.hpp"
 #include "../include/adaptation/CAdapSensorExpression.hpp"
 #undef ENABLE_MAPS
 
@@ -42,6 +44,62 @@
 #include "../include/toolboxes/SwapBytes.hpp"
 
 using namespace PrintingToolbox;
+
+namespace {
+class COptionAdapHausd final : public COptionScalar<su2double> {
+  map<string, double>& markers;
+
+ public:
+  COptionAdapHausd(su2double& scalar, map<string, double>& markerValues)
+      : COptionScalar("su2double", "ADAP_HAUSD", scalar, 0.01), markers(markerValues) {}
+
+  string SetValue(const vector<string>& values) override {
+    if (values.size() != 1) return "ADAP_HAUSD: marker list requires parenthesized comma-separated fields.";
+    auto raw = values.front();
+    trim(raw);
+    if (raw.empty()) return "ADAP_HAUSD: empty field in marker list.";
+    if (raw.find(',') == string::npos && raw.front() != '(') {
+      const auto error = COptionScalar::SetValue(values);
+      if (error.empty()) markers.clear();
+      return error;
+    }
+    if (raw.front() != '(' || raw.back() != ')')
+      return "ADAP_HAUSD: marker list requires parenthesized comma-separated fields.";
+
+    vector<string> fields;
+    raw = raw.substr(1, raw.size() - 2);
+    size_t begin = 0;
+    do {
+      const auto end = raw.find(',', begin);
+      auto token = raw.substr(begin, end == string::npos ? end : end - begin);
+      trim(token);
+      if (token.empty()) return "ADAP_HAUSD: empty field in marker list.";
+      fields.push_back(std::move(token));
+      if (end == string::npos) break;
+      begin = end + 1;
+    } while (true);
+    if (fields.size() % 2 != 0) return "ADAP_HAUSD: marker list must contain name/value pairs.";
+
+    map<string, double> parsed;
+    for (size_t i = 0; i < fields.size(); i += 2) {
+      const auto& marker = fields[i];
+      const auto& value = fields[i + 1];
+      const char* beginValue = value.c_str();
+      char* endValue = nullptr;
+      const double distance = std::strtod(beginValue, &endValue);
+      if (endValue == beginValue || *endValue != '\0')
+        return "ADAP_HAUSD: invalid number for marker " + marker + ".";
+      if (!std::isfinite(distance) || distance <= 0.0)
+        return "ADAP_HAUSD: value for marker " + marker + " must be finite and > 0.";
+      if (!parsed.emplace(marker, distance).second) return "ADAP_HAUSD: duplicate marker " + marker + ".";
+    }
+    COptionBase::SetValue(values);
+    field = def;
+    markers = std::move(parsed);
+    return "";
+  }
+};
+}  // namespace
 
 #ifdef PROFILE
 #ifdef HAVE_MKL
@@ -3276,8 +3334,8 @@ void CConfig::SetConfig_Options() {
   addStringListOption("ADAP_SENSOR", nAdap_Sensor, Adap_Sensor);
   /*!\brief ADAP_CUSTOM_SENSORS \n DESCRIPTION: Ordered named expressions for adaptation. \ingroup Config */
   addStringOption("ADAP_CUSTOM_SENSORS", Adap_CustomSensors, "");
-  /*!\brief ADAP_NORM \n DESCRIPTION: Lp-norm for mesh adaptation \ingroup Config */
-  addDoubleOption("ADAP_NORM", Adap_Norm, 1.0);
+  /*!\brief ADAP_NORM \n DESCRIPTION: Lp-norm for mesh adaptation, default 2.0 (GOAL uses 1.0 when omitted) \ingroup Config */
+  addDoubleOption("ADAP_NORM", Adap_Norm, 2.0);
   /*!\brief ADAP_HMAX \n DESCRIPTION: Maximum cell size, applied to the final (intersected) metric \ingroup Config */
   addDoubleOption("ADAP_HMAX", Adap_Hmax, 10.0);
   /*!\brief ADAP_HMIN \n DESCRIPTION: Minimum cell size, applied to the final (intersected) metric \ingroup Config */
@@ -3289,10 +3347,12 @@ void CConfig::SetConfig_Options() {
    * the sensor metric BEFORE the gradation of MMG (the mesh can be larger).
    * If ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX do not allow it, the closest complexity is used with a warning. \ingroup Config */
   addUnsignedLongOption("ADAP_COMPLEXITY", Adap_Complexity, 10000);
-  /*!\brief ADAP_HGRAD \n DESCRIPTION: Size gradation of the remesher (ratio of neighbouring edge lengths, > 1) \ingroup Config */
-  addDoubleOption("ADAP_HGRAD", Adap_Hgrad, 1.3);
-  /*!\brief ADAP_HAUSD \n DESCRIPTION: Hausdorff distance between the remeshed and the original boundaries \ingroup Config */
-  addDoubleOption("ADAP_HAUSD", Adap_Hausd, 0.01);
+  /*!\brief ADAP_HGRAD \n DESCRIPTION: Size gradation of the remesher (ratio of neighbouring edge lengths, default 1.6) \ingroup Config */
+  addDoubleOption("ADAP_HGRAD", Adap_Hgrad, 1.6);
+  /*!\brief ADAP_HAUSD \n DESCRIPTION: MMG boundary approximation tolerance, scalar or (marker, value, ...).
+   * Native remeshing uses one absolute geometry tolerance (scalar only). \ingroup Config */
+  all_options.emplace("ADAP_HAUSD", true);
+  option_map.emplace("ADAP_HAUSD", new COptionAdapHausd(Adap_Hausd, Adap_MarkerHausd));
   /*!\brief ADAP_ANGLE \n DESCRIPTION: Sharp angle detection threshold of the remesher, in degrees \ingroup Config */
   addDoubleOption("ADAP_ANGLE", Adap_Angle, 45.0);
   /*!\brief ADAP_ISO_CORNER \n DESCRIPTION: Isotropic metric at sharp corners of walls (2D): where the wall turns by more
@@ -6301,6 +6361,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
         goalError("engine inflow/exhaust boundaries are not available with the adaptation loop.");
     }
     Adap_Adj_Lambda = true;
+    Adap_Norm = SU2Adaptation::EffectiveNorm(true, OptionIsSet("ADAP_NORM"), Adap_Norm);
     if (Adap_Norm != 1.0 && SU2_MPI::GetRank() == MASTER_NODE) {
       cout << "WARNING: ADAP_SENSOR= GOAL is the L1-optimal metric of the goal-oriented estimate; ADAP_NORM= "
            << Adap_Norm << " is used as given." << endl;
@@ -6465,6 +6526,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   /*--- Remesher parameters (also checked without COMPUTE_METRIC, they are plain values). ---*/
   if (!(Adap_Hgrad > 1.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hgrad))) {
     SU2_MPI::Error("ADAP_HGRAD must be a finite value > 1.", CURRENT_FUNCTION);
+  }
+  if (!Adap_MarkerHausd.empty() && Kind_Adap_Remesher == ADAP_REMESHER::NATIVE_CAVITY) {
+    SU2_MPI::Error("ADAP_HAUSD per marker is available only with ADAP_REMESHER= MMG; the native remesher uses one value.",
+                   CURRENT_FUNCTION);
   }
   if (!(Adap_Hausd > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hausd))) {
     SU2_MPI::Error("ADAP_HAUSD must be a finite value > 0.", CURRENT_FUNCTION);
@@ -9212,6 +9277,12 @@ bool CConfig::TokenizeString(string & str, string & option_name,
   //cout << "option_name = |" << option_name << "|" << endl;
   //cout << "pos = " << pos << ": last_pos = " << last_pos << endl;
 
+  // Preserve empty comma fields for the MMG marker form while retaining ordinary scalar tokenization.
+  if (option_name == "ADAP_HAUSD" &&
+      (value_part.find(',') != string::npos || value_part.find_first_not_of(delimiters) == string::npos)) {
+    option_value.assign(1, value_part);
+    return true;
+  }
   // now fill the option value vector
   option_value.clear();
   last_pos = value_part.find_first_not_of(delimiters, 0);

@@ -27,7 +27,7 @@
 #pragma once
 
 #include "catch.hpp"
-
+#include "../../Common/adaptation/LegacyMetricConfig.hpp"
 #include <cmath>
 #include <functional>
 #include <memory>
@@ -70,8 +70,8 @@ inline std::unique_ptr<CConfig> MakeConfig(unsigned short nDim, const string& so
                      "MARKER_HEATFLUX= (z_minus_b, 0.0, z_minus_a, 0.0)\n"
                    : "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n";
   }
-  stringstream options(solverOptions + "MACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n" + markers +
-                       "MGLEVEL= 2\nMG_MIN_MESHSIZE= 4\n");
+  stringstream options(legacy_metric_test::Pin(solverOptions + "MACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n" + markers +
+                       "MGLEVEL= 2\nMG_MIN_MESHSIZE= 4\n"));
   Mute mute;
   return std::unique_ptr<CConfig>(new CConfig(options, SU2_COMPONENT::SU2_CFD, false));
 }
@@ -221,8 +221,8 @@ inline void CheckCoarseLevels(const MeshSolution& target, unsigned short iSol) {
 
 /*--- Config of the disk/ball of SimplexMeshTestCase.hpp, the boundary markers given by markerOptions. ---*/
 inline std::unique_ptr<CConfig> MakeRoundConfig(const string& solverOptions, const string& markerOptions) {
-  stringstream options(solverOptions + "MACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n" +
-                       markerOptions + "MGLEVEL= 0\n");
+  stringstream options(legacy_metric_test::Pin(solverOptions + "MACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n" +
+                       markerOptions + "MGLEVEL= 0\n"));
   Mute mute;
   return std::unique_ptr<CConfig>(new CConfig(options, SU2_COMPONENT::SU2_CFD, false));
 }

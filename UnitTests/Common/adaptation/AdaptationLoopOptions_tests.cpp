@@ -41,7 +41,7 @@ const std::string baseOptions =
     "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n"
     "ITER= 150\nCFL_NUMBER= 7\n"
     "COMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\n"
-    "ADAP_HMAX= 3\nADAP_HMIN= 1e-3\nADAP_NORM= 2\nADAP_ARMAX= 100\nADAP_COMPLEXITY= 777\n";
+    "ADAP_HMAX= 3\nADAP_HMIN= 1e-3\nADAP_NORM= 2\nADAP_HGRAD= 1.3\nADAP_ARMAX= 100\nADAP_COMPLEXITY= 777\n";
 
 std::unique_ptr<CConfig> MakeConfig(const std::string& options) {
   std::stringstream ss(baseOptions + options);

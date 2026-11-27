@@ -6,7 +6,7 @@ namespace {void RunSavedActualCavities(bool cavityCorrection,bool heightContinua
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const auto* ref=std::getenv("SU2_NATIVE_BL_REFERENCE");
   const auto* target=std::getenv("SU2_NATIVE_TARGET_CHECKPOINT3D");REQUIRE(cfg);REQUIRE(ref);REQUIRE(target);
-  std::ifstream configFile(cfg);REQUIRE(bool(configFile));CConfig config(configFile,SU2_COMPONENT::SU2_CFD,false);
+  std::ifstream configFile(cfg);REQUIRE(bool(configFile));auto pinned = legacy_metric_test::Stream(configFile); CConfig config(pinned,SU2_COMPONENT::SU2_CFD,false);
   const auto ceiling=config.GetAdap_Native_MemoryLimit();
   const auto* captureRoot=std::getenv("SU2_NATIVE_BL_PLANNING_CAPTURE");REQUIRE(captureRoot);
   const bool coherentCapture=bool(std::ifstream(std::string(captureRoot)+"/trajectory_working_owned.bin",std::ios::binary));

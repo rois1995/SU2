@@ -53,7 +53,7 @@ class WallDriver : public CSinglezoneDriver {
 std::string WallOptions(double height, const std::string& name, bool opposing = false) {
   std::ostringstream out;
   out << std::setprecision(17)
-      << "SOLVER= NAVIER_STOKES\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\n"
+      << "SOLVER= NAVIER_STOKES\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\n"
          "REYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 0.04\n"
          "MESH_FORMAT= SU2\nMESH_FILENAME= "
       << name

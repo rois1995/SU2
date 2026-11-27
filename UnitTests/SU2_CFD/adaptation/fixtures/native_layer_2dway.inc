@@ -75,7 +75,7 @@ std::unique_ptr<State> LoadAnnulus(const std::string& wp0b) {
   const std::string annulus=wp0b+"/../../mapped_component_geometry_v1/annulus_n1/affine_annulus_bl_budget_20_m1";
   ReferenceState rejected;if(!LoadReference(annulus+"_rejected_rank0.native_ref",rejected)||!rejected.original||!rejected.original->Mapped())throw std::runtime_error("DC5 annulus reference");
   std::ifstream cfgFile(annulus+".cfg");if(!cfgFile)throw std::runtime_error("DC5 annulus cfg");
-  std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(cfgFile,SU2_COMPONENT::SU2_CFD,false);}
+  std::unique_ptr<CConfig> config;{Mute mute;auto pinned = legacy_metric_test::Stream(cfgFile);config=std::make_unique<CConfig>(pinned,SU2_COMPONENT::SU2_CFD,false);}
   std::ifstream in(wp0b+"/annulus_case.txt");std::string tag;int version;in>>tag>>version;if(tag!="SU2_JUNCTION_ANNULUS")throw std::runtime_error("DC5 annulus case");
   std::string key;double core=0;Id recordedCell=0;double recordedQ=0,recordedJ=0;in>>key>>core;in>>key>>recordedCell>>recordedQ>>recordedJ;
   size_t count=0;in>>key>>count;std::vector<DonorCell> donors;

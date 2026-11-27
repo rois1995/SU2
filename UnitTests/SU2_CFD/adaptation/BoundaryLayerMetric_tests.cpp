@@ -27,7 +27,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 #include "../../../SU2_CFD/include/adaptation/CNativeCandidateComplexity3D.hpp"
-
+#include "../../Common/adaptation/LegacyMetricConfig.hpp"
 #include <array>
 #include <cmath>
 #include <memory>
@@ -142,7 +142,7 @@ struct MetricTest {
     Mute mute;
     stringstream ss("SOLVER= NAVIER_STOKES\nREYNOLDS_NUMBER= 1e6\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\n"
                     "MESH_FILENAME= unused.su2\nMGLEVEL= 0\nCOMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\nADAP_NORM= 2\n"
-                    "NUM_METHOD_HESS= GREEN_GAUSS\n" + options);
+                    "NUM_METHOD_HESS= GREEN_GAUSS\n" + options + (options.find("ADAP_HGRAD") == std::string::npos ? "ADAP_HGRAD= 1.3\n" : ""));
     config = std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
     CMemoryMeshReaderFVM reader(config.get(), mesh, 0, 1);
     CDriver::BuildGeometryFVM(config.get(), new CPhysicalGeometry(config.get(), reader, 1), geometry, true);
@@ -1753,7 +1753,7 @@ TEST_CASE("Actual retained cubic wall policy probe without CFD", "[.][NativeActu
              <<",\"geometry_work\":"<<budget.work<<",\"peak_bytes\":"<<budget.peak_bytes<<"}"<<std::endl;
   };
   std::ifstream input(configPath);REQUIRE(bool(input));std::stringstream configuration;configuration<<input.rdbuf();
-  CConfig config(configuration,SU2_COMPONENT::SU2_CFD,false);
+  auto pinned = legacy_metric_test::Stream(configuration); CConfig config(pinned,SU2_COMPONENT::SU2_CFD,false);
   const auto memoryLimit=config.GetAdap_Native_MemoryLimit();
   budget.maximum_bytes=memoryLimit?memoryLimit:size_t(2)<<30;
   ReferenceState reference;bool loaded=false;std::string loadReason;size_t loadPeak=0;

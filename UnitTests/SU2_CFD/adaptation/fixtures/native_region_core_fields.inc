@@ -7,7 +7,7 @@ TEST_CASE("Metric-directed regional core resolves stronger curved sensor fields"
   const double height=selected_height?std::stod(selected_height):.05,length=selected_length?std::stod(selected_length):1.;
   REQUIRE(height>0);REQUIRE(height<.2);REQUIRE(length>0);
   const auto seed=PrimitiveMesh(false,tilted,length);
-  std::stringstream text("SOLVER= RANS\nKIND_TURB_MODEL= SA\nMACH_NUMBER= .2\nREYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 1\n"
+  std::stringstream text("SOLVER= RANS\nADAP_NORM= 1.0\nADAP_HGRAD= 1.3\nKIND_TURB_MODEL= SA\nMACH_NUMBER= .2\nREYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 1\n"
     "MESH_FORMAT= SU2\nMESH_FILENAME= core_initial.su2\nMARKER_FAR= (cap0,cap1)\nMARKER_HEATFLUX= (cylinder,0)\nMGLEVEL= 0\n"
     "COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
     "ADAP_BL_MARKER= (cylinder)\nADAP_BL_FIRST_HEIGHT= ("+std::to_string(height)+")\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.2)\nADAP_HAUSD= .04\n");
