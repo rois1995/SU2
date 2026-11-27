@@ -663,6 +663,7 @@ bool EngineControl::EnterPhase(EngineContext& context, EnginePhase next, bool re
   auto& working = *context.ownership.working;
   auto& world = context.world;
 
+  if (auto& stall = context.setup.control_prefix.quality_stall) stall->ResetPhase();
   if (surface_target && next == Phase::Improvement) {
     return EnterSurfaceRepair(context, atlas_budget);
   }
@@ -1209,12 +1210,20 @@ RoundDecision RoundHead::ReturnToConstruction() {
   auto& standalone_coarsening = *context.control.standalone_coarsening;
   auto& any = *round_state.any;
   auto& clean_quality = *round_state.clean_quality;
-  if (!metric_cleanup && phase == Phase::Improvement &&
-      (world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality)) &&
-      (standalone_coarsening || world.maximum(selection.census.construction_invalid != 0)) &&
-      ((!world.maximum(selection.census.quality_invalid != 0) && !selection.size_repairs &&
-        !selection.geometry_repairs) ||
-       !any)) {
+  const auto& stall = context.setup.control_prefix.quality_stall;
+  const bool request = stall && selection.collapse_closed && stall->request;
+  const auto decision = quality_stall::EvaluateHandoff(
+      metric_cleanup, phase == Phase::Improvement,
+      [&] { return world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality); },
+      [&] { return standalone_coarsening || world.maximum(selection.census.construction_invalid != 0); },
+      [&] {
+        return !world.maximum(selection.census.quality_invalid != 0) && !selection.size_repairs &&
+               !selection.geometry_repairs;
+      },
+      any, request);
+  if (context.options.timings && request)
+    quality_stall::PrintHandoff(context.control.result->stats.rounds, decision);
+  if (decision.Taken()) {
     const auto progress = selection.Progress(working.size());
     // An exhausted shape pass needs its residual surface rebuilt before another global coarsening sweep.
     const bool refine_geometry = bidirectional &&
@@ -1612,6 +1621,10 @@ RoundDecision RoundHead::CheckStagnationWindow() {
     if (!metric_cleanup && phase == Phase::Improvement &&
         !context.ownership.PhaseOwnership(context, true, atlas_budget))
       return FinishRound();
+    auto& stall = context.setup.control_prefix.quality_stall;
+    if (quality_stall::Active(stall ? &*stall : nullptr, selection.collapse_closed, phase == Phase::Improvement,
+                              repairing, metric_cleanup))
+      quality_stall::Observe(*stall, selection.Progress(working.size()), world.comm, options.timings, stats.rounds);
     // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
     if (!mesh_progress && !search_progress) {
       if (!bidirectional && phase == Phase::Construction && !repairing &&

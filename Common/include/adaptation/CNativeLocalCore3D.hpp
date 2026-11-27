@@ -51,7 +51,7 @@ class StateSurfaceGeometry;
 class RemoteSurface;
 struct ContactContext;
 
-enum class CollapseProbe { None, Core, Engine, FP3B };
+enum class CollapseProbe { None, Core, Engine, FP3B, FP3D };
 CollapseProbe FP3Probe();
 double NodalMargin(const OwnedCell& row);
 

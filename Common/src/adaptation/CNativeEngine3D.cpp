@@ -21,6 +21,7 @@
 #include "../../include/adaptation/CNativeLaneCensus3D.hpp"
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../include/adaptation/CNativeLocalCore3D.hpp"
+#include "native_engine3d/EngineQualityStall.hpp"
 #include <cassert>
 #include <chrono>
 #include <cmath>
@@ -703,6 +704,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
   using Phase = EnginePhase;
   ContextValue phase_lifetime(setup.control_prefix.phase, Phase::Construction);
+  if (options.close_construction_collapse &&
+      quality_stall::Enabled(options.close_construction_collapse, SU2NativeLocal3D::FP3Probe())) {
+    setup.control_prefix.quality_stall.emplace();
+    options.caller_bytes = transfer_memory::Add(options.caller_bytes, sizeof(quality_stall::State));
+  }
   auto& timer_session = setup.timer_session.emplace(
       options.timings, "native_engine", world.rank, world.size,
       surface_target ? SU2NativeTiming3D::Phase::Surface : SU2NativeTiming3D::Phase::Construction);

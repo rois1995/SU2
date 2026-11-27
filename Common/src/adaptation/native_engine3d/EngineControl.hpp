@@ -5,6 +5,7 @@ struct EngineContext;
 
 struct EngineControlPrefix {
   std::optional<EnginePhase> phase;
+  std::optional<quality_stall::State> quality_stall;
   std::optional<bool> region_rebuilt;
   std::optional<bool> improvement_changed;
   std::optional<bool> construction_changed;

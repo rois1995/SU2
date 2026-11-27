@@ -10,6 +10,7 @@
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRegionField3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
+#include "../../../Common/src/adaptation/native_engine3d/EngineQualityStall.hpp"
 #include "../../../Common/include/adaptation/CNativeFailureCapture3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
@@ -5965,5 +5966,186 @@ TEST_CASE("Automatic ownership uses the strict owned-cell ratio with a closed qu
     CHECK(open.at("migrate") == (example.raw_pays ? "1" : "0"));
     CHECK(closed.at("migrate") == (probe == "0" && example.cells_pay ? "1" : "0"));
     CHECK(LegacyOwnership(open) == LegacyOwnership(closed));
+  }
+}
+
+namespace {
+struct CaptureStallOutput {
+  std::ostringstream output;
+  std::streambuf* previous = std::cout.rdbuf(output.rdbuf());
+  ~CaptureStallOutput() { std::cout.rdbuf(previous); }
+};
+
+std::string StallProbe(const World& world) {
+  const auto* setting = std::getenv("SU2_NATIVE_FP3_PROBE");
+  REQUIRE(setting != nullptr);
+  std::cout << "FP3_E HIDDEN_PROBE rank=" << world.rank << " value=" << setting << '\n';
+  return setting;
+}
+}  // namespace
+
+TEST_CASE("Stall history and pending hand-off obey the closed quality rules", "[.][fp3_e][serial]") {
+  using namespace quality_stall;
+  World world;
+  REQUIRE(world.size == 1);
+  REQUIRE(StallProbe(world) == "0");
+
+  State stall;
+  CHECK(Update(stall, 100., 4., true).before == -1.);
+  CHECK(Update(stall, 98., 4., true).before == -1.);
+  const auto ring = stall.ring;
+  const auto missing = Update(stall, 1., 0., false);
+  CHECK_FALSE(missing.stalled);
+  CHECK(missing.before == -1.);
+  CHECK(stall.ring == ring);
+  CHECK(stall.count == 2);
+  CHECK(stall.best == 98.);
+  CHECK(Update(stall, 96., 4., true).before == -1.);
+  CHECK(Update(stall, 95., 4., true).before == -1.);
+  CHECK_FALSE(stall.request);
+  CHECK_FALSE(stall.used);
+  const auto exactly_five_percent = Update(stall, 97., 4., true);
+  CHECK(exactly_five_percent.before == 100.);
+  CHECK_FALSE(exactly_five_percent.stalled);
+  CHECK(stall.best == 95.);
+  const auto fire = Update(stall, 100., 4., true);
+  CHECK(fire.before == 98.);
+  CHECK(fire.stalled);
+  CHECK(stall.count == 6);
+  REQUIRE(stall.request);
+  REQUIRE(stall.used);
+
+  State clean;
+  for (size_t i = 0; i < 5; ++i) CHECK_FALSE(Update(clean, 100., 0., true).stalled);
+  CHECK_FALSE(clean.request);
+  CHECK_FALSE(clean.used);
+
+  struct HandoffCase {
+    bool cleanup, phase, improved, demand, ordinary, any;
+    const char* evaluated;
+    const char* by;
+    const char* failed;
+  };
+  const HandoffCase cases[] = {
+      {true, true, true, true, false, true, "", "none", "metric_cleanup"},
+      {false, false, true, true, false, true, "", "none", "phase"},
+      {false, true, false, true, false, true, "i", "none", "improvement"},
+      {false, true, true, false, false, true, "id", "none", "demand"},
+      {false, true, true, true, false, true, "ido", "stall", "none"},
+      {false, true, true, true, true, false, "ido", "ordinary", "none"},
+      {false, true, true, true, false, false, "ido", "no_candidate", "none"},
+  };
+  for (const auto& example : cases) {
+    CAPTURE(example.failed, example.by);
+    std::string evaluated;
+    const auto decision = EvaluateHandoff(
+        example.cleanup, example.phase, [&] { evaluated += 'i'; return example.improved; },
+        [&] { evaluated += 'd'; return example.demand; }, [&] { evaluated += 'o'; return example.ordinary; },
+        example.any, stall.request);
+    const bool taken = std::string(example.failed) == "none";
+    CHECK(evaluated == example.evaluated);
+    CHECK(decision.Taken() == taken);
+    CHECK(std::string(decision.by) == example.by);
+    CHECK(std::string(decision.failed) == example.failed);
+    std::string row;
+    {
+      CaptureStallOutput capture;
+      PrintHandoff(48, decision);
+      row = capture.output.str();
+    }
+    CHECK(row == std::string("NATIVE3D_QUALITY_STALL_HANDOFF round=48 taken=") + (taken ? "1" : "0") +
+                     " by=" + example.by + " failed=" + example.failed + '\n');
+    CHECK(stall.request);
+  }
+  stall.ResetPhase();
+  CHECK(stall.ring == State{}.ring);
+  CHECK(stall.count == 0);
+  CHECK(stall.best == -1.);
+  CHECK_FALSE(stall.request);
+  CHECK(stall.used);
+}
+
+TEST_CASE("Stall observation joins rank-local census validity and debt once per active window", "[.][fp3_e][mpi]") {
+  using namespace quality_stall;
+  namespace timing = SU2NativeTiming3D;
+  World world;
+  REQUIRE(world.size == 2);
+  const auto setting = StallProbe(world);
+  REQUIRE((setting == "0" || setting == "3" || setting == "4"));
+  const auto probe = SU2NativeLocal3D::FP3Probe();
+  const auto enabled = Enabled(true, probe);
+  CHECK(enabled == (setting == "0"));
+  CHECK_FALSE(Enabled(false, probe));
+
+  StageProgress progress;
+  progress.owned_cells = progress.measured_cells = 8;
+  progress.shape_measured_cells = world.rank == 0 ? 8 : 7;
+  progress.shape_unmeasured_cells = progress.owned_cells - progress.shape_measured_cells;
+  progress.cache_consistent = progress.census_complete = true;
+  progress.shape_complete = progress.shape_unmeasured_cells == 0;
+  progress.q_hinge_squared = 1.25 + world.rank;
+  progress.j_hinge_squared = .5 * (world.rank + 1);
+  progress.q_bad_cells = 1 + world.rank;
+  progress.j_bad_cells = 2 + world.rank;
+
+  State stall;
+  auto* state = enabled ? &stall : nullptr;
+  std::vector<std::string> rows;
+  uint64_t calls = 0;
+  {
+    CaptureStallOutput capture;
+    const auto communicator = world.comm;
+    {
+      timing::Session timer(true, "fp3_e_hidden", world.rank, world.size, timing::Phase::Quality);
+      const auto communication_calls = [&] {
+        return timer.Snapshot().records[static_cast<size_t>(timing::Phase::Quality)]
+                                       [static_cast<size_t>(timing::Operation::Communication)].calls;
+      };
+      const auto run = [&](bool closed, bool phase, bool repairing, bool cleanup, auto comm, uint64_t round) {
+        if (Active(state, closed, phase, repairing, cleanup)) Observe(*state, progress, comm, true, round);
+      };
+      const auto baseline = communication_calls();
+      // An inactive window has the same zero collective count as doing nothing, even without a live communicator.
+#ifdef HAVE_MPI
+      const auto inactive_comm = MPI_COMM_NULL;
+#else
+      const auto inactive_comm = communicator;
+#endif
+      run(false, true, true, false, inactive_comm, 1);
+      run(true, false, true, false, inactive_comm, 2);
+      run(true, true, false, false, inactive_comm, 3);
+      run(true, true, true, true, inactive_comm, 4);
+      stall.used = true;
+      run(true, true, true, false, inactive_comm, 5);
+      stall.used = false;
+      if (!enabled) run(true, true, true, false, inactive_comm, 6);
+      CHECK(communication_calls() == baseline);
+      CHECK(stall.count == 0);
+      CHECK(stall.best == -1.);
+      if (enabled) {
+        run(true, true, true, false, communicator, 8);
+        CHECK(stall.count == 0);
+        CHECK(stall.best == -1.);
+        progress.shape_measured_cells = progress.owned_cells;
+        progress.shape_unmeasured_cells = 0;
+        progress.shape_complete = true;
+        run(true, true, true, false, communicator, 16);
+        CHECK(stall.count == 1);
+        CHECK(stall.best == 5.);
+      }
+      calls = communication_calls() - baseline;
+      std::istringstream lines(capture.output.str());
+      for (std::string line; std::getline(lines, line);)
+        if (line.find("NATIVE3D_QUALITY_STALL ") == 0) rows.push_back(line);
+    }
+  }
+  CHECK(calls == (enabled ? 2 : 0));
+  if (enabled) {
+    const std::vector<std::string> expected = {
+        "NATIVE3D_QUALITY_STALL round=8 observed=0 debt=5 bad=8 best=-1 best_before=-1 count=0 stalled=0",
+        "NATIVE3D_QUALITY_STALL round=16 observed=1 debt=5 bad=8 best=5 best_before=-1 count=1 stalled=0"};
+    CHECK(rows == expected);
+  } else {
+    CHECK(rows.empty());
   }
 }

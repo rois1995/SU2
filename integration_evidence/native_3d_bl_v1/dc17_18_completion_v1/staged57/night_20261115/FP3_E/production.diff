@@ -1,0 +1,230 @@
+diff --git a/Common/include/adaptation/CNativeLocalCore3D.hpp b/Common/include/adaptation/CNativeLocalCore3D.hpp
+index 82f853d4d9..04197064c1 100644
+--- a/Common/include/adaptation/CNativeLocalCore3D.hpp
++++ b/Common/include/adaptation/CNativeLocalCore3D.hpp
+@@ -51,7 +51,7 @@ class StateSurfaceGeometry;
+ class RemoteSurface;
+ struct ContactContext;
+ 
+-enum class CollapseProbe { None, Core, Engine, FP3B };
++enum class CollapseProbe { None, Core, Engine, FP3B, FP3D };
+ CollapseProbe FP3Probe();
+ double NodalMargin(const OwnedCell& row);
+ 
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index f6c6a98864..ab3ff82af1 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -21,6 +21,7 @@
+ #include "../../include/adaptation/CNativeLaneCensus3D.hpp"
+ #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
+ #include "../../include/adaptation/CNativeLocalCore3D.hpp"
++#include "native_engine3d/EngineQualityStall.hpp"
+ #include <cassert>
+ #include <chrono>
+ #include <cmath>
+@@ -703,6 +704,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   SetShapeAdmission(ShapeAdmission::ValidityOnly);
+   using Phase = EnginePhase;
+   ContextValue phase_lifetime(setup.control_prefix.phase, Phase::Construction);
++  if (options.close_construction_collapse &&
++      quality_stall::Enabled(options.close_construction_collapse, SU2NativeLocal3D::FP3Probe())) {
++    setup.control_prefix.quality_stall.emplace();
++    options.caller_bytes = transfer_memory::Add(options.caller_bytes, sizeof(quality_stall::State));
++  }
+   auto& timer_session = setup.timer_session.emplace(
+       options.timings, "native_engine", world.rank, world.size,
+       surface_target ? SU2NativeTiming3D::Phase::Surface : SU2NativeTiming3D::Phase::Construction);
+diff --git a/Common/src/adaptation/native_engine3d/EngineControl.cpp b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+index e130bd6c25..9636324a7d 100644
+--- a/Common/src/adaptation/native_engine3d/EngineControl.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+@@ -663,6 +663,7 @@ bool EngineControl::EnterPhase(EngineContext& context, EnginePhase next, bool re
+   auto& working = *context.ownership.working;
+   auto& world = context.world;
+ 
++  if (auto& stall = context.setup.control_prefix.quality_stall) stall->ResetPhase();
+   if (surface_target && next == Phase::Improvement) {
+     return EnterSurfaceRepair(context, atlas_budget);
+   }
+@@ -1209,12 +1210,20 @@ RoundDecision RoundHead::ReturnToConstruction() {
+   auto& standalone_coarsening = *context.control.standalone_coarsening;
+   auto& any = *round_state.any;
+   auto& clean_quality = *round_state.clean_quality;
+-  if (!metric_cleanup && phase == Phase::Improvement &&
+-      (world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality)) &&
+-      (standalone_coarsening || world.maximum(selection.census.construction_invalid != 0)) &&
+-      ((!world.maximum(selection.census.quality_invalid != 0) && !selection.size_repairs &&
+-        !selection.geometry_repairs) ||
+-       !any)) {
++  const auto& stall = context.setup.control_prefix.quality_stall;
++  const bool request = stall && selection.collapse_closed && stall->request;
++  const auto decision = quality_stall::EvaluateHandoff(
++      metric_cleanup, phase == Phase::Improvement,
++      [&] { return world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality); },
++      [&] { return standalone_coarsening || world.maximum(selection.census.construction_invalid != 0); },
++      [&] {
++        return !world.maximum(selection.census.quality_invalid != 0) && !selection.size_repairs &&
++               !selection.geometry_repairs;
++      },
++      any, request);
++  if (context.options.timings && request)
++    quality_stall::PrintHandoff(context.control.result->stats.rounds, decision);
++  if (decision.Taken()) {
+     const auto progress = selection.Progress(working.size());
+     // An exhausted shape pass needs its residual surface rebuilt before another global coarsening sweep.
+     const bool refine_geometry = bidirectional &&
+@@ -1612,6 +1621,10 @@ RoundDecision RoundHead::CheckStagnationWindow() {
+     if (!metric_cleanup && phase == Phase::Improvement &&
+         !context.ownership.PhaseOwnership(context, true, atlas_budget))
+       return FinishRound();
++    auto& stall = context.setup.control_prefix.quality_stall;
++    if (quality_stall::Active(stall ? &*stall : nullptr, selection.collapse_closed, phase == Phase::Improvement,
++                              repairing, metric_cleanup))
++      quality_stall::Observe(*stall, selection.Progress(working.size()), world.comm, options.timings, stats.rounds);
+     // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
+     if (!mesh_progress && !search_progress) {
+       if (!bidirectional && phase == Phase::Construction && !repairing &&
+diff --git a/Common/src/adaptation/native_engine3d/EngineControl.hpp b/Common/src/adaptation/native_engine3d/EngineControl.hpp
+index e1f4dc2ecf..231c08658b 100644
+--- a/Common/src/adaptation/native_engine3d/EngineControl.hpp
++++ b/Common/src/adaptation/native_engine3d/EngineControl.hpp
+@@ -5,6 +5,7 @@ struct EngineContext;
+ 
+ struct EngineControlPrefix {
+   std::optional<EnginePhase> phase;
++  std::optional<quality_stall::State> quality_stall;
+   std::optional<bool> region_rebuilt;
+   std::optional<bool> improvement_changed;
+   std::optional<bool> construction_changed;
+diff --git a/Common/src/adaptation/native_engine3d/EngineQualityStall.hpp b/Common/src/adaptation/native_engine3d/EngineQualityStall.hpp
+new file mode 100644
+index 0000000000..7925fdc9f8
+--- /dev/null
++++ b/Common/src/adaptation/native_engine3d/EngineQualityStall.hpp
+@@ -0,0 +1,113 @@
++// Tracks the collective quality debt at the existing round-head observation point.
++#pragma once
++
++#include "../../../include/adaptation/CNativeEngine3D.hpp"
++#include "../../../include/adaptation/CNativeLocalCore3D.hpp"
++#include "../../../include/adaptation/CNativeTimerTree3D.hpp"
++#include "../../../include/parallelization/CPassiveComm.hpp"
++#include <algorithm>
++#include <array>
++#include <iomanip>
++#include <iostream>
++#include <limits>
++
++namespace SU2Native3D {
++namespace quality_stall {
++
++struct State {
++  std::array<double, 4> ring{};
++  size_t count = 0;
++  double best = -1;
++  bool request = false;
++  bool used = false;
++
++  void ResetPhase() {
++    ring.fill(0);
++    count = 0;
++    best = -1;
++    request = false;
++  }
++};
++
++inline bool Enabled(bool close_queue, SU2NativeLocal3D::CollapseProbe probe) {
++  using Probe = SU2NativeLocal3D::CollapseProbe;
++  return close_queue && probe != Probe::FP3B && probe != Probe::FP3D;
++}
++
++inline bool Active(const State* stall, bool closed, bool improvement, bool repairing, bool metric_cleanup) {
++  return stall && closed && improvement && repairing && !metric_cleanup && !stall->used;
++}
++
++// FP3-E compares the best debt with the best debt four observed windows earlier.
++inline bool IsStalled(double best, double before, double bad) {
++  return before >= 0 && bad > 0 && best > 0.95 * before;
++}
++
++struct UpdateResult {
++  double before;
++  bool stalled;
++};
++
++inline UpdateResult Update(State& stall, double debt, double bad, bool observed) {
++  if (!observed) return {-1, false};
++  stall.best = stall.best < 0 ? debt : std::min(stall.best, debt);
++  const auto slot = stall.count % stall.ring.size();
++  ++stall.count;
++  const double before = stall.count > stall.ring.size() ? stall.ring[slot] : -1;
++  const bool stalled = IsStalled(stall.best, before, bad);
++  if (stalled) stall.request = stall.used = true;
++  stall.ring[slot] = stall.best;
++  return {before, stalled};
++}
++
++inline void Observe(State& stall, const StageProgress& p, CPassiveComm::Communicator comm, bool timings,
++                    uint64_t round) {
++  const bool valid = p.cache_consistent && p.census_complete && p.shape_complete;
++  const double send[] = {double(p.q_hinge_squared + p.j_hinge_squared), double(p.q_bad_cells + p.j_bad_cells),
++                         valid ? 0.0 : 1.0};
++  double recv[3];
++  {
++    SU2NativeTiming3D::Scope communication_timer(SU2NativeTiming3D::Operation::Communication);
++    CPassiveComm::Allreduce(send, recv, 3, CPassiveComm::Op::SUM, comm);
++  }
++  const bool observed = recv[2] == 0;
++  const auto update = Update(stall, recv[0], recv[1], observed);
++  if (timings) {
++    const auto flags = std::cout.flags();
++    const auto precision = std::cout.precision(std::numeric_limits<double>::max_digits10);
++    std::cout << std::defaultfloat << "NATIVE3D_QUALITY_STALL round=" << round << " observed=" << observed
++              << " debt=" << recv[0] << " bad=" << recv[1] << " best=" << stall.best << " best_before="
++              << update.before << " count=" << stall.count << " stalled=" << update.stalled << '\n';
++    std::cout.flags(flags);
++    std::cout.precision(precision);
++  }
++}
++
++struct HandoffResult {
++  const char* by;
++  const char* failed;
++  bool taken;
++
++  bool Taken() const { return taken; }
++};
++
++template <class Improvement, class Demand, class Ordinary>
++HandoffResult EvaluateHandoff(bool metric_cleanup, bool improvement_phase, Improvement improvement, Demand demand,
++                              Ordinary ordinary, bool any, bool request) {
++  if (metric_cleanup) return {"none", "metric_cleanup", false};
++  if (!improvement_phase) return {"none", "phase", false};
++  if (!improvement()) return {"none", "improvement", false};
++  if (!demand()) return {"none", "demand", false};
++  if (ordinary()) return {"ordinary", "none", true};
++  if (!any) return {"no_candidate", "none", true};
++  if (request) return {"stall", "none", true};
++  return {"none", "none", false};
++}
++
++inline void PrintHandoff(uint64_t round, const HandoffResult& decision) {
++  std::cout << "NATIVE3D_QUALITY_STALL_HANDOFF round=" << round << " taken=" << decision.Taken()
++            << " by=" << decision.by << " failed=" << decision.failed << '\n';
++}
++
++}  // namespace quality_stall
++}  // namespace SU2Native3D
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
+index 537716bf6d..a6942ede26 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
+@@ -209,6 +209,7 @@ CollapseProbe FP3Probe() {
+     if (value[0] == '1') return CollapseProbe::Core;
+     if (value[0] == '2') return CollapseProbe::Engine;
+     if (value[0] == '3') return CollapseProbe::FP3B;
++    if (value[0] == '4') return CollapseProbe::FP3D;
+     return CollapseProbe::None;
+   }();
+   return probe;

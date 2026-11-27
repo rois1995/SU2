@@ -209,6 +209,7 @@ CollapseProbe FP3Probe() {
     if (value[0] == '1') return CollapseProbe::Core;
     if (value[0] == '2') return CollapseProbe::Engine;
     if (value[0] == '3') return CollapseProbe::FP3B;
+    if (value[0] == '4') return CollapseProbe::FP3D;
     return CollapseProbe::None;
   }();
   return probe;
