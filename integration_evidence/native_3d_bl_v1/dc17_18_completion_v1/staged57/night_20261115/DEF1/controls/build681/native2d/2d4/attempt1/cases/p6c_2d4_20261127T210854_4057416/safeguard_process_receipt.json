@@ -1,0 +1,105 @@
+{
+  "state": "terminal",
+  "host": {
+    "hostname": "pc-rausa",
+    "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+    "procfs_pid1": true,
+    "loadavg": "2.58 2.64 3.74 1/3736 4057593",
+    "mem_available_kib": 37737632,
+    "mem_available_mib": 36853
+  },
+  "root": {
+    "pid": 4057515,
+    "state": "R",
+    "ppid": 4057416,
+    "start_ticks": 130604293,
+    "name": "nice"
+  },
+  "observed_processes": [],
+  "peak_sampled_tree_rss_bytes": 181215232,
+  "peak_hwm_by_pid_start_ticks": {
+    "4057515:130604293": 1527808,
+    "4057516:130604294": 2146304,
+    "4057517:130604294": 15503360,
+    "4057520:130604297": 40914944,
+    "4057521:130604297": 40292352,
+    "4057522:130604297": 40415232,
+    "4057523:130604297": 40415232
+  },
+  "exit_code": 0,
+  "seconds": 3.271623426815495,
+  "actual_host_proc": true,
+  "identities": [
+    {
+      "pid": 4057515,
+      "state": "S",
+      "ppid": 4057416,
+      "start_ticks": 130604293,
+      "name": "time",
+      "VmHWM": 1527808,
+      "VmRSS": 1527808,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 4057516,
+      "state": "S",
+      "ppid": 4057515,
+      "start_ticks": 130604294,
+      "name": "timeout",
+      "VmHWM": 2146304,
+      "VmRSS": 2146304,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 4057517,
+      "state": "S",
+      "ppid": 4057516,
+      "start_ticks": 130604294,
+      "name": "mpirun",
+      "VmHWM": 15503360,
+      "VmRSS": 15503360,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 4057520,
+      "state": "R",
+      "ppid": 4057517,
+      "start_ticks": 130604297,
+      "name": "test_driver",
+      "VmHWM": 40914944,
+      "VmRSS": 40914944,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 4057521,
+      "state": "R",
+      "ppid": 4057517,
+      "start_ticks": 130604297,
+      "name": "test_driver",
+      "VmHWM": 40292352,
+      "VmRSS": 40292352,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 4057522,
+      "state": "R",
+      "ppid": 4057517,
+      "start_ticks": 130604297,
+      "name": "test_driver",
+      "VmHWM": 40415232,
+      "VmRSS": 40415232,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 4057523,
+      "state": "R",
+      "ppid": 4057517,
+      "start_ticks": 130604297,
+      "name": "test_driver",
+      "VmHWM": 40415232,
+      "VmRSS": 40415232,
+      "alive_at_terminal": false
+    }
+  ],
+  "live_owned_descendants": []
+}

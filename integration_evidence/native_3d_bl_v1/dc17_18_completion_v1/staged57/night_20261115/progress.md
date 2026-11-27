@@ -2790,3 +2790,17 @@ DEF1 build681 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_Native
 DEF1 build681 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/GQ/case_summary.json.
 
 DEF1 G1 checkpoint 8ad4d2be33 pushed. G2 and GQ passed the unchanged P3/N22 comparator with identical decisions and modeled storage, fixedstorage 4120, and exact first-collapse counts/work. Each launch inserted only ADAP_NORM= 1.0 from its sealed config and kept ADAP_HGRAD= 1.3. Next the shared-engine safeguards under the existing scoped supervisor.
+
+DEF1 build681 Step 1 first-collapse passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/first-collapse/case_summary.json.
+
+The user queued SC1 (signed order digest 10280d0d70d04ed4bb7d4721d295055035bdceb2b8a3fe4149be1847704e5eb2) after the DEF1 final label and terminal handles. DEF1 C492 continues. SC1 is unopened.
+
+DEF1 build681 Step 1 exact-c492 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/exact-c492/case_summary.json.
+
+DEF1 build681 Step 1 merit481 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/merit481/case_summary.json.
+
+DEF1 build681 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/native2d/case_summary.json.
+
+DEF1 build681 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/saved-current/case_summary.json.
+
+DEF1 prefix checkpoint 3ae169fe41 pushed. All five shared groups passed on build681: first-collapse, exact C492, merit481, native 2D at 1/2/4 ranks and saved-current. Existing explicit values were preserved and only missing legacy keys were inserted where applicable. G3 is now active and G4 follows from the pinned 2D receipts.
