@@ -2584,3 +2584,7 @@ FP3-D G1 checkpoint 9df4ce0023 pushed. G2 passed the accepted P3 identity on all
 FP3-D build678 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/GQ/case_summary.json.
 
 FP3-D G2 checkpoint 8567684830 pushed. GQ passed the third quality-window anchor and all accepted P3 prefix checks including fixedstorage=4120. The shared first-collapse gate is running.
+
+FP3-D build678 Step 1 first-collapse passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/first-collapse/case_summary.json.
+
+FP3-D GQ checkpoint 980eb6eca2 pushed. Shared first-collapse matched 480 / 473 / 346 / 263 / 469 / 464, zero upper refinements and work 76652506 against 108459426. Summed solver peak 6094295040 bytes; exact C492 is running.
