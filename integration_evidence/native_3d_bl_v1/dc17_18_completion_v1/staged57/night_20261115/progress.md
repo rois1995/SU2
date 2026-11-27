@@ -2708,3 +2708,13 @@ FP3-E S1 event 1 closed at round 524. Physical, proof, memory and timer checks p
 FP3-E S1 event 2 passed physical, proof, memory and timer checks, closed at round 105 with two valid stall observations and no fire. Owned/per-rank faces 21708 and peak/summed peaks 9522749440 bytes. The full solver completed and the collector passed suppression, exchange and STALL across both events. Isolated restart running.
 
 FP3-E Step 2 passed on build680. S1 passed both events, transfer, continued CFD and isolated restart (69.114 s). The collector passed suppression, exchange and STALL across both events, with 16/2 independent debt observations and maximum relative error 3.1752560264874067e-16 / 0. Native maxima 394.945421646 / 239.101785951 s and minimum timer coverage 97.828% / 99.549%. All six payloads differ from D (report only). Both S1 handles are terminal. Next S2 on the same frozen inputs.
+
+FP3-E S1 checkpoint fb995b53d5 pushed. S2 launched on the same pair after S1 terminal. Its run.cfg matches S1 byte for byte and its live rank check confirmed probe 0 on all six ranks. Require the same standing and trace gates, isolated restart, and six matching payload hashes.
+
+FP3-E S2 event 1 repeated the same collective values and all six fire and hand-off rows at rounds 496 / 497. It also repeated the return to quality at round 500 and the geometry-repair entry at 523. Proof, event 2 and isolated restart remain.
+
+FP3-E S2 event 1 closed at round 524. Physical, proof, memory and timer checks passed with 26522 owned and per-rank surface faces and a whole-job peak equal to summed peaks at 9263284224 bytes. Continued CFD and event 2 underway.
+
+FP3-E S2 event 2 passed physical, proof, memory and timer checks. It repeated the two valid stall windows at 96/104 with no fire. Owned/per-rank faces 21708 and peak/summed peaks 9521459200 bytes. Continued CFD, final joining, isolated restart and six-file repeat remain.
+
+FP3-E Step 3 passed. S2 passed both events, continued CFD and isolated restart (62.161 s), suppression, exchange and STALL. Native maxima 416.159188444 / 244.862110680 s and minimum timer coverage 97.786% / 99.525%. All six payloads exactly match S1. Both tested S runs fire at 496 and hand off at 497 in event 1 and have no fire in event 2. S2 handles are terminal. Next Step 4 probe-4 observation against both authenticated FP3-D accepted runs.
