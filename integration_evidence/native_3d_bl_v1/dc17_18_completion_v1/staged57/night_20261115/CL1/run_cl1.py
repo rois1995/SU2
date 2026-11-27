@@ -342,7 +342,7 @@ def launch():
     config, receipt = plan()
     CASE.mkdir(exist_ok=True)
     assert not (CASE / 'launch.json').exists() and not (CASE / 'run.log').exists(), 'one CL1 solver launch'
-    subprocess.run([sys.executable, str(NIGHT.parent / 'primary_control_archive/end_b_actual_preflight.py'),
+    subprocess.run([sys.executable, str(NIGHT / 'N4/section6_3_after_N11/end_B_preparation/primary_control_archive/end_b_actual_preflight.py'),
                     str(CASE / 'host_preflight.json')], cwd=REPO, check=True)
     assert shutil.disk_usage(CASE).free >= 2 * 1024**3
     for name, entry in receipt['original_inputs'].items():

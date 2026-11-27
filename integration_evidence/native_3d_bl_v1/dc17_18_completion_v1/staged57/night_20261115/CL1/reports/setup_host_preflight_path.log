@@ -1,0 +1,13 @@
+Nov 27 17:04:39 pc-rausa systemd[2375]: Started su2-cl1-build680.service - /usr/bin/python3 -B /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL1/run_cl1.py launch.
+Nov 27 17:04:40 pc-rausa python3[3567037]: /usr/bin/python3: can't open file '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/primary_control_archive/end_b_actual_preflight.py': [Errno 2] No such file or directory
+Nov 27 17:04:40 pc-rausa python3[3566942]: Traceback (most recent call last):
+Nov 27 17:04:40 pc-rausa python3[3566942]:   File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL1/run_cl1.py", line 417, in <module>
+Nov 27 17:04:40 pc-rausa python3[3566942]:     {'prepare': prepare, 'self-check': self_check, 'launch': launch}[cli.action]()
+Nov 27 17:04:40 pc-rausa python3[3566942]:   File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL1/run_cl1.py", line 345, in launch
+Nov 27 17:04:40 pc-rausa python3[3566942]:     subprocess.run([sys.executable, str(NIGHT.parent / 'primary_control_archive/end_b_actual_preflight.py'),
+Nov 27 17:04:40 pc-rausa python3[3566942]:   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+Nov 27 17:04:40 pc-rausa python3[3566942]:     raise CalledProcessError(retcode, process.args,
+Nov 27 17:04:40 pc-rausa python3[3566942]: subprocess.CalledProcessError: Command '['/usr/bin/python3', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/primary_control_archive/end_b_actual_preflight.py', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL1/run/host_preflight.json']' returned non-zero exit status 2.
+Nov 27 17:04:40 pc-rausa systemd[2375]: su2-cl1-build680.service: Main process exited, code=exited, status=1/FAILURE
+Nov 27 17:04:40 pc-rausa systemd[2375]: su2-cl1-build680.service: Failed with result 'exit-code'.
+Nov 27 17:04:40 pc-rausa systemd[2375]: su2-cl1-build680.service: Consumed 1.845s CPU time.

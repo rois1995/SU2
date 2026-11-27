@@ -2730,3 +2730,5 @@ FP3-E build680 final publication. Steps 1–3 passed. Both events and isolated r
 CL1 intake after FP3-E final c31f95b071, pushed and all owned handles terminal. Archived and authenticated both signed files. Whole-item R4 source check complete in CL1/reports/source_check.md. Reference resolves to FP3-E build680 with the unchanged build679 solver, production commit 62a270c4d6. Next authenticate D S1 template and inputs, preflight and launch one capability workflow.
 
 CL1 setup authenticated the FP3-E build680 solver e423a3d84f8872723b23344005e171bb3971cf2f8f562adc74c77cc752f109e3, D S1 template and all three inputs. One six-rank launch and wait4 plumbing self-check passed without launching SU2. The frozen config changes only the signed keys. Next launch once at nice 19 with a 21600 s watchdog.
+
+CL1 setup checkpoint 23de3d6c57 pushed. The first setup supervisor stopped before launch on the wrong inherited host-preflight path. There was no launch receipt, solver log, rank process or MPI process. R3 corrected the helper path to the N4 end-B archive and verified the real host preflight. The frozen configuration is unchanged. Start the single solver launch now.
