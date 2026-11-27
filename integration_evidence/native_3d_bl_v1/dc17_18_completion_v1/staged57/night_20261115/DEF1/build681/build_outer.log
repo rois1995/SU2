@@ -1,0 +1,654 @@
+ninja: Entering directory `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114'
+[0/1] Regenerating build files
+The Meson build system
+Version: 1.8.2
+Source dir: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated
+Build dir: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114
+Build type: native build
+Project name: SU2
+Project version: 8.5.0 "Harrier"
+C compiler for the host machine: cc (gcc 13.3.0 "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0")
+C linker for the host machine: cc ld.bfd 2.42
+C++ compiler for the host machine: c++ (gcc 13.3.0 "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0")
+C++ linker for the host machine: c++ ld.bfd 2.42
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Program python3 found: YES (/usr/bin/python3)
+Compiler for C++ supports arguments -Wno-empty-body: YES (cached)
+Compiler for C++ supports arguments -Wno-ignored-qualifiers: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C++ supports arguments -Wno-deprecated-declarations: YES (cached)
+Compiler for C++ supports arguments -Wno-error=cast-function-type: YES (cached)
+Compiler for C++ supports arguments -Wno-cast-function-type: YES (cached)
+Compiler for C++ supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C++ supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C++ supports arguments -Wno-error=missing-field-initializers: YES (cached)
+Compiler for C++ supports arguments -Wno-missing-field-initializers: YES (cached)
+Compiler for C++ supports arguments -Wno-error=class-memaccess: YES (cached)
+Compiler for C++ supports arguments -Wno-class-memaccess: YES (cached)
+Compiler for C++ supports arguments -Wno-overloaded-virtual: YES (cached)
+Compiler for C++ supports arguments -Wno-array-bounds: YES (cached)
+Compiler for C++ supports arguments -Wno-dangling-pointer: YES (cached)
+Compiler for C++ supports arguments -fno-finite-math-only: YES (cached)
+Dependency mpi found: YES 4.1.6 (cached)
+Dependency mpi found: YES 4.1.6 (cached)
+Compiler for C supports arguments -Wno-unused-result: YES (cached)
+Compiler for C supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-function: YES (cached)
+Compiler for C supports arguments -Wno-pedantic: YES (cached)
+Compiler for C supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-error=absolute-value: YES (cached)
+Compiler for C supports arguments -Wno-error=class-memaccess: YES (cached)
+Compiler for C supports arguments -Wno-dangling-pointer: YES (cached)
+Compiler for C supports arguments -Wno-format-truncation: YES (cached)
+Compiler for C supports arguments -Wno-maybe-uninitialized: YES (cached)
+Compiler for C supports arguments -Wno-array-bounds: YES (cached)
+Compiler for C supports arguments -Wno-array-parameter: YES (cached)
+Compiler for C supports arguments -Wno-stringop-overflow: YES (cached)
+Compiler for C supports arguments -Wno-unused-result: YES (cached)
+Compiler for C supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C supports arguments -Wno-stringop-overflow: YES (cached)
+Compiler for C supports arguments -Wno-error=discarded-qualifiers: YES (cached)
+Compiler for C supports arguments -Wno-error=maybe-uninitialized: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-function: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-label: YES (cached)
+Compiler for C supports arguments -Wno-pedantic: YES (cached)
+Compiler for C supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-error=cast-function-type: YES (cached)
+Compiler for C supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-dangling-pointer: YES (cached)
+Compiler for C supports arguments -Wno-format-truncation: YES (cached)
+Dependency zlib found: YES 1.3 (cached)
+Found pkg-config: YES (/usr/bin/pkg-config) 1.8.1
+Found CMake: /usr/bin/cmake (3.28.3)
+WARNING: CMake Toolchain: Failed to determine CMake compilers state
+Run-time dependency szip found: NO (tried pkgconfig and cmake)
+Has header "zlib.h" : YES (cached)
+Checking for function "inflate" with dependency zlib: YES (cached)
+Has header "sys/file.h" : YES (cached)
+Has header "sys/ioctl.h" : YES (cached)
+Has header "sys/resource.h" : YES (cached)
+Has header "sys/socket.h" : YES (cached)
+Has header "sys/stat.h" : YES (cached)
+Has header "sys/time.h" : YES (cached)
+Has header "sys/types.h" : YES (cached)
+Has header "features.h" : YES (cached)
+Has header "dirent.h" : YES (cached)
+Has header "setjmp.h" : YES (cached)
+Has header "stddef.h" : YES (cached)
+Has header "stdint.h" : YES (cached)
+Has header "unistd.h" : YES (cached)
+Has header "io.h" : NO (cached)
+Has header "winsock2.h" : NO (cached)
+Has header "globus/common.h" : NO (cached)
+Has header "pdb.h" : NO (cached)
+Has header "pthread.h" : YES (cached)
+Has header "srbclient.h" : NO (cached)
+Has header "string.h" : YES (cached)
+Has header "strings.h" : YES (cached)
+Has header "stdlib.h" : YES (cached)
+Has header "memory.h" : YES (cached)
+Has header "dlfcn.h" : YES (cached)
+Has header "inttypes.h" : YES (cached)
+Has header "netinet/in.h" : YES (cached)
+Has header "netdb.h" : YES (cached)
+Has header "arpa/inet.h" : YES (cached)
+Has header "stdbool.h" : YES (cached)
+Has header "quadmath.h" : YES (cached)
+Library m found: YES
+Checking for function "ceil" with dependency -lm: YES (cached)
+Library dl found: YES
+Checking for function "dlopen" with dependency -ldl: YES (cached)
+Library ucb found: NO
+Checking for function "gethostbyname" with dependency -lucb: NO (cached)
+Checking for function "lseek64" : NO (cached)
+Checking for function "fseeko" : NO (cached)
+Checking for function "stat64" : NO (cached)
+Checking for size of "char" : 1 (cached)
+Checking for size of "short" : 2 (cached)
+Checking for size of "int" : 4 (cached)
+Checking for size of "unsigned" : 4 (cached)
+Checking for size of "long" : 8 (cached)
+Checking for size of "long long" : 8 (cached)
+Checking for size of "__int64" : -1 
+Checking for size of "float" : 4 (cached)
+Checking for size of "double" : 8 (cached)
+Checking for size of "long double" : 16 (cached)
+Checking for size of "int8_t" : 1 (cached)
+Checking for size of "uint8_t" : 1 (cached)
+Checking for size of "int_least8_t" : 1 (cached)
+Checking for size of "uint_least8_t" : 1 (cached)
+Checking for size of "int_fast8_t" : 1 (cached)
+Checking for size of "uint_fast8_t" : 1 (cached)
+Checking for size of "int16_t" : 2 (cached)
+Checking for size of "uint16_t" : 2 (cached)
+Checking for size of "int_least16_t" : 2 (cached)
+Checking for size of "uint_least16_t" : 2 (cached)
+Checking for size of "int_fast16_t" : 8 (cached)
+Checking for size of "uint_fast16_t" : 8 (cached)
+Checking for size of "int32_t" : 4 (cached)
+Checking for size of "uint32_t" : 4 (cached)
+Checking for size of "int_least32_t" : 4 (cached)
+Checking for size of "uint_least32_t" : 4 (cached)
+Checking for size of "int_fast32_t" : 8 (cached)
+Checking for size of "uint_fast32_t" : 8 (cached)
+Checking for size of "int64_t" : 8 (cached)
+Checking for size of "uint64_t" : 8 (cached)
+Checking for size of "int_least64_t" : 8 (cached)
+Checking for size of "uint_least64_t" : 8 (cached)
+Checking for size of "int_fast64_t" : 8 (cached)
+Checking for size of "uint_fast64_t" : 8 (cached)
+Checking for size of "size_t" : 8 (cached)
+Checking for size of "ssize_t" : -1 
+Checking for size of "ptrdiff_t" : 8 (cached)
+Checking for size of "off_t" : 8 (cached)
+Checking for size of "off64_t" : -1 
+Checking for size of "time_t" : 8 (cached)
+Checking for size of "bool" : 1 (cached)
+Checking for size of "_Quad" : -1 
+Checking for size of "__float128" : 16 (cached)
+Cleaning... 0 files.
+Checking if "check dev_t" compiles: YES (cached)
+Checking if "check dev_t scalar" runs: NO (1)
+Checking if "CLOCK_MONOTONIC" compiles: YES (cached)
+Checking whether type "struct tm" has member "tm_gmtoff" : NO (cached)
+Checking whether type "struct tm" has member "__tm_gmtoff" : YES (cached)
+Checking whether type "struct tm" has member "tm_sec" : YES (cached)
+Checking whether type "struct tm" has member "tz_minuteswest" : NO (cached)
+Checking for function "gettimeofday" : YES (cached)
+Checking whether type "struct stat" has member "st_blocks" : YES (cached)
+Checking for function "ioctl" : YES (cached)
+Header "sys/ioctl.h" has symbol "TIOCGWINSZ" : YES (cached)
+Header "sys/ioctl.h" has symbol "TIOCGETD" : YES (cached)
+Checking for function "getpwuid" : YES (cached)
+Checking for function "alarm" : YES (cached)
+Checking for function "fcntl" : YES (cached)
+Checking for function "flock" : YES (cached)
+Checking for function "fork" : YES (cached)
+Checking for function "frexpf" : YES (cached)
+Checking for function "frexpl" : YES (cached)
+Checking for function "gethostname" : YES (cached)
+Checking for function "getrusage" : YES (cached)
+Checking for function "llround" : YES (cached)
+Checking for function "llroundf" : YES (cached)
+Checking for function "lround" : YES (cached)
+Checking for function "lroundf" : YES (cached)
+Checking for function "lstat" : YES (cached)
+Checking for function "pread" : YES (cached)
+Checking for function "pwrite" : YES (cached)
+Checking for function "rand_r" : YES (cached)
+Checking for function "random" : YES (cached)
+Checking for function "round" : YES (cached)
+Checking for function "roundf" : YES (cached)
+Checking for function "setsysinfo" : NO (cached)
+Checking for function "signal" : YES (cached)
+Checking for function "longjmp" : YES (cached)
+Checking for function "setjmp" : YES (cached)
+Checking for function "siglongjmp" : YES (cached)
+Checking for function "sigsetjmp" : NO (cached)
+Checking for function "sigprocmask" : YES (cached)
+Checking for function "snprintf" : YES (cached)
+Checking for function "srandom" : YES (cached)
+Checking for function "strdup" : YES (cached)
+Checking for function "strtoll" : YES (cached)
+Checking for function "strtoull" : YES (cached)
+Checking for function "symlink" : YES (cached)
+Checking for function "system" : YES (cached)
+Checking for function "tmpfile" : YES (cached)
+Checking for function "asprintf" : YES (cached)
+Checking for function "vasprintf" : YES (cached)
+Checking for function "waitpid" : YES (cached)
+Checking for function "vsnprintf" : YES (cached)
+Header "setjmp.h" has symbol "sigsetjmp" : NO (cached)
+Checking if "inline keyword check" compiles: YES (cached)
+Configuring H5pubconf.h using configuration
+Checking for size of "long" : 8 (cached)
+Checking for size of "void *" : 8 (cached)
+Configuring cgnstypes.h using configuration
+Configuring cg_hash_types.h using configuration
+Configuring cgnsconfig.h using configuration
+Compiler for C++ supports arguments -Wno-unused-result: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C++ supports arguments -Wno-unknown-pragmas: YES (cached)
+Compiler for C++ supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C++ supports arguments -Wno-clobbered: YES (cached)
+Compiler for C++ supports arguments -Wno-empty-body: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-label: YES (cached)
+Compiler for C++ supports arguments -Wno-misleading-indentation: YES (cached)
+Compiler for C++ supports arguments -Wno-maybe-uninitialized: YES (cached)
+Compiler for C++ supports arguments -Wno-pedantic: YES (cached)
+Compiler for C++ supports arguments -Wno-error=absolute-value: YES (cached)
+Compiler for C++ supports arguments -Wno-absolute-value: NO (cached)
+Library mmg found: YES
+Library scotch found: YES
+Library scotcherrexit found: YES
+Dependency zlib found: YES 1.3 (cached)
+Dependency threads found: YES unknown (cached)
+Library m found: YES
+Library rt found: YES
+Checking if "MMG library" with dependencies -lmmg, -lscotch, -lscotcherrexit, zlib, threads, -lm, -lrt links: YES (cached)
+../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.
+Message: -------------------------------------------------------------------------
+         |    ___ _   _ ___                                                      |
+         |   / __| | | |_  )   Release 8.5.0 "Harrier"                           |
+         |   \__ \ |_| |/ /                                                      |
+         |   |___/\___//___|   Meson Configuration Summary                       |
+         |                                                                       |
+         -------------------------------------------------------------------------
+
+         Option          Value
+         ---------------------
+         TecIO:          false
+         CGNS:           true
+         AD (reverse):   false
+         AD (forward):   false
+         Python Wrapper: false
+         Intel-MKL:      false
+         OpenBlas:       false
+         PaStiX:         false
+         Mixed Float:    false
+         libROM:         false
+         CoolProp:       false
+         MLPCpp:         false
+         Tracy Profiler: false
+         MMG:            true
+
+         Please be sure to add the $SU2_HOME and $SU2_RUN environment variables,
+         and update your $PATH (and $PYTHONPATH if applicable) with $SU2_RUN
+
+         Based on the input to this configuration, add these lines to your .bashrc file:
+
+         export SU2_RUN=/usr/local/bin
+         export SU2_HOME=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated
+         export PATH=$PATH:$SU2_RUN
+         export PYTHONPATH=$PYTHONPATH:$SU2_RUN
+
+         Use './ninja -C build-integrated-v3-p5-20261114 install' to compile and install SU2
+
+Build targets in project: 20
+WARNING: Deprecated features used:
+ * 0.60.0: {'install_subdir with empty directory'}
+
+SU2 8.5.0 "Harrier"
+
+  User defined options
+    b_ndebug       : false
+    buildtype      : debugoptimized
+    enable-cgns    : true
+    enable-mmg     : true
+    enable-tecio   : false
+    enable-tests   : true
+    mmg_scotch_root: /home/rausa/Software/scotch
+    with-mpi       : enabled
+    with-omp       : false
+
+Found ninja-1.13.0 at /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/tools/ninja
+[1/316] Compiling C++ object Common/src/libSU2Common.a.p/wall_model.cpp.o
+[2/316] Compiling C++ object Common/src/libSU2Common.a.p/graph_coloring_structure.cpp.o
+In file included from /usr/include/c++/13/bits/stl_tree.h:63,
+                 from /usr/include/c++/13/map:62,
+                 from ../../Common/src/../include/./parallelization/mpi_structure.hpp:32,
+                 from ../../Common/src/../include/graph_coloring_structure.hpp:32,
+                 from ../../Common/src/graph_coloring_structure.cpp:28:
+In static member function ‘static _Up* std::__copy_move<_IsMove, true, std::random_access_iterator_tag>::__copy_m(_Tp*, _Tp*, _Up*) [with _Tp = const long unsigned int; _Up = long unsigned int; bool _IsMove = false]’,
+    inlined from ‘_OI std::__copy_move_a2(_II, _II, _OI) [with bool _IsMove = false; _II = const long unsigned int*; _OI = long unsigned int*]’ at /usr/include/c++/13/bits/stl_algobase.h:506:30,
+    inlined from ‘_OI std::__copy_move_a1(_II, _II, _OI) [with bool _IsMove = false; _II = const long unsigned int*; _OI = long unsigned int*]’ at /usr/include/c++/13/bits/stl_algobase.h:533:42,
+    inlined from ‘_OI std::__copy_move_a(_II, _II, _OI) [with bool _IsMove = false; _II = __gnu_cxx::__normal_iterator<const long unsigned int*, vector<long unsigned int> >; _OI = long unsigned int*]’ at /usr/include/c++/13/bits/stl_algobase.h:540:31,
+    inlined from ‘_OI std::copy(_II, _II, _OI) [with _II = __gnu_cxx::__normal_iterator<const long unsigned int*, vector<long unsigned int> >; _OI = long unsigned int*]’ at /usr/include/c++/13/bits/stl_algobase.h:633:7,
+    inlined from ‘static _ForwardIterator std::__uninitialized_copy<true>::__uninit_copy(_InputIterator, _InputIterator, _ForwardIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; _ForwardIterator = long unsigned int*]’ at /usr/include/c++/13/bits/stl_uninitialized.h:147:27,
+    inlined from ‘_ForwardIterator std::uninitialized_copy(_InputIterator, _InputIterator, _ForwardIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, vector<long unsigned int> >; _ForwardIterator = long unsigned int*]’ at /usr/include/c++/13/bits/stl_uninitialized.h:185:15,
+    inlined from ‘_ForwardIterator std::__uninitialized_copy_a(_InputIterator, _InputIterator, _ForwardIterator, allocator<_Tp>&) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, vector<long unsigned int> >; _ForwardIterator = long unsigned int*; _Tp = long unsigned int]’ at /usr/include/c++/13/bits/stl_uninitialized.h:373:37,
+    inlined from ‘void std::vector<_Tp, _Alloc>::_M_range_insert(iterator, _ForwardIterator, _ForwardIterator, std::forward_iterator_tag) [with _ForwardIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/vector.tcc:814:38,
+    inlined from ‘std::vector<_Tp, _Alloc>::iterator std::vector<_Tp, _Alloc>::insert(const_iterator, _InputIterator, _InputIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; <template-parameter-2-2> = void; _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/stl_vector.h:1486:19,
+    inlined from ‘void CGraphColoringStructure::GraphVertexColoring(CConfig*, const std::vector<long unsigned int>&, const std::vector<std::vector<long unsigned int> >&, int&, std::vector<int>&)’ at ../../Common/src/graph_coloring_structure.cpp:187:25:
+/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: ‘void* __builtin_memmove(void*, const void*, long unsigned int)’ writing between 9 and 9223372036854775800 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]
+  437 |             __builtin_memmove(__result, __first, sizeof(_Tp) * _Num);
+      |             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h:33,
+                 from /usr/include/c++/13/bits/allocator.h:46,
+                 from /usr/include/c++/13/bits/stl_tree.h:64:
+In member function ‘_Tp* std::__new_allocator<_Tp>::allocate(size_type, const void*) [with _Tp = long unsigned int]’,
+    inlined from ‘static _Tp* std::allocator_traits<std::allocator<_Tp1> >::allocate(allocator_type&, size_type) [with _Tp = long unsigned int]’ at /usr/include/c++/13/bits/alloc_traits.h:482:28,
+    inlined from ‘std::_Vector_base<_Tp, _Alloc>::pointer std::_Vector_base<_Tp, _Alloc>::_M_allocate(std::size_t) [with _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/stl_vector.h:381:33,
+    inlined from ‘std::_Vector_base<_Tp, _Alloc>::pointer std::_Vector_base<_Tp, _Alloc>::_M_allocate(std::size_t) [with _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/stl_vector.h:378:7,
+    inlined from ‘void std::vector<_Tp, _Alloc>::_M_range_insert(iterator, _ForwardIterator, _ForwardIterator, std::forward_iterator_tag) [with _ForwardIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/vector.tcc:805:40,
+    inlined from ‘std::vector<_Tp, _Alloc>::iterator std::vector<_Tp, _Alloc>::insert(const_iterator, _InputIterator, _InputIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; <template-parameter-2-2> = void; _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/stl_vector.h:1486:19,
+    inlined from ‘void CGraphColoringStructure::GraphVertexColoring(CConfig*, const std::vector<long unsigned int>&, const std::vector<std::vector<long unsigned int> >&, int&, std::vector<int>&)’ at ../../Common/src/graph_coloring_structure.cpp:187:25:
+/usr/include/c++/13/bits/new_allocator.h:151:55: note: at offset [-9223372036854775808, -1] into destination object of size [8, 9223372036854775800] allocated by ‘operator new’
+  151 |         return static_cast<_Tp*>(_GLIBCXX_OPERATOR_NEW(__n * sizeof(_Tp)));
+      |                                                       ^
+[3/316] Compiling C++ object Common/src/libSU2Common.a.p/parallelization_CPassiveComm.cpp.o
+[4/316] Compiling C++ object Common/src/libSU2Common.a.p/linear_algebra_CSysVector.cpp.o
+[5/316] Compiling C++ object Common/src/libSU2Common.a.p/linear_algebra_CSysSolve_b.cpp.o
+[6/316] Compiling C++ object Common/src/libSU2Common.a.p/linear_algebra_blas_structure.cpp.o
+[7/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CInviscidVortexSolution.cpp.o
+[8/316] Compiling C++ object Common/src/libSU2Common.a.p/linear_algebra_CSysMatrix.cpp.o
+[9/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CIncTGVSolution.cpp.o
+[10/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CMMSIncNSSolution.cpp.o
+[11/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CMMSIncEulerSolution.cpp.o
+[12/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CRinglebSolution.cpp.o
+[13/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CMMSNSTwoHalfSpheresSolution.cpp.o
+[14/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CNSUnitQuadSolution.cpp.o
+[15/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CMMSNSUnitQuadSolution.cpp.o
+[16/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CMMSNSTwoHalfCirclesSolution.cpp.o
+[17/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CTGVSolution.cpp.o
+[18/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CMMSNSUnitQuadSolutionWallBC.cpp.o
+[19/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CVerificationSolution.cpp.o
+[20/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_MMS_CUserDefinedSolution.cpp.o
+[21/316] Compiling C++ object Common/src/libSU2Common.a.p/toolboxes_fem_CSortFaces.cpp.o
+[22/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_CGeometry.cpp.o
+[23/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_CPhysicalGeometry.cpp.o
+[24/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_CPhysicalGeometryFEM.cpp.o
+[25/316] Compiling C++ object Common/src/libSU2Common.a.p/linear_algebra_CSysSolve.cpp.o
+[26/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_CDummyGeometry.cpp.o
+[27/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_dual_grid_CDualGrid.cpp.o
+[28/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_CMultiGridQueue.cpp.o
+[29/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_dual_grid_CVertex.cpp.o
+[30/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_CMultiGridGeometry.cpp.o
+[31/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_dual_grid_CPoint.cpp.o
+[32/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_dual_grid_CTurboVertex.cpp.o
+[33/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_primal_grid_CPrimalGridFEM.cpp.o
+[34/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CBoxMeshReaderFEM.cpp.o
+[35/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CBoxMeshReaderFVM.cpp.o
+[36/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CCGNSMeshReaderBase.cpp.o
+[37/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CCGNSMeshReaderFEM.cpp.o
+[38/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CCGNSMeshReaderFVM.cpp.o
+[39/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CDistributedMemoryMeshReaderFVM.cpp.o
+[40/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CMemoryMeshReaderFVM.cpp.o
+[41/316] Compiling C++ object Common/src/libSU2Common.a.p/CConfig.cpp.o
+[42/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CMeshReaderBase.cpp.o
+[43/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CRectangularMeshReaderFEM.cpp.o
+[44/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CRectangularMeshReaderFVM.cpp.o
+[45/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CSU2ASCIIMeshReaderBase.cpp.o
+[46/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CSU2ASCIIMeshReaderFEM.cpp.o
+[47/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CSU2ASCIIMeshReaderFVM.cpp.o
+[48/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CSU2BinaryMeshReaderBase.cpp.o
+[49/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CSU2BinaryMeshReaderFEM.cpp.o
+[50/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CSU2BinaryMeshReaderFVM.cpp.o
+[51/316] Compiling C++ object Common/src/libSU2Common.a.p/geometry_meshreader_CSU2MeshReaderBase.cpp.o
+[52/316] Compiling C++ object Common/src/libSU2Common.a.p/interface_interpolation_CInterpolatorFactory.cpp.o
+[53/316] Compiling C++ object Common/src/libSU2Common.a.p/interface_interpolation_CInterpolator.cpp.o
+[54/316] Compiling C++ object Common/src/libSU2Common.a.p/interface_interpolation_CMirror.cpp.o
+[55/316] Compiling C++ object Common/src/libSU2Common.a.p/interface_interpolation_CSlidingMesh.cpp.o
+[56/316] Compiling C++ object Common/src/libSU2Common.a.p/interface_interpolation_CIsoparametric.cpp.o
+[57/316] Compiling C++ object Common/src/libSU2Common.a.p/interface_interpolation_CNearestNeighbor.cpp.o
+[58/316] Compiling C++ object Common/src/libSU2Common.a.p/interface_interpolation_CMixingPlane.cpp.o
+[59/316] Compiling C++ object Common/src/libSU2Common.a.p/interface_interpolation_CRadialBasisFunction.cpp.o
+[60/316] Compiling C++ object Common/src/libSU2Common.a.p/fem_fem_work_estimate_metis.cpp.o
+[61/316] Compiling C++ object Common/src/libSU2Common.a.p/fem_fem_integration_rules.cpp.o
+[62/316] Compiling C++ object Common/src/libSU2Common.a.p/fem_fem_gauss_jacobi_quadrature.cpp.o
+[63/316] Compiling C++ object Common/src/libSU2Common.a.p/fem_fem_wall_distance.cpp.o
+[64/316] Compiling C++ object Common/src/libSU2Common.a.p/fem_fem_standard_element.cpp.o
+[65/316] Compiling C++ object Common/src/libSU2Common.a.p/grid_movement_CGridMovement.cpp.o
+[66/316] Compiling C++ object Common/src/libSU2Common.a.p/grid_movement_CFreeFormDefBox.cpp.o
+[67/316] Compiling C++ object Common/src/libSU2Common.a.p/grid_movement_CVolumetricMovement.cpp.o
+[68/316] Compiling C++ object Common/src/libSU2Common.a.p/grid_movement_CVolumetricMovementFactory.cpp.o
+[69/316] Compiling C++ object Common/src/libSU2Common.a.p/grid_movement_CLinearElasticity.cpp.o
+[70/316] Compiling C++ object Common/src/libSU2Common.a.p/fem_fem_geometry_structure.cpp.o
+[71/316] Compiling C++ object Common/src/libSU2Common.a.p/grid_movement_CSurfaceMovement.cpp.o
+[72/316] Compiling C++ object Common/src/libSU2Common.a.p/grid_movement_CRadialBasisFunctionInterpolation.cpp.o
+[73/316] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CMeshGather.cpp.o
+[74/316] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CMMGInterface.cpp.o
+[75/316] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CDistributedSearch.cpp.o
+[76/316] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CReaderSlices.cpp.o
+[77/316] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o
+[78/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/definition_structure.cpp.o
+[79/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/python_wrapper_structure.cpp.o
+[80/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/CMarkerProfileReaderFVM.cpp.o
+[81/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CFluidModel.cpp.o
+[82/316] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o
+[83/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CIdealGas.cpp.o
+[84/316] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeRemesher.cpp.o
+[85/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CFluidScalar.cpp.o
+[86/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CPengRobinson.cpp.o
+[87/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CVanDerWaalsGas.cpp.o
+[88/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CFluidFlamelet.cpp.o
+[89/316] Compiling C++ object SU2_CFD/src/libSU2BLMetric.a.p/adaptation_CBoundaryLayerMetric.cpp.o
+[90/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CCoolProp.cpp.o
+[91/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CNEMOGas.cpp.o
+[92/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_COutputFactory.cpp.o
+[93/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CDataDrivenFluid.cpp.o
+[94/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/fluid_CSU2TCLib.cpp.o
+[95/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CAdjElasticityOutput.cpp.o
+[96/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CAdjFlowOutput.cpp.o
+[97/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CAdjFlowCompOutput.cpp.o
+[98/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CAdjFlowIncOutput.cpp.o
+[99/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CAdjHeatOutput.cpp.o
+[100/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CBaselineOutput.cpp.o
+[101/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CMultizoneOutput.cpp.o
+[102/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CElasticityOutput.cpp.o
+[103/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CFVMOutput.cpp.o
+[104/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CFlowCompFEMOutput.cpp.o
+[105/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CFlowCompOutput.cpp.o
+[106/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CFlowIncOutput.cpp.o
+[107/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CHeatOutput.cpp.o
+[108/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CMeshOutput.cpp.o
+[109/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CTurboOutput.cpp.o
+[110/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_filewriter_CFVMDataSorter.cpp.o
+[111/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CNEMOCompOutput.cpp.o
+[112/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_filewriter_CFEMDataSorter.cpp.o
+[113/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_CFlowOutput.cpp.o
+[114/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_filewriter_CSurfaceFEMDataSorter.cpp.o
+[115/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_filewriter_CParaviewVTMFileWriter.cpp.o
+[116/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_COutput.cpp.o
+[117/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_filewriter_CSurfaceFVMDataSorter.cpp.o
+[118/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CIncNSVariable.cpp.o
+[119/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/output_filewriter_CCGNSFileWriter.cpp.o
+[120/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CTransLMVariable.cpp.o
+[121/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CAdjEulerVariable.cpp.o
+[122/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CHeatVariable.cpp.o
+[123/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CTurbVariable.cpp.o
+[124/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CScalarVariable.cpp.o
+[125/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CSpeciesVariable.cpp.o
+[126/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CSpeciesFlameletVariable.cpp.o
+[127/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CAdjNSVariable.cpp.o
+[128/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CBaselineVariable.cpp.o
+[129/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CDiscAdjFEABoundVariable.cpp.o
+[130/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CDiscAdjMeshBoundVariable.cpp.o
+[131/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CDiscAdjVariable.cpp.o
+[132/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CFEABoundVariable.cpp.o
+[133/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CTurbSAVariable.cpp.o
+[134/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CFEAVariable.cpp.o
+[135/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CMeshVariable.cpp.o
+[136/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CMeshBoundVariable.cpp.o
+[137/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CMeshElement.cpp.o
+[138/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CRadVariable.cpp.o
+[139/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CRadP1Variable.cpp.o
+[140/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CTurbSSTVariable.cpp.o
+[141/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CVariable.cpp.o
+[142/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CAdjTurbVariable.cpp.o
+[143/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CNSVariable.cpp.o
+[144/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CFlowVariable.cpp.o
+[145/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CIncEulerVariable.cpp.o
+[146/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CPoissonVariable.cpp.o
+[147/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CEulerVariable.cpp.o
+[148/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CNEMOEulerVariable.cpp.o
+[149/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CNEMONSVariable.cpp.o
+[150/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/variables_CSobolevSmoothingVariable.cpp.o
+[151/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolverFactory.cpp.o
+[152/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CAdjNSSolver.cpp.o
+[153/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CAdjTurbSolver.cpp.o
+[154/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CAdjEulerSolver.cpp.o
+[155/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CBaselineSolver.cpp.o
+[156/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CBaselineSolver_FEM.cpp.o
+[157/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CDiscAdjFEASolver.cpp.o
+[158/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CDiscAdjMeshSolver.cpp.o
+[159/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CRadSolver.cpp.o
+[160/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CRadP1Solver.cpp.o
+[161/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CDiscAdjSolver.cpp.o
+[162/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CFEASolver.cpp.o
+[163/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CFEM_DG_NSSolver.cpp.o
+[164/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CFEM_DG_EulerSolver.cpp.o
+[165/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CEulerSolver.cpp.o
+[166/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CIncEulerSolver.cpp.o
+[167/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CHeatSolver.cpp.o
+[168/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CPoissonSolver.cpp.o
+[169/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CMeshSolver.cpp.o
+[170/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CIncNSSolver.cpp.o
+[171/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CNEMOEulerSolver.cpp.o
+[172/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CTemplateSolver.cpp.o
+[173/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CNEMONSSolver.cpp.o
+[174/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CNSSolver.cpp.o
+[175/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSpeciesFlameletSolver.cpp.o
+[176/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSpeciesSolver.cpp.o
+[177/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CTurbSolver.cpp.o
+[178/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CTransLMSolver.cpp.o
+[179/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CFEASolverBase.cpp.o
+[180/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CGradientSmoothingSolver.cpp.o
+[181/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CTurbSSTSolver.cpp.o
+[182/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_CNumerics.cpp.o
+[183/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_template.cpp.o
+[184/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_radiation.cpp.o
+[185/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_flow_convection_fds.cpp.o
+[186/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_flow_convection_roe.cpp.o
+[187/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CTurbSASolver.cpp.o
+[188/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_flow_convection_fvs.cpp.o
+[189/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_flow_convection_hllc.cpp.o
+[190/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_flow_convection_ausm_slau.cpp.o
+[191/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_flow_convection_centered.cpp.o
+[192/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_flow_convection_pressure_based.cpp.o
+[193/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_flow_flow_diffusion.cpp.o
+[194/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_flow_flow_sources.cpp.o
+[195/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_NEMO_convection_lax.cpp.o
+[196/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_NEMO_CNEMONumerics.cpp.o
+[197/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_NEMO_convection_roe.cpp.o
+[198/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o
+[199/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_NEMO_convection_ausm_slau.cpp.o
+[200/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_NEMO_convection_msw.cpp.o
+[201/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_NEMO_NEMO_diffusion.cpp.o
+[202/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_NEMO_NEMO_sources.cpp.o
+[203/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_continuous_adjoint_adj_convection.cpp.o
+[204/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_continuous_adjoint_adj_diffusion.cpp.o
+[205/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_continuous_adjoint_adj_sources.cpp.o
+[206/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_scalar_scalar_sources.cpp.o
+[207/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_species_species_sources.cpp.o
+[208/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_elasticity_CFEAElasticity.cpp.o
+[209/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_elasticity_CFEALinearElasticity.cpp.o
+[210/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_elasticity_CFEANonlinearElasticity.cpp.o
+[211/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_elasticity_nonlinear_models.cpp.o
+[212/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/numerics_CGradSmoothing.cpp.o
+[213/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/interfaces_CInterface.cpp.o
+[214/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/interfaces_cfd_CConservativeVarsInterface.cpp.o
+[215/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/interfaces_cfd_CMixingPlaneInterface.cpp.o
+[216/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/interfaces_cfd_CSlidingInterface.cpp.o
+[217/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/interfaces_cht_CConjugateHeatInterface.cpp.o
+[218/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/interfaces_fsi_CDisplacementsInterface.cpp.o
+[219/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/interfaces_fsi_CFlowTractionInterface.cpp.o
+[220/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/interfaces_fsi_CDiscAdjFlowTractionInterface.cpp.o
+[221/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CMultizoneDriver.cpp.o
+[222/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CDriver.cpp.o
+[223/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CDiscAdjMultizoneDriver.cpp.o
+[224/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CDummyDriver.cpp.o
+[225/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CDiscAdjSinglezoneDriver.cpp.o
+[226/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CDriverBase.cpp.o
+[227/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/.._include_numerics_simd_CNumericsSIMD.cpp.o
+[228/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CSolutionTransfer.cpp.o
+[229/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CGoalMetric.cpp.o
+[230/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CAdapSensors.cpp.o
+[231/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CAdjointTransfer.cpp.o
+[232/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CBarycentricTransfer.cpp.o
+[233/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CConservativeTransfer.cpp.o
+[234/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o
+[235/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CMetricPredictor.cpp.o
+[236/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CTransferAdmissibility.cpp.o
+[237/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_ConservativeKernels.cpp.o
+[238/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CDistributedLocator.cpp.o
+[239/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/integration_CIntegration.cpp.o
+[240/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CDistributedProjection.cpp.o
+[241/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/integration_CIntegrationFactory.cpp.o
+[242/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/integration_CSingleGridIntegration.cpp.o
+[243/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerRemesher.cpp.o
+[244/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/integration_CMultiGridIntegration.cpp.o
+[245/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/integration_CStructuralIntegration.cpp.o
+[246/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/integration_CNewtonIntegration.cpp.o
+[247/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/integration_CFEM_DG_Integration.cpp.o
+[248/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CIterationFactory.cpp.o
+[249/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CIteration.cpp.o
+[250/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CAdjFluidIteration.cpp.o
+[251/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CDiscAdjHeatIteration.cpp.o
+[252/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CDiscAdjFluidIteration.cpp.o
+[253/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+[254/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CDiscAdjFEAIteration.cpp.o
+[255/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CFEMFluidIteration.cpp.o
+[256/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CFEAIteration.cpp.o
+[257/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CPBFluidIteration.cpp.o
+[258/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CFluidIteration.cpp.o
+[259/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/limiters_CLimiterDetails.cpp.o
+[260/316] Linking static target SU2_CFD/src/libSU2BLMetric.a
+[261/316] Linking static target Common/src/libSU2Common.a
+[262/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CHeatIteration.cpp.o
+[263/316] Compiling C++ object SU2_CFD/src/libSU2core.a.p/iteration_CTurboIteration.cpp.o
+[264/316] Linking static target SU2_CFD/src/libSU2core.a
+[265/316] Compiling C++ object UnitTests/test_driver.p/Common_CConfig_tests.cpp.o
+[266/316] Compiling C++ object UnitTests/test_driver.p/Common_geometry_dual_grid_CDualGrid_tests.cpp.o
+[267/316] Compiling C++ object SU2_CFD/src/SU2_CFD.p/SU2_CFD.cpp.o
+[268/316] Compiling C++ object UnitTests/test_driver.p/Common_geometry_CGeometry_test.cpp.o
+[269/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_GoalMetric_tests.cpp.o
+[270/316] Compiling C++ object UnitTests/test_driver.p/Common_toolboxes_multilayer_perceptron_CLookUp_ANN_tests.cpp.o
+[271/316] Compiling C++ object UnitTests/test_driver.p/Common_containers_CLookupTable_tests.cpp.o
+[272/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CAdapSensors_tests.cpp.o
+[273/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_numerics_CNumerics_tests.cpp.o
+[274/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_fluid_CFluidModel_tests.cpp.o
+[275/316] Compiling C++ object UnitTests/test_driver.p/Common_geometry_CMemoryMeshReaderFVM_tests.cpp.o
+[276/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_output_CNEMOCompOutput_tests.cpp.o
+[277/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_output_COutput_convergence_tests.cpp.o
+[278/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_solvers_CNEMOEulerSolver_tests.cpp.o
+[279/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_nemo_viscous_assembly.cpp.o
+[280/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_windowing.cpp.o
+[281/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_drivers_CDriver_tests.cpp.o
+[282/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_drivers_CSinglezoneDriver_tests.cpp.o
+[283/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_AdjointTransfer_tests.cpp.o
+[284/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CBarycentricTransfer_tests.cpp.o
+In file included from /usr/include/c++/13/string:51,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/CBarycentricTransfer_tests.cpp:27:
+In static member function ‘static _Up* std::__copy_move<_IsMove, true, std::random_access_iterator_tag>::__copy_m(_Tp*, _Tp*, _Up*) [with _Tp = const C_A_T_C_H_T_E_S_T_0()::Outside; _Up = C_A_T_C_H_T_E_S_T_0()::Outside; bool _IsMove = false]’,
+    inlined from ‘_OI std::__copy_move_a2(_II, _II, _OI) [with bool _IsMove = false; _II = const C_A_T_C_H_T_E_S_T_0()::Outside*; _OI = C_A_T_C_H_T_E_S_T_0()::Outside*]’ at /usr/include/c++/13/bits/stl_algobase.h:506:30,
+    inlined from ‘_OI std::__copy_move_a1(_II, _II, _OI) [with bool _IsMove = false; _II = const C_A_T_C_H_T_E_S_T_0()::Outside*; _OI = C_A_T_C_H_T_E_S_T_0()::Outside*]’ at /usr/include/c++/13/bits/stl_algobase.h:533:42,
+    inlined from ‘_OI std::__copy_move_a(_II, _II, _OI) [with bool _IsMove = false; _II = const C_A_T_C_H_T_E_S_T_0()::Outside*; _OI = C_A_T_C_H_T_E_S_T_0()::Outside*]’ at /usr/include/c++/13/bits/stl_algobase.h:540:31,
+    inlined from ‘_OI std::copy(_II, _II, _OI) [with _II = const C_A_T_C_H_T_E_S_T_0()::Outside*; _OI = C_A_T_C_H_T_E_S_T_0()::Outside*]’ at /usr/include/c++/13/bits/stl_algobase.h:633:7,
+    inlined from ‘void std::vector<_Tp, _Alloc>::_M_assign_aux(_ForwardIterator, _ForwardIterator, std::forward_iterator_tag) [with _ForwardIterator = const C_A_T_C_H_T_E_S_T_0()::Outside*; _Tp = C_A_T_C_H_T_E_S_T_0()::Outside; _Alloc = std::allocator<C_A_T_C_H_T_E_S_T_0()::Outside>]’ at /usr/include/c++/13/bits/vector.tcc:336:19:
+/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: argument 1 null where non-null expected [-Wnonnull]
+  437 |             __builtin_memmove(__result, __first, sizeof(_Tp) * _Num);
+      |             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/c++/13/bits/stl_algobase.h:437:30: note: in a call to built-in function ‘void* __builtin_memmove(void*, const void*, long unsigned int)’
+[285/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CornerMetric_tests.cpp.o
+[286/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CConservativeTransfer_tests.cpp.o
+[287/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CMetricPredictor_tests.cpp.o
+[288/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerTwoPass_tests.cpp.o
+[289/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_gradients.cpp.o
+[290/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport2D_tests.cpp.o
+[291/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_AdaptationMPI_tests.cpp.o
+[292/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeFastPathStage0_tests.cpp.o
+[293/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o
+[294/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeFastPathStage2_tests.cpp.o
+[295/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeLocalCore3DResumeOption_tests.cpp.o
+[296/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeLocalCore3DOption_tests.cpp.o
+[297/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher_tests.cpp.o
+[298/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o
+[299/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeLocalCoreLab_tests.cpp.o
+[300/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeCGNS2D_tests.cpp.o
+[301/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeBL2D_tests.cpp.o
+[302/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeSupport2D_tests.cpp.o
+[303/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeAirfoil2D_tests.cpp.o
+[304/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_DistributedTransfer_tests.cpp.o
+[305/316] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CMMGInterface_tests.cpp.o
+[306/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_output_CMeshOutput_tests.cpp.o
+[307/316] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_DEF1Options_tests.cpp.o
+[308/316] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_AdaptationLoopOptions_tests.cpp.o
+[309/316] Compiling C++ object UnitTests/test_driver.p/Common_parallelization_CPassiveComm_tests.cpp.o
+[310/316] Compiling C++ object UnitTests/test_driver.p/Common_linear_algebra_quantization_tests.cpp.o
+[311/316] Compiling C++ object UnitTests/test_driver.p/Common_linear_algebra_edge_residual_blocks_tests.cpp.o
+[312/316] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_DistributedSearch_tests.cpp.o
+[313/316] Linking target SU2_CFD/src/SU2_CFD
+[314/316] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o
+[315/316] Linking target UnitTests/test_driver
