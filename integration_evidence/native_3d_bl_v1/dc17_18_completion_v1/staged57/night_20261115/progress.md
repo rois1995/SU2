@@ -2732,3 +2732,7 @@ CL1 intake after FP3-E final c31f95b071, pushed and all owned handles terminal. 
 CL1 setup authenticated the FP3-E build680 solver e423a3d84f8872723b23344005e171bb3971cf2f8f562adc74c77cc752f109e3, D S1 template and all three inputs. One six-rank launch and wait4 plumbing self-check passed without launching SU2. The frozen config changes only the signed keys. Next launch once at nice 19 with a 21600 s watchdog.
 
 CL1 setup checkpoint 23de3d6c57 pushed. The first setup supervisor stopped before launch on the wrong inherited host-preflight path. There was no launch receipt, solver log, rank process or MPI process. R3 corrected the helper path to the N4 end-B archive and verified the real host preflight. The frozen configuration is unchanged. Start the single solver launch now.
+
+CL1 setup fix 0463ccef51 pushed. The one solver invocation launched with a 21600 s watchdog and active host preflight. All six rank start receipts show nice 19, trace 0 and probe 0. Checkout 0463ccef51 and solver source 62a270c4d6 recorded separately. Cycle 0 started on the 61330-point input with cap 1 and CFL 1.
+
+CL1 cycle 0 reached its prescribed cap of one iteration. The convergence summary listed Cauchy[CL] and Cauchy[CD], both 1 against 1e-7. Restart and both nonempty ParaView outputs are on disk. Native event 1 underway.
