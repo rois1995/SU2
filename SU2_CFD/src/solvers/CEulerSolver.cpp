@@ -52,7 +52,9 @@
 #include "../../include/output/COutput.hpp"
 #include "../../include/output/CTurboOutput.hpp"
 
+namespace {
 void CommPointData(CGeometry* geometry, const CConfig* config, su2double* data, unsigned short count);
+}  // namespace
 
 CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
                            unsigned short iMesh, const bool navier_stokes) :
