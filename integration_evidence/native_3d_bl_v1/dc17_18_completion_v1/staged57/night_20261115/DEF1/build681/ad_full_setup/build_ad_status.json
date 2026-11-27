@@ -1,0 +1,35 @@
+{
+  "passed": false,
+  "build": 681,
+  "source_commit": "782387b1314173bb64f48e9196b5cb17787b4a20",
+  "source_pins_sha256": "e7c397471ad9842cd85e91a59981b975fc36dd8ebea639b5f08992d8f7d9b941",
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 3973161,
+      "start_ticks": 130255379
+    },
+    "returncode": 1,
+    "elapsed_seconds": 420.06670451164246,
+    "terminal": true
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-ad-v1/UnitTests/test_driver_AD",
+  "binary_sha256": null,
+  "graph_after": {
+    "build.ninja": "3f0d23703eba58fd47106431c5e369563e91d976f61028b28f7f7e04496657b5",
+    "compile_commands.json": "ab85cdfb774a3651f930106d613d8fd1c077ecd3145c09a10740f9e85a5e63a1"
+  },
+  "warnings": [
+    "../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.",
+    "WARNING: Deprecated features used:",
+    "../../externals/cgns/hdf5/H5Dchunk.c:1832:41: warning: passing argument 1 of \u2018H5S_combine_hyperslab\u2019 discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5Dchunk.c:4299:52: warning: initialization discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5Dchunk.c:6081:75: warning: passing argument 3 of \u2018H5O_copy_expand_ref\u2019 discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5Dint.c:2259:49: warning: return discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5Gint.c:570:41: warning: return discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5HFcache.c:745:12: warning: assignment discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5HFcache.c:1331:12: warning: assignment discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "../../externals/cgns/hdf5/H5T.c:5546:23: warning: assignment discards \u2018const\u2019 qualifier from pointer target type [-Wdiscarded-qualifiers]",
+    "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: \u2018void* __builtin_memmove(void*, const void*, long unsigned int)\u2019 writing between 9 and 9223372036854775800 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]"
+  ]
+}

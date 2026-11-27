@@ -2768,3 +2768,5 @@ DEF1 normal build681 finished with exit 0 against frozen source 782387b131. Solv
 DEF1 build681 checkpoint 678146b5be pushed. Normal lab attempt 1 failed before fixture selection: MPI_Win_create invalid window, exit 53 on every subprocess. R3 preserved the setup logs, added the accepted OMPI_MCA_osc=pt2pt and compile-tmp bindings, and repeats on the same binary. No production or test source changes.
 
 DEF1 normal lab setup correction 3580e87816 pushed. Build681 normal lab passed four hidden Catch cases (528 assertions) and all 12 isolated fatal diagnostics. Both MMG dimensions exercised at the setter boundary. The normal lab supervisor is terminal. Launch the distinct reverse-AD test-driver build on the same pinned source.
+
+DEF1 normal lab checkpoint 82a5f7f3c2 pushed. Standard reverse-AD target failed before linking in unchanged CBoundaryLayerMetric.cpp at 2619/3299 and is terminal. Preserve its logs. R3 uses the exact Meson AD objects and CommonAD dependencies to link the required focused Catch driver without touching production or the normal pair.

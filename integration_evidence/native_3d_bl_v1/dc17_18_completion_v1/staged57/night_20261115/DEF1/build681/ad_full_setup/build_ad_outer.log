@@ -1,0 +1,1003 @@
+ninja: Entering directory `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-ad-v1'
+[0/1] Regenerating build files
+The Meson build system
+Version: 1.8.2
+Source dir: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated
+Build dir: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-ad-v1
+Build type: native build
+Project name: SU2
+Project version: 8.5.0 "Harrier"
+C compiler for the host machine: cc (gcc 9.4.0 "cc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0")
+C linker for the host machine: cc ld.bfd 2.34
+C++ compiler for the host machine: c++ (gcc 9.4.0 "c++ (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0")
+C++ linker for the host machine: c++ ld.bfd 2.34
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Program python3 found: YES (/usr/bin/python3)
+Compiler for C++ supports arguments -Wno-empty-body: YES (cached)
+Compiler for C++ supports arguments -Wno-ignored-qualifiers: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C++ supports arguments -Wno-deprecated-declarations: YES (cached)
+Compiler for C++ supports arguments -Wno-error=cast-function-type: YES (cached)
+Compiler for C++ supports arguments -Wno-cast-function-type: YES (cached)
+Compiler for C++ supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C++ supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C++ supports arguments -Wno-error=missing-field-initializers: YES (cached)
+Compiler for C++ supports arguments -Wno-missing-field-initializers: YES (cached)
+Compiler for C++ supports arguments -Wno-error=class-memaccess: YES (cached)
+Compiler for C++ supports arguments -Wno-class-memaccess: YES (cached)
+Compiler for C++ supports arguments -Wno-overloaded-virtual: YES (cached)
+Compiler for C++ supports arguments -Wno-array-bounds: YES (cached)
+Compiler for C++ supports arguments -Wno-dangling-pointer: NO (cached)
+Compiler for C++ supports arguments -fno-finite-math-only: YES (cached)
+Dependency mpi found: YES 4.0.3 (cached)
+Dependency mpi found: YES 4.0.3 (cached)
+Compiler for C supports arguments -Wno-unused-result: YES (cached)
+Compiler for C supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-function: YES (cached)
+Compiler for C supports arguments -Wno-pedantic: YES (cached)
+Compiler for C supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-error=absolute-value: YES (cached)
+Compiler for C supports arguments -Wno-error=class-memaccess: YES (cached)
+Compiler for C supports arguments -Wno-dangling-pointer: NO (cached)
+Compiler for C supports arguments -Wno-format-truncation: YES (cached)
+Compiler for C supports arguments -Wno-maybe-uninitialized: YES (cached)
+Compiler for C supports arguments -Wno-array-bounds: YES (cached)
+Compiler for C supports arguments -Wno-array-parameter: NO (cached)
+Compiler for C supports arguments -Wno-stringop-overflow: YES (cached)
+Compiler for C supports arguments -Wno-unused-result: YES (cached)
+Compiler for C supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C supports arguments -Wno-stringop-overflow: YES (cached)
+Compiler for C supports arguments -Wno-error=discarded-qualifiers: YES (cached)
+Compiler for C supports arguments -Wno-error=maybe-uninitialized: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-function: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-label: YES (cached)
+Compiler for C supports arguments -Wno-pedantic: YES (cached)
+Compiler for C supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-error=cast-function-type: YES (cached)
+Compiler for C supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-dangling-pointer: NO (cached)
+Compiler for C supports arguments -Wno-format-truncation: YES (cached)
+Dependency zlib found: YES 1.2.11 (cached)
+Found pkg-config: YES (/usr/bin/pkg-config) 1.8.1
+Found CMake: /usr/bin/cmake (3.28.3)
+Run-time dependency szip found: NO (tried pkgconfig and cmake)
+Has header "zlib.h" : YES (cached)
+Checking for function "inflate" with dependency zlib: YES (cached)
+Has header "sys/file.h" : YES (cached)
+Has header "sys/ioctl.h" : YES (cached)
+Has header "sys/resource.h" : YES (cached)
+Has header "sys/socket.h" : YES (cached)
+Has header "sys/stat.h" : YES (cached)
+Has header "sys/time.h" : YES (cached)
+Has header "sys/types.h" : YES (cached)
+Has header "features.h" : YES (cached)
+Has header "dirent.h" : YES (cached)
+Has header "setjmp.h" : YES (cached)
+Has header "stddef.h" : YES (cached)
+Has header "stdint.h" : YES (cached)
+Has header "unistd.h" : YES (cached)
+Has header "io.h" : NO (cached)
+Has header "winsock2.h" : NO (cached)
+Has header "globus/common.h" : NO (cached)
+Has header "pdb.h" : NO (cached)
+Has header "pthread.h" : YES (cached)
+Has header "srbclient.h" : NO (cached)
+Has header "string.h" : YES (cached)
+Has header "strings.h" : YES (cached)
+Has header "stdlib.h" : YES (cached)
+Has header "memory.h" : YES (cached)
+Has header "dlfcn.h" : YES (cached)
+Has header "inttypes.h" : YES (cached)
+Has header "netinet/in.h" : YES (cached)
+Has header "netdb.h" : YES (cached)
+Has header "arpa/inet.h" : YES (cached)
+Has header "stdbool.h" : YES (cached)
+Has header "quadmath.h" : YES (cached)
+Library m found: YES
+Checking for function "ceil" with dependency -lm: YES (cached)
+Library dl found: YES
+Checking for function "dlopen" with dependency -ldl: YES (cached)
+Library ucb found: NO
+Checking for function "gethostbyname" with dependency -lucb: NO (cached)
+Checking for function "lseek64" : NO (cached)
+Checking for function "fseeko" : NO (cached)
+Checking for function "stat64" : NO (cached)
+Checking for size of "char" : 1 (cached)
+Checking for size of "short" : 2 (cached)
+Checking for size of "int" : 4 (cached)
+Checking for size of "unsigned" : 4 (cached)
+Checking for size of "long" : 8 (cached)
+Checking for size of "long long" : 8 (cached)
+Checking for size of "__int64" : -1 
+Checking for size of "float" : 4 (cached)
+Checking for size of "double" : 8 (cached)
+Checking for size of "long double" : 16 (cached)
+Checking for size of "int8_t" : 1 (cached)
+Checking for size of "uint8_t" : 1 (cached)
+Checking for size of "int_least8_t" : 1 (cached)
+Checking for size of "uint_least8_t" : 1 (cached)
+Checking for size of "int_fast8_t" : 1 (cached)
+Checking for size of "uint_fast8_t" : 1 (cached)
+Checking for size of "int16_t" : 2 (cached)
+Checking for size of "uint16_t" : 2 (cached)
+Checking for size of "int_least16_t" : 2 (cached)
+Checking for size of "uint_least16_t" : 2 (cached)
+Checking for size of "int_fast16_t" : 8 (cached)
+Checking for size of "uint_fast16_t" : 8 (cached)
+Checking for size of "int32_t" : 4 (cached)
+Checking for size of "uint32_t" : 4 (cached)
+Checking for size of "int_least32_t" : 4 (cached)
+Checking for size of "uint_least32_t" : 4 (cached)
+Checking for size of "int_fast32_t" : 8 (cached)
+Checking for size of "uint_fast32_t" : 8 (cached)
+Checking for size of "int64_t" : 8 (cached)
+Checking for size of "uint64_t" : 8 (cached)
+Checking for size of "int_least64_t" : 8 (cached)
+Checking for size of "uint_least64_t" : 8 (cached)
+Checking for size of "int_fast64_t" : 8 (cached)
+Checking for size of "uint_fast64_t" : 8 (cached)
+Checking for size of "size_t" : 8 (cached)
+Checking for size of "ssize_t" : -1 
+Checking for size of "ptrdiff_t" : 8 (cached)
+Checking for size of "off_t" : 8 (cached)
+Checking for size of "off64_t" : -1 
+Checking for size of "time_t" : 8 (cached)
+Checking for size of "bool" : 1 (cached)
+Checking for size of "_Quad" : -1 
+Checking for size of "__float128" : 16 (cached)
+Checking if "check dev_t" compiles: YES (cached)
+Checking if "check dev_t scalar" runs: NO (1)
+Cleaning... 0 files.
+Checking if "CLOCK_MONOTONIC" compiles: YES (cached)
+Checking whether type "struct tm" has member "tm_gmtoff" : NO (cached)
+Checking whether type "struct tm" has member "__tm_gmtoff" : YES (cached)
+Checking whether type "struct tm" has member "tm_sec" : YES (cached)
+Checking whether type "struct tm" has member "tz_minuteswest" : NO (cached)
+Checking for function "gettimeofday" : YES (cached)
+Checking whether type "struct stat" has member "st_blocks" : YES (cached)
+Checking for function "ioctl" : YES (cached)
+Header "sys/ioctl.h" has symbol "TIOCGWINSZ" : YES (cached)
+Header "sys/ioctl.h" has symbol "TIOCGETD" : YES (cached)
+Checking for function "getpwuid" : YES (cached)
+Checking for function "alarm" : YES (cached)
+Checking for function "fcntl" : YES (cached)
+Checking for function "flock" : YES (cached)
+Checking for function "fork" : YES (cached)
+Checking for function "frexpf" : YES (cached)
+Checking for function "frexpl" : YES (cached)
+Checking for function "gethostname" : YES (cached)
+Checking for function "getrusage" : YES (cached)
+Checking for function "llround" : YES (cached)
+Checking for function "llroundf" : YES (cached)
+Checking for function "lround" : YES (cached)
+Checking for function "lroundf" : YES (cached)
+Checking for function "lstat" : YES (cached)
+Checking for function "pread" : YES (cached)
+Checking for function "pwrite" : YES (cached)
+Checking for function "rand_r" : YES (cached)
+Checking for function "random" : YES (cached)
+Checking for function "round" : YES (cached)
+Checking for function "roundf" : YES (cached)
+Checking for function "setsysinfo" : NO (cached)
+Checking for function "signal" : YES (cached)
+Checking for function "longjmp" : YES (cached)
+Checking for function "setjmp" : YES (cached)
+Checking for function "siglongjmp" : YES (cached)
+Checking for function "sigsetjmp" : NO (cached)
+Checking for function "sigprocmask" : YES (cached)
+Checking for function "snprintf" : YES (cached)
+Checking for function "srandom" : YES (cached)
+Checking for function "strdup" : YES (cached)
+Checking for function "strtoll" : YES (cached)
+Checking for function "strtoull" : YES (cached)
+Checking for function "symlink" : YES (cached)
+Checking for function "system" : YES (cached)
+Checking for function "tmpfile" : YES (cached)
+Checking for function "asprintf" : YES (cached)
+Checking for function "vasprintf" : YES (cached)
+Checking for function "waitpid" : YES (cached)
+Checking for function "vsnprintf" : YES (cached)
+Header "setjmp.h" has symbol "sigsetjmp" : NO (cached)
+Checking if "inline keyword check" compiles: YES (cached)
+Configuring H5pubconf.h using configuration
+Checking for size of "long" : 8 (cached)
+Checking for size of "void *" : 8 (cached)
+Configuring cgnstypes.h using configuration
+Configuring cg_hash_types.h using configuration
+Configuring cgnsconfig.h using configuration
+Compiler for C++ supports arguments -Wno-unused-result: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C++ supports arguments -Wno-unknown-pragmas: YES (cached)
+Compiler for C++ supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C++ supports arguments -Wno-clobbered: YES (cached)
+Compiler for C++ supports arguments -Wno-empty-body: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-label: YES (cached)
+Compiler for C++ supports arguments -Wno-misleading-indentation: YES (cached)
+Compiler for C++ supports arguments -Wno-maybe-uninitialized: YES (cached)
+Compiler for C++ supports arguments -Wno-pedantic: YES (cached)
+Compiler for C++ supports arguments -Wno-error=absolute-value: YES (cached)
+Compiler for C++ supports arguments -Wno-absolute-value: NO (cached)
+Library mmg found: YES
+Library scotch found: YES
+Library scotcherrexit found: YES
+Dependency zlib found: YES 1.2.11 (cached)
+Dependency threads found: YES unknown (cached)
+Library m found: YES
+Library rt found: YES
+Checking if "MMG library" with dependencies -lmmg, -lscotch, -lscotcherrexit, zlib, threads, -lm, -lrt links: YES (cached)
+../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.
+Message: -------------------------------------------------------------------------
+         |    ___ _   _ ___                                                      |
+         |   / __| | | |_  )   Release 8.5.0 "Harrier"                           |
+         |   \__ \ |_| |/ /                                                      |
+         |   |___/\___//___|   Meson Configuration Summary                       |
+         |                                                                       |
+         -------------------------------------------------------------------------
+
+         Option          Value
+         ---------------------
+         TecIO:          false
+         CGNS:           true
+         AD (reverse):   true
+         AD (forward):   false
+         Python Wrapper: false
+         Intel-MKL:      false
+         OpenBlas:       false
+         PaStiX:         false
+         Mixed Float:    false
+         libROM:         false
+         CoolProp:       false
+         MLPCpp:         false
+         Tracy Profiler: false
+         MMG:            true
+
+         Please be sure to add the $SU2_HOME and $SU2_RUN environment variables,
+         and update your $PATH (and $PYTHONPATH if applicable) with $SU2_RUN
+
+         Based on the input to this configuration, add these lines to your .bashrc file:
+
+         export SU2_RUN=/usr/local/bin
+         export SU2_HOME=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated
+         export PATH=$PATH:$SU2_RUN
+         export PYTHONPATH=$PYTHONPATH:$SU2_RUN
+
+         Use './ninja -C build-integrated-ad-v1 install' to compile and install SU2
+
+Build targets in project: 16
+WARNING: Deprecated features used:
+ * 0.60.0: {'install_subdir with empty directory'}
+
+SU2 8.5.0 "Harrier"
+
+  User defined options
+    b_ndebug       : false
+    buildtype      : debugoptimized
+    enable-autodiff: true
+    enable-cgns    : true
+    enable-mmg     : true
+    enable-normal  : false
+    enable-tecio   : false
+    enable-tests   : true
+    mmg_scotch_root: /home/rausa/Software/scotch
+    with-mpi       : enabled
+    with-omp       : false
+
+Found ninja-1.13.0 at /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/tools/ninja
+[1/824] Compiling C object externals/cgns/hdf5/H5make_libsettings.p/H5make_libsettings.c.o
+[2/824] Linking target externals/cgns/hdf5/H5make_libsettings
+[3/824] Generating externals/cgns/hdf5/H5lib_settings.c with a custom command
+[4/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5checksum.c.o
+[5/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/meson-generated_.._H5lib_settings.c.o
+[6/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5dbg.c.o
+[7/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5mpi.c.o
+[8/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5system.c.o
+[9/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5.c.o
+[10/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5timer.c.o
+[11/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Abtree2.c.o
+[12/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5A.c.o
+[13/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Adeprec.c.o
+[14/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Adense.c.o
+[15/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Atest.c.o
+[16/824] Compiling C object externals/cgns/hdf5/H5detect.p/H5detect.c.o
+[17/824] Linking target externals/cgns/hdf5/H5detect
+[18/824] Generating externals/cgns/hdf5/H5T_init.c with a custom command
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     [19/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5trace.c.o
+[20/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/meson-generated_.._H5T_init.c.o
+[21/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5ACdbg.c.o
+[22/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Aint.c.o
+[23/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5ACproxy_entry.c.o
+[24/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5AC.c.o
+[25/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Bcache.c.o
+[26/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5ACmpio.c.o
+[27/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Bdbg.c.o
+[28/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B2dbg.c.o
+[29/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B.c.o
+[30/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B2cache.c.o
+[31/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B2.c.o
+[32/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B2hdr.c.o
+[33/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B2stat.c.o
+[34/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B2leaf.c.o
+[35/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B2internal.c.o
+[36/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B2test.c.o
+[37/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5B2int.c.o
+[38/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Cepoch.c.o
+[39/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Cdbg.c.o
+[40/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Clog.c.o
+[41/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Clog_json.c.o
+[42/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Clog_trace.c.o
+[43/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Cprefetched.c.o
+[44/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Cquery.c.o
+[45/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Cmpio.c.o
+[46/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ctag.c.o
+[47/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ctest.c.o
+[48/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Cimage.c.o
+[49/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5CS.c.o
+[50/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5D.c.o
+[51/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dbtree.c.o
+[52/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5CX.c.o
+[53/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dbtree2.c.o
+[54/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dcompact.c.o
+[55/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ddbg.c.o
+[56/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dcontig.c.o
+[57/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ddeprec.c.o
+[58/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5C.c.o
+[59/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Defl.c.o
+[60/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dearray.c.o
+[61/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dfill.c.o
+[62/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dfarray.c.o
+[63/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dlayout.c.o
+[64/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dio.c.o
+[65/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dnone.c.o
+[66/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Doh.c.o
+[67/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dchunk.c.o
+
+../../externals/cgns/hdf5/H5Dchunk.c: In function ‘H5D__create_chunk_file_map_hyper’:
+../../externals/cgns/hdf5/H5Dchunk.c:1832:41: warning: passing argument 1 of ‘H5S_combine_hyperslab’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1832 |             if (H5S_combine_hyperslab(fm->file_space, H5S_SELECT_AND, coords, NULL, fm->chunk_dim, NULL,
+      |                                       ~~^~~~~~~~~~~~
+In file included from ../../externals/cgns/hdf5/H5Zprivate.h:29,
+                 from ../../externals/cgns/hdf5/H5CXprivate.h:30,
+                 from ../../externals/cgns/hdf5/H5Dchunk.c:54:
+../../externals/cgns/hdf5/H5Sprivate.h:278:45: note: expected ‘H5S_t *’ but argument is of type ‘const H5S_t *’
+  278 | H5_DLL herr_t  H5S_combine_hyperslab(H5S_t *old_space, H5S_seloper_t op, const hsize_t start[],
+      |                                      ~~~~~~~^~~~~~~~~
+../../externals/cgns/hdf5/H5Dchunk.c: In function ‘H5D__chunk_allocate’:
+../../externals/cgns/hdf5/H5Dchunk.c:4299:52: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 4299 |     H5O_storage_chunk_t *sc                      = &(layout->storage.u.chunk); /* Convenience variable */
+      |                                                    ^
+../../externals/cgns/hdf5/H5Dchunk.c: In function ‘H5D__chunk_copy_cb’:
+../../externals/cgns/hdf5/H5Dchunk.c:6081:75: warning: passing argument 3 of ‘H5O_copy_expand_ref’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 6081 |             if (H5O_copy_expand_ref(udata->file_src, udata->tid_src, udata->dt_src, buf, nbytes,
+      |                                                                      ~~~~~^~~~~~~~
+In file included from ../../externals/cgns/hdf5/H5Dprivate.h:25,
+                 from ../../externals/cgns/hdf5/H5Dpkg.h:30,
+                 from ../../externals/cgns/hdf5/H5Dchunk.c:55:
+../../externals/cgns/hdf5/H5Oprivate.h:997:74: note: expected ‘H5T_t *’ but argument is of type ‘const H5T_t *’
+  997 | H5_DLL herr_t H5O_copy_expand_ref(H5F_t *file_src, hid_t tid_src, H5T_t *dt_src, void *buf_src,
+      |                                                                   ~~~~~~~^~~~~~
+[68/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dselect.c.o
+[69/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dint.c.o
+In file included from ../../externals/cgns/hdf5/H5Dint.c:23:
+../../externals/cgns/hdf5/H5Dint.c: In function ‘H5D_nameof’:
+../../externals/cgns/hdf5/H5Dint.c:2259:49: warning: return discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2259 |     FUNC_LEAVE_NOAPI(dataset ? &(dataset->path) : NULL)
+../../externals/cgns/hdf5/H5private.h:2450:13: note: in definition of macro ‘FUNC_LEAVE_NOAPI’
+ 2450 |     return (ret_value);                                                                                      \
+      |             ^~~~~~~~~
+[70/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dsingle.c.o
+[71/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dscatgath.c.o
+[72/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dmpio.c.o
+[73/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dtest.c.o
+[74/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Edeprec.c.o
+[75/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Eint.c.o
+[76/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EA.c.o
+[77/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAdbg.c.o
+[78/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Dvirtual.c.o
+[79/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAcache.c.o
+[80/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAdblkpage.c.o
+[81/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAdblock.c.o
+[82/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5E.c.o
+[83/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAiblock.c.o
+[84/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAint.c.o
+[85/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAhdr.c.o
+[86/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAstat.c.o
+[87/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAsblock.c.o
+[88/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5EAtest.c.o
+[89/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fdbg.c.o
+[90/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fcwfs.c.o
+[91/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Faccum.c.o
+[92/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fdeprec.c.o
+[93/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ffake.c.o
+[94/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fefc.c.o
+[95/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5F.c.o
+[96/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fio.c.o
+[97/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fmount.c.o
+[98/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fsfile.c.o
+[99/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fmpi.c.o
+[100/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fspace.c.o
+[101/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fquery.c.o
+[102/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ftest.c.o
+[103/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fint.c.o
+[104/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fsuper_cache.c.o
+[105/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Fsuper.c.o
+[106/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FA.c.o
+[107/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FAdbg.c.o
+[108/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FAdblkpage.c.o
+[109/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FAcache.c.o
+[110/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FAdblock.c.o
+[111/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FAint.c.o
+[112/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FAstat.c.o
+[113/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FAhdr.c.o
+[114/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDdirect.c.o
+[115/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FAtest.c.o
+[116/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDhdfs.c.o
+[117/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDint.c.o
+[118/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDcore.c.o
+[119/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDmirror.c.o
+[120/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDfamily.c.o
+[121/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FD.c.o
+[122/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDmpi.c.o
+[123/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDros3.c.o
+[124/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDs3comms.c.o
+[125/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDlog.c.o
+[126/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDmpio.c.o
+[127/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDmulti.c.o
+[128/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDspace.c.o
+[129/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDsec2.c.o
+[130/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDtest.c.o
+[131/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDstdio.c.o
+[132/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDwindows.c.o
+[133/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FDsplitter.c.o
+[134/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FO.c.o
+[135/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FS.c.o
+[136/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FSdbg.c.o
+[137/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FL.c.o
+[138/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FSint.c.o
+[139/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FSstat.c.o
+[140/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FStest.c.o
+[141/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FScache.c.o
+[142/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gbtree2.c.o
+[143/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gcache.c.o
+[144/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5G.c.o
+[145/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5FSsection.c.o
+[146/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gcompact.c.o
+[147/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gent.c.o
+[148/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gdeprec.c.o
+[149/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gdense.c.o
+[150/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gint.c.o
+In file included from ../../externals/cgns/hdf5/H5Gint.c:34:
+../../externals/cgns/hdf5/H5Gint.c: In function ‘H5G_nameof’:
+../../externals/cgns/hdf5/H5Gint.c:570:41: warning: return discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  570 |     FUNC_LEAVE_NOAPI(grp ? &(grp->path) : NULL)
+../../externals/cgns/hdf5/H5private.h:2450:13: note: in definition of macro ‘FUNC_LEAVE_NOAPI’
+ 2450 |     return (ret_value);                                                                                      \
+      |             ^~~~~~~~~
+[151/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Glink.c.o
+[152/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gloc.c.o
+[153/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gname.c.o
+[154/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Goh.c.o
+[155/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gobj.c.o
+[156/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Groot.c.o
+[157/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gnode.c.o
+[158/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gtest.c.o
+[159/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gtraverse.c.o
+[160/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Gstab.c.o
+[161/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HF.c.o
+[162/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFdblock.c.o
+[163/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFdbg.c.o
+[164/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFbtree2.c.o
+[165/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFdtable.c.o
+[166/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFhuge.c.o
+[167/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFhdr.c.o
+[168/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFcache.c.o
+../../externals/cgns/hdf5/H5HFcache.c: In function ‘H5HF__cache_hdr_serialize’:
+../../externals/cgns/hdf5/H5HFcache.c:745:12: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  745 |     hdr->f = f;
+      |            ^
+../../externals/cgns/hdf5/H5HFcache.c: In function ‘H5HF__cache_iblock_serialize’:
+../../externals/cgns/hdf5/H5HFcache.c:1331:12: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1331 |     hdr->f = f;
+      |            ^
+[169/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFiblock.c.o
+[170/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFiter.c.o
+[171/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFspace.c.o
+[172/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFman.c.o
+[173/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFstat.c.o
+[174/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFtest.c.o
+[175/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFtiny.c.o
+[176/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HGdbg.c.o
+[177/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HGcache.c.o
+[178/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HG.c.o
+[179/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HGquery.c.o
+[180/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HLdbg.c.o
+[181/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HFsection.c.o
+[182/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HL.c.o
+[183/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HLdblk.c.o
+[184/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HLcache.c.o
+[185/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HLprfx.c.o
+[186/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HLint.c.o
+[187/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Idbg.c.o
+[188/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5HP.c.o
+[189/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5I.c.o
+[190/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Itest.c.o
+[191/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Lexternal.c.o
+[192/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ldeprec.c.o
+[193/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Iint.c.o
+[194/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5M.c.o
+[195/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5MFdbg.c.o
+[196/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5MFaggr.c.o
+[197/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5MM.c.o
+[198/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5MFsection.c.o
+[199/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5MP.c.o
+[200/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5L.c.o
+[201/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5MPtest.c.o
+[202/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oainfo.c.o
+[203/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5MF.c.o
+[204/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5O.c.o
+[205/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oattr.c.o
+[206/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Obogus.c.o
+[207/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Obtreek.c.o
+[208/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oattribute.c.o
+[209/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ocache_image.c.o
+[210/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ochunk.c.o
+[211/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oalloc.c.o
+[212/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ocont.c.o
+[213/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ocache.c.o
+[214/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ocopy_ref.c.o
+[215/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Odbg.c.o
+[216/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Odrvinfo.c.o
+[217/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Odeprec.c.o
+[218/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ocopy.c.o
+[219/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oefl.c.o
+[220/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oflush.c.o
+[221/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ofsinfo.c.o
+[222/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ofill.c.o
+[223/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oginfo.c.o
+[224/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Odtype.c.o
+[225/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Olinfo.c.o
+[226/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Olink.c.o
+[227/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Olayout.c.o
+[228/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Omtime.c.o
+[229/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oname.c.o
+[230/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Onull.c.o
+[231/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oint.c.o
+[232/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Omessage.c.o
+[233/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Orefcount.c.o
+[234/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Opline.c.o
+[235/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Osdspace.c.o
+[236/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oshmesg.c.o
+[237/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Oshared.c.o
+[238/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ostab.c.o
+[239/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ounknown.c.o
+[240/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pacpl.c.o
+[241/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Otest.c.o
+[242/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5P.c.o
+[243/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pdeprec.c.o
+[244/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pdapl.c.o
+[245/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pencdec.c.o
+[246/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pdxpl.c.o
+[247/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pfmpl.c.o
+[248/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pfcpl.c.o
+[249/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pdcpl.c.o
+[250/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pgcpl.c.o
+[251/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Plcpl.c.o
+[252/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pmapl.c.o
+[253/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Plapl.c.o
+[254/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pmcpl.c.o
+[255/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pocpypl.c.o
+[256/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pint.c.o
+[257/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pstrcpl.c.o
+[258/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pfapl.c.o
+[259/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Pocpl.c.o
+[260/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ptest.c.o
+[261/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5PLint.c.o
+[262/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5PL.c.o
+[263/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5PLpath.c.o
+[264/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5PLplugin_cache.c.o
+[265/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5PB.c.o
+[266/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5UC.c.o
+[267/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5R.c.o
+[268/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Rdeprec.c.o
+[269/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5RS.c.o
+[270/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Rint.c.o
+[271/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Sdbg.c.o
+[272/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Sdeprec.c.o
+[273/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Sall.c.o
+[274/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5S.c.o
+[275/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Snone.c.o
+[276/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Smpio.c.o
+[277/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Stest.c.o
+[278/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Spoint.c.o
+[279/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Sselect.c.o
+[280/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5SMbtree2.c.o
+[281/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5SMcache.c.o
+[282/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5SMmessage.c.o
+[283/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5SM.c.o
+[284/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5SMtest.c.o
+[285/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tarray.c.o
+[286/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tbit.c.o
+[287/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tcommit.c.o
+[288/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Shyper.c.o
+[289/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tcompound.c.o
+[290/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tcset.c.o
+[291/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tdbg.c.o
+[292/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tdeprec.c.o
+[293/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5T.c.o
+../../externals/cgns/hdf5/H5T.c: In function ‘H5T_nameof’:
+../../externals/cgns/hdf5/H5T.c:5546:23: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 5546 |             ret_value = &(dt->path);
+      |                       ^
+[294/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tenum.c.o
+[295/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tfields.c.o
+[296/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tfixed.c.o
+[297/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tfloat.c.o
+[298/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5SL.c.o
+[299/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Toffset.c.o
+[300/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tnative.c.o
+[301/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Toh.c.o
+[302/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Topaque.c.o
+[303/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tpad.c.o
+[304/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Torder.c.o
+[305/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tprecis.c.o
+[306/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tstrpad.c.o
+[307/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tvisit.c.o
+[308/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5TS.c.o
+[309/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tref.c.o
+[310/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tvlen.c.o
+[311/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VL.c.o
+[312/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative.c.o
+[313/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_attr.c.o
+[314/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLint.c.o
+[315/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_blob.c.o
+[316/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_dataset.c.o
+[317/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_datatype.c.o
+[318/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_group.c.o
+[319/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_file.c.o
+[320/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_introspect.c.o
+[321/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_link.c.o
+[322/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_token.c.o
+[323/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLnative_object.c.o
+[324/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLpassthru.c.o
+[325/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VLcallback.c.o
+[326/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5WB.c.o
+[327/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5VM.c.o
+[328/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Zdeflate.c.o
+[329/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Zfletcher32.c.o
+[330/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Z.c.o
+[331/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Zshuffle.c.o
+[332/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Znbit.c.o
+[333/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Zszip.c.o
+[334/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Zscaleoffset.c.o
+[335/824] Compiling C object externals/cgns/libcgns.a.p/cgns_error.c.o
+[336/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Ztrans.c.o
+[337/824] Compiling C object externals/cgns/libcgns.a.p/cgns_io.c.o
+[338/824] Compiling C object externals/cgns/libcgns.a.p/cg_hashmap.c.o
+[339/824] Compiling C object externals/cgns/libcgns.a.p/adf_ADF_interface.c.o
+[340/824] Compiling C object externals/cgns/libcgns.a.p/adf_ADF_internals.c.o
+[341/824] Compiling C object externals/cgns/libcgns.a.p/adfh_ADFH.c.o
+[342/824] Compiling C object externals/cgns/libcgns.a.p/pcgnslib.c.o
+[343/824] Compiling C object externals/metis/libmetis.a.p/GKlib_pqueue.c.o
+[344/824] Compiling C object externals/metis/libmetis.a.p/GKlib_blas.c.o
+[345/824] Compiling C object externals/metis/libmetis.a.p/GKlib_fkvkselect.c.o
+[346/824] Compiling C object externals/cgns/libcgns.a.p/cgnslib.c.o
+[347/824] Compiling C object externals/cgns/libcgns.a.p/cgns_internals.c.o
+[348/824] Compiling C object externals/metis/libmetis.a.p/GKlib_b64.c.o
+[349/824] Compiling C object externals/metis/libmetis.a.p/GKlib_rw.c.o
+[350/824] Compiling C object externals/metis/libmetis.a.p/GKlib_util.c.o
+[351/824] Compiling C object externals/metis/libmetis.a.p/GKlib_timers.c.o
+[352/824] Compiling C object externals/metis/libmetis.a.p/GKlib_pdb.c.o
+[353/824] Compiling C object externals/metis/libmetis.a.p/GKlib_memory.c.o
+[354/824] Compiling C object externals/metis/libmetis.a.p/GKlib_random.c.o
+[355/824] Compiling C object externals/metis/libmetis.a.p/GKlib_fs.c.o
+[356/824] Compiling C object externals/metis/libmetis.a.p/GKlib_csr.c.o
+[357/824] Compiling C object externals/metis/libmetis.a.p/GKlib_getopt.c.o
+[358/824] Compiling C object externals/metis/libmetis.a.p/GKlib_htable.c.o
+[359/824] Compiling C object externals/metis/libmetis.a.p/GKlib_mcore.c.o
+[360/824] Compiling C object externals/metis/libmetis.a.p/GKlib_tokenizer.c.o
+[361/824] Compiling C object externals/metis/libmetis.a.p/GKlib_string.c.o
+[362/824] Compiling C object externals/metis/libmetis.a.p/GKlib_io.c.o
+[363/824] Compiling C object externals/metis/libmetis.a.p/GKlib_evaluate.c.o
+[364/824] Compiling C object externals/metis/libmetis.a.p/GKlib_seq.c.o
+[365/824] Compiling C object externals/metis/libmetis.a.p/GKlib_omp.c.o
+[366/824] Compiling C object externals/metis/libmetis.a.p/GKlib_itemsets.c.o
+[367/824] Compiling C object externals/metis/libmetis.a.p/GKlib_sort.c.o
+[368/824] Compiling C object externals/metis/libmetis.a.p/GKlib_error.c.o
+[369/824] Compiling C object externals/metis/libmetis.a.p/GKlib_graph.c.o
+[370/824] Compiling C object externals/metis/libmetis.a.p/libmetis_frename.c.o
+[371/824] Compiling C object externals/metis/libmetis.a.p/libmetis_timing.c.o
+[372/824] Compiling C object externals/metis/libmetis.a.p/libmetis_meshpart.c.o
+[373/824] Compiling C object externals/metis/libmetis.a.p/libmetis_mesh.c.o
+[374/824] Compiling C object externals/metis/libmetis.a.p/libmetis_minconn.c.o
+[375/824] Compiling C object externals/metis/libmetis.a.p/libmetis_bucketsort.c.o
+[376/824] Compiling C object externals/metis/libmetis.a.p/GKlib_gkregex.c.o
+[377/824] Compiling C object externals/metis/libmetis.a.p/libmetis_balance.c.o
+[378/824] Compiling C object externals/metis/libmetis.a.p/libmetis_contig.c.o
+[379/824] Compiling C object externals/metis/libmetis.a.p/libmetis_mmd.c.o
+[380/824] Compiling C object externals/metis/libmetis.a.p/libmetis_util.c.o
+[381/824] Compiling C object externals/metis/libmetis.a.p/libmetis_refine.c.o
+[382/824] Compiling C object externals/metis/libmetis.a.p/libmetis_fm.c.o
+[383/824] Compiling C object externals/metis/libmetis.a.p/libmetis_checkgraph.c.o
+[384/824] Compiling C object externals/metis/libmetis.a.p/libmetis_compress.c.o
+[385/824] Compiling C object externals/metis/libmetis.a.p/libmetis_pmetis.c.o
+[386/824] Compiling C object externals/metis/libmetis.a.p/libmetis_kwayfm.c.o
+[387/824] Compiling C object externals/metis/libmetis.a.p/libmetis_stat.c.o
+[388/824] Compiling C object externals/metis/libmetis.a.p/libmetis_parmetis.c.o
+[389/824] Compiling C object externals/metis/libmetis.a.p/libmetis_srefine.c.o
+[390/824] Compiling C object externals/metis/libmetis.a.p/libmetis_options.c.o
+[391/824] Compiling C object externals/metis/libmetis.a.p/libmetis_separator.c.o
+[392/824] Compiling C object externals/metis/libmetis.a.p/libmetis_kwayrefine.c.o
+[393/824] Compiling C object externals/metis/libmetis.a.p/libmetis_kmetis.c.o
+[394/824] Compiling C object externals/metis/libmetis.a.p/libmetis_sfm.c.o
+[395/824] Compiling C object externals/metis/libmetis.a.p/libmetis_fortran.c.o
+[396/824] Compiling C object externals/metis/libmetis.a.p/libmetis_graph.c.o
+[397/824] Compiling C object externals/metis/libmetis.a.p/libmetis_auxapi.c.o
+[398/824] Compiling C object externals/metis/libmetis.a.p/libmetis_mincover.c.o
+[399/824] Compiling C object externals/metis/libmetis.a.p/libmetis_wspace.c.o
+[400/824] Compiling C object externals/metis/libmetis.a.p/libmetis_coarsen.c.o
+[401/824] Compiling C object externals/metis/libmetis.a.p/libmetis_mcutil.c.o
+[402/824] Compiling C object externals/metis/libmetis.a.p/libmetis_initpart.c.o
+[403/824] Compiling C object externals/metis/libmetis.a.p/libmetis_debug.c.o
+[404/824] Compiling C object externals/cgns/hdf5/libsu2hdf5.a.p/H5Tconv.c.o
+[405/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_frename.c.o
+[406/824] Compiling C object externals/metis/libmetis.a.p/libmetis_ometis.c.o
+[407/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_pspases.c.o
+[408/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_comm.c.o
+[409/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_ctrl.c.o
+[410/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_mesh.c.o
+[411/824] Compiling C object externals/metis/libmetis.a.p/libmetis_gklib.c.o
+[412/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_redomylink.c.o
+[413/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_wave.c.o
+[414/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_util.c.o
+[415/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_remap.c.o
+[416/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_balancemylink.c.o
+[417/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_timer.c.o
+[418/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_rmetis.c.o
+[419/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_stat.c.o
+[420/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_gkmpi.c.o
+[421/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_node_refine.c.o
+[422/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_selectq.c.o
+[423/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_msetup.c.o
+[424/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_xyzpart.c.o
+[425/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_mdiffusion.c.o
+[426/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_akwayfm.c.o
+[427/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_kmetis.c.o
+[428/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_initmsection.c.o
+[429/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_csrmatch.c.o
+[430/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_renumber.c.o
+[431/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_graph.c.o
+[432/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_ametis.c.o
+[433/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_serial.c.o
+[434/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_gkmetis.c.o
+[435/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_kwayrefine.c.o
+[436/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_wspace.c.o
+[437/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_initbalance.c.o
+[438/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_weird.c.o
+[439/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_diffutil.c.o
+[440/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_initpart.c.o
+[441/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_move.c.o
+[442/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_debug.c.o
+[443/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_mmetis.c.o
+[444/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_ometis.c.o
+[445/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CAccurateSum.cpp.o
+[446/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates2D.cpp.o
+[447/824] Compiling C object externals/parmetis/libparmetis.a.p/libparmetis_match.c.o
+[448/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAtlas3D.cpp.o
+[449/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o
+[450/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCanonicalTrace3D.cpp.o
+[451/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeReferenceTriangulation3D.cpp.o
+[452/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeGeometryBackend3D.cpp.o
+[453/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCurvedAtlas3D.cpp.o
+[454/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeWallGeometryLaw3D.cpp.o
+[455/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeTraceCoverage3D.cpp.o
+[456/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeTopology3D.cpp.o
+[457/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCavity3D.cpp.o
+[458/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[459/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeMetric3D.cpp.o
+[460/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o
+[461/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegionField3D.cpp.o
+[462/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o
+[463/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o
+[464/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o
+[465/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o
+[466/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePartition3D.cpp.o
+[467/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_native_local_CNativeLocalCore3DMesh.cpp.o
+[468/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_native_local_CNativeLocalCore3DMeasures.cpp.o
+[469/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegion3D.cpp.o
+[470/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_native_local_CNativeLocalCore3DChanges.cpp.o
+[471/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_native_local_CNativeLocalCore3DCollapse.cpp.o
+[472/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_native_local_CNativeLocalContact3D.cpp.o
+[473/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_native_local_CNativeLocalCore3DPass.cpp.o
+[474/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_native_local_CNativeLocalCore3DSurface.cpp.o
+[475/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_native_local_CNativeLocalCore3DShift.cpp.o
+[476/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/graph_coloring_structure.cpp.o
+In file included from /usr/include/c++/13/bits/stl_tree.h:63,
+                 from /usr/include/c++/13/map:62,
+                 from ../../Common/src/../include/./parallelization/mpi_structure.hpp:32,
+                 from ../../Common/src/../include/graph_coloring_structure.hpp:32,
+                 from ../../Common/src/graph_coloring_structure.cpp:28:
+In static member function ‘static _Up* std::__copy_move<_IsMove, true, std::random_access_iterator_tag>::__copy_m(_Tp*, _Tp*, _Up*) [with _Tp = const long unsigned int; _Up = long unsigned int; bool _IsMove = false]’,
+    inlined from ‘_OI std::__copy_move_a2(_II, _II, _OI) [with bool _IsMove = false; _II = const long unsigned int*; _OI = long unsigned int*]’ at /usr/include/c++/13/bits/stl_algobase.h:506:30,
+    inlined from ‘_OI std::__copy_move_a1(_II, _II, _OI) [with bool _IsMove = false; _II = const long unsigned int*; _OI = long unsigned int*]’ at /usr/include/c++/13/bits/stl_algobase.h:533:42,
+    inlined from ‘_OI std::__copy_move_a(_II, _II, _OI) [with bool _IsMove = false; _II = __gnu_cxx::__normal_iterator<const long unsigned int*, vector<long unsigned int> >; _OI = long unsigned int*]’ at /usr/include/c++/13/bits/stl_algobase.h:540:31,
+    inlined from ‘_OI std::copy(_II, _II, _OI) [with _II = __gnu_cxx::__normal_iterator<const long unsigned int*, vector<long unsigned int> >; _OI = long unsigned int*]’ at /usr/include/c++/13/bits/stl_algobase.h:633:7,
+    inlined from ‘static _ForwardIterator std::__uninitialized_copy<true>::__uninit_copy(_InputIterator, _InputIterator, _ForwardIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; _ForwardIterator = long unsigned int*]’ at /usr/include/c++/13/bits/stl_uninitialized.h:147:27,
+    inlined from ‘_ForwardIterator std::uninitialized_copy(_InputIterator, _InputIterator, _ForwardIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, vector<long unsigned int> >; _ForwardIterator = long unsigned int*]’ at /usr/include/c++/13/bits/stl_uninitialized.h:185:15,
+    inlined from ‘_ForwardIterator std::__uninitialized_copy_a(_InputIterator, _InputIterator, _ForwardIterator, allocator<_Tp>&) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, vector<long unsigned int> >; _ForwardIterator = long unsigned int*; _Tp = long unsigned int]’ at /usr/include/c++/13/bits/stl_uninitialized.h:373:37,
+    inlined from ‘void std::vector<_Tp, _Alloc>::_M_range_insert(iterator, _ForwardIterator, _ForwardIterator, std::forward_iterator_tag) [with _ForwardIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/vector.tcc:814:38,
+    inlined from ‘std::vector<_Tp, _Alloc>::iterator std::vector<_Tp, _Alloc>::insert(const_iterator, _InputIterator, _InputIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; <template-parameter-2-2> = void; _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/stl_vector.h:1486:19,
+    inlined from ‘void CGraphColoringStructure::GraphVertexColoring(CConfig*, const std::vector<long unsigned int>&, const std::vector<std::vector<long unsigned int> >&, int&, std::vector<int>&)’ at ../../Common/src/graph_coloring_structure.cpp:187:25:
+/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: ‘void* __builtin_memmove(void*, const void*, long unsigned int)’ writing between 9 and 9223372036854775800 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]
+  437 |             __builtin_memmove(__result, __first, sizeof(_Tp) * _Num);
+      |             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h:33,
+                 from /usr/include/c++/13/bits/allocator.h:46,
+                 from /usr/include/c++/13/bits/stl_tree.h:64:
+In member function ‘_Tp* std::__new_allocator<_Tp>::allocate(size_type, const void*) [with _Tp = long unsigned int]’,
+    inlined from ‘static _Tp* std::allocator_traits<std::allocator<_Tp1> >::allocate(allocator_type&, size_type) [with _Tp = long unsigned int]’ at /usr/include/c++/13/bits/alloc_traits.h:482:28,
+    inlined from ‘std::_Vector_base<_Tp, _Alloc>::pointer std::_Vector_base<_Tp, _Alloc>::_M_allocate(std::size_t) [with _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/stl_vector.h:381:33,
+    inlined from ‘std::_Vector_base<_Tp, _Alloc>::pointer std::_Vector_base<_Tp, _Alloc>::_M_allocate(std::size_t) [with _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/stl_vector.h:378:7,
+    inlined from ‘void std::vector<_Tp, _Alloc>::_M_range_insert(iterator, _ForwardIterator, _ForwardIterator, std::forward_iterator_tag) [with _ForwardIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/vector.tcc:805:40,
+    inlined from ‘std::vector<_Tp, _Alloc>::iterator std::vector<_Tp, _Alloc>::insert(const_iterator, _InputIterator, _InputIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const long unsigned int*, std::vector<long unsigned int> >; <template-parameter-2-2> = void; _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>]’ at /usr/include/c++/13/bits/stl_vector.h:1486:19,
+    inlined from ‘void CGraphColoringStructure::GraphVertexColoring(CConfig*, const std::vector<long unsigned int>&, const std::vector<std::vector<long unsigned int> >&, int&, std::vector<int>&)’ at ../../Common/src/graph_coloring_structure.cpp:187:25:
+/usr/include/c++/13/bits/new_allocator.h:151:55: note: at offset [-9223372036854775808, -1] into destination object of size [8, 9223372036854775800] allocated by ‘operator new’
+  151 |         return static_cast<_Tp*>(_GLIBCXX_OPERATOR_NEW(__n * sizeof(_Tp)));
+      |                                                       ^
+[477/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_native_local_CNativeLocalSurfaceGeometry3D.cpp.o
+[478/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/basic_types_ad_structure.cpp.o
+[479/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/.._include_parallelization_mpi_structure.cpp.o
+[480/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/.._include_parallelization_omp_structure.cpp.o
+[481/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/wall_model.cpp.o
+[482/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/parallelization_CPassiveComm.cpp.o
+[483/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/linear_algebra_CSysSolve_b.cpp.o
+[484/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/linear_algebra_CSysVector.cpp.o
+[485/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/linear_algebra_CSysMatrix.cpp.o
+[486/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/linear_algebra_CPastixWrapper.cpp.o
+[487/824] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o
+[488/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_CLinearPartitioner.cpp.o
+[489/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/linear_algebra_blas_structure.cpp.o
+[490/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_printing_toolbox.cpp.o
+[491/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_C1DInterpolation.cpp.o
+[492/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_CSquareMatrixCM.cpp.o
+[493/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_SwapBytes.cpp.o
+[494/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_CSymmetricMatrix.cpp.o
+[495/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CInviscidVortexSolution.cpp.o
+[496/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CIncTGVSolution.cpp.o
+[497/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CMMSIncNSSolution.cpp.o
+[498/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CMMSIncEulerSolution.cpp.o
+[499/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CRinglebSolution.cpp.o
+[500/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/linear_algebra_CSysSolve.cpp.o
+[501/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CNSUnitQuadSolution.cpp.o
+[502/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CMMSNSTwoHalfSpheresSolution.cpp.o
+[503/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/CConfig.cpp.o
+[504/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CMMSNSUnitQuadSolution.cpp.o
+[505/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CTGVSolution.cpp.o
+[506/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CMMSNSTwoHalfCirclesSolution.cpp.o
+[507/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CMMSNSUnitQuadSolutionWallBC.cpp.o
+[508/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CUserDefinedSolution.cpp.o
+[509/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_fem_CReorderElements.cpp.o
+[510/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_fem_CFaceOfElement.cpp.o
+[511/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_MMS_CVerificationSolution.cpp.o
+[512/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_fem_CMatchingFace.cpp.o
+[513/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/toolboxes_fem_CSortFaces.cpp.o
+[514/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_CPhysicalGeometryFEM.cpp.o
+[515/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_CMultiGridGeometry.cpp.o
+[516/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_CDummyGeometry.cpp.o
+[517/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_CGeometry.cpp.o
+[518/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_CMultiGridQueue.cpp.o
+[519/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CElement.cpp.o
+[520/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CTRIA1.cpp.o
+[521/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_CPhysicalGeometry.cpp.o
+[522/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CQUAD4.cpp.o
+[523/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CTETRA1.cpp.o
+[524/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CPYRAM5.cpp.o
+[525/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CLINE.cpp.o
+[526/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CPRISM6.cpp.o
+[527/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CHEXA8.cpp.o
+[528/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CTRIA3.cpp.o
+[529/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CTETRA4.cpp.o
+[530/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_dual_grid_CDualGrid.cpp.o
+[531/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_elements_CPYRAM6.cpp.o
+[532/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_dual_grid_CEdge.cpp.o
+[533/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_dual_grid_CPoint.cpp.o
+[534/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_dual_grid_CVertex.cpp.o
+[535/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CPrimalGrid.cpp.o
+[536/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_dual_grid_CTurboVertex.cpp.o
+[537/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CLine.cpp.o
+[538/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CPrimalGridBoundFEM.cpp.o
+[539/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CTriangle.cpp.o
+[540/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CPrimalGridFEM.cpp.o
+[541/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CPrism.cpp.o
+[542/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CPyramid.cpp.o
+[543/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CHexahedron.cpp.o
+[544/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CTetrahedron.cpp.o
+[545/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CQuadrilateral.cpp.o
+[546/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_primal_grid_CVertexMPI.cpp.o
+[547/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CBoxMeshReaderFVM.cpp.o
+[548/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CBoxMeshReaderFEM.cpp.o
+[549/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CCGNSElementType.cpp.o
+[550/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CCGNSMeshReaderBase.cpp.o
+[551/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CDistributedMemoryMeshReaderFVM.cpp.o
+[552/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CCGNSMeshReaderFVM.cpp.o
+[553/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CCGNSMeshReaderFEM.cpp.o
+[554/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CMemoryMeshReaderFVM.cpp.o
+[555/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CMeshReaderBase.cpp.o
+[556/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CRectangularMeshReaderFEM.cpp.o
+[557/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CRectangularMeshReaderFVM.cpp.o
+[558/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CSU2ASCIIMeshReaderBase.cpp.o
+[559/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CSU2ASCIIMeshReaderFEM.cpp.o
+[560/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CSU2BinaryMeshReaderBase.cpp.o
+[561/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CSU2ASCIIMeshReaderFVM.cpp.o
+[562/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CSU2BinaryMeshReaderFEM.cpp.o
+[563/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CSU2BinaryMeshReaderFVM.cpp.o
+[564/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/geometry_meshreader_CSU2MeshReaderBase.cpp.o
+[565/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/containers_CFileReaderLUT.cpp.o
+[566/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/interface_interpolation_CInterpolatorFactory.cpp.o
+[567/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/containers_CLookUpTable.cpp.o
+[568/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/interface_interpolation_CInterpolator.cpp.o
+[569/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/interface_interpolation_CMirror.cpp.o
+[570/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/interface_interpolation_CSlidingMesh.cpp.o
+[571/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/interface_interpolation_CNearestNeighbor.cpp.o
+[572/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/interface_interpolation_CIsoparametric.cpp.o
+[573/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/interface_interpolation_CRadialBasisFunction.cpp.o
+[574/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/interface_interpolation_CMixingPlane.cpp.o
+[575/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/fem_fem_work_estimate_metis.cpp.o
+[576/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/fem_fem_wall_distance.cpp.o
+[577/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/fem_fem_gauss_jacobi_quadrature.cpp.o
+[578/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/fem_fem_standard_element.cpp.o
+[579/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CFreeFormBlending.cpp.o
+[580/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CGridMovement.cpp.o
+[581/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CBSplineBlending.cpp.o
+[582/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CBezierBlending.cpp.o
+[583/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/fem_fem_integration_rules.cpp.o
+[584/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/fem_fem_geometry_structure.cpp.o
+[585/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CVolumetricMovementFactory.cpp.o
+[586/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CFreeFormDefBox.cpp.o
+[587/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CVolumetricMovement.cpp.o
+[588/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adt_CADTBaseClass.cpp.o
+[589/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CRadialBasisFunctionInterpolation.cpp.o
+[590/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adt_CADTPointsOnlyClass.cpp.o
+[591/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CLinearElasticity.cpp.o
+[592/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/grid_movement_CSurfaceMovement.cpp.o
+[593/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CMeshGather.cpp.o
+[594/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CMMGInterface.cpp.o
+[595/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CReaderSlices.cpp.o
+[596/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CTransferMemory.cpp.o
+[597/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adt_CADTElemClass.cpp.o
+[598/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CDistributedSearch.cpp.o
+[599/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CNativeReferenceIO3D.cpp.o
+[600/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CNativePartition2D.cpp.o
+[601/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CNativeRemesher3D.cpp.o
+[602/824] Compiling C++ object SU2_CFD/src/libSU2core_AD.a.p/definition_structure.cpp.o
+[603/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CNativeImport3D.cpp.o
+[604/824] Compiling C++ object SU2_CFD/src/libSU2BLMetric_AD.a.p/adaptation_CBoundaryLayerMetric.cpp.o
+FAILED: [code=1] SU2_CFD/src/libSU2BLMetric_AD.a.p/adaptation_CBoundaryLayerMetric.cpp.o 
+c++ -ISU2_CFD/src/libSU2BLMetric_AD.a.p -ISU2_CFD/src -I../../SU2_CFD/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/codi/include -I../../externals/medi/include -I../../externals/medi/src -ICommon/src -I../../Common/src -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-non-virtual-dtor -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -DCODI_REVERSE_TYPE -DCODI_EnableAssert -DCODI_JACOBIAN_LINEAR_TAPE -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ SU2_CFD/src/libSU2BLMetric_AD.a.p/adaptation_CBoundaryLayerMetric.cpp.o -MF SU2_CFD/src/libSU2BLMetric_AD.a.p/adaptation_CBoundaryLayerMetric.cpp.o.d -o SU2_CFD/src/libSU2BLMetric_AD.a.p/adaptation_CBoundaryLayerMetric.cpp.o -c ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp: In function ‘bool {anonymous}::MayIntersectSmoothBand(const BLTetrahedron&, const SU2Native3D::PlanarReference&, uint64_t, double)’:
+../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2619:86: error: cannot convert ‘codi::BinaryExpression<double, codi::ConstantExpression<double, codi::ConstantDataConversion>, codi::ActiveType<codi::JacobianLinearTape<codi::JacobianTapeTypes<double, double, codi::LinearIndexManager<int>, codi::DefaultChunkedData, codi::LocalAdjoints> > >, codi::OperationSubstract>’ to ‘std::array<long double, 3>::value_type’ {aka ‘long double’} in assignment
+ 2619 |       for(unsigned j=0;j<3;++j)d[j]=SU2_TYPE::GetValue(w[0]*a[j]+w[1]*b[j]+w[2]*c[j])-p[j];
+      |                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+      |                                                                                      |
+      |                                                                                      codi::BinaryExpression<double, codi::ConstantExpression<double, codi::ConstantDataConversion>, codi::ActiveType<codi::JacobianLinearTape<codi::JacobianTapeTypes<double, double, codi::LinearIndexManager<int>, codi::DefaultChunkedData, codi::LocalAdjoints> > >, codi::OperationSubstract>
+../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp: In member function ‘std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3DVisible(const {anonymous}::BLTetrahedron&, const std::vector<SupportFace3D>&, double, const IntegrationDensity3D&, ComplexityEstimate3D*, size_t, double, ComplexityWorkspace3D*, ComplexityEstimate3D*)’:
+../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:3299:99: error: cannot convert ‘std::array<double, 3>::const_pointer’ {aka ‘const double*’} to ‘const su2double*’ {aka ‘const codi::ActiveType<codi::JacobianLinearTape<codi::JacobianTapeTypes<double, double, codi::LinearIndexManager<int>, codi::DefaultChunkedData, codi::LocalAdjoints> > >*’}
+ 3299 |     for(unsigned k=0;k<4;++k)distances[k]=SU2_TYPE::GetValue(EvaluateImpl(wall,tetrahedron[k].data(),1.,true).distance)/data[wall]->support;
+      |                                                                                ~~~~~~~~~~~~~~~~~~~^~
+      |                                                                                                   |
+      |                                                                                                   std::array<double, 3>::const_pointer {aka const double*}
+../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2192:104: note:   initializing argument 2 of ‘CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(short unsigned int, const su2double*, su2double, bool, long unsigned int, const WallProjection*)’
+ 2192 | CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short iWall, const su2double* X,
+      |                                                                                       ~~~~~~~~~~~~~~~~~^
+[605/824] Compiling C++ object Common/src/libSU2CommonAD.a.p/adaptation_CNativeRemesher.cpp.o
+[606/824] Compiling C++ object SU2_CFD/src/libSU2core_AD.a.p/CMarkerProfileReaderFVM.cpp.o
+[607/824] Compiling C++ object SU2_CFD/src/libSU2core_AD.a.p/python_wrapper_structure.cpp.o
+ninja: build stopped: subcommand failed.
