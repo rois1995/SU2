@@ -2764,3 +2764,5 @@ DEF1 candidate 782387b131 pushed. Normal build681 started at nice 19 with four w
 DEF1 completed no-launch self-checks for the legacy-pin scoped and S/restart adapters, synthetic final-report sealing, and the CL2/MMG2 parsers. The capability scripts preserve the independently sealed CL1 inputs and neither starts before the required preceding seals. Normal build681 still running on the frozen production and fixture sources.
 
 DEF1 normal build681 finished with exit 0 against frozen source 782387b131. Solver SHA256 15e3710f376155c76c69b5845e7ec0f004af0423923865831093e245025, test driver be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146. Five compiler diagnostics captured. Next execute the normal defaults/MMG cases and the isolated fatal cases.
+
+DEF1 build681 checkpoint 678146b5be pushed. Normal lab attempt 1 failed before fixture selection: MPI_Win_create invalid window, exit 53 on every subprocess. R3 preserved the setup logs, added the accepted OMPI_MCA_osc=pt2pt and compile-tmp bindings, and repeats on the same binary. No production or test source changes.

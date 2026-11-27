@@ -1,0 +1,360 @@
+{
+  "passed": false,
+  "mode": "normal",
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+  "runner_sha256": "422126e9558bfe34052a2f892af3d9d8f62f7508d4490c7879375f7ccd7abf1b",
+  "cases": [
+    {
+      "case": "normal",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_normal]",
+        "-r",
+        "xml"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "b5e4df6917e2cd554372d3145741b96e697d13a5ff304722006ffabdbd91c9c4",
+      "host_preflight": "7aa7b9833f7da3993711edb082c9f999ac5761af4c16898eb926ece448076a93",
+      "passed": false,
+      "selected_tests": [],
+      "expected_test_count": 4
+    },
+    {
+      "case": "empty_middle",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "empty_middle"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "1c34b11f690854ba53f0a12c81dc262ae9d3645547f0ef53f05de6058c8e59cd",
+      "host_preflight": "b67f749ed29e372757eeab9fd3cbc15014e2fd39a1fd07b1a402bbf5126f121a",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD: empty field in marker list."
+    },
+    {
+      "case": "empty_first",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "empty_first"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "86fe447b12c94b3de2ab4a5d8eb4095b60e4dcae5ed4f869aea7f591164eefe5",
+      "host_preflight": "dd84d93411668d9cd002ef3fe78a40cd42a09d819ded7eb07a1aa22863bd5c15",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD: empty field in marker list."
+    },
+    {
+      "case": "empty_last",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "empty_last"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "a45086a0d8d98bd241ccab95ad5c7d2f9d8688942f9f063db334713d8d2597de",
+      "host_preflight": "ff49e738773d60200d545c5a361562b62cd733a9667fd630d55ec08668e0b6b7",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD: empty field in marker list."
+    },
+    {
+      "case": "odd",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "odd"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "9633d1b988843b0e4adfb2db070f7c5b833c9e4915a13e6022c39d98209f516e",
+      "host_preflight": "b61102d7be43e22dd6d5695b847c244e512856f536cd45b6a112c219d1bad1ab",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD: marker list must contain name/value pairs."
+    },
+    {
+      "case": "junk",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "junk"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "1014072ebb30a660366af2a138b58137cd742f9bfc54ebeba250cc5958206a61",
+      "host_preflight": "00fd69fc16768e10331245d5b9fda01f14e871151abab0b5c1b462275f9413df",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD: invalid number for marker WALL."
+    },
+    {
+      "case": "zero",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "zero"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e57098559da602cba18c73f8adbde9a1fe9588b87c3d1b4f263de4aa356c19ae",
+      "host_preflight": "48fe393312819ef5886888ca7344b1af63de20a3fbf559698aeb3efd42f1aac9",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD: value for marker WALL must be finite and > 0."
+    },
+    {
+      "case": "negative",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "negative"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "693173f7317821fb8699a493daa4bb2efe78ccbbf8adec4bc2c8550b71593793",
+      "host_preflight": "ba470d8996a47489f38014d4542ccf6e904942c0fc1e6b37abad5987e2c2a372",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD: value for marker WALL must be finite and > 0."
+    },
+    {
+      "case": "nonfinite",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "nonfinite"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "b9708e519dd0d0fda0e89ae619e7b80468d9677f33d6db7fb91864cc72326338",
+      "host_preflight": "e18ade6b4f75ce532efd6fddf251a955c8ce7bae6b1b6639be02f83575c6119f",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD: value for marker WALL must be finite and > 0."
+    },
+    {
+      "case": "duplicate",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "duplicate"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "c5f398ae5218e2e2c7a619874eb329d8919aa89ff9d81ae7b926e6700325d48b",
+      "host_preflight": "6f17743d79b07ffffc9bcb786ab9659300fadb28c5123cca9cca196ea68f92f8",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD: duplicate marker WALL."
+    },
+    {
+      "case": "native",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "native"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e2ef2bd7a20946d1ac76277741a470f6d640fa0be3c6f7a5bc63c1ab0d1aa74e",
+      "host_preflight": "8b769f4d8828c7fcf826078e0e9efdffe0dba5a19f59889ed7d4d7dc86ac1711",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD per marker is available only with ADAP_REMESHER= MMG; the native remesher uses one value."
+    },
+    {
+      "case": "absent",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "absent"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "d97a58707cdd288ffb8981a7040c86d1e6dc57b714fa78feef64108faa5e2409",
+      "host_preflight": "20a13c66d94634c2dfbaf8c6a121d62270757a6d65c450b58f080118d872e28e",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD marker MISSING is absent from the gathered mesh."
+    },
+    {
+      "case": "absent_override",
+      "argv": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+        "[def1_fatal]",
+        "-r",
+        "console"
+      ],
+      "returncode": 53,
+      "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+      "settings": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "SU2_NATIVE_FP3_PROBE": "0",
+        "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+        "SU2_DEF1_FATAL_CASE": "absent_override"
+      },
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "b40850be0eb1db6a26006c33546a9094221e32071760f468dffdc798d297cfb3",
+      "host_preflight": "6e7ffed769e8c986c9e6db5a20be969ea3301f434b1db50c891b5e97689ef89b",
+      "passed": false,
+      "expected_diagnostic": "ADAP_HAUSD marker MISSING is absent from the gathered mesh."
+    }
+  ]
+}

@@ -40,7 +40,8 @@ def execute(mode, binary, output):
     digest = sha(binary)
     output.mkdir(parents=True, exist_ok=False)
     settings = {name: '1' for name in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')}
-    settings.update(SU2_NATIVE_FP3_PROBE='0', SU2_NATIVE_GEOMETRY_WORK_TRACE='0')
+    settings.update(SU2_NATIVE_FP3_PROBE='0', SU2_NATIVE_GEOMETRY_WORK_TRACE='0', OMPI_MCA_osc='pt2pt',
+                    TMPDIR=str(NIGHT.parents[3] / 'build-integrated-v2/compile-tmp'))
     environment = {key: value for key, value in os.environ.items() if not key.startswith('SU2_NATIVE_')}
     environment.update(settings)
 
