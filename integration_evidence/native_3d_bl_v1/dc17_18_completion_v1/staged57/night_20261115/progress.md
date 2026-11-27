@@ -2784,3 +2784,9 @@ DEF1 build681 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_N
 DEF1 build681 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/hidden/case_summary.json.
 
 DEF1 reverse-AD GOAL checkpoint 4ed3af3dcc pushed. Build681 standing G1 compared 375/114/228 records (serial/2/4 ranks), all passed with original assertion identities. All seven inherited hidden variants passed. The G2 derived legacy config launch is active. G2/GQ and the shared gates remain.
+
+DEF1 build681 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G2/case_summary.json.
+
+DEF1 build681 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/GQ/case_summary.json.
+
+DEF1 G1 checkpoint 8ad4d2be33 pushed. G2 and GQ passed the unchanged P3/N22 comparator with identical decisions and modeled storage, fixedstorage 4120, and exact first-collapse counts/work. Each launch inserted only ADAP_NORM= 1.0 from its sealed config and kept ADAP_HGRAD= 1.3. Next the shared-engine safeguards under the existing scoped supervisor.
