@@ -94,7 +94,7 @@ def section3(label):
         assert all(child[key] == direct[key] for key in FINGERPRINTS), part['path']
 
     full = cut.read(paths['standing S workflow'])
-    assert full['comparison']['equal'] is True and full['comparison']['differences'] == []
+    assert full['comparison']['equal'] is True and full['comparison']['differences'] == {}
     assert set(full['legacy_configs']) == {'full', 'isolated_restart'}
     run = checked(full['run'])
     assert run['passed'] is True and run['mode'] == 'S' and run['probe'] == 0

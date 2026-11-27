@@ -2812,3 +2812,7 @@ DEF1 build681 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_Native
 DEF1 shared checkpoint aa53267e68 pushed. All 13 scoped checks passed. G3 accepted 1582 splits, all 1582 common edits identical, observer-adjusted entry work 5113/5113 and zero upper refinements. G4 passed on the pinned 1/2/4-rank 2D executions. Scoped supervisor terminal. Start the one G5 S with isolated restart on the derived legacy configs.
 
 DEF1 G5 initial supervisor terminated before creating S1 or launching a solver. Its deferred import selected the FP3-E verifier. Bound the DEF1 verifier before loading inherited modules and verified build681 and both generated controllers in the offline check. Preserved the journal and diagnosis. Next launch the sole G5 S and restart.
+
+DEF1 G5 S started under su2-def1-g5s681-run at 22:26:47 CET with six build681 ranks at nice 19, 38,054,084 kB available memory and no owned heavy process at preflight. Effective config explicitly sets norm 1.0 and hgrad 1.3. Check both events, all six payloads and the isolated restart before sealing section 3.
+
+DEF1 G5 S passed with all six payload hashes identical to FP3-E and validated isolated restart (63.165 s). Native maxima were 417.996 and 258.351 s, minimum rank timer coverage 97.84 and 99.46 percent. The seal reader recovered from a map/list receipt mismatch (R3) using the saved successful G5 evidence. All section 3 checks passed on build681. Full OFF and CORE were unevaluated by order. Next CL2 with omitted norm and gradation and hmin 3E-3.

@@ -9,3 +9,8 @@ The DEF1 controller now imports the local verifier before loading the inherited
 helpers. The offline launch self-check authenticates build681 as well as the
 generated workflow and restart controllers. Solver inputs, pins and gates were
 untouched.
+
+The section-3 seal initially expected an empty list of hash differences. The
+inherited comparator emits a map keyed by payload name and returned an empty
+map for the successful comparison. Corrected the seal reader and reused the
+complete G5 and restart evidence.
