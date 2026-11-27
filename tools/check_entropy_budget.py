@@ -47,7 +47,9 @@ def hashes(path, ranks, iterations):
 def history(path, iterations):
     with path.open(newline="") as file:
         reader = csv.DictReader(file, skipinitialspace=True)
-        fields = [field for field in reader.fieldnames or []
+        # SU2 pads the quoted names, so the csv module keeps the trailing blanks.
+        reader.fieldnames = [name.strip() for name in reader.fieldnames or []]
+        fields = [field for field in reader.fieldnames
                   if field.startswith(("rms[", "max[", "bgs[")) or field in AERO]
         if not {"rms[Rho]", "CD", "CL"}.issubset(fields):
             raise ValueError(f"{path}: expected RMS_RES and AERO_COEFF columns")
@@ -102,9 +104,14 @@ def compare(args):
             if actual != expected:
                 raise ValueError(f"{run}: residual or aerodynamic history differs at iteration {iteration}")
 
-    for iteration in range(args.iterations):
-        name = f"restart_flow_{iteration:06d}.dat"
+    # The numbered restarts carry SU2's 1-based file index; compare the full set of each run.
+    names = sorted(path.name for path in baseline.glob("restart_flow_*.dat"))
+    if len(names) < args.iterations - 1:  # SU2 does not number the restart of the final iteration
+        raise ValueError(f"{baseline}: expected at least {args.iterations - 1} numbered restarts, found {len(names)}")
+    for name in names:
         for run in (repeated, off, on):
+            if sorted(path.name for path in run.glob("restart_flow_*.dat")) != names:
+                raise ValueError(f"{run}: numbered restart files differ from the baseline")
             if not filecmp.cmp(baseline / name, run / name, shallow=False):
                 raise ValueError(f"{run / name}: restart bytes differ")
     if args.volume:
