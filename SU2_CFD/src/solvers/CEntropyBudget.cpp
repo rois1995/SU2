@@ -539,8 +539,12 @@ void CEntropyBudget::FillHistory() {
 
   const auto* velocity = config.GetVelocity_FreeStreamND();
   const auto rho = ebt::Value(config.GetDensity_FreeStreamND());
-  const auto qArea = 0.5 * rho * ebt::Dot(dim, velocity, velocity).value * ebt::Value(config.GetRefArea());
-  const auto dragFactor = qArea > 0 ? ebt::Value(config.GetPressure_FreeStreamND()) / (rho * qArea) : 0;
+  const auto speed2 = ebt::Dot(dim, velocity, velocity).value;
+  const auto qArea = 0.5 * rho * speed2 * ebt::Value(config.GetRefArea());
+  /*--- Oswatitsch: D U_inf = T_inf dS/dt and rho s = -R U, so D = (p_inf/rho_inf) Pi / U_inf with Pi the
+   * production of -U; CD = D / (q_inf A). ---*/
+  const auto dragFactor =
+      qArea > 0 ? ebt::Value(config.GetPressure_FreeStreamND()) / (rho * sqrt(speed2) * qArea) : 0;
   const auto dissipation = history[EPS2] + history[EPS4];
   history[DRAG_CD] = -dragFactor * dissipation;
   history[DRAG_CD_ALL] = -dragFactor * (history[CENTRAL_INT] + dissipation);
