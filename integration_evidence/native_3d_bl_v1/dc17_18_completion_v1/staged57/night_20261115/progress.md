@@ -2816,3 +2816,13 @@ DEF1 G5 initial supervisor terminated before creating S1 or launching a solver. 
 DEF1 G5 S started under su2-def1-g5s681-run at 22:26:47 CET with six build681 ranks at nice 19, 38,054,084 kB available memory and no owned heavy process at preflight. Effective config explicitly sets norm 1.0 and hgrad 1.3. Check both events, all six payloads and the isolated restart before sealing section 3.
 
 DEF1 G5 S passed with all six payload hashes identical to FP3-E and validated isolated restart (63.165 s). Native maxima were 417.996 and 258.351 s, minimum rank timer coverage 97.84 and 99.46 percent. The seal reader recovered from a map/list receipt mismatch (R3) using the saved successful G5 evidence. All section 3 checks passed on build681. Full OFF and CORE were unevaluated by order. Next CL2 with omitted norm and gradation and hmin 3E-3.
+
+DEF1 section 3 checkpoint 88253d1cea pushed. CL2 started at 22:43:41 CET on build681 (su2-def1-cl2-681, six nice-19 ranks, no owned heavy process at preflight, 37,885,112 kB available). Cycle 0 prints norm 2 and hmin 0.003. First-event hgrad evidence is pending. CL2 must be terminal and reported before MMG2.
+
+CL2 cycle 0 runtime defaults verified in the live log: norm 2 and hgrad 1.6000000000000001 on all six ranks in the first NATIVE3D_REQUIREMENTS rows. Capability checks continue; no further production changes are authorized by this observation.
+
+CL2 event 2 recorded a native capability rejection at 23:09:48 CET. The M29 seed on rank 1 (cell 401818) has q=0.19995874298788241 against 0.2 and J=0.075133160859466822. The solver retained the live mesh and continued its configured loop. The runtime defaults already passed. Await the owned handle, preserve the complete evidence, report the first gate, then run MMG2.
+
+CL2 event 3 and event 4 also recorded native capability rejections with the live mesh retained: rank 1 cells 402826 and 422230, q=0.19996997431239738 and 0.19996995877386833. Event 2 remains the first failed gate. Final CFD cycle started; await terminal receipts and report.
+
+CL2 terminal in 4437.311 s, exit 0 and six wait4 receipts, peak sum 8,463,933,440 bytes. Event 1 passed all six gates. Rejected events 2–4 retained its 69,921-point, 381,783-cell mesh and completed their CFD cycles; events 2–4 q seeds and unavailable markers are archived. Both runtime defaults passed. The R3 report reprocessing bound retained mesh counts to the observed prior mesh, without rerunning the solver. Final CL2 label: CL2: converged loop run FAILED at event 2, gate 1. Next MMG2 with the same binary.

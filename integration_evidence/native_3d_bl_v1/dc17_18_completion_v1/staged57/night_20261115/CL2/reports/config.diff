@@ -1,0 +1,14 @@
+--- /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL1/run/run.cfg
++++ CL2/run/run.cfg
+@@ -78,10 +78,9 @@
+ NUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES
+ ADAP_HESSIAN_NOISE= 0
+ ADAP_SENSOR= ( MACH )
+-ADAP_HMIN= 1E-6
++ADAP_HMIN= 3E-3
+ ADAP_HMAX= 100
+ ADAP_ARMAX= 1E6
+-ADAP_HGRAD= 1.3
+ ADAP_HAUSD= 1E-4
+ ADAP_NATIVE_MAX_WORK= 0
+ ADAP_NATIVE_MAX_TIME= 5400

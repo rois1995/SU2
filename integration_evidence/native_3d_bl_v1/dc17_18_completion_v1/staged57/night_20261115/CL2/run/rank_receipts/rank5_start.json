@@ -1,0 +1,33 @@
+{
+  "rank": 5,
+  "world_size": 6,
+  "settings": {
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL2/run/mpi_tmp",
+    "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+    "SU2_NATIVE_FP3_PROBE": "0",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "nice": 19,
+  "child": {
+    "pid": 4108705,
+    "state": "R",
+    "ppid": 4108698,
+    "pgid": 4108698,
+    "start_ticks": 130812751,
+    "comm": "SU2_CFD"
+  },
+  "wrapper": {
+    "pid": 4108698,
+    "state": "R",
+    "ppid": 4108690,
+    "pgid": 4108698,
+    "start_ticks": 130812746,
+    "comm": "python3"
+  },
+  "started_utc": "2026-11-27T21:43:41.355825+00:00",
+  "exec": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD"
+}

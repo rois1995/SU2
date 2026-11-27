@@ -135,11 +135,16 @@ def rejected_cells(case, event):
 def annotate_native(result, case):
     logs = sections(case)
     result['runtime_defaults'] = native_defaults(case, logs.get(0, []))
+    last_mesh = result['cycles'][0]
     for event in result['events']:
         number = event['event']
         cycle = result['cycles'][number]
         event.update(sensor_rows(logs.get(number - 1, [])),
                      points=cycle.get('points'), cells=cycle.get('cells'))
+        if event.get('native_rejection') and cycle.get('points') == last_mesh.get('points'):
+            event.update(cells=last_mesh.get('cells'), retained_mesh_cycle=last_mesh['cycle'])
+        elif cycle.get('cells') is not None:
+            last_mesh = cycle
         if event.get('native_rejection') or event['gates']['1']['status'] == 'FAILED':
             event['rejected_cells'] = rejected_cells(case, number)
     return result

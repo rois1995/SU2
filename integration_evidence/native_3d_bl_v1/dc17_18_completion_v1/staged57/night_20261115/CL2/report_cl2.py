@@ -621,6 +621,11 @@ def render_event_details(lines, named):
           [(name, event['event'], event.get('points'), event.get('cells'),
             event.get('sensor_complexity_before_gradation'), event.get('sensor_complexity_after_gradation'))
            for name, report in named for event in report['events']])
+    for name, report in named:
+        for event in report['events']:
+            if 'retained_mesh_cycle' in event:
+                lines.extend([f'{name} event {event["event"]} retained the mesh from cycle '
+                              f'{event["retained_mesh_cycle"]}. Its counts are shown above.', ''])
     rejected = [(event['event'], row.get('rank'), row.get('cell'), row.get('q'), row.get('J'),
                  row.get('surface_points'), row.get('markers'))
                 for event in named[0][1]['events'] for row in event.get('rejected_cells', [])]
