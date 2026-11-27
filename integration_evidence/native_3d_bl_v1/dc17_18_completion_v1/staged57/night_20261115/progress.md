@@ -2774,3 +2774,13 @@ DEF1 normal lab checkpoint 82a5f7f3c2 pushed. Standard reverse-AD target failed 
 DEF1 focused reverse-AD driver built and linked successfully with the Meson AD options from the frozen build681 source. SHA256 eff1710be85cc8db2f9257e929ac86e244747312b324aaf8471899ba55a4bb52. Next execute the required GOAL CConfig cohort.
 
 DEF1 AD build checkpoint 38f4f725b9 pushed. The focused GOAL CConfig cohort passed all 31 reverse-AD assertions, including omitted norm, inherited scalar, explicit scalar warning and per-level override. Supervisor terminal. Start the scoped standing gates with legacy keys bound to the sealed inputs.
+
+DEF1 build681 Step 1 G1-serial passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G1-serial/case_summary.json.
+
+DEF1 build681 Step 1 G1-mpi2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G1-mpi2/case_summary.json.
+
+DEF1 build681 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G1-mpi4/case_summary.json.
+
+DEF1 build681 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/hidden/case_summary.json.
+
+DEF1 reverse-AD GOAL checkpoint 4ed3af3dcc pushed. Build681 standing G1 compared 375/114/228 records (serial/2/4 ranks), all passed with original assertion identities. All seven inherited hidden variants passed. The G2 derived legacy config launch is active. G2/GQ and the shared gates remain.
