@@ -2630,3 +2630,15 @@ FP3-D S2 event 1 passed physical, proof, timer and memory gates. Owned and all p
 FP3-D S2 event 2 repeated the two initial negative exchange decisions and passed physical, proof, timer and memory gates. Owned and per-rank faces 21754, peak and summed process peaks 9362997248 bytes. Continued CFD, isolated restart and six-file repeat are being sealed.
 
 FP3-D Step 3 passed. S2 passed standing, suppression and exchange gates and isolated restart (62.030 s). The six payloads exactly match S1. Native maxima 522.446705095 / 184.999543899 s and minimum coverage 98.088% / 98.992%. Both trials moved 202212 cells only at the initial event-1 construction evaluation. Event-2 proof union work 13421812 and memo hit fraction 0.7994108983799706 in both. S2 terminal. Next the probe-3 time observation against B.
+
+FP3-D S2 checkpoint 12eed1cade pushed. Step 4 started after both S2 handles were terminal. This observation measures the exchange rule of FP3-B with probe 3 against the common six payloads of the authenticated B pair.
+
+FP3-D observation startup verified probe 3 on all six executing ranks. Event 1 local core preparation is active.
+
+FP3-D probe 3 event 1 printed policy=fp3b, declined the initial exchange and committed 216475 moved cells at quality entry, matching B’s decisions. No core or engine probe row observed. Physical gates remain active.
+
+FP3-D probe 3 event 1 passed proof, physical, memory and timer checks. Owned and per-rank faces 26512 and peak/summed peaks 9527832576 bytes. Continued CFD leads into event 2.
+
+FP3-D probe 3 event 2 reproduced the FP3-B initial veto and 165441-cell quality-entry exchange. Printed predicted gain 1245511.423461152, 112 attempts and policy=fp3b. Final proof and byte comparison remain.
+
+FP3-D Step 4 observation completed with zero core or engine probe rows. The six files match the common B S hashes. Both events and continued CFD passed, reproducing the 216475 / 165441 quality-entry exchanges. Native maxima 524.307194196 / 317.032824241 s under recorded varying load. All owned handles terminal. Publish the accepted S pair and final label.
