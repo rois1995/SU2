@@ -2606,3 +2606,15 @@ FP3-D build678 Step 1 G3 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_Nativ
 FP3-D build678 Step 1 G4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G4/case_summary.json.
 
 FP3-D shared checkpoint 8c4f438f93 pushed. G3 passed with 1549 splits and all 1549 common edits identical, entry work 5113 vs 5113 and no upper refinements. G4 passed the same pinned 2D runs. All 13 scoped checks passed, supervisor terminal, and Step 1 is sealed. Full CORE and OFF unevaluated. Start the first mode S run and isolated restart.
+
+FP3-D Step 1 checkpoint 9fab6ccc8f pushed with the signed label. S1 launched on the frozen pair after the scoped supervisor was terminal. Its workflow, joined exchange evidence and isolated restart must pass before launching S2.
+
+FP3-D S1 authenticated the effective probe value 0 on all six live main ranks. Mode-S config SHA256 07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382. Event 1 local surface preparation is underway.
+
+FP3-D S1 event 1 live rows show policy=cells, initial attempts=0, max_owned_cells=166771 of 371825, ratio 2.6911208229677941 and migrate=1. It committed 202212 moved cells. At quality entry ratio 1.1047315879397253, gain 4564152.0720366146, migrate=0. Physical/workflow gates remain in progress.
+
+FP3-D S1 event 1 passed physical, proof, memory and timer checks, with 26520 owned and per-rank surface faces and peak/summed process peaks of 9225793536 bytes. Only the initial construction exchange committed. Continued CFD brought the run into event 2.
+
+FP3-D S1 event 2 passed physical, proof, memory and timer checks. Owned/per-rank faces 21754 and peak/summed peaks 9338847232 bytes. Construction and quality-entry ratios were 1.3000526892421949 and 1.3004296506269335. Both declined migration with policy=cells, even though quality raw gain was 1106799.183769566 against 2 × 359129. Continued CFD, joined gate evidence and isolated restart remain.
+
+FP3-D Step 2 passed. S1 qualified both events, transfer, continued CFD, isolated restart and all 12 worker packets for suppression and exchange. One construction exchange moved 202212 cells in event 1; event 2 made none. Native maxima 476.856938552 / 156.960299521 s, minimum timer coverage 97.931% / 99.166%. All six payloads differ from B (report only). S1 terminal. Start S2 on the identical frozen inputs.
