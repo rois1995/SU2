@@ -2580,3 +2580,7 @@ FP3-D G1 passed all exact case and failed-assertion comparisons: 375 serial, 114
 FP3-D build678 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G2/case_summary.json.
 
 FP3-D G1 checkpoint 9df4ce0023 pushed. G2 passed the accepted P3 identity on all six ranks, including scheduling, census, integer rows and fixedstorage=4120. GQ is active.
+
+FP3-D build678 Step 1 GQ passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/GQ/case_summary.json.
+
+FP3-D G2 checkpoint 8567684830 pushed. GQ passed the third quality-window anchor and all accepted P3 prefix checks including fixedstorage=4120. The shared first-collapse gate is running.
