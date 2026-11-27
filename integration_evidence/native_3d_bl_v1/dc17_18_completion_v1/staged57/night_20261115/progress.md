@@ -2650,3 +2650,11 @@ FP3-E Step 0 completed before any production edit. Authenticated the reviewer te
 FP3-E Step 0 checkpoint c29eea1d45 pushed. Production and hidden fixture source frozen for build679. The charged state is 56 bytes on the current ABI (sizeof State at admission); all new timers are scoped to the single array SUM of active windows. Next build the candidate pair and execute Step 1.
 
 FP3-E candidate 62a270c4d6 pushed. Build679 compiled and linked both targets with zero warnings and terminal exit 0. Solver e423a3d84f8872723b23344005e171bb3971cf2f8f562adc74c77cc752f109e3; test driver 38ef429af062582e9d7867c29026faf03857d89cc5692edf4ce6d6bb41f9cfc3. The adapters passed their self-checks, including a temporary D S1 trace replay that recovered round 496. Next execute the signed Step 1 controls and hidden checks.
+
+FP3-E build679 Step 1 G1-serial FAILED, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build679/G1-serial/case_summary.json.
+
+FP3-E build679 Step 1 G1-mpi2 FAILED, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build679/G1-mpi2/case_summary.json.
+
+FP3-E build679 Step 1 G1-mpi4 FAILED, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/controls/build679/G1-mpi4/case_summary.json.
+
+FP3-E Step 1 build679 G1 failed assertion-location identity. Serial first difference 3683/3684 and MPI 3544/3545 (reference/candidate). R5 read-only diagnosis found only the +1 offset from the hidden-fixture include across every unexpected assertion (11/19/37). Preserve the receipts, finish the independent checks already under the scoped supervisor, then move the include after all original tests and repeat with the unchanged comparator on a frozen build680 pair. No production correction needed. Full S starts only after the new Step 1 seal.
