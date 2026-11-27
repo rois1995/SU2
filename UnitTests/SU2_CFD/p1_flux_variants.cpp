@@ -293,7 +293,7 @@ struct MeshCase {
   std::unique_ptr<CGeometry> geometry;
 
   explicit MeshCase(const std::string& mesh, const std::string& extra = "",
-                    const std::string& solver = "EULER", bool noSlip = false) {
+                    const std::string& solver = "EULER", bool noSlip = false, bool linearPartition = false) {
     SU2_MPI::Barrier(SU2_MPI::GetComm());
     auto* buf = std::cout.rdbuf();
     std::cout.rdbuf(nullptr);
@@ -306,6 +306,10 @@ struct MeshCase {
     config = std::unique_ptr<CConfig>(new CConfig(options, SU2_COMPONENT::SU2_CFD, false));
     {
       auto aux = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), 0, 1));
+      if (linearPartition) {
+        // The reader loads a linear slice on each rank but initializes every point color to zero.
+        for (auto i = 0ul; i < aux->GetnPoint(); ++i) aux->nodes->SetColor(i, SU2_MPI::GetRank());
+      }
       geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(aux.get(), config.get()));
     }
     geometry->SetSendReceive(config.get());
@@ -12090,7 +12094,6 @@ TEST_CASE("TURB_VISC_P1_GALERKIN: off by default, the edge options are unchanged
 namespace {
 namespace es4test {
 using Row = std::array<su2double, 4>;
-using Block = std::array<su2mixedfloat, 16>;
 using State = P1BoundaryClosure::EsState;
 constexpr double GasGamma = 1.4;
 constexpr double turbulentK = 0.03;
@@ -12114,8 +12117,9 @@ struct Fixture : MeshCase {
   std::vector<State> state;
 
   Fixture(const std::string& mesh, const std::string& opts, bool es4, bool fourth,
-          Field field = Field::Nonuniform, bool sst = false, bool wall = false, bool flipHalo = false)
-      : MeshCase(mesh, Options(opts, es4, fourth, sst, wall), sst ? "RANS" : wall ? "NAVIER_STOKES" : "EULER", wall),
+          Field field = Field::Nonuniform, bool sst = false, bool wall = false, bool partitionCrossing = false)
+      : MeshCase(mesh, Options(opts, es4, fourth, sst, wall), sst ? "RANS" : wall ? "NAVIER_STOKES" : "EULER", wall,
+                 partitionCrossing),
         sensor(geometry->GetnPoint()), boundary(geometry->GetnPoint()), state(geometry->GetnPoint()) {
     geometry->PreprocessP2PComms(geometry.get(), config.get());
     geometry->InitiateComms(geometry.get(), config.get(), MPI_QUANTITIES::NEIGHBORS);
@@ -12127,7 +12131,8 @@ struct Fixture : MeshCase {
     for (auto i = 0ul; i < geometry->GetnPoint(); ++i) {
       const auto* xy = geometry->nodes->GetCoord(i);
       boundary[i] = xy[0] == 0 || xy[0] == 1 || xy[1] == 0 || xy[1] == 1;
-      if (flipHalo && i >= nOwn) {
+      if (partitionCrossing && es4 && i >= nOwn) {
+        // Force the owner flag exchange to overwrite a deliberately wrong halo flag.
         rawHalo.push_back(geometry->nodes->GetPhysicalBoundary(i));
         geometry->nodes->SetPhysicalBoundary(i, !boundary[i]);
       }
@@ -12200,7 +12205,9 @@ struct Fixture : MeshCase {
   }
 
   std::vector<Row> TrueEdgeFluxes() {
-    std::unique_ptr<CNumericsSIMD> kernel(CNumericsSIMD::CreateNumerics(*config, 2, MESH_0));
+    const auto* turb = solvers.get()[TURB_SOL];
+    const auto* turbNodes = turb ? turb->GetNodes() : nullptr;
+    std::unique_ptr<CNumericsSIMD> kernel(CNumericsSIMD::CreateNumerics(*config, 2, MESH_0, turbNodes));
     const auto nEdge = geometry->GetnEdge();
     CSysVector<su2double> edgeFlux(nEdge, nEdge, 4);
     SparseMatrixType unused;
@@ -12524,15 +12531,92 @@ void CheckFixtureCoverage(const Fixture& f, const std::vector<Coupling>& graph) 
   }
 }
 
-std::vector<Block> Blocks(const Fixture& f) {
-  std::vector<Block> blocks;
-  auto& jacobian = f.flow->Jacobian;
-  for (auto i = 0ul; i < f.geometry->GetnPointDomain(); ++i) {
-    auto save = [&](unsigned long k) { std::copy_n(jacobian.GetBlock(i, k), 16, blocks.emplace_back().begin()); };
-    save(i);
-    jacobian.ForEachOffDiagColumn(i, save);
+std::vector<Row> IncidentFluxScale(Fixture& legacy) {
+  const auto& geometry = *legacy.geometry;
+  const auto& edges = *geometry.edges;
+  std::vector<Row> scale(geometry.GetnPointDomain());
+  auto add = [&](unsigned long point, const Row& flux) {
+    if (point >= scale.size()) return;
+    for (auto v = 0u; v < flux.size(); ++v) scale[point][v] += std::abs(flux[v]);
+  };
+  const auto trueFluxes = legacy.TrueEdgeFluxes();
+  for (auto e = 0ul; e < trueFluxes.size(); ++e) {
+    add(edges.GetNode(e, 0), trueFluxes[e]);
+    add(edges.GetNode(e, 1), trueFluxes[e]);
   }
-  return blocks;
+
+  // The S4 split flux is the mean projected Euler flux plus the second difference, with constant matched k in SST.
+  const auto& nodes = *legacy.nodes;
+  const auto tke = legacy.config->GetTke_Matched_P1() ? turbulentK : 0.0;
+  const P1PairJST::Params par{GasGamma, legacy.config->GetKappa_2nd_Flow(), 0.0};
+  for (auto e = 0ul; e < edges.GetSplitNodes().size(); ++e) {
+    const auto i = edges.GetSplitNodes()[e][0], k = edges.GetSplitNodes()[e][1];
+    const auto* normal = edges.GetSplitNormal()[e];
+    Row flux{};
+    auto addCentral = [&](unsigned long p) {
+      P1PairJST::Node state;
+      const auto rho = nodes.GetDensity(p), enthalpy = nodes.GetEnthalpy(p) - tke;
+      state.vel[0] = nodes.GetVelocity(p, 0);
+      state.vel[1] = nodes.GetVelocity(p, 1);
+      state.diss[0] = rho;
+      state.diss[1] = rho * state.vel[0];
+      state.diss[2] = rho * state.vel[1];
+      state.diss[3] = rho * enthalpy;
+      state.soundSpeed = nodes.GetSoundSpeed(p);
+      state.sensor = nodes.GetSensor(p);
+      state.lambda = nodes.GetLambda(p);
+      state.nNeighbor = nodes.JSTPairNeighbor(p);
+      const auto mass = 0.5 * rho * (state.vel[0] * normal[0] + state.vel[1] * normal[1]);
+      flux[0] += mass;
+      flux[1] += mass * state.vel[0] + 0.5 * nodes.GetPressure(p) * normal[0];
+      flux[2] += mass * state.vel[1] + 0.5 * nodes.GetPressure(p) * normal[1];
+      flux[3] += mass * enthalpy;
+      return state;
+    };
+    const auto left = addCentral(i), right = addCentral(k);
+    su2double projected[3], unused[5][5]{};
+    const auto* dissNormal = P1PairJST::DissipationNormal(2, true, normal, geometry.nodes->GetCoord(i),
+                                                         geometry.nodes->GetCoord(k), projected);
+    P1PairJST::AddPairDissipation(2, par, left, right, dissNormal, flux.data(), false, unused, unused,
+                                 edges.GetSplitShare()(e), nullptr, false);
+    flux[3] += tke * flux[0];
+    add(i, flux);
+    add(k, flux);
+  }
+  return scale;
+}
+
+void CheckJacobianRoundoff(const Fixture& on, const Fixture& off) {
+  constexpr auto roundoff = 8 * std::numeric_limits<su2mixedfloat>::epsilon();
+  const auto& a = on.flow->Jacobian;
+  const auto& b = off.flow->Jacobian;
+  for (auto i = 0ul; i < off.geometry->GetnPointDomain(); ++i) {
+    CAPTURE(i);
+    std::vector<unsigned long> onColumns, offColumns;
+    a.ForEachOffDiagColumn(i, [&](unsigned long k) { onColumns.push_back(k); });
+    b.ForEachOffDiagColumn(i, [&](unsigned long k) { offColumns.push_back(k); });
+    REQUIRE(onColumns == offColumns);
+    std::array<su2double, 16> diagonalScale{};
+    for (const auto k : offColumns) {
+      CAPTURE(k);
+      const auto* onBlock = a.GetBlock(i, k);
+      const auto* offBlock = b.GetBlock(i, k);
+      // Each pair contributes opposite blocks to the two rows in a column.
+      const auto* incident = b.GetBlock(k, i);
+      REQUIRE(incident != nullptr);
+      for (auto v = 0u; v < diagonalScale.size(); ++v) {
+        CAPTURE(v);
+        CHECK(std::abs(onBlock[v] - offBlock[v]) <= roundoff * std::abs(offBlock[v]));
+        diagonalScale[v] += std::abs(incident[v]);
+      }
+    }
+    const auto* onDiag = a.GetBlock(i, i);
+    const auto* offDiag = b.GetBlock(i, i);
+    for (auto v = 0u; v < diagonalScale.size(); ++v) {
+      CAPTURE(v);
+      CHECK(std::abs(onDiag[v] - offDiag[v]) <= roundoff * diagonalScale[v]);
+    }
+  }
 }
 }  // namespace es4test
 }  // namespace
@@ -12589,6 +12673,7 @@ TEST_CASE("S1 ES4 true and split coefficients match the legacy flux", "[ES4][ES4
 TEST_CASE("S2 S3 ES4 residual identity and partition-crossing transpose", "[ES4][ES4Solver]") {
   using namespace es4test;
   const std::string mesh = "es4_mixed.su2";
+  // The two-rank linear cut after ID 31 crosses active triangle edge (24,33) and quad diagonal (26,33).
   WriteMixedMesh(mesh, 2, 7, 0.18, 1.0);
   for (auto mode = 0; mode < 3; ++mode) {
     const bool sst = (mode == 2);
@@ -12603,7 +12688,7 @@ TEST_CASE("S2 S3 ES4 residual identity and partition-crossing transpose", "[ES4]
     CheckIdentity(full, zero, expected, sst);
     if (mode == 0) {
       CheckFixtureCoverage(full, graph);
-      Fixture legacy(mesh, opts, false, false);
+      Fixture legacy(mesh, opts, false, false, Field::Nonuniform, false, false, true);
       SaveRows(full, zero, expected, graph, LegacySecond(legacy));
     }
     if (mode == 1) CHECK(full.flow->GetESFourthPairWeight().empty());
@@ -12644,21 +12729,28 @@ TEST_CASE("S2 ES4 uniform and odd-even recovery through centered assembly", "[ES
   CHECK(GlobalSum(checked) == 1.0);
 }
 
-TEST_CASE("S4 ES4 kappa4 zero preserves residual and Jacobian bits", "[ES4][ES4Solver]") {
+TEST_CASE("S4 ES4 kappa4 zero preserves residual and Jacobian to round-off", "[ES4][ES4Solver]") {
   using namespace es4test;
   const std::string mesh = "es4_isolation.su2";
   WriteMixedMesh(mesh, 2, 7, 0.18, 1.0);
+  // Fast math can reassociate the two paths. Option-off bit identity is the P0 restart gate vs bin 85-c9.
+  constexpr auto roundoff = 8 * std::numeric_limits<su2double>::epsilon();
   for (const bool sst : {false, true}) {
     CAPTURE(sst);
     Fixture on(mesh, MixedMeanOptions, true, false, Field::Nonuniform, sst);
     Fixture off(mesh, MixedMeanOptions, false, false, Field::Nonuniform, sst);
     on.Assemble();
     off.Assemble();
-    for (auto i = 0ul; i < on.geometry->GetnPointDomain(); ++i) {
-      CHECK(std::memcmp(on.flow->LinSysRes.GetBlock(i), off.flow->LinSysRes.GetBlock(i), sizeof(Row)) == 0);
+    REQUIRE(on.geometry->GetnPointDomain() == off.geometry->GetnPointDomain());
+    const auto scale = IncidentFluxScale(off);
+    for (auto i = 0ul; i < scale.size(); ++i) {
+      const auto* onRow = on.flow->LinSysRes.GetBlock(i);
+      const auto* offRow = off.flow->LinSysRes.GetBlock(i);
+      for (auto v = 0u; v < scale[i].size(); ++v) {
+        CAPTURE(i, v);
+        CHECK(std::abs(onRow[v] - offRow[v]) <= roundoff * scale[i][v]);
+      }
     }
-    const auto a = Blocks(on), b = Blocks(off);
-    REQUIRE(a.size() == b.size());
-    if (!a.empty()) CHECK(std::memcmp(a.data(), b.data(), a.size() * sizeof(Block)) == 0);
+    CheckJacobianRoundoff(on, off);
   }
 }

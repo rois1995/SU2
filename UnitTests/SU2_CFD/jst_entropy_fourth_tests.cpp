@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <cstring>
+#include <limits>
 #include <random>
 #include <vector>
 
@@ -337,6 +337,7 @@ TEST_CASE("U9 ES4 frozen derivative and one-ring Jacobian surrogate", "[ES4][JST
 }
 
 TEST_CASE("U10 ES4 split coefficient and legacy second difference", "[ES4][JSTEntropyFourth]") {
+  constexpr auto roundoff = 8 * std::numeric_limits<su2double>::epsilon();
   std::mt19937 rng(72);
   std::uniform_real_distribution<double> sample(0.1, 0.9);
   const double normal[] = {0.14, -0.325};
@@ -364,22 +365,31 @@ TEST_CASE("U10 ES4 split coefficient and legacy second difference", "[ES4][JSTEn
     const auto eps = jst::DissipationCoefficients(par, i, k);
     CHECK(jst::FourthCoefficient(par, i, k, radius, share) == eps.eps4 * lambda);
     for (const bool legacy : {true, false}) {
-      Row flux{}, expected{};
+      CAPTURE(n, legacy);
+      Row flux{};
       su2double ji[5][5]{}, jk[5][5]{}, ei[5][5]{}, ek[5][5]{};
       if (legacy) jst::AddPairDissipation(2, par, i, k, normal, flux.data(), true, ji, jk, share);
       else jst::AddPairDissipation(2, par, i, k, normal, flux.data(), true, ji, jk, share, nullptr, false);
       for (auto v = 0u; v < 4; ++v) {
+        CAPTURE(v);
         const auto second = eps.eps2 * (i.diss[v] - k.diss[v]);
-        expected[v] += (legacy ? second - eps.eps4 * (i.lapl[v] - k.lapl[v]) : second) * lambda;
+        const auto fourth = legacy ? eps.eps4 * (i.lapl[v] - k.lapl[v]) : 0.0;
+        const auto expected = (second - fourth) * lambda;
+        const auto scale = std::abs(second * lambda) + std::abs(fourth * lambda);
+        CHECK(std::abs(flux[v] - expected) <= roundoff * scale);
       }
       const auto shift = [&](const jst::Node& node) {
         return legacy ? eps.eps2Jac + eps.eps4 * (node.nNeighbor + share) : eps.eps2Jac;
       };
       jst::AddSurrogateJacobian(2, par.gamma, i.vel, par.fixFactor * shift(i) * lambda, ei);
       jst::AddSurrogateJacobian(2, par.gamma, k.vel, -par.fixFactor * shift(k) * lambda, ek);
-      CHECK(std::memcmp(flux.data(), expected.data(), sizeof flux) == 0);
-      CHECK(std::memcmp(ji, ei, sizeof ji) == 0);
-      CHECK(std::memcmp(jk, ek, sizeof jk) == 0);
+      for (auto row = 0u; row < 5; ++row) {
+        for (auto col = 0u; col < 5; ++col) {
+          CAPTURE(row, col);
+          CHECK(std::abs(ji[row][col] - ei[row][col]) <= roundoff * std::abs(ei[row][col]));
+          CHECK(std::abs(jk[row][col] - ek[row][col]) <= roundoff * std::abs(ek[row][col]));
+        }
+      }
     }
   }
 }
