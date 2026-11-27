@@ -1,0 +1,35 @@
+{
+  "state": "terminal",
+  "passed": true,
+  "build": 678,
+  "exit_code": 0,
+  "pins_verified": true,
+  "changed": [
+    "Common/include/adaptation/CNativeLocalCore3D.hpp",
+    "Common/src/adaptation/native_engine3d/EngineOwnership.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp"
+  ],
+  "source_pins_sha256": "45df068517b60f4f5781f89da525a867712655800bca686e0bd33f4fb816339b",
+  "production_diff_sha256": "964cd68eeab268b744e31ef93fe31fbd35950d61bf4535cec42fcdc0a5106607",
+  "graph_after": {
+    "build.ninja": "59db458e4ffd548de0d37395ab03046b72b2c6144bf0f8b56a0424c83718ad90",
+    "compile_commands.json": "0dea4febacab233fc602fdefef86b38289c1aff1a05c492ef2c5ab04cb5005de"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "ce64d6b0badfc9d44c221bb7c0c467dd655bd3d92afcc1d78fd2ed57e4a3577e",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "afab9d4f43cc3c37771f9e2af1400497192d14abdb6868c5eb4060053a42f6db",
+  "warnings": [],
+  "new_warnings": [],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 2870419,
+      "start_ticks": 126046257
+    },
+    "returncode": 0,
+    "elapsed_seconds": 203.04812049865723,
+    "terminal": true
+  }
+}

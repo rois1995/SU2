@@ -1,6 +1,8 @@
 // Executes ownership transitions using canonical borrowed state and original transaction lifetimes.
 #include "EngineOwnership.hpp"
 #include "EngineReports.hpp"
+#include "../../../include/adaptation/CNativeLocalCore3D.hpp"
+#include <limits>
 
 EngineOwnership::EngineOwnership() = default;
 EngineOwnership::~EngineOwnership() = default;
@@ -259,17 +261,39 @@ bool EngineOwnership::ShouldMigrate(EngineContext& context, bool quality, uint64
   double predicted_gain, predicted_cost;
   const bool raw_pays = OwnershipExchangePays(imbalance, demand_sum, double(global_cells), measured, attempts,
                                                &predicted_gain, &predicted_cost);
-  const bool pays = raw_pays && (quality || !context.census.selection->collapse_closed);
+  const bool closed = context.census.selection->collapse_closed;
+  const bool fp3b = closed && SU2NativeLocal3D::FP3Probe() == SU2NativeLocal3D::CollapseProbe::FP3B;
+  const bool cells_policy = closed && !fp3b;
+  bool pays = raw_pays && (!fp3b || quality);
+  uint64_t max_owned_cells = 0;
+  if (cells_policy) {
+    max_owned_cells = TimedAllreduce(uint64_t(context.ownership.working->size()), CPassiveComm::Op::MAX, world.comm);
+    const auto ranks = uint64_t(world.size);
+    // PhaseOwnership requires at least two ranks, so this floor cannot overflow.
+    const auto threshold = 2 * (global_cells / ranks) + 2 * (global_cells % ranks) / ranks;
+    pays = max_owned_cells > threshold;
+  }
   stats.ownership_predicted_gain += predicted_gain;
   stats.ownership_predicted_cost += predicted_cost;
   const bool locally_eligible = options.phase_ownership == SU2Native3D::PhaseOwnership::DiagnosticAlways || pays;
   const bool proceed = !world.maximum(!locally_eligible);
-  if (options.timings)
+  if (options.timings) {
     std::cout << "NATIVE3D_PHASE_OWNERSHIP rank=" << world.rank << " quality=" << quality
               << " evaluate=1 migrate=" << proceed << " predicted_imbalance=" << imbalance
               << " predicted_gain=" << predicted_gain << " predicted_cost=" << predicted_cost
               << " demand_sum=" << demand_sum << " global_cells=" << global_cells << " measured=" << measured
-              << " attempts=" << attempts << " uncertainty_factor=2" << '\n';
+              << " attempts=" << attempts << " uncertainty_factor=2";
+    if (options.close_construction_collapse) {
+      std::cout << " policy=" << (cells_policy ? "cells" : fp3b ? "fp3b" : "raw");
+      if (cells_policy) {
+        std::cout << " max_owned_cells=" << max_owned_cells << " owned_ratio=";
+        const auto precision = std::cout.precision(std::numeric_limits<double>::max_digits10);
+        std::cout << double(world.size) * double(max_owned_cells) / double(global_cells);
+        std::cout.precision(precision);
+      }
+    }
+    std::cout << '\n';
+  }
   return proceed;
 }
 

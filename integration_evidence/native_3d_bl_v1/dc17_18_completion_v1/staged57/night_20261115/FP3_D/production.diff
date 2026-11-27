@@ -1,0 +1,81 @@
+diff --git a/Common/include/adaptation/CNativeLocalCore3D.hpp b/Common/include/adaptation/CNativeLocalCore3D.hpp
+index bd08c50d93..82f853d4d9 100644
+--- a/Common/include/adaptation/CNativeLocalCore3D.hpp
++++ b/Common/include/adaptation/CNativeLocalCore3D.hpp
+@@ -51,7 +51,7 @@ class StateSurfaceGeometry;
+ class RemoteSurface;
+ struct ContactContext;
+ 
+-enum class CollapseProbe { None, Core, Engine };
++enum class CollapseProbe { None, Core, Engine, FP3B };
+ CollapseProbe FP3Probe();
+ double NodalMargin(const OwnedCell& row);
+ 
+diff --git a/Common/src/adaptation/native_engine3d/EngineOwnership.cpp b/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
+index 8b74e69580..a5bae12002 100644
+--- a/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
+@@ -1,6 +1,8 @@
+ // Executes ownership transitions using canonical borrowed state and original transaction lifetimes.
+ #include "EngineOwnership.hpp"
+ #include "EngineReports.hpp"
++#include "../../../include/adaptation/CNativeLocalCore3D.hpp"
++#include <limits>
+ 
+ EngineOwnership::EngineOwnership() = default;
+ EngineOwnership::~EngineOwnership() = default;
+@@ -259,17 +261,39 @@ bool EngineOwnership::ShouldMigrate(EngineContext& context, bool quality, uint64
+   double predicted_gain, predicted_cost;
+   const bool raw_pays = OwnershipExchangePays(imbalance, demand_sum, double(global_cells), measured, attempts,
+                                                &predicted_gain, &predicted_cost);
+-  const bool pays = raw_pays && (quality || !context.census.selection->collapse_closed);
++  const bool closed = context.census.selection->collapse_closed;
++  const bool fp3b = closed && SU2NativeLocal3D::FP3Probe() == SU2NativeLocal3D::CollapseProbe::FP3B;
++  const bool cells_policy = closed && !fp3b;
++  bool pays = raw_pays && (!fp3b || quality);
++  uint64_t max_owned_cells = 0;
++  if (cells_policy) {
++    max_owned_cells = TimedAllreduce(uint64_t(context.ownership.working->size()), CPassiveComm::Op::MAX, world.comm);
++    const auto ranks = uint64_t(world.size);
++    // PhaseOwnership requires at least two ranks, so this floor cannot overflow.
++    const auto threshold = 2 * (global_cells / ranks) + 2 * (global_cells % ranks) / ranks;
++    pays = max_owned_cells > threshold;
++  }
+   stats.ownership_predicted_gain += predicted_gain;
+   stats.ownership_predicted_cost += predicted_cost;
+   const bool locally_eligible = options.phase_ownership == SU2Native3D::PhaseOwnership::DiagnosticAlways || pays;
+   const bool proceed = !world.maximum(!locally_eligible);
+-  if (options.timings)
++  if (options.timings) {
+     std::cout << "NATIVE3D_PHASE_OWNERSHIP rank=" << world.rank << " quality=" << quality
+               << " evaluate=1 migrate=" << proceed << " predicted_imbalance=" << imbalance
+               << " predicted_gain=" << predicted_gain << " predicted_cost=" << predicted_cost
+               << " demand_sum=" << demand_sum << " global_cells=" << global_cells << " measured=" << measured
+-              << " attempts=" << attempts << " uncertainty_factor=2" << '\n';
++              << " attempts=" << attempts << " uncertainty_factor=2";
++    if (options.close_construction_collapse) {
++      std::cout << " policy=" << (cells_policy ? "cells" : fp3b ? "fp3b" : "raw");
++      if (cells_policy) {
++        std::cout << " max_owned_cells=" << max_owned_cells << " owned_ratio=";
++        const auto precision = std::cout.precision(std::numeric_limits<double>::max_digits10);
++        std::cout << double(world.size) * double(max_owned_cells) / double(global_cells);
++        std::cout.precision(precision);
++      }
++    }
++    std::cout << '\n';
++  }
+   return proceed;
+ }
+ 
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
+index f4432f56c3..537716bf6d 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
+@@ -208,6 +208,7 @@ CollapseProbe FP3Probe() {
+     if (!value || !value[0] || value[1]) return CollapseProbe::None;
+     if (value[0] == '1') return CollapseProbe::Core;
+     if (value[0] == '2') return CollapseProbe::Engine;
++    if (value[0] == '3') return CollapseProbe::FP3B;
+     return CollapseProbe::None;
+   }();
+   return probe;

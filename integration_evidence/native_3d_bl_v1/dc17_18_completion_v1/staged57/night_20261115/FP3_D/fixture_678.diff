@@ -1,0 +1,220 @@
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index 2c264a5ebd..ba42a51a14 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -5799,9 +5799,98 @@ TEST_CASE("Closed construction collapse exits normally and leaves metric cleanup
+   CHECK(result.stats.stop == EngineStop::OperatorStagnation);
+ }
+ 
++namespace {
++std::string CaptureOwnership(World& world, const Owned& input, const std::vector<DonorCell>& donors,
++                             const PlanarReference& geometry, bool closed) {
++  EngineOptions options;
++  options.phase_ownership = PhaseOwnership::Automatic;
++  options.maximum_work = 8192;
++  options.maximum_rounds = 1;
++  options.timings = true;
++  options.close_construction_collapse = closed;
++  std::ostringstream captured;
++  {
++    struct RestoreOutput {
++      std::streambuf* previous;
++      ~RestoreOutput() { std::cout.rdbuf(previous); }
++    } restore{std::cout.rdbuf(captured.rdbuf())};
++    AdaptMetric(world, input, donors, geometry, {}, options);
++  }
++  return captured.str();
++}
++
++using OwnershipFields = std::map<std::string, std::string>;
++
++OwnershipFields ConstructionOwnership(const std::string& log) {
++  std::vector<std::string> decisions;
++  std::istringstream lines(log);
++  for (std::string line; std::getline(lines, line);)
++    if (line.find("NATIVE3D_PHASE_OWNERSHIP ") == 0 && line.find(" quality=0 evaluate=1 ") != std::string::npos)
++      decisions.push_back(line);
++  INFO(log);
++  REQUIRE(decisions.size() == 1);
++  std::cout << decisions.front() << '\n';
++  OwnershipFields fields;
++  std::istringstream words(decisions.front());
++  for (std::string word; words >> word;) {
++    const auto equal = word.find('=');
++    if (equal != std::string::npos)
++      REQUIRE(fields.emplace(word.substr(0, equal), word.substr(equal + 1)).second);
++  }
++  REQUIRE(fields.at("attempts") == "0");
++  return fields;
++}
++
++bool RawOwnershipPays(const OwnershipFields& fields) {
++  const auto number = [&](const char* key) { return std::stod(fields.at(key)); };
++  return OwnershipExchangePays(number("predicted_imbalance"), number("demand_sum"), number("global_cells"),
++                               number("measured"), number("attempts"));
++}
++
++void CheckCellPolicy(const OwnershipFields& fields, uint64_t maximum, double ratio) {
++  REQUIRE(fields.at("policy") == "cells");
++  REQUIRE(std::stoull(fields.at("max_owned_cells")) == maximum);
++  REQUIRE(std::stod(fields.at("owned_ratio")) == ratio);
++}
++
++OwnershipFields LegacyOwnership(OwnershipFields fields) {
++  for (const auto* key : {"migrate", "policy", "max_owned_cells", "owned_ratio"}) fields.erase(key);
++  return fields;
++}
++
++Fixture OwnershipBoxes() {
++  Fixture result = Box();
++  auto other = Box();
++  const auto shift = [](Node& node) {
++    node.id += 8;
++    node.p.x += 3;
++  };
++  for (auto& cell : other.patch.cells) {
++    cell.id += 6;
++    for (auto& node : cell.v) shift(node);
++  }
++  for (auto& face : other.patch.surface) {
++    face.facet += 12;
++    for (auto& id : face.v) id += 8;
++  }
++  for (auto& facet : other.facets) {
++    facet.id += 12;
++    facet.marker += 12;
++    for (auto& node : facet.v) shift(node);
++  }
++  result.patch.cells.insert(result.patch.cells.end(), other.patch.cells.begin(), other.patch.cells.end());
++  result.patch.surface.insert(result.patch.surface.end(), other.patch.surface.begin(), other.patch.surface.end());
++  result.facets.insert(result.facets.end(), other.facets.begin(), other.facets.end());
++  return result;
++}
++}  // namespace
++
+ TEST_CASE("Automatic ownership declines a profitable empty collapse exit only when closed", "[.][FP3B][mpi]") {
+   World world;
+   REQUIRE(world.size == 2);
++  const auto* setting = std::getenv("SU2_NATIVE_FP3_PROBE");
++  REQUIRE((setting && std::string(setting) == "0"));
++  std::cout << "FP3_D HIDDEN_PROBE rank=" << world.rank << " value=" << setting << '\n';
+   const auto fixture = Box();
+   const PlanarReference geometry(fixture.facets);
+   Owned input;
+@@ -5809,51 +5898,72 @@ TEST_CASE("Automatic ownership declines a profitable empty collapse exit only wh
+     if ((row.cell.id == 0 ? 1 : 0) == world.rank) input.emplace(row.cell.id, row);
+   // All edges are long, and the 5:1 partition produces a profitable estimate without any collapse attempt.
+   const auto donors = Uniform(input, Tensor{16, 0, 0, 16, 0, 16});
+-  EngineOptions options;
+-  options.phase_ownership = PhaseOwnership::Automatic;
+-  options.maximum_work = 8192;
+-  options.maximum_rounds = 1;
+-  options.timings = true;
++  const auto open_log = CaptureOwnership(world, input, donors, geometry, false);
++  const auto closed_log = CaptureOwnership(world, input, donors, geometry, true);
++  const auto open = ConstructionOwnership(open_log);
++  const auto closed = ConstructionOwnership(closed_log);
++  CHECK(RawOwnershipPays(open));
++  CHECK(RawOwnershipPays(closed));
++  CHECK(open.at("migrate") == "1");
++  CHECK(closed.at("migrate") == "0");
++  CHECK(LegacyOwnership(open) == LegacyOwnership(closed));
++  CHECK(open.count("policy") == 0);
++  CHECK(open.count("max_owned_cells") == 0);
++  CHECK(open.count("owned_ratio") == 0);
++  CheckCellPolicy(closed, 5, 5.0 / 3);
++}
+ 
+-  const auto evaluate = [&](bool closed) {
+-    options.close_construction_collapse = closed;
+-    std::ostringstream captured;
+-    {
+-      struct RestoreOutput {
+-        std::streambuf* previous;
+-        ~RestoreOutput() { std::cout.rdbuf(previous); }
+-      } restore{std::cout.rdbuf(captured.rdbuf())};
+-      AdaptMetric(world, input, donors, geometry, {}, options);
+-    }
+-    return captured.str();
++TEST_CASE("Automatic ownership uses the strict owned-cell ratio with a closed queue", "[.][FP3D][mpi]") {
++  World world;
++  REQUIRE(world.size == 3);
++  const auto* setting = std::getenv("SU2_NATIVE_FP3_PROBE");
++  REQUIRE(setting != nullptr);
++  const std::string probe(setting);
++  REQUIRE((probe == "0" || probe == "3"));
++  std::cout << "FP3_D HIDDEN_PROBE rank=" << world.rank << " value=" << probe << '\n';
++  const auto fixture = OwnershipBoxes();
++  const PlanarReference geometry(fixture.facets);
++  struct Example {
++    unsigned first, second;
++    double ratio;
++    bool raw_pays, cells_pay;
+   };
+-
+-  const auto open_log = evaluate(false);
+-  const auto closed_log = evaluate(true);
+-  const auto read_decision = [&](const std::string& log, bool closed) {
+-    std::vector<std::string> decisions;
+-    std::istringstream lines(log);
+-    for (std::string line; std::getline(lines, line);)
+-      if (line.find("NATIVE3D_PHASE_OWNERSHIP ") == 0 && line.find(" quality=0 evaluate=1 ") != std::string::npos)
+-        decisions.push_back(line);
+-    INFO(log);
+-    REQUIRE(decisions.size() == 1);
+-    std::cout << decisions.front() << '\n';
+-    std::map<std::string, double> fields;
+-    std::istringstream words(decisions.front());
+-    for (std::string word; words >> word;) {
+-      const auto equal = word.find('=');
+-      if (equal != std::string::npos) fields.emplace(word.substr(0, equal), std::stod(word.substr(equal + 1)));
++  constexpr std::array<Example, 3> examples{{{9, 2, 2.25, false, true},
++                                             {7, 3, 1.75, true, false},
++                                             {8, 2, 2., true, false}}};
++  std::array<std::pair<std::string, std::string>, examples.size()> logs;
++  for (size_t i = 0; i < examples.size(); ++i) {
++    const auto& example = examples[i];
++    Owned input;
++    for (const auto& row : Rows(fixture.patch)) {
++      const auto id = row.cell.id;
++      const int owner = id < example.first ? 0 : id < example.first + example.second ? 1 : 2;
++      if (owner == world.rank) input.emplace(id, row);
+     }
+-    CHECK(fields.at("attempts") == 0);
+-    CHECK(OwnershipExchangePays(fields.at("predicted_imbalance"), fields.at("demand_sum"), fields.at("global_cells"),
+-                                fields.at("measured"), fields.at("attempts")));
+-    CHECK(fields.at("migrate") == (closed ? 0 : 1));
+-    fields.erase("migrate");
+-    return fields;
+-  };
+-
+-  const auto open = read_decision(open_log, false);
+-  const auto closed = read_decision(closed_log, true);
+-  CHECK(open == closed);
++    // Unit metric fits every edge without demanding a split. The stronger metric makes raw ownership pay.
++    const auto donors = Uniform(input, example.raw_pays ? Tensor{16, 0, 0, 16, 0, 16} : Tensor{});
++    logs[i].first = CaptureOwnership(world, input, donors, geometry, false);
++    logs[i].second = CaptureOwnership(world, input, donors, geometry, true);
++  }
++  for (size_t i = 0; i < examples.size(); ++i) {
++    const auto& example = examples[i];
++    CAPTURE(example.first);
++    const auto open = ConstructionOwnership(logs[i].first);
++    const auto closed = ConstructionOwnership(logs[i].second);
++    REQUIRE(open.at("global_cells") == "12");
++    REQUIRE(closed.at("global_cells") == "12");
++    REQUIRE(open.count("policy") == 0);
++    if (probe == "0") {
++      CheckCellPolicy(closed, example.first, example.ratio);
++    } else {
++      REQUIRE(closed.at("policy") == "fp3b");
++      REQUIRE(closed.count("max_owned_cells") == 0);
++      REQUIRE(closed.count("owned_ratio") == 0);
++    }
++    REQUIRE(RawOwnershipPays(open) == example.raw_pays);
++    REQUIRE(RawOwnershipPays(closed) == example.raw_pays);
++    CHECK(open.at("migrate") == (example.raw_pays ? "1" : "0"));
++    CHECK(closed.at("migrate") == (probe == "0" && example.cells_pay ? "1" : "0"));
++    CHECK(LegacyOwnership(open) == LegacyOwnership(closed));
++  }
+ }

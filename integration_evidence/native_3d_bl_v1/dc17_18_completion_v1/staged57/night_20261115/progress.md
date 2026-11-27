@@ -2556,3 +2556,11 @@ FP3-C S1 checkpoint a20d210587 pushed. The signed below-threshold disposition re
 FP3-C restored source build passed and reproduced both build676 binary hashes exactly. Published FP3_C_677.md and FP3_C_677.json with S1 Y=213 and source restoration commit 5e505b2a20. The FP3-B ordinary S reference stays in force. Full CORE, full OFF and S2 were unevaluated. All owned workloads are terminal. Final label “FP3-C: not adopted; the sweep gives 213 collapses”. Stop after commit and push.
 
 FP3-D Step 0 verified the archived order SHA256 57482de37bd4f8a13f7299a0dcef6e9a5b4ba30da3826dc007da2b66c9da8f15, the pushed base 186f9ab790 and restored f7447473e5 tracked sources. No owned workload was active. The whole-item R4 source check is FP3_D/reports/source_check.md. Next implement the closed-queue cell ratio and the lab-only value 3, then freeze build678.
+
+FP3-D Step 0 checkpoint cf8d9fdbd6 pushed. Build678 started with frozen production and fixture diffs. The implementation adds one integer MAX only on the closed cells path, restores FP3-B for probe 3 and preserves the raw path. Next verify both binaries and run the hidden two- and three-rank cases.
+
+FP3-D build678 linked both targets warning-free, with verified pinned sources. Build supervisor terminal. Binary receipt FP3_D/build678/build_status.json. Hidden legacy two-rank and separate three-rank probe-0/probe-3 processes started.
+
+FP3-D hidden measurement intake found one harness issue. The legacy two-rank child passed 44 assertions each, but Catch prefixed the runtime probe marker with an ANSI colour reset. The anchored parser missed it. That invocation is terminal and preserved in FP3_D/attempts/hidden_marker. Correct the parser under R3 and rerun the unsealed hidden aggregate on the unchanged binaries.
+
+FP3-D build678 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/hidden/case_summary.json.
