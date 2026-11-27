@@ -2576,3 +2576,7 @@ FP3-D build678 Step 1 G1-mpi2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_
 FP3-D build678 Step 1 G1-mpi4 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G1-mpi4/case_summary.json.
 
 FP3-D G1 passed all exact case and failed-assertion comparisons: 375 serial, 114 two-rank and 228 four-rank records. G2 runs under the same scoped supervisor.
+
+FP3-D build678 Step 1 G2 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/G2/case_summary.json.
+
+FP3-D G1 checkpoint 9df4ce0023 pushed. G2 passed the accepted P3 identity on all six ranks, including scheduling, census, integer rows and fixedstorage=4120. GQ is active.
