@@ -2,6 +2,18 @@
 
 ## Fast path stage 3
 
+### FP3-E mode S quality debt hand-off, build680
+
+| Run | Native event 1 / 2 s | Construction event 1 / 2 s | Quality event 1 / 2 s | Final proof event 1 / 2 s |
+| --- | ---: | ---: | ---: | ---: |
+| FP3-D S1 | 476.857 / 156.960 | 178.656 / 66.484 | 185.231 / 19.933 | 40.288 / 18.281 |
+| FP3-D S2 | 522.447 / 185.000 | 204.011 / 86.962 | 191.982 / 20.739 | 47.846 / 14.880 |
+| FP3-E S1 | 394.945 / 239.102 | 170.123 / 77.276 | 117.948 / 21.421 | 38.840 / 47.243 |
+| FP3-E S2 | 416.159 / 244.862 | 173.572 / 78.881 | 127.277 / 21.870 | 39.428 / 47.880 |
+| FP3-D quality step, probe 4 | 467.569 / 155.103 | 174.913 / 66.025 | 179.545 / 19.655 | 39.438 / 14.516 |
+
+The two FP3-E runs handed event 1 to construction at round 497. Both recorded no fire in event 2. Phase times are rank maxima. Host load was recorded and uncontrolled. The report includes the observation timestamps, quality-step round spans, and construction and proof costs. [FP3-E report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/reports/FP3_E_680.md)
+
 ### FP3-D mode S exchange on owned-cell ratio, build678
 
 | Run | Native event 1 / 2 s | Construction event 1 / 2 s | Quality event 1 / 2 s | Final proof event 1 / 2 s | Moved cells event 1 / 2 |

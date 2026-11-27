@@ -1,6 +1,8 @@
 # Work order status
 
-FP3-D build678 is accepted and closed. Its matching S trials supply the ordinary mode S reference. Use FP2-P3 for OFF, CORE, G2, GQ, G3 and saved-current. Its S entry supplies lab control 2. Use FP3-B S for lab control 3. Full CORE and OFF were unevaluated. [FP3-D report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/reports/FP3_D_678.md) · [Accepted S reference](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/accepted_reference.json)
+FP3-E build680 is accepted and closed. Its matching S runs supply the ordinary S reference. Use FP2-P3 for OFF, CORE, G2, GQ, G3 and saved-current, its S entry for lab control 2, FP3-B S for lab control 3, and FP3-D S for lab control 4. The full CORE and OFF workflows were unevaluated. [FP3-E report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/reports/FP3_E_680.md) · [Accepted S reference](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json)
+
+FP3-D build678 is accepted and closed. Its S pair supplies the reference for lab control 4. [FP3-D report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/reports/FP3_D_678.md) · [Accepted S reference](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/accepted_reference.json)
 
 FP3-C build677 measured 213 final-sweep collapses against the adoption threshold of 273. S1 and its isolated restart passed. The sweep was removed in 5e505b2a20. S2 was unevaluated. FP3-C closed on the FP3-B S reference. [FP3-C report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_C/reports/FP3_C_677.md)
 
