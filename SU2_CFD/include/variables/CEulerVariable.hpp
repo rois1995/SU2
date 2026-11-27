@@ -117,6 +117,8 @@ class CEulerVariable : public CFlowVariable {
   /*--- EDGE_FORM_P1_MIXED_DISS_MEAN (declared after the members above, their offsets are unchanged). ---*/
   su2activevector JSTPairNeighbor; /*!< \brief Neighbour weight sum_k pi_ik of each node, owned and halo. */
 
+  mutable su2activematrix EntropyBudgetEdge; /*!< \brief Masked JST operands, central and optional viscous flux. */
+
   /*!
    * \brief EDGE_FORM_P1_MIXED_DISS_MEAN: neighbour weight of each node on the pair graph (true edges and split pairs
    *        with their shares pi_ik), the JST neighbour count of the option; empty when the option is off.

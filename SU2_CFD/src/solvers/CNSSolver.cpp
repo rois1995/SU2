@@ -238,6 +238,7 @@ const P1ViscousEntropy::EntropyJacobianRow* CNSSolver::ViscousNodeJacobian(
 }
 
 void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver_container, const CConfig *config) {
+  auto* budget = GetEntropyBudget();
   SU2_ZONE_SCOPED
 
   namespace pve = P1ViscousEntropy;
@@ -324,7 +325,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
       if (nNodes != nDim + 1) {
         if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
-        MixedViscousResidual(geometry, element, cellBlocks, cached, pointStates, implicit, rowBound, moved, prandtlTurb,
+        MixedViscousResidual(geometry, iElem, element, cellBlocks, cached, pointStates, implicit, rowBound, moved, prandtlTurb,
                              gasConst, fullJacobian ? &law : nullptr, turbNodes, elementKine);
         continue;
       }
@@ -359,6 +360,12 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
       su2double residual[pve::MAXNODE][pve::MAXNVAR];
       simplex.Residual(residual);
+      // ENTROPY_BUDGET_DIAGNOSTIC: copy the Galerkin rows before adding other terms.
+      if (budget) {
+        unsigned long point[pve::MAXNODE];
+        for (unsigned a = 0; a < nNodes; ++a) point[a] = element->GetNode(a);
+        budget->TapViscousElement(iElem, 0, point, residual, 1.0, simplex);
+      }
 
       /*--- M3 and M4: the same KineDiffusion numbers as CTurbSSTSolver::P1KineDiffusion (same inputs), and D_t,T. ---*/
       su2double shareProd[pve::MAXNODE] = {0.0};
@@ -439,7 +446,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
   }
 }
 
-void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, P1CellBlocks::Cell cellBlocks,
+void CNSSolver::MixedViscousResidual(CGeometry *geometry, unsigned long iElem, const CPrimalGrid *element, P1CellBlocks::Cell cellBlocks,
                                      const P1Simplex::Geometry* cached, const P1ViscousEntropy::PointState* pointStates,
                                      bool implicit, bool rowBound, bool moved,
                                      const su2double& prandtlTurb, const su2double& gasConst,
@@ -477,7 +484,9 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
   };
 
   const unsigned short nNodes = nDim + 1;
-  for (const auto& entry : geometry->GetMixedSimplices(element->GetVTK_Type())) {
+  auto* budget = GetEntropyBudget();
+  const auto& simplices = geometry->GetMixedSimplices(element->GetVTK_Type());
+  for (const auto& entry : simplices) {
     const su2double* coord[pve::MAXNODE];
     pve::NodeState state[pve::MAXNODE];
     unsigned long point[pve::MAXNODE];
@@ -497,6 +506,9 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
 
     su2double residual[pve::MAXNODE][pve::MAXNVAR];
     simplex.Residual(residual);
+    // ENTROPY_BUDGET_DIAGNOSTIC: copy the Galerkin rows of this weighted sub-simplex.
+    if (budget)
+      budget->TapViscousElement(iElem, &entry - simplices.data(), point, residual, weight, simplex);
 
     /*--- M3 and M4 on the sub-simplex (SSTPATHS_PLAN.md 1): the KineDiffusion numbers of CTurbSSTSolver::P1KineDiffusion
      * (same inputs and weight), not at strong-k nodes (M5), and the shares omega D_t,s / ((d+1) theta_a) of P*. ---*/

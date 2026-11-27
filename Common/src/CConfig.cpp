@@ -1833,6 +1833,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("MOD_CENTROIDS", ModCentroids, false);
   /*!\brief BC_WEAK_P1 \n DESCRIPTION: Weak boundary fluxes of all markers with the weights 5:1 (2D) and 6:1:1 (3D), for the median dual and for EDGE_FORM_P1. \ingroup Config*/
   addBoolOption("BC_WEAK_P1", BC_Weak_P1, false);
+  /*!\brief ENTROPY_BUDGET_DIAGNOSTIC \n DESCRIPTION: Record the spatial entropy budget of steady, implicit JST. \ingroup Config \default false */
+  addBoolOption("ENTROPY_BUDGET_DIAGNOSTIC", Entropy_Budget_Diagnostic, false);
   /*!\brief EDGE_FORM_P1 \n DESCRIPTION: Variant C, central flux 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik on the modified dual, requires MOD_CENTROIDS \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
   /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. Always on for the centered schemes with EDGE_FORM_P1. \ingroup Config*/
@@ -6355,6 +6357,56 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
 
   CheckP1FluxOptions();
+  CheckEntropyBudgetOptions();
+}
+
+void CConfig::CheckEntropyBudgetOptions() const {
+  if (!Entropy_Budget_Diagnostic) return;
+
+  const auto require = [](bool condition, const char* message) {
+    if (!condition) SU2_MPI::Error(string("ENTROPY_BUDGET_DIAGNOSTIC: ") + message, CURRENT_FUNCTION);
+  };
+  require(std::is_same_v<su2double, passivedouble>, "requires a passive build.");
+  require((Kind_Solver == MAIN_SOLVER::EULER || Kind_Solver == MAIN_SOLVER::NAVIER_STOKES) &&
+              Kind_Regime == ENUM_REGIME::COMPRESSIBLE && !GetContinuous_Adjoint() && !GetDiscrete_Adjoint() &&
+              Kind_Turb_Model == TURB_MODEL::NONE,
+          "requires direct compressible Euler or laminar Navier-Stokes.");
+  require(Kind_FluidModel == IDEAL_GAS || Kind_FluidModel == STANDARD_AIR, "requires an ideal gas.");
+  require(!GetTime_Domain() && GetTime_Marching() == TIME_MARCHING::STEADY &&
+              Kind_TimeIntScheme_Flow == EULER_IMPLICIT && !NewtonKrylov,
+          "requires steady time marching and TIME_DISCRE_FLOW= EULER_IMPLICIT.");
+  require(!GetDynamic_Grid() && !GetGrid_Movement() && !GetDeform_Mesh() && !GetRotating_Frame() &&
+              !GetAxisymmetric() && !GetWind_Gust(),
+          "requires a static, non-axisymmetric mesh without wind gusts.");
+  require(nMGLevels == 0, "requires MGLEVEL= 0.");
+  require(nMarker_PerBound == 0, "periodic boundaries are outside the budget scope.");
+  require(!Multizone_Problem && nZone == 1, "requires a single zone.");
+  require(Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST,
+          "requires CONV_NUM_METHOD_FLOW= JST.");
+  require(!FluxCorrection && !Edge_Diss_Projected && !Grid_Entropy_P1 && !GCL_Exact_P1 && !Split_Edge_Flux &&
+              !Edge_Form_ES_Diss && !Edge_Form_ES_Blend && !Edge_Form_ES_Blend_CV &&
+              !Edge_Form_TeCNO && !Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO_Smooth && !Edge_Form_TeCNO_Adjoint &&
+              !Edge_Form_TeCNO_Adjoint_Limiter && !Edge_Form_TeCNO_A4_Jacobian && !Visc_P1_Entropy_Moved &&
+              !Turb_Visc_P1_Galerkin,
+          "requires the plain median-dual JST or the median-dual P1ES JST operator.");
+
+  const bool ns = Kind_Solver == MAIN_SOLVER::NAVIER_STOKES;
+  if (Edge_Form_P1) {
+    require(!ModCentroids || Mod_Centroid_Exponent == 0.0, "P1ES requires a median dual (MOD_CENTROIDS_EXPONENT= 0).");
+    require(Edge_Form_EC_Flux && BC_Weak_P1 && BC_Entropy_P1 && Edge_Form_P1_Diss_Aligned,
+            "P1ES requires EDGE_FORM_EC_FLUX, EDGE_FORM_P1_DISS_ALIGNED, BC_WEAK_P1 and BC_ENTROPY_P1.");
+    require(!Edge_Form_P1_Mixed || (Edge_Form_P1_Mixed_Diss && Edge_Form_P1_Mixed_Diss_Aligned),
+            "mixed P1ES requires aligned JST dissipation on the split pairs.");
+    require(Visc_P1_Entropy == ns && BC_Wall_Entropy_P1 == ns && JST_Weak_Wall_Diss == ns,
+            "laminar P1ES requires VISC_P1_ENTROPY, BC_WALL_ENTROPY_P1 and JST_WEAK_WALL_DISSIPATION.");
+  } else {
+    require(!ModCentroids && !Edge_Form_EC_Flux && !Edge_Form_P1_Diss_Aligned && !Edge_Form_P1_Mixed &&
+                !Edge_Form_P1_Mixed_Diss && !Edge_Form_P1_Mixed_Diss_Aligned && !Edge_Form_P1_Mixed_Diss_Mean &&
+                !BC_Weak_P1 && !BC_Entropy_P1 && !BC_Entropy_P1_Strong_Slip &&
+                !BC_Entropy_P1_Standard_FarField && !BC_Entropy_P1_FarField_Characteristic &&
+                !Visc_P1_Entropy && !BC_Wall_Entropy_P1 && !JST_Weak_Wall_Diss,
+            "median-dual JST requires the P1 flux, viscous and boundary options to be off.");
+  }
 }
 
 void CConfig::CheckP1FluxOptions() const {

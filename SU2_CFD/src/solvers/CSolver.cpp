@@ -27,6 +27,7 @@
 
 
 #include "../../include/solvers/CSolver.hpp"
+#include "../../include/solvers/CEntropyBudget.hpp"
 
 #include <limits>
 
@@ -4775,6 +4776,7 @@ using P1BoundaryClosure::EsFaceJacobian;
 
 void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                                    CNumerics **numerics_container, CConfig *config, unsigned short iMesh) {
+  auto* budget = GetEntropyBudget();
 
   /*--- BC_WEAK_P1: the weights (5,1)/12 and (6,1,1)/24 make the median edge sum exact for a linear flux.
    * The error of the P1 edge form at a boundary node does not depend on the dual, so it uses the same ones. ---*/
@@ -5006,6 +5008,17 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
     if (weakNoSlip) continue;
 
+    const auto faceResidual = [&](unsigned short count, const su2double* normal, const EsState* states,
+                                  const unsigned long* points, su2double (*residual)[ES_NVAR]) {
+      if (budget && KindBC == FAR_FIELD) {
+        P1BoundaryClosure::EsFaceSample samples[3];
+        EsFaceResidual(nDim, count, config->GetGamma(), &esData, normal, states, residual, samples);
+        budget->TapFarFace(points, count, samples);
+      } else {
+        EsFaceResidual(nDim, count, config->GetGamma(), &esData, normal, states, residual);
+      }
+    };
+
     SU2_OMP_SAFE_GLOBAL_ACCESS(
     vector<P1QuadFaceNormals>* quadNormals = nullptr;
     std::size_t iQuad = 0;
@@ -5078,7 +5091,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             }
             setFaceData(iMarker, 3, facePoints);
             su2double faceRes[3][ES_NVAR] = {{0.0}};
-            EsFaceResidual(nDim, 3, config->GetGamma(), &esData, subNormal[tri], faceStates, faceRes);
+            faceResidual(3, subNormal[tri], faceStates, facePoints, faceRes);
             for (unsigned short a = 0; a < 3; ++a)
               for (iVar = 0; iVar < nVar; ++iVar) triRes[a][iVar] = faceRes[a][iVar];
             if (exactJac) EsFaceJacobian(nDim, 3, config->GetGamma(), &esData, subNormal[tri], faceStates, triJac);
@@ -5204,7 +5217,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = V[iDim+1];
           }
           setFaceData(iMarker, nNodes, facePoints);
-          EsFaceResidual(nDim, nNodes, config->GetGamma(), &esData, element->getNormal(), faceStates, faceRes);
+          faceResidual(nNodes, element->getNormal(), faceStates, facePoints, faceRes);
           exactJac = implicit && ((KindBC == FAR_FIELD) || (KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW) ||
                                   (KindBC == EULER_WALL) || (KindBC == SYMMETRY_PLANE) ||
                                   (KindBC == CUSTOM_BOUNDARY));
@@ -5690,13 +5703,17 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
       }
 
     }
+    if (budget) budget->CloseMarker(iMarker, KindBC);
     )
 
   }
 
   if (bcWallEntropyP1) {
     const CVariable* turbNodesWall = (config->GetKind_Turb_Model() == TURB_MODEL::SST) ? solver_container[TURB_SOL]->GetNodes() : nullptr;
-    SU2_OMP_SAFE_GLOBAL_ACCESS(WeakNoSlipWallResidual(geometry, config, turbNodesWall);)
+    SU2_OMP_SAFE_GLOBAL_ACCESS(
+      if (budget) budget->BeginStage(CEntropyBudget::BC_WALL);
+      WeakNoSlipWallResidual(geometry, config, turbNodesWall);
+    )
   }
 
   AD::EndNoSharedReading();
@@ -5902,6 +5919,7 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
   namespace pve = P1ViscousEntropy;
 
   UpdateP1WallFaces(geometry, config);
+  auto* budget = GetEntropyBudget();
 
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
   const bool cache = std::is_same_v<su2double, passivedouble> && geometry->GetMGLevel() == MESH_0 &&
@@ -6050,6 +6068,13 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
                     sipg, penalty, res, implicit ? dwdu : nullptr, implicit ? jac : nullptr,
                     (movedShares && !subSimplex) ? record.share : nullptr,
                     (movingWall && !symmetry) ? wallVel : nullptr, nullptr, symmetry);
+    // ENTROPY_BUDGET_DIAGNOSTIC: copy the SIPG rows before adding inviscid pressure.
+    if (budget)
+      budget->TapWallElement(record.elem, record.simplex, point, res, record.weight,
+          pve::NoSlipWallProduction(simplex, nDim, faceNodes, faceNormal, record.isothermal, record.wallTheta,
+                                    record.nWallFaces, sipg, penalty, (movedShares && !subSimplex) ? record.share : nullptr,
+                                    (movingWall && !symmetry) ? wallVel : nullptr, symmetry),
+          simplex.GalerkinDissipation(), symmetry, record.isothermal);
     if (fullJacobian) {
       for (unsigned short c = 0; c < nNodes; ++c)
         pve::GatherTransportDerivatives(*base_nodes, point[c], gasConst, law, state[c]);

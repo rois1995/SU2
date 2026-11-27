@@ -69,6 +69,8 @@
 
 using namespace std;
 
+class CEntropyBudget;
+
 class CSolver {
 protected:
   enum : size_t {OMP_MIN_SIZE = 32}; /*!< \brief Chunk size for small loops. */
@@ -302,6 +304,8 @@ private:
   CVariable* base_nodes;  /*!< \brief Pointer to CVariable to allow polymorphic access to solver nodes. */
 
 public:
+
+  virtual CEntropyBudget* GetEntropyBudget() { return nullptr; }
 
   CSysVector<su2double> LinSysSol;    /*!< \brief vector to store iterative solution of implicit linear system. */
   CSysVector<su2double> LinSysRes;    /*!< \brief vector to store iterative residual of implicit linear system. */

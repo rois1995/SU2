@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <array>
 #include <cmath>
 #include <functional>
 #include <string>
@@ -319,8 +320,16 @@ inline bool EsBoundaryGhost(unsigned short nDim, unsigned short nNodes, const su
  * Tadmor entropy stable for any admissible ghost (Lemma B7). With data->characteristicDiss the far field uses
  * F*_q = F_IR(u~_q, g_q; N_q) - 1/2 |N_q| K(|lambda|) (w(g_q) - w~_q) (EsCharacteristicDissipation), also Tadmor
  * entropy stable, upwind (Roe) in the linear limit. ---*/
+struct EsFaceSample {
+  EsState sq, gq;
+  std::array<double, ES_NVAR> wq{}, flux{};
+  std::array<double, 3> normal{};
+  bool ghost = false;
+};
+
 inline void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2double& gamma, const EsBoundaryData* data,
-                    const su2double* faceNormal, const EsState* nodeState, su2double (*res)[ES_NVAR]) {
+                    const su2double* faceNormal, const EsState* nodeState, su2double (*res)[ES_NVAR],
+                    EsFaceSample* samples = nullptr) {
   const unsigned short nVar = nDim + 2;
 
   su2double phi[3][3] = {{0.0}}, weight = 0.0;
@@ -388,6 +397,19 @@ inline void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2
       EsConservative(nDim, gamma, sq, Uq);
       EsConservative(nDim, gamma, gq, Ug);
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) Fstar[iVar] -= 0.5 * lam * weight * area * (Ug[iVar] - Uq[iVar]);
+    }
+
+    // ENTROPY_BUDGET_DIAGNOSTIC: copy the quadrature operands of thm:closure.
+    if (samples && ghost) {
+      auto& sample = samples[q];
+      sample.ghost = true;
+      sample.sq = sq;
+      sample.gq = gq;
+      for (unsigned d = 0; d < nDim; ++d) sample.normal[d] = SU2_TYPE::GetValue(pointNormal[d]);
+      for (unsigned k = 0; k < nVar; ++k) {
+        sample.wq[k] = SU2_TYPE::GetValue(wq[k]);
+        sample.flux[k] = SU2_TYPE::GetValue(Fstar[k]);
+      }
     }
 
     for (unsigned short i = 0; i < nNodes; ++i)

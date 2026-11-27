@@ -645,6 +645,15 @@ FORCEINLINE void updateLinearSystem(Int iEdge, Int iPoint, Int jPoint, bool impl
   }
 }
 
+/*--- A SIMD tail can repeat edge indices, so only live lanes may write a diagnostic row. ---*/
+template <class Int, class Double, size_t nVar>
+FORCEINLINE void storeEdgeRow(const Int& edge, const Double& mask, unsigned col,
+                              const Vector<Double, nVar>& values, su2activematrix& target) {
+  for (size_t k = 0; k < Double::Size; ++k)
+    if (mask[k] != 0.0)
+      for (size_t v = 0; v < nVar; ++v) target(edge[k], col + v) = values(v)[k];
+}
+
 /*!
  * \brief Store the (scalar) mass flux of an edge, e.g. for "bounded scalar" transport equations.
  * \note No-op if "target" is null. As with CEdge's Nodes/Normal, edges within a SIMD group are

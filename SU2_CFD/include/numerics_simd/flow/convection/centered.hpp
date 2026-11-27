@@ -70,6 +70,7 @@ protected:
   const bool esBlend;
   const bool sweptFlux;
   const bool gridEntropy;  /*!< \brief GRID_ENTROPY_P1, ALE terms of the entropy methods (P1_ALE.md, section 10). */
+  const bool entropyBudget;
   const bool weakWallDiss; /*!< \brief JST_WEAK_WALL_DISSIPATION, eps4 = 0 on edges that leave a weak no-slip wall. */
   const su2double stretchParam = 0.3;
   const CVariable* const tkeVars; /*!< \brief SST turbulence variables (k is part of the total energy), else nullptr. */
@@ -97,6 +98,7 @@ protected:
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
     sweptFlux((edgeForm || projDiss) && config.GetGCL_Exact_P1()),
     gridEntropy((edgeForm || projDiss) && config.GetDynamic_Grid() && config.GetGrid_Entropy_P1()),
+    entropyBudget(iMesh == MESH_0 && config.GetEntropy_Budget_Diagnostic()),
     weakWallDiss(iMesh == MESH_0 && config.GetJST_Weak_Wall_Diss()),
     tkeVars(config.GetKind_Turb_Model() == TURB_MODEL::SST ? findTurbVars(args...) : nullptr),
     matchedK(iMesh == MESH_0 && config.GetTke_Matched_P1() && (tkeVars != nullptr)),
@@ -450,8 +452,11 @@ public:
 
     const auto derived = static_cast<const Derived*>(this);
 
+    // ENTROPY_BUDGET_DIAGNOSTIC: copy F_c and the JST operands used in the residual.
+    auto* taps = entropyBudget ? &solution.EntropyBudgetEdge : nullptr;
+    if (taps) storeEdgeRow(iEdge, updateMask, 3, flux, *taps);
     derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, projVel, avgV, V,
-                          diffU, iPoint, jPoint, geometry, solution, rUnitNormal);
+                          diffU, iPoint, jPoint, geometry, solution, rUnitNormal, taps, iEdge, updateMask);
 
     /*--- Matched k: mdot k_up with the final mass flux (stored below for the SST k convection), and the Jacobian
      * L(k_up) Jhat T(k) of the hat Jacobian (D1), before the viscous terms whose Jacobian is already w.r.t. U. ---*/
@@ -473,8 +478,11 @@ public:
 
     /*--- Add the contributions from the base class (static decorator). ---*/
 
+    VectorDbl<nVar> viscousOperand;
+    auto* viscousTap = Base::nPrimVar != 0 && taps && !edgeForm ? &viscousOperand : nullptr;
     Base::viscousTerms(iEdge, iPoint, jPoint, avgV, V, solution_, geometry,
-                       config, area, unitNormal, implicit, flux, jac_i, jac_j);
+                       config, area, unitNormal, implicit, flux, jac_i, jac_j, viscousTap);
+    if (viscousTap) storeEdgeRow(iEdge, updateMask, 3 + nVar, viscousOperand, *taps);
 
     /*--- Stop preaccumulation. ---*/
 
@@ -544,6 +552,9 @@ public:
                                 const CGeometry& geometry,
                                 const CEulerVariable& solution,
                                 const VectorDbl<nDim>&,
+                                su2activematrix* tap,
+                                const Int& iEdge,
+                                const Double& updateMask,
                                 Ts&...) const {
 
     Double lambda = abs(projVel) + avgV.speedSound()*area;
@@ -591,6 +602,13 @@ public:
 
     for (size_t iVar = 0; iVar < nVar; ++iVar) {
       flux(iVar) += (eps2*diffU(iVar) - eps4*(lapl_i(iVar)-lapl_j(iVar))) * lambda;
+    }
+    if (tap) {
+      VectorDbl<3> operands;
+      operands(0) = eps2;
+      operands(1) = eps4;
+      operands(2) = lambda;
+      storeEdgeRow(iEdge, updateMask, 0, operands, *tap);
     }
 
     if (implicit) {

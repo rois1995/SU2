@@ -29,6 +29,7 @@
 
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../include/solvers/CSolver.hpp"
+#include "../../include/solvers/CEntropyBudget.hpp"
 
 CFlowCompOutput::CFlowCompOutput(const CConfig *config, unsigned short nDim) : CFlowOutput(config, nDim, false) {
 
@@ -181,6 +182,15 @@ void CFlowCompOutput::SetHistoryOutputFields(CConfig *config){
     AddHistoryOutput("POSITIVE_FAILED_POINTS", "Pos_Failed", ScreenOutputFormat::INTEGER, "POSITIVE_UPDATE", "Nodes whose accepted state is still inadmissible (0 by construction).");
     /// END_GROUP
   }
+  if (config->GetEntropy_Budget_Diagnostic()) {
+    for (unsigned field = 0; field < CEntropyBudget::HISTORY_COUNT; ++field) {
+      const auto* name = CEntropyBudget::HistoryNames[field];
+      const bool count = (field >= CEntropyBudget::NPOS_EPS2 && field <= CEntropyBudget::NBAD_WALL_RO) ||
+                         (field >= CEntropyBudget::N_RATIO && field <= CEntropyBudget::NBAD_FAR_GHOST);
+      AddHistoryOutput(name, name, count ? ScreenOutputFormat::INTEGER : ScreenOutputFormat::SCIENTIFIC,
+                       "ENTROPY_BUDGET", "Spatial JST entropy budget");
+    }
+  }
   AddHistoryOutputFieldsScalarLinsol(config);
 
   AddHistoryOutput("MIN_DELTA_TIME", "Min DT", ScreenOutputFormat::SCIENTIFIC, "CFL_NUMBER", "Current minimum local time step");
@@ -271,6 +281,10 @@ void CFlowCompOutput::SetVolumeOutputFields(CConfig *config){
     AddVolumeOutput("FLUIDMODEL_NEWTONITER", "nIter_Newton", "PRIMITIVE", "Number of iterations evaluated by the Newton solver");
     AddVolumeOutput("ENTROPY", "Entropy", "PRIMITIVE", "Fluid entropy value");
   }
+
+  if (config->GetEntropy_Budget_Diagnostic())
+    for (auto field : CEntropyBudget::VolumeNames)
+      AddVolumeOutput(field, field, "ENTROPY_BUDGET", "Spatial entropy production per unit volume");
 
   if (config->GetViscous()) {
     AddVolumeOutput("LAMINAR_VISCOSITY", "Laminar_Viscosity", "PRIMITIVE", "Laminar viscosity");
@@ -445,6 +459,11 @@ void CFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolv
     SetVolumeOutputValue("ROE_DISSIPATION", iPoint, Node_Flow->GetRoe_Dissipation(iPoint));
   }
 
+  if (config->GetEntropy_Budget_Diagnostic())
+    if (const auto* budget = solver[FLOW_SOL]->GetEntropyBudget())
+      for (unsigned field = 0; field < CEntropyBudget::VOLUME_COUNT; ++field)
+        SetVolumeOutputValue(CEntropyBudget::VolumeNames[field], iPoint, budget->PointField(iPoint, field));
+
   LoadVolumeDataScalar(config, solver, geometry, iPoint);
 
   LoadCommonFVMOutputs(config, geometry, iPoint);
@@ -540,6 +559,11 @@ void CFlowCompOutput::LoadHistoryData(CConfig *config, CGeometry *geometry, CSol
     SetHistoryOutputValue("CHANGE_IN_AOA", config->GetAoA()-flow_solver->GetPrevious_AoA());
     SetHistoryOutputValue("CL_DRIVER_COMMAND", flow_solver->GetAoA_inc());
   }
+
+  if (config->GetEntropy_Budget_Diagnostic())
+    if (const auto* budget = flow_solver->GetEntropyBudget())
+      for (unsigned field = 0; field < CEntropyBudget::HISTORY_COUNT; ++field)
+        SetHistoryOutputValue(CEntropyBudget::HistoryNames[field], budget->History(field));
 
   LoadHistoryDataScalar(config, solver);
 

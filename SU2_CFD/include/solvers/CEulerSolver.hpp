@@ -58,6 +58,7 @@ protected:
   vector<SplitPairData> P1SplitPairs;
   unsigned long P1SplitPairsVersion = 0;
   vector<P1PairJST::Node> P1SplitJSTNodes;
+  std::unique_ptr<CEntropyBudget> EntropyBudget;
 
   /*! \brief Cache the four block refs, pi^0.3 and projected normal in split-pair order (bitwise target). */
   void PrepareP1SplitPairs(const CGeometry& geometry, bool meanDiss, bool alignedDiss);
@@ -542,6 +543,8 @@ public:
    * \brief Destructor of the class.
    */
   ~CEulerSolver(void) override;
+
+  CEntropyBudget* GetEntropyBudget() override { return EntropyBudget.get(); }
 
   /*!
    * \brief Compute the pressure at the infinity.

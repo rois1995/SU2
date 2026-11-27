@@ -178,7 +178,7 @@ private:
    * \param[in] elementKine - SST_ENERGY_CONSISTENT with VISC_P1_ENTROPY: the weighted sub-simplex k diffusion of the energy
    *            row (M3) and the shares of P* (M4), as CTurbSSTSolver::P1KineDiffusion (SSTPATHS_PLAN.md 1).
    */
-  void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, P1CellBlocks::Cell cellBlocks,
+  void MixedViscousResidual(CGeometry *geometry, unsigned long iElem, const CPrimalGrid *element, P1CellBlocks::Cell cellBlocks,
                             const P1Simplex::Geometry* cached, const P1ViscousEntropy::PointState* pointStates,
                             bool implicit, bool rowBound, bool moved,
                             const su2double& prandtlTurb, const su2double& gasConst,

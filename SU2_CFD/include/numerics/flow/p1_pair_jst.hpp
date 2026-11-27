@@ -199,13 +199,16 @@ inline void AddSurrogateJacobian(unsigned short nDim, su2double gamma, const su2
 template <class Matrix>
 inline void AddPairDissipation(unsigned short nDim, const Params& par, const Node& Ni, const Node& Nk,
                                const su2double* normal, su2double* flux, bool implicit, Matrix& jac_i, Matrix& jac_k,
-                               su2double share = 1.0, const su2double* shareFactor = nullptr) {
+                               su2double share = 1.0, const su2double* shareFactor = nullptr, su2double* chiOut = nullptr) {
   const unsigned short nVar = nDim + 2;
   /*--- Only an edge projection can vanish (n_ik perpendicular to e_ik): no term, and the stretching factor
    * (Lambda/lambda)^0.3 is not defined at lambda = 0. EDGE_FORM_P1_MIXED_DISS_MEAN scales the corrected radius by
    * pi^0.3 (ShareFactor); the nodal data of Ni and Nk are already the pi-weighted ones. ---*/
   const su2double radius = SpectralRadius(nDim, Ni, Nk, normal);
-  if (radius == 0.0) return;
+  if (radius == 0.0) {
+    if (chiOut) chiOut[0] = chiOut[1] = 0.0;
+    return;
+  }
   su2double lambda = CorrectedRadius(radius, Ni, Nk);
   if (share != 1.0) {
     const su2double factor = shareFactor ? *shareFactor : ShareFactor(share);
@@ -215,6 +218,11 @@ inline void AddPairDissipation(unsigned short nDim, const Params& par, const Nod
 
   for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
     flux[iVar] += (eps.eps2 * (Ni.diss[iVar] - Nk.diss[iVar]) - eps.eps4 * (Ni.lapl[iVar] - Nk.lapl[iVar])) * lambda;
+  }
+  // ENTROPY_BUDGET_DIAGNOSTIC: chi_2 and chi_4 from the masked residual coefficients.
+  if (chiOut) {
+    chiOut[0] = eps.eps2 * lambda;
+    chiOut[1] = eps.eps4 * lambda;
   }
   if (!implicit) return;
 

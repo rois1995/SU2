@@ -111,6 +111,7 @@ private:
   bool Edge_Form_P1_Mixed_Diss_Aligned; /*!< \brief EDGE_FORM_P1_MIXED_DISS_ALIGNED: the pair dissipation on the edge projection of n_ik. */
   bool Edge_Form_P1_Mixed_Diss_Mean; /*!< \brief EDGE_FORM_P1_MIXED_DISS_MEAN: the JST of the true edges and split pairs as the mean over the splits. */
   bool Edge_Form_P1_Diss_Aligned; /*!< \brief EDGE_FORM_P1_DISS_ALIGNED: the true-edge JST on the edge projection of the form normal n_ik. */
+  bool Entropy_Budget_Diagnostic; /*!< \brief Record the steady JST entropy budget. */
   bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
@@ -1414,6 +1415,7 @@ private:
    * \brief Refuse the combinations that the P1 flux options do not support.
    */
   void CheckP1FluxOptions() const;
+  void CheckEntropyBudgetOptions() const;
 
   /*!
    * \brief Set the default values of config options not set in the config file using another config object.
@@ -10012,6 +10014,8 @@ public:
    * \return YES if the passed values is the integrated heat flux over the marker's surface.
    */
   bool GetIntegrated_HeatFlux() const { return Integrated_HeatFlux; }
+
+  bool GetEntropy_Budget_Diagnostic() const { return Entropy_Budget_Diagnostic; }
 
   bool GetFluxCorrection() const { return FluxCorrection; }
 

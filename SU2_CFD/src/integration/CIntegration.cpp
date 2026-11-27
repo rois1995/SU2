@@ -26,6 +26,7 @@
  */
 
 #include "../../include/integration/CIntegration.hpp"
+#include "../../include/solvers/CEntropyBudget.hpp"
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 
 
@@ -53,6 +54,17 @@ void CIntegration::Space_Integration(CGeometry *geometry,
 
   if ((iMesh == MESH_0) && (MainSolver == FLOW_SOL) && config->GetGCL_Exact_P1()) geometry->UpdateSweptFluxP1(config);
 
+  auto* flow = solver_container[MainSolver];
+  auto* budget = MainSolver == FLOW_SOL && iMesh == MESH_0 ? flow->GetEntropyBudget() : nullptr;
+  using Budget = CEntropyBudget;
+  const auto stage = [&](Budget::Term term) {
+    if (budget) { SU2_OMP_SAFE_GLOBAL_ACCESS(budget->BeginStage(term);) }
+  };
+  const auto markerDone = [&](bool projection, bool strongWall) {
+    if (budget) { SU2_OMP_SAFE_GLOBAL_ACCESS(budget->CloseMarker(iMarker, KindBC, projection, strongWall);) }
+  };
+  if (budget) { SU2_OMP_SAFE_GLOBAL_ACCESS(budget->BeginIteration();) }
+
   /*--- Compute inviscid residuals ---*/
 
   switch (config->GetKind_ConvNumScheme()) {
@@ -64,9 +76,11 @@ void CIntegration::Space_Integration(CGeometry *geometry,
       break;
   }
 
+  stage(Budget::VISC);
   /*--- Compute viscous residuals ---*/
   solver_container[MainSolver]->Viscous_Residual(geometry, solver_container, numerics, config, iMesh, iRKStep);
 
+  stage(Budget::SOURCE);
   /*--- Compute source term residuals ---*/
   solver_container[MainSolver]->Source_Residual(geometry, solver_container, numerics, config, iMesh);
 
@@ -86,6 +100,7 @@ void CIntegration::Space_Integration(CGeometry *geometry,
 
   /*--- Boundary conditions that depend on other boundaries (they require MPI sincronization)---*/
 
+  stage(Budget::BC_OTHER);
   solver_container[MainSolver]->BC_Fluid_Interface(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config);
 
   /*--- Compute Fourier Transformations for markers where NRBC_BOUNDARY is applied.
@@ -98,8 +113,10 @@ void CIntegration::Space_Integration(CGeometry *geometry,
 
   /*--- Weak boundary conditions ---*/
 
+  stage(Budget::BC_OTHER);
   if (MainSolver == FLOW_SOL && (config->GetFluxCorrection() || config->GetBC_Weak_P1())) {
     solver_container[MainSolver]->Weak_BC_Residual(geometry, solver_container, numerics, config, iMesh);
+    stage(Budget::PROJ);
     solver_container[MainSolver]->Strong_BC(geometry, solver_container, config, iMesh);
   }
   else {
@@ -149,15 +166,18 @@ void CIntegration::Space_Integration(CGeometry *geometry,
           solver_container[MainSolver]->BC_Far_Field(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
           break;
       }
+      if (budget && Budget::IsNodalMarker(KindBC, false)) markerDone(false, false);
     }
 
     /*--- Modification of the system on the whole domain, like for a strong BC. ---*/
     solver_container[MainSolver]->Impose_Fixed_Values(geometry, config);
+    stage(Budget::BC_OTHER);
 
     /*--- Strong boundary conditions (Navier-Stokes and Dirichlet type BCs) ---*/
 
-    for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++)
-      switch (config->GetMarker_All_KindBC(iMarker)) {
+    for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
+      KindBC = config->GetMarker_All_KindBC(iMarker);
+      switch (KindBC) {
         case ISOTHERMAL:
           solver_container[MainSolver]->BC_Isothermal_Wall(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
           break;
@@ -186,6 +206,9 @@ void CIntegration::Space_Integration(CGeometry *geometry,
           solver_container[MainSolver]->BC_Smoluchowski_Maxwell(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
           break;
       }
+      if (budget && Budget::IsNodalMarker(KindBC, true))
+        markerDone(false, Budget::TermOfMarker(KindBC) == Budget::BC_WALL && KindBC != SMOLUCHOWSKI_MAXWELL);
+    }
   }
 
   /*--- Complete residuals for periodic boundary conditions. We loop over
@@ -194,15 +217,24 @@ void CIntegration::Space_Integration(CGeometry *geometry,
    accumulated correctly during the communications. ---*/
 
   if (config->GetnMarker_Periodic() > 0) {
+    stage(Budget::BC_OTHER);
     solver_container[MainSolver]->BC_Periodic(geometry, solver_container, conv_bound_numerics, config);
   }
 
 
   for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
-    if (config->GetMarker_All_KindBC(iMarker)==SYMMETRY_PLANE)
+    KindBC = config->GetMarker_All_KindBC(iMarker);
+    if (KindBC == SYMMETRY_PLANE)
         solver_container[MainSolver]->BC_Sym_Plane(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
-    else if (config->GetMarker_All_KindBC(iMarker)==EULER_WALL)
+    else if (KindBC == EULER_WALL)
         solver_container[MainSolver]->BC_Euler_Wall(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
+    else
+      continue;
+    markerDone(true, false);
+  }
+  if (budget) { SU2_OMP_SAFE_GLOBAL_ACCESS(budget->Finalize();) }
+  if (MainSolver == FLOW_SOL && Budget::HashEnabled(*config, iMesh)) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(Budget::PrintHash(Budget::HashPhase::Spatial, *config, *flow);)
   }
   //AD::ResumePreaccumulation(pausePreacc);
 

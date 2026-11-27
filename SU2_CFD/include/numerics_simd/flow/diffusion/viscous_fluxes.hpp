@@ -143,7 +143,8 @@ protected:
                                 bool implicit,
                                 VectorDbl<nVar>& flux,
                                 MatrixDbl<nVar>& jac_i,
-                                MatrixDbl<nVar>& jac_j) const {
+                                MatrixDbl<nVar>& jac_j,
+                                VectorDbl<nVar>* entropyTap = nullptr) const {
 
     static_assert(PrimVarType::nVar <= Derived::nPrimVar);
 
@@ -209,6 +210,9 @@ protected:
       viscFlux(iVar) *= area;
       flux(iVar) -= viscFlux(iVar);
     }
+    // ENTROPY_BUDGET_DIAGNOSTIC: copy the applied viscous operand.
+    if (entropyTap)
+      for (size_t iVar = 0; iVar < nVar; ++iVar) (*entropyTap)(iVar) = -viscFlux(iVar);
 
     /*--- SST_ENERGY_CONSISTENT: the energy flux gets the k diffusion of the SST k row of this edge, the same number
      * -D_ij g_ij (sst_energy.hpp): edge normal, nodal mu and mu_t, F1 blending, corrected average gradient of k. ---*/

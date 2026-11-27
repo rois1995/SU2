@@ -31,6 +31,7 @@
 #include "../limiters/computeLimiters.hpp"
 #include "../numerics_simd/CNumericsSIMD.hpp"
 #include "CFVMFlowSolverBase.hpp"
+#include "CEntropyBudget.hpp"
 #include <memory>
 #include "../numerics/flow/p1_strong_slip.hpp"
 
@@ -803,6 +804,9 @@ void CFVMFlowSolverBase<V, R>::ImplicitEuler_Iteration(CGeometry *geometry, CSol
   SU2_ZONE_SCOPED
 
   PrepareImplicitIteration(geometry, solver_container, config);
+  using Budget = CEntropyBudget;
+  const bool hash = R == ENUM_REGIME::COMPRESSIBLE && Budget::HashEnabled(*config, geometry->GetMGLevel());
+  if (hash) { SU2_OMP_SAFE_GLOBAL_ACCESS(Budget::PrintHash(Budget::HashPhase::ImplicitRhs, *config, *this);) }
 
   /*--- Solve or smooth the linear system. ---*/
 
@@ -822,6 +826,7 @@ void CFVMFlowSolverBase<V, R>::ImplicitEuler_Iteration(CGeometry *geometry, CSol
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 
   CompleteImplicitIteration(geometry, solver_container, config);
+  if (hash) { SU2_OMP_SAFE_GLOBAL_ACCESS(Budget::PrintHash(Budget::HashPhase::Solution, *config, *this);) }
 }
 
 template <class V, ENUM_REGIME R>

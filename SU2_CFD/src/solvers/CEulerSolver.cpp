@@ -27,6 +27,7 @@
 
 #include <cstring>
 #include "../../include/solvers/CEulerSolver.hpp"
+#include "../../include/solvers/CEntropyBudget.hpp"
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
@@ -338,6 +339,11 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
   SetBaseClassPointerToNodes();
 
   if (iMesh == MESH_0) {
+    if (config->GetEntropy_Budget_Diagnostic()) {
+      EntropyBudget = std::make_unique<CEntropyBudget>(*geometry, *config, *nodes, LinSysRes);
+      const bool edgeViscous = navier_stokes && !config->GetVisc_P1_Entropy();
+      nodes->EntropyBudgetEdge.resize(geometry->GetnEdge(), 3 + nVar * (edgeViscous ? 2 : 1)) = su2double(0.0);
+    }
     nodes->NonPhysicalEdgeCounter.resize(geometry->GetnEdge()) = 0;
     if (config->GetEdge_Form_P1() && config->GetEdge_Form_ES_Blend()) {
       nodes->EdgeBlendLambda.resize(geometry->GetnEdge()) = su2double(0.0);
@@ -2212,6 +2218,7 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
       if (jst.weakWall) N.wall = nodes->GetJSTWallNode()(iPoint);
       return N;
     };
+    auto* budget = GetEntropyBudget();
     BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
       if (useCache) {
         PrepareP1SplitPairs(*geometry, meanDiss, alignedDiss);
@@ -2230,6 +2237,9 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
           addFlux(iPoint, splitNormal[iSplit], 0.5, flux);
           addFlux(kPoint, splitNormal[iSplit], 0.5, flux);
         }
+        // ENTROPY_BUDGET_DIAGNOSTIC: copy F_c before adding the pair dissipation.
+        su2double central[MAXNVAR], chi[2] = {};
+        if (budget) std::copy_n(flux, nVar, central);
         su2double dissJac_i[P1PairJST::MAX_NVAR][P1PairJST::MAX_NVAR] = {};
         su2double dissJac_k[P1PairJST::MAX_NVAR][P1PairJST::MAX_NVAR] = {};
         if (pairDiss) {
@@ -2242,11 +2252,12 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
           const su2double share = meanDiss ? geometry->edges->GetSplitShare()(iSplit) : su2double(1.0);
           if (cachedPair)
             P1PairJST::AddPairDissipation(nDim, jst, P1SplitJSTNodes[iPoint], P1SplitJSTNodes[kPoint], dissNormal,
-                                         flux, implicit, dissJac_i, dissJac_k, share, &cachedPair->shareFactor);
+                                         flux, implicit, dissJac_i, dissJac_k, share, &cachedPair->shareFactor, budget ? chi : nullptr);
           else
             P1PairJST::AddPairDissipation(nDim, jst, jstNode(iPoint), jstNode(kPoint), dissNormal, flux, implicit,
-                                         dissJac_i, dissJac_k, share);
+                                         dissJac_i, dissJac_k, share, nullptr, budget ? chi : nullptr);
         }
+        if (budget) budget->TapPair(iSplit, central, chi);
         const su2double massFlux = flux[0];
         if (turbMatched) addPairKine(iPoint, kPoint, flux);
         if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, flux);
@@ -6633,6 +6644,7 @@ void CEulerSolver::Evaluate_ObjFunc(const CConfig *config, CSolver**) {
 void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container, CNumerics *conv_numerics,
                                 CNumerics *visc_numerics, CConfig *config, unsigned short val_marker) {
   SU2_ZONE_SCOPED
+  auto* budget = GetEntropyBudget();
 
   unsigned short iDim;
   unsigned long iVertex, iPoint, Point_Normal;
@@ -7061,6 +7073,8 @@ void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container,
 
         auto residual = visc_numerics->ComputeResidual(config);
         LinSysRes.SubtractBlock(iPoint, residual);
+        // ENTROPY_BUDGET_DIAGNOSTIC: copy the physical far-field viscous flux.
+        if (budget) budget->TapFarViscous(val_marker, iVertex, residual.residual);
 
         /*--- Viscous Jacobian contribution for implicit integration ---*/
 
