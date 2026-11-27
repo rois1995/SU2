@@ -2758,3 +2758,7 @@ CL1 final. All 24 per-event gates and the terminal memory gate passed. Native ma
 DEF1 intake after pushed CL1 efbab5351e, with no active owned or reviewer unit. Signed order and measure SHA256 verified and archived. One pre-edit R4 check completed in DEF1/reports/source_check.md, including norm/gradation callers, fallback constants, inheritance and MMG setter placement. Next production and legacy-fixture pinning, then frozen normal and reverse-AD builds.
 
 DEF1 completed section 2 implementation and froze the production and regression-fixture sources for build681 after the R4 check. Found no active reviewer or owned process. The reference configurations stay sealed. TestCases pins preserve previous effective options (including common.cfg composition) and existing fixture assertion locations. Next normal build, reverse-AD build, labs and standing gates.
+
+DEF1 candidate 782387b131 pushed. Normal build681 started at nice 19 with four workers and a passed host preflight. Standing adapter self-checks passed without launching a solver. Compile sources remain frozen.
+
+DEF1 completed no-launch self-checks for the legacy-pin scoped and S/restart adapters, synthetic final-report sealing, and the CL2/MMG2 parsers. The capability scripts preserve the independently sealed CL1 inputs and neither starts before the required preceding seals. Normal build681 still running on the frozen production and fixture sources.
