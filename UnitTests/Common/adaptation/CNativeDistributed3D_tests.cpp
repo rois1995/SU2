@@ -10,7 +10,6 @@
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRegionField3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
-#include "../../../Common/src/adaptation/native_engine3d/EngineQualityStall.hpp"
 #include "../../../Common/include/adaptation/CNativeFailureCapture3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
@@ -5968,6 +5967,8 @@ TEST_CASE("Automatic ownership uses the strict owned-cell ratio with a closed qu
     CHECK(LegacyOwnership(open) == LegacyOwnership(closed));
   }
 }
+
+#include "../../../Common/src/adaptation/native_engine3d/EngineQualityStall.hpp"
 
 namespace {
 struct CaptureStallOutput {
