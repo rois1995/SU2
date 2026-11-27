@@ -2,6 +2,18 @@
 
 ## Fast path stage 3
 
+### FP3-D mode S exchange on owned-cell ratio, build678
+
+| Run | Native event 1 / 2 s | Construction event 1 / 2 s | Quality event 1 / 2 s | Final proof event 1 / 2 s | Moved cells event 1 / 2 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| P3 S2 | 616.416 / 330.623 | 334.489 / 228.094 | 170.660 / 43.239 | 39.126 / 16.258 | 210371 / 0 |
+| B S2 | 565.165 / 325.347 | 253.108 / 124.816 | 133.961 / 36.232 | 51.468 / 49.342 | 216475 / 165441 |
+| S1 | 476.857 / 156.960 | 178.656 / 66.484 | 185.231 / 19.933 | 40.288 / 18.281 | 202212 / 0 |
+| S2 | 522.447 / 185.000 | 204.011 / 86.962 | 191.982 / 20.739 | 47.846 / 14.880 | 202212 / 0 |
+| FP3-B rule, probe 3 | 524.307 / 317.033 | 243.348 / 123.663 | 145.315 / 37.076 | 46.164 / 51.208 | 216475 / 165441 |
+
+Phase times are exclusive rank maxima. Each ownership move is counted once. The report records construction census deltas, final-proof work and memo hits, and the load samples around each event. Host load was uncontrolled. [FP3-D report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/reports/FP3_D_678.md)
+
 ### FP3-C final core surface-collapse sweep, build677
 
 | Run | Native event 1 / 2 s | Quality phase event 1 / 2 s | Final proof event 1 / 2 s | Surface faces event 1 / 2 |

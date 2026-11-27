@@ -77,10 +77,11 @@ def ownership_tables(measurements):
             for packet in data['worker_stages'] for row in packet['ownership_rows']]
     fields = ('event', 'stage', 'rank', 'site', 'policy', 'owned_ratio', 'predicted_imbalance', 'predicted_gain',
               'attempts', 'migrate', 'committed', 'moved_cells', 'total_seconds', 'bytes_sent',
-              'construction_entry_to_evaluation_seconds')
+              'local_cells_before', 'cells', 'construction_entry_to_evaluation_seconds')
     by_rank = table('Ownership rows by worker and rank',
                     ('Run', 'Event', 'Stage', 'Rank', 'Site', 'Policy', 'Owned ratio', 'Raw imbalance', 'Raw gain',
-                     'Attempts', 'Migrate', 'Committed', 'Moved cells', 'Seconds', 'Bytes sent', 'Entry to eval s'),
+                     'Attempts', 'Migrate', 'Committed', 'Moved cells', 'Seconds', 'Bytes sent',
+                     'Rank cells before', 'Rank cells after', 'Entry to eval s'),
                     [(name, *(row.get(key) for key in fields)) for name, row in rows])
     commits = table('Completed exchanges counted once',
                     ('Run', 'Event', 'Stage', 'Site', 'Policy', 'Moved cells', 'Maximum s', 'Sum bytes sent'),
