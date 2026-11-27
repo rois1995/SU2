@@ -2592,3 +2592,11 @@ FP3-D GQ checkpoint 980eb6eca2 pushed. Shared first-collapse matched 480 / 473 /
 FP3-D build678 Step 1 exact-c492 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/exact-c492/case_summary.json.
 
 FP3-D shared first-collapse checkpoint 78f8fb241b pushed. Exact C492 passed on attempt 1, exit 0 with terminal controller and no watchdog retry. Controller elapsed 619.988 s includes launch and collection. Merit481, 2D and saved-current follow.
+
+FP3-D build678 Step 1 merit481 passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/merit481/case_summary.json.
+
+FP3-D build678 Step 1 native2d passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/native2d/case_summary.json.
+
+FP3-D build678 Step 1 saved-current passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/saved-current/case_summary.json.
+
+FP3-D C492 checkpoint 95931412aa pushed. Merit481 and native 2D at 1/2/4 ranks passed. Saved-current matched all three accepted P3 payloads and 1297 planning rows. Two oversized saved-current files stay local under their SHA256 pins. G3 and G4 are next.
