@@ -2564,3 +2564,5 @@ FP3-D build678 linked both targets warning-free, with verified pinned sources. B
 FP3-D hidden measurement intake found one harness issue. The legacy two-rank child passed 44 assertions each, but Catch prefixed the runtime probe marker with an ANSI colour reset. The anchored parser missed it. That invocation is terminal and preserved in FP3_D/attempts/hidden_marker. Correct the parser under R3 and rerun the unsealed hidden aggregate on the unchanged binaries.
 
 FP3-D build678 Step 1 hidden passed, receipt /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/controls/build678/hidden/case_summary.json.
+
+FP3-D build checkpoint a74db3c08d pushed. Hidden Step 1 passed: 44 assertions per rank on legacy two-rank, 129 per rank on probe 0 with three ranks, and 123 per rank on separate probe 3. Ratios 2.25 / 1.75 / 2.00 gave cells decisions 1 / 0 / 0 against raw 0 / 1 / 1. Probe 3 gave the FP3-B construction veto. The hidden supervisor is terminal. Start the scoped G1, G2/GQ, shared gates and G3/G4.
