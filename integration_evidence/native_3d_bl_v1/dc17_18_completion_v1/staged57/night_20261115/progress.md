@@ -2718,3 +2718,9 @@ FP3-E S2 event 1 closed at round 524. Physical, proof, memory and timer checks p
 FP3-E S2 event 2 passed physical, proof, memory and timer checks. It repeated the two valid stall windows at 96/104 with no fire. Owned/per-rank faces 21708 and peak/summed peaks 9521459200 bytes. Continued CFD, final joining, isolated restart and six-file repeat remain.
 
 FP3-E Step 3 passed. S2 passed both events, continued CFD and isolated restart (62.161 s), suppression, exchange and STALL. Native maxima 416.159188444 / 244.862110680 s and minimum timer coverage 97.786% / 99.525%. All six payloads exactly match S1. Both tested S runs fire at 496 and hand off at 497 in event 1 and have no fire in event 2. S2 handles are terminal. Next Step 4 probe-4 observation against both authenticated FP3-D accepted runs.
+
+FP3-E S2 checkpoint 8712ee4b4b pushed. Step 4 launched after both S2 handles were terminal and both accepted D references reauthenticated. The live rank receipt confirms probe 4 on all six main ranks. This is the single observation of the quality step of FP3-D.
+
+FP3-E probe 4 live event 1 used policy=cells, kept the initial 202212-cell exchange and declined the quality-entry migration, as in D. No stall or existing probe rows observed so far. Full event and payload comparison still pending.
+
+FP3-E Step 4 completed. Probe 4 emitted zero stall, hand-off, core-probe and engine-probe rows. Both workflow events and continued CFD passed, with all six payloads identical to the common authenticated FP3-D S pair. Event-1 quality exit at 1063; native maxima 467.568841727 / 155.103048185 s, with uncontrolled load. All owned handles terminal. Publish the accepted reference and final report.
