@@ -2766,3 +2766,5 @@ DEF1 completed no-launch self-checks for the legacy-pin scoped and S/restart ada
 DEF1 normal build681 finished with exit 0 against frozen source 782387b131. Solver SHA256 15e3710f376155c76c69b5845e7ec0f004af0423923865831093e245025, test driver be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146. Five compiler diagnostics captured. Next execute the normal defaults/MMG cases and the isolated fatal cases.
 
 DEF1 build681 checkpoint 678146b5be pushed. Normal lab attempt 1 failed before fixture selection: MPI_Win_create invalid window, exit 53 on every subprocess. R3 preserved the setup logs, added the accepted OMPI_MCA_osc=pt2pt and compile-tmp bindings, and repeats on the same binary. No production or test source changes.
+
+DEF1 normal lab setup correction 3580e87816 pushed. Build681 normal lab passed four hidden Catch cases (528 assertions) and all 12 isolated fatal diagnostics. Both MMG dimensions exercised at the setter boundary. The normal lab supervisor is terminal. Launch the distinct reverse-AD test-driver build on the same pinned source.
