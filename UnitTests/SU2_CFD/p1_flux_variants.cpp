@@ -12204,15 +12204,24 @@ struct Fixture : MeshCase {
     const auto nEdge = geometry->GetnEdge();
     CSysVector<su2double> edgeFlux(nEdge, nEdge, 4);
     SparseMatrixType unused;
+    const auto timeScheme = config->GetKind_TimeIntScheme();
     config->SetKind_TimeIntScheme(EULER_EXPLICIT);
-    Double mask = 0.0;
-    mask[0] = 1.0;
     std::vector<Row> out(nEdge);
-    for (auto e = 0ul; e < nEdge; ++e) {
-      kernel->ComputeFlux(Int(e), *config, *geometry, *nodes, UpdateType::REDUCTION, mask, edgeFlux, unused, nullptr);
-      std::copy_n(edgeFlux.GetBlock(e), 4, out[e].begin());
+    // Match the solver's contiguous endpoint loads and repeat a valid index for tail gathers.
+    for (auto e = 0ul; e < nEdge; e += Double::Size) {
+      const auto count = std::min<unsigned long>(Double::Size, nEdge - e);
+      Int iEdge;
+      Double mask;
+      for (auto lane = 0ul; lane < Double::Size; ++lane) {
+        const bool valid = lane < count;
+        iEdge[lane] = valid ? e + lane : e;
+        mask[lane] = valid;
+      }
+      kernel->ComputeFlux(iEdge, *config, *geometry, *nodes, UpdateType::REDUCTION, mask, edgeFlux, unused, nullptr);
+      for (auto lane = 0ul; lane < count; ++lane)
+        std::copy_n(edgeFlux.GetBlock(e + lane), 4, out[e + lane].begin());
     }
-    config->SetKind_TimeIntScheme(EULER_IMPLICIT);
+    config->SetKind_TimeIntScheme(timeScheme);
     return out;
   }
 };

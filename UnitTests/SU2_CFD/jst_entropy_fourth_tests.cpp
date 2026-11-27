@@ -349,6 +349,8 @@ TEST_CASE("U10 ES4 split coefficient and legacy second difference", "[ES4][JSTEn
     k.sensor = 0.03 * sample(rng);
     i.lambda = sample(rng);
     k.lambda = sample(rng);
+    i.soundSpeed = 1.2;
+    k.soundSpeed = 0.9;
     for (auto v = 0u; v < 4; ++v) {
       i.diss[v] = sample(rng);
       k.diss[v] = sample(rng);
@@ -358,6 +360,7 @@ TEST_CASE("U10 ES4 split coefficient and legacy second difference", "[ES4][JSTEn
     const auto share = (n % 2 == 0) ? 0.25 : 0.5;
     const auto radius = jst::SpectralRadius(2, i, k, normal);
     const auto lambda = jst::CorrectedRadius(radius, i, k) * jst::ShareFactor(share);
+    REQUIRE(std::isfinite(lambda));
     const auto eps = jst::DissipationCoefficients(par, i, k);
     CHECK(jst::FourthCoefficient(par, i, k, radius, share) == eps.eps4 * lambda);
     for (const bool legacy : {true, false}) {
