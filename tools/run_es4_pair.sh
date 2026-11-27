@@ -22,9 +22,9 @@ if [[ $action == submit ]]; then
       ((${#sa_jobs[@]} > 0)) || { echo "SA jobs must precede SST in the manifest" >&2; exit 1; }
       hold=(-hold_jid "$(IFS=,; echo "${sa_jobs[*]}")")
     fi
-    job=$(qsub -terse -S /bin/bash -cwd -q aero-ag.q -pe smp "$slots" \
+    job=$(qsub -terse -S /bin/bash -cwd -q aero-ags.q,aero-aggpu.q -pe smp "$slots" \
       -N "es4_${case%%_*}_${mesh}" -o "$study/jobs/logs/es4_${phase}_${case}_${variant}_${mesh}.log" -j y \
-      "${hold[@]}" "$script" run "$study" "$phase" "$case" "$mesh" "$variant" "$limit")
+      ${hold[@]+"${hold[@]}"} "$script" run "$study" "$phase" "$case" "$mesh" "$variant" "$limit")
     if [[ $phase == P2 && $case == T4_naca_a10 ]]; then sa_jobs+=("$job"); fi
     printf '%s %s %s %s\n' "$job" "$case" "$mesh" "$variant" | tee -a "$study/jobs/es4_${phase}.jobs"
   done < "$study/jobs/es4_runs_${phase}.txt"
@@ -58,7 +58,7 @@ failed=0
 for name in "${names[@]}"; do
   cd "$base/${name}__${mesh}"
   tag=$(sed -n '1s/.*binary tag p1v\/\([^ ]*\).*/\1/p' config.cfg)
-  [[ $tag == 85-c9 || $tag == 86-es4 ]] || { echo "Unexpected binary tag $tag" >&2; exit 1; }
+  [[ $tag == 85-c9 || $tag == 89b-es4 ]] || { echo "Unexpected binary tag $tag" >&2; exit 1; }
   bin="$study/bin/$tag/bin/SU2_CFD"
   [[ -x $bin ]] || { echo "Missing binary $bin" >&2; exit 1; }
   sha=$(sha256sum "$bin")
