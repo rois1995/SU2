@@ -2858,3 +2858,7 @@ SC1 shared checkpoint 6328edfc84 pushed. Step 1 passed all 12 parts. G3 accepted
 SC1 Step 1 checkpoint f7264eba07 pushed. Count S activated under su2-sc1-count682 at 03:19:45 CET after a clean host preflight. Observe both events and the isolated restart, then authenticate the six hashes and count and timer evidence before any default S runs.
 
 SC1 count mode passed both events and isolated restart (64.545 s). All six payloads matched FP3-E. Count rows reconciled at 14,441/27,016 and 20,095/21,744 hits/calls. Event 2 hits by origin were 8,019 step C, 11,454 proof and 622 commit. Zero disagreements in both events. Maximum rank would-skip query time 8.103 / 79.439 s. Minimum predicted coverage 97.719709 percent exceeds 96 percent, so no attribution repeat. Next S1 under default value 0 and the same build682.
+
+SC1 count checkpoint b1b35adf45 pushed. S1 uses value 0 on build682 under su2-sc1-s1-682. Verify both events, all standing checks and isolated restart before the same-binary S2.
+
+SC1 default S1 passed with all six hashes equal to FP3-E. Native maxima 412.665 / 205.107 s, minimum coverage 97.693 / 99.286 percent and process-peak sums 9,305,137,152 / 9,497,264,128 bytes. Isolated restart passed in 64.699 s. All S1 handles are terminal. Next S2 on the same build and default; it must reproduce S1 and FP3-E.
