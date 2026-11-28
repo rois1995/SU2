@@ -2844,3 +2844,5 @@ SC1 production written after R4. Only eligible mode S uses the exact-bit face ta
 SC1 frozen production checkpoint f00440db8c pushed. Build682 started at 02:07:57 CET under su2-sc1-build682 with four nice-19 workers. Wait for the terminal compiler and pin seal before the scoped step-1 controls.
 
 SC1 build682 passed with 75 build actions, no warnings and both pinned binaries linked. Solver 8977ef1375dd4a6be5b3ca87a4b549997040d79a6ba7ec041685db9ce4331d07. Start the exact step-1 legacy-scoped campaign.
+
+SC1 build682 G1 identity passed in serial, MPI2 and MPI4: 375 / 114 / 228 records. G2 started under the same scoped supervisor.
