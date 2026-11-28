@@ -1,0 +1,1281 @@
+{
+  "events": [
+    {
+      "event": 1,
+      "cycle": 1,
+      "status": "passed",
+      "checks": {
+        "remesh": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "lines": [
+              "MMG3D status SUCCESS, 151.035 s (with the validation of input and output), extraction 0.167614 s (gathered from 6 ranks), slices sent 0.101975 s total_seconds=151.30419235299999."
+            ],
+            "errors": [],
+            "mmg_seconds": 151.035,
+            "extraction_seconds": 0.167614,
+            "gathered_ranks": 6,
+            "distribution_seconds": 0.101975,
+            "total_seconds": 151.304192353,
+            "end_unix": 1795820569.0
+          }
+        },
+        "parameters": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "expected_global": {
+              "dim": 3,
+              "hmin": 0.003,
+              "hgrad": 1.6,
+              "hausd": 0.01,
+              "local_rows": 3
+            },
+            "expected_local": {
+              "FARFIELD": {
+                "ref": 1,
+                "hausd": 1.0
+              },
+              "SYMMETRY": {
+                "ref": 2,
+                "hausd": 0.001
+              },
+              "WING3D": {
+                "ref": 3,
+                "hausd": 0.001
+              }
+            },
+            "global_rows": [
+              {
+                "dim": "3",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hgrad": "1.6000000000000001",
+                "hausd": "0.01",
+                "local_rows": "3"
+              }
+            ],
+            "local_rows": [
+              {
+                "marker": "WING3D",
+                "ref": "3",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "0.001"
+              },
+              {
+                "marker": "FARFIELD",
+                "ref": "1",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "1"
+              },
+              {
+                "marker": "SYMMETRY",
+                "ref": "2",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "0.001"
+              }
+            ]
+          }
+        },
+        "physical": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "files": [
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/adapted_mesh_adap_00001.su2",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/restart_flow_adap_00001.dat"
+            ],
+            "points": 84835,
+            "cells": 469183,
+            "restart_precision": "Float64",
+            "minimum_volume": 8.262024831926934e-11,
+            "coordinate_maximum_error": 0.0,
+            "minimum_density": 0.5976300134291389,
+            "minimum_internal_energy_density": 95852.47521403557
+          }
+        },
+        "transfer": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "fields": {
+              "Density": {
+                "columns": [
+                  0.0001974,
+                  0.004724,
+                  -2.026e-10,
+                  1.76e-14,
+                  10.0,
+                  2.668e-14,
+                  33.0
+                ],
+                "residual": 2.668e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-x": {
+                "columns": [
+                  0.0001974,
+                  0.004724,
+                  -2.042e-10,
+                  1.784e-14,
+                  10.0,
+                  3.659e-14,
+                  69.0
+                ],
+                "residual": 3.659e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-y": {
+                "columns": [
+                  -3.35e-05,
+                  0.0001075,
+                  1.137e-07,
+                  -6.883e-13,
+                  19.0,
+                  9.219e-14,
+                  36.0
+                ],
+                "residual": 9.219e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-z": {
+                "columns": [
+                  0.0001973,
+                  0.004724,
+                  -1.949e-10,
+                  1.8e-14,
+                  13.0,
+                  5.194e-14,
+                  90.0
+                ],
+                "residual": 5.194e-14,
+                "bounds_relaxed": null
+              },
+              "Energy": {
+                "columns": [
+                  0.0001974,
+                  0.004724,
+                  -2.027e-10,
+                  1.769e-14,
+                  10.0,
+                  2.691e-14,
+                  52.0
+                ],
+                "residual": 2.691e-14,
+                "bounds_relaxed": null
+              }
+            },
+            "projected_inadmissible": [
+              0
+            ],
+            "ordered": true
+          }
+        },
+        "continued CFD": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "rows": 2000,
+            "expected_rows": 2000,
+            "adap_iter_offset": 1
+          }
+        }
+      },
+      "mmg": {
+        "lines": [
+          "MMG3D status SUCCESS, 151.035 s (with the validation of input and output), extraction 0.167614 s (gathered from 6 ranks), slices sent 0.101975 s total_seconds=151.30419235299999."
+        ],
+        "errors": [],
+        "mmg_seconds": 151.035,
+        "extraction_seconds": 0.167614,
+        "gathered_ranks": 6,
+        "distribution_seconds": 0.101975,
+        "total_seconds": 151.304192353,
+        "end_unix": 1795820569.0
+      },
+      "driver_adapt_seconds": 162.317,
+      "host_load_start": {
+        "sample_utc": "2026-11-27T23:00:18.210078+00:00",
+        "offset_seconds": 0.5142707824707031,
+        "loadavg": "4.27 7.38 8.47 8/3781 22667"
+      },
+      "host_load_end": {
+        "sample_utc": "2026-11-27T23:02:49.504675+00:00",
+        "offset_seconds": 0.5046749114990234,
+        "loadavg": "7.93 7.84 8.48 7/3741 26036"
+      },
+      "remesh_start_utc": "2026-11-27T23:00:17.695808+00:00",
+      "remesh_end_utc": "2026-11-27T23:02:49+00:00",
+      "points": 84835,
+      "cells": 469183,
+      "marker_faces": {
+        "WING3D": 12637,
+        "FARFIELD": 1832,
+        "SYMMETRY": 11715
+      },
+      "sensor_complexity_before_gradation": null,
+      "sensor_complexity_after_gradation": null
+    },
+    {
+      "event": 2,
+      "cycle": 2,
+      "status": "passed",
+      "checks": {
+        "remesh": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "lines": [
+              "MMG3D status SUCCESS, 213.142 s (with the validation of input and output), extraction 0.133627 s (gathered from 6 ranks), slices sent 0.13589 s total_seconds=213.4119299649999."
+            ],
+            "errors": [],
+            "mmg_seconds": 213.142,
+            "extraction_seconds": 0.133627,
+            "gathered_ranks": 6,
+            "distribution_seconds": 0.13589,
+            "total_seconds": 213.4119299649999,
+            "end_unix": 1795821841.0
+          }
+        },
+        "parameters": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "expected_global": {
+              "dim": 3,
+              "hmin": 0.003,
+              "hgrad": 1.6,
+              "hausd": 0.01,
+              "local_rows": 3
+            },
+            "expected_local": {
+              "FARFIELD": {
+                "ref": 1,
+                "hausd": 1.0
+              },
+              "SYMMETRY": {
+                "ref": 2,
+                "hausd": 0.001
+              },
+              "WING3D": {
+                "ref": 3,
+                "hausd": 0.001
+              }
+            },
+            "global_rows": [
+              {
+                "dim": "3",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hgrad": "1.6000000000000001",
+                "hausd": "0.01",
+                "local_rows": "3"
+              }
+            ],
+            "local_rows": [
+              {
+                "marker": "WING3D",
+                "ref": "3",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "0.001"
+              },
+              {
+                "marker": "FARFIELD",
+                "ref": "1",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "1"
+              },
+              {
+                "marker": "SYMMETRY",
+                "ref": "2",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "0.001"
+              }
+            ]
+          }
+        },
+        "physical": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "files": [
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/adapted_mesh_adap_00002.su2",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/restart_flow_adap_00002.dat"
+            ],
+            "points": 111373,
+            "cells": 619037,
+            "restart_precision": "Float64",
+            "minimum_volume": 1.738411377797639e-10,
+            "coordinate_maximum_error": 0.0,
+            "minimum_density": 0.5843388541800253,
+            "minimum_internal_energy_density": 93051.21574425869
+          }
+        },
+        "transfer": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "fields": {
+              "Density": {
+                "columns": [
+                  0.000541,
+                  0.0004614,
+                  4.921e-12,
+                  1.349e-14,
+                  9.0,
+                  7.398e-14,
+                  28.0
+                ],
+                "residual": 7.398e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-x": {
+                "columns": [
+                  0.000541,
+                  0.0004614,
+                  4.319e-12,
+                  1.358e-14,
+                  9.0,
+                  8.327e-14,
+                  13.0
+                ],
+                "residual": 8.327e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-y": {
+                "columns": [
+                  3.789e-05,
+                  -4.79e-05,
+                  3.142e-08,
+                  4.203e-14,
+                  19.0,
+                  7.081e-14,
+                  25.0
+                ],
+                "residual": 7.081e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-z": {
+                "columns": [
+                  0.000541,
+                  0.0004614,
+                  5.094e-12,
+                  1.367e-14,
+                  13.0,
+                  3.479e-14,
+                  45.0
+                ],
+                "residual": 3.479e-14,
+                "bounds_relaxed": null
+              },
+              "Energy": {
+                "columns": [
+                  0.000541,
+                  0.0004614,
+                  4.897e-12,
+                  1.354e-14,
+                  9.0,
+                  6.983e-14,
+                  42.0
+                ],
+                "residual": 6.983e-14,
+                "bounds_relaxed": null
+              }
+            },
+            "projected_inadmissible": [
+              0
+            ],
+            "ordered": true
+          }
+        },
+        "continued CFD": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "rows": 2000,
+            "expected_rows": 2000,
+            "adap_iter_offset": 2001
+          }
+        }
+      },
+      "mmg": {
+        "lines": [
+          "MMG3D status SUCCESS, 213.142 s (with the validation of input and output), extraction 0.133627 s (gathered from 6 ranks), slices sent 0.13589 s total_seconds=213.4119299649999."
+        ],
+        "errors": [],
+        "mmg_seconds": 213.142,
+        "extraction_seconds": 0.133627,
+        "gathered_ranks": 6,
+        "distribution_seconds": 0.13589,
+        "total_seconds": 213.4119299649999,
+        "end_unix": 1795821841.0
+      },
+      "driver_adapt_seconds": 225.419,
+      "host_load_start": {
+        "sample_utc": "2026-11-27T23:20:28.198764+00:00",
+        "offset_seconds": 0.6106934547424316,
+        "loadavg": "11.18 11.23 10.40 8/3746 52128"
+      },
+      "host_load_end": {
+        "sample_utc": "2026-11-27T23:24:00.382174+00:00",
+        "offset_seconds": -0.6178262233734131,
+        "loadavg": "8.08 9.60 9.92 7/3733 55787"
+      },
+      "remesh_start_utc": "2026-11-27T23:20:27.588070+00:00",
+      "remesh_end_utc": "2026-11-27T23:24:01+00:00",
+      "points": 111373,
+      "cells": 619037,
+      "marker_faces": {
+        "WING3D": 12151,
+        "FARFIELD": 3638,
+        "SYMMETRY": 15965
+      },
+      "sensor_complexity_before_gradation": null,
+      "sensor_complexity_after_gradation": null
+    },
+    {
+      "event": 3,
+      "cycle": 3,
+      "status": "passed",
+      "checks": {
+        "remesh": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "lines": [
+              "MMG3D status SUCCESS, 261.19 s (with the validation of input and output), extraction 0.176907 s (gathered from 6 ranks), slices sent 0.145875 s total_seconds=261.51255501099968."
+            ],
+            "errors": [],
+            "mmg_seconds": 261.19,
+            "extraction_seconds": 0.176907,
+            "gathered_ranks": 6,
+            "distribution_seconds": 0.145875,
+            "total_seconds": 261.5125550109997,
+            "end_unix": 1795823366.0
+          }
+        },
+        "parameters": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "expected_global": {
+              "dim": 3,
+              "hmin": 0.003,
+              "hgrad": 1.6,
+              "hausd": 0.01,
+              "local_rows": 3
+            },
+            "expected_local": {
+              "FARFIELD": {
+                "ref": 1,
+                "hausd": 1.0
+              },
+              "SYMMETRY": {
+                "ref": 2,
+                "hausd": 0.001
+              },
+              "WING3D": {
+                "ref": 3,
+                "hausd": 0.001
+              }
+            },
+            "global_rows": [
+              {
+                "dim": "3",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hgrad": "1.6000000000000001",
+                "hausd": "0.01",
+                "local_rows": "3"
+              }
+            ],
+            "local_rows": [
+              {
+                "marker": "WING3D",
+                "ref": "3",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "0.001"
+              },
+              {
+                "marker": "FARFIELD",
+                "ref": "1",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "1"
+              },
+              {
+                "marker": "SYMMETRY",
+                "ref": "2",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "0.001"
+              }
+            ]
+          }
+        },
+        "physical": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "files": [
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/adapted_mesh_adap_00003.su2",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/restart_flow_adap_00003.dat"
+            ],
+            "points": 129434,
+            "cells": 718652,
+            "restart_precision": "Float64",
+            "minimum_volume": 2.4845551542762463e-10,
+            "coordinate_maximum_error": 0.0,
+            "minimum_density": 0.582265203284024,
+            "minimum_internal_energy_density": 92563.53221039951
+          }
+        },
+        "transfer": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "fields": {
+              "Density": {
+                "columns": [
+                  0.0002794,
+                  0.0002415,
+                  7.606e-13,
+                  4.984e-15,
+                  9.0,
+                  7.183e-14,
+                  40.0
+                ],
+                "residual": 7.183e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-x": {
+                "columns": [
+                  0.0002794,
+                  0.0002415,
+                  4.93e-13,
+                  5.218e-15,
+                  9.0,
+                  6.782e-14,
+                  20.0
+                ],
+                "residual": 6.782e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-y": {
+                "columns": [
+                  -1.507e-05,
+                  2.394e-06,
+                  6.882e-09,
+                  1.449e-13,
+                  19.0,
+                  6.456e-14,
+                  17.0
+                ],
+                "residual": 6.456e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-z": {
+                "columns": [
+                  0.0002794,
+                  0.0002415,
+                  1.254e-12,
+                  5.215e-15,
+                  13.0,
+                  3.127e-14,
+                  56.0
+                ],
+                "residual": 3.127e-14,
+                "bounds_relaxed": null
+              },
+              "Energy": {
+                "columns": [
+                  0.0002794,
+                  0.0002415,
+                  7.391e-13,
+                  5.131e-15,
+                  9.0,
+                  6.577e-14,
+                  43.0
+                ],
+                "residual": 6.577e-14,
+                "bounds_relaxed": null
+              }
+            },
+            "projected_inadmissible": [
+              0
+            ],
+            "ordered": true
+          }
+        },
+        "continued CFD": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "rows": 1844,
+            "expected_rows": 1844,
+            "adap_iter_offset": 4001
+          }
+        }
+      },
+      "mmg": {
+        "lines": [
+          "MMG3D status SUCCESS, 261.19 s (with the validation of input and output), extraction 0.176907 s (gathered from 6 ranks), slices sent 0.145875 s total_seconds=261.51255501099968."
+        ],
+        "errors": [],
+        "mmg_seconds": 261.19,
+        "extraction_seconds": 0.176907,
+        "gathered_ranks": 6,
+        "distribution_seconds": 0.145875,
+        "total_seconds": 261.5125550109997,
+        "end_unix": 1795823366.0
+      },
+      "driver_adapt_seconds": 276.308,
+      "host_load_start": {
+        "sample_utc": "2026-11-27T23:45:04.269630+00:00",
+        "offset_seconds": -0.21781444549560547,
+        "loadavg": "8.63 8.72 9.08 7/3705 77583"
+      },
+      "host_load_end": {
+        "sample_utc": "2026-11-27T23:49:25.587214+00:00",
+        "offset_seconds": -0.41278576850891113,
+        "loadavg": "8.38 8.69 8.99 8/3720 82548"
+      },
+      "remesh_start_utc": "2026-11-27T23:45:04.487445+00:00",
+      "remesh_end_utc": "2026-11-27T23:49:26+00:00",
+      "points": 129434,
+      "cells": 718652,
+      "marker_faces": {
+        "WING3D": 11592,
+        "FARFIELD": 5556,
+        "SYMMETRY": 19928
+      },
+      "sensor_complexity_before_gradation": null,
+      "sensor_complexity_after_gradation": null
+    },
+    {
+      "event": 4,
+      "cycle": 4,
+      "status": "passed",
+      "checks": {
+        "remesh": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "lines": [
+              "MMG3D status SUCCESS, 288.27 s (with the validation of input and output), extraction 0.210597 s (gathered from 6 ranks), slices sent 0.188164 s total_seconds=288.66888673199992."
+            ],
+            "errors": [],
+            "mmg_seconds": 288.27,
+            "extraction_seconds": 0.210597,
+            "gathered_ranks": 6,
+            "distribution_seconds": 0.188164,
+            "total_seconds": 288.6688867319999,
+            "end_unix": 1795825041.0
+          }
+        },
+        "parameters": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "expected_global": {
+              "dim": 3,
+              "hmin": 0.003,
+              "hgrad": 1.6,
+              "hausd": 0.01,
+              "local_rows": 3
+            },
+            "expected_local": {
+              "FARFIELD": {
+                "ref": 1,
+                "hausd": 1.0
+              },
+              "SYMMETRY": {
+                "ref": 2,
+                "hausd": 0.001
+              },
+              "WING3D": {
+                "ref": 3,
+                "hausd": 0.001
+              }
+            },
+            "global_rows": [
+              {
+                "dim": "3",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hgrad": "1.6000000000000001",
+                "hausd": "0.01",
+                "local_rows": "3"
+              }
+            ],
+            "local_rows": [
+              {
+                "marker": "WING3D",
+                "ref": "3",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "0.001"
+              },
+              {
+                "marker": "FARFIELD",
+                "ref": "1",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "1"
+              },
+              {
+                "marker": "SYMMETRY",
+                "ref": "2",
+                "hmin": "0.0030000000000000001",
+                "hmax": "100",
+                "hausd": "0.001"
+              }
+            ]
+          }
+        },
+        "physical": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "files": [
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/adapted_mesh_adap_00004.su2",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/restart_flow_adap_00004.dat"
+            ],
+            "points": 148915,
+            "cells": 828864,
+            "restart_precision": "Float64",
+            "minimum_volume": 2.48455515427021e-10,
+            "coordinate_maximum_error": 0.0,
+            "minimum_density": 0.5821980275769201,
+            "minimum_internal_energy_density": 92476.02413173046
+          }
+        },
+        "transfer": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "fields": {
+              "Density": {
+                "columns": [
+                  0.0001751,
+                  0.0002564,
+                  1.534e-12,
+                  5.876e-15,
+                  9.0,
+                  7.183e-14,
+                  114.0
+                ],
+                "residual": 7.183e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-x": {
+                "columns": [
+                  0.0001751,
+                  0.0002564,
+                  1.436e-12,
+                  5.749e-15,
+                  9.0,
+                  6.527e-14,
+                  25.0
+                ],
+                "residual": 6.527e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-y": {
+                "columns": [
+                  6.069e-06,
+                  7.364e-06,
+                  2.638e-09,
+                  3.688e-14,
+                  19.0,
+                  6.498e-14,
+                  16.0
+                ],
+                "residual": 6.498e-14,
+                "bounds_relaxed": null
+              },
+              "Momentum-z": {
+                "columns": [
+                  0.0001751,
+                  0.0002564,
+                  1.357e-12,
+                  5.924e-15,
+                  13.0,
+                  2.797e-14,
+                  47.0
+                ],
+                "residual": 2.797e-14,
+                "bounds_relaxed": null
+              },
+              "Energy": {
+                "columns": [
+                  0.0001751,
+                  0.0002564,
+                  1.525e-12,
+                  5.8e-15,
+                  9.0,
+                  6.604e-14,
+                  107.0
+                ],
+                "residual": 6.604e-14,
+                "bounds_relaxed": null
+              }
+            },
+            "projected_inadmissible": [
+              0
+            ],
+            "ordered": true
+          }
+        },
+        "continued CFD": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "rows": 2000,
+            "expected_rows": 2000,
+            "adap_iter_offset": 5845
+          }
+        }
+      },
+      "mmg": {
+        "lines": [
+          "MMG3D status SUCCESS, 288.27 s (with the validation of input and output), extraction 0.210597 s (gathered from 6 ranks), slices sent 0.188164 s total_seconds=288.66888673199992."
+        ],
+        "errors": [],
+        "mmg_seconds": 288.27,
+        "extraction_seconds": 0.210597,
+        "gathered_ranks": 6,
+        "distribution_seconds": 0.188164,
+        "total_seconds": 288.6688867319999,
+        "end_unix": 1795825041.0
+      },
+      "driver_adapt_seconds": 306.752,
+      "host_load_start": {
+        "sample_utc": "2026-11-28T00:12:32.854721+00:00",
+        "offset_seconds": 0.5236074924468994,
+        "loadavg": "8.54 8.68 8.73 9/3714 106556"
+      },
+      "host_load_end": {
+        "sample_utc": "2026-11-28T00:17:20.498390+00:00",
+        "offset_seconds": -0.5016100406646729,
+        "loadavg": "7.49 8.06 8.45 7/3734 111584"
+      },
+      "remesh_start_utc": "2026-11-28T00:12:32.331113+00:00",
+      "remesh_end_utc": "2026-11-28T00:17:21+00:00",
+      "points": 148915,
+      "cells": 828864,
+      "marker_faces": {
+        "WING3D": 11343,
+        "FARFIELD": 6801,
+        "SYMMETRY": 22886
+      },
+      "sensor_complexity_before_gradation": null,
+      "sensor_complexity_after_gradation": null
+    }
+  ],
+  "cycles": [
+    {
+      "cycle": 0,
+      "status": "cap reached",
+      "iterations": 1,
+      "cap": 1,
+      "cycle_start_utc": "2026-11-27T23:00:17+00:00",
+      "points": 61330,
+      "log_divergence": [],
+      "output_log": [
+        "Sat Nov 28 00:00:17 2026<stdout>:|        File Writing Summary       |              Filename             |",
+        "Sat Nov 28 00:00:17 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00000.dat        |",
+        "Sat Nov 28 00:00:17 2026<stdout>:|                                   |                     (1003.52 MB/s)|",
+        "Sat Nov 28 00:00:17 2026<stdout>:|Paraview                           |flow_adap_00000.vtu                |",
+        "Sat Nov 28 00:00:17 2026<stdout>:|                                   |                     (708.276 MB/s)|",
+        "Sat Nov 28 00:00:17 2026<stdout>:|Paraview surface                   |surface_adap_00000.vtu             |",
+        "Sat Nov 28 00:00:17 2026<stdout>:|                                   |                     (725.213 MB/s)|"
+      ],
+      "convergence_summary": {
+        "Cauchy[CL]": {
+          "value": 1.0,
+          "criterion": "< 1e-07",
+          "converged": "No",
+          "line": "Sat Nov 28 00:00:17 2026<stdout>:|                  Cauchy[CL]|             1|       < 1e-07|          No|"
+        },
+        "Cauchy[CD]": {
+          "value": 1.0,
+          "criterion": "< 1e-07",
+          "converged": "No",
+          "line": "Sat Nov 28 00:00:17 2026<stdout>:|                  Cauchy[CD]|             1|       < 1e-07|          No|"
+        }
+      },
+      "exit_messages": [
+        "Maximum number of iterations reached (ITER = 1) before convergence."
+      ],
+      "screen_coefficients": {
+        "CL": 0.269535,
+        "CD": 0.013536
+      },
+      "adaptation_start_utc": "2026-11-27T23:00:18+00:00",
+      "surface_core_evidence": [],
+      "solver_exit_utc": "2026-11-27T23:00:17+00:00",
+      "convergence_summary_complete": true,
+      "summary_points": 61330,
+      "solve_seconds": 0.902605,
+      "adapt_next_seconds": 162.317,
+      "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/m6.su2",
+      "cells": 303359,
+      "exit_message": "Maximum number of iterations reached (ITER = 1) before convergence.",
+      "rms_rho_first": -5.735441588,
+      "rms_rho_last": -5.735441588,
+      "rms_rho_drop": 0.0,
+      "CL": 0.2695353132,
+      "cauchy_CL": 1.0,
+      "CD": 0.01353584605,
+      "cauchy_CD": 1.0,
+      "history_gate": {
+        "status": "passed",
+        "reason": null,
+        "values": {
+          "rows": 1,
+          "expected_rows": 1,
+          "adap_iter_offset": 0
+        }
+      },
+      "observed_iterations": 1,
+      "marker_faces": {
+        "FARFIELD": 2060,
+        "SYMMETRY": 8094,
+        "WING3D": 38800
+      }
+    },
+    {
+      "cycle": 1,
+      "status": "cap reached",
+      "iterations": 2000,
+      "cap": 2000,
+      "cycle_start_utc": "2026-11-27T23:03:00+00:00",
+      "points": 84835,
+      "log_divergence": [],
+      "output_log": [
+        "Sat Nov 28 00:20:27 2026<stdout>:|        File Writing Summary       |              Filename             |",
+        "Sat Nov 28 00:20:27 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00001.dat        |",
+        "Sat Nov 28 00:20:27 2026<stdout>:|                                   |                     (1429.23 MB/s)|",
+        "Sat Nov 28 00:20:27 2026<stdout>:|Paraview                           |flow_adap_00001.vtu                |",
+        "Sat Nov 28 00:20:27 2026<stdout>:|                                   |                     (1033.44 MB/s)|",
+        "Sat Nov 28 00:20:27 2026<stdout>:|Paraview surface                   |surface_adap_00001.vtu             |",
+        "Sat Nov 28 00:20:27 2026<stdout>:|                                   |                      (653.22 MB/s)|"
+      ],
+      "convergence_summary": {
+        "Cauchy[CL]": {
+          "value": 1.49496e-06,
+          "criterion": "< 1e-07",
+          "converged": "No",
+          "line": "Sat Nov 28 00:20:27 2026<stdout>:|                  Cauchy[CL]|   1.49496e-06|       < 1e-07|          No|"
+        },
+        "Cauchy[CD]": {
+          "value": 8.9052e-07,
+          "criterion": "< 1e-07",
+          "converged": "No",
+          "line": "Sat Nov 28 00:20:27 2026<stdout>:|                  Cauchy[CD]|    8.9052e-07|       < 1e-07|          No|"
+        }
+      },
+      "exit_messages": [
+        "Maximum number of iterations reached (ITER = 2000) before convergence."
+      ],
+      "screen_coefficients": {
+        "CL": 0.293368,
+        "CD": 0.013596
+      },
+      "adaptation_start_utc": "2026-11-27T23:20:28+00:00",
+      "surface_core_evidence": [],
+      "solver_exit_utc": "2026-11-27T23:20:27+00:00",
+      "convergence_summary_complete": true,
+      "summary_points": 84835,
+      "solve_seconds": 1047.42,
+      "adapt_next_seconds": 225.419,
+      "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/adapted_mesh_adap_00001.su2",
+      "cells": 469183,
+      "exit_message": "Maximum number of iterations reached (ITER = 2000) before convergence.",
+      "rms_rho_first": -1.935836102,
+      "rms_rho_last": -6.014952503,
+      "rms_rho_drop": 4.079116401,
+      "CL": 0.2933684506,
+      "cauchy_CL": 1.494957938e-06,
+      "CD": 0.01359629991,
+      "cauchy_CD": 8.905197682e-07,
+      "history_gate": {
+        "status": "passed",
+        "reason": null,
+        "values": {
+          "rows": 2000,
+          "expected_rows": 2000,
+          "adap_iter_offset": 1
+        }
+      },
+      "observed_iterations": 2000,
+      "marker_faces": {
+        "WING3D": 12637,
+        "FARFIELD": 1832,
+        "SYMMETRY": 11715
+      }
+    },
+    {
+      "cycle": 2,
+      "status": "cap reached",
+      "iterations": 2000,
+      "cap": 2000,
+      "cycle_start_utc": "2026-11-27T23:24:13+00:00",
+      "points": 111373,
+      "log_divergence": [],
+      "output_log": [
+        "Sat Nov 28 00:45:04 2026<stdout>:|        File Writing Summary       |              Filename             |",
+        "Sat Nov 28 00:45:04 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00002.dat        |",
+        "Sat Nov 28 00:45:04 2026<stdout>:|                                   |                     (1431.55 MB/s)|",
+        "Sat Nov 28 00:45:04 2026<stdout>:|Paraview                           |flow_adap_00002.vtu                |",
+        "Sat Nov 28 00:45:04 2026<stdout>:|                                   |                     (820.795 MB/s)|",
+        "Sat Nov 28 00:45:04 2026<stdout>:|Paraview surface                   |surface_adap_00002.vtu             |",
+        "Sat Nov 28 00:45:04 2026<stdout>:|                                   |                     (630.454 MB/s)|"
+      ],
+      "convergence_summary": {
+        "Cauchy[CL]": {
+          "value": 1.31892e-07,
+          "criterion": "< 1e-07",
+          "converged": "No",
+          "line": "Sat Nov 28 00:45:04 2026<stdout>:|                  Cauchy[CL]|   1.31892e-07|       < 1e-07|          No|"
+        },
+        "Cauchy[CD]": {
+          "value": 1.57558e-07,
+          "criterion": "< 1e-07",
+          "converged": "No",
+          "line": "Sat Nov 28 00:45:04 2026<stdout>:|                  Cauchy[CD]|   1.57558e-07|       < 1e-07|          No|"
+        }
+      },
+      "exit_messages": [
+        "Maximum number of iterations reached (ITER = 2000) before convergence."
+      ],
+      "screen_coefficients": {
+        "CL": 0.29786,
+        "CD": 0.012219
+      },
+      "adaptation_start_utc": "2026-11-27T23:45:05+00:00",
+      "surface_core_evidence": [],
+      "solver_exit_utc": "2026-11-27T23:45:04+00:00",
+      "convergence_summary_complete": true,
+      "summary_points": 111373,
+      "solve_seconds": 1251.71,
+      "adapt_next_seconds": 276.308,
+      "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/adapted_mesh_adap_00002.su2",
+      "cells": 619037,
+      "exit_message": "Maximum number of iterations reached (ITER = 2000) before convergence.",
+      "rms_rho_first": -2.180612884,
+      "rms_rho_last": -6.523268667,
+      "rms_rho_drop": 4.342655783,
+      "CL": 0.2978597866,
+      "cauchy_CL": 1.31892409e-07,
+      "CD": 0.01221938626,
+      "cauchy_CD": 1.575577878e-07,
+      "history_gate": {
+        "status": "passed",
+        "reason": null,
+        "values": {
+          "rows": 2000,
+          "expected_rows": 2000,
+          "adap_iter_offset": 2001
+        }
+      },
+      "observed_iterations": 2000,
+      "marker_faces": {
+        "WING3D": 12151,
+        "FARFIELD": 3638,
+        "SYMMETRY": 15965
+      }
+    },
+    {
+      "cycle": 3,
+      "status": "converged",
+      "iterations": 1844,
+      "cap": 2000,
+      "cycle_start_utc": "2026-11-27T23:49:41+00:00",
+      "points": 129434,
+      "log_divergence": [],
+      "output_log": [
+        "Sat Nov 28 01:12:32 2026<stdout>:|        File Writing Summary       |              Filename             |",
+        "Sat Nov 28 01:12:32 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00003.dat        |",
+        "Sat Nov 28 01:12:32 2026<stdout>:|                                   |                     (1127.74 MB/s)|",
+        "Sat Nov 28 01:12:32 2026<stdout>:|Paraview                           |flow_adap_00003.vtu                |",
+        "Sat Nov 28 01:12:32 2026<stdout>:|                                   |                     (875.518 MB/s)|",
+        "Sat Nov 28 01:12:32 2026<stdout>:|Paraview surface                   |surface_adap_00003.vtu             |",
+        "Sat Nov 28 01:12:32 2026<stdout>:|                                   |                     (553.899 MB/s)|"
+      ],
+      "convergence_summary": {
+        "Cauchy[CL]": {
+          "value": 9.45425e-08,
+          "criterion": "< 1e-07",
+          "converged": "Yes",
+          "line": "Sat Nov 28 01:12:32 2026<stdout>:|                  Cauchy[CL]|   9.45425e-08|       < 1e-07|         Yes|"
+        },
+        "Cauchy[CD]": {
+          "value": 9.96841e-08,
+          "criterion": "< 1e-07",
+          "converged": "Yes",
+          "line": "Sat Nov 28 01:12:32 2026<stdout>:|                  Cauchy[CD]|   9.96841e-08|       < 1e-07|         Yes|"
+        }
+      },
+      "exit_messages": [
+        "All convergence criteria satisfied."
+      ],
+      "screen_coefficients": {
+        "CL": 0.295299,
+        "CD": 0.011668
+      },
+      "adaptation_start_utc": "2026-11-28T00:12:33+00:00",
+      "surface_core_evidence": [],
+      "solver_exit_utc": "2026-11-28T00:12:32+00:00",
+      "convergence_summary_complete": true,
+      "summary_points": 129434,
+      "solve_seconds": 1371.86,
+      "adapt_next_seconds": 306.752,
+      "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/adapted_mesh_adap_00003.su2",
+      "cells": 718652,
+      "exit_message": "All convergence criteria satisfied.",
+      "rms_rho_first": -2.30781754,
+      "rms_rho_last": -6.780907957,
+      "rms_rho_drop": 4.473090417,
+      "CL": 0.295299099,
+      "cauchy_CL": 9.45425164e-08,
+      "CD": 0.01166831815,
+      "cauchy_CD": 9.968412839e-08,
+      "history_gate": {
+        "status": "passed",
+        "reason": null,
+        "values": {
+          "rows": 1844,
+          "expected_rows": 1844,
+          "adap_iter_offset": 4001
+        }
+      },
+      "observed_iterations": 1844,
+      "marker_faces": {
+        "WING3D": 11592,
+        "FARFIELD": 5556,
+        "SYMMETRY": 19928
+      }
+    },
+    {
+      "cycle": 4,
+      "status": "cap reached",
+      "iterations": 2000,
+      "cap": 2000,
+      "cycle_start_utc": "2026-11-28T00:17:39+00:00",
+      "points": 148915,
+      "log_divergence": [],
+      "output_log": [
+        "Sat Nov 28 01:45:50 2026<stdout>:|        File Writing Summary       |              Filename             |",
+        "Sat Nov 28 01:45:50 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00004.dat        |",
+        "Sat Nov 28 01:45:50 2026<stdout>:|                                   |                     (1405.12 MB/s)|",
+        "Sat Nov 28 01:45:51 2026<stdout>:|Paraview                           |flow_adap_00004.vtu                |",
+        "Sat Nov 28 01:45:51 2026<stdout>:|                                   |                     (1019.18 MB/s)|",
+        "Sat Nov 28 01:45:51 2026<stdout>:|Paraview surface                   |surface_adap_00004.vtu             |",
+        "Sat Nov 28 01:45:51 2026<stdout>:|                                   |                     (354.129 MB/s)|"
+      ],
+      "convergence_summary": {
+        "Cauchy[CL]": {
+          "value": 4.60932e-06,
+          "criterion": "< 1e-07",
+          "converged": "No",
+          "line": "Sat Nov 28 01:45:50 2026<stdout>:|                  Cauchy[CL]|   4.60932e-06|       < 1e-07|          No|"
+        },
+        "Cauchy[CD]": {
+          "value": 3.71479e-07,
+          "criterion": "< 1e-07",
+          "converged": "No",
+          "line": "Sat Nov 28 01:45:50 2026<stdout>:|                  Cauchy[CD]|   3.71479e-07|       < 1e-07|          No|"
+        }
+      },
+      "exit_messages": [
+        "Maximum number of iterations reached (ITER = 2000) before convergence."
+      ],
+      "screen_coefficients": {
+        "CL": 0.292191,
+        "CD": 0.011364
+      },
+      "adaptation_start_utc": null,
+      "surface_core_evidence": [],
+      "solver_exit_utc": "2026-11-28T00:45:50+00:00",
+      "convergence_summary_complete": true,
+      "summary_points": 148915,
+      "solve_seconds": 1691.55,
+      "adapt_next_seconds": null,
+      "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/adapted_mesh_adap_00004.su2",
+      "cells": 828864,
+      "exit_message": "Maximum number of iterations reached (ITER = 2000) before convergence.",
+      "rms_rho_first": -2.437956187,
+      "rms_rho_last": -4.798839705,
+      "rms_rho_drop": 2.3608835179999996,
+      "CL": 0.2921907629,
+      "cauchy_CL": 4.609322241e-06,
+      "CD": 0.01136435155,
+      "cauchy_CD": 3.714788324e-07,
+      "history_gate": {
+        "status": "passed",
+        "reason": null,
+        "values": {
+          "rows": 2000,
+          "expected_rows": 2000,
+          "adap_iter_offset": 5845
+        }
+      },
+      "observed_iterations": 2000,
+      "marker_faces": {
+        "WING3D": 11343,
+        "FARFIELD": 6801,
+        "SYMMETRY": 22886
+      }
+    }
+  ],
+  "whole_job_memory": {
+    "status": "passed",
+    "reason": null,
+    "values": {
+      "rank_peaks_bytes": [
+        1029455872,
+        955031552,
+        915767296,
+        654282752,
+        759902208,
+        739667968
+      ],
+      "sum_bytes": 5054107648,
+      "limit_bytes": 19999490048
+    }
+  },
+  "runtime_defaults": {
+    "norm": {
+      "status": "passed",
+      "reason": null,
+      "values": {
+        "expected": 2.0,
+        "observed": [
+          2.0
+        ],
+        "lines": [
+          "Its metric makes the next mesh: complexity 50000, sizes 0.003 to 100, norm 2, aspect ratio up to 1e+06."
+        ]
+      }
+    },
+    "wiring_defect": false,
+    "defects": []
+  },
+  "failures": [],
+  "not_applicable": [
+    "native packets",
+    "native timers",
+    "native proof faces",
+    "native reference sidecars"
+  ]
+}

@@ -1,0 +1,1776 @@
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 00:00:14 2026<stdout>:|    ___ _   _ ___                                                      |
+Sat Nov 28 00:00:14 2026<stdout>:|   / __| | | |_  )   Release 8.5.0 "Harrier"                           |
+Sat Nov 28 00:00:14 2026<stdout>:|   \__ \ |_| |/ /                                                      |
+Sat Nov 28 00:00:14 2026<stdout>:|   |___/\___//___|   Suite (Computational Fluid Dynamics Code)         |
+Sat Nov 28 00:00:14 2026<stdout>:|                                                                       |
+Sat Nov 28 00:00:14 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 00:00:14 2026<stdout>:| SU2 Project Website: https://su2code.github.io                        |
+Sat Nov 28 00:00:14 2026<stdout>:|                                                                       |
+Sat Nov 28 00:00:14 2026<stdout>:| The SU2 Project is maintained by the SU2 Foundation                   |
+Sat Nov 28 00:00:14 2026<stdout>:| (http://su2foundation.org)                                            |
+Sat Nov 28 00:00:14 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 00:00:14 2026<stdout>:| Copyright 2012-2026, SU2 Contributors                                 |
+Sat Nov 28 00:00:14 2026<stdout>:|                                                                       |
+Sat Nov 28 00:00:14 2026<stdout>:| SU2 is free software; you can redistribute it and/or                  |
+Sat Nov 28 00:00:14 2026<stdout>:| modify it under the terms of the GNU Lesser General Public            |
+Sat Nov 28 00:00:14 2026<stdout>:| License as published by the Free Software Foundation; either          |
+Sat Nov 28 00:00:14 2026<stdout>:| version 2.1 of the License, or (at your option) any later version.    |
+Sat Nov 28 00:00:14 2026<stdout>:|                                                                       |
+Sat Nov 28 00:00:14 2026<stdout>:| SU2 is distributed in the hope that it will be useful,                |
+Sat Nov 28 00:00:14 2026<stdout>:| but WITHOUT ANY WARRANTY; without even the implied warranty of        |
+Sat Nov 28 00:00:14 2026<stdout>:| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
+Sat Nov 28 00:00:14 2026<stdout>:| Lesser General Public License for more details.                       |
+Sat Nov 28 00:00:14 2026<stdout>:|                                                                       |
+Sat Nov 28 00:00:14 2026<stdout>:| You should have received a copy of the GNU Lesser General Public      |
+Sat Nov 28 00:00:14 2026<stdout>:| License along with SU2. If not, see <http://www.gnu.org/licenses/>.   |
+Sat Nov 28 00:00:14 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:Parsing config file for zone 0
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:----------------- Physical Case Definition ( Zone 0 ) -------------------
+Sat Nov 28 00:00:14 2026<stdout>:Compressible Euler equations.
+Sat Nov 28 00:00:14 2026<stdout>:Mach number: 0.8395.
+Sat Nov 28 00:00:14 2026<stdout>:Angle of attack (AoA): 3.06 deg, and angle of sideslip (AoS): 0 deg.
+Sat Nov 28 00:00:14 2026<stdout>:Reading and writing binary SU2 native restart files.
+Sat Nov 28 00:00:14 2026<stdout>:Read flow solution from: baseline_euler_seed.
+Sat Nov 28 00:00:14 2026<stdout>:Dimensional simulation.
+Sat Nov 28 00:00:14 2026<stdout>:The reference area is 0.7532 m^2.
+Sat Nov 28 00:00:14 2026<stdout>:The semi-span will be computed using the max y(3D) value.
+Sat Nov 28 00:00:14 2026<stdout>:The reference length is 0.64607 m.
+Sat Nov 28 00:00:14 2026<stdout>:Reference origin for moment evaluation is (0.25, 0, 0).
+Sat Nov 28 00:00:14 2026<stdout>:Surface(s) where the force coefficients are evaluated: WING3D.
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:Surface(s) plotted in the output file: WING3D.
+Sat Nov 28 00:00:14 2026<stdout>:Input mesh file name: m6.su2
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Sat Nov 28 00:00:14 2026<stdout>:Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Sat Nov 28 00:00:14 2026<stdout>:Standard Roe without low-dissipation function.
+Sat Nov 28 00:00:14 2026<stdout>:Second order integration in space, with slope limiter.
+Sat Nov 28 00:00:14 2026<stdout>:Venkatakrishnan slope-limiting method, with constant: 1.
+Sat Nov 28 00:00:14 2026<stdout>:The reference element size is: 1. 
+Sat Nov 28 00:00:14 2026<stdout>:Gradient for upwind reconstruction: Green-Gauss.
+Sat Nov 28 00:00:14 2026<stdout>:Gradient for viscous and source terms: Green-Gauss.
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Sat Nov 28 00:00:14 2026<stdout>:Local time stepping (steady state simulation).
+Sat Nov 28 00:00:14 2026<stdout>:Euler implicit method for the flow equations.
+Sat Nov 28 00:00:14 2026<stdout>:FGMRES is used for solving the linear system.
+Sat Nov 28 00:00:14 2026<stdout>:Using LU-SGS preconditioning.
+Sat Nov 28 00:00:14 2026<stdout>:Convergence criteria of the linear solver: 1e-06.
+Sat Nov 28 00:00:14 2026<stdout>:Max number of linear iterations: 20.
+Sat Nov 28 00:00:14 2026<stdout>:No CFL adaptation.
+Sat Nov 28 00:00:14 2026<stdout>:Courant-Friedrichs-Lewy number:        1
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Sat Nov 28 00:00:14 2026<stdout>:Maximum number of solver subiterations: 1.
+Sat Nov 28 00:00:14 2026<stdout>:Begin convergence monitoring at iteration 300.
+Sat Nov 28 00:00:14 2026<stdout>:Residual minimum value: 1e-10.
+Sat Nov 28 00:00:14 2026<stdout>:Cauchy series min. value: 1e-07.
+Sat Nov 28 00:00:14 2026<stdout>:Number of Cauchy elements: 100.
+Sat Nov 28 00:00:14 2026<stdout>:Begin windowed time average at iteration 0.
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:-------------------- Output Information ( Zone 0 ) ----------------------
+Sat Nov 28 00:00:14 2026<stdout>:File writing frequency: 
+Sat Nov 28 00:00:14 2026<stdout>:+------------------------------------+
+Sat Nov 28 00:00:14 2026<stdout>:|                     File| Frequency|
+Sat Nov 28 00:00:14 2026<stdout>:+------------------------------------+
+Sat Nov 28 00:00:14 2026<stdout>:|                  RESTART|    100000|
+Sat Nov 28 00:00:14 2026<stdout>:|                 PARAVIEW|    1000Sat Nov 28 00:00:14 2026<stdout>:00|
+Sat Nov 28 00:00:14 2026<stdout>:|         SURFACE_PARAVIEW|    100000|
+Sat Nov 28 00:00:14 2026<stdout>:+------------------------------------+
+Sat Nov 28 00:00:14 2026<stdout>:Writing the convergence history file every 1 inner iterations.
+Sat Nov 28 00:00:14 2026<stdout>:Writing the screen convergence history every 10 inner iterations.
+Sat Nov 28 00:00:14 2026<stdout>:The tabular file format is CSV (.csv).
+Sat Nov 28 00:00:14 2026<stdout>:Convergence history file name: history.
+Sat Nov 28 00:00:14 2026<stdout>:Forces breakdown file name: forces_breakdown.dat.
+Sat Nov 28 00:00:14 2026<stdout>:Surface file name: surface.
+Sat Nov 28 00:00:14 2026<stdout>:Volume file name: flow.
+Sat Nov 28 00:00:14 2026<stdout>:Restart file name: restart_flow.
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:------------- Config File Boundary Information ( Zone 0 ) ---------------
+Sat Nov 28 00:00:14 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:14 2026<stdout>:|                        Marker Type|                        Marker Name|
+Sat Nov 28 00:00:14 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:14 2026<stdout>:|                         Euler wall|                             WING3D|
+Sat Nov 28 00:00:14 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:14 2026<stdout>:|                          Far-field|                           FARFIELD|
+Sat Nov 28 00:00:14 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:14 2026<stdout>:|                     Symmetry plane|                           SYMMETRY|
+Sat Nov 28 00:00:14 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:-------------------- Output Preprocessing ( Zone 0 ) --------------------
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:Screen output fields: INNER_ITER, RMS_DENSITY, LIFT, DRAG
+Sat Nov 28 00:00:14 2026<stdout>:History output group(s): ITER, RMS_RES, AERO_COEFF, CAUCHY, LINSOL, CFL_NUMBER
+Sat Nov 28 00:00:14 2026<stdout>:Convergence field(s): LIFT, DRAG
+Sat Nov 28 00:00:14 2026<stdout>:Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Sat Nov 28 00:00:14 2026<stdout>:Volume output fields: COORDINATES, SOLUTION, PRIMITIVE, METRIC, ADAP_SENSOR
+Sat Nov 28 00:00:14 2026<stdout>:
+Sat Nov 28 00:00:14 2026<stdout>:------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Sat Nov 28 00:00:14 2026<stdout>:Three dimensional problem.
+Sat Nov 28 00:00:14 2026<stdout>:61330 grid points before partitioning.
+Sat Nov 28 00:00:14 2026<stdout>:303359 volume elements before partitioning.
+Sat Nov 28 00:00:14 2026<stdout>:3 surface markers.
+Sat Nov 28 00:00:14 2026<stdout>:2060 boundary elements in index 0 (Marker = FARFIELD).
+Sat Nov 28 00:00:14 2026<stdout>:8094 boundary elements in index 1 (Marker = SYMMETRY).
+Sat Nov 28 00:00:14 2026<stdout>:38800 boundary elements in index 2 (Marker = WING3D).
+Sat Nov 28 00:00:14 2026<stdout>:Executing the partitioning functions.
+Sat Nov 28 00:00:14 2026<stdout>:Building the graph adjacency structure.
+Sat Nov 28 00:00:14 2026<stdout>:Calling ParMETIS... graph partitioning complete (9257 edge cuts).
+Sat Nov 28 00:00:14 2026<stdout>:Distributing ParMETIS coloring.
+Sat Nov 28 00:00:15 2026<stdout>:Rebalancing vertices.
+Sat Nov 28 00:00:15 2026<stdout>:Rebalancing volume element connectivity.
+Sat Nov 28 00:00:15 2026<stdout>:Rebalancing markers and surface elements.
+Sat Nov 28 00:00:15 2026<stdout>:66760 vertices including ghost points. 
+Sat Nov 28 00:00:15 2026<stdout>:316843 interior elements including halo cells. 
+Sat Nov 28 00:00:15 2026<stdout>:316843 tetrahedra.
+Sat Nov 28 00:00:16 2026<stdout>:Establishing MPI communication patterns.
+Sat Nov 28 00:00:16 2026<stdout>:Setting point connectivity.
+Sat Nov 28 00:00:16 2026<stdout>:Renumbering points (Reverse Cuthill McKee Ordering).
+Sat Nov 28 00:00:16 2026<stdout>:Recomputing point connectivity.
+Sat Nov 28 00:00:16 2026<stdout>:Setting element connectivity.
+Sat Nov 28 00:00:16 2026<stdout>:Checking the numerical grid orientation.
+Sat Nov 28 00:00:16 2026<stdout>:All volume elements are correctly oriented.
+Sat Nov 28 00:00:16 2026<stdout>:All surface elements are correctly oriented.
+Sat Nov 28 00:00:16 2026<stdout>:Identifying edges and vertices.
+Sat Nov 28 00:00:16 2026<stdout>:Setting the control volume structure.
+Sat Nov 28 00:00:16 2026<stdout>:Volume of the computational grid: 2.08846e+06.
+Sat Nov 28 00:00:16 2026<stdout>:Searching for the closest normal neighbors to the surfaces.
+Sat Nov 28 00:00:16 2026<stdout>:Storing a mapping from global to local point index.
+Sat Nov 28 00:00:16 2026<stdout>:Compute the surface curvature.
+Sat Nov 28 00:00:16 2026<stdout>:Max K: 72103.8. Mean K: 541.635. Standard deviation K: 3508.42.
+Sat Nov 28 00:00:16 2026<stdout>:Computing mesh quality statistics for the dual control volumes.
+Sat Nov 28 00:00:16 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:|           Mesh Quality Metric|        Minimum|        Maximum|
+Sat Nov 28 00:00:16 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:|    Orthogonality Angle (deg.)|        6.83474|        84.2921|
+Sat Nov 28 00:00:16 2026<stdout>:|     CV Face Area Aspect Ratio|        1.05639|        157.983|
+Sat Nov 28 00:00:16 2026<stdout>:|           CV Sub-Volume Ratio|        1.00915|        1864.59|
+Sat Nov 28 00:00:16 2026<stdout>:|                     CV Volume|    4.23004e-13|        1347.01|
+Sat Nov 28 00:00:16 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:Finding max control volume width.
+Sat Nov 28 00:00:16 2026<stdout>:Communicating number of neighbors.
+Sat Nov 28 00:00:16 2026<stdout>:Semi-span length = 1.21848 m.
+Sat Nov 28 00:00:16 2026<stdout>:Wetted area = 1.55706 m^2.
+Sat Nov 28 00:00:16 2026<stdout>:Area projection in the x-plane = 0.0743682 m^2, y-plane = 0.0181104 m^2, z-plane = 0.758905 m^2.
+Sat Nov 28 00:00:16 2026<stdout>:Max. coordinate in the x-direction = 1.14408 m, y-direction = 1.21848 m, z-direction = 0.0394304 m.
+Sat Nov 28 00:00:16 2026<stdout>:Min. coordinate in the x-direction = -6.1346e-14 m, y-direction = -1.06253e-13 m, z-direction = -0.0394304 m.
+Sat Nov 28 00:00:16 2026<stdout>:Computing wall distances.
+Sat Nov 28 00:00:16 2026<stdout>:
+Sat Nov 28 00:00:16 2026<stdout>:-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Sat Nov 28 00:00:16 2026<stdout>:Inviscid flow: Computing density based on free-stream
+Sat Nov 28 00:00:16 2026<stdout>:temperature and pressure using the ideal gas law.
+Sat Nov 28 00:00:16 2026<stdout>:Force coefficients computed using free-stream values.
+Sat Nov 28 00:00:16 2026<stdout>:
+Sat Nov 28 00:00:16 2026<stdout>:-- Models:
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:|          Viscosity Model|        Conductivity Model|              Fluid Model|
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:|                        -|                         -|             STANDARD_AIR|
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:-- Fluid properties:
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+Sat Nov 28 00:00:16 2026<stdout>:|      Spec. Heat Ratio|             -|             -|         -|           1.4|
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:-- Initial and free-stream conditions:
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:|       Static Pressure|        101325|             1|        Pa|        101325|
+Sat Nov 28 00:00:16 2026<stdout>:|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+Sat Nov 28 00:00:16 2026<stdout>:|           Temperature|        288.15|             1|         K|        288.15|
+Sat Nov 28 00:00:16 2026<stdout>:|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+Sat Nov 28 00:00:16 2026<stdout>:|            Velocity-X|       285.272|             1|       m/s|       285.272|
+Sat Nov 28 00:00:16 2026<stdout>:|            Velocity-Y|             0|             1|       m/s|             0|
+Sat Nov 28 00:00:16 2026<stdout>:|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+Sat Nov 28 00:00:16 2026<stdout>:|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:|           Mach Number|             -|             -|         -|        0.8395|
+Sat Nov 28 00:00:16 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:00:16 2026<stdout>:Initialize Jacobian structure (Euler). MG level: 0.
+Sat Nov 28 00:00:17 2026<stdout>:
+Sat Nov 28 00:00:17 2026<stdout>:------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+Sat Nov 28 00:00:17 2026<stdout>:
+Sat Nov 28 00:00:17 2026<stdout>:----------------- Integration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 00:00:17 2026<stdout>:
+Sat Nov 28 00:00:17 2026<stdout>:------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 00:00:17 2026<stdout>:Euler/Navier-Stokes/RANS fluid iteration.
+Sat Nov 28 00:00:17 2026<stdout>:
+Sat Nov 28 00:00:17 2026<stdout>:------------------------- Mesh Adaptation Cycle -------------------------
+Sat Nov 28 00:00:17 2026<stdout>:Cycle 0 of 4: 61330 points, at most 1 iterations, CFL 1, V multigrid cycle, restart solution.
+Sat Nov 28 00:00:17 2026<stdout>:Its metric makes the next mesh: complexity 50000, sizes 0.003 to 100, norm 2, aspect ratio up to 1e+06.
+Sat Nov 28 00:00:17 2026<stdout>:
+Sat Nov 28 00:00:17 2026<stdout>:------------------------------ Begin Solver -----------------------------
+Sat Nov 28 00:00:17 2026<stdout>:
+Sat Nov 28 00:00:17 2026<stdout>:Simulation Run using the Single-zone Driver
+Sat Nov 28 00:00:17 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 00:00:17 2026<stdout>:|  Inner_Iter|    rms[Rho]|          CL|          CD|
+Sat Nov 28 00:00:17 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 00:00:17 2026<stdout>:|           0|   -5.735442|    0.269535|    0.013536|
+Sat Nov 28 00:00:17 2026<stdout>:
+Sat Nov 28 00:00:17 2026<stdout>:----------------------------- Compute Metric ----------------------------
+Sat Nov 28 00:00:17 2026<stdout>:Quadratic Hessian fits (owned point-sensor pairs): 39541 first ring, 21789 grown stencil, 0 WLS fallbacks.
+Sat Nov 28 00:00:17 2026<stdout>:Quadratic Hessian thin-stencil cubic/quartic corrections: 0 point-sensor fits; unsupported quartics retain cubic/quadratic fits.
+Sat Nov 28 00:00:17 2026<stdout>:Quadratic Hessian relative weighted fit residual: mean 0.140334, maximum 0.96661; 39813 fits above 0.05; minimum QR pivot ratio 0.00290566. Second-ring MPI: 4501 requested owner neighborhoods, 66136 exported samples.
+Sat Nov 28 00:00:17 2026<stdout>:WARNING: Large quadratic fit residuals remain after stencil comparison; inspect sensor noise and nonsmooth flow features. No resolved curvature was discarded.
+Sat Nov 28 00:00:17 2026<stdout>:Hessian recovery: 0.418856 s (maximum rank time).
+Sat Nov 28 00:00:17 2026<stdout>:Metric field statistics:
+Sat Nov 28 00:00:17 2026<stdout>:Minimum density: 1.57398e-05.
+Sat Nov 28 00:00:17 2026<stdout>:Maximum density: 3.7037e+07.
+Sat Nov 28 00:00:17 2026<stdout>:Maximum cell AR: 459.233.
+Sat Nov 28 00:00:17 2026<stdout>:Mesh complexity: 50000 (ADAP_COMPLEXITY= 50000).
+Sat Nov 28 00:00:17 2026<stdout>:Sharp wall points: 401, the isotropic corner metric (ADAP_ISO_CORNER) is applied in 2D only, the metric is not changed.
+Sat Nov 28 00:00:17 2026<stdout>:Metric computed in 0.445724 s.
+Sat Nov 28 00:00:17 2026<stdout>:
+Sat Nov 28 00:00:17 2026<stdout>:----------------------------- Solver Exit -------------------------------
+Sat Nov 28 00:00:17 2026<stdout>:
+Sat Nov 28 00:00:17 2026<stdout>:Maximum number of iterations reached (ITER = 1) before convergence.
+Sat Nov 28 00:00:17 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:17 2026<stdout>:|      Convergence Field     |     Value    |   Criterion  |  Converged |
+Sat Nov 28 00:00:17 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:17 2026<stdout>:|                  Cauchy[CL]|             1|       < 1e-07|          No|
+Sat Nov 28 00:00:17 2026<stdout>:|                  Cauchy[CD]|             1|       < 1e-07|          No|
+Sat Nov 28 00:00:17 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:17 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 00:00:17 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:17 2026<stdout>:|        File Writing Summary       |              Filename             |
+Sat Nov 28 00:00:17 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:17 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00000.dat        |
+Sat Nov 28 00:00:17 2026<stdout>:|                                   |                     (1003.52 MB/s)|
+Sat Nov 28 00:00:17 2026<stdout>:|Paraview                           |flow_adap_00000.vtu                |
+Sat Nov 28 00:00:17 2026<stdout>:|                                   |                     (708.276 MB/s)|
+Sat Nov 28 00:00:17 2026<stdout>:|Paraview surface                   |surface_adap_00000.vtu             |
+Sat Nov 28 00:00:17 2026<stdout>:|                                   |                     (725.213 MB/s)|
+Sat Nov 28 00:00:17 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:00:18 2026<stdout>:
+Sat Nov 28 00:00:18 2026<stdout>:------------------------------ Remesh (MMG) -----------------------------
+Sat Nov 28 00:00:18 2026<stdout>:MMG_PARAMETERS dim=3 hmin=0.0030000000000000001 hmax=100 hgrad=1.6000000000000001 hausd=0.01 local_rows=3
+Sat Nov 28 00:00:18 2026<stdout>:MMG_LOCAL_PARAMETER marker=WING3D ref=3 hmin=0.0030000000000000001 hmax=100 hausd=0.001
+Sat Nov 28 00:00:18 2026<stdout>:MMG_LOCAL_PARAMETER marker=FARFIELD ref=1 hmin=0.0030000000000000001 hmax=100 hausd=1
+Sat Nov 28 00:00:18 2026<stdout>:MMG_LOCAL_PARAMETER marker=SYMMETRY ref=2 hmin=0.0030000000000000001 hmax=100 hausd=0.001
+Sat Nov 28 00:02:49 2026<stdout>:Remeshed 61330 points, 303359 elements into 84835 points, 469183 elements.
+Sat Nov 28 00:02:49 2026<stdout>:MMG3D status SUCCESS, 151.035 s (with the validation of input and output), extraction 0.167614 s (gathered from 6 ranks), slices sent 0.101975 s total_seconds=151.30419235299999.
+Sat Nov 28 00:02:49 2026<stdout>:
+Sat Nov 28 00:02:49 2026<stdout>:---------------------------- Replace the Mesh ---------------------------
+Sat Nov 28 00:02:49 2026<stdout>:Three dimensional problem.
+Sat Nov 28 00:02:49 2026<stdout>:84835 grid points before partitioning.
+Sat Nov 28 00:02:49 2026<stdout>:469183 volume elements before partitioning.
+Sat Nov 28 00:02:49 2026<stdout>:3 surface markers.
+Sat Nov 28 00:02:49 2026<stdout>:12637 boundary elements in index 0 (Marker = WING3D).
+Sat Nov 28 00:02:49 2026<stdout>:1832 boundary elements in index 1 (Marker = FARFIELD).
+Sat Nov 28 00:02:49 2026<stdout>:11715 boundary elements in index 2 (Marker = SYMMETRY).
+Sat Nov 28 00:02:49 2026<stdout>:Executing the partitioning functions.
+Sat Nov 28 00:02:49 2026<stdout>:Building the graph adjacency structure.
+Sat Nov 28 00:02:49 2026<stdout>:Calling ParMETIS... graph partitioning complete (16561 edge cuts).
+Sat Nov 28 00:02:49 2026<stdout>:Distributing ParMETIS coloring.
+Sat Nov 28 00:02:49 2026<stdout>:Rebalancing vertices.
+Sat Nov 28 00:02:49 2026<stdout>:Rebalancing volume element connectivity.
+Sat Nov 28 00:02:49 2026<stdout>:Rebalancing markers and surface elements.
+Sat Nov 28 00:02:49 2026<stdout>:94218 vertices including ghost points. 
+Sat Nov 28 00:02:49 2026<stdout>:494197 interior elements including halo cells. 
+Sat Nov 28 00:02:49 2026<stdout>:494197 tetrahedra.
+Sat Nov 28 00:02:49 2026<stdout>:Establishing MPI communication patterns.
+Sat Nov 28 00:02:49 2026<stdout>:Setting point connectivity.
+Sat Nov 28 00:02:49 2026<stdout>:Renumbering points (Reverse Cuthill McKee Ordering).
+Sat Nov 28 00:02:49 2026<stdout>:Recomputing point connectivity.
+Sat Nov 28 00:02:49 2026<stdout>:Setting element connectivity.
+Sat Nov 28 00:02:50 2026<stdout>:Checking the numerical grid orientation.
+Sat Nov 28 00:02:50 2026<stdout>:All volume elements are correctly oriented.
+Sat Nov 28 00:02:50 2026<stdout>:There has been a re-orientation of 27113 TRIANGLE surface elements.
+Sat Nov 28 00:02:50 2026<stdout>:Identifying edges and vertices.
+Sat Nov 28 00:02:50 2026<stdout>:Setting the control volume structure.
+Sat Nov 28 00:02:50 2026<stdout>:Volume of the computational grid: 2.07905e+06.
+Sat Nov 28 00:02:50 2026<stdout>:Searching for the closest normal neighbors to the surfaces.
+Sat Nov 28 00:02:50 2026<stdout>:Storing a mapping from global to local point index.
+Sat Nov 28 00:02:50 2026<stdout>:Compute the surface curvature.
+Sat Nov 28 00:02:50 2026<stdout>:Max K: 8240.98. Mean K: 114.668. Standard deviation K: 522.172.
+Sat Nov 28 00:02:50 2026<stdout>:Computing mesh quality statistics for the dual control volumes.
+Sat Nov 28 00:02:50 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:|           Mesh Quality Metric|        Minimum|        Maximum|
+Sat Nov 28 00:02:50 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:|    Orthogonality Angle (deg.)|        16.9698|        83.4975|
+Sat Nov 28 00:02:50 2026<stdout>:|     CV Face Area Aspect Ratio|        1.06783|        259.013|
+Sat Nov 28 00:02:50 2026<stdout>:|           CV Sub-Volume Ratio|        1.00428|        731.093|
+Sat Nov 28 00:02:50 2026<stdout>:|                     CV Volume|     1.2839e-10|        7600.56|
+Sat Nov 28 00:02:50 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:Finding max control volume width.
+Sat Nov 28 00:02:50 2026<stdout>:Communicating number of neighbors.
+Sat Nov 28 00:02:50 2026<stdout>:Wetted area = 1.55714 m^2.
+Sat Nov 28 00:02:50 2026<stdout>:Area projection in the x-plane = 0.0743681 m^2, y-plane = 0.0181002 m^2, z-plane = 0.759636 m^2.
+Sat Nov 28 00:02:50 2026<stdout>:Max. coordinate in the x-direction = 1.14403 m, y-direction = 1.21848 m, z-direction = 0.0393899 m.
+Sat Nov 28 00:02:50 2026<stdout>:Min. coordinate in the x-direction = 2.07004e-05 m, y-direction = -1.06253e-13 m, z-direction = -0.0394022 m.
+Sat Nov 28 00:02:50 2026<stdout>:Computing wall distances.
+Sat Nov 28 00:02:50 2026<stdout>:
+Sat Nov 28 00:02:50 2026<stdout>:-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Sat Nov 28 00:02:50 2026<stdout>:Inviscid flow: Computing density based on free-stream
+Sat Nov 28 00:02:50 2026<stdout>:temperature and pressure using the ideal gas law.
+Sat Nov 28 00:02:50 2026<stdout>:Force coefficients computed using free-stream values.
+Sat Nov 28 00:02:50 2026<stdout>:
+Sat Nov 28 00:02:50 2026<stdout>:-- Models:
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:|          Viscosity Model|        Conductivity Model|              Fluid Model|
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:|                        -|                         -|             STANDARD_AIR|
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:-- Fluid properties:
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+Sat Nov 28 00:02:50 2026<stdout>:|      Spec. Heat Ratio|             -|             -|         -|           1.4|
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:-- Initial and free-stream conditions:
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:|       Static Pressure|        101325|             1|        Pa|        101325|
+Sat Nov 28 00:02:50 2026<stdout>:|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+Sat Nov 28 00:02:50 2026<stdout>:|           Temperature|        288.15|             1|         K|        288.15|
+Sat Nov 28 00:02:50 2026<stdout>:|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+Sat Nov 28 00:02:50 2026<stdout>:|            Velocity-X|       285.272|             1|       m/s|       285.272|
+Sat Nov 28 00:02:50 2026<stdout>:|            Velocity-Y|             0|             1|       m/s|             0|
+Sat Nov 28 00:02:50 2026<stdout>:|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+Sat Nov 28 00:02:50 2026<stdout>:|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:|           Mach Number|             -|             -|         -|        0.8395|
+Sat Nov 28 00:02:50 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:02:50 2026<stdout>:Initialize Jacobian structure (Euler). MG level: 0.
+Sat Nov 28 00:02:59 2026<stdout>:
+Sat Nov 28 00:02:59 2026<stdout>:------------------- Solution Transfer (conservative P1) -------------------
+Sat Nov 28 00:02:59 2026<stdout>:Distributed conservative transfer on 6 rank(s): import groups 1, imported donor elements 861346 (largest per rank / mean 2.11); planned memory per rank (largest): resident and coverage 190 MB, import 321 MB (ceiling 2048 MB).
+Sat Nov 28 00:02:59 2026<stdout>:Supermesh of 469183 new and 303359 donor elements: 5516264 overlapping pairs (21829059 clipped), measure 2.079e+06 of 2.079e+06 (new) and 2.088e+06 (donor).
+Sat Nov 28 00:02:59 2026<stdout>:New domain outside the donor (S_n): 43463 parts of control volumes at 6679 points (2 of points on no marker), measure 4.122e+02, filled with the closest donor values (max distance 7.216e-02, 6.418e-01 of the face); new elements outside the donor: 0.
+Sat Nov 28 00:02:59 2026<stdout>:Donor domain outside the new one (S_d): 43413 donor elements, measure 9.866e+03, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Sat Nov 28 00:02:59 2026<stdout>:Largest uncovered fraction of a control-volume piece: 8.223e-01.
+Sat Nov 28 00:02:59 2026<stdout>:Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+Sat Nov 28 00:02:59 2026<stdout>:             Density:  1.974e-04  4.724e-03 -2.026e-10  1.760e-14   10  2.668e-14      33
+Sat Nov 28 00:02:59 2026<stdout>:          Momentum-x:  1.974e-04  4.724e-03 -2.042e-10  1.784e-14   10  3.659e-14      69
+Sat Nov 28 00:02:59 2026<stdout>:          Momentum-y: -3.350e-05  1.075e-04  1.137e-07 -6.883e-13   19  9.219e-14      36
+Sat Nov 28 00:02:59 2026<stdout>:          Momentum-z:  1.973e-04  4.724e-03 -1.949e-10  1.800e-14   13  5.194e-14      90
+Sat Nov 28 00:02:59 2026<stdout>:              Energy:  1.974e-04  4.724e-03 -2.027e-10  1.769e-14   10  2.691e-14      52
+Sat Nov 28 00:02:59 2026<stdout>:States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Sat Nov 28 00:02:59 2026<stdout>:Domain volume: donor 2.088e+06, new 2.079e+06, relative change -4.527e-03.
+Sat Nov 28 00:02:59 2026<stdout>:Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+Sat Nov 28 00:02:59 2026<stdout>:             Density: -4.527e-03
+Sat Nov 28 00:02:59 2026<stdout>:          Momentum-x: -4.520e-03
+Sat Nov 28 00:02:59 2026<stdout>:          Momentum-y: -1.060e-09
+Sat Nov 28 00:02:59 2026<stdout>:          Momentum-z: -2.416e-04
+Sat Nov 28 00:02:59 2026<stdout>:              Energy: -4.527e-03
+Sat Nov 28 00:02:59 2026<stdout>:Time: setup 0.3334 s, import 0.8205 s, supermesh 6.558 s, coverage and slivers 1.894 s, solve 0.1794 s, limiter 0.009137 s, total 9.482 s.
+Sat Nov 28 00:02:59 2026<stdout>:
+Sat Nov 28 00:02:59 2026<stdout>:------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+Sat Nov 28 00:02:59 2026<stdout>:
+Sat Nov 28 00:02:59 2026<stdout>:----------------- Integration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 00:02:59 2026<stdout>:
+Sat Nov 28 00:02:59 2026<stdout>:------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 00:02:59 2026<stdout>:Euler/Navier-Stokes/RANS fluid iteration.
+Sat Nov 28 00:03:00 2026<stdout>:The problem uses the new mesh: 84835 points, 0 multigrid levels.
+Sat Nov 28 00:03:00 2026<stdout>:Mesh replaced in 10.8375 s (solution transfer 9.48963 s).
+Sat Nov 28 00:03:00 2026<stdout>:Writing the adapted mesh of cycle 1: adapted_mesh_adap_00001.su2.
+Sat Nov 28 00:03:00 2026<stdout>:
+Sat Nov 28 00:03:00 2026<stdout>:------------------------- Mesh Adaptation Cycle -------------------------
+Sat Nov 28 00:03:00 2026<stdout>:Cycle 1 of 4: 84835 points, at most 2000 iterations, CFL 5, V multigrid cycle, transferred solution.
+Sat Nov 28 00:03:00 2026<stdout>:Its metric makes the next mesh: complexity 50000, sizes 0.003 to 100, norm 2, aspect ratio up to 1e+06.
+Sat Nov 28 00:03:00 2026<stdout>:
+Sat Nov 28 00:03:00 2026<stdout>:------------------------------ Begin Solver -----------------------------
+Sat Nov 28 00:03:00 2026<stdout>:
+Sat Nov 28 00:03:00 2026<stdout>:Simulation Run using the Single-zone Driver
+Sat Nov 28 00:03:00 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 00:03:00 2026<stdout>:|  Inner_Iter|    rms[Rho]|          CL|          CD|
+Sat Nov 28 00:03:00 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 00:03:00 2026<stdout>:|           0|   -1.935836|    0.270662|    0.015432|
+Sat Nov 28 00:03:05 2026<stdout>:|          10|   -2.788749|    0.274135|    0.014916|
+Sat Nov 28 00:03:10 2026<stdout>:|          20|   -2.753551|    0.276619|    0.015405|
+Sat Nov 28 00:03:15 2026<stdout>:|          30|   -2.735317|    0.278405|    0.015505|
+Sat Nov 28 00:03:21 2026<stdout>:|          40|   -2.808026|    0.279169|    0.015092|
+Sat Nov 28 00:03:26 2026<stdout>:|          50|   -2.949040|    0.279281|    0.014603|
+Sat Nov 28 00:03:31 2026<stdout>:|          60|   -3.122667|    0.279350|    0.014169|
+Sat Nov 28 00:03:36 2026<stdout>:|          70|   -3.275500|    0.279938|    0.013822|
+Sat Nov 28 00:03:41 2026<stdout>:|          80|   -3.374965|    0.281168|    0.013591|
+Sat Nov 28 00:03:46 2026<stdout>:|          90|   -3.457474|    0.282798|    0.013464|
+Sat Nov 28 00:03:52 2026<stdout>:|         100|   -3.520282|    0.284538|    0.013405|
+Sat Nov 28 00:03:57 2026<stdout>:|         110|   -3.555217|    0.286080|    0.013378|
+Sat Nov 28 00:04:04 2026<stdout>:|         120|   -3.570227|    0.287196|    0.013355|
+Sat Nov 28 00:04:11 2026<stdout>:|         130|   -3.586552|    0.287780|    0.013308|
+Sat Nov 28 00:04:16 2026<stdout>:|         140|   -3.589325|    0.287943|    0.013227|
+Sat Nov 28 00:04:22 2026<stdout>:|         150|   -3.567874|    0.287964|    0.013119|
+Sat Nov 28 00:04:27 2026<stdout>:|         160|   -3.529413|    0.288230|    0.013023|
+Sat Nov 28 00:04:33 2026<stdout>:|         170|   -3.486989|    0.289013|    0.012976|
+Sat Nov 28 00:04:39 2026<stdout>:|         180|   -3.446468|    0.290302|    0.012993|
+Sat Nov 28 00:04:44 2026<stdout>:|         190|   -3.409779|    0.291797|    0.013057|
+Sat Nov 28 00:04:49 2026<stdout>:|         200|   -3.378239|    0.293124|    0.013139|
+Sat Nov 28 00:04:55 2026<stdout>:|         210|   -3.352997|    0.294017|    0.013215|
+Sat Nov 28 00:05:01 2026<stdout>:|         220|   -3.332255|    0.294392|    0.013280|
+Sat Nov 28 00:05:07 2026<stdout>:|         230|   -3.309673|    0.294332|    0.013336|
+Sat Nov 28 00:05:12 2026<stdout>:|         240|   -3.276989|    0.293988|    0.013392|
+Sat Nov 28 00:05:16 2026<stdout>:|         250|   -3.230503|    0.293507|    0.013452|
+Sat Nov 28 00:05:21 2026<stdout>:|         260|   -3.178055|    0.292989|    0.013515|
+Sat Nov 28 00:05:25 2026<stdout>:|         270|   -3.130211|    0.292468|    0.013573|
+Sat Nov 28 00:05:31 2026<stdout>:|         280|   -3.096550|    0.291951|    0.013616|
+Sat Nov 28 00:05:37 2026<stdout>:|         290|   -3.082687|    0.291444|    0.013637|
+Sat Nov 28 00:05:42 2026<stdout>:|         300|   -3.091053|    0.290980|    0.013635|
+Sat Nov 28 00:05:48 2026<stdout>:|         310|   -3.119024|    0.290619|    0.013617|
+Sat Nov 28 00:05:53 2026<stdout>:|         320|   -3.151909|    0.290418|    0.013595|
+Sat Nov 28 00:05:59 2026<stdout>:|         330|   -3.164433|    0.290401|    0.013580|
+Sat Nov 28 00:06:04 2026<stdout>:|         340|   -3.145026|    0.290559|    0.013579|
+Sat Nov 28 00:06:09 2026<stdout>:|         350|   -3.115590|    0.290848|    0.013595|
+Sat Nov 28 00:06:14 2026<stdout>:|         360|   -3.102444|    0.291209|    0.013624|
+Sat Nov 28 00:06:20 2026<stdout>:|         370|   -3.119641|    0.291582|    0.013659|
+Sat Nov 28 00:06:26 2026<stdout>:|         380|   -3.170258|    0.291924|    0.013691|
+Sat Nov 28 00:06:32 2026<stdout>:|         390|   -3.247207|    0.292217|    0.013715|
+Sat Nov 28 00:06:38 2026<stdout>:|         400|   -3.329789|    0.292470|    0.013728|
+Sat Nov 28 00:06:43 2026<stdout>:|         410|   -3.385459|    0.292699|    0.013731|
+Sat Nov 28 00:06:48 2026<stdout>:|         420|   -3.404045|    0.292924|    0.013724|
+Sat Nov 28 00:06:53 2026<stdout>:|         430|   -3.409233|    0.293156|    0.013710|
+Sat Nov 28 00:06:58 2026<stdout>:|         440|   -3.422701|    0.293400|    0.013689|
+Sat Nov 28 00:07:03 2026<stdout>:|         450|   -3.451182|    0.293650|    0.013664|
+Sat Nov 28 00:07:08 2026<stdout>:|         460|   -3.493198|    0.293897|    0.013635|
+Sat Nov 28 00:07:15 2026<stdout>:|         470|   -3.544526|    0.294130|    0.013604|
+Sat Nov 28 00:07:20 2026<stdout>:|         480|   -3.599846|    0.294330|    0.013574|
+Sat Nov 28 00:07:25 2026<stdout>:|         490|   -3.654036|    0.294475|    0.013544|
+Sat Nov 28 00:07:30 2026<stdout>:|         500|   -3.703105|    0.294542|    0.013518|
+Sat Nov 28 00:07:35 2026<stdout>:|         510|   -3.747555|    0.294517|    0.013493|
+Sat Nov 28 00:07:41 2026<stdout>:|         520|   -3.791953|    0.294393|    0.013470|
+Sat Nov 28 00:07:45 2026<stdout>:|         530|   -3.842544|    0.294180|    0.013450|
+Sat Nov 28 00:07:51 2026<stdout>:|         540|   -3.901712|    0.293904|    0.013434|
+Sat Nov 28 00:07:57 2026<stdout>:|         550|   -3.966172|    0.293599|    0.013423|
+Sat Nov 28 00:08:02 2026<stdout>:|         560|   -4.027116|    0.293308|    0.013420|
+Sat Nov 28 00:08:08 2026<stdout>:|         570|   -4.077434|    0.293068|    0.013428|
+Sat Nov 28 00:08:14 2026<stdout>:|         580|   -4.118092|    0.292901|    0.013450|
+Sat Nov 28 00:08:20 2026<stdout>:|         590|   -4.154973|    0.292814|    0.013485|
+Sat Nov 28 00:08:25 2026<stdout>:|         600|   -4.193143|    0.292800|    0.013532|
+Sat Nov 28 00:08:31 2026<stdout>:|         610|   -4.233160|    0.292841|    0.013588|
+Sat Nov 28 00:08:36 2026<stdout>:|         620|   -4.271800|    0.292910|    0.013648|
+Sat Nov 28 00:08:41 2026<stdout>:|         630|   -4.303138|    0.292978|    0.013705|
+Sat Nov 28 00:08:45 2026<stdout>:|         640|   -4.318705|    0.293026|    0.013755|
+Sat Nov 28 00:08:50 2026<stdout>:|         650|   -4.314862|    0.293044|    0.013792|
+Sat Nov 28 00:08:55 2026<stdout>:|         660|   -4.296169|    0.293034|    0.013813|
+Sat Nov 28 00:09:00 2026<stdout>:|         670|   -4.272944|    0.293004|    0.013815|
+Sat Nov 28 00:09:05 2026<stdout>:|         680|   -4.255148|    0.292968|    0.013799|
+Sat Nov 28 00:09:10 2026<stdout>:|         690|   -4.249945|    0.292944|    0.013766|
+Sat Nov 28 00:09:15 2026<stdout>:|         700|   -4.260683|    0.292945|    0.013720|
+Sat Nov 28 00:09:20 2026<stdout>:|         710|   -4.286505|    0.292976|    0.013666|
+Sat Nov 28 00:09:25 2026<stdout>:|         720|   -4.321842|    0.293044|    0.013608|
+Sat Nov 28 00:09:30 2026<stdout>:|         730|   -4.353920|    0.293144|    0.013552|
+Sat Nov 28 00:09:38 2026<stdout>:|         740|   -4.365349|    0.293270|    0.013503|
+Sat Nov 28 00:09:43 2026<stdout>:|         750|   -4.346946|    0.293417|    0.013465|
+Sat Nov 28 00:09:48 2026<stdout>:|         760|   -4.307204|    0.293570|    0.013441|
+Sat Nov 28 00:09:54 2026<stdout>:|         770|   -4.262811|    0.293718|    0.013431|
+Sat Nov 28 00:10:00 2026<stdout>:|         780|   -4.226201|    0.293846|    0.013435|
+Sat Nov 28 00:10:05 2026<stdout>:|         790|   -4.203854|    0.293943|    0.013452|
+Sat Nov 28 00:10:10 2026<stdout>:|         800|   -4.198533|    0.294001|    0.013478|
+Sat Nov 28 00:10:15 2026<stdout>:|         810|   -4.210451|    0.294014|    0.013510|
+Sat Nov 28 00:10:19 2026<stdout>:|         820|   -4.236828|    0.293983|    0.013545|
+Sat Nov 28 00:10:24 2026<stdout>:|         830|   -4.268114|    0.293910|    0.013580|
+Sat Nov 28 00:10:28 2026<stdout>:|         840|   -4.287106|    0.293802|    0.013612|
+Sat Nov 28 00:10:33 2026<stdout>:|         850|   -4.277967|    0.293670|    0.013638|
+Sat Nov 28 00:10:39 2026<stdout>:|         860|   -4.244873|    0.293526|    0.013657|
+Sat Nov 28 00:10:44 2026<stdout>:|         870|   -4.207681|    0.293379|    0.013668|
+Sat Nov 28 00:10:49 2026<stdout>:|         880|   -4.183113|    0.293241|    0.013673|
+Sat Nov 28 00:10:54 2026<stdout>:|         890|   -4.179059|    0.293118|    0.013670|
+Sat Nov 28 00:10:59 2026<stdout>:|         900|   -4.196865|    0.293017|    0.013662|
+Sat Nov 28 00:11:04 2026<stdout>:|         910|   -4.230727|    0.292942|    0.013651|
+Sat Nov 28 00:11:09 2026<stdout>:|         920|   -4.264625|    0.292894|    0.013637|
+Sat Nov 28 00:11:14 2026<stdout>:|         930|   -4.274730|    0.292876|    0.013623|
+Sat Nov 28 00:11:19 2026<stdout>:|         940|   -4.252417|    0.292887|    0.013609|
+Sat Nov 28 00:11:24 2026<stdout>:|         950|   -4.216616|    0.292924|    0.013596|
+Sat Nov 28 00:11:30 2026<stdout>:|         960|   -4.190101|    0.292985|    0.013586|
+Sat Nov 28 00:11:35 2026<stdout>:|         970|   -4.184654|    0.293065|    0.013579|
+Sat Nov 28 00:11:40 2026<stdout>:|         980|   -4.202691|    0.293158|    0.013574|
+Sat Nov 28 00:11:45 2026<stdout>:|         990|   -4.238453|    0.293259|    0.013571|
+Sat Nov 28 00:11:50 2026<stdout>:|        1000|   -4.275019|    0.293362|    0.013571|
+Sat Nov 28 00:11:55 2026<stdout>:|        1010|   -4.287179|    0.293460|    0.013572|
+Sat Nov 28 00:11:59 2026<stdout>:|        1020|   -4.265489|    0.293547|    0.013575|
+Sat Nov 28 00:12:04 2026<stdout>:|        1030|   -4.229228|    0.293618|    0.013578|
+Sat Nov 28 00:12:09 2026<stdout>:|        1040|   -4.201504|    0.293669|    0.013582|
+Sat Nov 28 00:12:14 2026<stdout>:|        1050|   -4.194173|    0.293698|    0.013586|
+Sat Nov 28 00:12:20 2026<stdout>:|        1060|   -4.210560|    0.293705|    0.013590|
+Sat Nov 28 00:12:25 2026<stdout>:|        1070|   -4.248210|    0.293690|    0.013593|
+Sat Nov 28 00:12:31 2026<stdout>:|        1080|   -4.297452|    0.293657|    0.013595|
+Sat Nov 28 00:12:36 2026<stdout>:|        1090|   -4.338273|    0.293608|    0.013596|
+Sat Nov 28 00:12:41 2026<stdout>:|        1100|   -4.348199|    0.293549|    0.013597|
+Sat Nov 28 00:12:46 2026<stdout>:|        1110|   -4.327435|    0.293485|    0.013597|
+Sat Nov 28 00:12:51 2026<stdout>:|        1120|   -4.297998|    0.293420|    0.013596|
+Sat Nov 28 00:12:55 2026<stdout>:|        1130|   -4.278777|    0.293358|    0.013595|
+Sat Nov 28 00:13:00 2026<stdout>:|        1140|   -4.278477|    0.293304|    0.013594|
+Sat Nov 28 00:13:05 2026<stdout>:|        1150|   -4.299282|    0.293260|    0.013592|
+Sat Nov 28 00:13:10 2026<stdout>:|        1160|   -4.339914|    0.293228|    0.013591|
+Sat Nov 28 00:13:15 2026<stdout>:|        1170|   -4.395639|    0.293209|    0.013590|
+Sat Nov 28 00:13:20 2026<stdout>:|        1180|   -4.455737|    0.293202|    0.013589|
+Sat Nov 28 00:13:25 2026<stdout>:|        1190|   -4.502540|    0.293208|    0.013589|
+Sat Nov 28 00:13:30 2026<stdout>:|        1200|   -4.520725|    0.293223|    0.013590|
+Sat Nov 28 00:13:35 2026<stdout>:|        1210|   -4.512617|    0.293245|    0.013591|
+Sat Nov 28 00:13:40 2026<stdout>:|        1220|   -4.494438|    0.293271|    0.013594|
+Sat Nov 28 00:13:45 2026<stdout>:|        1230|   -4.480280|    0.293299|    0.013596|
+Sat Nov 28 00:13:49 2026<stdout>:|        1240|   -4.477167|    0.293326|    0.013599|
+Sat Nov 28 00:13:54 2026<stdout>:|        1250|   -4.487462|    0.293351|    0.013602|
+Sat Nov 28 00:13:59 2026<stdout>:|        1260|   -4.511305|    0.293371|    0.013604|
+Sat Nov 28 00:14:04 2026<stdout>:|        1270|   -4.547679|    0.293387|    0.013605|
+Sat Nov 28 00:14:09 2026<stdout>:|        1280|   -4.594396|    0.293398|    0.013606|
+Sat Nov 28 00:14:14 2026<stdout>:|        1290|   -4.645839|    0.293405|    0.013607|
+Sat Nov 28 00:14:19 2026<stdout>:|        1300|   -4.691533|    0.293409|    0.013606|
+Sat Nov 28 00:14:24 2026<stdout>:|        1310|   -4.716690|    0.293411|    0.013604|
+Sat Nov 28 00:14:29 2026<stdout>:|        1320|   -4.712821|    0.293412|    0.013602|
+Sat Nov 28 00:14:34 2026<stdout>:|        1330|   -4.686813|    0.293412|    0.013599|
+Sat Nov 28 00:14:38 2026<stdout>:|        1340|   -4.654331|    0.293413|    0.013596|
+Sat Nov 28 00:14:43 2026<stdout>:|        1350|   -4.628057|    0.293414|    0.013592|
+Sat Nov 28 00:14:48 2026<stdout>:|        1360|   -4.614917|    0.293414|    0.013589|
+Sat Nov 28 00:14:53 2026<stdout>:|        1370|   -4.618088|    0.293415|    0.013586|
+Sat Nov 28 00:14:58 2026<stdout>:|        1380|   -4.638721|    0.293415|    0.013583|
+Sat Nov 28 00:15:04 2026<stdout>:|        1390|   -4.675910|    0.293414|    0.013581|
+Sat Nov 28 00:15:09 2026<stdout>:|        1400|   -4.725173|    0.293412|    0.013580|
+Sat Nov 28 00:15:14 2026<stdout>:|        1410|   -4.775048|    0.293407|    0.013579|
+Sat Nov 28 00:15:19 2026<stdout>:|        1420|   -4.806299|    0.293401|    0.013580|
+Sat Nov 28 00:15:23 2026<stdout>:|        1430|   -4.805176|    0.293393|    0.013581|
+Sat Nov 28 00:15:28 2026<stdout>:|        1440|   -4.780002|    0.293384|    0.013583|
+Sat Nov 28 00:15:33 2026<stdout>:|        1450|   -4.750915|    0.293374|    0.013586|
+Sat Nov 28 00:15:38 2026<stdout>:|        1460|   -4.732609|    0.293364|    0.013590|
+Sat Nov 28 00:15:43 2026<stdout>:|        1470|   -4.731780|    0.293354|    0.013594|
+Sat Nov 28 00:15:48 2026<stdout>:|        1480|   -4.750539|    0.293345|    0.013598|
+Sat Nov 28 00:15:54 2026<stdout>:|        1490|   -4.788272|    0.293337|    0.013601|
+Sat Nov 28 00:15:59 2026<stdout>:|        1500|   -4.840930|    0.293331|    0.013605|
+Sat Nov 28 00:16:04 2026<stdout>:|        1510|   -4.898016|    0.293328|    0.013607|
+Sat Nov 28 00:16:09 2026<stdout>:|        1520|   -4.940744|    0.293326|    0.013609|
+Sat Nov 28 00:16:14 2026<stdout>:|        1530|   -4.952787|    0.293327|    0.013609|
+Sat Nov 28 00:16:19 2026<stdout>:|        1540|   -4.938980|    0.293331|    0.013609|
+Sat Nov 28 00:16:24 2026<stdout>:|        1550|   -4.919192|    0.293336|    0.013608|
+Sat Nov 28 00:16:30 2026<stdout>:|        1560|   -4.909476|    0.293342|    0.013605|
+Sat Nov 28 00:16:38 2026<stdout>:|        1570|   -4.917461|    0.293350|    0.013602|
+Sat Nov 28 00:16:47 2026<stdout>:|        1580|   -4.945298|    0.293359|    0.013599|
+Sat Nov 28 00:16:54 2026<stdout>:|        1590|   -4.991454|    0.293368|    0.013595|
+Sat Nov 28 00:17:03 2026<stdout>:|        1600|   -5.049388|    0.293377|    0.013591|
+Sat Nov 28 00:17:09 2026<stdout>:|        1610|   -5.104555|    0.293386|    0.013588|
+Sat Nov 28 00:17:15 2026<stdout>:|        1620|   -5.137243|    0.293393|    0.013585|
+Sat Nov 28 00:17:20 2026<stdout>:|        1630|   -5.139786|    0.293400|    0.013583|
+Sat Nov 28 00:17:25 2026<stdout>:|        1640|   -5.126110|    0.293405|    0.013582|
+Sat Nov 28 00:17:30 2026<stdout>:|        1650|   -5.115404|    0.293409|    0.013582|
+Sat Nov 28 00:17:35 2026<stdout>:|        1660|   -5.119324|    0.293410|    0.013582|
+Sat Nov 28 00:17:40 2026<stdout>:|        1670|   -5.142190|    0.293410|    0.013584|
+Sat Nov 28 00:17:45 2026<stdout>:|        1680|   -5.183639|    0.293409|    0.013586|
+Sat Nov 28 00:17:49 2026<stdout>:|        1690|   -5.238390|    0.293405|    0.013589|
+Sat Nov 28 00:17:54 2026<stdout>:|        1700|   -5.293714|    0.293400|    0.013592|
+Sat Nov 28 00:17:59 2026<stdout>:|        1710|   -5.330344|    0.293394|    0.013595|
+Sat Nov 28 00:18:04 2026<stdout>:|        1720|   -5.337022|    0.293387|    0.013597|
+Sat Nov 28 00:18:09 2026<stdout>:|        1730|   -5.323762|    0.293380|    0.013600|
+Sat Nov 28 00:18:14 2026<stdout>:|        1740|   -5.309750|    0.293372|    0.013602|
+Sat Nov 28 00:18:19 2026<stdout>:|        1750|   -5.308028|    0.293364|    0.013603|
+Sat Nov 28 00:18:24 2026<stdout>:|        1760|   -5.324278|    0.293357|    0.013603|
+Sat Nov 28 00:18:29 2026<stdout>:|        1770|   -5.359466|    0.293350|    0.013603|
+Sat Nov 28 00:18:34 2026<stdout>:|        1780|   -5.410744|    0.293345|    0.013602|
+Sat Nov 28 00:18:39 2026<stdout>:|        1790|   -5.469654|    0.293341|    0.013601|
+Sat Nov 28 00:18:43 2026<stdout>:|        1800|   -5.520258|    0.293339|    0.013599|
+Sat Nov 28 00:18:48 2026<stdout>:|        1810|   -5.545506|    0.293339|    0.013597|
+Sat Nov 28 00:18:53 2026<stdout>:|        1820|   -5.543952|    0.293340|    0.013594|
+Sat Nov 28 00:18:58 2026<stdout>:|        1830|   -5.531333|    0.293344|    0.013592|
+Sat Nov 28 00:19:03 2026<stdout>:|        1840|   -5.524048|    0.293349|    0.013591|
+Sat Nov 28 00:19:08 2026<stdout>:|        1850|   -5.531109|    0.293356|    0.013589|
+Sat Nov 28 00:19:13 2026<stdout>:|        1860|   -5.555742|    0.293363|    0.013589|
+Sat Nov 28 00:19:18 2026<stdout>:|        1870|   -5.597882|    0.293372|    0.013588|
+Sat Nov 28 00:19:23 2026<stdout>:|        1880|   -5.654861|    0.293380|    0.013589|
+Sat Nov 28 00:19:28 2026<stdout>:|        1890|   -5.720639|    0.293387|    0.013589|
+Sat Nov 28 00:19:32 2026<stdout>:|        1900|   -5.784973|    0.293394|    0.013591|
+Sat Nov 28 00:19:38 2026<stdout>:|        1910|   -5.836265|    0.293399|    0.013592|
+Sat Nov 28 00:19:43 2026<stdout>:|        1920|   -5.869456|    0.293402|    0.013593|
+Sat Nov 28 00:19:49 2026<stdout>:|        1930|   -5.890078|    0.293403|    0.013595|
+Sat Nov 28 00:19:54 2026<stdout>:|        1940|   -5.907811|    0.293402|    0.013596|
+Sat Nov 28 00:20:00 2026<stdout>:|        1950|   -5.928805|    0.293399|    0.013597|
+Sat Nov 28 00:20:06 2026<stdout>:|        1960|   -5.953746|    0.293394|    0.013598|
+Sat Nov 28 00:20:12 2026<stdout>:|        1970|   -5.979166|    0.293388|    0.013598|
+Sat Nov 28 00:20:17 2026<stdout>:|        1980|   -6.000039|    0.293381|    0.013598|
+Sat Nov 28 00:20:22 2026<stdout>:|        1990|   -6.012409|    0.293374|    0.013597|
+Sat Nov 28 00:20:26 2026<stdout>:|        1999|   -6.014953|    0.293368|    0.013596|
+Sat Nov 28 00:20:26 2026<stdout>:
+Sat Nov 28 00:20:26 2026<stdout>:----------------------------- Compute Metric ----------------------------
+Sat Nov 28 00:20:27 2026<stdout>:Quadratic Hessian fits (owned point-sensor pairs): 70892 first ring, 13943 grown stencil, 0 WLS fallbacks.
+Sat Nov 28 00:20:27 2026<stdout>:Quadratic Hessian thin-stencil cubic/quartic corrections: 0 point-sensor fits; unsupported quartics retain cubic/quadratic fits.
+Sat Nov 28 00:20:27 2026<stdout>:Quadratic Hessian relative weighted fit residual: mean 0.0882999, maximum 0.962527; 40757 fits above 0.05; minimum QR pivot ratio 0.00279207. Second-ring MPI: 4720 requested owner neighborhoods, 70764 exported samples.
+Sat Nov 28 00:20:27 2026<stdout>:WARNING: Large quadratic fit residuals remain after stencil comparison; inspect sensor noise and nonsmooth flow features. No resolved curvature was discarded.
+Sat Nov 28 00:20:27 2026<stdout>:Hessian recovery: 0.480618 s (maximum rank time).
+Sat Nov 28 00:20:27 2026<stdout>:Metric field statistics:
+Sat Nov 28 00:20:27 2026<stdout>:Minimum density: 1.10064e-05.
+Sat Nov 28 00:20:27 2026<stdout>:Maximum density: 3.7037e+07.
+Sat Nov 28 00:20:27 2026<stdout>:Maximum cell AR: 790.762.
+Sat Nov 28 00:20:27 2026<stdout>:Mesh complexity: 50000 (ADAP_COMPLEXITY= 50000).
+Sat Nov 28 00:20:27 2026<stdout>:Sharp wall points: 333, the isotropic corner metric (ADAP_ISO_CORNER) is applied in 2D only, the metric is not changed.
+Sat Nov 28 00:20:27 2026<stdout>:Metric computed in 0.506592 s.
+Sat Nov 28 00:20:27 2026<stdout>:
+Sat Nov 28 00:20:27 2026<stdout>:----------------------------- Solver Exit -------------------------------
+Sat Nov 28 00:20:27 2026<stdout>:
+Sat Nov 28 00:20:27 2026<stdout>:Maximum number of iterations reached (ITER = 2000) before convergence.
+Sat Nov 28 00:20:27 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:20:27 2026<stdout>:|      Convergence Field     |     Value    |   Criterion  |  Converged |
+Sat Nov 28 00:20:27 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:20:27 2026<stdout>:|                  Cauchy[CL]|   1.49496e-06|       < 1e-07|          No|
+Sat Nov 28 00:20:27 2026<stdout>:|                  Cauchy[CD]|    8.9052e-07|       < 1e-07|          No|
+Sat Nov 28 00:20:27 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:20:27 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 00:20:27 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:20:27 2026<stdout>:|        File Writing Summary       |              Filename             |
+Sat Nov 28 00:20:27 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:20:27 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00001.dat        |
+Sat Nov 28 00:20:27 2026<stdout>:|                                   |                     (1429.23 MB/s)|
+Sat Nov 28 00:20:27 2026<stdout>:|Paraview                           |flow_adap_00001.vtu                |
+Sat Nov 28 00:20:27 2026<stdout>:|                                   |                     (1033.44 MB/s)|
+Sat Nov 28 00:20:27 2026<stdout>:|Paraview surface                   |surface_adap_00001.vtu             |
+Sat Nov 28 00:20:27 2026<stdout>:|                                   |                      (653.22 MB/s)|
+Sat Nov 28 00:20:27 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:20:27 2026<stdout>:
+Sat Nov 28 00:20:27 2026<stdout>:------------------------------ Remesh (MMG) -----------------------------
+Sat Nov 28 00:20:28 2026<stdout>:MMG_PARAMETERS dim=3 hmin=0.0030000000000000001 hmax=100 hgrad=1.6000000000000001 hausd=0.01 local_rows=3
+Sat Nov 28 00:20:28 2026<stdout>:MMG_LOCAL_PARAMETER marker=WING3D ref=3 hmin=0.0030000000000000001 hmax=100 hausd=0.001
+Sat Nov 28 00:20:28 2026<stdout>:MMG_LOCAL_PARAMETER marker=FARFIELD ref=1 hmin=0.0030000000000000001 hmax=100 hausd=1
+Sat Nov 28 00:20:28 2026<stdout>:MMG_LOCAL_PARAMETER marker=SYMMETRY ref=2 hmin=0.0030000000000000001 hmax=100 hausd=0.001
+Sat Nov 28 00:24:01 2026<stdout>:Remeshed 84835 points, 469183 elements into 111373 points, 619037 elements.
+Sat Nov 28 00:24:01 2026<stdout>:MMG3D status SUCCESS, 213.142 s (with the validation of input and output), extraction 0.133627 s (gathered from 6 ranks), slices sent 0.13589 s total_seconds=213.4119299649999.
+Sat Nov 28 00:24:01 2026<stdout>:
+Sat Nov 28 00:24:01 2026<stdout>:---------------------------- Replace the Mesh ---------------------------
+Sat Nov 28 00:24:01 2026<stdout>:Three dimensional problem.
+Sat Nov 28 00:24:01 2026<stdout>:111373 grid points before partitioning.
+Sat Nov 28 00:24:01 2026<stdout>:619037 volume elements before partitioning.
+Sat Nov 28 00:24:01 2026<stdout>:3 surface markers.
+Sat Nov 28 00:24:01 2026<stdout>:12151 boundary elements in index 0 (Marker = WING3D).
+Sat Nov 28 00:24:01 2026<stdout>:3638 boundary elements in index 1 (Marker = FARFIELD).
+Sat Nov 28 00:24:01 2026<stdout>:15965 boundary elements in index 2 (Marker = SYMMETRY).
+Sat Nov 28 00:24:01 2026<stdout>:Executing the partitioning functions.
+Sat Nov 28 00:24:01 2026<stdout>:Building the graph adjacency structure.
+Sat Nov 28 00:24:01 2026<stdout>:Calling ParMETIS... graph partitioning complete (18978 edge cuts).
+Sat Nov 28 00:24:01 2026<stdout>:Distributing ParMETIS coloring.
+Sat Nov 28 00:24:01 2026<stdout>:Rebalancing vertices.
+Sat Nov 28 00:24:01 2026<stdout>:Rebalancing volume element connectivity.
+Sat Nov 28 00:24:01 2026<stdout>:Rebalancing markers and surface elements.
+Sat Nov 28 00:24:01 2026<stdout>:122074 vertices including ghost points. 
+Sat Nov 28 00:24:01 2026<stdout>:647826 interior elements including halo cells. 
+Sat Nov 28 00:24:01 2026<stdout>:647826 tetrahedra.
+Sat Nov 28 00:24:01 2026<stdout>:Establishing MPI communication patterns.
+Sat Nov 28 00:24:01 2026<stdout>:Setting point connectivity.
+Sat Nov 28 00:24:01 2026<stdout>:Renumbering points (Reverse Cuthill McKee Ordering).
+Sat Nov 28 00:24:02 2026<stdout>:Recomputing point connectivity.
+Sat Nov 28 00:24:02 2026<stdout>:Setting element connectivity.
+Sat Nov 28 00:24:02 2026<stdout>:Checking the numerical grid orientation.
+Sat Nov 28 00:24:02 2026<stdout>:All volume elements are correctly oriented.
+Sat Nov 28 00:24:02 2026<stdout>:There has been a re-orientation of 32641 TRIANGLE surface elements.
+Sat Nov 28 00:24:02 2026<stdout>:Identifying edges and vertices.
+Sat Nov 28 00:24:02 2026<stdout>:Setting the control volume structure.
+Sat Nov 28 00:24:02 2026<stdout>:Volume of the computational grid: 2.07964e+06.
+Sat Nov 28 00:24:02 2026<stdout>:Searching for the closest normal neighbors to the surfaces.
+Sat Nov 28 00:24:02 2026<stdout>:Storing a mapping from global to local point index.
+Sat Nov 28 00:24:02 2026<stdout>:Compute the surface curvature.
+Sat Nov 28 00:24:02 2026<stdout>:Max K: 6441.89. Mean K: 88.6606. Standard deviation K: 455.198.
+Sat Nov 28 00:24:02 2026<stdout>:Computing mesh quality statistics for the dual control volumes.
+Sat Nov 28 00:24:02 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:|           Mesh Quality Metric|        Minimum|        Maximum|
+Sat Nov 28 00:24:02 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:|    Orthogonality Angle (deg.)|        3.65912|        84.2484|
+Sat Nov 28 00:24:02 2026<stdout>:|     CV Face Area Aspect Ratio|        1.03955|        229.105|
+Sat Nov 28 00:24:02 2026<stdout>:|           CV Sub-Volume Ratio|        1.00525|        1451.78|
+Sat Nov 28 00:24:02 2026<stdout>:|                     CV Volume|    1.93613e-10|        8656.33|
+Sat Nov 28 00:24:02 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:Finding max control volume width.
+Sat Nov 28 00:24:02 2026<stdout>:Communicating number of neighbors.
+Sat Nov 28 00:24:02 2026<stdout>:Wetted area = 1.5574 m^2.
+Sat Nov 28 00:24:02 2026<stdout>:Area projection in the x-plane = 0.0743677 m^2, y-plane = 0.0181042 m^2, z-plane = 0.759813 m^2.
+Sat Nov 28 00:24:02 2026<stdout>:Max. coordinate in the x-direction = 1.14403 m, y-direction = 1.21847 m, z-direction = 0.0393602 m.
+Sat Nov 28 00:24:02 2026<stdout>:Min. coordinate in the x-direction = 9.95656e-05 m, y-direction = -1.06549e-13 m, z-direction = -0.0394017 m.
+Sat Nov 28 00:24:02 2026<stdout>:Computing wall distances.
+Sat Nov 28 00:24:02 2026<stdout>:
+Sat Nov 28 00:24:02 2026<stdout>:-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Sat Nov 28 00:24:02 2026<stdout>:Inviscid flow: Computing density based on free-stream
+Sat Nov 28 00:24:02 2026<stdout>:temperature and pressure using the ideal gas law.
+Sat Nov 28 00:24:02 2026<stdout>:Force coefficients computed using free-stream values.
+Sat Nov 28 00:24:02 2026<stdout>:
+Sat Nov 28 00:24:02 2026<stdout>:-- Models:
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:|          Viscosity Model|        Conductivity Model|              Fluid Model|
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:|                        -|                         -|             STANDARD_AIR|
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:-- Fluid properties:
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+Sat Nov 28 00:24:02 2026<stdout>:|      Spec. Heat Ratio|             -|             -|         -|           1.4|
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:-- Initial and free-stream conditions:
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:|       Static Pressure|        101325|             1|        Pa|        101325|
+Sat Nov 28 00:24:02 2026<stdout>:|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+Sat Nov 28 00:24:02 2026<stdout>:|           Temperature|        288.15|             1|         K|        Sat Nov 28 00:24:02 2026<stdout>:288.15|
+Sat Nov 28 00:24:02 2026<stdout>:|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+Sat Nov 28 00:24:02 2026<stdout>:|            Velocity-X|       285.272|             1|       m/s|       285.272|
+Sat Nov 28 00:24:02 2026<stdout>:|            Velocity-Y|             0|             1|       m/s|             0|
+Sat Nov 28 00:24:02 2026<stdout>:|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+Sat Nov 28 00:24:02 2026<stdout>:|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:|           Mach Number|             -|             -|         -|        0.8395|
+Sat Nov 28 00:24:02 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:24:02 2026<stdout>:Initialize Jacobian structure (Euler). MG level: 0.
+Sat Nov 28 00:24:12 2026<stdout>:
+Sat Nov 28 00:24:12 2026<stdout>:------------------- Solution Transfer (conservative P1) -------------------
+Sat Nov 28 00:24:12 2026<stdout>:Distributed conservative transfer on 6 rank(s): import groups 1, imported donor elements 1526246 (largest per rank / mean 1.84); planned memory per rank (largest): resident and coverage 252 MB, import 489 MB (ceiling 2048 MB).
+Sat Nov 28 00:24:12 2026<stdout>:Supermesh of 619037 new and 469183 donor elements: 7703129 overlapping pairs (38452358 clipped), measure 2.078e+06 of 2.079e+06 (new) and 2.079e+06 (donor).
+Sat Nov 28 00:24:12 2026<stdout>:New domain outside the donor (S_n): 49271 parts of control volumes at 7977 points (0 of points on no marker), measure 1.125e+03, filled with the closest donor values (max distance 1.946e-01, 7.187e-02 of the face); new elements outside the donor: 0.
+Sat Nov 28 00:24:12 2026<stdout>:Donor domain outside the new one (S_d): 20126 donor elements, measure 9.593e+02, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Sat Nov 28 00:24:12 2026<stdout>:Largest uncovered fraction of a control-volume piece: 7.446e-01.
+Sat Nov 28 00:24:12 2026<stdout>:Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+Sat Nov 28 00:24:12 2026<stdout>:             Density:  5.410e-04  4.614e-04  4.921e-12  1.349e-14    9  7.398e-14      28
+Sat Nov 28 00:24:12 2026<stdout>:          Momentum-x:  5.410e-04  4.614e-04  4.319e-12  1.358e-14    9  8.327e-14      13
+Sat Nov 28 00:24:12 2026<stdout>:          Momentum-y:  3.789e-05 -4.790e-05  3.142e-08  4.203e-14   19  7.081e-14      25
+Sat Nov 28 00:24:12 2026<stdout>:          Momentum-z:  5.410e-04  4.614e-04  5.094e-12  1.367e-14   13  3.479e-14      45
+Sat Nov 28 00:24:12 2026<stdout>:              Energy:  5.410e-04  4.614e-04  4.897e-12  1.354e-14    9  6.983e-14      42
+Sat Nov 28 00:24:12 2026<stdout>:States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Sat Nov 28 00:24:12 2026<stdout>:Domain volume: donor 2.079e+06, new 2.079e+06, relative change 7.961e-05.
+Sat Nov 28 00:24:12 2026<stdout>:Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+Sat Nov 28 00:24:12 2026<stdout>:             Density: 7.961e-05
+Sat Nov 28 00:24:12 2026<stdout>:          Momentum-x: 7.949e-05
+Sat Nov 28 00:24:12 2026<stdout>:          Momentum-y: 8.647e-10
+Sat Nov 28 00:24:12 2026<stdout>:          Momentum-z: 4.248e-06
+Sat Nov 28 00:24:12 2026<stdout>:              Energy: 7.961e-05
+Sat Nov 28 00:24:12 2026<stdout>:Time: setup 0.3434 s, import 1.583 s, supermesh 7.706 s, coverage and slivers 0.9256 s, solve 0.2138 s, limiter 0.01277 s, total 9.903 s.
+Sat Nov 28 00:24:12 2026<stdout>:
+Sat Nov 28 00:24:12 2026<stdout>:------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+Sat Nov 28 00:24:12 2026<stdout>:
+Sat Nov 28 00:24:12 2026<stdout>:----------------- Integration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 00:24:12 2026<stdout>:
+Sat Nov 28 00:24:12 2026<stdout>:------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 00:24:12 2026<stdout>:Euler/Navier-Stokes/RANS fluid iteration.
+Sat Nov 28 00:24:12 2026<stdout>:The problem uses the new mesh: 111373 points, 0 multigrid levels.
+Sat Nov 28 00:24:12 2026<stdout>:Mesh replaced in 11.7265 s (solution transfer 9.9049 s).
+Sat Nov 28 00:24:12 2026<stdout>:Writing the adapted mesh of cycle 2: adapted_mesh_adap_00002.su2.
+Sat Nov 28 00:24:13 2026<stdout>:
+Sat Nov 28 00:24:13 2026<stdout>:------------------------- Mesh Adaptation Cycle -------------------------
+Sat Nov 28 00:24:13 2026<stdout>:Cycle 2 of 4: 111373 points, at most 2000 iterations, CFL 5, V multigrid cycle, transferred solution.
+Sat Nov 28 00:24:13 2026<stdout>:Its metric makes the next mesh: complexity 50000, sizes 0.003 to 100, norm 2, aspect ratio up to 1e+06.
+Sat Nov 28 00:24:13 2026<stdout>:
+Sat Nov 28 00:24:13 2026<stdout>:------------------------------ Begin Solver -----------------------------
+Sat Nov 28 00:24:13 2026<stdout>:
+Sat Nov 28 00:24:13 2026<stdout>:Simulation Run using the Single-zone Driver
+Sat Nov 28 00:24:13 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 00:24:13 2026<stdout>:|  Inner_Iter|    rms[Rho]|          CL|          CD|
+Sat Nov 28 00:24:13 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 00:24:13 2026<stdout>:|           0|   -2.180613|    0.293566|    0.013991|
+Sat Nov 28 00:24:20 2026<stdout>:|          10|   -3.117340|    0.294131|    0.012802|
+Sat Nov 28 00:24:26 2026<stdout>:|          20|   -3.123139|    0.295159|    0.012676|
+Sat Nov 28 00:24:33 2026<stdout>:|          30|   -3.106277|    0.295777|    0.012564|
+Sat Nov 28 00:24:39 2026<stdout>:|          40|   -3.142483|    0.295686|    0.012440|
+Sat Nov 28 00:24:46 2026<stdout>:|          50|   -3.237726|    0.295620|    0.012358|
+Sat Nov 28 00:24:55 2026<stdout>:|          60|   -3.381606|    0.295580|    0.012297|
+Sat Nov 28 00:25:04 2026<stdout>:|          70|   -3.537508|    0.295395|    0.012235|
+Sat Nov 28 00:25:14 2026<stdout>:|          80|   -3.679387|    0.295256|    0.012192|
+Sat Nov 28 00:25:21 2026<stdout>:|          90|   -3.789023|    0.295250|    0.012168|
+Sat Nov 28 00:25:29 2026<stdout>:|         100|   -3.874404|    0.295311|    0.012151|
+Sat Nov 28 00:25:37 2026<stdout>:|         110|   -3.890792|    0.295417|    0.012139|
+Sat Nov 28 00:25:45 2026<stdout>:|         120|   -3.905599|    0.295575|    0.012132|
+Sat Nov 28 00:25:52 2026<stdout>:|         130|   -3.878929|    0.295766|    0.012131|
+Sat Nov 28 00:26:00 2026<stdout>:|         140|   -3.889140|    0.295953|    0.012133|
+Sat Nov 28 00:26:06 2026<stdout>:|         150|   -3.937514|    0.296103|    0.012137|
+Sat Nov 28 00:26:12 2026<stdout>:|         160|   -3.990803|    0.296210|    0.012139|
+Sat Nov 28 00:26:18 2026<stdout>:|         170|   -4.061926|    0.296296|    0.012138|
+Sat Nov 28 00:26:24 2026<stdout>:|         180|   -4.140428|    0.296412|    0.012135|
+Sat Nov 28 00:26:31 2026<stdout>:|         190|   -4.224483|    0.296595|    0.012136|
+Sat Nov 28 00:26:39 2026<stdout>:|         200|   -4.311970|    0.296849|    0.012140|
+Sat Nov 28 00:26:46 2026<stdout>:|         210|   -4.370919|    0.297140|    0.012148|
+Sat Nov 28 00:26:53 2026<stdout>:|         220|   -4.383729|    0.297411|    0.012155|
+Sat Nov 28 00:26:59 2026<stdout>:|         230|   -4.364599|    0.297608|    0.012160|
+Sat Nov 28 00:27:06 2026<stdout>:|         240|   -4.319288|    0.297696|    0.012161|
+Sat Nov 28 00:27:12 2026<stdout>:|         250|   -4.258378|    0.297678|    0.012157|
+Sat Nov 28 00:27:18 2026<stdout>:|         260|   -4.202039|    0.297593|    0.012151|
+Sat Nov 28 00:27:24 2026<stdout>:|         270|   -4.158810|    0.297497|    0.012147|
+Sat Nov 28 00:27:30 2026<stdout>:|         280|   -4.125850|    0.297440|    0.012147|
+Sat Nov 28 00:27:36 2026<stdout>:|         290|   -4.100274|    0.297446|    0.012154|
+Sat Nov 28 00:27:43 2026<stdout>:|         300|   -4.079243|    0.297511|    0.012168|
+Sat Nov 28 00:27:48 2026<stdout>:|         310|   -4.057744|    0.297610|    0.012185|
+Sat Nov 28 00:27:54 2026<stdout>:|         320|   -4.032813|    0.297707|    0.012204|
+Sat Nov 28 00:27:59 2026<stdout>:|         330|   -4.009318|    0.297774|    0.012221|
+Sat Nov 28 00:28:06 2026<stdout>:|         340|   -3.996842|    0.297794|    0.012234|
+Sat Nov 28 00:28:13 2026<stdout>:|         350|   -4.004392|    0.297768|    0.012241|
+Sat Nov 28 00:28:19 2026<stdout>:|         360|   -4.036195|    0.297707|    0.012243|
+Sat Nov 28 00:28:27 2026<stdout>:|         370|   -4.083582|    0.297628|    0.012241|
+Sat Nov 28 00:28:33 2026<stdout>:|         380|   -4.113528|    0.297545|    0.012237|
+Sat Nov 28 00:28:39 2026<stdout>:|         390|   -4.097418|    0.297472|    0.012231|
+Sat Nov 28 00:28:45 2026<stdout>:|         400|   -4.063358|    0.297418|    0.012225|
+Sat Nov 28 00:28:50 2026<stdout>:|         410|   -4.052920|    0.297388|    0.012220|
+Sat Nov 28 00:28:57 2026<stdout>:|         420|   -4.082900|    0.297386|    0.012217|
+Sat Nov 28 00:29:03 2026<stdout>:|         430|   -4.151666|    0.297407|    0.012215|
+Sat Nov 28 00:29:09 2026<stdout>:|         440|   -4.241191|    0.297449|    0.012215|
+Sat Nov 28 00:29:16 2026<stdout>:|         450|   -4.314867|    0.297502|    0.012216|
+Sat Nov 28 00:29:22 2026<stdout>:|         460|   -4.347156|    0.297561|    0.012218|
+Sat Nov 28 00:29:28 2026<stdout>:|         470|   -4.357415|    0.297620|    0.012221|
+Sat Nov 28 00:29:34 2026<stdout>:|         480|   -4.374031|    0.297674|    0.012224|
+Sat Nov 28 00:29:40 2026<stdout>:|         490|   -4.406937|    0.297722|    0.012227|
+Sat Nov 28 00:29:46 2026<stdout>:|         500|   -4.453323|    0.297761|    0.012229|
+Sat Nov 28 00:29:53 2026<stdout>:|         510|   -4.505145|    0.297790|    0.012230|
+Sat Nov 28 00:29:59 2026<stdout>:|         520|   -4.553152|    0.297810|    0.012230|
+Sat Nov 28 00:30:06 2026<stdout>:|         530|   -4.591954|    0.297824|    0.012227|
+Sat Nov 28 00:30:12 2026<stdout>:|         540|   -4.623250|    0.297834|    0.012224|
+Sat Nov 28 00:30:18 2026<stdout>:|         550|   -4.653768|    0.297845|    0.012219|
+Sat Nov 28 00:30:24 2026<stdout>:|         560|   -4.689608|    0.297857|    0.012213|
+Sat Nov 28 00:30:30 2026<stdout>:|         570|   -4.731476|    0.297869|    0.012208|
+Sat Nov 28 00:30:36 2026<stdout>:|         580|   -4.774278|    0.297879|    0.012203|
+Sat Nov 28 00:30:42 2026<stdout>:|         590|   -4.811944|    0.297885|    0.012199|
+Sat Nov 28 00:30:48 2026<stdout>:|         600|   -4.844486|    0.297885|    0.012197|
+Sat Nov 28 00:30:55 2026<stdout>:|         610|   -4.877044|    0.297878|    0.012196|
+Sat Nov 28 00:31:01 2026<stdout>:|         620|   -4.911083|    0.297868|    0.012196|
+Sat Nov 28 00:31:07 2026<stdout>:|         630|   -4.941434|    0.297856|    0.012196|
+Sat Nov 28 00:31:13 2026<stdout>:|         640|   -4.962810|    0.297846|    0.012198|
+Sat Nov 28 00:31:19 2026<stdout>:|         650|   -4.977300|    0.297839|    0.012200|
+Sat Nov 28 00:31:25 2026<stdout>:|         660|   -4.991303|    0.297835|    0.012203|
+Sat Nov 28 00:31:31 2026<stdout>:|         670|   -5.005197|    0.297833|    0.012206|
+Sat Nov 28 00:31:37 2026<stdout>:|         680|   -5.012355|    0.297831|    0.012210|
+Sat Nov 28 00:31:44 2026<stdout>:|         690|   -5.010142|    0.297827|    0.012215|
+Sat Nov 28 00:31:50 2026<stdout>:|         700|   -5.007218|    0.297820|    0.012219|
+Sat Nov 28 00:31:56 2026<stdout>:|         710|   -5.015987|    0.297811|    0.012223|
+Sat Nov 28 00:32:02 2026<stdout>:|         720|   -5.041710|    0.297800|    0.012228|
+Sat Nov 28 00:32:08 2026<stdout>:|         730|   -5.075870|    0.297790|    0.012231|
+Sat Nov 28 00:32:14 2026<stdout>:|         740|   -5.095470|    0.297783|    0.012234|
+Sat Nov 28 00:32:20 2026<stdout>:|         750|   -5.082852|    0.297780|    0.012237|
+Sat Nov 28 00:32:26 2026<stdout>:|         760|   -5.050416|    0.297781|    0.012238|
+Sat Nov 28 00:32:32 2026<stdout>:|         770|   -5.022761|    0.297785|    0.012239|
+Sat Nov 28 00:32:38 2026<stdout>:|         780|   -5.013802|    0.297792|    0.012238|
+Sat Nov 28 00:32:45 2026<stdout>:|         790|   -5.026813|    0.297798|    0.012236|
+Sat Nov 28 00:32:51 2026<stdout>:|         800|   -5.059471|    0.297804|    0.012233|
+Sat Nov 28 00:32:56 2026<stdout>:|         810|   -5.106439|    0.297809|    0.012229|
+Sat Nov 28 00:33:02 2026<stdout>:|         820|   -5.159824|    0.297812|    0.012224|
+Sat Nov 28 00:33:08 2026<stdout>:|         830|   -5.208845|    0.297815|    0.012219|
+Sat Nov 28 00:33:15 2026<stdout>:|         840|   -5.241022|    0.297819|    0.012215|
+Sat Nov 28 00:33:21 2026<stdout>:|         850|   -5.247554|    0.297825|    0.012210|
+Sat Nov 28 00:33:27 2026<stdout>:|         860|   -5.230492|    0.297834|    0.012207|
+Sat Nov 28 00:33:34 2026<stdout>:|         870|   -5.201695|    0.297845|    0.012205|
+Sat Nov 28 00:33:39 2026<stdout>:|         880|   -5.174218|    0.297858|    0.012203|
+Sat Nov 28 00:33:45 2026<stdout>:|         890|   -5.157140|    0.297872|    0.012203|
+Sat Nov 28 00:33:51 2026<stdout>:|         900|   -5.155648|    0.297885|    0.012204|
+Sat Nov 28 00:33:57 2026<stdout>:|         910|   -5.172324|    0.297896|    0.012205|
+Sat Nov 28 00:34:03 2026<stdout>:|         920|   -5.207666|    0.297905|    0.012208|
+Sat Nov 28 00:34:10 2026<stdout>:|         930|   -5.259176|    0.297910|    0.012211|
+Sat Nov 28 00:34:16 2026<stdout>:|         940|   -5.318414|    0.297911|    0.012214|
+Sat Nov 28 00:34:22 2026<stdout>:|         950|   -5.368130|    0.297909|    0.012216|
+Sat Nov 28 00:34:28 2026<stdout>:|         960|   -5.388947|    0.297904|    0.012219|
+Sat Nov 28 00:34:34 2026<stdout>:|         970|   -5.378992|    0.297896|    0.012221|
+Sat Nov 28 00:34:40 2026<stdout>:|         980|   -5.355822|    0.297887|    0.012223|
+Sat Nov 28 00:34:46 2026<stdout>:|         990|   -5.337105|    0.297876|    0.012224|
+Sat Nov 28 00:34:52 2026<stdout>:|        1000|   -5.332330|    0.297865|    0.012225|
+Sat Nov 28 00:34:58 2026<stdout>:|        1010|   -5.345204|    0.297854|    0.012225|
+Sat Nov 28 00:35:04 2026<stdout>:|        1020|   -5.376022|    0.297843|    0.012224|
+Sat Nov 28 00:35:11 2026<stdout>:|        1030|   -5.421520|    0.297833|    0.012224|
+Sat Nov 28 00:35:17 2026<stdout>:|        1040|   -5.471869|    0.297825|    0.012223|
+Sat Nov 28 00:35:23 2026<stdout>:|        1050|   -5.508235|    0.297819|    0.012222|
+Sat Nov 28 00:35:29 2026<stdout>:|        1060|   -5.512976|    0.297816|    0.012221|
+Sat Nov 28 00:35:35 2026<stdout>:|        1070|   -5.489914|    0.297814|    0.012220|
+Sat Nov 28 00:35:42 2026<stdout>:|        1080|   -5.459538|    0.297816|    0.012219|
+Sat Nov 28 00:35:48 2026<stdout>:|        1090|   -5.438678|    0.297819|    0.012219|
+Sat Nov 28 00:35:54 2026<stdout>:|        1100|   -5.435112|    0.297824|    0.012219|
+Sat Nov 28 00:36:00 2026<stdout>:|        1110|   -5.450667|    0.297831|    0.012219|
+Sat Nov 28 00:36:06 2026<stdout>:|        1120|   -5.482541|    0.297838|    0.012219|
+Sat Nov 28 00:36:12 2026<stdout>:|        1130|   -5.521380|    0.297846|    0.012219|
+Sat Nov 28 00:36:18 2026<stdout>:|        1140|   -5.548642|    0.297853|    0.012219|
+Sat Nov 28 00:36:24 2026<stdout>:|        1150|   -5.544955|    0.297860|    0.012219|
+Sat Nov 28 00:36:31 2026<stdout>:|        1160|   -5.511323|    0.297866|    0.012219|
+Sat Nov 28 00:36:37 2026<stdout>:|        1170|   -5.467925|    0.297871|    0.012219|
+Sat Nov 28 00:36:43 2026<stdout>:|        1180|   -5.432976|    0.297874|    0.012219|
+Sat Nov 28 00:36:50 2026<stdout>:|        1190|   -5.415612|    0.297877|    0.012218|
+Sat Nov 28 00:36:56 2026<stdout>:|        1200|   -5.419129|    0.297878|    0.012218|
+Sat Nov 28 00:37:02 2026<stdout>:|        1210|   -5.443568|    0.297878|    0.012218|
+Sat Nov 28 00:37:08 2026<stdout>:|        1220|   -5.485340|    0.297878|    0.012217|
+Sat Nov 28 00:37:14 2026<stdout>:|        1230|   -5.533937|    0.297877|    0.012217|
+Sat Nov 28 00:37:20 2026<stdout>:|        1240|   -5.568695|    0.297875|    0.012217|
+Sat Nov 28 00:37:27 2026<stdout>:|        1250|   -5.569548|    0.297873|    0.012217|
+Sat Nov 28 00:37:33 2026<stdout>:|        1260|   -5.540209|    0.297871|    0.012217|
+Sat Nov 28 00:37:39 2026<stdout>:|        1270|   -5.502795|    0.297868|    0.012217|
+Sat Nov 28 00:37:45 2026<stdout>:|        1280|   -5.474619|    0.297865|    0.012217|
+Sat Nov 28 00:37:51 2026<stdout>:|        1290|   -5.463188|    0.297863|    0.012217|
+Sat Nov 28 00:37:57 2026<stdout>:|        1300|   -5.470436|    0.297860|    0.012218|
+Sat Nov 28 00:38:03 2026<stdout>:|        1310|   -5.495864|    0.297858|    0.012218|
+Sat Nov 28 00:38:09 2026<stdout>:|        1320|   -5.537373|    0.297856|    0.012218|
+Sat Nov 28 00:38:16 2026<stdout>:|        1330|   -5.590450|    0.297855|    0.012218|
+Sat Nov 28 00:38:22 2026<stdout>:|        1340|   -5.646158|    0.297854|    0.012219|
+Sat Nov 28 00:38:28 2026<stdout>:|        1350|   -5.689919|    0.297853|    0.012219|
+Sat Nov 28 00:38:35 2026<stdout>:|        1360|   -5.707278|    0.297853|    0.012219|
+Sat Nov 28 00:38:41 2026<stdout>:|        1370|   -5.696725|    0.297853|    0.012220|
+Sat Nov 28 00:38:46 2026<stdout>:|        1380|   -5.670900|    0.297853|    0.012220|
+Sat Nov 28 00:38:52 2026<stdout>:|        1390|   -5.643992|    0.297854|    0.012220|
+Sat Nov 28 00:38:58 2026<stdout>:|        1400|   -5.624823|    0.297854|    0.012220|
+Sat Nov 28 00:39:04 2026<stdout>:|        1410|   -5.617578|    0.297855|    0.012220|
+Sat Nov 28 00:39:11 2026<stdout>:|        1420|   -5.624047|    0.297855|    0.012220|
+Sat Nov 28 00:39:17 2026<stdout>:|        1430|   -5.644922|    0.297856|    0.012220|
+Sat Nov 28 00:39:23 2026<stdout>:|        1440|   -5.679972|    0.297856|    0.012220|
+Sat Nov 28 00:39:29 2026<stdout>:|        1450|   -5.727307|    0.297856|    0.012220|
+Sat Nov 28 00:39:35 2026<stdout>:|        1460|   -5.781301|    0.297857|    0.012220|
+Sat Nov 28 00:39:41 2026<stdout>:|        1470|   -5.829814|    0.297857|    0.012219|
+Sat Nov 28 00:39:47 2026<stdout>:|        1480|   -5.855916|    0.297858|    0.012219|
+Sat Nov 28 00:39:53 2026<stdout>:|        1490|   -5.851018|    0.297859|    0.012219|
+Sat Nov 28 00:39:59 2026<stdout>:|        1500|   -5.824934|    0.297859|    0.012219|
+Sat Nov 28 00:40:05 2026<stdout>:|        1510|   -5.794804|    0.297860|    0.012219|
+Sat Nov 28 00:40:12 2026<stdout>:|        1520|   -5.772572|    0.297861|    0.012218|
+Sat Nov 28 00:40:18 2026<stdout>:|        1530|   -5.763882|    0.297862|    0.012218|
+Sat Nov 28 00:40:24 2026<stdout>:|        1540|   -5.770864|    0.297863|    0.012218|
+Sat Nov 28 00:40:29 2026<stdout>:|        1550|   -5.793987|    0.297864|    0.012218|
+Sat Nov 28 00:40:35 2026<stdout>:|        1560|   -5.832440|    0.297865|    0.012218|
+Sat Nov 28 00:40:42 2026<stdout>:|        1570|   -5.883175|    0.297866|    0.012218|
+Sat Nov 28 00:40:48 2026<stdout>:|        1580|   -5.938352|    0.297866|    0.012218|
+Sat Nov 28 00:40:54 2026<stdout>:|        1590|   -5.982841|    0.297866|    0.012218|
+Sat Nov 28 00:41:00 2026<stdout>:|        1600|   -5.999772|    0.297866|    0.012218|
+Sat Nov 28 00:41:06 2026<stdout>:|        1610|   -5.986958|    0.297865|    0.012218|
+Sat Nov 28 00:41:12 2026<stdout>:|        1620|   -5.960020|    0.297865|    0.012218|
+Sat Nov 28 00:41:18 2026<stdout>:|        1630|   -5.936124|    0.297864|    0.012218|
+Sat Nov 28 00:41:24 2026<stdout>:|        1640|   -5.925303|    0.297862|    0.012218|
+Sat Nov 28 00:41:30 2026<stdout>:|        1650|   -5.931882|    0.297861|    0.012218|
+Sat Nov 28 00:41:36 2026<stdout>:|        1660|   -5.957092|    0.297860|    0.012218|
+Sat Nov 28 00:41:43 2026<stdout>:|        1670|   -5.999752|    0.297859|    0.012219|
+Sat Nov 28 00:41:49 2026<stdout>:|        1680|   -6.054677|    0.297858|    0.012219|
+Sat Nov 28 00:41:55 2026<stdout>:|        1690|   -6.109136|    0.297858|    0.012219|
+Sat Nov 28 00:42:01 2026<stdout>:|        1700|   -6.142911|    0.297857|    0.012219|
+Sat Nov 28 00:42:06 2026<stdout>:|        1710|   -6.143561|    0.297857|    0.012220|
+Sat Nov 28 00:42:13 2026<stdout>:|        1720|   -6.121932|    0.297857|    0.012220|
+Sat Nov 28 00:42:19 2026<stdout>:|        1730|   -6.098865|    0.297857|    0.012220|
+Sat Nov 28 00:42:25 2026<stdout>:|        1740|   -6.088407|    0.297857|    0.012220|
+Sat Nov 28 00:42:32 2026<stdout>:|        1750|   -6.096597|    0.297857|    0.012220|
+Sat Nov 28 00:42:38 2026<stdout>:|        1760|   -6.124734|    0.297858|    0.012220|
+Sat Nov 28 00:42:44 2026<stdout>:|        1770|   -6.170234|    0.297858|    0.012220|
+Sat Nov 28 00:42:50 2026<stdout>:|        1780|   -6.224174|    0.297858|    0.012220|
+Sat Nov 28 00:42:56 2026<stdout>:|        1790|   -6.267819|    0.297859|    0.012219|
+Sat Nov 28 00:43:02 2026<stdout>:|        1800|   -6.280109|    0.297859|    0.012219|
+Sat Nov 28 00:43:08 2026<stdout>:|        1810|   -6.260510|    0.297859|    0.012219|
+Sat Nov 28 00:43:15 2026<stdout>:|        1820|   -6.229760|    0.297860|    0.012218|
+Sat Nov 28 00:43:21 2026<stdout>:|        1830|   -6.207032|    0.297860|    0.012218|
+Sat Nov 28 00:43:27 2026<stdout>:|        1840|   -6.201715|    0.297861|    0.012218|
+Sat Nov 28 00:43:33 2026<stdout>:|        1850|   -6.216830|    0.297861|    0.012218|
+Sat Nov 28 00:43:39 2026<stdout>:|        1860|   -6.251686|    0.297862|    0.012218|
+Sat Nov 28 00:43:45 2026<stdout>:|        1870|   -6.301236|    0.297862|    0.012218|
+Sat Nov 28 00:43:51 2026<stdout>:|        1880|   -6.352456|    0.297863|    0.012218|
+Sat Nov 28 00:43:57 2026<stdout>:|        1890|   -6.383492|    0.297863|    0.012218|
+Sat Nov 28 00:44:03 2026<stdout>:|        1900|   -6.379511|    0.297863|    0.012218|
+Sat Nov 28 00:44:09 2026<stdout>:|        1910|   -6.351212|    0.297863|    0.012218|
+Sat Nov 28 00:44:16 2026<stdout>:|        1920|   -6.320878|    0.297863|    0.012218|
+Sat Nov 28 00:44:22 2026<stdout>:|        1930|   -6.303317|    0.297863|    0.012219|
+Sat Nov 28 00:44:28 2026<stdout>:|        1940|   -6.304707|    0.297863|    0.012219|
+Sat Nov 28 00:44:34 2026<stdout>:|        1950|   -6.326622|    0.297863|    0.012219|
+Sat Nov 28 00:44:39 2026<stdout>:|        1960|   -6.367769|    0.297862|    0.012219|
+Sat Nov 28 00:44:46 2026<stdout>:|        1970|   -6.422885|    0.297862|    0.012219|
+Sat Nov 28 00:44:52 2026<stdout>:|        1980|   -6.479359|    0.297861|    0.012219|
+Sat Nov 28 00:44:58 2026<stdout>:|        1990|   -6.516976|    0.297860|    0.012219|
+Sat Nov 28 00:45:03 2026<stdout>:|        1999|   -6.523269|    0.297860|    0.012219|
+Sat Nov 28 00:45:03 2026<stdout>:
+Sat Nov 28 00:45:03 2026<stdout>:----------------------------- Compute Metric ----------------------------
+Sat Nov 28 00:45:04 2026<stdout>:Quadratic Hessian fits (owned point-sensor pairs): 93166 first ring, 18207 grown stencil, 0 WLS fallbacks.
+Sat Nov 28 00:45:04 2026<stdout>:Quadratic Hessian thin-stencil cubic/quartic corrections: 0 point-sensor fits; unsupported quartics retain cubic/quadratic fits.
+Sat Nov 28 00:45:04 2026<stdout>:Quadratic Hessian relative weighted fit residual: mean 0.0944413, maximum 0.918518; 51028 fits above 0.05; minimum QR pivot ratio 0.00341792. Second-ring MPI: 4996 requested owner neighborhoods, 75189 exported samples.
+Sat Nov 28 00:45:04 2026<stdout>:WARNING: Large quadratic fit residuals remain after stencil comparison; inspect sensor noise and nonsmooth flow features. No resolved curvature was discarded.
+Sat Nov 28 00:45:04 2026<stdout>:Hessian recovery: 0.718143 s (maximum rank time).
+Sat Nov 28 00:45:04 2026<stdout>:Metric field statistics:
+Sat Nov 28 00:45:04 2026<stdout>:Minimum density: 8.94665e-06.
+Sat Nov 28 00:45:04 2026<stdout>:Maximum density: 3.69906e+07.
+Sat Nov 28 00:45:04 2026<stdout>:Maximum cell AR: 5248.24.
+Sat Nov 28 00:45:04 2026<stdout>:Mesh complexity: 50000 (ADAP_COMPLEXITY= 50000).
+Sat Nov 28 00:45:04 2026<stdout>:Sharp wall points: 324, the isotropic corner metric (ADAP_ISO_CORNER) is applied in 2D only, the metric is not changed.
+Sat Nov 28 00:45:04 2026<stdout>:Metric computed in 0.751181 s.
+Sat Nov 28 00:45:04 2026<stdout>:
+Sat Nov 28 00:45:04 2026<stdout>:----------------------------- Solver Exit -------------------------------
+Sat Nov 28 00:45:04 2026<stdout>:
+Sat Nov 28 00:45:04 2026<stdout>:Maximum number of iterations reached (ITER = 2000) before convergence.
+Sat Nov 28 00:45:04 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:45:04 2026<stdout>:|      Convergence Field     |     Value    |   Criterion  |  Converged |
+Sat Nov 28 00:45:04 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:45:04 2026<stdout>:|                  Cauchy[CL]|   1.31892e-07|       < 1e-07|          No|
+Sat Nov 28 00:45:04 2026<stdout>:|                  Cauchy[CD]|   1.57558e-07|       < 1e-07|          No|
+Sat Nov 28 00:45:04 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:45:04 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 00:45:04 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:45:04 2026<stdout>:|        File Writing Summary       |              Filename             |
+Sat Nov 28 00:45:04 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:45:04 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00002.dat        |
+Sat Nov 28 00:45:04 2026<stdout>:|                                   |                     (1431.55 MB/s)|
+Sat Nov 28 00:45:04 2026<stdout>:|Paraview                           |flow_adap_00002.vtu                |
+Sat Nov 28 00:45:04 2026<stdout>:|                                   |                     (820.795 MB/s)|
+Sat Nov 28 00:45:04 2026<stdout>:|Paraview surface                   |surface_adap_00002.vtu             |
+Sat Nov 28 00:45:04 2026<stdout>:|                                   |                     (630.454 MB/s)|
+Sat Nov 28 00:45:04 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 00:45:04 2026<stdout>:
+Sat Nov 28 00:45:04 2026<stdout>:------------------------------ Remesh (MMG) -----------------------------
+Sat Nov 28 00:45:05 2026<stdout>:MMG_PARAMETERS dim=3 hmin=0.0030000000000000001 hmax=100 hgrad=1.6000000000000001 hausd=0.01 local_rows=3
+Sat Nov 28 00:45:05 2026<stdout>:MMG_LOCAL_PARAMETER marker=WING3D ref=3 hmin=0.0030000000000000001 hmax=100 hausd=0.001
+Sat Nov 28 00:45:05 2026<stdout>:MMG_LOCAL_PARAMETER marker=FARFIELD ref=1 hmin=0.0030000000000000001 hmax=100 hausd=1
+Sat Nov 28 00:45:05 2026<stdout>:MMG_LOCAL_PARAMETER marker=SYMMETRY ref=2 hmin=0.0030000000000000001 hmax=100 hausd=0.001
+Sat Nov 28 00:49:26 2026<stdout>:Remeshed 111373 points, 619037 elements into 129434 points, 718652 elements.
+Sat Nov 28 00:49:26 2026<stdout>:MMG3D status SUCCESS, 261.19 s (with the validation of input and output), extraction 0.176907 s (gathered from 6 ranks), slices sent 0.145875 s total_seconds=261.51255501099968.
+Sat Nov 28 00:49:26 2026<stdout>:
+Sat Nov 28 00:49:26 2026<stdout>:---------------------------- Replace the Mesh ---------------------------
+Sat Nov 28 00:49:26 2026<stdout>:Three dimensional problem.
+Sat Nov 28 00:49:26 2026<stdout>:129434 grid points before partitioning.
+Sat Nov 28 00:49:26 2026<stdout>:718652 volume elements before partitioning.
+Sat Nov 28 00:49:26 2026<stdout>:3 surface markers.
+Sat Nov 28 00:49:26 2026<stdout>:11592 boundary elements in index 0 (Marker = WING3D).
+Sat Nov 28 00:49:26 2026<stdout>:5556 boundary elements in index 1 (Marker = FARFIELD).
+Sat Nov 28 00:49:26 2026<stdout>:19928 boundary elements in index 2 (Marker = SYMMETRY).
+Sat Nov 28 00:49:26 2026<stdout>:Executing the partitioning functions.
+Sat Nov 28 00:49:26 2026<stdout>:Building the graph adjacency structure.
+Sat Nov 28 00:49:26 2026<stdout>:Calling ParMETIS... graph partitioning complete (18939 edge cuts).
+Sat Nov 28 00:49:26 2026<stdout>:Distributing ParMETIS coloring.
+Sat Nov 28 00:49:26 2026<stdout>:Rebalancing vertices.
+Sat Nov 28 00:49:26 2026<stdout>:Rebalancing volume element connectivity.
+Sat Nov 28 00:49:26 2026<stdout>:Rebalancing markers and surface elements.
+Sat Nov 28 00:49:26 2026<stdout>:140028 vertices including ghost points. 
+Sat Nov 28 00:49:26 2026<stdout>:747133 interior elements including halo cells. 
+Sat Nov 28 00:49:26 2026<stdout>:747133 tetrahedra.
+Sat Nov 28 00:49:27 2026<stdout>:Establishing MPI communication patterns.
+Sat Nov 28 00:49:27 2026<stdout>:Setting point connectivity.
+Sat Nov 28 00:49:27 2026<stdout>:Renumbering points (Reverse Cuthill McKee Ordering).
+Sat Nov 28 00:49:27 2026<stdout>:Recomputing point connectivity.
+Sat Nov 28 00:49:27 2026<stdout>:Setting element connectivity.
+Sat Nov 28 00:49:27 2026<stdout>:Checking the numerical grid orientation.
+Sat Nov 28 00:49:27 2026<stdout>:All volume elements are correctly oriented.
+Sat Nov 28 00:49:27 2026<stdout>:There has been a re-orientation of 38132 TRIANGLE surface elements.
+Sat Nov 28 00:49:27 2026<stdout>:Identifying edges and vertices.
+Sat Nov 28 00:49:27 2026<stdout>:Setting the control volume structure.
+Sat Nov 28 00:49:27 2026<stdout>:Volume of the computational grid: 2.08078e+06.
+Sat Nov 28 00:49:27 2026<stdout>:Searching for the closest normal neighbors to the surfaces.
+Sat Nov 28 00:49:27 2026<stdout>:Storing a mapping from global to local point index.
+Sat Nov 28 00:49:27 2026<stdout>:Compute the surface curvature.
+Sat Nov 28 00:49:27 2026<stdout>:Max K: 6441.89. Mean K: 74.1093. Standard deviation K: 418.625.
+Sat Nov 28 00:49:27 2026<stdout>:Computing mesh quality statistics for the dual control volumes.
+Sat Nov 28 00:49:28 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:|           Mesh Quality Metric|        Minimum|        Maximum|
+Sat Nov 28 00:49:28 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:|    Orthogonality Angle (deg.)|        4.37586|        84.4018|
+Sat Nov 28 00:49:28 2026<stdout>:|     CV Face Area Aspect Ratio|         1.0698|        286.703|
+Sat Nov 28 00:49:28 2026<stdout>:|           CV Sub-Volume Ratio|        1.00525|        588.113|
+Sat Nov 28 00:49:28 2026<stdout>:|                     CV Volume|    1.50662e-09|        9019.73|
+Sat Nov 28 00:49:28 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:Finding max control volume width.
+Sat Nov 28 00:49:28 2026<stdout>:Communicating number of neighbors.
+Sat Nov 28 00:49:28 2026<stdout>:Wetted area = 1.55743 m^2.
+Sat Nov 28 00:49:28 2026<stdout>:Area projection in the x-plane = 0.0743465 m^2, y-plane = 0.0181013 m^2, z-plane = 0.759862 m^2.
+Sat Nov 28 00:49:28 2026<stdout>:Max. coordinate in the x-direction = 1.14403 m, y-direction = 1.21849 m, z-direction = 0.0393895 m.
+Sat Nov 28 00:49:28 2026<stdout>:Min. coordinate in the x-direction = 5.77575e-05 m, y-direction = -1.14542e-13 m, z-direction = -0.0394017 m.
+Sat Nov 28 00:49:28 2026<stdout>:Computing wall distances.
+Sat Nov 28 00:49:28 2026<stdout>:
+Sat Nov 28 00:49:28 2026<stdout>:-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Sat Nov 28 00:49:28 2026<stdout>:Inviscid flow: Computing density based on free-stream
+Sat Nov 28 00:49:28 2026<stdout>:temperature and pressure using the ideal gas law.
+Sat Nov 28 00:49:28 2026<stdout>:Force coefficients computed using free-stream values.
+Sat Nov 28 00:49:28 2026<stdout>:
+Sat Nov 28 00:49:28 2026<stdout>:-- Models:
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:|          Viscosity Model|        Conductivity Model|              Fluid Model|
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:|                        -|                         -|             STANDARD_AIR|
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:-- Fluid properties:
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+Sat Nov 28 00:49:28 2026<stdout>:|      Spec. Heat Ratio|             -|             -|         -|           1.4|
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:-- Initial and free-stream conditions:
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:|       Static Pressure|        101325|             1|        Pa|        101325|
+Sat Nov 28 00:49:28 2026<stdout>:|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+Sat Nov 28 00:49:28 2026<stdout>:|           Temperature|        288.15|             1|         K|        288.15|
+Sat Nov 28 00:49:28 2026<stdout>:|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+Sat Nov 28 00:49:28 2026<stdout>:|            Velocity-X|       285.272|             1|       m/s|       285.272|
+Sat Nov 28 00:49:28 2026<stdout>:|            Velocity-Y|             0|             1|       m/s|             0|
+Sat Nov 28 00:49:28 2026<stdout>:|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+Sat Nov 28 00:49:28 2026<stdout>:|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:|           Mach Number|             -|             -|         -|        0.8395|
+Sat Nov 28 00:49:28 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 00:49:28 2026<stdout>:Initialize Jacobian structure (Euler). MG level: 0.
+Sat Nov 28 00:49:40 2026<stdout>:
+Sat Nov 28 00:49:40 2026<stdout>:------------------- Solution Transfer (conservative P1) -------------------
+Sat Nov 28 00:49:40 2026<stdout>:Distributed conservative transfer on 6 rank(s): import groups 1, imported donor elements 1670272 (largest per rank / mean 2.19); planned memory per rank (largest): resident and coverage 296 MB, import 637 MB (ceiling 2048 MB).
+Sat Nov 28 00:49:40 2026<stdout>:Supermesh of 718652 new and 619037 donor elements: 8318684 overlapping pairs (55593098 clipped), measure 2.079e+06 of 2.079e+06 (new) and 2.079e+06 (donor).
+Sat Nov 28 00:49:40 2026<stdout>:New domain outside the donor (S_n): 57805 parts of control volumes at 8805 points (0 of points on no marker), measure 5.809e+02, filled with the closest donor values (max distance 1.161e-01, 2.795e-02 of the face); new elements outside the donor: 0.
+Sat Nov 28 00:49:40 2026<stdout>:Donor domain outside the new one (S_d): 22177 donor elements, measure 5.021e+02, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Sat Nov 28 00:49:40 2026<stdout>:Largest uncovered fraction of a control-volume piece: 3.683e-01.
+Sat Nov 28 00:49:40 2026<stdout>:Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+Sat Nov 28 00:49:40 2026<stdout>:             Density:  2.794e-04  2.415e-04  7.606e-13  4.984e-15    9  7.183e-14      40
+Sat Nov 28 00:49:40 2026<stdout>:          Momentum-x:  2.794e-04  2.415e-04  4.930e-13  5.218e-15    9  6.782e-14      20
+Sat Nov 28 00:49:40 2026<stdout>:          Momentum-y: -1.507e-05  2.394e-06  6.882e-09  1.449e-13   19  6.456e-14      17
+Sat Nov 28 00:49:40 2026<stdout>:          Momentum-z:  2.794e-04  2.415e-04  1.254e-12  5.215e-15   13  3.127e-14      56
+Sat Nov 28 00:49:40 2026<stdout>:              Energy:  2.794e-04  2.415e-04  7.391e-13  5.131e-15    9  6.577e-14      43
+Sat Nov 28 00:49:40 2026<stdout>:States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Sat Nov 28 00:49:40 2026<stdout>:Domain volume: donor 2.079e+06, new 2.079e+06, relative change 3.789e-05.
+Sat Nov 28 00:49:40 2026<stdout>:Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+Sat Nov 28 00:49:40 2026<stdout>:             Density: 3.789e-05
+Sat Nov 28 00:49:40 2026<stdout>:          Momentum-x: 3.784e-05
+Sat Nov 28 00:49:40 2026<stdout>:          Momentum-y: -2.128e-10
+Sat Nov 28 00:49:40 2026<stdout>:          Momentum-z: 2.023e-06
+Sat Nov 28 00:49:40 2026<stdout>:              Energy: 3.789e-05
+Sat Nov 28 00:49:40 2026<stdout>:Time: setup 0.3898 s, import 1.643 s, supermesh 9.862 s, coverage and slivers 1.366 s, solve 0.2195 s, limiter 0.01854 s, total 12.53 s.
+Sat Nov 28 00:49:40 2026<stdout>:
+Sat Nov 28 00:49:40 2026<stdout>:------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+Sat Nov 28 00:49:40 2026<stdout>:
+Sat Nov 28 00:49:40 2026<stdout>:----------------- Integration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 00:49:40 2026<stdout>:
+Sat Nov 28 00:49:40 2026<stdout>:------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 00:49:40 2026<stdout>:Euler/Navier-Stokes/RANS fluid iteration.
+Sat Nov 28 00:49:40 2026<stdout>:The problem uses the new mesh: 129434 points, 0 multigrid levels.
+Sat Nov 28 00:49:40 2026<stdout>:Mesh replaced in 14.5052 s (solution transfer 12.5351 s).
+Sat Nov 28 00:49:40 2026<stdout>:Writing the adapted mesh of cycle 3: adapted_mesh_adap_00003.su2.
+Sat Nov 28 00:49:41 2026<stdout>:
+Sat Nov 28 00:49:41 2026<stdout>:------------------------- Mesh Adaptation Cycle -------------------------
+Sat Nov 28 00:49:41 2026<stdout>:Cycle 3 of 4: 129434 points, at most 2000 iterations, CFL 5, V multigrid cycle, transferred solution.
+Sat Nov 28 00:49:41 2026<stdout>:Its metric makes the next mesh: complexity 50000, sizes 0.003 to 100, norm 2, aspect ratio up to 1e+06.
+Sat Nov 28 00:49:41 2026<stdout>:
+Sat Nov 28 00:49:41 2026<stdout>:------------------------------ Begin Solver -----------------------------
+Sat Nov 28 00:49:41 2026<stdout>:
+Sat Nov 28 00:49:41 2026<stdout>:Simulation Run using the Single-zone Driver
+Sat Nov 28 00:49:41 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 00:49:41 2026<stdout>:|  Inner_Iter|    rms[Rho]|          CL|          CD|
+Sat Nov 28 00:49:41 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 00:49:41 2026<stdout>:|           0|   -2.307818|    0.297623|    0.012134|
+Sat Nov 28 00:49:50 2026<stdout>:|          10|   -3.300159|    0.296929|    0.011868|
+Sat Nov 28 00:49:58 2026<stdout>:|          20|   -3.237985|    0.297048|    0.011858|
+Sat Nov 28 00:50:06 2026<stdout>:|          30|   -3.073177|    0.297096|    0.011870|
+Sat Nov 28 00:50:15 2026<stdout>:|          40|   -2.990125|    0.296915|    0.011858|
+Sat Nov 28 00:50:22 2026<stdout>:|          50|   -3.062247|    0.296701|    0.011831|
+Sat Nov 28 00:50:30 2026<stdout>:|          60|   -3.201882|    0.296525|    0.011806|
+Sat Nov 28 00:50:37 2026<stdout>:|          70|   -3.393137|    0.296339|    0.011786|
+Sat Nov 28 00:50:46 2026<stdout>:|          80|   -3.580799|    0.296148|    0.011770|
+Sat Nov 28 00:50:54 2026<stdout>:|          90|   -3.697085|    0.295990|    0.011757|
+Sat Nov 28 00:51:02 2026<stdout>:|         100|   -3.803997|    0.295871|    0.011746|
+Sat Nov 28 00:51:10 2026<stdout>:|         110|   -3.896120|    0.295780|    0.011735|
+Sat Nov 28 00:51:18 2026<stdout>:|         120|   -3.969162|    0.295707|    0.011724|
+Sat Nov 28 00:51:25 2026<stdout>:|         130|   -4.045438|    0.295650|    0.011713|
+Sat Nov 28 00:51:33 2026<stdout>:|         140|   -4.097260|    0.295613|    0.011703|
+Sat Nov 28 00:51:42 2026<stdout>:|         150|   -4.144085|    0.295592|    0.011694|
+Sat Nov 28 00:51:50 2026<stdout>:|         160|   -4.201567|    0.295583|    0.011684|
+Sat Nov 28 00:51:58 2026<stdout>:|         170|   -4.261501|    0.295581|    0.011675|
+Sat Nov 28 00:52:05 2026<stdout>:|         180|   -4.326572|    0.295586|    0.011666|
+Sat Nov 28 00:52:13 2026<stdout>:|         190|   -4.395675|    0.295595|    0.011658|
+Sat Nov 28 00:52:21 2026<stdout>:|         200|   -4.457284|    0.295609|    0.011652|
+Sat Nov 28 00:52:29 2026<stdout>:|         210|   -4.508033|    0.295627|    0.011649|
+Sat Nov 28 00:52:37 2026<stdout>:|         220|   -4.542104|    0.295645|    0.011647|
+Sat Nov 28 00:52:45 2026<stdout>:|         230|   -4.555460|    0.295661|    0.011646|
+Sat Nov 28 00:52:53 2026<stdout>:|         240|   -4.553490|    0.295675|    0.011648|
+Sat Nov 28 00:53:00 2026<stdout>:|         250|   -4.547930|    0.295689|    0.011652|
+Sat Nov 28 00:53:09 2026<stdout>:|         260|   -4.545128|    0.295703|    0.011657|
+Sat Nov 28 00:53:17 2026<stdout>:|         270|   -4.545171|    0.295716|    0.011662|
+Sat Nov 28 00:53:25 2026<stdout>:|         280|   -4.547117|    0.295727|    0.011667|
+Sat Nov 28 00:53:33 2026<stdout>:|         290|   -4.546988|    0.295735|    0.011671|
+Sat Nov 28 00:53:41 2026<stdout>:|         300|   -4.539138|    0.295738|    0.011675|
+Sat Nov 28 00:53:49 2026<stdout>:|         310|   -4.523146|    0.295736|    0.011678|
+Sat Nov 28 00:53:56 2026<stdout>:|         320|   -4.507929|    0.295728|    0.011681|
+Sat Nov 28 00:54:04 2026<stdout>:|         330|   -4.505442|    0.295716|    0.011684|
+Sat Nov 28 00:54:11 2026<stdout>:|         340|   -4.519823|    0.295699|    0.011687|
+Sat Nov 28 00:54:18 2026<stdout>:|         350|   -4.538566|    0.295675|    0.011689|
+Sat Nov 28 00:54:26 2026<stdout>:|         360|   -4.538368|    0.295646|    0.011690|
+Sat Nov 28 00:54:33 2026<stdout>:|         370|   -4.517485|    0.295613|    0.011690|
+Sat Nov 28 00:54:39 2026<stdout>:|         380|   -4.503205|    0.295580|    0.011689|
+Sat Nov 28 00:54:47 2026<stdout>:|         390|   -4.520232|    0.295550|    0.011688|
+Sat Nov 28 00:54:54 2026<stdout>:|         400|   -4.575375|    0.295524|    0.011686|
+Sat Nov 28 00:55:02 2026<stdout>:|         410|   -4.652045|    0.295502|    0.011684|
+Sat Nov 28 00:55:09 2026<stdout>:|         420|   -4.706208|    0.295484|    0.011682|
+Sat Nov 28 00:55:18 2026<stdout>:|         430|   -4.716064|    0.295470|    0.011680|
+Sat Nov 28 00:55:26 2026<stdout>:|         440|   -4.720472|    0.295459|    0.011678|
+Sat Nov 28 00:55:33 2026<stdout>:|         450|   -4.754422|    0.295454|    0.011676|
+Sat Nov 28 00:55:39 2026<stdout>:|         460|   -4.822416|    0.295453|    0.011674|
+Sat Nov 28 00:55:47 2026<stdout>:|         470|   -4.904508|    0.295458|    0.011673|
+Sat Nov 28 00:55:54 2026<stdout>:|         480|   -4.965092|    0.295465|    0.011673|
+Sat Nov 28 00:56:02 2026<stdout>:|         490|   -4.991968|    0.295475|    0.011673|
+Sat Nov 28 00:56:09 2026<stdout>:|         500|   -5.011234|    0.295483|    0.011674|
+Sat Nov 28 00:56:16 2026<stdout>:|         510|   -5.045386|    0.295490|    0.011675|
+Sat Nov 28 00:56:22 2026<stdout>:|         520|   -5.096696|    0.295494|    0.011675|
+Sat Nov 28 00:56:29 2026<stdout>:|         530|   -5.153526|    0.295496|    0.011676|
+Sat Nov 28 00:56:37 2026<stdout>:|         540|   -5.199753|    0.295495|    0.011677|
+Sat Nov 28 00:56:44 2026<stdout>:|         550|   -5.227926|    0.295494|    0.011677|
+Sat Nov 28 00:56:51 2026<stdout>:|         560|   -5.245219|    0.295491|    0.011678|
+Sat Nov 28 00:56:58 2026<stdout>:|         570|   -5.263312|    0.295488|    0.011678|
+Sat Nov 28 00:57:05 2026<stdout>:|         580|   -5.288019|    0.295484|    0.011677|
+Sat Nov 28 00:57:12 2026<stdout>:|         590|   -5.317240|    0.295479|    0.011677|
+Sat Nov 28 00:57:19 2026<stdout>:|         600|   -5.344834|    0.295472|    0.011676|
+Sat Nov 28 00:57:26 2026<stdout>:|         610|   -5.365836|    0.295464|    0.011675|
+Sat Nov 28 00:57:34 2026<stdout>:|         620|   -5.378830|    0.295454|    0.011674|
+Sat Nov 28 00:57:41 2026<stdout>:|         630|   -5.385231|    0.295444|    0.011673|
+Sat Nov 28 00:57:48 2026<stdout>:|         640|   -5.386217|    0.295433|    0.011672|
+Sat Nov 28 00:57:55 2026<stdout>:|         650|   -5.381942|    0.295424|    0.011670|
+Sat Nov 28 00:58:01 2026<stdout>:|         660|   -5.373668|    0.295415|    0.011669|
+Sat Nov 28 00:58:08 2026<stdout>:|         670|   -5.364783|    0.295409|    0.011668|
+Sat Nov 28 00:58:17 2026<stdout>:|         680|   -5.359800|    0.295404|    0.011668|
+Sat Nov 28 00:58:25 2026<stdout>:|         690|   -5.362716|    0.295401|    0.011667|
+Sat Nov 28 00:58:32 2026<stdout>:|         700|   -5.376290|    0.295399|    0.011667|
+Sat Nov 28 00:58:40 2026<stdout>:|         710|   -5.400871|    0.295397|    0.011667|
+Sat Nov 28 00:58:48 2026<stdout>:|         720|   -5.432448|    0.295395|    0.011667|
+Sat Nov 28 00:58:55 2026<stdout>:|         730|   -5.460423|    0.295393|    0.011668|
+Sat Nov 28 00:59:03 2026<stdout>:|         740|   -5.470243|    0.295391|    0.011669|
+Sat Nov 28 00:59:11 2026<stdout>:|         750|   -5.455772|    0.295389|    0.011670|
+Sat Nov 28 00:59:18 2026<stdout>:|         760|   -5.426859|    0.295387|    0.011672|
+Sat Nov 28 00:59:25 2026<stdout>:|         770|   -5.398677|    0.295385|    0.011673|
+Sat Nov 28 00:59:32 2026<stdout>:|         780|   -5.381201|    0.295384|    0.011675|
+Sat Nov 28 00:59:39 2026<stdout>:|         790|   -5.378607|    0.295382|    0.011676|
+Sat Nov 28 00:59:46 2026<stdout>:|         800|   -5.391725|    0.295381|    0.011677|
+Sat Nov 28 00:59:53 2026<stdout>:|         810|   -5.419657|    0.295378|    0.011678|
+Sat Nov 28 01:00:00 2026<stdout>:|         820|   -5.460125|    0.295375|    0.011678|
+Sat Nov 28 01:00:08 2026<stdout>:|         830|   -5.508446|    0.295371|    0.011678|
+Sat Nov 28 01:00:15 2026<stdout>:|         840|   -5.555958|    0.295367|    0.011677|
+Sat Nov 28 01:00:22 2026<stdout>:|         850|   -5.589982|    0.295362|    0.011676|
+Sat Nov 28 01:00:29 2026<stdout>:|         860|   -5.599779|    0.295358|    0.011675|
+Sat Nov 28 01:00:35 2026<stdout>:|         870|   -5.586228|    0.295355|    0.011673|
+Sat Nov 28 01:00:43 2026<stdout>:|         880|   -5.561087|    0.295352|    0.011672|
+Sat Nov 28 01:00:50 2026<stdout>:|         890|   -5.537073|    0.295351|    0.011670|
+Sat Nov 28 01:00:57 2026<stdout>:|         900|   -5.522381|    0.295350|    0.011669|
+Sat Nov 28 01:01:04 2026<stdout>:|         910|   -5.521102|    0.295350|    0.011667|
+Sat Nov 28 01:01:11 2026<stdout>:|         920|   -5.535006|    0.295351|    0.011666|
+Sat Nov 28 01:01:19 2026<stdout>:|         930|   -5.564311|    0.295352|    0.011666|
+Sat Nov 28 01:01:26 2026<stdout>:|         940|   -5.607433|    0.295353|    0.011665|
+Sat Nov 28 01:01:34 2026<stdout>:|         950|   -5.659360|    0.295354|    0.011665|
+Sat Nov 28 01:01:41 2026<stdout>:|         960|   -5.709166|    0.295355|    0.011665|
+Sat Nov 28 01:01:48 2026<stdout>:|         970|   -5.740610|    0.295355|    0.011666|
+Sat Nov 28 01:01:56 2026<stdout>:|         980|   -5.743037|    0.295355|    0.011666|
+Sat Nov 28 01:02:02 2026<stdout>:|         990|   -5.722757|    0.295355|    0.011667|
+Sat Nov 28 01:02:09 2026<stdout>:|        1000|   -5.695818|    0.295353|    0.011668|
+Sat Nov 28 01:02:16 2026<stdout>:|        1010|   -5.675099|    0.295352|    0.011668|
+Sat Nov 28 01:02:23 2026<stdout>:|        1020|   -5.667413|    0.295349|    0.011669|
+Sat Nov 28 01:02:30 2026<stdout>:|        1030|   -5.675718|    0.295346|    0.011670|
+Sat Nov 28 01:02:37 2026<stdout>:|        1040|   -5.700831|    0.295343|    0.011671|
+Sat Nov 28 01:02:45 2026<stdout>:|        1050|   -5.741362|    0.295339|    0.011671|
+Sat Nov 28 01:02:52 2026<stdout>:|        1060|   -5.791591|    0.295336|    0.011672|
+Sat Nov 28 01:02:58 2026<stdout>:|        1070|   -5.837898|    0.295332|    0.011672|
+Sat Nov 28 01:03:05 2026<stdout>:|        1080|   -5.860661|    0.295329|    0.011672|
+Sat Nov 28 01:03:12 2026<stdout>:|        1090|   -5.851213|    0.295326|    0.011672|
+Sat Nov 28 01:03:20 2026<stdout>:|        1100|   -5.823150|    0.295323|    0.011672|
+Sat Nov 28 01:03:27 2026<stdout>:|        1110|   -5.796348|    0.295320|    0.011672|
+Sat Nov 28 01:03:34 2026<stdout>:|        1120|   -5.783089|    0.295319|    0.011671|
+Sat Nov 28 01:03:41 2026<stdout>:|        1130|   -5.788393|    0.295317|    0.011671|
+Sat Nov 28 01:03:48 2026<stdout>:|        1140|   -5.813330|    0.295317|    0.011670|
+Sat Nov 28 01:03:55 2026<stdout>:|        1150|   -5.856162|    0.295316|    0.011670|
+Sat Nov 28 01:04:02 2026<stdout>:|        1160|   -5.911137|    0.295316|    0.011669|
+Sat Nov 28 01:04:10 2026<stdout>:|        1170|   -5.965280|    0.295317|    0.011669|
+Sat Nov 28 01:04:17 2026<stdout>:|        1180|   -5.998992|    0.295317|    0.011668|
+Sat Nov 28 01:04:25 2026<stdout>:|        1190|   -6.000435|    0.295318|    0.011668|
+Sat Nov 28 01:04:31 2026<stdout>:|        1200|   -5.979569|    0.295319|    0.011667|
+Sat Nov 28 01:04:38 2026<stdout>:|        1210|   -5.956009|    0.295321|    0.011667|
+Sat Nov 28 01:04:45 2026<stdout>:|        1220|   -5.943142|    0.295322|    0.011667|
+Sat Nov 28 01:04:52 2026<stdout>:|        1230|   -5.946725|    0.295322|    0.011667|
+Sat Nov 28 01:04:59 2026<stdout>:|        1240|   -5.968326|    0.295323|    0.011667|
+Sat Nov 28 01:05:06 2026<stdout>:|        1250|   -6.007137|    0.295324|    0.011667|
+Sat Nov 28 01:05:14 2026<stdout>:|        1260|   -6.059812|    0.295324|    0.011667|
+Sat Nov 28 01:05:21 2026<stdout>:|        1270|   -6.118662|    0.295324|    0.011668|
+Sat Nov 28 01:05:28 2026<stdout>:|        1280|   -6.170324|    0.295323|    0.011668|
+Sat Nov 28 01:05:34 2026<stdout>:|        1290|   -6.200427|    0.295323|    0.011668|
+Sat Nov 28 01:05:42 2026<stdout>:|        1300|   -6.205506|    0.295321|    0.011669|
+Sat Nov 28 01:05:49 2026<stdout>:|        1310|   -6.195876|    0.295320|    0.011669|
+Sat Nov 28 01:05:56 2026<stdout>:|        1320|   -6.184562|    0.295318|    0.011669|
+Sat Nov 28 01:06:04 2026<stdout>:|        1330|   -6.179559|    0.295316|    0.011670|
+Sat Nov 28 01:06:11 2026<stdout>:|        1340|   -6.184016|    0.295314|    0.011670|
+Sat Nov 28 01:06:18 2026<stdout>:|        1350|   -6.198541|    0.295312|    0.011670|
+Sat Nov 28 01:06:24 2026<stdout>:|        1360|   -6.222715|    0.295310|    0.011669|
+Sat Nov 28 01:06:32 2026<stdout>:|        1370|   -6.255864|    0.295309|    0.011669|
+Sat Nov 28 01:06:39 2026<stdout>:|        1380|   -6.297076|    0.295307|    0.011669|
+Sat Nov 28 01:06:48 2026<stdout>:|        1390|   -6.344787|    0.295306|    0.011669|
+Sat Nov 28 01:06:56 2026<stdout>:|        1400|   -6.395707|    0.295305|    0.011669|
+Sat Nov 28 01:07:04 2026<stdout>:|        1410|   -6.443314|    0.295305|    0.011668|
+Sat Nov 28 01:07:11 2026<stdout>:|        1420|   -6.477347|    0.295304|    0.011668|
+Sat Nov 28 01:07:19 2026<stdout>:|        1430|   -6.488000|    0.295304|    0.011668|
+Sat Nov 28 01:07:28 2026<stdout>:|        1440|   -6.474133|    0.295305|    0.011668|
+Sat Nov 28 01:07:36 2026<stdout>:|        1450|   -6.444697|    0.295305|    0.011667|
+Sat Nov 28 01:07:44 2026<stdout>:|        1460|   -6.411290|    0.295306|    0.011667|
+Sat Nov 28 01:07:51 2026<stdout>:|        1470|   -6.382270|    0.295306|    0.011667|
+Sat Nov 28 01:07:58 2026<stdout>:|        1480|   -6.362188|    0.295307|    0.011668|
+Sat Nov 28 01:08:05 2026<stdout>:|        1490|   -6.353234|    0.295307|    0.011668|
+Sat Nov 28 01:08:12 2026<stdout>:|        1500|   -6.356399|    0.295308|    0.011668|
+Sat Nov 28 01:08:20 2026<stdout>:|        1510|   -6.372055|    0.295308|    0.011668|
+Sat Nov 28 01:08:27 2026<stdout>:|        1520|   -6.399866|    0.295308|    0.011668|
+Sat Nov 28 01:08:34 2026<stdout>:|        1530|   -6.438073|    0.295308|    0.011668|
+Sat Nov 28 01:08:42 2026<stdout>:|        1540|   -6.481808|    0.295308|    0.011669|
+Sat Nov 28 01:08:50 2026<stdout>:|        1550|   -6.520779|    0.295308|    0.011669|
+Sat Nov 28 01:08:58 2026<stdout>:|        1560|   -6.540120|    0.295307|    0.011669|
+Sat Nov 28 01:09:06 2026<stdout>:|        1570|   -6.530457|    0.295307|    0.011669|
+Sat Nov 28 01:09:14 2026<stdout>:|        1580|   -6.498220|    0.295306|    0.011669|
+Sat Nov 28 01:09:23 2026<stdout>:|        1590|   -6.458822|    0.295305|    0.011669|
+Sat Nov 28 01:09:29 2026<stdout>:|        1600|   -6.424638|    0.295304|    0.011669|
+Sat Nov 28 01:09:36 2026<stdout>:|        1610|   -6.402134|    0.295303|    0.011668|
+Sat Nov 28 01:09:43 2026<stdout>:|        1620|   -6.394035|    0.295303|    0.011668|
+Sat Nov 28 01:09:50 2026<stdout>:|        1630|   -6.401310|    0.295302|    0.011668|
+Sat Nov 28 01:09:57 2026<stdout>:|        1640|   -6.423987|    0.295302|    0.011668|
+Sat Nov 28 01:10:05 2026<stdout>:|        1650|   -6.461140|    0.295301|    0.011668|
+Sat Nov 28 01:10:12 2026<stdout>:|        1660|   -6.509960|    0.295301|    0.011667|
+Sat Nov 28 01:10:20 2026<stdout>:|        1670|   -6.563619|    0.295301|    0.011667|
+Sat Nov 28 01:10:28 2026<stdout>:|        1680|   -6.609075|    0.295301|    0.011667|
+Sat Nov 28 01:10:36 2026<stdout>:|        1690|   -6.630566|    0.295301|    0.011667|
+Sat Nov 28 01:10:44 2026<stdout>:|        1700|   -6.622774|    0.295301|    0.011667|
+Sat Nov 28 01:10:52 2026<stdout>:|        1710|   -6.596860|    0.295301|    0.011667|
+Sat Nov 28 01:11:00 2026<stdout>:|        1720|   -6.568514|    0.295302|    0.011667|
+Sat Nov 28 01:11:07 2026<stdout>:|        1730|   -6.548032|    0.295302|    0.011668|
+Sat Nov 28 01:11:14 2026<stdout>:|        1740|   -6.540145|    0.295302|    0.011668|
+Sat Nov 28 01:11:21 2026<stdout>:|        1750|   -6.546521|    0.295302|    0.011668|
+Sat Nov 28 01:11:28 2026<stdout>:|        1760|   -6.567418|    0.295302|    0.011668|
+Sat Nov 28 01:11:35 2026<stdout>:|        1770|   -6.602206|    0.295302|    0.011668|
+Sat Nov 28 01:11:42 2026<stdout>:|        1780|   -6.649056|    0.295301|    0.011668|
+Sat Nov 28 01:11:50 2026<stdout>:|        1790|   -6.703781|    0.295301|    0.011669|
+Sat Nov 28 01:11:57 2026<stdout>:|        1800|   -6.758023|    0.295301|    0.011669|
+Sat Nov 28 01:12:05 2026<stdout>:|        1810|   -6.798974|    0.295300|    0.011669|
+Sat Nov 28 01:12:12 2026<stdout>:|        1820|   -6.815456|    0.295300|    0.011669|
+Sat Nov 28 01:12:21 2026<stdout>:|        1830|   -6.807865|    0.295300|    0.011668|
+Sat Nov 28 01:12:29 2026<stdout>:|        1840|   -6.787552|    0.295299|    0.011668|
+Sat Nov 28 01:12:31 2026<stdout>:|        1843|   -6.780908|    0.295299|    0.011668|
+Sat Nov 28 01:12:31 2026<stdout>:
+Sat Nov 28 01:12:31 2026<stdout>:----------------------------- Compute Metric ----------------------------
+Sat Nov 28 01:12:32 2026<stdout>:Quadratic Hessian fits (owned point-sensor pairs): 107726 first ring, 21708 grown stencil, 0 WLS fallbacks.
+Sat Nov 28 01:12:32 2026<stdout>:Quadratic Hessian thin-stencil cubic/quartic corrections: 0 point-sensor fits; unsupported quartics retain cubic/quadratic fits.
+Sat Nov 28 01:12:32 2026<stdout>:Quadratic Hessian relative weighted fit residual: mean 0.111725, maximum 0.941489; 64578 fits above 0.05; minimum QR pivot ratio 0.00316348. Second-ring MPI: 5934 requested owner neighborhoods, 88716 exported samples.
+Sat Nov 28 01:12:32 2026<stdout>:WARNING: Large quadratic fit residuals remain after stencil comparison; inspect sensor noise and nonsmooth flow features. No resolved curvature was discarded.
+Sat Nov 28 01:12:32 2026<stdout>:Hessian recovery: 0.943364 s (maximum rank time).
+Sat Nov 28 01:12:32 2026<stdout>:Metric field statistics:
+Sat Nov 28 01:12:32 2026<stdout>:Minimum density: 8.81714e-06.
+Sat Nov 28 01:12:32 2026<stdout>:Maximum density: 3.7037e+07.
+Sat Nov 28 01:12:32 2026<stdout>:Maximum cell AR: 5894.89.
+Sat Nov 28 01:12:32 2026<stdout>:Mesh complexity: 50000 (ADAP_COMPLEXITY= 50000).
+Sat Nov 28 01:12:32 2026<stdout>:Sharp wall points: 318, the isotropic corner metric (ADAP_ISO_CORNER) is applied in 2D only, the metric is not changed.
+Sat Nov 28 01:12:32 2026<stdout>:Metric computed in 0.980275 s.
+Sat Nov 28 01:12:32 2026<stdout>:
+Sat Nov 28 01:12:32 2026<stdout>:----------------------------- Solver Exit -------------------------------
+Sat Nov 28 01:12:32 2026<stdout>:All convergence criteria satisfied.
+Sat Nov 28 01:12:32 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:12:32 2026<stdout>:|      Convergence Field     |     Value    |   Criterion  |  Converged |
+Sat Nov 28 01:12:32 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:12:32 2026<stdout>:|                  Cauchy[CL]|   9.45425e-08|       < 1e-07|         Yes|
+Sat Nov 28 01:12:32 2026<stdout>:|                  Cauchy[CD]|   9.96841e-08|       < 1e-07|         Yes|
+Sat Nov 28 01:12:32 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:12:32 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 01:12:32 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:12:32 2026<stdout>:|        File Writing Summary       |              Filename             |
+Sat Nov 28 01:12:32 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:12:32 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00003.dat        |
+Sat Nov 28 01:12:32 2026<stdout>:|                                   |                     (1127.74 MB/s)|
+Sat Nov 28 01:12:32 2026<stdout>:|Paraview                           |flow_adap_00003.vtu                |
+Sat Nov 28 01:12:32 2026<stdout>:|                                   |                     (875.518 MB/s)|
+Sat Nov 28 01:12:32 2026<stdout>:|Paraview surface                   |surface_adap_00003.vtu             |
+Sat Nov 28 01:12:32 2026<stdout>:|                                   |                     (553.899 MB/s)|
+Sat Nov 28 01:12:32 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:12:33 2026<stdout>:
+Sat Nov 28 01:12:33 2026<stdout>:------------------------------ Remesh (MMG) -----------------------------
+Sat Nov 28 01:12:33 2026<stdout>:MMG_PARAMETERS dim=3 hmin=0.0030000000000000001 hmax=100 hgrad=1.6000000000000001 hausd=0.01 local_rows=3
+Sat Nov 28 01:12:33 2026<stdout>:MMG_LOCAL_PARAMETER marker=WING3D ref=3 hmin=0.0030000000000000001 hmax=100 hausd=0.001
+Sat Nov 28 01:12:33 2026<stdout>:MMG_LOCAL_PARAMETER marker=FARFIELD ref=1 hmin=0.0030000000000000001 hmax=100 hausd=1
+Sat Nov 28 01:12:33 2026<stdout>:MMG_LOCAL_PARAMETER marker=SYMMETRY ref=2 hmin=0.0030000000000000001 hmax=100 hausd=0.001
+Sat Nov 28 01:17:21 2026<stdout>:Remeshed 129434 points, 718652 elements into 148915 points, 828864 elements.
+Sat Nov 28 01:17:21 2026<stdout>:MMG3D status SUCCESS, 288.27 s (with the validation of input and output), extraction 0.210597 s (gathered from 6 ranks), slices sent 0.188164 s total_seconds=288.66888673199992.
+Sat Nov 28 01:17:21 2026<stdout>:
+Sat Nov 28 01:17:21 2026<stdout>:---------------------------- Replace the Mesh ---------------------------
+Sat Nov 28 01:17:21 2026<stdout>:Three dimensional problem.
+Sat Nov 28 01:17:21 2026<stdout>:148915 grid points before partitioning.
+Sat Nov 28 01:17:21 2026<stdout>:828864 volume elements before partitioning.
+Sat Nov 28 01:17:21 2026<stdout>:3 surface markers.
+Sat Nov 28 01:17:21 2026<stdout>:11343 boundary elements in index 0 (Marker = WING3D).
+Sat Nov 28 01:17:21 2026<stdout>:6801 boundary elements in index 1 (Marker = FARFIELD).
+Sat Nov 28 01:17:21 2026<stdout>:22886 boundary elements in index 2 (Marker = SYMMETRY).
+Sat Nov 28 01:17:21 2026<stdout>:Executing the partitioning functions.
+Sat Nov 28 01:17:21 2026<stdout>:Building the graph adjacency structure.
+Sat Nov 28 01:17:21 2026<stdout>:Calling ParMETIS... graph partitioning complete (19213 edge cuts).
+Sat Nov 28 01:17:21 2026<stdout>:Distributing ParMETIS coloring.
+Sat Nov 28 01:17:22 2026<stdout>:Rebalancing vertices.
+Sat Nov 28 01:17:22 2026<stdout>:Rebalancing volume element connectivity.
+Sat Nov 28 01:17:22 2026<stdout>:Rebalancing markers and surface elements.
+Sat Nov 28 01:17:22 2026<stdout>:159798 vertices including ghost points. 
+Sat Nov 28 01:17:22 2026<stdout>:857833 interior elements including halo cells. 
+Sat Nov 28 01:17:22 2026<stdout>:857833 tetrahedra.
+Sat Nov 28 01:17:22 2026<stdout>:Establishing MPI communication patterns.
+Sat Nov 28 01:17:22 2026<stdout>:Setting point connectivity.
+Sat Nov 28 01:17:22 2026<stdout>:Renumbering points (Reverse Cuthill McKee Ordering).
+Sat Nov 28 01:17:22 2026<stdout>:Recomputing point connectivity.
+Sat Nov 28 01:17:22 2026<stdout>:Setting element connectivity.
+Sat Nov 28 01:17:23 2026<stdout>:Checking the numerical grid orientation.
+Sat Nov 28 01:17:23 2026<stdout>:All volume elements are correctly oriented.
+Sat Nov 28 01:17:23 2026<stdout>:There has been a re-orientation of 42160 TRIANGLE surface elements.
+Sat Nov 28 01:17:23 2026<stdout>:Identifying edges and vertices.
+Sat Nov 28 01:17:23 2026<stdout>:Setting the control volume structure.
+Sat Nov 28 01:17:23 2026<stdout>:Volume of the computational grid: 2.32654e+06.
+Sat Nov 28 01:17:23 2026<stdout>:Searching for the closest normal neighbors to the surfaces.
+Sat Nov 28 01:17:23 2026<stdout>:Storing a mapping from global to local point index.
+Sat Nov 28 01:17:23 2026<stdout>:Compute the surface curvature.
+Sat Nov 28 01:17:23 2026<stdout>:Max K: 6441.89. Mean K: 65.1141. Standard deviation K: 393.424.
+Sat Nov 28 01:17:23 2026<stdout>:Computing mesh quality statistics for the dual control volumes.
+Sat Nov 28 01:17:23 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:|           Mesh Quality Metric|        Minimum|        Maximum|
+Sat Nov 28 01:17:23 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:|    Orthogonality Angle (deg.)|        2.80332|        84.4018|
+Sat Nov 28 01:17:23 2026<stdout>:|     CV Face Area Aspect Ratio|         1.0569|        138.802|
+Sat Nov 28 01:17:23 2026<stdout>:|           CV Sub-Volume Ratio|        1.00525|        440.174|
+Sat Nov 28 01:17:23 2026<stdout>:|                     CV Volume|    1.35331e-09|         7457.7|
+Sat Nov 28 01:17:23 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:Finding max control volume width.
+Sat Nov 28 01:17:23 2026<stdout>:Communicating number of neighbors.
+Sat Nov 28 01:17:23 2026<stdout>:Wetted area = 1.55743 m^2.
+Sat Nov 28 01:17:23 2026<stdout>:Area projection in the x-plane = 0.0743329 m^2, y-plane = 0.0181031 m^2, z-plane = 0.75987 m^2.
+Sat Nov 28 01:17:23 2026<stdout>:Max. coordinate in the x-direction = 1.14403 m, y-direction = 1.21851 m, z-direction = 0.0393895 m.
+Sat Nov 28 01:17:23 2026<stdout>:Min. coordinate in the x-direction = 5.77575e-05 m, y-direction = -1.14542e-13 m, z-direction = -0.0394017 m.
+Sat Nov 28 01:17:23 2026<stdout>:Computing wall distances.
+Sat Nov 28 01:17:23 2026<stdout>:
+Sat Nov 28 01:17:23 2026<stdout>:-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Sat Nov 28 01:17:23 2026<stdout>:Inviscid flow: Computing density based on free-stream
+Sat Nov 28 01:17:23 2026<stdout>:temperature and pressure using the ideal gas law.
+Sat Nov 28 01:17:23 2026<stdout>:Force coefficients computed using free-stream values.
+Sat Nov 28 01:17:23 2026<stdout>:
+Sat Nov 28 01:17:23 2026<stdout>:-- Models:
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:|          Viscosity Model|        Conductivity Model|              Fluid Model|
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:|                        -|                         -|             STANDARD_AIR|
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:-- Fluid properties:
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+Sat Nov 28 01:17:23 2026<stdout>:|      Spec. Heat Ratio|             -|             -|         -|           1.4|
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:-- Initial and free-stream conditions:
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:|       Static Pressure|        101325|             1|        Pa|        101325|
+Sat Nov 28 01:17:23 2026<stdout>:|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+Sat Nov 28 01:17:23 2026<stdout>:|           Temperature|        288.15|             1|         K|        288.15|
+Sat Nov 28 01:17:23 2026<stdout>:|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+Sat Nov 28 01:17:23 2026<stdout>:|            Velocity-X|       285.272|             1|       m/s|       285.272|
+Sat Nov 28 01:17:23 2026<stdout>:|            Velocity-Y|             0|             1|       m/s|             0|
+Sat Nov 28 01:17:23 2026<stdout>:|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+Sat Nov 28 01:17:23 2026<stdout>:|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:|           Mach Number|             -|             -|         -|        0.8395|
+Sat Nov 28 01:17:23 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 01:17:23 2026<stdout>:Initialize Jacobian structure (Euler). MG level: 0.
+Sat Nov 28 01:17:39 2026<stdout>:
+Sat Nov 28 01:17:39 2026<stdout>:------------------- Solution Transfer (conservative P1) -------------------
+Sat Nov 28 01:17:39 2026<stdout>:Distributed conservative transfer on 6 rank(s): import groups 1, imported donor elements 2103989 (largest per rank / mean 1.92); planned memory per rank (largest): resident and coverage 351 MB, import 703 MB (ceiling 2048 MB).
+Sat Nov 28 01:17:39 2026<stdout>:Supermesh of 828864 new and 718652 donor elements: 9243540 overlapping pairs (68455159 clipped), measure 2.079e+06 of 2.079e+06 (new) and 2.079e+06 (donor).
+Sat Nov 28 01:17:39 2026<stdout>:New domain outside the donor (S_n): 61583 parts of control volumes at 9166 points (0 of points on no marker), measure 3.640e+02, filled with the closest donor values (max distance 1.265e-01, 1.725e-02 of the face); new elements outside the donor: 0.
+Sat Nov 28 01:17:39 2026<stdout>:Donor domain outside the new one (S_d): 24732 donor elements, measure 5.332e+02, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Sat Nov 28 01:17:39 2026<stdout>:Largest uncovered fraction of a control-volume piece: 2.903e-01.
+Sat Nov 28 01:17:39 2026<stdout>:Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+Sat Nov 28 01:17:39 2026<stdout>:             Density:  1.751e-04  2.564e-04  1.534e-12  5.876e-15    9  7.183e-14     114
+Sat Nov 28 01:17:39 2026<stdout>:          Momentum-x:  1.751e-04  2.564e-04  1.436e-12  5.749e-15    9  6.527e-14      25
+Sat Nov 28 01:17:39 2026<stdout>:          Momentum-y:  6.069e-06  7.364e-06  2.638e-09  3.688e-14   19  6.498e-14      16
+Sat Nov 28 01:17:39 2026<stdout>:          Momentum-z:  1.751e-04  2.564e-04  1.357e-12  5.924e-15   13  2.797e-14      47
+Sat Nov 28 01:17:39 2026<stdout>:              Energy:  1.751e-04  2.564e-04  1.525e-12  5.800e-15    9  6.604e-14     107
+Sat Nov 28 01:17:39 2026<stdout>:States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Sat Nov 28 01:17:39 2026<stdout>:Domain volume: donor 2.079e+06, new 2.079e+06, relative change -8.137e-05.
+Sat Nov 28 01:17:39 2026<stdout>:Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+Sat Nov 28 01:17:39 2026<stdout>:             Density: -8.137e-05
+Sat Nov 28 01:17:39 2026<stdout>:          Momentum-x: -8.126e-05
+Sat Nov 28 01:17:39 2026<stdout>:          Momentum-y: -1.715e-11
+Sat Nov 28 01:17:39 2026<stdout>:          Momentum-z: -4.344e-06
+Sat Nov 28 01:17:39 2026<stdout>:              Energy: -8.137e-05
+Sat Nov 28 01:17:39 2026<stdout>:Time: setup 0.5085 s, import 1.999 s, supermesh 10.8 s, coverage and slivers 2.461 s, solve 0.3018 s, limiter 0.02084 s, total 15.29 s.
+Sat Nov 28 01:17:39 2026<stdout>:
+Sat Nov 28 01:17:39 2026<stdout>:------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+Sat Nov 28 01:17:39 2026<stdout>:
+Sat Nov 28 01:17:39 2026<stdout>:----------------- Integration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 01:17:39 2026<stdout>:
+Sat Nov 28 01:17:39 2026<stdout>:------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 01:17:39 2026<stdout>:Euler/Navier-Stokes/RANS fluid iteration.
+Sat Nov 28 01:17:39 2026<stdout>:The problem uses the new mesh: 148915 points, 0 multigrid levels.
+Sat Nov 28 01:17:39 2026<stdout>:Mesh replaced in 17.658 s (solution transfer 15.3034 s).
+Sat Nov 28 01:17:39 2026<stdout>:Writing the adapted mesh of cycle 4: adapted_mesh_adap_00004.su2.
+Sat Nov 28 01:17:39 2026<stdout>:
+Sat Nov 28 01:17:39 2026<stdout>:------------------------- Mesh Adaptation Cycle -------------------------
+Sat Nov 28 01:17:39 2026<stdout>:Cycle 4 of 4: 148915 points, at most 2000 iterations, CFL 5, V multigrid cycle, transferred solution.
+Sat Nov 28 01:17:39 2026<stdout>:
+Sat Nov 28 01:17:39 2026<stdout>:------------------------------ Begin Solver -----------------------------
+Sat Nov 28 01:17:39 2026<stdout>:
+Sat Nov 28 01:17:39 2026<stdout>:Simulation Run using the Single-zone Driver
+Sat Nov 28 01:17:40 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 01:17:40 2026<stdout>:|  Inner_Iter|    rms[Rho]|          CL|          CD|
+Sat Nov 28 01:17:40 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 01:17:40 2026<stdout>:|           0|   -2.437956|    0.295143|    0.011610|
+Sat Nov 28 01:17:49 2026<stdout>:|          10|   -3.507753|    0.294899|    0.011500|
+Sat Nov 28 01:17:57 2026<stdout>:|          20|   -3.480507|    0.294795|    0.011518|
+Sat Nov 28 01:18:04 2026<stdout>:|          30|   -3.351635|    0.294701|    0.011543|
+Sat Nov 28 01:18:13 2026<stdout>:|          40|   -3.301881|    0.294511|    0.011545|
+Sat Nov 28 01:18:22 2026<stdout>:|          50|   -3.376907|    0.294272|    0.011533|
+Sat Nov 28 01:18:30 2026<stdout>:|          60|   -3.516279|    0.294052|    0.011521|
+Sat Nov 28 01:18:39 2026<stdout>:|          70|   -3.726424|    0.293837|    0.011507|
+Sat Nov 28 01:18:48 2026<stdout>:|          80|   -3.895162|    0.293641|    0.011494|
+Sat Nov 28 01:18:57 2026<stdout>:|          90|   -3.981946|    0.293479|    0.011483|
+Sat Nov 28 01:19:06 2026<stdout>:|         100|   -4.059380|    0.293348|    0.011474|
+Sat Nov 28 01:19:15 2026<stdout>:|         110|   -4.159968|    0.293238|    0.011465|
+Sat Nov 28 01:19:25 2026<stdout>:|         120|   -4.201584|    0.293145|    0.011457|
+Sat Nov 28 01:19:34 2026<stdout>:|         130|   -4.249702|    0.293067|    0.011448|
+Sat Nov 28 01:19:43 2026<stdout>:|         140|   -4.294049|    0.292999|    0.011438|
+Sat Nov 28 01:19:52 2026<stdout>:|         150|   -4.322223|    0.292940|    0.011426|
+Sat Nov 28 01:20:02 2026<stdout>:|         160|   -4.348857|    0.292892|    0.011415|
+Sat Nov 28 01:20:11 2026<stdout>:|         170|   -4.374124|    0.292855|    0.011403|
+Sat Nov 28 01:20:20 2026<stdout>:|         180|   -4.401358|    0.292829|    0.011393|
+Sat Nov 28 01:20:30 2026<stdout>:|         190|   -4.428862|    0.292811|    0.011384|
+Sat Nov 28 01:20:38 2026<stdout>:|         200|   -4.450864|    0.292798|    0.011376|
+Sat Nov 28 01:20:48 2026<stdout>:|         210|   -4.472262|    0.292788|    0.011370|
+Sat Nov 28 01:20:57 2026<stdout>:|         220|   -4.489692|    0.292780|    0.011366|
+Sat Nov 28 01:21:07 2026<stdout>:|         230|   -4.501734|    0.292775|    0.011363|
+Sat Nov 28 01:21:16 2026<stdout>:|         240|   -4.508854|    0.292773|    0.011363|
+Sat Nov 28 01:21:25 2026<stdout>:|         250|   -4.513621|    0.292778|    0.011366|
+Sat Nov 28 01:21:34 2026<stdout>:|         260|   -4.520161|    0.292791|    0.011370|
+Sat Nov 28 01:21:43 2026<stdout>:|         270|   -4.528722|    0.292809|    0.011375|
+Sat Nov 28 01:21:53 2026<stdout>:|         280|   -4.539129|    0.292826|    0.011380|
+Sat Nov 28 01:22:02 2026<stdout>:|         290|   -4.549163|    0.292839|    0.011385|
+Sat Nov 28 01:22:11 2026<stdout>:|         300|   -4.556251|    0.292842|    0.011388|
+Sat Nov 28 01:22:20 2026<stdout>:|         310|   -4.559896|    0.292835|    0.011389|
+Sat Nov 28 01:22:29 2026<stdout>:|         320|   -4.562725|    0.292818|    0.011390|
+Sat Nov 28 01:22:38 2026<stdout>:|         330|   -4.569825|    0.292793|    0.011390|
+Sat Nov 28 01:22:48 2026<stdout>:|         340|   -4.585473|    0.292764|    0.011390|
+Sat Nov 28 01:22:57 2026<stdout>:|         350|   -4.608969|    0.292733|    0.011390|
+Sat Nov 28 01:23:06 2026<stdout>:|         360|   -4.632932|    0.292701|    0.011390|
+Sat Nov 28 01:23:15 2026<stdout>:|         370|   -4.649940|    0.292671|    0.011389|
+Sat Nov 28 01:23:25 2026<stdout>:|         380|   -4.661224|    0.292645|    0.011388|
+Sat Nov 28 01:23:34 2026<stdout>:|         390|   -4.675016|    0.292621|    0.011388|
+Sat Nov 28 01:23:43 2026<stdout>:|         400|   -4.696062|    0.292601|    0.011386|
+Sat Nov 28 01:23:52 2026<stdout>:|         410|   -4.721897|    0.292582|    0.011385|
+Sat Nov 28 01:24:01 2026<stdout>:|         420|   -4.746984|    0.292565|    0.011383|
+Sat Nov 28 01:24:11 2026<stdout>:|         430|   -4.768365|    0.292549|    0.011381|
+Sat Nov 28 01:24:19 2026<stdout>:|         440|   -4.784753|    0.292535|    0.011380|
+Sat Nov 28 01:24:28 2026<stdout>:|         450|   -4.799192|    0.292523|    0.011378|
+Sat Nov 28 01:24:36 2026<stdout>:|         460|   -4.812443|    0.292514|    0.011377|
+Sat Nov 28 01:24:44 2026<stdout>:|         470|   -4.824505|    0.292509|    0.011377|
+Sat Nov 28 01:24:52 2026<stdout>:|         480|   -4.835579|    0.292506|    0.011376|
+Sat Nov 28 01:25:01 2026<stdout>:|         490|   -4.844931|    0.292506|    0.011376|
+Sat Nov 28 01:25:09 2026<stdout>:|         500|   -4.852623|    0.292506|    0.011377|
+Sat Nov 28 01:25:18 2026<stdout>:|         510|   -4.859234|    0.292507|    0.011377|
+Sat Nov 28 01:25:26 2026<stdout>:|         520|   -4.865551|    0.292507|    0.011378|
+Sat Nov 28 01:25:33 2026<stdout>:|         530|   -4.871676|    0.292507|    0.011379|
+Sat Nov 28 01:25:41 2026<stdout>:|         540|   -4.877859|    0.292505|    0.011380|
+Sat Nov 28 01:25:50 2026<stdout>:|         550|   -4.884358|    0.292502|    0.011381|
+Sat Nov 28 01:25:58 2026<stdout>:|         560|   -4.891492|    0.292497|    0.011381|
+Sat Nov 28 01:26:07 2026<stdout>:|         570|   -4.899389|    0.292491|    0.011382|
+Sat Nov 28 01:26:14 2026<stdout>:|         580|   -4.907646|    0.292483|    0.011382|
+Sat Nov 28 01:26:22 2026<stdout>:|         590|   -4.915378|    0.292473|    0.011381|
+Sat Nov 28 01:26:31 2026<stdout>:|         600|   -4.921537|    0.292462|    0.011380|
+Sat Nov 28 01:26:39 2026<stdout>:|         610|   -4.925179|    0.292451|    0.011379|
+Sat Nov 28 01:26:48 2026<stdout>:|         620|   -4.925862|    0.292440|    0.011378|
+Sat Nov 28 01:26:56 2026<stdout>:|         630|   -4.924288|    0.292430|    0.011376|
+Sat Nov 28 01:27:04 2026<stdout>:|         640|   -4.921338|    0.292421|    0.011374|
+Sat Nov 28 01:27:12 2026<stdout>:|         650|   -4.917999|    0.292412|    0.011373|
+Sat Nov 28 01:27:20 2026<stdout>:|         660|   -4.915263|    0.292405|    0.011372|
+Sat Nov 28 01:27:29 2026<stdout>:|         670|   -4.914004|    0.292398|    0.011370|
+Sat Nov 28 01:27:37 2026<stdout>:|         680|   -4.914800|    0.292393|    0.011369|
+Sat Nov 28 01:27:45 2026<stdout>:|         690|   -4.917696|    0.292388|    0.011368|
+Sat Nov 28 01:27:53 2026<stdout>:|         700|   -4.922042|    0.292384|    0.011368|
+Sat Nov 28 01:28:01 2026<stdout>:|         710|   -4.926563|    0.292380|    0.011368|
+Sat Nov 28 01:28:08 2026<stdout>:|         720|   -4.929686|    0.292377|    0.011368|
+Sat Nov 28 01:28:18 2026<stdout>:|         730|   -4.930096|    0.292374|    0.011368|
+Sat Nov 28 01:28:28 2026<stdout>:|         740|   -4.927319|    0.292370|    0.011368|
+Sat Nov 28 01:28:38 2026<stdout>:|         750|   -4.922556|    0.292367|    0.011369|
+Sat Nov 28 01:28:47 2026<stdout>:|         760|   -4.917262|    0.292363|    0.011370|
+Sat Nov 28 01:28:57 2026<stdout>:|         770|   -4.912680|    0.292358|    0.011371|
+Sat Nov 28 01:29:07 2026<stdout>:|         780|   -4.910179|    0.292354|    0.011372|
+Sat Nov 28 01:29:17 2026<stdout>:|         790|   -4.909835|    0.292348|    0.011373|
+Sat Nov 28 01:29:27 2026<stdout>:|         800|   -4.911198|    0.292343|    0.011374|
+Sat Nov 28 01:29:36 2026<stdout>:|         810|   -4.913494|    0.292337|    0.011375|
+Sat Nov 28 01:29:45 2026<stdout>:|         820|   -4.915783|    0.292331|    0.011375|
+Sat Nov 28 01:29:54 2026<stdout>:|         830|   -4.917205|    0.292326|    0.011375|
+Sat Nov 28 01:30:03 2026<stdout>:|         840|   -4.917199|    0.292320|    0.011375|
+Sat Nov 28 01:30:12 2026<stdout>:|         850|   -4.915695|    0.292315|    0.011375|
+Sat Nov 28 01:30:20 2026<stdout>:|         860|   -4.912972|    0.292310|    0.011375|
+Sat Nov 28 01:30:28 2026<stdout>:|         870|   -4.909635|    0.292306|    0.011374|
+Sat Nov 28 01:30:35 2026<stdout>:|         880|   -4.906433|    0.292302|    0.011373|
+Sat Nov 28 01:30:44 2026<stdout>:|         890|   -4.903863|    0.292299|    0.011372|
+Sat Nov 28 01:30:52 2026<stdout>:|         900|   -4.902057|    0.292296|    0.011371|
+Sat Nov 28 01:31:01 2026<stdout>:|         910|   -4.900918|    0.292293|    0.011369|
+Sat Nov 28 01:31:09 2026<stdout>:|         920|   -4.900177|    0.292292|    0.011368|
+Sat Nov 28 01:31:17 2026<stdout>:|         930|   -4.899511|    0.292290|    0.011367|
+Sat Nov 28 01:31:25 2026<stdout>:|         940|   -4.898644|    0.292289|    0.011366|
+Sat Nov 28 01:31:33 2026<stdout>:|         950|   -4.897246|    0.292289|    0.011366|
+Sat Nov 28 01:31:41 2026<stdout>:|         960|   -4.895130|    0.292288|    0.011365|
+Sat Nov 28 01:31:50 2026<stdout>:|         970|   -4.893127|    0.292288|    0.011365|
+Sat Nov 28 01:31:58 2026<stdout>:|         980|   -4.891376|    0.292287|    0.011365|
+Sat Nov 28 01:32:06 2026<stdout>:|         990|   -4.889368|    0.292286|    0.011365|
+Sat Nov 28 01:32:14 2026<stdout>:|        1000|   -4.887555|    0.292285|    0.011365|
+Sat Nov 28 01:32:22 2026<stdout>:|        1010|   -4.886022|    0.292283|    0.011365|
+Sat Nov 28 01:32:30 2026<stdout>:|        1020|   -4.884719|    0.292281|    0.011366|
+Sat Nov 28 01:32:39 2026<stdout>:|        1030|   -4.883520|    0.292279|    0.011367|
+Sat Nov 28 01:32:47 2026<stdout>:|        1040|   -4.882273|    0.292276|    0.011367|
+Sat Nov 28 01:32:55 2026<stdout>:|        1050|   -4.880845|    0.292272|    0.011368|
+Sat Nov 28 01:33:03 2026<stdout>:|        1060|   -4.879161|    0.292269|    0.011369|
+Sat Nov 28 01:33:11 2026<stdout>:|        1070|   -4.877226|    0.292265|    0.011369|
+Sat Nov 28 01:33:20 2026<stdout>:|        1080|   -4.875062|    0.292261|    0.011370|
+Sat Nov 28 01:33:28 2026<stdout>:|        1090|   -4.872747|    0.292257|    0.011370|
+Sat Nov 28 01:33:37 2026<stdout>:|        1100|   -4.870429|    0.292253|    0.011370|
+Sat Nov 28 01:33:45 2026<stdout>:|        1110|   -4.868170|    0.292250|    0.011370|
+Sat Nov 28 01:33:52 2026<stdout>:|        1120|   -4.866030|    0.292246|    0.011370|
+Sat Nov 28 01:34:00 2026<stdout>:|        1130|   -4.864017|    0.292243|    0.011370|
+Sat Nov 28 01:34:09 2026<stdout>:|        1140|   -4.862095|    0.292240|    0.011369|
+Sat Nov 28 01:34:17 2026<stdout>:|        1150|   -4.860237|    0.292237|    0.011369|
+Sat Nov 28 01:34:25 2026<stdout>:|        1160|   -4.858402|    0.292235|    0.011368|
+Sat Nov 28 01:34:33 2026<stdout>:|        1170|   -4.856585|    0.292233|    0.011367|
+Sat Nov 28 01:34:41 2026<stdout>:|        1180|   -4.854798|    0.292232|    0.011366|
+Sat Nov 28 01:34:49 2026<stdout>:|        1190|   -4.853047|    0.292232|    0.011366|
+Sat Nov 28 01:34:57 2026<stdout>:|        1200|   -4.851394|    0.292232|    0.011365|
+Sat Nov 28 01:35:06 2026<stdout>:|        1210|   -4.849878|    0.292232|    0.011365|
+Sat Nov 28 01:35:14 2026<stdout>:|        1220|   -4.848502|    0.292232|    0.011364|
+Sat Nov 28 01:35:23 2026<stdout>:|        1230|   -4.847262|    0.292233|    0.011364|
+Sat Nov 28 01:35:31 2026<stdout>:|        1240|   -4.846139|    0.292233|    0.011364|
+Sat Nov 28 01:35:39 2026<stdout>:|        1250|   -4.845102|    0.292234|    0.011364|
+Sat Nov 28 01:35:47 2026<stdout>:|        1260|   -4.844129|    0.292234|    0.011365|
+Sat Nov 28 01:35:56 2026<stdout>:|        1270|   -4.843173|    0.292234|    0.011365|
+Sat Nov 28 01:36:04 2026<stdout>:|        1280|   -4.842217|    0.292234|    0.011365|
+Sat Nov 28 01:36:12 2026<stdout>:|        1290|   -4.841251|    0.292233|    0.011366|
+Sat Nov 28 01:36:20 2026<stdout>:|        1300|   -4.840267|    0.292232|    0.011366|
+Sat Nov 28 01:36:28 2026<stdout>:|        1310|   -4.839265|    0.292231|    0.011367|
+Sat Nov 28 01:36:36 2026<stdout>:|        1320|   -4.838252|    0.292229|    0.011367|
+Sat Nov 28 01:36:45 2026<stdout>:|        1330|   -4.837213|    0.292227|    0.011367|
+Sat Nov 28 01:36:53 2026<stdout>:|        1340|   -4.836150|    0.292224|    0.011367|
+Sat Nov 28 01:37:01 2026<stdout>:|        1350|   -4.835066|    0.292222|    0.011367|
+Sat Nov 28 01:37:09 2026<stdout>:|        1360|   -4.833967|    0.292219|    0.011367|
+Sat Nov 28 01:37:17 2026<stdout>:|        1370|   -4.832859|    0.292217|    0.011367|
+Sat Nov 28 01:37:26 2026<stdout>:|        1380|   -4.831750|    0.292214|    0.011367|
+Sat Nov 28 01:37:34 2026<stdout>:|        1390|   -4.830650|    0.292212|    0.011366|
+Sat Nov 28 01:37:42 2026<stdout>:|        1400|   -4.829566|    0.292210|    0.011366|
+Sat Nov 28 01:37:50 2026<stdout>:|        1410|   -4.828506|    0.292209|    0.011365|
+Sat Nov 28 01:37:58 2026<stdout>:|        1420|   -4.827473|    0.292208|    0.011365|
+Sat Nov 28 01:38:06 2026<stdout>:|        1430|   -4.826472|    0.292207|    0.011365|
+Sat Nov 28 01:38:14 2026<stdout>:|        1440|   -4.825497|    0.292206|    0.011364|
+Sat Nov 28 01:38:23 2026<stdout>:|        1450|   -4.824560|    0.292206|    0.011364|
+Sat Nov 28 01:38:31 2026<stdout>:|        1460|   -4.823662|    0.292206|    0.011364|
+Sat Nov 28 01:38:39 2026<stdout>:|        1470|   -4.822805|    0.292207|    0.011364|
+Sat Nov 28 01:38:47 2026<stdout>:|        1480|   -4.821984|    0.292207|    0.011364|
+Sat Nov 28 01:38:55 2026<stdout>:|        1490|   -4.821197|    0.292207|    0.011365|
+Sat Nov 28 01:39:03 2026<stdout>:|        1500|   -4.820442|    0.292208|    0.011365|
+Sat Nov 28 01:39:12 2026<stdout>:|        1510|   -4.819719|    0.292208|    0.011365|
+Sat Nov 28 01:39:20 2026<stdout>:|        1520|   -4.819026|    0.292208|    0.011365|
+Sat Nov 28 01:39:28 2026<stdout>:|        1530|   -4.818362|    0.292208|    0.011366|
+Sat Nov 28 01:39:36 2026<stdout>:|        1540|   -4.817723|    0.292207|    0.011366|
+Sat Nov 28 01:39:44 2026<stdout>:|        1550|   -4.817103|    0.292207|    0.011366|
+Sat Nov 28 01:39:52 2026<stdout>:|        1560|   -4.816498|    0.292206|    0.011366|
+Sat Nov 28 01:40:00 2026<stdout>:|        1570|   -4.815905|    0.292205|    0.011366|
+Sat Nov 28 01:40:08 2026<stdout>:|        1580|   -4.815321|    0.292204|    0.011366|
+Sat Nov 28 01:40:16 2026<stdout>:|        1590|   -4.814744|    0.292202|    0.011366|
+Sat Nov 28 01:40:24 2026<stdout>:|        1600|   -4.814169|    0.292201|    0.011366|
+Sat Nov 28 01:40:32 2026<stdout>:|        1610|   -4.813599|    0.292200|    0.011366|
+Sat Nov 28 01:40:40 2026<stdout>:|        1620|   -4.813027|    0.292199|    0.011365|
+Sat Nov 28 01:40:48 2026<stdout>:|        1630|   -4.812463|    0.292198|    0.011365|
+Sat Nov 28 01:40:56 2026<stdout>:|        1640|   -4.811914|    0.292197|    0.011365|
+Sat Nov 28 01:41:05 2026<stdout>:|        1650|   -4.811383|    0.292197|    0.011364|
+Sat Nov 28 01:41:13 2026<stdout>:|        1660|   -4.810872|    0.292196|    0.011364|
+Sat Nov 28 01:41:21 2026<stdout>:|        1670|   -4.810380|    0.292196|    0.011364|
+Sat Nov 28 01:41:29 2026<stdout>:|        1680|   -4.809907|    0.292196|    0.011364|
+Sat Nov 28 01:41:37 2026<stdout>:|        1690|   -4.809438|    0.292196|    0.011364|
+Sat Nov 28 01:41:46 2026<stdout>:|        1700|   -4.808968|    0.292196|    0.011364|
+Sat Nov 28 01:41:54 2026<stdout>:|        1710|   -4.808502|    0.292196|    0.011364|
+Sat Nov 28 01:42:02 2026<stdout>:|        1720|   -4.808038|    0.292196|    0.011364|
+Sat Nov 28 01:42:10 2026<stdout>:|        1730|   -4.807577|    0.292196|    0.011364|
+Sat Nov 28 01:42:18 2026<stdout>:|        1740|   -4.807117|    0.292196|    0.011364|
+Sat Nov 28 01:42:26 2026<stdout>:|        1750|   -4.806663|    0.292196|    0.011365|
+Sat Nov 28 01:42:35 2026<stdout>:|        1760|   -4.806215|    0.292196|    0.011365|
+Sat Nov 28 01:42:43 2026<stdout>:|        1770|   -4.805779|    0.292196|    0.011365|
+Sat Nov 28 01:42:51 2026<stdout>:|        1780|   -4.805353|    0.292195|    0.011365|
+Sat Nov 28 01:42:59 2026<stdout>:|        1790|   -4.804939|    0.292195|    0.011365|
+Sat Nov 28 01:43:07 2026<stdout>:|        1800|   -4.804536|    0.292194|    0.011365|
+Sat Nov 28 01:43:15 2026<stdout>:|        1810|   -4.804139|    0.292193|    0.011365|
+Sat Nov 28 01:43:23 2026<stdout>:|        1820|   -4.803753|    0.292193|    0.011365|
+Sat Nov 28 01:43:32 2026<stdout>:|        1830|   -4.803370|    0.292192|    0.011365|
+Sat Nov 28 01:43:40 2026<stdout>:|        1840|   -4.802992|    0.292191|    0.011365|
+Sat Nov 28 01:43:48 2026<stdout>:|        1850|   -4.802620|    0.292191|    0.011365|
+Sat Nov 28 01:43:55 2026<stdout>:|        1860|   -4.802256|    0.292190|    0.011365|
+Sat Nov 28 01:44:04 2026<stdout>:|        1870|   -4.801903|    0.292190|    0.011365|
+Sat Nov 28 01:44:12 2026<stdout>:|        1880|   -4.801563|    0.292189|    0.011365|
+Sat Nov 28 01:44:21 2026<stdout>:|        1890|   -4.801241|    0.292189|    0.011364|
+Sat Nov 28 01:44:29 2026<stdout>:|        1900|   -4.800935|    0.292189|    0.011364|
+Sat Nov 28 01:44:37 2026<stdout>:|        1910|   -4.800637|    0.292189|    0.011364|
+Sat Nov 28 01:44:45 2026<stdout>:|        1920|   -4.800359|    0.292189|    0.011364|
+Sat Nov 28 01:44:53 2026<stdout>:|        1930|   -4.800095|    0.292189|    0.011364|
+Sat Nov 28 01:45:01 2026<stdout>:|        1940|   -4.799841|    0.292189|    0.011364|
+Sat Nov 28 01:45:10 2026<stdout>:|        1950|   -4.799595|    0.292189|    0.011364|
+Sat Nov 28 01:45:18 2026<stdout>:|        1960|   -4.799356|    0.292189|    0.011364|
+Sat Nov 28 01:45:26 2026<stdout>:|        1970|   -4.799123|    0.292189|    0.011364|
+Sat Nov 28 01:45:34 2026<stdout>:|        1980|   -4.798895|    0.292190|    0.011364|
+Sat Nov 28 01:45:42 2026<stdout>:|        1990|   -4.798674|    0.292190|    0.011364|
+Sat Nov 28 01:45:49 2026<stdout>:|        1999|   -4.798840|    0.292191|    0.011364|
+Sat Nov 28 01:45:49 2026<stdout>:
+Sat Nov 28 01:45:49 2026<stdout>:----------------------------- Compute Metric ----------------------------
+Sat Nov 28 01:45:50 2026<stdout>:Quadratic Hessian fits (owned point-sensor pairs): 123690 first ring, 25225 grown stencil, 0 WLS fallbacks.
+Sat Nov 28 01:45:50 2026<stdout>:Quadratic Hessian thin-stencil cubic/quartic corrections: 0 point-sensor fits; unsupported quartics retain cubic/quadratic fits.
+Sat Nov 28 01:45:50 2026<stdout>:Quadratic Hessian relative weighted fit residual: mean 0.126678, maximum 0.959166; 80239 fits above 0.05; minimum QR pivot ratio 0.00308043. Second-ring MPI: 6293 requested owner neighborhoods, 94279 exported samples.
+Sat Nov 28 01:45:50 2026<stdout>:WARNING: Large quadratic fit residuals remain after stencil comparison; inspect sensor noise and nonsmooth flow features. No resolved curvature was discarded.
+Sat Nov 28 01:45:50 2026<stdout>:Hessian recovery: 1.10525 s (maximum rank time).
+Sat Nov 28 01:45:50 2026<stdout>:Metric field statistics:
+Sat Nov 28 01:45:50 2026<stdout>:Minimum density: 6.39454e-06.
+Sat Nov 28 01:45:50 2026<stdout>:Maximum density: 3.21499e+07.
+Sat Nov 28 01:45:50 2026<stdout>:Maximum cell AR: 7713.79.
+Sat Nov 28 01:45:50 2026<stdout>:Mesh complexity: 50000 (ADAP_COMPLEXITY= 50000).
+Sat Nov 28 01:45:50 2026<stdout>:Sharp wall points: 310, the isotropic corner metric (ADAP_ISO_CORNER) is applied in 2D only, the metric is not changed.
+Sat Nov 28 01:45:50 2026<stdout>:Metric computed in 1.15012 s.
+Sat Nov 28 01:45:50 2026<stdout>:
+Sat Nov 28 01:45:50 2026<stdout>:----------------------------- Solver Exit -------------------------------
+Sat Nov 28 01:45:50 2026<stdout>:
+Sat Nov 28 01:45:50 2026<stdout>:Maximum number of iterations reached (ITER = 2000) before convergence.
+Sat Nov 28 01:45:50 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:45:50 2026<stdout>:|      Convergence Field     |     Value    |   Criterion  |  Converged |
+Sat Nov 28 01:45:50 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:45:50 2026<stdout>:|                  Cauchy[CL]|   4.60932e-06|       < 1e-07|          No|
+Sat Nov 28 01:45:50 2026<stdout>:|                  Cauchy[CD]|   3.71479e-07|       < 1e-07|          No|
+Sat Nov 28 01:45:50 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:45:50 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 01:45:50 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:45:50 2026<stdout>:|        File Writing Summary       |              Filename             |
+Sat Nov 28 01:45:50 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:45:50 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00004.dat        |
+Sat Nov 28 01:45:50 2026<stdout>:|                                   |                     (1405.12 MB/s)|
+Sat Nov 28 01:45:51 2026<stdout>:|Paraview                           |flow_adap_00004.vtu                |
+Sat Nov 28 01:45:51 2026<stdout>:|                                   |                     (1019.18 MB/s)|
+Sat Nov 28 01:45:51 2026<stdout>:|Paraview surface                   |surface_adap_00004.vtu             |
+Sat Nov 28 01:45:51 2026<stdout>:|                                   |                     (354.129 MB/s)|
+Sat Nov 28 01:45:51 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 01:45:51 2026<stdout>:
+Sat Nov 28 01:45:51 2026<stdout>:------------------------ Mesh Adaptation Summary ------------------------
+Sat Nov 28 01:45:51 2026<stdout>:+---------------------------------------------------------------------------------------+
+Sat Nov 28 01:45:51 2026<stdout>:|     Cycle|      Complexity|          Points|      Iterations|   Solve [s]|   Adapt [s]|
+Sat Nov 28 01:45:51 2026<stdout>:+---------------------------------------------------------------------------------------+
+Sat Nov 28 01:45:51 2026<stdout>:|         0|      input mesh|           61330|               1|    0.902605|     162.317|
+Sat Nov 28 01:45:51 2026<stdout>:|         1|           50000|           84835|            2000|     1047.42|     225.419|
+Sat Nov 28 01:45:51 2026<stdout>:|         2|           50000|          111373|            2000|     1251.71|     276.308|
+Sat Nov 28 01:45:51 2026<stdout>:|         3|           50000|          129434|            1844|     1371.86|     306.752|
+Sat Nov 28 01:45:51 2026<stdout>:|         4|           50000|          148915|            2000|     1691.55|           -|
+Sat Nov 28 01:45:51 2026<stdout>:+---------------------------------------------------------------------------------------+
+Sat Nov 28 01:45:51 2026<stdout>:Solve: the flow iterations on the mesh of the cycle, with their output. Adapt: metric, MMG, new geometry and solvers, solution transfer and mesh output that make the mesh of the next cycle.
+Sat Nov 28 01:45:51 2026<stdout>:
+Sat Nov 28 01:45:51 2026<stdout>:--------------------------- Finalizing Solver ---------------------------
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CNumerics container.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CIntegration container.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CSolver container.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CIteration container.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CInterface container.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CGeometry container.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CFreeFormDefBox class.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CSurfaceMovement class.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CVolumetricMovement class.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted CConfig container.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted nInst container.
+Sat Nov 28 01:45:51 2026<stdout>:Deleted COutput class.
+Sat Nov 28 01:45:51 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 01:45:51 2026<stdout>:
+Sat Nov 28 01:45:51 2026<stdout>:
+Sat Nov 28 01:45:51 2026<stdout>:-------------------------- Performance Summary --------------------------
+Sat Nov 28 01:45:51 2026<stdout>:Simulation totals:
+Sat Nov 28 01:45:51 2026<stdout>:   Wall-clock time (hrs):     1.50581 |            Core-hrs:     9.03485
+Sat Nov 28 01:45:51 2026<stdout>:                   Cores:           6 |          DOFs/point:           5
+Sat Nov 28 01:45:51 2026<stdout>:             Points/core:     24819.2 |   Ghost points/core:     1813.83
+Sat Nov 28 01:45:51 2026<stdout>: Ghost/Owned Point Ratio:    0.073082 | 
+Sat Nov 28 01:45:51 2026<stdout>:
+Sat Nov 28 01:45:51 2026<stdout>:Preprocessing phase:
+Sat Nov 28 01:45:51 2026<stdout>:       Preproc. Time (s):     57.3482 |   Preproc. Time (%):     1.05791
+Sat Nov 28 01:45:51 2026<stdout>:
+Sat Nov 28 01:45:51 2026<stdout>:Compute phase:
+Sat Nov 28 01:45:51 2026<stdout>:        Compute Time (s):     5362.41 |    Compute Time (%):     98.9208
+Sat Nov 28 01:45:51 2026<stdout>:         Iteration count:        7845 |         Avg. s/iter:    0.683545
+Sat Nov 28 01:45:51 2026<stdout>:     Core-s/iter/Mpoints:     25.6653 |           Mpoints/s:    0.233778
+Sat Nov 28 01:45:51 2026<stdout>:
+Sat Nov 28 01:45:51 2026<stdout>:Output phase:
+Sat Nov 28 01:45:51 2026<stdout>:         Output Time (s):     1.15581 |     Output Time (%):   0.0213213
+Sat Nov 28 01:45:51 2026<stdout>:            Output count:           5 |       Avg. s/output:    0.231162
+Sat Nov 28 01:45:51 2026<stdout>: Restart Aggr. BW (MB/s):     1279.43 |           MB/s/core:     213.238
+Sat Nov 28 01:45:51 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 01:45:51 2026<stdout>:
+Sat Nov 28 01:45:51 2026<stdout>:
+Sat Nov 28 01:45:51 2026<stdout>:------------------------- Exit Success (SU2_CFD) ------------------------
+Sat Nov 28 01:45:51 2026<stdout>:

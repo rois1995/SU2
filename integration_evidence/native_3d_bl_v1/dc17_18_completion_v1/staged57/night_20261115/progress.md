@@ -2826,3 +2826,11 @@ CL2 event 2 recorded a native capability rejection at 23:09:48 CET. The M29 seed
 CL2 event 3 and event 4 also recorded native capability rejections with the live mesh retained: rank 1 cells 402826 and 422230, q=0.19996997431239738 and 0.19996995877386833. Event 2 remains the first failed gate. Final CFD cycle started; await terminal receipts and report.
 
 CL2 terminal in 4437.311 s, exit 0 and six wait4 receipts, peak sum 8,463,933,440 bytes. Event 1 passed all six gates. Rejected events 2–4 retained its 69,921-point, 381,783-cell mesh and completed their CFD cycles; events 2–4 q seeds and unavailable markers are archived. Both runtime defaults passed. The R3 report reprocessing bound retained mesh counts to the observed prior mesh, without rerunning the solver. Final CL2 label: CL2: converged loop run FAILED at event 2, gate 1. Next MMG2 with the same binary.
+
+CL2 checkpoint 149167bba3 pushed. MMG2 started 00:00:15 CET (su2-def1-mmg2-681), using build681 and six nice-19 ranks, no owned heavy processes and 37,176,864 kB available at preflight. Cycle 0 printed norm 2. First remesh printed hmin 0.003, hgrad 1.6, global hausd 0.01 and the expected FARFIELD=1.0/ref 1, SYMMETRY=0.001/ref 2 and WING3D=0.001/ref 3. Continue the configured four-cycle run.
+
+MMG2 remeshes 1 and 2 printed SUCCESS (whole-remesh times 151.304 and 213.412 s). Cycle 1 reached its configured 2000-iteration cap; cycle 2 is running on the 111,373-point mesh with the same effective MMG parameters. Await terminal capability validation.
+
+MMG2 remeshes 3 and 4 also printed SUCCESS (261.513 and 288.669 s), with matching applied settings in all four remeshes. Cycle 4 is running on 148,915 points and 828,864 cells. Follow through terminal check, measure and report before final DEF1 publication.
+
+MMG2 terminal in 6338.030 s, exit 0 and six wait4 receipts. All four remeshes, parameter checks, physical validators, transfers and continued-flow checks passed. Cycle 3 converged at 1844; cycles 1, 2 and 4 reached the 2000-iteration cap. Terminal peak sum 5,054,107,648 bytes. No proven wiring defect in CL2 or MMG2. Final capability label: MMG2: loop run DONE; convergence cap reached on cycles 1, 2, 4. Next publish the DEF1 report and final acceptance.
