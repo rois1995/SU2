@@ -2862,3 +2862,7 @@ SC1 count mode passed both events and isolated restart (64.545 s). All six paylo
 SC1 count checkpoint b1b35adf45 pushed. S1 uses value 0 on build682 under su2-sc1-s1-682. Verify both events, all standing checks and isolated restart before the same-binary S2.
 
 SC1 default S1 passed with all six hashes equal to FP3-E. Native maxima 412.665 / 205.107 s, minimum coverage 97.693 / 99.286 percent and process-peak sums 9,305,137,152 / 9,497,264,128 bytes. Isolated restart passed in 64.699 s. All S1 handles are terminal. Next S2 on the same build and default; it must reproduce S1 and FP3-E.
+
+SC1 default S1 checkpoint 5f02a3043f pushed. S2 is active under su2-sc1-s2-682 on build682, with the same value-0 and legacy input pins.
+
+SC1 S2 passed, reproducing all six S1 and FP3-E payloads with the same binary. Native maxima 417.545 / 203.907 s, minimum coverage 97.758 / 99.324 percent, process-peak sums 9,304,137,728 / 9,497,612,288 bytes, isolated restart 63.621 s. Count and both default runs are terminal and their evidence is sealed. Final disposition ACCEPTED with identical results. No lab value 5 run was needed. Full OFF, full CORE and warm/cold equivalence are unevaluated. Updated AGENTS, handoff, next-work status and timing handbook. STOP at the final label.

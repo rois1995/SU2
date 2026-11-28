@@ -183,6 +183,12 @@ R13. Questions (user order, 2026-11-17). When you have a question about an
   a key gets `ADAP_NORM= 1.0` / `ADAP_HGRAD= 1.3` inserted (existing explicit values and sealed inputs unchanged);
   the references do not change.
 
+- Since SC1, ordinary mode S can reuse exact geometry certificates in the construction census when
+  step C has closed the construction-collapse queue. Two build682 runs and their isolated restarts passed
+  with the six S payloads identical to FP3-E, whose `workflows.S` entry remains the S reference in force.
+  Use the DEF1 legacy settings for standing checks. Lab value `5` disables the certificates and value
+  `6` measures them with all legacy distance queries active.
+
 ## 3. State (history; do not repeat a passed check)
 
 Items N1 to N18 and the cut (N4 phases A to D, N6): see the table of work order 2 in your evidence and the handbooks.

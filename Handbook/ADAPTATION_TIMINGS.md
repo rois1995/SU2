@@ -1,5 +1,16 @@
 # Adaptation timings and computational work
 
+## SC1 mode S geometry certificates, build682
+
+| Run | Native event 1 / 2 s | Seed census event 1 / 2 s | Final proof event 1 / 2 s | Minimum rank coverage event 1 / 2 |
+| --- | ---: | ---: | ---: | ---: |
+| FP3-E S1 | 394.945 / 239.102 | 11.449 / 78.624 | 38.840 / 47.243 | 97.83% / 99.55% |
+| SC1 count | 418.944 / 256.406 | 11.917 / 81.890 | 40.550 / 48.374 | 97.75% / 99.42% |
+| SC1 S1 | 412.665 / 205.107 | 6.258 / 2.106 | 40.486 / 72.236 | 97.69% / 99.29% |
+| SC1 S2 | 417.545 / 203.907 | 6.056 / 2.054 | 40.192 / 71.733 | 97.76% / 99.32% |
+
+Times are maximum-rank values from uncontrolled host runs. Count mode measured 14,441 / 20,095 hits against 27,016 / 21,744 construction census calls over the two events, with zero disagreements. The replicated table held 26,522 / 21,708 records and 8,160,416 / 6,966,544 bytes per worker. The longest measured gather on either default run was 0.066 s. Event 2 spent less time in the seed census and more in final proof than the count run. Both default runs reproduced all six FP3-E payloads. [SC1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/reports/SC1_682.md)
+
 ## DEF1 pinned standing and capability runs, build681
 
 G5 mode S with legacy-pinned settings took 417.996 and 258.351 native seconds, with phase maxima of 180.195 and 85.858 s in construction, 124.314 and 21.966 s in quality, and 40.409 and 48.974 s in final proof. Minimum rank timer coverage was 97.84% and 99.46%. The isolated restart took 63.165 s. All six output hashes matched FP3-E. [DEF1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/reports/DEF1_681.md)
