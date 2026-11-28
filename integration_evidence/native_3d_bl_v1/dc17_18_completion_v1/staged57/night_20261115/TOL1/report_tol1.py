@@ -67,7 +67,8 @@ def report(label, failure, open_check, revert, diagnoses):
     paths = inputs(label)
     build = cut.read(paths['build']) if paths['build'].is_file() else {}
     section = paths['build'].parent / 'section3.json'
-    names = cut.read(paths['scoped']).get('parts', {}) if paths['scoped'].is_file() else {}
+    names = ('G1-serial', 'G1-mpi2', 'G1-mpi4', 'G2', 'GQ', 'first-collapse', 'exact-c492',
+             'merit481', 'native2d', 'saved-current', 'G3', 'G4')
     checks = {name: read_status(path) for name, path in paths.items()}
     checks.update({name: read_status(paths['scoped'].parent / name / 'case_summary.json') for name in names})
     checks.update({name: {'status': 'not evaluated'} for name in NOT_EVALUATED})

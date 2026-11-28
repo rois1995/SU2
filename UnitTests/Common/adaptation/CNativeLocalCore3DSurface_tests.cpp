@@ -1220,10 +1220,10 @@ TEST_CASE("A subdivided curved marker seam survives private and shared native ed
   if (world.rank != 0) owned.clear();
   Directory directory(world, false, state.get());
   REQUIRE(directory.Build(owned, reason, ExchangeCeiling));
-  const auto before = Bytes(owned);
+  const auto before = OwnedBytes(owned);
   CHECK_FALSE(directory.Publish(owned, removals, replacements, true, reason, ExchangeCeiling));
   CHECK(reason.find(FrozenSeamChanged) != std::string::npos);
-  CHECK(Bytes(owned) == before);
+  CHECK(OwnedBytes(owned) == before);
   CHECK(state->Payload() == payload);
 }
 

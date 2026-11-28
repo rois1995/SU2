@@ -2870,3 +2870,7 @@ SC1 S2 passed, reproducing all six S1 and FP3-E payloads with the same binary. N
 TOL1 opened after SC1 a94f2f0980. Signed order and SHA256 copied and verified. Whole-item R4 source check recorded in TOL1/reports/source_check.md before the first production edit. Next implement list-only tolerance and frozen seams while preserving the scalar path.
 
 TOL1 candidate frozen after the R4 checkpoint 14676abcc2. The staged source and hidden fixtures are sealed in TOL1/production.diff. The focused fixture runner and both standing controllers are ready. Next build683, then run the hidden cohort on its pinned normal test driver.
+
+TOL1 frozen source checkpoint 3428991fed pushed. Build683 started at 11:02:42 CET with four nice-19 workers under su2-tol1-build683. Actual preflight saw no competing heavy process and 35,166,864 kB available. Next verify compilation and binary pins before the focused fixtures.
+
+TOL1 build683 terminated with exit 1 after 1104.207 s. The new seam fixture used a row serializer for the ownership map. R3 correction reuses the existing OwnedBytes snapshot in the two comparisons. The earlier pins and compiler log are retained. Next build684 from the new seal, then run the fixtures.

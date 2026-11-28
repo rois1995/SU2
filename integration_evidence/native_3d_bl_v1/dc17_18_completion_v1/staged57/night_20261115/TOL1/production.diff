@@ -2314,7 +2314,7 @@ index 5a3d0d65e5..48ab2842c4 100644
 +  }
 +}
 diff --git a/UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp b/UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp
-index 9bbedc5374..71ea9a897b 100644
+index 9bbedc5374..6bce182fbd 100644
 --- a/UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp
 +++ b/UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp
 @@ -1075,3 +1075,209 @@ TEST_CASE("Native local V rounds run quality once when empty and respect the sur
@@ -2466,10 +2466,10 @@ index 9bbedc5374..71ea9a897b 100644
 +  if (world.rank != 0) owned.clear();
 +  Directory directory(world, false, state.get());
 +  REQUIRE(directory.Build(owned, reason, ExchangeCeiling));
-+  const auto before = Bytes(owned);
++  const auto before = OwnedBytes(owned);
 +  CHECK_FALSE(directory.Publish(owned, removals, replacements, true, reason, ExchangeCeiling));
 +  CHECK(reason.find(FrozenSeamChanged) != std::string::npos);
-+  CHECK(Bytes(owned) == before);
++  CHECK(OwnedBytes(owned) == before);
 +  CHECK(state->Payload() == payload);
 +}
 +
