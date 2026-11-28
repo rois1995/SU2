@@ -3,10 +3,12 @@
 from argparse import ArgumentParser
 import json
 import os
+import subprocess
+import sys
 
 from run_cl3 import HERE, inherited, reference, standing_build
-from diagnostics import PHASES, cap_coordinates, describe
-from finish_cl2 import measure, rank_peaks
+from diagnostics import EXIT_COUNTS, PHASES, cap_coordinates, describe
+from finish_cl2 import DEF1, ORDER, rank_peaks
 import report_cl2 as report
 from runtime_checks import annotate_native, marker_faces
 from validate import validate
@@ -54,6 +56,7 @@ def render_evidence(data):
     lines.extend([
         'The flat-cell census uses the accepted or retained on-disk mesh. A rejected provisional mesh has no published '
         'connectivity. Its M29 seed is shown separately.',
+        'The shock measurement pairs each restart with its actual live mesh, including retained cycles.',
         'The mesh q values are estimates from linear interpolation of the archived donor VTU tensors within a containing '
         'donor tetrahedron. The native cell gate uses a frozen internal field. The M29 seed q comes directly from that gate.',
         '',
@@ -75,8 +78,18 @@ def render_evidence(data):
           [(name, event['event'], *(row.get(key) for key in
                                     ('entity', 'marker', 'faces', 'mesh_to_model', 'model_to_mesh', 'tolerance', 'within')))
            for name, run in named for event in run['events'] for row in event['marker_tolerances']['final_cert']])
-    table(lines, ('Run', 'Event', 'Construction s', 'Quality s (with cleanup)', 'Final proof s', 'Job peak bytes'),
-          [(name, event['event'], *(event['phase_seconds']['max_rank'][phase] for phase in PHASES),
+    table(lines, ('Run', 'Event', 'Rank', 'Phase', 'q-bad cells', 'J-bad cells', 'Size-bad cells',
+                  'Geometry-bad cells', 'Size debt'),
+          [(name, event['event'], rank, row['phase'], *(row[key] for key in EXIT_COUNTS), row['size_debt'])
+           for name, run in named for event in run['events'] if event['outcome'] == 'rejected'
+           for rank, row in event['worker_exits'].items() if any(row[key] for key in EXIT_COUNTS)])
+    for name, run in named:
+        for event in run['events']:
+            if event['outcome'] == 'rejected' and not event.get('rejected_cells'):
+                lines.extend([f'{name} event {event["event"]} logged no M29 seed cell. Individual q, J and '
+                              'surface membership are unavailable for that rejection.', ''])
+    table(lines, ('Run', 'Event', 'Native ledger s', 'Construction s', 'Quality s (with cleanup)', 'Final proof s', 'Job peak bytes'),
+          [(name, event['event'], *(event['phase_seconds']['max_rank'][phase] for phase in ('root_seconds', *PHASES)),
             event.get('job_peak_rss_bytes'))
            for name, run in named for event in run['events']])
     lines.extend(['Each phase is its maximum across the six rank ledgers. Per-rank exclusive times are in the JSON.',
@@ -85,6 +98,47 @@ def render_evidence(data):
     for row in issues:
         lines.extend([f'Event {row["cycle"]} tolerance wiring failed. {row["reason"]}', ''])
     return '\n'.join(lines).rstrip() + '\n'
+
+
+def measure_live(case, result):
+    """Pair each CFD restart with the mesh it actually used, including retained cycles."""
+    script = inherited.checked(DEF1 / 'inputs/shock_refinement_measure.py', ORDER['shock_refinement_measure.py'])
+    live = case / 'm6.su2'
+    events = {row['event']: row for row in result['events']}
+    pairs = []
+    for cycle in result['cycles']:
+        index = cycle['cycle']
+        if index:
+            event = events[index]
+            if event['outcome'] == 'accepted':
+                live = case / f'adapted_mesh_adap_{index:05d}.su2'
+            elif event['outcome'] == 'rejected':
+                cycle['cells'] = event['cells']
+            else:
+                live = None
+        restart = case / f'restart_flow_adap_{index:05d}.dat'
+        if live is not None and live.is_file():
+            cycle.update(live_mesh=str(live), marker_faces=marker_faces(live))
+            if restart.is_file() and restart.stat().st_size:
+                pairs.append((index, live, restart))
+    output = case / 'shock_measure.jsonl'
+    receipt = case / 'shock_measure_receipt.json'
+    argv = [sys.executable, '-B', str(script), *(str(path) for _, mesh, restart in pairs for path in (mesh, restart))]
+    if receipt.is_file():
+        old = inherited.load(receipt)
+        assert old['argv'] == argv and old['returncode'] in (0, None)
+        inherited.checked(output, old['output']['sha256'])
+        return output
+    log = case / 'shock_measure.stderr.log'
+    with output.open('w') as out, log.open('w') as err:
+        code = subprocess.run(argv, cwd=case, stdout=out, stderr=err).returncode if pairs else None
+    inherited.save(receipt, {'argv': argv, 'returncode': code, 'cycles': [index for index, _, _ in pairs],
+                             'input_pairs': [[inherited.pin(mesh), inherited.pin(restart)]
+                                             for _, mesh, restart in pairs],
+                             'script': inherited.pin(script), 'output': inherited.pin(output),
+                             'stderr': inherited.pin(log)})
+    assert code in (0, None), log
+    return output
 
 
 def make_report(case, launch, result, terminal, measured, cl2, q):
@@ -122,18 +176,16 @@ def finish(repeat):
         assert inherited.pin(path) == launch['cl2_prerequisite'][name]
     complete = terminal['cause'] == 'natural' and terminal['returncode'] == 0
     result = annotate_native(validate(case, terminal_peaks=rank_peaks(case, terminal), complete=complete), case)
-    for cycle in result['cycles']:
-        cycle['marker_faces'] = marker_faces(case / cycle['mesh'])
     cap, exact_q = cap_coordinates()
     result['tolerance_wiring'] = describe(case, result['events'], cap)
     if checked := compare_repeat(launch, result['tolerance_wiring']):
         result['runtime_repeat'] = checked
+    measured = measure_live(case, result)
     inherited.save(case / 'validation.json', result)
 
     cl2 = inherited.load(paths['report'])
     cl2['receipt'] = inherited.pin(paths['report'])
     describe(paths['config'].parent, cl2['events'], cap, list_mode=False)
-    measured = measure(case)
     data = make_report(case, launch, result, terminal, measured, cl2, {'points': cap.tolist(), 'event2_q': exact_q})
     stem = case.parent / 'reports' / f'CL3_{launch["build"]}'
     stem.parent.mkdir(exist_ok=True)
@@ -141,6 +193,7 @@ def finish(repeat):
     text = report.render(data, path)
     text = text.replace('Native packets, timers, proof faces and native reference sidecars are not applicable to MMG2.',
                         'CL3 uses the sealed CL2 converged-loop configuration with marker-specific geometry tolerances.')
+    text = text.replace('on mesh 4', 'in cycle 4').replace('All four adapted solves', 'All four later solves')
     path.write_text(text + '\n' + render_evidence(data))
     stem.with_suffix('.json').write_text(json.dumps(data, indent=2, allow_nan=False) + '\n')
     print(data['label'], flush=True)

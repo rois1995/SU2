@@ -1,0 +1,1071 @@
+{
+  "label": "TOL1: native tolerance per marker; standing and equal-list checks passed",
+  "status": "accepted",
+  "build": 686,
+  "source_commit": "9de0386ca36cdabe0ba61826464aab603d97954b",
+  "binary_sha256": "58cbc0d7e11a0f7b8f74ea2ec188e5dde7a1df314c8a6339c570e12701ab87f6",
+  "source_check": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/reports/source_check.md",
+    "sha256": "8a5c498fcfdb875ef9797d11e449a687c8fa7200325ac4bb78f80e8e58cf03c2"
+  },
+  "reference": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json",
+    "sha256": "e234fdd223bab140a2b8a74174025184eea1d48570298d5f258c419d4847065b"
+  },
+  "touched_files": [
+    "Common/include/CConfig.hpp",
+    "Common/include/adaptation/CNativeAffineReference.hpp",
+    "Common/include/adaptation/CNativeBoundary3D.hpp",
+    "Common/include/adaptation/CNativeBoundaryParameters3D.hpp",
+    "Common/include/adaptation/CNativeEngine3D.hpp",
+    "Common/include/adaptation/CNativeGeometryBackend3D.hpp",
+    "Common/include/adaptation/CNativeGeometryCertificates3D.hpp",
+    "Common/include/adaptation/CNativeLocalCore3D.hpp",
+    "Common/include/adaptation/CNativeLocalSurface3D.hpp",
+    "Common/include/adaptation/CNativeMarkerTolerance3D.hpp",
+    "Common/src/CConfig.cpp",
+    "Common/src/adaptation/CNativeAffineReference.cpp",
+    "Common/src/adaptation/CNativeBoundary3D.cpp",
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+    "Common/src/adaptation/CNativeCurvedAtlas3D.cpp",
+    "Common/src/adaptation/CNativeDistributed3D.cpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativeGeometryBackend3D.cpp",
+    "Common/src/adaptation/CNativeRemesher.cpp",
+    "Common/src/adaptation/CNativeRemesher3D.cpp",
+    "Common/src/adaptation/native_engine3d/EngineControl.cpp",
+    "Common/src/adaptation/native_engine3d/EngineSelectionCensus.cpp",
+    "Common/src/adaptation/native_engine3d/EngineSetup.cpp",
+    "Common/src/adaptation/native_engine3d/EngineTrial.cpp",
+    "Common/src/adaptation/native_engine3d/MeshOptimizer.cpp",
+    "Common/src/adaptation/native_engine3d/NativeRemeshRun.inc",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp",
+    "UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp",
+    "UnitTests/Common/adaptation/DEF1Options_tests.cpp",
+    "UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc",
+    "UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp",
+    "config_template.cfg"
+  ],
+  "checks": {
+    "build": {
+      "warnings": [],
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/build_status.json",
+        "sha256": "258a1104d6e0e2687795bb5c27995ba7edf206a5d18c1b8e207af7c39d57ef26"
+      }
+    },
+    "scoped": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/step1_scoped.json",
+        "sha256": "4e5b9876e3b82d77e904a90720041b63b9a1fd56a0efa7aea17441d2dc6e961c"
+      }
+    },
+    "fixtures": {
+      "cases": [
+        {
+          "name": "TOL1",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[TOL1]",
+            "-r",
+            "xml"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+          },
+          "returncode": 0,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/TOL1/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/TOL1/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/TOL1/host_preflight.json",
+          "timed_out": false,
+          "selected_tests": [
+            "TOL1 projected marker inventory keeps declared absent values and canonical identity",
+            "TOL1 in-range child-fan samples reach the step-C whole-face classifier",
+            "A subdivided curved marker seam survives private and shared native edits",
+            "TOL1 step D honors the marker limit for midpoint and centroid triggers",
+            "TOL1 projected private trials honor the marker geometry classifier and final proof",
+            "TOL1 direct child face between the limits survives the engine collapse filter",
+            "TOL1 atlas crops on the marker limit and tessellates at strict accuracy",
+            "TOL1 complete entity proof keeps a separate strict donor enclosure",
+            "TOL1 native list uses the smallest configured value after marker setup"
+          ],
+          "expected": 9,
+          "passed": true
+        },
+        {
+          "name": "DEF1",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_normal]",
+            "-r",
+            "xml"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+          },
+          "returncode": 0,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/DEF1/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/DEF1/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/DEF1/host_preflight.json",
+          "timed_out": false,
+          "selected_tests": [
+            "DEF1 GOAL scalar norm decision",
+            "DEF1 direct config defaults and level norm precedence",
+            "DEF1 configuration reads and inherits both Hausdorff forms",
+            "DEF1 MMG setters combine marker Hausdorff and wall sizing"
+          ],
+          "expected": 4,
+          "passed": true
+        }
+      ],
+      "fatal_cases": [
+        {
+          "name": "empty_middle",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "empty_middle"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/empty_middle/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/empty_middle/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/empty_middle/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: empty field in marker list.",
+          "passed": true
+        },
+        {
+          "name": "empty_first",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "empty_first"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/empty_first/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/empty_first/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/empty_first/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: empty field in marker list.",
+          "passed": true
+        },
+        {
+          "name": "empty_last",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "empty_last"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/empty_last/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/empty_last/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/empty_last/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: empty field in marker list.",
+          "passed": true
+        },
+        {
+          "name": "odd",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "odd"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/odd/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/odd/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/odd/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: marker list must contain name/value pairs.",
+          "passed": true
+        },
+        {
+          "name": "junk",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "junk"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/junk/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/junk/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/junk/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: invalid number for marker WALL.",
+          "passed": true
+        },
+        {
+          "name": "zero",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "zero"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/zero/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/zero/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/zero/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: value for marker WALL must be finite and > 0.",
+          "passed": true
+        },
+        {
+          "name": "negative",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "negative"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/negative/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/negative/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/negative/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: value for marker WALL must be finite and > 0.",
+          "passed": true
+        },
+        {
+          "name": "nonfinite",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "nonfinite"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/nonfinite/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/nonfinite/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/nonfinite/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: value for marker WALL must be finite and > 0.",
+          "passed": true
+        },
+        {
+          "name": "duplicate",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "duplicate"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/duplicate/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/duplicate/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/duplicate/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: duplicate marker WALL.",
+          "passed": true
+        },
+        {
+          "name": "native",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "native"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: NOT_DECLARED is not a boundary marker",
+          "passed": true
+        },
+        {
+          "name": "absent",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "absent"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/absent/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/absent/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/absent/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD marker MISSING is absent from the gathered mesh.",
+          "passed": true
+        },
+        {
+          "name": "absent_override",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "absent_override"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/absent_override/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/absent_override/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/absent_override/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD marker MISSING is absent from the gathered mesh.",
+          "passed": true
+        },
+        {
+          "name": "native_above",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "native_above"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native_above/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native_above/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native_above/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: x_minus value is above 1e100.",
+          "passed": true
+        },
+        {
+          "name": "native_bl",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "native_bl"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native_bl/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native_bl/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native_bl/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD per marker is not available with the native boundary layer yet.",
+          "passed": true
+        },
+        {
+          "name": "missing",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[tol1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_TOL1_FATAL_CASE": "missing"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/missing/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/missing/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/missing/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: with ADAP_REMESHER= NATIVE_CAVITY every boundary marker needs a value; missing:",
+          "passed": true
+        },
+        {
+          "name": "unmapped",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[tol1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_TOL1_FATAL_CASE": "unmapped"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/unmapped/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/unmapped/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/unmapped/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD per marker needs a mapped curved native reference.",
+          "passed": true
+        },
+        {
+          "name": "unit_floor",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[tol1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_TOL1_FATAL_CASE": "unit_floor"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/unit_floor/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/unit_floor/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/unit_floor/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: the smallest value is below the native floor",
+          "passed": true
+        },
+        {
+          "name": "tiny_floor",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[tol1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_TOL1_FATAL_CASE": "tiny_floor"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/tiny_floor/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/tiny_floor/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/tiny_floor/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD: the smallest value is below the native floor",
+          "passed": true
+        },
+        {
+          "name": "native2d",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[tol1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_TOL1_FATAL_CASE": "native2d"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native2d/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native2d/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/native2d/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD per marker is available for the 3D native remesher only.",
+          "passed": true
+        },
+        {
+          "name": "mpi_value",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "mpirun",
+            "-np",
+            "2",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[tol1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_TOL1_FATAL_CASE": "mpi_value"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/mpi_value/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/mpi_value/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/mpi_value/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD differs between ranks.",
+          "passed": true
+        },
+        {
+          "name": "mpi_form",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "mpirun",
+            "-np",
+            "2",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[tol1_fatal]",
+            "-r",
+            "console"
+          ],
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_TOL1_FATAL_CASE": "mpi_form"
+          },
+          "returncode": 1,
+          "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/mpi_form/stdout",
+          "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/mpi_form/stderr",
+          "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/mpi_form/host_preflight.json",
+          "timed_out": false,
+          "expected_diagnostic": "ADAP_HAUSD differs between ranks.",
+          "passed": true
+        }
+      ],
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures.json",
+        "sha256": "1a89ff53ddf3f26eb07d6c84cc8458f8de812f0b19cd975a3acc9a9e7fa44ffe"
+      }
+    },
+    "scalar": {
+      "first_difference": null,
+      "legacy_configs": {
+        "full": {
+          "sealed_config": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/full680_run1/run.cfg",
+            "sha256": "07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382"
+          },
+          "sealed_receipts": [
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json",
+              "sha256": "e234fdd223bab140a2b8a74174025184eea1d48570298d5f258c419d4847065b"
+            },
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/run_receipt.json",
+              "sha256": "46f4f1be90da2880cad41b753cc6c1a00961db4568e98f5173c220570c54be84"
+            },
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/full680_run1/provenance.json",
+              "sha256": "caf7f14ba824f29249f77f2274cc51e241ff6c6b9900fb713044384d21f47fb0"
+            }
+          ],
+          "inserted_lines": [
+            "ADAP_NORM= 1.0"
+          ],
+          "replacement": null,
+          "derived_config": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/scalar/trial1/full686_run1/run.cfg",
+            "sha256": "46975f42e8cfa78e932e57a724fc9fa241879d0fcf4a0b0e9bf3ed661afc1e2b"
+          },
+          "launch_metadata": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/scalar/trial1/full686_run1/provenance.json",
+            "sha256": "8336eb4ce057480f90e6e733c964511e512dac53d6f6a9ff92d4a031fabb6761"
+          }
+        },
+        "isolated_restart": {
+          "sealed_config": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/disk_restart_full680_run1_event2/run.cfg",
+            "sha256": "c7984b6edecc090d6823a5c51493a77aaf87e62ad4b637259de35e5b3a1a44ca"
+          },
+          "sealed_receipts": [
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json",
+              "sha256": "e234fdd223bab140a2b8a74174025184eea1d48570298d5f258c419d4847065b"
+            },
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/run_receipt.json",
+              "sha256": "46f4f1be90da2880cad41b753cc6c1a00961db4568e98f5173c220570c54be84"
+            },
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/disk_restart_full680_run1_event2/disk_restart_validation.json",
+              "sha256": "40ea006cd5573daede00768d7af78e5b698abbd0f5b291922c39fab0c0842fca"
+            }
+          ],
+          "inserted_lines": [
+            "ADAP_NORM= 1.0"
+          ],
+          "replacement": null,
+          "derived_config": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/scalar/trial1/disk_restart_full686_run1_event2/run.cfg",
+            "sha256": "002e04d308e1218db41b17122bc465d8220f0f59978cf4abfbd6711e495cb6cf"
+          },
+          "launch_metadata": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/scalar/trial1/disk_restart_full686_run1_event2/pins.json",
+            "sha256": "4862b8d1c0e35938009e519d211a77825346adbd8f2092e7c5bcfd3d35870c59"
+          }
+        }
+      },
+      "tolerance_rows": [],
+      "mobility": [
+        {
+          "protected_edges": 674,
+          "corners": 2
+        }
+      ],
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/scalar/case_summary.json",
+        "sha256": "bdd92602462bd33d7e0c8430aa54912b50f500b537376aa979a630a8f90e908f"
+      }
+    },
+    "equal": {
+      "first_difference": null,
+      "legacy_configs": {
+        "full": {
+          "sealed_config": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/full680_run1/run.cfg",
+            "sha256": "07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382"
+          },
+          "sealed_receipts": [
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json",
+              "sha256": "e234fdd223bab140a2b8a74174025184eea1d48570298d5f258c419d4847065b"
+            },
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/run_receipt.json",
+              "sha256": "46f4f1be90da2880cad41b753cc6c1a00961db4568e98f5173c220570c54be84"
+            },
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/full680_run1/provenance.json",
+              "sha256": "caf7f14ba824f29249f77f2274cc51e241ff6c6b9900fb713044384d21f47fb0"
+            }
+          ],
+          "inserted_lines": [
+            "ADAP_NORM= 1.0"
+          ],
+          "replacement": [
+            "ADAP_HAUSD= 1E-4",
+            "ADAP_HAUSD= (WING3D, 1E-4, SYMMETRY, 1E-4, FARFIELD, 1E-4)"
+          ],
+          "derived_config": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/equal/trial1/full686_run1/run.cfg",
+            "sha256": "be352f15e14ed472d96c6260ef0ccf86cb435d48bd42d8c9d1c7599ab8d6b009"
+          },
+          "launch_metadata": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/equal/trial1/full686_run1/provenance.json",
+            "sha256": "4d37a3d2ded954e4d69973b77e0e383f9f49b2c72771e4ddf88ae1de15d3c3a3"
+          }
+        },
+        "isolated_restart": {
+          "sealed_config": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/disk_restart_full680_run1_event2/run.cfg",
+            "sha256": "c7984b6edecc090d6823a5c51493a77aaf87e62ad4b637259de35e5b3a1a44ca"
+          },
+          "sealed_receipts": [
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json",
+              "sha256": "e234fdd223bab140a2b8a74174025184eea1d48570298d5f258c419d4847065b"
+            },
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/run_receipt.json",
+              "sha256": "46f4f1be90da2880cad41b753cc6c1a00961db4568e98f5173c220570c54be84"
+            },
+            {
+              "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/disk_restart_full680_run1_event2/disk_restart_validation.json",
+              "sha256": "40ea006cd5573daede00768d7af78e5b698abbd0f5b291922c39fab0c0842fca"
+            }
+          ],
+          "inserted_lines": [
+            "ADAP_NORM= 1.0"
+          ],
+          "replacement": [
+            "ADAP_HAUSD= 1E-4",
+            "ADAP_HAUSD= (WING3D, 1E-4, SYMMETRY, 1E-4, FARFIELD, 1E-4)"
+          ],
+          "derived_config": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/equal/trial1/disk_restart_full686_run1_event2/run.cfg",
+            "sha256": "ddcc921f1f62a08311b9734627885cfb01de78b8eb7ea502388982f76adb6cbf"
+          },
+          "launch_metadata": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/equal/trial1/disk_restart_full686_run1_event2/pins.json",
+            "sha256": "ab0cb05fb0f0da681f85bf2d5f962a16b772703af763243342de8a94e73cb0cd"
+          }
+        }
+      },
+      "tolerance_rows": [
+        {
+          "rank": "0",
+          "strict": "0.0001",
+          "seam_corners": "0",
+          "seam_edges": "0",
+          "refused_seam_edits": "0",
+          "markers": "FARFIELD:0:0.0001:0,SYMMETRY:1:0.0001:0,WING3D:2:0.0001:0"
+        },
+        {
+          "rank": "0",
+          "strict": "0.0001",
+          "seam_corners": "0",
+          "seam_edges": "0",
+          "refused_seam_edits": "0",
+          "markers": "FARFIELD:0:0.0001:0,SYMMETRY:1:0.0001:0,WING3D:2:0.0001:0"
+        }
+      ],
+      "mobility": [
+        {
+          "protected_edges": 674,
+          "corners": 2
+        }
+      ],
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/G5/build686/equal/case_summary.json",
+        "sha256": "9d3637cd2aabc9d6dc01546b71e6b27bc433bc10b3ce7fc1cfa095d36487a649"
+      }
+    },
+    "G1-serial": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/G1-serial/case_summary.json",
+        "sha256": "e7b37632edc2b278e8530a164612cd3e0fe21d5aa4fdddec48f156be07a2ca48"
+      }
+    },
+    "G1-mpi2": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/G1-mpi2/case_summary.json",
+        "sha256": "29a7aecf5f3abae69df0f0ff1f781234efcbdbd9d6294f7c919ad2d4a39853f0"
+      }
+    },
+    "G1-mpi4": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/G1-mpi4/case_summary.json",
+        "sha256": "cdb5c1a6478373447495f8ecca1823de32fdfd202a1d6b87f06c29ea6e7d434c"
+      }
+    },
+    "G2": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/G2/case_summary.json",
+        "sha256": "b423663335893715a50bacf96dc1b007eaa37da950b33b727761b622df5c67ca"
+      }
+    },
+    "GQ": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/GQ/case_summary.json",
+        "sha256": "0db6da085a541c541ff025d2d8afaf7a3ef92ef4c42698444f4b904949be89f1"
+      }
+    },
+    "first-collapse": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/first-collapse/case_summary.json",
+        "sha256": "0b3745a956781183e21a0067e60a9e9b568e967e8870d1a9e1bc4ad7289d9b03"
+      }
+    },
+    "exact-c492": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/exact-c492/case_summary.json",
+        "sha256": "540290a51750b283d3e62fa4b90a0c9f69191fbe7bbe3eeffd64a8d3f4fd94df"
+      }
+    },
+    "merit481": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/merit481/case_summary.json",
+        "sha256": "2abb5bf4f692868f5e81a27c500b04fc1c305921b557cb86b4dc4d6fd9fd192b"
+      }
+    },
+    "native2d": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/native2d/case_summary.json",
+        "sha256": "0992d57e58554dc8577409c4f24c48dee088e5de23cb6cf6d0a9d1b2111a58b7"
+      }
+    },
+    "saved-current": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/saved-current/case_summary.json",
+        "sha256": "e9fc000ec2814356bb89e17ad6b9aab3e39ce3be89ecf0c48c5513aefc665972"
+      }
+    },
+    "G3": {
+      "first_difference": null,
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/G3/case_summary.json",
+        "sha256": "f5f16f052a3618ceee32c8cff009382c1f2c8ee2b9998f2d8c2414b34d2d159a"
+      }
+    },
+    "G4": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/controls/build686/G4/case_summary.json",
+        "sha256": "bb0ea2893932ea792bdfe4c0473e4e50d7f09041b41ea718190fb44b2d8a6fbf"
+      }
+    },
+    "full OFF": {
+      "status": "not evaluated"
+    },
+    "full CORE": {
+      "status": "not evaluated"
+    }
+  },
+  "section3": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/section3.json",
+    "sha256": "9ce76abed733b032fb3504888a3a1fb21454b79b3e012439ea8150140e5ab632"
+  },
+  "capabilities": {
+    "CL3": {
+      "label": "CL3: converged loop run FAILED at event 1, gate 1",
+      "finding": "Adaptation skipped: Remesher returned incomplete quality. Current mesh and solution retained.",
+      "wiring": {
+        "wiring_defect": false,
+        "defects": [],
+        "events": {
+          "1": {
+            "tolerance_table": "passed",
+            "final_proof_tolerance": "not evaluated"
+          },
+          "2": {
+            "tolerance_table": "passed",
+            "final_proof_tolerance": "not evaluated"
+          },
+          "3": {
+            "tolerance_table": "passed",
+            "final_proof_tolerance": "not evaluated"
+          },
+          "4": {
+            "tolerance_table": "passed",
+            "final_proof_tolerance": "not evaluated"
+          }
+        }
+      },
+      "repeat": null,
+      "json": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL3/reports/CL3_686.json",
+        "sha256": "6b48283f4d7c4cf9012a60a279b9427eaf87a72f43a78c5fb7787ca40959cdb8"
+      },
+      "report": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL3/reports/CL3_686.md",
+        "sha256": "0530e8b17f76541b35a75c7ce1062a9f653c381bd7c85b3115e581ddeca3b8ba"
+      }
+    }
+  },
+  "reverted_candidate": null,
+  "revert": null,
+  "diagnoses": [
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/reports/build683_fixture.md",
+      "sha256": "aeb0bcf7c736aae5909a63da87ccde4edc8a67991b2329830905a6225a78fa86"
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/reports/build684_fixtures.md",
+      "sha256": "69fba36c3fc871248de143146fc26df4769ea070ab40f54b1a0afb516340df71"
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/reports/build685_fixtures.md",
+      "sha256": "f4d47b13c3573c394b449764479f8cc1aba15456920615b11812f2408359b2eb"
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/reports/equal_restart_recovery.md",
+      "sha256": "86244801890e6a981f0e15523621829a122daf01d0cc8220a23783f0970f942d"
+    }
+  ]
+}

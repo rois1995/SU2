@@ -189,6 +189,11 @@ R13. Questions (user order, 2026-11-17). When you have a question about an
   Use the DEF1 legacy settings for standing checks. Lab value `5` disables the certificates and value
   `6` measures them with all legacy distance queries active.
 
+- Since TOL1 `ADAP_HAUSD` takes a marker list also for the native 3D remesher (every boundary with faces
+  listed; each face uses its marker's value; where two markers with different values meet, their seam keeps its
+  input points and edges; all other readers use the smallest value); the standing gates and references keep the
+  scalar `ADAP_HAUSD= 1E-4`; the references do not change.
+
 ## 3. State (history; do not repeat a passed check)
 
 Items N1 to N18 and the cut (N4 phases A to D, N6): see the table of work order 2 in your evidence and the handbooks.

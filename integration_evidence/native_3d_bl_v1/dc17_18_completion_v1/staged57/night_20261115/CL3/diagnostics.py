@@ -18,6 +18,7 @@ CAP = module('cl3_capcheck', REPO / 'TestCases/adaptation/capability/capcheck.py
 TIMER = module('cl3_timer', STAGED / 'f3b_20261115/check_timer_tree.py')
 TOLERANCES = {'FARFIELD': 1., 'SYMMETRY': 1e-4, 'WING3D': 1e-4}
 PHASES = ('construction', 'quality', 'final_proof')
+EXIT_COUNTS = ('q_bad', 'j_bad', 'size_bad', 'geometry_bad')
 FACE_NODES = tuple(combinations(range(4), 3))
 EDGE_NODES = tuple(combinations(range(4), 2))
 GEOMETRY_MATCH = 1e-12  # Only for matching coordinates written to disk in this report.
@@ -127,6 +128,28 @@ def phase_times(case):
             result[event][str(rank)] = {
                 phase: sum(float(row['exclusive_seconds']) for row in ledger['rows'] if row['phase'] == phase)
                 for phase in PHASES}
+            result[event][str(rank)]['root_seconds'] = float(snapshot['summary']['root_seconds'])
+    return result
+
+
+def worker_exits(case):
+    """Read the last worker exit before each rank's final remesh ledger."""
+    result = defaultdict(dict)
+    for rank in range(6):
+        event, observed = 1, None
+        for text, _ in log_lines(rank_log(case, rank)):
+            if text.startswith('NATIVE3D_STAGE '):
+                row = fields(text, 'NATIVE3D_STAGE')
+                if (row.get('rank') == str(rank) and row.get('stage') == 'exit' and
+                        all(key in row for key in (*EXIT_COUNTS, 'phase', 'size_debt'))):
+                    observed = {key: int(row[key]) for key in EXIT_COUNTS}
+                    observed.update(phase=row['phase'], size_debt=float(row['size_debt']), line=text)
+            if text.startswith('NATIVE3D_TIMER_SUMMARY '):
+                row = fields(text, 'NATIVE3D_TIMER_SUMMARY')
+                if (row.get('root'), row.get('boundary'), row.get('rank')) == ('remesh', 'final', str(rank)):
+                    if observed is not None:
+                        result[event][rank] = observed
+                    event, observed = event + 1, None
     return result
 
 
@@ -258,6 +281,7 @@ def describe(case, events, cap, *, list_mode=True):
             for row in rows['final_cert']:
                 row['marker'] = indices.get(row.get('index'))
     phases = phase_times(case)
+    exits = worker_exits(case)
     live_mesh = input_mesh
     live_cycle = 0
     for event in events:
@@ -267,9 +291,10 @@ def describe(case, events, cap, *, list_mode=True):
                    'accepted' if certification == 'passed' and event['gates']['2']['status'] != 'OPEN' else
                    'not evaluated')
         ranks = phases.get(number, {})
-        event.update(outcome=outcome, marker_tolerances=runtime_rows[number],
+        event.update(outcome=outcome, marker_tolerances=runtime_rows[number], worker_exits=exits[number],
                      phase_seconds={'by_rank': ranks, 'max_rank': {
-                         phase: max(row[phase] for row in ranks.values()) if len(ranks) == 6 else None for phase in PHASES}})
+                         phase: max(row[phase] for row in ranks.values()) if len(ranks) == 6 else None
+                         for phase in (*PHASES, 'root_seconds')}})
         if outcome == 'not evaluated':
             continue
         donor = live_mesh

@@ -1,0 +1,260 @@
+{
+  "cause": "natural",
+  "returncode": 0,
+  "interruption_signals": [],
+  "controller_error": null,
+  "elapsed_seconds": 1703.5321336190682,
+  "finished_utc": "2026-11-28T13:08:52.763683+00:00",
+  "all_owned_handles_terminal": true,
+  "live_handles": [],
+  "owned_identities": [
+    {
+      "pid": 1116152,
+      "state": "R",
+      "ppid": 1115992,
+      "pgid": 1116152,
+      "start_ticks": 136193538,
+      "comm": "mpirun"
+    },
+    {
+      "pid": 1116193,
+      "state": "R",
+      "ppid": 1116158,
+      "pgid": 1116158,
+      "start_ticks": 136193559,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 1116158,
+      "state": "R",
+      "ppid": 1116152,
+      "pgid": 1116158,
+      "start_ticks": 136193545,
+      "comm": "python3"
+    },
+    {
+      "pid": 1116191,
+      "state": "R",
+      "ppid": 1116156,
+      "pgid": 1116156,
+      "start_ticks": 136193558,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 1116156,
+      "state": "R",
+      "ppid": 1116152,
+      "pgid": 1116156,
+      "start_ticks": 136193545,
+      "comm": "python3"
+    },
+    {
+      "pid": 1116194,
+      "state": "R",
+      "ppid": 1116160,
+      "pgid": 1116160,
+      "start_ticks": 136193559,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 1116160,
+      "state": "R",
+      "ppid": 1116152,
+      "pgid": 1116160,
+      "start_ticks": 136193545,
+      "comm": "python3"
+    },
+    {
+      "pid": 1116198,
+      "state": "R",
+      "ppid": 1116159,
+      "pgid": 1116159,
+      "start_ticks": 136193559,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 1116159,
+      "state": "R",
+      "ppid": 1116152,
+      "pgid": 1116159,
+      "start_ticks": 136193545,
+      "comm": "python3"
+    },
+    {
+      "pid": 1116192,
+      "state": "R",
+      "ppid": 1116155,
+      "pgid": 1116155,
+      "start_ticks": 136193558,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 1116155,
+      "state": "R",
+      "ppid": 1116152,
+      "pgid": 1116155,
+      "start_ticks": 136193545,
+      "comm": "python3"
+    },
+    {
+      "pid": 1116195,
+      "state": "R",
+      "ppid": 1116157,
+      "pgid": 1116157,
+      "start_ticks": 136193559,
+      "comm": "SU2_CFD"
+    },
+    {
+      "pid": 1116157,
+      "state": "R",
+      "ppid": 1116152,
+      "pgid": 1116157,
+      "start_ticks": 136193545,
+      "comm": "python3"
+    }
+  ],
+  "launcher": {
+    "pid": 1116152,
+    "state": "R",
+    "ppid": 1115992,
+    "pgid": 1116152,
+    "start_ticks": 136193538,
+    "comm": "mpirun"
+  },
+  "signals": [],
+  "rank_waits": [
+    {
+      "rank": 0,
+      "pid": 1116192,
+      "child": {
+        "pid": 1116192,
+        "state": "R",
+        "ppid": 1116155,
+        "pgid": 1116155,
+        "start_ticks": 136193558,
+        "comm": "SU2_CFD"
+      },
+      "start_utc": "2026-11-28T12:40:29.427798+00:00",
+      "finished_utc": "2026-11-28T13:08:50.884785+00:00",
+      "returncode": 0,
+      "wait_status": 0,
+      "peak_rss_bytes": 1499242496,
+      "user_seconds": 1664.634927,
+      "system_seconds": 5.33023,
+      "forwarded_signals": [],
+      "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+    },
+    {
+      "rank": 1,
+      "pid": 1116191,
+      "child": {
+        "pid": 1116191,
+        "state": "R",
+        "ppid": 1116156,
+        "pgid": 1116156,
+        "start_ticks": 136193558,
+        "comm": "SU2_CFD"
+      },
+      "start_utc": "2026-11-28T12:40:29.427798+00:00",
+      "finished_utc": "2026-11-28T13:08:50.884798+00:00",
+      "returncode": 0,
+      "wait_status": 0,
+      "peak_rss_bytes": 1519419392,
+      "user_seconds": 1661.748767,
+      "system_seconds": 5.83354,
+      "forwarded_signals": [],
+      "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+    },
+    {
+      "rank": 2,
+      "pid": 1116195,
+      "child": {
+        "pid": 1116195,
+        "state": "R",
+        "ppid": 1116157,
+        "pgid": 1116157,
+        "start_ticks": 136193559,
+        "comm": "SU2_CFD"
+      },
+      "start_utc": "2026-11-28T12:40:29.435842+00:00",
+      "finished_utc": "2026-11-28T13:08:50.884745+00:00",
+      "returncode": 0,
+      "wait_status": 0,
+      "peak_rss_bytes": 1300115456,
+      "user_seconds": 1661.167472,
+      "system_seconds": 5.465035,
+      "forwarded_signals": [],
+      "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+    },
+    {
+      "rank": 3,
+      "pid": 1116193,
+      "child": {
+        "pid": 1116193,
+        "state": "R",
+        "ppid": 1116158,
+        "pgid": 1116158,
+        "start_ticks": 136193559,
+        "comm": "SU2_CFD"
+      },
+      "start_utc": "2026-11-28T12:40:29.435529+00:00",
+      "finished_utc": "2026-11-28T13:08:50.919244+00:00",
+      "returncode": 0,
+      "wait_status": 0,
+      "peak_rss_bytes": 2081996800,
+      "user_seconds": 1660.067107,
+      "system_seconds": 6.747767,
+      "forwarded_signals": [],
+      "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+    },
+    {
+      "rank": 4,
+      "pid": 1116198,
+      "child": {
+        "pid": 1116198,
+        "state": "R",
+        "ppid": 1116159,
+        "pgid": 1116159,
+        "start_ticks": 136193559,
+        "comm": "SU2_CFD"
+      },
+      "start_utc": "2026-11-28T12:40:29.438303+00:00",
+      "finished_utc": "2026-11-28T13:08:50.895580+00:00",
+      "returncode": 0,
+      "wait_status": 0,
+      "peak_rss_bytes": 1585438720,
+      "user_seconds": 1665.337584,
+      "system_seconds": 5.362829,
+      "forwarded_signals": [],
+      "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+    },
+    {
+      "rank": 5,
+      "pid": 1116194,
+      "child": {
+        "pid": 1116194,
+        "state": "R",
+        "ppid": 1116160,
+        "pgid": 1116160,
+        "start_ticks": 136193559,
+        "comm": "SU2_CFD"
+      },
+      "start_utc": "2026-11-28T12:40:29.435565+00:00",
+      "finished_utc": "2026-11-28T13:08:50.886114+00:00",
+      "returncode": 0,
+      "wait_status": 0,
+      "peak_rss_bytes": 1550372864,
+      "user_seconds": 1661.094555,
+      "system_seconds": 5.94174,
+      "forwarded_signals": [],
+      "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+    }
+  ],
+  "inputs_verified_after": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL3/run/run.cfg": true,
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD": true,
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL3/run/m6.su2": true,
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL3/run/m6.su2.native_ref": true,
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL3/run/baseline_euler_seed.dat": true
+  }
+}

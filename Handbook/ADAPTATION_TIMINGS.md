@@ -1,5 +1,23 @@
 # Adaptation timings and computational work
 
+## TOL1 build686 and the CL3 capability run
+
+| Standing S run | Native event 1 / 2 s | Construction event 1 / 2 s | Quality event 1 / 2 s | Final proof event 1 / 2 s | Isolated restart s |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Scalar | 441.079 / 216.631 | 195.117 / 90.602 | 131.120 / 28.256 | 43.091 / 75.471 | 60.749 |
+| Equal list | 441.342 / 216.201 | 193.213 / 92.876 | 131.609 / 28.308 | 43.267 / 74.630 | 56.398 |
+
+Both configurations matched all six FP3-E payloads. Minimum rank timer coverage was 97.723% / 99.308% for scalar and 97.614% / 99.318% for the equal list. The comparison uses maximum rank times from uncontrolled host runs. The equal-list restart used the corrected configuration assertion. [TOL1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/reports/TOL1_686.md)
+
+| CL3 event | Native ledger s | Construction s | Quality with cleanup s | Peak sum MiB |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | 322.018 | 164.953 | 97.292 | 5938.6 |
+| 2 | 330.043 | 161.224 | 111.323 | 8905.0 |
+| 3 | 340.527 | 162.687 | 119.823 | 8905.0 |
+| 4 | 321.735 | 159.309 | 103.800 | 9094.8 |
+
+Each phase is its own rank maximum. All four attempts stopped before final proof and retained the 61,330-point, 303,359-cell mesh. The complete solver ran 1,703.532 s with a terminal rank peak sum of 9,536,585,728 bytes. The signed shock script measured all five cycles using the actual live mesh. [CL3 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL3/reports/CL3_686.md)
+
 ## SC1 mode S geometry certificates, build682
 
 | Run | Native event 1 / 2 s | Seed census event 1 / 2 s | Final proof event 1 / 2 s | Minimum rank coverage event 1 / 2 |
