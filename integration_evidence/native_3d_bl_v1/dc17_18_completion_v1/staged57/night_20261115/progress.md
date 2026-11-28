@@ -2898,3 +2898,7 @@ TOL1 scalar GQ passed exact decisions, integer and modeled-storage rows and the 
 TOL1 first-collapse passed exact counts across six ranks with no refinements. Work 76,652,506 against 108,459,426. Peak sum 7,955,910,656 bytes and stopped at 222.198 s. Continue C492 under the scoped supervisor.
 
 TOL1 scalar C492 exact safeguard passed with a terminal controller at 610.677 s. Next merit481, native 2D and saved-current under the same supervisor.
+
+TOL1 C492 checkpoint 30afffc5b5 pushed. Merits 481 safeguard passed. The scoped supervisor continues native 2D at 1, 2 and 4 ranks and then saved-current.
+
+TOL1 merit481, native 2D BL and no-BL at 1/2/4 ranks, and saved-current passed. The five shared groups are complete. G3 is the final live scoped case, followed by the G4 seal from the authenticated native 2D runs.
