@@ -2904,3 +2904,9 @@ TOL1 C492 checkpoint 30afffc5b5 pushed. Merits 481 safeguard passed. The scoped 
 TOL1 merit481, native 2D BL and no-BL at 1/2/4 ranks, and saved-current passed. The five shared groups are complete. G3 is the final live scoped case, followed by the G4 seal from the authenticated native 2D runs.
 
 TOL1 scalar scoped campaign passed all 12 parts on build686. G3 accepted 1,612 splits against the minimum 336 and matched all 1,592 common edits and observer-adjusted work 5,113/5,113. Zero upper refinements and all physical/resource checks passed. G4 sealed the executed 2D cases. The scoped supervisor is terminal. Next one scalar mode S workflow and isolated restart.
+
+TOL1 scoped checkpoint 13d59209c9 pushed. Scalar S started at 13:01:45 CET under su2-tol1-scalar686. Preflight recorded no owned heavy process and 37,913,592 kB available. Await both full events, payload and isolated restart checks.
+
+TOL1 scalar S event 1 published its mesh, native reference and restart. All three hashes match FP3-E exactly. The run remains active for event 2 and the isolated restart.
+
+TOL1 scalar S passed both events, the isolated restart and all six FP3-E payload hashes. Native maxima 441.079 / 216.631 s, rank coverage minima 97.723 / 99.308 percent, whole-job peak sums 9,304,629,248 / 9,489,555,456 bytes, proof faces 26,522 / 21,708. Scalar run logged 674 protected edges, 2 corners and zero tolerance rows. The full and restart handles are terminal. Next use the independently derived equal-list configs and same binary.
