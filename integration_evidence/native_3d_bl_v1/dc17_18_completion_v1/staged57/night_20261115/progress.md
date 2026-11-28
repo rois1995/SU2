@@ -2854,3 +2854,7 @@ SC1 G2 and GQ both passed with exact decisions and modeled storage and fixedstor
 SC1 prefix checkpoint 94eb626cc2 pushed. All five shared groups passed on build682: exact first-collapse, exact C492, merit481, native 2D at 1/2/4 ranks and saved-current. G3 runs next, and G4 seals the pinned 2D executions.
 
 SC1 shared checkpoint 6328edfc84 pushed. Step 1 passed all 12 parts. G3 accepted 1665 splits, matched all 1592 common edits and observer-adjusted work 5113/5113, with zero upper refinements. G4 passed using the sealed native 2D executions. Full OFF and CORE are unevaluated by order. The scoped supervisor is terminal. Next the one value-6 mode S count run with the legacy settings and isolated restart.
+
+SC1 Step 1 checkpoint f7264eba07 pushed. Count S activated under su2-sc1-count682 at 03:19:45 CET after a clean host preflight. Observe both events and the isolated restart, then authenticate the six hashes and count and timer evidence before any default S runs.
+
+SC1 count mode passed both events and isolated restart (64.545 s). All six payloads matched FP3-E. Count rows reconciled at 14,441/27,016 and 20,095/21,744 hits/calls. Event 2 hits by origin were 8,019 step C, 11,454 proof and 622 commit. Zero disagreements in both events. Maximum rank would-skip query time 8.103 / 79.439 s. Minimum predicted coverage 97.719709 percent exceeds 96 percent, so no attribution repeat. Next S1 under default value 0 and the same build682.

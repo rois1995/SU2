@@ -1,0 +1,3629 @@
+{
+  "first_count": {
+    "receipt": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/case_summary.json",
+      "sha256": "371dccb17d32e5b570c61a5248835343d7d706de06d0be806158e6646f7b8e94"
+    },
+    "ranks": [
+      {
+        "event": 1,
+        "rank": 0,
+        "root_seconds": 418.98800873000005,
+        "unattributed_seconds": 8.708119580999927,
+        "attributed_seconds": 410.2798891490001,
+        "coverage": 0.9792163035706076,
+        "unattributed_by_phase": {
+          "preparation": 8.545647822999916,
+          "metric": 8.959999999724744e-07,
+          "construction": 0.10096233900001242,
+          "surface": 0.0,
+          "quality": 0.0574625670000034,
+          "final_proof": 0.004045601999996214,
+          "transfer": 3.539999999802035e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "0",
+          "ranks": "6",
+          "root_seconds": "418.98800873000005",
+          "sumexclusive": "418.98800872999857",
+          "unattributed": "8.7081195809999272",
+          "coverage": "0.97921630357060752",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+          "line": 1245
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "50125",
+          "cells_after": "48316",
+          "metric_before": "5367693",
+          "metric_after": "3598948",
+          "geometry_before": "13014",
+          "geometry_after": "124593",
+          "geometry_positive_cells": "10145",
+          "geometry_unit_cells": "9148",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "1384.5502133449886"
+        },
+        "partition_summary_sha256": "0f5a07ed93051ffa52c8c3bf73a21a626523a43e553acb88929c84ba256f32bd",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 50125,
+            "assignments_digest": 184407139699836452,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 279
+          },
+          {
+            "site": "ownership",
+            "round": 0,
+            "cells": 28066,
+            "assignments_digest": 6206993659044929832,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 538
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "0",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "1",
+            "predicted_imbalance": "2.7351945771599597",
+            "predicted_gain": "5294993240.6770782",
+            "predicted_cost": "371825",
+            "demand_sum": "380031.89055242843",
+            "global_cells": "371825",
+            "measured": "371825",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "166771",
+            "owned_ratio": "2.6911208229677941",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 536
+          },
+          {
+            "rank": "0",
+            "quality": "0",
+            "committed": "1",
+            "moved_cells": "202212",
+            "total_seconds": "8.2088375050000195",
+            "partition_seconds": "2.0028410479999934",
+            "directory_build_seconds": "0.96361915399999998",
+            "work_before": "392924",
+            "work_after": "850657",
+            "geometry_before": "336529",
+            "geometry_after": "294059",
+            "quality_debt_weight_before": "0",
+            "quality_debt_weight_after": "0",
+            "directory_peak_bytes": "1925997132",
+            "cells": "60639",
+            "transition_peak_bytes": "1925997132",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 542
+          },
+          {
+            "rank": "0",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6451419623664956",
+            "predicted_gain": "4564152.0720366146",
+            "predicted_cost": "376343",
+            "demand_sum": "384908.84214019787",
+            "global_cells": "376343",
+            "measured": "757363",
+            "attempts": "917",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69293",
+            "owned_ratio": "1.1047315879397253",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 615
+          },
+          {
+            "rank": "0",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "3.1047376391860899",
+            "predicted_gain": "116865.98447227431",
+            "predicted_cost": "378848",
+            "demand_sum": "379106.30011878628",
+            "global_cells": "378848",
+            "measured": "792142",
+            "attempts": "3685",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69831",
+            "owned_ratio": "1.1059475040121631",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 775
+          },
+          {
+            "rank": "0",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "5.7812577825189351",
+            "predicted_gain": "75699.766524082384",
+            "predicted_cost": "378946",
+            "demand_sum": "379023.11063063022",
+            "global_cells": "378946",
+            "measured": "793985",
+            "attempts": "3867",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69845",
+            "owned_ratio": "1.1058831601336339",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 982
+          }
+        ],
+        "engine": [
+          {
+            "seed": "11.902884638999964",
+            "atlas_arithmetic_work": "43005562",
+            "work_limit": "19414976",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "16689",
+            "prepared_facet_builds": "16689",
+            "prepared_facet_mean_bytes": "6590.0418239558994",
+            "facet_misses": "85",
+            "facet_build_seconds": "0.0031042300000034828",
+            "retention_refusals": "0",
+            "atlas_work": "5879405"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 3703,
+          "cert_hit": 3038,
+          "cert_miss": 665,
+          "hit_step_c": 3038,
+          "hit_proof": 0,
+          "hit_commit": 0,
+          "records": 26522,
+          "bytes": 8160416,
+          "gather_seconds": 0.058790582,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 3038,
+          "skip_seconds": 8.102628180999995,
+          "predicted_coverage": 0.9788064506715604,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 0.206001191,
+              "end": 7.427965522,
+              "seconds": 7.221964331,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 408.18324831900003,
+              "end": 408.76728059500005,
+              "seconds": 0.5840322760000163,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 0.0037937210000000003,
+              "end": 0.205997336,
+              "seconds": 0.202203615,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 409.58982429400004,
+              "end": 409.589825,
+              "seconds": 7.05999980255001e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 412.524619809,
+              "end": 412.52461999900004,
+              "seconds": 1.9000003703695256e-07,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 226.75420184,
+              "end": 226.767786101,
+              "seconds": 0.013584261000005426,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 353.929937928,
+              "end": 353.94218169600003,
+              "seconds": 0.012243768000018918,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 228.09536026900003,
+              "end": 228.106693951,
+              "seconds": 0.011333681999985856,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 358.422917072,
+              "end": 358.444032004,
+              "seconds": 0.02111493199998904,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 254.341304011,
+              "end": 254.34390286800001,
+              "seconds": 0.0025988570000095024,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 258.760626521,
+              "end": 258.76255381100003,
+              "seconds": 0.0019272900000260051,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.52462261200003,
+              "end": 412.52866696700005,
+              "seconds": 0.004044355000019095,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.58745968100004,
+              "end": 412.58746075700003,
+              "seconds": 1.0759999895526562e-06,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.58747423,
+              "end": 412.58747431800003,
+              "seconds": 8.800003570286208e-08,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "pop:NativeRemeshRun.inc:1634"
+            },
+            {
+              "phase": "transfer",
+              "start": 412.59351381700003,
+              "end": 412.593514006,
+              "seconds": 1.8899999076893437e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            },
+            {
+              "phase": "transfer",
+              "start": 418.787093242,
+              "end": 418.78709340700004,
+              "seconds": 1.650000172048749e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 324186947584
+      },
+      {
+        "event": 1,
+        "rank": 1,
+        "root_seconds": 418.98652461,
+        "unattributed_seconds": 8.773040931999917,
+        "attributed_seconds": 410.2134836780001,
+        "coverage": 0.9790612814095488,
+        "unattributed_by_phase": {
+          "preparation": 8.544503180999932,
+          "metric": 3.469999998451101e-07,
+          "construction": 0.16462333699998752,
+          "surface": 0.0,
+          "quality": 0.05837514700000114,
+          "final_proof": 0.005538453999997209,
+          "transfer": 4.659999994771624e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "1",
+          "ranks": "6",
+          "root_seconds": "418.98652461",
+          "sumexclusive": "418.98652460999756",
+          "unattributed": "8.7730409319999172",
+          "coverage": "0.97906128140954896",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+          "line": 855
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "49625",
+          "cells_after": "51155",
+          "metric_before": "2981011",
+          "metric_after": "3296923",
+          "geometry_before": "15965",
+          "geometry_after": "110003",
+          "geometry_positive_cells": "9991",
+          "geometry_unit_cells": "8603",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "1384.5502133449886"
+        },
+        "partition_summary_sha256": "2e68e14210a7f1d928fb7648aba881b734f63be93aa833c3c29bfeffcd405fd7",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 49625,
+            "assignments_digest": 3092202262558319303,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 6
+          },
+          {
+            "site": "ownership",
+            "round": 0,
+            "cells": 32975,
+            "assignments_digest": 18128674838056162974,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 203
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "1",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "1",
+            "predicted_imbalance": "2.7351945771599597",
+            "predicted_gain": "5294993240.6770782",
+            "predicted_cost": "371825",
+            "demand_sum": "380031.89055242843",
+            "global_cells": "371825",
+            "measured": "371825",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "166771",
+            "owned_ratio": "2.6911208229677941",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 201
+          },
+          {
+            "rank": "1",
+            "quality": "0",
+            "committed": "1",
+            "moved_cells": "202212",
+            "total_seconds": "8.208924536999973",
+            "partition_seconds": "2.0063226390000182",
+            "directory_build_seconds": "0.96605580800000002",
+            "work_before": "464373",
+            "work_after": "800727",
+            "geometry_before": "183166",
+            "geometry_after": "233976",
+            "quality_debt_weight_before": "0",
+            "quality_debt_weight_after": "0",
+            "directory_peak_bytes": "1907328348",
+            "cells": "54255",
+            "transition_peak_bytes": "1907328348",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 207
+          },
+          {
+            "rank": "1",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6451419623664956",
+            "predicted_gain": "4564152.0720366146",
+            "predicted_cost": "376343",
+            "demand_sum": "384908.84214019787",
+            "global_cells": "376343",
+            "measured": "757363",
+            "attempts": "917",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69293",
+            "owned_ratio": "1.1047315879397253",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 280
+          },
+          {
+            "rank": "1",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "3.1047376391860899",
+            "predicted_gain": "116865.98447227431",
+            "predicted_cost": "378848",
+            "demand_sum": "379106.30011878628",
+            "global_cells": "378848",
+            "measured": "792142",
+            "attempts": "3685",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69831",
+            "owned_ratio": "1.1059475040121631",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 440
+          },
+          {
+            "rank": "1",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "5.7812577825189351",
+            "predicted_gain": "75699.766524082384",
+            "predicted_cost": "378946",
+            "demand_sum": "379023.11063063022",
+            "global_cells": "378946",
+            "measured": "793985",
+            "attempts": "3867",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69845",
+            "owned_ratio": "1.1058831601336339",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 654
+          }
+        ],
+        "engine": [
+          {
+            "seed": "11.889229173000155",
+            "atlas_arithmetic_work": "40175013",
+            "work_limit": "19414976",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "15290",
+            "prepared_facet_builds": "15290",
+            "prepared_facet_mean_bytes": "4628.8523217789407",
+            "facet_misses": "143",
+            "facet_build_seconds": "0.020735371000018432",
+            "retention_refusals": "0",
+            "atlas_work": "5558666"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 3111,
+          "cert_hit": 2422,
+          "cert_miss": 689,
+          "hit_step_c": 2422,
+          "hit_proof": 0,
+          "hit_commit": 0,
+          "records": 26522,
+          "bytes": 8160416,
+          "gather_seconds": 0.061636285000000006,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 2422,
+          "skip_seconds": 7.5478338089999975,
+          "predicted_coverage": 0.9786771610736941,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 0.20602879000000002,
+              "end": 7.427986765000001,
+              "seconds": 7.2219579750000005,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 408.18289079000004,
+              "end": 408.76517103900005,
+              "seconds": 0.5822802490000072,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 0.0038213310000000003,
+              "end": 0.20602234200000002,
+              "seconds": 0.202201011,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 409.59028477500004,
+              "end": 409.59028508,
+              "seconds": 3.0499995773425326e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 412.51997347400004,
+              "end": 412.51997351600005,
+              "seconds": 4.200001058052294e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 226.754229446,
+              "end": 226.767732888,
+              "seconds": 0.013503442000001087,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 353.929965518,
+              "end": 353.94184684000004,
+              "seconds": 0.01188132200002201,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 228.095387909,
+              "end": 228.10628565300001,
+              "seconds": 0.01089774400000465,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 358.422944684,
+              "end": 358.44253618600004,
+              "seconds": 0.019591502000025685,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 254.34133134700002,
+              "end": 254.34387761800002,
+              "seconds": 0.0025462709999999333,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 258.760653373,
+              "end": 258.762479389,
+              "seconds": 0.001826015999995434,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.519975714,
+              "end": 412.525513257,
+              "seconds": 0.005537543000002643,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.587151817,
+              "end": 412.587152412,
+              "seconds": 5.950000172560976e-07,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.58749599400005,
+              "end": 412.58749617200004,
+              "seconds": 1.7799999341150397e-07,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "pop:NativeRemeshRun.inc:1634"
+            },
+            {
+              "phase": "transfer",
+              "start": 418.78628135400004,
+              "end": 418.786281691,
+              "seconds": 3.3699996038194513e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            },
+            {
+              "phase": "transfer",
+              "start": 412.59338931,
+              "end": 412.593389439,
+              "seconds": 1.2900000001536682e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 324186947584
+      },
+      {
+        "event": 1,
+        "rank": 2,
+        "root_seconds": 418.986555096,
+        "unattributed_seconds": 8.939416264999695,
+        "attributed_seconds": 410.0471388310003,
+        "coverage": 0.9786641930241617,
+        "unattributed_by_phase": {
+          "preparation": 8.765802054999682,
+          "metric": 2.2099999998914654e-06,
+          "construction": 0.12621695500000685,
+          "surface": 0.0,
+          "quality": 0.04183614600000645,
+          "final_proof": 0.005558517999999679,
+          "transfer": 3.8099999954965824e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "2",
+          "ranks": "6",
+          "root_seconds": "418.98655509600002",
+          "sumexclusive": "418.98655509599064",
+          "unattributed": "8.9394162649996947",
+          "coverage": "0.97866419302416174",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+          "line": 868
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "55037",
+          "cells_after": "56223",
+          "metric_before": "7123649",
+          "metric_after": "3855284",
+          "geometry_before": "83956",
+          "geometry_after": "116519",
+          "geometry_positive_cells": "6923",
+          "geometry_unit_cells": "5100",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "1384.5502133449886"
+        },
+        "partition_summary_sha256": "97f5e3c8eee5ad37719bd22d6d6fdfe7f3c24c7f1d8c3b1a8edca4d9f3dd3382",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 55037,
+            "assignments_digest": 5192102336147798695,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 6
+          },
+          {
+            "site": "ownership",
+            "round": 0,
+            "cells": 86374,
+            "assignments_digest": 14206889192013822867,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 228
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "2",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "1",
+            "predicted_imbalance": "2.7351945771599597",
+            "predicted_gain": "5294993240.6770782",
+            "predicted_cost": "371825",
+            "demand_sum": "380031.89055242843",
+            "global_cells": "371825",
+            "measured": "371825",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "166771",
+            "owned_ratio": "2.6911208229677941",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 226
+          },
+          {
+            "rank": "2",
+            "quality": "0",
+            "committed": "1",
+            "moved_cells": "202212",
+            "total_seconds": "8.2089814830000023",
+            "partition_seconds": "2.0078285149999999",
+            "directory_build_seconds": "0.95975186599999995",
+            "work_before": "1227731",
+            "work_after": "912968",
+            "geometry_before": "176689",
+            "geometry_after": "294584",
+            "quality_debt_weight_before": "0",
+            "quality_debt_weight_after": "0",
+            "directory_peak_bytes": "2331653604",
+            "cells": "63564",
+            "transition_peak_bytes": "2331653604",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 232
+          },
+          {
+            "rank": "2",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6451419623664956",
+            "predicted_gain": "4564152.0720366146",
+            "predicted_cost": "376343",
+            "demand_sum": "384908.84214019787",
+            "global_cells": "376343",
+            "measured": "757363",
+            "attempts": "917",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69293",
+            "owned_ratio": "1.1047315879397253",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 304
+          },
+          {
+            "rank": "2",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "3.1047376391860899",
+            "predicted_gain": "116865.98447227431",
+            "predicted_cost": "378848",
+            "demand_sum": "379106.30011878628",
+            "global_cells": "378848",
+            "measured": "792142",
+            "attempts": "3685",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69831",
+            "owned_ratio": "1.1059475040121631",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 464
+          },
+          {
+            "rank": "2",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "5.7812577825189351",
+            "predicted_gain": "75699.766524082384",
+            "predicted_cost": "378946",
+            "demand_sum": "379023.11063063022",
+            "global_cells": "378946",
+            "measured": "793985",
+            "attempts": "3867",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69845",
+            "owned_ratio": "1.1058831601336339",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 670
+          }
+        ],
+        "engine": [
+          {
+            "seed": "11.708770057999979",
+            "atlas_arithmetic_work": "36978701",
+            "work_limit": "19414976",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "10028",
+            "prepared_facet_builds": "10028",
+            "prepared_facet_mean_bytes": "9528.8927004387715",
+            "facet_misses": "56",
+            "facet_build_seconds": "0.0090500099999939465",
+            "retention_refusals": "0",
+            "atlas_work": "4691365"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 4170,
+          "cert_hit": 1925,
+          "cert_miss": 2245,
+          "hit_step_c": 1925,
+          "hit_proof": 0,
+          "hit_commit": 0,
+          "records": 26522,
+          "bytes": 8160416,
+          "gather_seconds": 0.061348139,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 1925,
+          "skip_seconds": 7.357744479000007,
+          "predicted_coverage": 0.9782828217208601,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 0.20603049,
+              "end": 7.427997274000001,
+              "seconds": 7.221966784000001,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 408.18416496000003,
+              "end": 408.76625035100005,
+              "seconds": 0.582085391000021,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 198.33396277,
+              "end": 198.62638154400003,
+              "seconds": 0.29241877400002636,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 409.58975316600004,
+              "end": 409.58975534,
+              "seconds": 2.173999973820173e-06,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 412.51997788,
+              "end": 412.519977916,
+              "seconds": 3.600001718950807e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 211.22783024,
+              "end": 211.24296519100002,
+              "seconds": 0.015134951000021601,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 226.754230976,
+              "end": 226.76841170900002,
+              "seconds": 0.014180733000017653,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 228.09538957900003,
+              "end": 228.10791390900002,
+              "seconds": 0.012524329999990869,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 358.42294639700003,
+              "end": 358.443889188,
+              "seconds": 0.020942790999981753,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 254.341333558,
+              "end": 254.343867439,
+              "seconds": 0.002533881000005067,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 258.760655443,
+              "end": 258.76212939600003,
+              "seconds": 0.0014739530000156265,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.51997991900004,
+              "end": 412.52553666700004,
+              "seconds": 0.0055567480000036085,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.586888724,
+              "end": 412.586890211,
+              "seconds": 1.487000020006235e-06,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.58749833400003,
+              "end": 412.587498535,
+              "seconds": 2.009999775509641e-07,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "pop:NativeRemeshRun.inc:1634"
+            },
+            {
+              "phase": "transfer",
+              "start": 412.59323146300005,
+              "end": 412.593231697,
+              "seconds": 2.339999696232553e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            },
+            {
+              "phase": "transfer",
+              "start": 418.78702246800003,
+              "end": 418.787022615,
+              "seconds": 1.4699998018841143e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 324186947584
+      },
+      {
+        "event": 1,
+        "rank": 3,
+        "root_seconds": 418.986526695,
+        "unattributed_seconds": 9.436258770999778,
+        "attributed_seconds": 409.55026792400025,
+        "coverage": 0.9774783718096289,
+        "unattributed_by_phase": {
+          "preparation": 9.199065314999766,
+          "metric": 5.960000000193588e-07,
+          "construction": 0.1626280050000121,
+          "surface": 0.0,
+          "quality": 0.0689577540000013,
+          "final_proof": 0.005606345999999693,
+          "transfer": 7.550000002964907e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "3",
+          "ranks": "6",
+          "root_seconds": "418.98652669500001",
+          "sumexclusive": "418.98652669499381",
+          "unattributed": "9.4362587709997783",
+          "coverage": "0.97747837180962893",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+          "line": 860
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "50119",
+          "cells_after": "51202",
+          "metric_before": "636417",
+          "metric_after": "3848544",
+          "geometry_before": "9278",
+          "geometry_after": "111857",
+          "geometry_positive_cells": "7139",
+          "geometry_unit_cells": "6692",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "1384.5502133449886"
+        },
+        "partition_summary_sha256": "f7abdc53179e26a5df78099b3d316899a96c084038c61798a5d150d55154f5b1",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 50119,
+            "assignments_digest": 14210792631981650211,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 6
+          },
+          {
+            "site": "ownership",
+            "round": 0,
+            "cells": 166771,
+            "assignments_digest": 7417435797984698633,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 215
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "3",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "1",
+            "predicted_imbalance": "2.7351945771599597",
+            "predicted_gain": "5294993240.6770782",
+            "predicted_cost": "371825",
+            "demand_sum": "380031.89055242843",
+            "global_cells": "371825",
+            "measured": "371825",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "166771",
+            "owned_ratio": "2.6911208229677941",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 213
+          },
+          {
+            "rank": "3",
+            "quality": "0",
+            "committed": "1",
+            "moved_cells": "202212",
+            "total_seconds": "8.2088775619999979",
+            "partition_seconds": "2.0163253270000041",
+            "directory_build_seconds": "0.96365558699999998",
+            "work_before": "2419079",
+            "work_after": "989231",
+            "geometry_before": "245360",
+            "geometry_after": "210661",
+            "quality_debt_weight_before": "0",
+            "quality_debt_weight_after": "0",
+            "directory_peak_bytes": "2894010404",
+            "cells": "67812",
+            "transition_peak_bytes": "2894010404",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 219
+          },
+          {
+            "rank": "3",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6451419623664956",
+            "predicted_gain": "4564152.0720366146",
+            "predicted_cost": "376343",
+            "demand_sum": "384908.84214019787",
+            "global_cells": "376343",
+            "measured": "757363",
+            "attempts": "917",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69293",
+            "owned_ratio": "1.1047315879397253",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 292
+          },
+          {
+            "rank": "3",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "3.1047376391860899",
+            "predicted_gain": "116865.98447227431",
+            "predicted_cost": "378848",
+            "demand_sum": "379106.30011878628",
+            "global_cells": "378848",
+            "measured": "792142",
+            "attempts": "3685",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69831",
+            "owned_ratio": "1.1059475040121631",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 452
+          },
+          {
+            "rank": "3",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "5.7812577825189351",
+            "predicted_gain": "75699.766524082384",
+            "predicted_cost": "378946",
+            "demand_sum": "379023.11063063022",
+            "global_cells": "378946",
+            "measured": "793985",
+            "attempts": "3867",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69845",
+            "owned_ratio": "1.1058831601336339",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 659
+          }
+        ],
+        "engine": [
+          {
+            "seed": "11.450958502000001",
+            "atlas_arithmetic_work": "33714910",
+            "work_limit": "19414976",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "5853",
+            "prepared_facet_builds": "5853",
+            "prepared_facet_mean_bytes": "11149.095506577823",
+            "facet_misses": "130",
+            "facet_build_seconds": "0.087784544000001574",
+            "retention_refusals": "0",
+            "atlas_work": "3966005"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 9250,
+          "cert_hit": 2430,
+          "cert_miss": 6820,
+          "hit_step_c": 2430,
+          "hit_proof": 0,
+          "hit_commit": 0,
+          "records": 26522,
+          "bytes": 8160416,
+          "gather_seconds": 0.06107751,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 2430,
+          "skip_seconds": 5.168372320000006,
+          "predicted_coverage": 0.9771970884524107,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 0.20603100000000002,
+              "end": 7.427994045,
+              "seconds": 7.221963045,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 198.33396257500002,
+              "end": 199.00837207100003,
+              "seconds": 0.6744094960000098,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 408.185615921,
+              "end": 408.76562344700005,
+              "seconds": 0.5800075260000312,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "metric",
+              "start": 409.59011454200004,
+              "end": 409.590115104,
+              "seconds": 5.619999683403876e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 412.519976778,
+              "end": 412.51997681200004,
+              "seconds": 3.40000383403094e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 211.227830764,
+              "end": 211.251462664,
+              "seconds": 0.02363189999999804,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 226.754231545,
+              "end": 226.768887258,
+              "seconds": 0.01465571299999624,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 228.095390134,
+              "end": 228.10858883400002,
+              "seconds": 0.013198700000003782,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 358.422946895,
+              "end": 358.44463428,
+              "seconds": 0.021687385000006998,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 254.34133226100002,
+              "end": 254.34411802800003,
+              "seconds": 0.0027857670000059898,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 258.760653176,
+              "end": 258.76278891500004,
+              "seconds": 0.0021357390000389387,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.51997910200004,
+              "end": 412.525582878,
+              "seconds": 0.005603775999986738,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.58666469,
+              "end": 412.58666682,
+              "seconds": 2.1299999843904516e-06,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 399.24124059,
+              "end": 399.241240796,
+              "seconds": 2.0599998151737964e-07,
+              "open": "pop:EngineControl.cpp:28",
+              "close": "pop:EngineControl.cpp:27"
+            },
+            {
+              "phase": "transfer",
+              "start": 412.593107878,
+              "end": 412.59310833200004,
+              "seconds": 4.540000304587011e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            },
+            {
+              "phase": "transfer",
+              "start": 418.78743409400005,
+              "end": 418.78743439500005,
+              "seconds": 3.010000000358559e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 324186947584
+      },
+      {
+        "event": 1,
+        "rank": 4,
+        "root_seconds": 418.986591259,
+        "unattributed_seconds": 8.663587599000095,
+        "attributed_seconds": 410.3230036599999,
+        "coverage": 0.9793225182386693,
+        "unattributed_by_phase": {
+          "preparation": 8.5433658020001,
+          "metric": 1.786999999975336e-06,
+          "construction": 0.07734570899999393,
+          "surface": 0.0,
+          "quality": 0.03853857400000451,
+          "final_proof": 0.0043353249999957405,
+          "transfer": 4.020000003990276e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "4",
+          "ranks": "6",
+          "root_seconds": "418.98659125900002",
+          "sumexclusive": "418.9865912589965",
+          "unattributed": "8.6635875990000955",
+          "coverage": "0.97932251823866934",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+          "line": 805
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "54448",
+          "cells_after": "50531",
+          "metric_before": "2934766",
+          "metric_after": "3141919",
+          "geometry_before": "284979",
+          "geometry_after": "81667",
+          "geometry_positive_cells": "7460",
+          "geometry_unit_cells": "2903",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "1384.5502133449886"
+        },
+        "partition_summary_sha256": "3481de2a6b0bd86d8fd1c7165253a0829c07397efc9a8209a515d14d6fd4063d",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 54448,
+            "assignments_digest": 11204931005861243397,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 6
+          },
+          {
+            "site": "ownership",
+            "round": 0,
+            "cells": 31346,
+            "assignments_digest": 17918799573529500615,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 165
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "4",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "1",
+            "predicted_imbalance": "2.7351945771599597",
+            "predicted_gain": "5294993240.6770782",
+            "predicted_cost": "371825",
+            "demand_sum": "380031.89055242843",
+            "global_cells": "371825",
+            "measured": "371825",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "166771",
+            "owned_ratio": "2.6911208229677941",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 163
+          },
+          {
+            "rank": "4",
+            "quality": "0",
+            "committed": "1",
+            "moved_cells": "202212",
+            "total_seconds": "8.2088039469999785",
+            "partition_seconds": "2.0009630919999779",
+            "directory_build_seconds": "0.962271286",
+            "work_before": "439457",
+            "work_after": "911239",
+            "geometry_before": "172339",
+            "geometry_after": "250294",
+            "quality_debt_weight_before": "0",
+            "quality_debt_weight_after": "0",
+            "directory_peak_bytes": "1958023112",
+            "cells": "65021",
+            "transition_peak_bytes": "1958023112",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 169
+          },
+          {
+            "rank": "4",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6451419623664956",
+            "predicted_gain": "4564152.0720366146",
+            "predicted_cost": "376343",
+            "demand_sum": "384908.84214019787",
+            "global_cells": "376343",
+            "measured": "757363",
+            "attempts": "917",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69293",
+            "owned_ratio": "1.1047315879397253",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 241
+          },
+          {
+            "rank": "4",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "3.1047376391860899",
+            "predicted_gain": "116865.98447227431",
+            "predicted_cost": "378848",
+            "demand_sum": "379106.30011878628",
+            "global_cells": "378848",
+            "measured": "792142",
+            "attempts": "3685",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69831",
+            "owned_ratio": "1.1059475040121631",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 401
+          },
+          {
+            "rank": "4",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "5.7812577825189351",
+            "predicted_gain": "75699.766524082384",
+            "predicted_cost": "378946",
+            "demand_sum": "379023.11063063022",
+            "global_cells": "378946",
+            "measured": "793985",
+            "attempts": "3867",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69845",
+            "owned_ratio": "1.1058831601336339",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 607
+          }
+        ],
+        "engine": [
+          {
+            "seed": "11.896026874000134",
+            "atlas_arithmetic_work": "41481090",
+            "work_limit": "19414976",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "13711",
+            "prepared_facet_builds": "13711",
+            "prepared_facet_mean_bytes": "6899.7213915834",
+            "facet_misses": "260",
+            "facet_build_seconds": "0.060189008999994797",
+            "retention_refusals": "0",
+            "atlas_work": "4871737"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 2789,
+          "cert_hit": 1928,
+          "cert_miss": 861,
+          "hit_step_c": 1928,
+          "hit_proof": 0,
+          "hit_commit": 0,
+          "records": 26522,
+          "bytes": 8160416,
+          "gather_seconds": 0.058536876,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 1928,
+          "skip_seconds": 5.269158042000007,
+          "predicted_coverage": 0.9790591671914006,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 0.206028443,
+              "end": 7.427993853,
+              "seconds": 7.22196541,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 408.18529029200005,
+              "end": 408.76650364000005,
+              "seconds": 0.5812133480000057,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 0.0038209280000000003,
+              "end": 0.20601692000000002,
+              "seconds": 0.20219599200000002,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 409.59012569600003,
+              "end": 409.590127261,
+              "seconds": 1.5649999909328471e-06,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 412.523980251,
+              "end": 412.52398047300005,
+              "seconds": 2.2200003968464443e-07,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 226.75422901800002,
+              "end": 226.76847676000003,
+              "seconds": 0.014247742000009112,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 228.09538724100003,
+              "end": 228.10770645600002,
+              "seconds": 0.01231921499999089,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 353.929965099,
+              "end": 353.94227373900003,
+              "seconds": 0.012308640000014748,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 358.42294412900003,
+              "end": 358.44442878,
+              "seconds": 0.021484650999980204,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 265.84097200900004,
+              "end": 265.841629549,
+              "seconds": 0.0006575399999633191,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "quality",
+              "start": 261.877859146,
+              "end": 261.878425704,
+              "seconds": 0.0005665580000027148,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.52398415100004,
+              "end": 412.52831733100004,
+              "seconds": 0.004333180000003267,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.586858823,
+              "end": 412.58686045,
+              "seconds": 1.6270000173790322e-06,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 399.241234768,
+              "end": 399.241235016,
+              "seconds": 2.479999920979026e-07,
+              "open": "pop:EngineControl.cpp:28",
+              "close": "pop:EngineControl.cpp:27"
+            },
+            {
+              "phase": "transfer",
+              "start": 412.59308607900005,
+              "end": 412.59308628900004,
+              "seconds": 2.0999999605919584e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            },
+            {
+              "phase": "transfer",
+              "start": 418.785425179,
+              "end": 418.78542537100003,
+              "seconds": 1.9200001588615123e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 324186947584
+      },
+      {
+        "event": 1,
+        "rank": 5,
+        "root_seconds": 418.98652812600005,
+        "unattributed_seconds": 8.679359343000378,
+        "attributed_seconds": 410.30716878299967,
+        "coverage": 0.9792848725188837,
+        "unattributed_by_phase": {
+          "preparation": 8.535565795000362,
+          "metric": 9.399999996162478e-07,
+          "construction": 0.08009949400001308,
+          "surface": 0.0,
+          "quality": 0.0581712260000051,
+          "final_proof": 0.005521380999999187,
+          "transfer": 5.070000002049824e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "5",
+          "ranks": "6",
+          "root_seconds": "418.98652812600005",
+          "sumexclusive": "418.98652812598817",
+          "unattributed": "8.6793593430003781",
+          "coverage": "0.97928487251888374",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+          "line": 857
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "44005",
+          "cells_after": "45932",
+          "metric_before": "2297714",
+          "metric_after": "3599632",
+          "geometry_before": "266052",
+          "geometry_after": "128605",
+          "geometry_positive_cells": "7026",
+          "geometry_unit_cells": "1782",
+          "geometry_maximum_cells": "1",
+          "geometry_weight_scale": "1384.5502133449886"
+        },
+        "partition_summary_sha256": "35faa434e82053bcec7dc114b2abcfe39a9f7e89d1d34e873bf3621153076f25",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 44005,
+            "assignments_digest": 11042067360736591365,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 6
+          },
+          {
+            "site": "ownership",
+            "round": 0,
+            "cells": 26293,
+            "assignments_digest": 17057692859560537672,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 213
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "5",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "1",
+            "predicted_imbalance": "2.7351945771599597",
+            "predicted_gain": "5294993240.6770782",
+            "predicted_cost": "371825",
+            "demand_sum": "380031.89055242843",
+            "global_cells": "371825",
+            "measured": "371825",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "166771",
+            "owned_ratio": "2.6911208229677941",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 211
+          },
+          {
+            "rank": "5",
+            "quality": "0",
+            "committed": "1",
+            "moved_cells": "202212",
+            "total_seconds": "8.20905430199997",
+            "partition_seconds": "1.9995928499999991",
+            "directory_build_seconds": "0.96453349399999999",
+            "work_before": "368734",
+            "work_after": "847476",
+            "geometry_before": "425003",
+            "geometry_after": "255512",
+            "quality_debt_weight_before": "0",
+            "quality_debt_weight_after": "0",
+            "directory_peak_bytes": "1902021780",
+            "cells": "60534",
+            "transition_peak_bytes": "1902021780",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 217
+          },
+          {
+            "rank": "5",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6451419623664956",
+            "predicted_gain": "4564152.0720366146",
+            "predicted_cost": "376343",
+            "demand_sum": "384908.84214019787",
+            "global_cells": "376343",
+            "measured": "757363",
+            "attempts": "917",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69293",
+            "owned_ratio": "1.1047315879397253",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 290
+          },
+          {
+            "rank": "5",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "3.1047376391860899",
+            "predicted_gain": "116865.98447227431",
+            "predicted_cost": "378848",
+            "demand_sum": "379106.30011878628",
+            "global_cells": "378848",
+            "measured": "792142",
+            "attempts": "3685",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69831",
+            "owned_ratio": "1.1059475040121631",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 450
+          },
+          {
+            "rank": "5",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "5.7812577825189351",
+            "predicted_gain": "75699.766524082384",
+            "predicted_cost": "378946",
+            "demand_sum": "379023.11063063022",
+            "global_cells": "378946",
+            "measured": "793985",
+            "attempts": "3867",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "69845",
+            "owned_ratio": "1.1058831601336339",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 657
+          }
+        ],
+        "engine": [
+          {
+            "seed": "11.917079805000002",
+            "atlas_arithmetic_work": "103867259",
+            "work_limit": "19414976",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "19250",
+            "prepared_facet_builds": "19250",
+            "prepared_facet_mean_bytes": "6414.8978701298702",
+            "facet_misses": "471",
+            "facet_build_seconds": "0.039007735000001986",
+            "retention_refusals": "0",
+            "atlas_work": "6126797"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 3993,
+          "cert_hit": 2698,
+          "cert_miss": 1295,
+          "hit_step_c": 2698,
+          "hit_proof": 0,
+          "hit_commit": 0,
+          "records": 26522,
+          "bytes": 8160416,
+          "gather_seconds": 0.061132302000000006,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 2698,
+          "skip_seconds": 7.827635331000016,
+          "predicted_coverage": 0.978890498308332,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 0.20603110400000002,
+              "end": 7.427996923,
+              "seconds": 7.221965819,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 408.183091018,
+              "end": 408.76586595000003,
+              "seconds": 0.5827749320000066,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 0.003823658,
+              "end": 0.20601792700000002,
+              "seconds": 0.202194269,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 409.58991879800004,
+              "end": 409.589919698,
+              "seconds": 8.999999749903509e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 412.519975579,
+              "end": 412.51997561900004,
+              "seconds": 4.000003173132427e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 226.75423171300002,
+              "end": 226.767682936,
+              "seconds": 0.013451222999975698,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 353.92996763400004,
+              "end": 353.941783556,
+              "seconds": 0.011815921999982493,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 228.095389989,
+              "end": 228.106060872,
+              "seconds": 0.010670882999988862,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 358.422946984,
+              "end": 358.442546729,
+              "seconds": 0.019599744999993618,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 258.760652623,
+              "end": 258.762826967,
+              "seconds": 0.0021743440000250303,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 268.645533456,
+              "end": 268.64749234600004,
+              "seconds": 0.0019588900000258036,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.51997847900003,
+              "end": 412.525496002,
+              "seconds": 0.005517522999980429,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.58663347600003,
+              "end": 412.586636747,
+              "seconds": 3.270999968663091e-06,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 412.58749868200005,
+              "end": 412.58749910700004,
+              "seconds": 4.249999960848072e-07,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "pop:NativeRemeshRun.inc:1634"
+            },
+            {
+              "phase": "transfer",
+              "start": 418.78574320800004,
+              "end": 418.785743533,
+              "seconds": 3.249999735999154e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            },
+            {
+              "phase": "transfer",
+              "start": 412.593418045,
+              "end": 412.59341822700003,
+              "seconds": 1.8200000795332016e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 324186947584
+      },
+      {
+        "event": 2,
+        "rank": 0,
+        "root_seconds": 256.45640197700004,
+        "unattributed_seconds": 1.4930676919999937,
+        "attributed_seconds": 254.96333428500006,
+        "coverage": 0.9941780837581357,
+        "unattributed_by_phase": {
+          "preparation": 1.4319064499999932,
+          "metric": 4.860000002437914e-07,
+          "construction": 0.05527286000000969,
+          "surface": 0.0,
+          "quality": 0.0017868269999931734,
+          "final_proof": 0.004100330999997556,
+          "transfer": 7.379999997780828e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "0",
+          "ranks": "6",
+          "root_seconds": "256.45640197700004",
+          "sumexclusive": "256.45640197699885",
+          "unattributed": "1.4930676919999937",
+          "coverage": "0.99417808375813566",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+          "line": 1905
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "68692",
+          "cells_after": "69819",
+          "metric_before": "1078119",
+          "metric_after": "1794669",
+          "geometry_before": "2148",
+          "geometry_after": "56790",
+          "geometry_positive_cells": "2148",
+          "geometry_unit_cells": "2148",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "7169.2573001845021"
+        },
+        "partition_summary_sha256": "f728900b6a437cf82c63a1092226d6e31b4948a727172248d62cc688cfb7770a",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 68692,
+            "assignments_digest": 3811842046278967846,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 1460
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "0",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6576022174658187",
+            "predicted_gain": "122047501.89729021",
+            "predicted_cost": "358827",
+            "demand_sum": "359344.22619469604",
+            "global_cells": "358827",
+            "measured": "358827",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73969",
+            "owned_ratio": "1.2368467255808508",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 1603
+          },
+          {
+            "rank": "0",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.4247223033982443",
+            "predicted_gain": "545262.92055366933",
+            "predicted_cost": "359337",
+            "demand_sum": "359526.21987277298",
+            "global_cells": "359337",
+            "measured": "719184",
+            "attempts": "106",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73971",
+            "owned_ratio": "1.2351246879670059",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.0/stdout",
+            "line": 1656
+          }
+        ],
+        "engine": [
+          {
+            "seed": "81.812151771000003",
+            "atlas_arithmetic_work": "15168738",
+            "work_limit": "24253632",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "6295",
+            "prepared_facet_builds": "1778",
+            "prepared_facet_mean_bytes": "784",
+            "facet_misses": "158",
+            "facet_build_seconds": "0.0052122390000093333",
+            "retention_refusals": "0",
+            "atlas_work": "3602007"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 3334,
+          "cert_hit": 3071,
+          "cert_miss": 263,
+          "hit_step_c": 1235,
+          "hit_proof": 1698,
+          "hit_commit": 138,
+          "records": 21708,
+          "bytes": 6966544,
+          "gather_seconds": 0.059013932000000005,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 3071,
+          "skip_seconds": 6.417225466999997,
+          "predicted_coverage": 0.9940286649762652,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 245.71972968600002,
+              "end": 246.364453018,
+              "seconds": 0.6447233319999839,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 78.569489817,
+              "end": 78.81453909800001,
+              "seconds": 0.2450492810000071,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 76.356550213,
+              "end": 76.48520279200001,
+              "seconds": 0.12865257900000415,
+              "open": "pop:CNativeEngine3D.cpp:289",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 247.518783791,
+              "end": 247.51878423500003,
+              "seconds": 4.4400002252587e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 250.66868185700002,
+              "end": 250.668681899,
+              "seconds": 4.199998215881351e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 161.040281381,
+              "end": 161.060125542,
+              "seconds": 0.019844161000008853,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 162.378936833,
+              "end": 162.39638513100002,
+              "seconds": 0.017448298000005025,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 163.151188305,
+              "end": 163.166725761,
+              "seconds": 0.015537456000004113,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 240.44295998200002,
+              "end": 240.443215871,
+              "seconds": 0.00025588899998751913,
+              "open": "pop:EngineControl.cpp:27",
+              "close": "push:CNativeEngine3D.cpp:145"
+            },
+            {
+              "phase": "quality",
+              "start": 180.21517716000002,
+              "end": 180.21533318000002,
+              "seconds": 0.00015601999999148575,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "quality",
+              "start": 245.696724794,
+              "end": 245.69688049,
+              "seconds": 0.00015569600000731043,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:EngineControl.cpp:395"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.66868396400002,
+              "end": 250.672781207,
+              "seconds": 0.004097242999989703,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.73179988,
+              "end": 250.731802267,
+              "seconds": 2.386999994996586e-06,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.73283028600002,
+              "end": 250.73283075900002,
+              "seconds": 4.73000000056345e-07,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "pop:NativeRemeshRun.inc:1634"
+            },
+            {
+              "phase": "transfer",
+              "start": 256.235243551,
+              "end": 256.235244051,
+              "seconds": 4.999999987376214e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            },
+            {
+              "phase": "transfer",
+              "start": 250.73909714200002,
+              "end": 250.73909738,
+              "seconds": 2.379999841650715e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 403250528256
+      },
+      {
+        "event": 2,
+        "rank": 1,
+        "root_seconds": 256.454779196,
+        "unattributed_seconds": 1.3523571200000397,
+        "attributed_seconds": 255.10242207599995,
+        "coverage": 0.994726722877851,
+        "unattributed_by_phase": {
+          "preparation": 1.3012848080000472,
+          "metric": 3.1999999983156613e-07,
+          "construction": 0.04248325699999088,
+          "surface": 0.0,
+          "quality": 0.004174957000003822,
+          "final_proof": 0.004413176999997881,
+          "transfer": 6.009999999889715e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "1",
+          "ranks": "6",
+          "root_seconds": "256.454779196",
+          "sumexclusive": "256.45477919599813",
+          "unattributed": "1.3523571200000397",
+          "coverage": "0.99472672287785091",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+          "line": 1245
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "55273",
+          "cells_after": "57514",
+          "metric_before": "2743032",
+          "metric_after": "2261283",
+          "geometry_before": "9071",
+          "geometry_after": "71525",
+          "geometry_positive_cells": "4351",
+          "geometry_unit_cells": "3224",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "7169.2573001845021"
+        },
+        "partition_summary_sha256": "20ac7041e96e35b8cc363949c4e254c3000db3c6e805b0b20bafc9e98cc386ee",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 55273,
+            "assignments_digest": 1158838294372865829,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 870
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "1",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6576022174658187",
+            "predicted_gain": "122047501.89729021",
+            "predicted_cost": "358827",
+            "demand_sum": "359344.22619469604",
+            "global_cells": "358827",
+            "measured": "358827",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73969",
+            "owned_ratio": "1.2368467255808508",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 1006
+          },
+          {
+            "rank": "1",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.4247223033982443",
+            "predicted_gain": "545262.92055366933",
+            "predicted_cost": "359337",
+            "demand_sum": "359526.21987277298",
+            "global_cells": "359337",
+            "measured": "719184",
+            "attempts": "106",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73971",
+            "owned_ratio": "1.2351246879670059",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.1/stdout",
+            "line": 1059
+          }
+        ],
+        "engine": [
+          {
+            "seed": "81.889560126999982",
+            "atlas_arithmetic_work": "27819279",
+            "work_limit": "24253632",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "31038",
+            "prepared_facet_builds": "19490",
+            "prepared_facet_mean_bytes": "6876.3755772190871",
+            "facet_misses": "3655",
+            "facet_build_seconds": "4.4733926370000141",
+            "retention_refusals": "227",
+            "atlas_work": "12061587"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 3566,
+          "cert_hit": 3504,
+          "cert_miss": 62,
+          "hit_step_c": 1765,
+          "hit_proof": 1663,
+          "hit_commit": 76,
+          "records": 21708,
+          "bytes": 6966544,
+          "gather_seconds": 0.059715503,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 3504,
+          "skip_seconds": 23.150635710999985,
+          "predicted_coverage": 0.9942034586278704,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 245.71592386,
+              "end": 246.36337312100002,
+              "seconds": 0.6474492610000198,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 78.56961292700001,
+              "end": 78.699437851,
+              "seconds": 0.12982492399999046,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 76.356672966,
+              "end": 76.48420359400001,
+              "seconds": 0.12753062800000237,
+              "open": "pop:CNativeEngine3D.cpp:289",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 247.519044771,
+              "end": 247.51904504400002,
+              "seconds": 2.7300001192998025e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 250.668802728,
+              "end": 250.66880277500002,
+              "seconds": 4.7000014546938473e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 161.040404141,
+              "end": 161.05599811800002,
+              "seconds": 0.015593977000008863,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 162.379059582,
+              "end": 162.393591229,
+              "seconds": 0.014531647000012526,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 163.15131102400002,
+              "end": 163.161487093,
+              "seconds": 0.010176068999982135,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 178.91365486400002,
+              "end": 178.91517782900002,
+              "seconds": 0.0015229649999923822,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 180.215335344,
+              "end": 180.21585906800001,
+              "seconds": 0.000523724000004222,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "quality",
+              "start": 182.91427888500002,
+              "end": 182.914510156,
+              "seconds": 0.00023127099998987433,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.668805093,
+              "end": 250.67321719,
+              "seconds": 0.004412096999999449,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.73294865000003,
+              "end": 250.732949092,
+              "seconds": 4.419999868332525e-07,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "pop:NativeRemeshRun.inc:1634"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.73293549700003,
+              "end": 250.73293590300003,
+              "seconds": 4.0599999806545384e-07,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "transfer",
+              "start": 256.226944157,
+              "end": 256.226944559,
+              "seconds": 4.0200001194534707e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            },
+            {
+              "phase": "transfer",
+              "start": 250.739262889,
+              "end": 250.73926308800003,
+              "seconds": 1.9900002712347487e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 403250528256
+      },
+      {
+        "event": 2,
+        "rank": 2,
+        "root_seconds": 256.45478235,
+        "unattributed_seconds": 1.395372268000004,
+        "attributed_seconds": 255.059410082,
+        "coverage": 0.9945589929920057,
+        "unattributed_by_phase": {
+          "preparation": 1.333937572000007,
+          "metric": 5.050000000395016e-07,
+          "construction": 0.05345845199999784,
+          "surface": 0.0,
+          "quality": 0.003968107000000358,
+          "final_proof": 0.004006088999998866,
+          "transfer": 1.5429999997707e-06,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "2",
+          "ranks": "6",
+          "root_seconds": "256.45478235000002",
+          "sumexclusive": "256.45478234999814",
+          "unattributed": "1.395372268000004",
+          "coverage": "0.99455899299200567",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+          "line": 1261
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "64336",
+          "cells_after": "63289",
+          "metric_before": "1039353",
+          "metric_after": "1861716",
+          "geometry_before": "3531",
+          "geometry_after": "61649",
+          "geometry_positive_cells": "3531",
+          "geometry_unit_cells": "3531",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "7169.2573001845021"
+        },
+        "partition_summary_sha256": "07888ab1cf0395cdc49f06191dc512d7d11e8fb77e2dbbcac40c1c67c7d627a1",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 64336,
+            "assignments_digest": 4775813019722088160,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 883
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "2",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6576022174658187",
+            "predicted_gain": "122047501.89729021",
+            "predicted_cost": "358827",
+            "demand_sum": "359344.22619469604",
+            "global_cells": "358827",
+            "measured": "358827",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73969",
+            "owned_ratio": "1.2368467255808508",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 1021
+          },
+          {
+            "rank": "2",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.4247223033982443",
+            "predicted_gain": "545262.92055366933",
+            "predicted_cost": "359337",
+            "demand_sum": "359526.21987277298",
+            "global_cells": "359337",
+            "measured": "719184",
+            "attempts": "106",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73971",
+            "owned_ratio": "1.2351246879670059",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.2/stdout",
+            "line": 1074
+          }
+        ],
+        "engine": [
+          {
+            "seed": "81.838347558000009",
+            "atlas_arithmetic_work": "53745820",
+            "work_limit": "24253632",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "5271",
+            "prepared_facet_builds": "3881",
+            "prepared_facet_mean_bytes": "18148.2195310487",
+            "facet_misses": "636",
+            "facet_build_seconds": "1.6207266130000697",
+            "retention_refusals": "43",
+            "atlas_work": "8275553"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 4296,
+          "cert_hit": 4121,
+          "cert_miss": 175,
+          "hit_step_c": 1117,
+          "hit_proof": 2748,
+          "hit_commit": 256,
+          "records": 21708,
+          "bytes": 6966544,
+          "gather_seconds": 0.05959339600000001,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 4121,
+          "skip_seconds": 19.332564610999995,
+          "predicted_coverage": 0.9941153879155437,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 245.718113863,
+              "end": 246.363521721,
+              "seconds": 0.6454078579999987,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 78.56961635500001,
+              "end": 78.79202024300001,
+              "seconds": 0.22240388800000233,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 76.356676733,
+              "end": 76.479016963,
+              "seconds": 0.12234023000000604,
+              "open": "pop:CNativeEngine3D.cpp:289",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 247.518933612,
+              "end": 247.51893407900002,
+              "seconds": 4.6700000666533015e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 250.66880947200002,
+              "end": 250.66880951000002,
+              "seconds": 3.799999603870674e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 161.040407783,
+              "end": 161.05936987200002,
+              "seconds": 0.01896208900001284,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 162.37906334800002,
+              "end": 162.395808792,
+              "seconds": 0.016745443999980125,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 163.15131476000002,
+              "end": 163.166244097,
+              "seconds": 0.014929336999983889,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 178.913666828,
+              "end": 178.91516399100001,
+              "seconds": 0.0014971630000104597,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 180.215361277,
+              "end": 180.215687365,
+              "seconds": 0.00032608800000843985,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "quality",
+              "start": 184.248042386,
+              "end": 184.248211696,
+              "seconds": 0.00016930999998976404,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.668811395,
+              "end": 250.67281605300002,
+              "seconds": 0.0040046580000137055,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.732413919,
+              "end": 250.732415091,
+              "seconds": 1.1719999974957318e-06,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 240.44308451,
+              "end": 240.44308466500001,
+              "seconds": 1.5500000927204383e-07,
+              "open": "pop:EngineControl.cpp:28",
+              "close": "pop:EngineControl.cpp:27"
+            },
+            {
+              "phase": "transfer",
+              "start": 250.739218039,
+              "end": 250.739218899,
+              "seconds": 8.600000001024455e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            },
+            {
+              "phase": "transfer",
+              "start": 256.23314056600003,
+              "end": 256.233141249,
+              "seconds": 6.829999961155409e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 403250528256
+      },
+      {
+        "event": 2,
+        "rank": 3,
+        "root_seconds": 256.454802733,
+        "unattributed_seconds": 1.4621549810000334,
+        "attributed_seconds": 254.99264775199998,
+        "coverage": 0.994298586084495,
+        "unattributed_by_phase": {
+          "preparation": 1.4040343140000342,
+          "metric": 3.409999997927571e-07,
+          "construction": 0.05185131300000146,
+          "surface": 0.0,
+          "quality": 0.0021769669999976283,
+          "final_proof": 0.004091785000000021,
+          "transfer": 2.6100000027895476e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "3",
+          "ranks": "6",
+          "root_seconds": "256.45480273300001",
+          "sumexclusive": "256.4548027329991",
+          "unattributed": "1.4621549810000334",
+          "coverage": "0.99429858608449495",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+          "line": 1276
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "67610",
+          "cells_after": "64086",
+          "metric_before": "833893",
+          "metric_after": "1979308",
+          "geometry_before": "2488",
+          "geometry_after": "42353",
+          "geometry_positive_cells": "2488",
+          "geometry_unit_cells": "2488",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "7169.2573001845021"
+        },
+        "partition_summary_sha256": "397737ad8ec92f6cef73cf428f5fdfaaf182a652eab65c25b66380e328b9dc05",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 67610,
+            "assignments_digest": 17628429072041491270,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 875
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "3",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6576022174658187",
+            "predicted_gain": "122047501.89729021",
+            "predicted_cost": "358827",
+            "demand_sum": "359344.22619469604",
+            "global_cells": "358827",
+            "measured": "358827",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73969",
+            "owned_ratio": "1.2368467255808508",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 1037
+          },
+          {
+            "rank": "3",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.4247223033982443",
+            "predicted_gain": "545262.92055366933",
+            "predicted_cost": "359337",
+            "demand_sum": "359526.21987277298",
+            "global_cells": "359337",
+            "measured": "719184",
+            "attempts": "106",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73971",
+            "owned_ratio": "1.2351246879670059",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.3/stdout",
+            "line": 1090
+          }
+        ],
+        "engine": [
+          {
+            "seed": "81.82730861600001",
+            "atlas_arithmetic_work": "12980526",
+            "work_limit": "24253632",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "9860",
+            "prepared_facet_builds": "8215",
+            "prepared_facet_mean_bytes": "1941.5839318320145",
+            "facet_misses": "1260",
+            "facet_build_seconds": "0.80840947299999044",
+            "retention_refusals": "0",
+            "atlas_work": "4230038"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 3847,
+          "cert_hit": 3332,
+          "cert_miss": 515,
+          "hit_step_c": 1138,
+          "hit_proof": 2129,
+          "hit_commit": 65,
+          "records": 21708,
+          "bytes": 6966544,
+          "gather_seconds": 0.059674933000000006,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 3332,
+          "skip_seconds": 7.948909209000007,
+          "predicted_coverage": 0.994116216077351,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 245.717862295,
+              "end": 246.36255076700002,
+              "seconds": 0.6446884720000128,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 78.56961585,
+              "end": 78.79364503100001,
+              "seconds": 0.2240291810000059,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 76.35667609100001,
+              "end": 76.4804409,
+              "seconds": 0.12376480899999365,
+              "open": "pop:CNativeEngine3D.cpp:289",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 247.519108751,
+              "end": 247.519109041,
+              "seconds": 2.900000026784255e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 250.668809731,
+              "end": 250.668809782,
+              "seconds": 5.100000066704524e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 161.040407205,
+              "end": 161.058916095,
+              "seconds": 0.01850888999999256,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 162.379062674,
+              "end": 162.395307839,
+              "seconds": 0.016245164999986628,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 163.15131412800002,
+              "end": 163.16493617900002,
+              "seconds": 0.013622050999998692,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 178.913662738,
+              "end": 178.91444190800001,
+              "seconds": 0.0007791700000154833,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 245.696889864,
+              "end": 245.69707856800002,
+              "seconds": 0.0001887040000099205,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:EngineControl.cpp:395"
+            },
+            {
+              "phase": "quality",
+              "start": 184.24797752900002,
+              "end": 184.248065365,
+              "seconds": 8.783599997741476e-05,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.668811927,
+              "end": 250.67290261500003,
+              "seconds": 0.004090688000019327,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.732579431,
+              "end": 250.73258013900002,
+              "seconds": 7.080000159476185e-07,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.732953401,
+              "end": 250.732953661,
+              "seconds": 2.6000000730164174e-07,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "pop:NativeRemeshRun.inc:1634"
+            },
+            {
+              "phase": "transfer",
+              "start": 256.23178902,
+              "end": 256.23178923,
+              "seconds": 2.0999999605919584e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            },
+            {
+              "phase": "transfer",
+              "start": 250.73921662600003,
+              "end": 250.739216677,
+              "seconds": 5.099997224533581e-08,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 403250528256
+      },
+      {
+        "event": 2,
+        "rank": 4,
+        "root_seconds": 256.455445653,
+        "unattributed_seconds": 1.4999514109999779,
+        "attributed_seconds": 254.95549424200004,
+        "coverage": 0.9941512202746144,
+        "unattributed_by_phase": {
+          "preparation": 1.418765243999983,
+          "metric": 6.660000000380251e-07,
+          "construction": 0.07293699599998948,
+          "surface": 0.0,
+          "quality": 0.0040310610000058415,
+          "final_proof": 0.004217000000000179,
+          "transfer": 4.439999994332311e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "4",
+          "ranks": "6",
+          "root_seconds": "256.45544565300003",
+          "sumexclusive": "256.45544565300003",
+          "unattributed": "1.4999514109999779",
+          "coverage": "0.99415122027461444",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+          "line": 1207
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "61825",
+          "cells_after": "63855",
+          "metric_before": "3479190",
+          "metric_after": "2247100",
+          "geometry_before": "124539",
+          "geometry_after": "70215",
+          "geometry_positive_cells": "5936",
+          "geometry_unit_cells": "1497",
+          "geometry_maximum_cells": "0",
+          "geometry_weight_scale": "7169.2573001845021"
+        },
+        "partition_summary_sha256": "a337dad18d0a5f9c5e668ce2999d55592e0269849508afb6f0dd8caf4e3d5d13",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 61825,
+            "assignments_digest": 190274277786855236,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 820
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "4",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6576022174658187",
+            "predicted_gain": "122047501.89729021",
+            "predicted_cost": "358827",
+            "demand_sum": "359344.22619469604",
+            "global_cells": "358827",
+            "measured": "358827",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73969",
+            "owned_ratio": "1.2368467255808508",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 968
+          },
+          {
+            "rank": "4",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.4247223033982443",
+            "predicted_gain": "545262.92055366933",
+            "predicted_cost": "359337",
+            "demand_sum": "359526.21987277298",
+            "global_cells": "359337",
+            "measured": "719184",
+            "attempts": "106",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73971",
+            "owned_ratio": "1.2351246879670059",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.4/stdout",
+            "line": 1021
+          }
+        ],
+        "engine": [
+          {
+            "seed": "81.81628105499999",
+            "atlas_arithmetic_work": "17151421",
+            "work_limit": "24253632",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "13062",
+            "prepared_facet_builds": "261",
+            "prepared_facet_mean_bytes": "784",
+            "facet_misses": "61",
+            "facet_build_seconds": "0.002146483000000643",
+            "retention_refusals": "0",
+            "atlas_work": "5830171"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 3481,
+          "cert_hit": 2909,
+          "cert_miss": 572,
+          "hit_step_c": 1390,
+          "hit_proof": 1492,
+          "hit_commit": 27,
+          "records": 21708,
+          "bytes": 6966544,
+          "gather_seconds": 0.058054059000000005,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 2909,
+          "skip_seconds": 9.054735476000001,
+          "predicted_coverage": 0.9939371580221946,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 245.721130364,
+              "end": 246.36351990100002,
+              "seconds": 0.6423895370000139,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 78.569614399,
+              "end": 78.80945080100001,
+              "seconds": 0.23983640200000877,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 76.356675033,
+              "end": 76.481673586,
+              "seconds": 0.12499855299999751,
+              "open": "pop:CNativeEngine3D.cpp:289",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 247.519143966,
+              "end": 247.51914459300002,
+              "seconds": 6.270000199037895e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 250.66880536200003,
+              "end": 250.66880540100001,
+              "seconds": 3.8999985463306075e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 161.040406141,
+              "end": 161.060017582,
+              "seconds": 0.01961144099999501,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 162.379061586,
+              "end": 162.396677906,
+              "seconds": 0.017616320000001906,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 163.15131303,
+              "end": 163.166712393,
+              "seconds": 0.015399363000000221,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 178.913655412,
+              "end": 178.915166676,
+              "seconds": 0.0015112640000154443,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 182.790200959,
+              "end": 182.79075090400002,
+              "seconds": 0.0005499450000172601,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "quality",
+              "start": 180.21533341100002,
+              "end": 180.21561530900001,
+              "seconds": 0.0002818979999972271,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.668807269,
+              "end": 250.67301823500003,
+              "seconds": 0.0042109660000164695,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.731077045,
+              "end": 250.731081562,
+              "seconds": 4.517000007808747e-06,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.73295239400002,
+              "end": 250.732953823,
+              "seconds": 1.4289999796801567e-06,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "pop:NativeRemeshRun.inc:1634"
+            },
+            {
+              "phase": "transfer",
+              "start": 256.23374198,
+              "end": 256.233742332,
+              "seconds": 3.520000291246106e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            },
+            {
+              "phase": "transfer",
+              "start": 250.73931913200002,
+              "end": 250.739319224,
+              "seconds": 9.199999340125942e-08,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 403250528256
+      },
+      {
+        "event": 2,
+        "rank": 5,
+        "root_seconds": 256.456003714,
+        "unattributed_seconds": 1.313406166999894,
+        "attributed_seconds": 255.14259754700012,
+        "coverage": 0.9948786296753473,
+        "unattributed_by_phase": {
+          "preparation": 1.2586301449998991,
+          "metric": 1.7699999999010174e-07,
+          "construction": 0.04787951799999549,
+          "surface": 0.0,
+          "quality": 0.002327869999998942,
+          "final_proof": 0.004568147000000515,
+          "transfer": 3.0999999989234084e-07,
+          "output": 0.0
+        },
+        "timer": {
+          "root": "remesh",
+          "boundary": "final",
+          "rank": "5",
+          "ranks": "6",
+          "root_seconds": "256.45600371400002",
+          "sumexclusive": "256.45600371400792",
+          "unattributed": "1.313406166999894",
+          "coverage": "0.99487862967534735",
+          "fixedstorage": "4120",
+          "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+          "line": 1249
+        },
+        "event_partition_weights": {
+          "parts": "6",
+          "uniform_routing_weights": "0",
+          "cells_before": "61227",
+          "cells_after": "60400",
+          "metric_before": "3034887",
+          "metric_after": "2064398",
+          "geometry_before": "231552",
+          "geometry_after": "70797",
+          "geometry_positive_cells": "7826",
+          "geometry_unit_cells": "1323",
+          "geometry_maximum_cells": "1",
+          "geometry_weight_scale": "7169.2573001845021"
+        },
+        "partition_summary_sha256": "93e2253347401ee3be999907ce389ed53b98eeec16366e8337baca6de4f17342",
+        "partition_assignments": [
+          {
+            "site": "initial",
+            "round": null,
+            "cells": 61227,
+            "assignments_digest": 2316749896110589607,
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 872
+          }
+        ],
+        "ownership": [
+          {
+            "rank": "5",
+            "quality": "0",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.6576022174658187",
+            "predicted_gain": "122047501.89729021",
+            "predicted_cost": "358827",
+            "demand_sum": "359344.22619469604",
+            "global_cells": "358827",
+            "measured": "358827",
+            "attempts": "0",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73969",
+            "owned_ratio": "1.2368467255808508",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 1010
+          },
+          {
+            "rank": "5",
+            "quality": "1",
+            "evaluate": "1",
+            "migrate": "0",
+            "predicted_imbalance": "1.4247223033982443",
+            "predicted_gain": "545262.92055366933",
+            "predicted_cost": "359337",
+            "demand_sum": "359526.21987277298",
+            "global_cells": "359337",
+            "measured": "719184",
+            "attempts": "106",
+            "uncertainty_factor": "2",
+            "policy": "cells",
+            "max_owned_cells": "73971",
+            "owned_ratio": "1.2351246879670059",
+            "file": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/trial1/full682_run1/rank_output/1/rank.5/stdout",
+            "line": 1063
+          }
+        ],
+        "engine": [
+          {
+            "seed": "81.875930445999984",
+            "atlas_arithmetic_work": "28351578",
+            "work_limit": "24253632",
+            "atlas_work_limit": null
+          }
+        ],
+        "seed_facet_pool": [
+          {
+            "distinct_facets": "28750",
+            "prepared_facet_builds": "63212",
+            "prepared_facet_mean_bytes": "10340.067708662913",
+            "facet_misses": "43576",
+            "facet_build_seconds": "56.35455248500076",
+            "retention_refusals": "1256",
+            "atlas_work": "14174408"
+          }
+        ],
+        "certificates": {
+          "workers": 6,
+          "eligible_stages": 1,
+          "stage": 0,
+          "reader_calls": 3220,
+          "cert_hit": 3158,
+          "cert_miss": 62,
+          "hit_step_c": 1374,
+          "hit_proof": 1724,
+          "hit_commit": 60,
+          "records": 21708,
+          "bytes": 6966544,
+          "gather_seconds": 0.05906596100000001,
+          "cert_disagree": 0,
+          "disagree_finite": 0,
+          "disagree_nonfinite": 0,
+          "skip_calls": 3158,
+          "skip_seconds": 79.43934160800029,
+          "predicted_coverage": 0.9925803246351272,
+          "spans": [
+            {
+              "phase": "preparation",
+              "start": 245.717966159,
+              "end": 246.363510388,
+              "seconds": 0.6455442289999951,
+              "open": "pop:EngineAdapt.cpp:372",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "preparation",
+              "start": 78.56960625,
+              "end": 78.705465931,
+              "seconds": 0.13585968099999945,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "preparation",
+              "start": 76.356666847,
+              "end": 76.481701118,
+              "seconds": 0.12503427100000408,
+              "open": "pop:CNativeEngine3D.cpp:289",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "metric",
+              "start": 247.51915821900002,
+              "end": 247.51915835600002,
+              "seconds": 1.370000006772898e-07,
+              "open": "push:CNativeImport3D.cpp:1975",
+              "close": "push:CNativeImport3D.cpp:1976"
+            },
+            {
+              "phase": "metric",
+              "start": 250.66879757400002,
+              "end": 250.66879761400003,
+              "seconds": 4.000000330961484e-08,
+              "open": "pop:CNativeImport3D.cpp:1976",
+              "close": "pop:CNativeImport3D.cpp:1975"
+            },
+            {
+              "phase": "construction",
+              "start": 161.040397947,
+              "end": 161.05841361900002,
+              "seconds": 0.018015672000018412,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 162.37905344700002,
+              "end": 162.39486900600002,
+              "seconds": 0.015815559000003532,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "construction",
+              "start": 163.151304898,
+              "end": 163.163147618,
+              "seconds": 0.011842720000004192,
+              "open": "pop:CNativeDistributed2D.hpp:203",
+              "close": "push:CNativeRuntimeProfile3D.hpp:49"
+            },
+            {
+              "phase": "quality",
+              "start": 245.69688080600002,
+              "end": 245.69727279000003,
+              "seconds": 0.0003919840000037311,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "push:EngineControl.cpp:395"
+            },
+            {
+              "phase": "quality",
+              "start": 180.21534887700003,
+              "end": 180.21568039800002,
+              "seconds": 0.0003315209999925628,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "quality",
+              "start": 184.248190313,
+              "end": 184.24835547,
+              "seconds": 0.00016515699999786193,
+              "open": "pop:EngineCommit.cpp:697",
+              "close": "pop:EngineAdapt.cpp:372"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.668800244,
+              "end": 250.673365579,
+              "seconds": 0.00456533499999523,
+              "open": "push:NativeRemeshRun.inc:1634",
+              "close": "push:CNativeGeometryCertificates3D.hpp:198"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.732438741,
+              "end": 250.73244121800002,
+              "seconds": 2.4770000095486466e-06,
+              "open": "pop:CNativeGeometryCertificates3D.hpp:198",
+              "close": "push:CNativeDistributed2D.hpp:92"
+            },
+            {
+              "phase": "final_proof",
+              "start": 250.73294656700003,
+              "end": 250.73294676700002,
+              "seconds": 1.9999998812636477e-07,
+              "open": "pop:CNativeDistributed2D.hpp:92",
+              "close": "pop:NativeRemeshRun.inc:1634"
+            },
+            {
+              "phase": "transfer",
+              "start": 250.739326661,
+              "end": 250.73932682100002,
+              "seconds": 1.6000001323845936e-07,
+              "open": "push:CNativeImport3D.cpp:2086",
+              "close": "push:CNativeImport3D.cpp:2087"
+            },
+            {
+              "phase": "transfer",
+              "start": 256.229222429,
+              "end": 256.229222579,
+              "seconds": 1.500000053056283e-07,
+              "open": "pop:CNativeImport3D.cpp:2087",
+              "close": "pop:CNativeImport3D.cpp:2086"
+            }
+          ],
+          "disagreements": []
+        },
+        "atlas_work_limit": 403250528256
+      }
+    ],
+    "minimum_predicted_coverage": 0.9771970884524107,
+    "repeat_required": false,
+    "below_96_percent": []
+  },
+  "repeat": null,
+  "build": 682,
+  "binary_sha256": "8977ef1375dd4a6be5b3ca87a4b549997040d79a6ba7ec041685db9ce4331d07",
+  "test_binary_sha256": "d0f777550290b894603d4a86f1906757dce4b9a0d3e6c43bc48db92d399309c1",
+  "source_pins_sha256": "62d80ca5a635a391ac4290c445472d66b7d4c00efdbc9b8d6ebbd0b6bef051b1",
+  "status": "passed",
+  "passed": true,
+  "minimum_predicted_coverage": 0.9771970884524107,
+  "pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/controls/build682/step1_scoped.json": "38c6514b8f4da783a669337cf4bf32d3b75ab56910175042cf00a6c3febda4e6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/G5/build682/count/case_summary.json": "371dccb17d32e5b570c61a5248835343d7d706de06d0be806158e6646f7b8e94",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/reports/source_check.md": "743ce3a1251f1fc090fdd2015551a975950a5c2a34f0243e61dbd053e3987355",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/report_sc1.py": "e99c21eea31257a9e435967830f93efc5bec29ca6139f7e525af01ff9c3a6170",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/collect_sc1.py": "283f485ddcf46f61cd676555a8a3fffe55a113a5a62feaa69279d073069e076b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/SC1/build682/build_status.json": "2f9798e5af3ffc649dc61bb7d24f9128a69e86dee5656105a8957972ad5ca788"
+  }
+}
