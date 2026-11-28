@@ -409,6 +409,7 @@ class Mesh {
                                   const SurfaceEdgeSet& refused,
                                   const SurfaceEdgeSet& border, const SurfaceErrors& errors, double floor,
                                   size_t face_count, bool check_first, PassStats& stats) const;
+  double SurfaceChordLimit(Edge edge, Slot seed, const SurfaceGeometry& geometry, double strict) const;
   DistanceChoice ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
                                     const SurfaceChords& chords, const SurfaceEdgeSet& refused,
                                     const SurfaceEdgeSet& border, const SurfaceErrors& errors, size_t face_count,

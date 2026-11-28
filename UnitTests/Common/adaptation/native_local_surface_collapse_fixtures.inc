@@ -912,3 +912,50 @@ TEST_CASE("Step C exchanges cross-pass and local cancellations and builds with r
     CHECK(CensusWithinTolerance(*state, face->second) == (answer.back() != 0));
   }
 }
+
+namespace {
+class MarkerCollapseFixture final : public FlatGeometry {
+ public:
+  using FlatGeometry::Tolerance;
+  MarkerCollapseFixture(const Owned& rows, bool loose) : FlatGeometry(rows), loose_(loose) {}
+
+  double Tolerance() const override { return 1e-4; }
+  double Tolerance(Id) const override { return loose_ ? .02 : Tolerance(); }
+  unsigned Dimension(Id) const override { return 2; }
+  local::SurfaceSamples Samples(const SurfaceFace&) override { return {{.005, 0, 0, 0}, 0}; }
+  bool OnEntityFace(const SurfaceFace&) const override { return true; }
+  bool WithinTolerance(const SurfaceFace&) override { return true; }
+  void Remove(Id id) override { removed = id; }
+
+  std::optional<Id> removed;
+
+ private:
+  bool loose_;
+};
+}  // namespace
+
+TEST_CASE("TOL1 in-range child-fan samples reach the step-C whole-face classifier", "[.][TOL1]") {
+  const auto rows = S33();
+  constexpr Edge ends{GridId(1, 1, 0), GridId(2, 1, 0)};
+  for (const bool loose : {false, true}) {
+    CAPTURE(loose);
+    local::Mesh mesh(rows);
+    MarkerCollapseFixture geometry(rows, loose);
+    const auto [edge, seed] = C2Edge(mesh, ends);
+    local::SurfaceCounters stats;
+    const auto before = Snapshot(mesh);
+    const auto result = mesh.CollapseSurface(edge, seed, geometry, 2, stats, true);
+    if (loose) {
+      REQUIRE(result == C2Refusal::None);
+      CHECK(stats.c_bound_queries == 4);
+      REQUIRE(geometry.removed);
+      CHECK(std::find(ends.begin(), ends.end(), *geometry.removed) != ends.end());
+    } else {
+      CHECK(result == C2Refusal::Distance);
+      CHECK(stats.c_bound_queries == 0);
+      CHECK_FALSE(geometry.removed);
+      CHECK(Snapshot(mesh) == before);
+    }
+    REQUIRE_NOTHROW(mesh.Check());
+  }
+}

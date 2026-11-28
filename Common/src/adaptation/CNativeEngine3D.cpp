@@ -22,6 +22,7 @@
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+#include "../../include/adaptation/CNativeMarkerTolerance3D.hpp"
 #include "native_engine3d/EngineQualityStall.hpp"
 #include <cassert>
 #include <chrono>
@@ -109,7 +110,8 @@ struct FinalProofReport {
 };
 
 const BoundaryParameterState::Certificates& ProveSharedModel(World& world, const BoundaryParameterState& state,
-    SU2NativeGeometry::AtlasBudget& budget, const std::vector<double>& bounds, FinalProofReport* report) {
+    SU2NativeGeometry::AtlasBudget& budget, const std::vector<double>& bounds, FinalProofReport* report,
+    BoundaryParameterState::Certificates* complete_proof) {
   std::vector<ModelShareBound> share;
   CLocalFailure failure;
   const auto start = report ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point{};
@@ -130,7 +132,12 @@ const BoundaryParameterState::Certificates& ProveSharedModel(World& world, const
     entity.model_to_mesh = world.reduce(entity.model_to_mesh, CPassiveComm::Op::MAX);
     entity.outside = world.reduce(int(entity.outside), CPassiveComm::Op::MAX) != 0;
   }
-  return state.AdoptModelProof(bounds, share);
+  return state.AdoptModelProof(bounds, share, complete_proof);
+}
+
+const BoundaryParameterState::Certificates& ProveSharedModel(World& world, const BoundaryParameterState& state,
+    SU2NativeGeometry::AtlasBudget& budget, const std::vector<double>& bounds, FinalProofReport* report) {
+  return ProveSharedModel(world, state, budget, bounds, report, nullptr);
 }
 
 namespace {
@@ -220,11 +227,17 @@ struct D9QueryScope {
   }
 };
 
+GeometryGuidance EngineGeometryGuidance(
+    const Patch& patch, const PlanarReference& geometry, double tolerance,
+    long double reject_above = std::numeric_limits<long double>::infinity(), GeometryGuidanceMemo* memo = nullptr) {
+  return GeometryGuidanceExcess(patch, geometry, tolerance, reject_above, memo, true);
+}
+
 // M27 attributes the existing exact checks to the patch being measured.
 template <class... Arguments>
 GeometryGuidance GuidanceOf(SU2NativeD9::Part part, Arguments&&... arguments) {
   SU2NativeD9::PartScope scope(part);
-  return GeometryGuidanceExcess(std::forward<Arguments>(arguments)...);
+  return EngineGeometryGuidance(std::forward<Arguments>(arguments)...);
 }
 
 // A successful separation is only a necessary geometry-error rejection, never admission.
@@ -367,6 +380,8 @@ std::vector<double> ProveOwnedFaceReverse(World& world, const Owned& working, co
   return bounds;
 }
 
+void PrintFinalProof(const FinalProofReport& report, int rank, double tolerance);
+
 FinalProofReport ProveOwnedSurface(World& world, const Owned& working, const PlanarReference& geometry,
     SU2NativeGeometry::AtlasBudget& budget, EngineStats& stats, bool timings) {
   using Clock = std::chrono::steady_clock;
@@ -382,21 +397,44 @@ FinalProofReport ProveOwnedSurface(World& world, const Owned& working, const Pla
     report.reference_facets = state.Geometry().Reference().Facets().size();
     report.reverse_seconds = std::chrono::duration<double>(Clock::now() - start).count();
   }
+  std::optional<ProofStorage> complete_storage;
+  std::optional<BoundaryParameterState::Certificates> complete_proof;
+  if (active_marker_tolerance) {
+    CLocalFailure failure;
+    try {
+      using Certificate = BoundaryParameterState::Certificates::value_type;
+      complete_storage.emplace(budget, transfer_memory::Mul(state.Geometry().Reference().Facets().size(),
+                                                            sizeof(Certificate) + 4 * sizeof(void*)));
+      complete_proof.emplace();
+    } catch (const std::exception& error) {
+      failure.Set(2, 0, error.what());
+    }
+    const auto elected = world.elect(failure);
+    if (elected.any) throw std::runtime_error(elected.message);
+  }
+  auto* proof = complete_proof ? &*complete_proof : nullptr;
   const auto forward = timings && !shared ? Clock::now() : Clock::time_point{};
   const size_t work = timings && !shared ? budget.work : 0;
-  const auto& certificates = shared ? ProveSharedModel(world, state, budget, bounds, timings ? &report : nullptr)
-                                    : state.GeometryCertificates(budget, true, &bounds);
-  for (const auto& row : certificates)
-    if (!row.second.within_tolerance)
-      throw std::runtime_error("Complete working surface does not meet the prescribed two-sided geometry tolerance.");
-  if (timings) {
+  const auto& certificates = shared ? ProveSharedModel(world, state, budget, bounds, timings ? &report : nullptr, proof)
+                                    : state.GeometryCertificates(budget, true, &bounds, proof);
+  auto finish_report = [&] {
     report.certificates = &certificates;
     if (!shared) {
       report.own_roots = report.reference_facets;
       report.share_seconds = std::chrono::duration<double>(Clock::now() - forward).count();
       report.share_work = budget.work - work;
     }
+  };
+  if (timings && proof) {
+    // Preserve completed entity bounds even when the subsequent geometry vote rejects the candidate.
+    finish_report();
+    PrintFinalProof(report, world.rank, state.GeometryTolerance());
+    report.certificates = nullptr;
   }
+  for (const auto& row : certificates)
+    if (!row.second.within_tolerance)
+      throw std::runtime_error("Complete working surface does not meet the prescribed two-sided geometry tolerance.");
+  if (timings && !proof) finish_report();
   return report;
 }
 
@@ -413,7 +451,8 @@ void PrintFinalProof(const FinalProofReport& report, int rank, double tolerance)
                          " tolerance=%.17g within=%d\n",
                  static_cast<unsigned long long>(std::get<0>(row.first)),
                  static_cast<unsigned long long>(std::get<1>(row.first)), std::get<2>(row.first), bound.physical_pieces,
-                 bound.mesh_to_model, bound.model_to_mesh, tolerance, int(bound.within_tolerance));
+                 bound.mesh_to_model, bound.model_to_mesh, MarkerTolerance(std::get<2>(row.first), tolerance),
+                 int(bound.within_tolerance));
   }
 }
 /*! Report the ownership spike with live payload sizes; this is not a memory admission model. */
@@ -766,6 +805,45 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   return EngineRun{context, atlas_budget, no_coverage}.Run();
 }
 }  // namespace
+
+std::pair<size_t, size_t> GeometryCounts(const Patch& patch, const PlanarReference& geometry,
+                                         double strict_tolerance, SU2NativeGeometry::AtlasBudget& atlas_budget,
+                                         uint64_t& measured_faces, std::set<Edge>* failed_edges) {
+  auto parameters = geometry.PrivateParameters(patch);
+  const auto& reference = parameters ? *parameters : geometry;
+  std::map<Face, Id> facets;
+  for (const auto& face : patch.surface) facets.emplace(Key(face.v), face.facet);
+  std::pair<size_t, size_t> counts{};
+  for (const auto& cell : patch.cells) {
+    atlas_budget.CheckTime();
+    bool bad = false;
+    for (const auto& face : Faces(cell)) {
+      const auto found = facets.find(Key(face));
+      if (found == facets.end()) continue;
+      std::array<Point, 3> triangle;
+      for (unsigned k = 0; k < 3; ++k)
+        for (auto n : cell.v)
+          if (n.id == face[k]) triangle[k] = n.p;
+      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit,
+                                             commit_cert::active && !failed_edges);
+      const auto error =
+          reference.SurfaceDeviation(found->second, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker());
+      ++measured_faces;
+      if (!std::isfinite(error)) throw std::runtime_error("Native3D coupled repair lacks a complete face certificate.");
+      if (error <= FaceTolerance(reference, found->second, strict_tolerance)) continue;
+      bad = true;
+      ++counts.second;
+      if (failed_edges)
+        for (unsigned k = 0; k < 3; ++k) {
+          Edge edge{face[k], face[(k + 1) % 3]};
+          std::sort(edge.begin(), edge.end());
+          failed_edges->insert(edge);
+        }
+    }
+    counts.first += bad;
+  }
+  return counts;
+}
 bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,const PlanarReference& geometry,
                                 double tolerance,const WallHeights& heights) {
   if(heights.empty() && geometry.ExtensionComponents().empty())return false;
@@ -793,7 +871,9 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
     }
     // Remapped faces need complete-cavity admission, not a global enclosure inside a selection shortcut.
     if(direct && geometry.Declared(geometry.Canonical(face.facet)) &&
-        geometry.SurfaceDeviation(face.facet,points,SU2NativeGeometry::SurfaceQueryNeed::Classify())>tolerance)return true;
+        geometry.SurfaceDeviation(face.facet, points, SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker()) >
+            FaceTolerance(geometry, face.facet, tolerance))
+      return true;
   }
   FirstHeightReport report;std::string reason;
   if(heights.empty() || CheckFirstHeight(patch,heights,geometry,report,reason))return false;

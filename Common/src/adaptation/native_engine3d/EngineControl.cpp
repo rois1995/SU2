@@ -38,7 +38,7 @@ void EngineControl::ProveEntitySurface(EngineContext& context, Owned& working,
     if (!context.exchange.Vote(context, geometryFailure)) {
       result.valid = result.surface_prepared = false;
       stats.stop = EngineStop::Failure;
-    } else if (options.timings) {
+    } else if (options.timings && !active_marker_tolerance) {
       proof_scope.reset();
       proof_phase.reset();
       PrintFinalProof(proof, world.rank, geometry.Parameters()->GeometryTolerance());
@@ -68,8 +68,8 @@ void EngineControl::ProvePreparedSurface(EngineContext& context, Owned& working)
           for (unsigned k = 0; k < 3; ++k)
             for (const auto& node : row.second.cell.v)
               if (node.id == face.v[k]) triangle[k] = node.p;
-          if (geometry.SurfaceDeviation(face.facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify()) >
-              options.surface_tolerance)
+          if (geometry.SurfaceDeviation(face.facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker()) >
+              FaceTolerance(geometry, face.facet, options.surface_tolerance))
             geometryFailure.Set(1, face.facet, "Prepared surface does not meet the prescribed geometry tolerance.");
         }
       }

@@ -974,3 +974,143 @@ TEST_CASE("Entity collapse precheck defers remapped faces to the complete curved
   }
   CHECK(survivors==2);CHECK(budget.work==measured_work);CHECK_FALSE(budget.work_exhausted);CHECK(state->Snapshot()==snapshot);
 }
+
+#include "../../../Common/include/adaptation/CNativeGeometryCertificates3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMarkerTolerance3D.hpp"
+
+namespace {
+constexpr double MarkerTrialStrict = 1e-4, MarkerTrialLoose = .05;
+
+struct MarkerPyramidFixture {
+  explicit MarkerPyramidFixture(const MarkerTolerance3D& tolerances, AtlasBudget& budget) {
+    const RemappingFixture model(false);
+    auto facets = model.facets;
+    for (auto& facet : facets) facet.marker = facet.id < 4 ? 0 : 1;
+    definition = std::make_shared<PlanarReference>(facets);
+    authority = std::make_shared<MappedFacetReference>(
+        definition, model.geometry->Errors(), model.geometry->Version(), SIZE_MAX, false, model.geometry->Curves());
+    INFO(reason);
+    REQUIRE(authority->BuildMobilityPolicy(45, {{0, 2 + 4 * tolerances.Class(0)}, {1, 2 + 4 * tolerances.Class(1)}},
+                                           policy, budget, reason));
+
+    for (const auto& facet : facets) {
+      for (const auto node : facet.v)
+        points.emplace(node.id, BoundaryPoint{node, authority->Vertex(node.id)});
+      if (facet.id >= 4) continue;
+      std::array<Node, 4> vertices{facet.v[0], facet.v[1], facet.v[2], model.points.at(50).node};
+      if (Orientation(vertices[0].p, vertices[1].p, vertices[2].p, vertices[3].p) < 0)
+        std::swap(vertices[0], vertices[1]);
+      cavity.cells.push_back({facet.id, vertices});
+      cavity.surface.push_back(model.surface.at(facet.id));
+    }
+    skin = model.surface;
+    BoundaryParameterState initial(authority, points, skin, 1, SIZE_MAX, 0, {}, policy, &budget);
+    state = initial.WithEntityGeometry(MarkerTrialStrict, budget);
+    reference = PlanarReference::WithParameters(definition, state)->WithAtlasReservation(budget);
+    reference->ExportParameters(cavity);
+  }
+
+  std::shared_ptr<PlanarReference> definition;
+  std::shared_ptr<MappedFacetReference> authority;
+  std::shared_ptr<BoundaryParameterState> state;
+  std::shared_ptr<const PlanarReference> reference;
+  MobilityPolicy policy;
+  BoundaryPoints points;
+  std::vector<SurfaceFace> skin;
+  Patch cavity;
+  std::string reason;
+};
+}  // namespace
+
+TEST_CASE("TOL1 projected private trials honor the marker geometry classifier and final proof", "[.][TOL1]") {
+  namespace cert = geometry_certificates;
+  const bool loose = GENERATE(false, true);
+  const MarkerTolerance3D tolerances({{"BASE", loose ? MarkerTrialLoose : MarkerTrialStrict},
+                                      {"SIDES", loose ? MarkerTrialStrict : MarkerTrialLoose}},
+                                     {"BASE", "SIDES"}, 1.);
+  cert::ScopedValue<const MarkerTolerance3D*> bind(active_marker_tolerance, &tolerances);
+  auto budget = RemappingBudget();
+  MarkerPyramidFixture fixture(tolerances, budget);
+  Patch fresh;
+  const Node trial{100, {.6, .5, -.01}};
+  INFO(fixture.reason);
+  REQUIRE(MoveVertex(fixture.cavity, 0, trial, 1000, *fixture.reference, fresh, fixture.reason));
+  REQUIRE(fresh.parameters.at(trial.id).binding.dimension == 2);
+  REQUIRE(fresh.parameters.at(trial.id).node.p.z != trial.p.z);
+  const auto view = fixture.reference->PrivateParameters(fresh);
+  REQUIRE(view);
+
+  size_t refused = 0;
+  double maximum = 0;
+  for (const auto& face : fresh.surface) {
+    std::array<Point, 3> triangle;
+    for (size_t k = 0; k < triangle.size(); ++k) triangle[k] = fresh.parameters.at(face.v[k]).node.p;
+    REQUIRE(view->ContainsFace(face.facet, triangle));
+    const double error = view->SurfaceDeviation(face.facet, triangle, SurfaceQueryNeed::Classify().ForMarker());
+    REQUIRE(std::isfinite(error));
+    const double limit = FaceTolerance(*view, face.facet, MarkerTrialStrict);
+    CHECK(limit == (loose ? MarkerTrialLoose : MarkerTrialStrict));
+    refused += error > limit;
+    maximum = std::max(maximum, error);
+  }
+  CHECK(maximum > MarkerTrialStrict);
+  CHECK(maximum < MarkerTrialLoose);
+  CHECK((refused == 0) == loose);
+  uint64_t measured = 0;
+  const auto counts = GeometryCounts(fresh, *fixture.reference, MarkerTrialStrict, budget, measured);
+  CHECK(measured == fresh.surface.size());
+  CHECK(counts.second == refused);
+  CHECK((counts.first == 0) == loose);
+
+  if (loose) {
+    for (auto& face : fixture.skin)
+      for (auto& id : face.v)
+        if (id == 0) id = trial.id;
+    fixture.points.erase(0);
+    fixture.points.emplace(trial.id, fresh.parameters.at(trial.id));
+    BoundaryParameterState accepted(fixture.authority, fixture.points, fixture.skin, 2, SIZE_MAX, 0,
+                                    fixture.state->Coverage(), fixture.policy, &budget, MarkerTrialStrict);
+    const auto reverse = accepted.OwnedFaceReverseBounds(fixture.skin, budget);
+    REQUIRE(accepted.ReverseProofComplete(reverse));
+    BoundaryParameterState::Certificates proof;
+    accepted.GeometryCertificates(budget, true, &reverse, &proof);
+    size_t faces = 0;
+    for (const auto& row : proof) {
+      CHECK(row.second.within_tolerance);
+      faces += row.second.physical_pieces;
+    }
+    CHECK(faces == fixture.skin.size());
+  }
+}
+
+TEST_CASE("TOL1 direct child face between the limits survives the engine collapse filter", "[.][TOL1]") {
+  namespace cert = geometry_certificates;
+  const bool loose = GENERATE(false, true);
+  const MarkerTolerance3D tolerances({{"BASE", loose ? MarkerTrialLoose : MarkerTrialStrict},
+                                      {"SIDES", loose ? MarkerTrialStrict : MarkerTrialLoose}},
+                                     {"BASE", "SIDES"}, 1.);
+  cert::ScopedValue<const MarkerTolerance3D*> bind(active_marker_tolerance, &tolerances);
+  auto budget = RemappingBudget();
+  MarkerPyramidFixture fixture(tolerances, budget);
+  const auto& facet = fixture.definition->Get(0);
+  const Node keep = facet.v[0];
+  const Node remove{100, fixture.authority->Realize(fixture.authority->FacetPoint(0, .2, .2))};
+  OwnedCell row;
+  row.cell = fixture.cavity.cells.front();
+  const std::array<Point, 3> child{facet.v[0].p, facet.v[1].p, facet.v[2].p};
+  REQUIRE(fixture.reference->ContainsFace(facet.id, child));
+  for (const auto node : facet.v) REQUIRE(fixture.authority->Supports(facet.id, fixture.authority->Vertex(node.id)));
+  const auto bound =
+      fixture.reference->SurfaceDeviation(facet.id, child, SurfaceQueryNeed::Classify().ForMarker());
+  REQUIRE(bound > MarkerTrialStrict);
+  REQUIRE(bound < MarkerTrialLoose);
+  for (auto& node : row.cell.v)
+    if (node.id == keep.id) node = remove;
+  REQUIRE(Orientation(row.cell.v[0].p, row.cell.v[1].p, row.cell.v[2].p, row.cell.v[3].p) > 0);
+  row.physical[3] = {true, facet.id};
+
+  // A policy for the other marker engages the filter without making this face a wall face.
+  WallHeights heights;
+  heights.emplace(1, .1);
+  CHECK(CollapseConstraintViolation(row, remove.id, keep, *fixture.reference, MarkerTrialStrict, heights) == !loose);
+}

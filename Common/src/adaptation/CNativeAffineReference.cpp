@@ -2090,7 +2090,9 @@ bool MappedFacetReference::BuildMobilityPolicy(double angle,const std::map<int,i
     if(!(std::isfinite(angle)&&angle>=0&&angle<=180))throw std::invalid_argument("Invalid geometry feature angle.");
     MobilityPolicy policy;policy.angle=angle;policy.roles=roles;policy.bodies=body_roots;
     for(const auto& f:reference->Facets()) {
-      const auto role=roles.find(f.second.marker);if(role==roles.end()||(role->second!=0&&role->second!=2))throw std::invalid_argument("Incomplete/invalid geometry marker roles.");
+      const auto role=roles.find(f.second.marker);
+      if(role==roles.end()||role->second<0||(RoleKind(role->second)!=0&&RoleKind(role->second)!=2))
+        throw std::invalid_argument("Incomplete/invalid geometry marker roles.");
       policy.sheets.emplace(f.first,f.first);
     }
     const auto cosine=CosineDegrees(angle);
@@ -2125,8 +2127,11 @@ bool MappedFacetReference::BuildMobilityPolicy(double angle,const std::map<int,i
       return Difference(Exact(curve->second[controls[k][forward?0:1]]),Exact(nodes.at(vertex)));
     };
     auto signature=[&](size_t index){std::vector<std::pair<int,int>> labels;for(Id f:edge_facets[index]){const int m=reference->Get(f).marker;labels.push_back({m,roles.at(m)});}std::sort(labels.begin(),labels.end());return labels;};
+    const bool mixed_classes = MixedRoleClasses(policy);
     for(const auto& vertex:feature_vertices) {
       op.Work();bool corner=vertex.second.size()!=2;
+      if (!corner && mixed_classes)
+        for (Id edge : vertex.second) if (IsFrozenReferenceEdge(edge, policy)) corner = true;
       if(!corner) {
         const auto a=vertex.second[0],b=vertex.second[1];auto incoming=tangent(a,vertex.first);for(auto& d:incoming)d={-d.hi,-d.lo};
         corner=signature(a)!=signature(b)||!NormalAngleBound(incoming,tangent(b,vertex.first),cosine);
@@ -2168,7 +2173,10 @@ unsigned MappedFacetReference::MobilityDimension(const SurfaceBinding& binding,c
   CheckBinding(binding);if(!policy.identity)return binding.dimension;
   if(policy.version!=1)throw std::invalid_argument("Unsupported geometry mobility policy.");
   if(binding.dimension==2)return 2;
-  if(binding.dimension==1)return policy.features.count(edges.at(binding.feature))?1:2;
+  if(binding.dimension==1) {
+    if (!policy.features.count(edges.at(binding.feature))) return 2;
+    return IsFrozenReferenceEdge(binding.feature, policy) ? 0 : 1;
+  }
   if(policy.corners.count(binding.feature))return 0;
   for(Id id:vertex_facets.at(binding.feature)) {
     const auto& f=reference->Get(id);for(unsigned k=0;k<3;++k) {
@@ -2177,6 +2185,44 @@ unsigned MappedFacetReference::MobilityDimension(const SurfaceBinding& binding,c
     }
   }
   return 2;
+}
+bool MappedFacetReference::IsFrozenReferenceEdge(Id edge, const MobilityPolicy& policy) const {
+  const auto& incident = edge_facets.at(edge);
+  if (incident.size() != 2) return false;
+  const int a = reference->Get(incident[0]).marker, b = reference->Get(incident[1]).marker;
+  return a != b && RoleClass(policy.roles.at(a)) != RoleClass(policy.roles.at(b));
+}
+bool MappedFacetReference::FrozenSeamPoint(const SurfaceBinding& binding, const MobilityPolicy& policy) const {
+  if (!policy.identity || binding.dimension >= 2 || !MixedRoleClasses(policy)) return false;
+  CheckBinding(binding);
+  if (binding.dimension == 1) return IsFrozenReferenceEdge(binding.feature, policy);
+  if (!policy.corners.count(binding.feature)) return false;
+  for (Id side : vertex_facets.at(binding.feature)) {
+    const auto& face = reference->Get(side);
+    for (unsigned k = 0; k < 3; ++k) {
+      SU2Native3D::Edge edge{face.v[k].id, face.v[(k+1)%3].id};
+      if (edge[0] != binding.feature && edge[1] != binding.feature) continue;
+      std::sort(edge.begin(), edge.end());
+      if (IsFrozenReferenceEdge(EdgeIdentity(edge), policy)) return true;
+    }
+  }
+  return false;
+}
+bool MappedFacetReference::FrozenSeamEdge(const SurfaceBinding& a, const SurfaceBinding& b,
+                                         const MobilityPolicy& policy) const {
+  if (!policy.identity || a.dimension >= 2 || b.dimension >= 2 || !MixedRoleClasses(policy)) return false;
+  CheckBinding(a); CheckBinding(b);
+  if (a.dimension == 1 && b.dimension == 1)
+    return a.feature == b.feature && IsFrozenReferenceEdge(a.feature, policy);
+  if (a.dimension == 1 || b.dimension == 1) {
+    const auto& on_edge = a.dimension == 1 ? a : b;
+    const auto& on_vertex = a.dimension == 0 ? a : b;
+    const auto& edge = edges.at(on_edge.feature);
+    return (edge[0] == on_vertex.feature || edge[1] == on_vertex.feature) && IsFrozenReferenceEdge(on_edge.feature, policy);
+  }
+  SU2Native3D::Edge edge{std::min(a.feature, b.feature), std::max(a.feature, b.feature)};
+  const auto found = std::lower_bound(edges.begin(), edges.end(), edge);
+  return found != edges.end() && *found == edge && IsFrozenReferenceEdge(found - edges.begin(), policy);
 }
 double MappedFacetReference::ComponentPointError(const SurfaceBinding& binding,Point p)const {
   const auto model=Ideal(binding);const double original=PointModelError(model,p);double maximum=original;
@@ -2674,13 +2720,13 @@ MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(Id fa
 }
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundSurfaceUnion(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
-    double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,true);}
+    SurfaceQueryTolerance tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,true);}
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundModelSurface(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
-    double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
+    SurfaceQueryTolerance tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
 
 // M27 hashes the existing query identity without its answer kind or cutoff.
-static uint64_t UnionFaceWord(const std::vector<Id>& facets, double tolerance,
+static uint64_t UnionFaceWord(const std::vector<Id>& facets, SurfaceQueryTolerance tolerance,
                               const std::vector<std::array<Point, 3>>& triangles) noexcept {
   uint64_t hash = 14695981039346656037ULL;
   auto append_word = [&](uint64_t word) {
@@ -2697,7 +2743,11 @@ static uint64_t UnionFaceWord(const std::vector<Id>& facets, double tolerance,
   append_word(facets.size());
   for (Id facet : facets) append_word(facet);
   append_word(triangles.size());
-  append_bits(tolerance);
+  append_bits(tolerance.limit);
+  if (tolerance.limit != tolerance.accuracy) {
+    append_word(UINT64_MAX);
+    append_bits(tolerance.accuracy);
+  }
   for (const auto& triangle : triangles)
     for (const auto point : triangle)
       for (const auto coordinate : Values(point)) append_bits(coordinate);
@@ -2705,9 +2755,11 @@ static uint64_t UnionFaceWord(const std::vector<Id>& facets, double tolerance,
 }
 
 double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
-    const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget,SurfaceBoundPurpose purpose,double stop_above)const {
+    const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerances,AtlasBudget& budget,SurfaceBoundPurpose purpose,double stop_above)const {
   ConformingWitness();
   SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::GeometryBound);
+  const double tolerance = tolerances.limit;
+  const size_t extra_words = tolerance != tolerances.accuracy ? 2 : 0;
   const bool limited=purpose==SurfaceBoundPurpose::ErrorLimit;
   const bool magnitude=purpose==SurfaceBoundPurpose::ErrorMagnitude||limited;
   if(limited&&(!std::isfinite(stop_above)||stop_above<tolerance))
@@ -2722,6 +2774,7 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
         static_cast<const void*>(this),static_cast<const void*>(&budget),trace_start,
         static_cast<unsigned long long>(bits(tolerance)));
     for(Id facet:facets)std::fprintf(stderr,"%llu,",static_cast<unsigned long long>(facet));
+    if (extra_words) std::fprintf(stderr," accuracy=%016llx",static_cast<unsigned long long>(bits(tolerances.accuracy)));
     std::fprintf(stderr," triangles=");
     for(const auto& triangle:physical) {
       for(auto p:triangle)for(double x:Values(p))std::fprintf(stderr,"%016llx,",static_cast<unsigned long long>(bits(x)));
@@ -2740,7 +2793,7 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
   if (transfer_memory::Add(budget.caller_bytes, canonical_bytes) > budget.maximum_bytes) {
     SU2NativeD9::ObserveUnionBypass();
     return traced_result(
-        QuerySurfaceUnion(facets, physical, tolerance, budget, false, true, magnitude, stop_above).mesh_to_model,
+        QuerySurfaceUnion(facets, physical, tolerances, budget, false, true, magnitude, stop_above).mesh_to_model,
         "bypass");
   }
   AtlasOps op{budget,__func__};
@@ -2756,25 +2809,31 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     });
   }
   const auto& query=canonical.empty()?physical:canonical;
-  const auto face_word = SU2NativeD9::ObservingUnion() ? UnionFaceWord(facets, tolerance, query) : uint64_t{};
-  const auto words=transfer_memory::Add(limited?5:(magnitude?4:3),facets.size(),transfer_memory::Mul(physical.size(),9));
+  const auto face_word = SU2NativeD9::ObservingUnion() ? UnionFaceWord(facets, tolerances, query) : uint64_t{};
+  const auto words=transfer_memory::Add(extra_words, limited?5:(magnitude?4:3),facets.size(),
+                                        transfer_memory::Mul(physical.size(),9));
   const auto temporary=transfer_memory::GrowthBound(words,sizeof(uint64_t));
   if (!face_memo || FaceMemo::UnionBytes(words) > face_memo->Capacity() ||
       transfer_memory::Add(budget.caller_bytes, temporary) > budget.maximum_bytes) {
     SU2NativeD9::ObserveUnionBypass();
     return traced_result(
-        QuerySurfaceUnion(facets, query, tolerance, budget, false, true, magnitude, stop_above).mesh_to_model,
+        QuerySurfaceUnion(facets, query, tolerances, budget, false, true, magnitude, stop_above).mesh_to_model,
         "bypass");
   }
   using SU2NativeD9::Answer;
   const auto wanted = magnitude ? Answer::Magnitude : Answer::Classified;
   op.Work(words);op.Storage(temporary);
   FaceMemo::UnionKey key;key.reserve(words);
+  // An impossible facet count separates split-limit keys from the legacy scalar layout.
+  if (extra_words) {
+    key.push_back(UINT64_MAX);
+    key.push_back(bits(tolerances.accuracy));
+  }
   key.push_back(facets.size());key.insert(key.end(),facets.begin(),facets.end());
   key.push_back(physical.size());key.push_back(bits(tolerance));
   if(magnitude)key.push_back(1);
   // Try a complete magnitude before the separate lower-only cutoff key.
-  const auto purpose_word=facets.size()+3;
+  const auto purpose_word=facets.size()+3+extra_words;
   for(const auto& triangle:query)for(auto p:triangle)for(auto x:Values(p))key.push_back(bits(x));
   budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(key.capacity(),sizeof(uint64_t)));
   {std::lock_guard<std::mutex> guard(face_memo->lock);double cached=0;
@@ -2790,7 +2849,7 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
       return traced_result(cached,"hit");}}
   const auto before = budget.work;
   const auto union_start = SU2NativeD9::ObservingUnion() ? SU2NativeD9::Clock::now() : SU2NativeD9::Clock::time_point{};
-  const auto receipt = QuerySurfaceUnion(facets, query, tolerance, budget, false, true, magnitude, stop_above);
+  const auto receipt = QuerySurfaceUnion(facets, query, tolerances, budget, false, true, magnitude, stop_above);
   const auto result=receipt.mesh_to_model;
   if (SU2NativeD9::ObservingUnion()) {
     const auto given = !limited || result <= stop_above ? wanted : Answer::CutOff;
@@ -2862,7 +2921,8 @@ MappedFacetReference::FacetStructure MappedFacetReference::StructuralEstimate(Id
 }
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
-    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,bool magnitude,double stop_above)const {
+    SurfaceQueryTolerance tolerances,AtlasBudget& budget,bool include_model,bool include_mesh,bool magnitude,double stop_above)const {
+  const double tolerance = tolerances.limit;
   ConformingWitness();
   const auto start=std::chrono::steady_clock::now();const auto initial_work=budget.work;const bool upper=!include_model&&include_mesh;
   auto record=[&](bool failed,bool refusal){const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
@@ -2873,10 +2933,10 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       else if(magnitude){++x.magnitude_calls;x.magnitude_work+=work;}
       else {++x.classification_calls;x.classification_work+=work;}}
     else {++x.full_calls;x.full_seconds+=seconds;x.full_work+=budget.work-initial_work;}x.union_exceptions+=failed;};
-  try {double resolution=tolerance;
+  try {double resolution=tolerances.accuracy;
     for(;;) {
       budget.CheckTime();
-      try{auto result=QuerySurfaceUnionAtResolution(facets,physical,tolerance,budget,include_model,include_mesh,resolution,magnitude,stop_above);
+      try{auto result=QuerySurfaceUnionAtResolution(facets,physical,tolerances,budget,include_model,include_mesh,resolution,magnitude,stop_above);
         record(false,upper&&result.mesh_to_model>tolerance);return result;}
       catch(const RefineSurfaceTarget&) {
         if(upper){std::lock_guard<std::mutex> lock(geometry_stats->mutex);++geometry_stats->value.upper_refinements;}
@@ -2890,12 +2950,17 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
 }
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnionAtResolution(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
-    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,double resolution,bool magnitude,double stop_above)const {
+    SurfaceQueryTolerance tolerances,AtlasBudget& budget,bool include_model,bool include_mesh,double resolution,bool magnitude,double stop_above)const {
+  const double tolerance = tolerances.limit;
   AtlasOps op{budget,__func__};
   static std::atomic<size_t> refinement_records{0};
   struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
   if(facets.empty()||physical.empty()||!std::isfinite(tolerance)||tolerance<std::numeric_limits<double>::min())
     throw std::invalid_argument("Invalid surface-union geometry/tolerance.");
+  if (tolerances.accuracy != tolerance &&
+      (!std::isfinite(tolerances.accuracy) || tolerances.accuracy < std::numeric_limits<double>::min() ||
+       tolerances.accuracy > tolerance))
+    throw std::invalid_argument("Invalid surface-union accuracy.");
   if(AtlasOps::Trace() && physical.size()==1 && facets.size()<=64) {
     std::fprintf(stderr,"NATIVE_SURFACE_QUERY tolerance=%.17g model=%d mesh=%d facets=",tolerance,int(include_model),int(include_mesh));
     for(Id id:facets)std::fprintf(stderr,"%llu,",static_cast<unsigned long long>(id));
@@ -3148,7 +3213,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       }
       const double covering_upper=std::max(finished,queue.front().upper);
       if(!from_model&&lower>stop_above)return std::make_tuple(lower,leaves,true);
-      if(magnitude&&(long double)covering_upper-lower<=tolerance)
+      if(magnitude&&(long double)covering_upper-lower<=tolerances.accuracy)
         return std::make_tuple(covering_upper,leaves,lower>tolerance);
       if(!magnitude&&lower>tolerance)return std::make_tuple(initial_upper,leaves,true);
       std::pop_heap(queue.begin(),queue.end(),compare);const auto node=queue.back();queue.pop_back();

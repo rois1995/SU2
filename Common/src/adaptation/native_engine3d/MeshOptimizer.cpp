@@ -1188,7 +1188,11 @@ bool MeshOptimizer::BoundaryTargets(Id p, const Patch& patch, const PlanarRefere
     const auto binding = patch.parameters.at(p).binding;
     const auto& authority = geometry.Parameters()->Geometry();
     const auto* mobility = geometry.Mobility();
-    if (mobility && authority.MobilityDimension(binding, *mobility) == 0) return false;
+    if (mobility && authority.MobilityDimension(binding, *mobility) == 0) {
+      if (SU2NativeGeometry::frozen_seam_refusals && authority.FrozenSeamPoint(binding, *mobility))
+        SU2NativeGeometry::CountFrozenSeamRefusal();
+      return false;
+    }
     if (!mobility && binding.dimension == 0 && authority.PhysicalSupport(binding)) return false;
     if (!mobility && binding.dimension == 1 &&
         (!authority.ReferenceComponents() || authority.PhysicalSupport(binding))) {
@@ -2086,6 +2090,10 @@ bool MeshOptimizer::SearchInteriorSmooth(Id p, const std::vector<Id>& old, const
 // coned to a and b, the boundary pair (a,b,r_0),(a,b,r_m) becoming (a,r_0,r_m),(b,r_0,r_m).
 bool MeshOptimizer::BoundaryFlip(Id a, Id b) {
   if (Limited() || options.frozen_vertices.count(a) || options.frozen_vertices.count(b)) return false;
+  if (options.geometry && options.geometry->Parameters() && options.geometry->Parameters()->FrozenSeamEdge({a,b})) {
+    SU2NativeGeometry::CountFrozenSeamRefusal();
+    return false;
+  }
   const auto sa = star.find(a), sb = star.find(b);
   if (sa == star.end() || sb == star.end()) return false;
   const auto shell = Common(sa->second, sb->second);
@@ -2529,8 +2537,8 @@ bool MeshOptimizer::ShellBoundary(Id id) {
     if (!physical.count(key) && options.surface_tolerance > 0) {
       const std::array<Point, 3> p{points.at(face.v[0]), points.at(face.v[1]), points.at(face.v[2])};
       commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
-      if (!(proposed.SurfaceDeviation(face.facet, p, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true) <=
-            options.surface_tolerance)) {
+      if (!(proposed.SurfaceDeviation(face.facet, p, SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker(), true) <=
+            FaceTolerance(proposed, face.facet, options.surface_tolerance))) {
         strict_geometry = false;
       }
     }
@@ -2542,10 +2550,10 @@ bool MeshOptimizer::ShellBoundary(Id id) {
       return false;
     }
     // As for boundary smoothing, a useful intermediate may retain non-increasing geometry debt.
-    const auto before = GeometryGuidanceExcess(old, geometry, options.surface_tolerance);
+    const auto before = EngineGeometryGuidance(old, geometry, options.surface_tolerance);
     const auto after = [&] {
       commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
-      return GeometryGuidanceExcess(fresh, proposed, options.surface_tolerance, before.excess);
+      return EngineGeometryGuidance(fresh, proposed, options.surface_tolerance, before.excess);
     }();
     if (!before.complete || !after.complete || !std::isfinite(after.excess) || after.excess > before.excess) {
       ++report.rejected_interface;
@@ -2906,10 +2914,10 @@ bool MeshOptimizer::CertifyCoupledBoundary(const std::vector<Id>& all_ids, const
         }
   auto final_context = geometry.PrivateParameters(candidate);
   if (!final_context) return false;
-  const auto old_geometry = GeometryGuidanceExcess(original, geometry, options.surface_tolerance);
+  const auto old_geometry = EngineGeometryGuidance(original, geometry, options.surface_tolerance);
   const auto new_geometry = [&] {
     commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
-    return GeometryGuidanceExcess(candidate, *final_context, options.surface_tolerance, old_geometry.excess);
+    return EngineGeometryGuidance(candidate, *final_context, options.surface_tolerance, old_geometry.excess);
   }();
   if (!old_geometry.complete || !new_geometry.complete || !std::isfinite(new_geometry.excess) ||
       new_geometry.excess > old_geometry.excess) {

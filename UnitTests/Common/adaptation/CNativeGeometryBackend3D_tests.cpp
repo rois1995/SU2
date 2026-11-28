@@ -1357,3 +1357,149 @@ TEST_CASE("T4 MPI shares join to the same entity certificates", "[.][NativeOwned
 }
 
 #include "fixtures/native_fx2_memo_tests.inc"
+
+#include "../../../Common/include/adaptation/CNativeGeometryCertificates3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMarkerTolerance3D.hpp"
+
+namespace {
+struct MarkerAtlasFixture {
+  using State = SU2Native3D::BoundaryParameterState;
+  std::shared_ptr<const SU2Native3D::PlanarReference> reference;
+  std::shared_ptr<MappedFacetReference> authority;
+  std::shared_ptr<State> state;
+  std::vector<SU2Native3D::SurfaceFace> skin;
+
+  explicit MarkerAtlasFixture(double strict) {
+    using namespace SU2Native3D;
+    BackendFixture model;
+    for (auto& facet : model.facets)
+      if (facet.id == 2 || facet.id == 3) facet.marker = 1;
+
+    reference = std::make_shared<PlanarReference>(model.facets);
+    authority = std::make_shared<MappedFacetReference>(
+        reference, model.geometry->Errors(), model.geometry->Version(), SIZE_MAX, false, model.geometry->Curves());
+    auto budget = BackendBudget();
+    std::string reason;
+    MobilityPolicy policy;
+    REQUIRE(authority->BuildMobilityPolicy(60, {{0, 2}, {1, 2}}, policy, budget, reason));
+
+    BoundaryPoints points;
+    for (const auto& facet : model.facets) {
+      skin.push_back({{facet.v[0].id, facet.v[1].id, facet.v[2].id}, facet.id});
+      for (const auto& node : facet.v)
+        points.emplace(node.id, BoundaryPoint{node, authority->Vertex(node.id)});
+    }
+    State initial(authority, points, skin, 1, SIZE_MAX, 0, {}, policy, &budget);
+    state = initial.WithEntityGeometry(strict, budget);
+  }
+};
+}  // namespace
+
+TEST_CASE("TOL1 atlas crops on the marker limit and tessellates at strict accuracy", "[.][TOL1]") {
+  using namespace SU2Native3D;
+  namespace cert = geometry_certificates;
+  constexpr double strict = 1e-12, loose = .02, gap = .005;
+  MarkerAtlasFixture fixture(strict);
+  const MarkerTolerance3D tolerances({{"LOOSE", loose}, {"STRICT", strict}}, {"LOOSE", "STRICT"}, 1.);
+  cert::ScopedValue<const MarkerTolerance3D*> use_tolerances(active_marker_tolerance, &tolerances);
+
+  // The x=0 panel has two original facets. The trial includes a vertex of the adjacent
+  // facet, so it cannot use the direct single-facet correspondence bound.
+  const std::array<Id, 3> ids{4, 6, 2};
+  std::array<Point, 3> triangle;
+  std::array<SurfaceBinding, 3> bindings;
+  for (size_t k = 0; k < ids.size(); ++k) {
+    bindings[k] = fixture.authority->Vertex(ids[k]);
+    triangle[k] = fixture.authority->Realize(bindings[k]);
+    triangle[k].x -= gap;
+  }
+  REQUIRE_FALSE(fixture.authority->Supports(4, bindings.back()));
+  REQUIRE(fixture.state->Entity(4) == fixture.state->Entity(5));
+  auto strict_budget = BackendBudget(), loose_budget = BackendBudget();
+  const auto need = SurfaceQueryNeed::Classify();
+  const auto strict_bound = fixture.state->EntityFaceError(4, bindings, triangle, &strict_budget, need);
+  CHECK(strict_bound > strict);
+  const auto loose_bound = fixture.state->EntityFaceError(4, bindings, triangle, &loose_budget, need.ForMarker());
+  CHECK(loose_bound >= gap);
+  CHECK(loose_bound <= loose);
+  // A warm answer at another limit must not displace the original strict answer.
+  CHECK(cert::Bits(fixture.state->EntityFaceError(4, bindings, triangle, &strict_budget, need)) ==
+        cert::Bits(strict_bound));
+  const auto a = fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, strict, strict_budget);
+  const auto b = fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, {strict, strict}, strict_budget);
+  CHECK(cert::Bits(a) == cert::Bits(b));
+  auto stats = fixture.authority->GeometryStatsSnapshot();
+  const auto wide = fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, loose, loose_budget);
+  CHECK(wide <= loose);
+  const auto wide_stats = fixture.authority->GeometryStatsSnapshot();
+  CHECK(wide_stats.memo_union_misses == stats.memo_union_misses + 1);
+  const auto split = fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, {loose, strict}, loose_budget);
+  stats = fixture.authority->GeometryStatsSnapshot();
+  CHECK(split <= loose);
+  CHECK(fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, {loose, strict}, loose_budget) == split);
+  CHECK(fixture.authority->GeometryStatsSnapshot().memo_union_hits == stats.memo_union_hits + 1);
+
+  const auto key = cert::FaceKey(*fixture.state, 4, bindings, triangle);
+  REQUIRE(key.face[5] == cert::Bits(loose));
+  CHECK(cert::Qualified(loose_bound, loose));
+  CHECK_FALSE(cert::Qualified(loose_bound, strict));
+  const auto& strict_facet = fixture.reference->Get(2);
+  for (size_t k = 0; k < bindings.size(); ++k) {
+    bindings[k] = fixture.authority->Vertex(strict_facet.v[k].id);
+    triangle[k] = strict_facet.v[k].p;
+  }
+  const auto strict_key = cert::FaceKey(*fixture.state, strict_facet.id, bindings, triangle);
+  cert::Snapshot snapshot;
+  snapshot.records.push_back({key, cert::Origin::Proof});
+  CHECK(strict_key.face[5] == cert::Bits(strict));
+  CHECK(snapshot.Find(strict_key) == nullptr);
+}
+
+TEST_CASE("TOL1 complete entity proof keeps a separate strict donor enclosure", "[.][TOL1]") {
+  using namespace SU2Native3D;
+  namespace cert = geometry_certificates;
+  constexpr double strict = 1e-4, loose = .02;
+  MarkerAtlasFixture oracle(strict), fixture(strict);
+  auto scalar_budget = BackendBudget(), list_budget = BackendBudget();
+  const auto scalar = oracle.state->GeometryCertificates(scalar_budget);
+
+  const MarkerTolerance3D tolerances({{"LOOSE", loose}, {"STRICT", strict}}, {"LOOSE", "STRICT"}, 1.);
+  cert::ScopedValue<const MarkerTolerance3D*> use_tolerances(active_marker_tolerance, &tolerances);
+  const auto& donor = fixture.state->GeometryCertificates(list_budget);
+  REQUIRE(donor.size() == scalar.size());
+
+  const auto reverse = fixture.state->OwnedFaceReverseBounds(fixture.skin, list_budget);
+  REQUIRE(fixture.state->ReverseProofComplete(reverse));
+  BoundaryParameterState::Certificates proof;
+  REQUIRE(&fixture.state->GeometryCertificates(list_budget, true, &reverse, &proof) == &proof);
+  REQUIRE(proof.size() == donor.size());
+
+  auto joined = fixture.state->ModelProofShare(list_budget, reverse, {0, 2});
+  const auto second = fixture.state->ModelProofShare(list_budget, reverse, {1, 2});
+  REQUIRE(joined.size() == second.size());
+  for (size_t i = 0; i < joined.size(); ++i) {
+    joined[i].model_to_mesh = std::max(joined[i].model_to_mesh, second[i].model_to_mesh);
+    joined[i].outside = joined[i].outside || second[i].outside;
+  }
+  BoundaryParameterState::Certificates shared;
+  REQUIRE(&fixture.state->AdoptModelProof(reverse, joined, &shared) == &shared);
+  REQUIRE(shared.size() == proof.size());
+  REQUIRE(&fixture.state->GeometryCertificates(list_budget) == &donor);
+  for (const auto& row : donor) {
+    const auto& expected = scalar.at(row.first);
+    CHECK(cert::Bits(row.second.model_to_mesh) == cert::Bits(expected.model_to_mesh));
+    CHECK(row.second.outside_tolerance == expected.outside_tolerance);
+    CHECK_FALSE(row.second.within_tolerance);
+
+    const auto& completed = proof.at(row.first);
+    const auto limit = MarkerTolerance(std::get<2>(row.first), strict);
+    CHECK(completed.within_tolerance);
+    CHECK(completed.model_to_mesh <= limit);
+    CHECK(completed.mesh_to_model <= limit);
+
+    const auto& distributed = shared.at(row.first);
+    CHECK(distributed.within_tolerance);
+    CHECK(cert::Bits(distributed.mesh_to_model) == cert::Bits(completed.mesh_to_model));
+    CHECK(cert::Bits(distributed.model_to_mesh) == cert::Bits(completed.model_to_mesh));
+  }
+}

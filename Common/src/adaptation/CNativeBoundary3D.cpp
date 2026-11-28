@@ -8,6 +8,7 @@
 #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "../../include/adaptation/CNativeMetric3D.hpp"
+#include "../../include/adaptation/CNativeMarkerTolerance3D.hpp"
 #include "../../include/adaptation/CConvexClipping.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
@@ -3464,7 +3465,7 @@ bool GeometryGuidanceMemo::Prepare(const Patch& patch,const PlanarReference& geo
   epoch=state;definition=geometry.DefinitionHandle();revision=state->Revision();tolerance=requested_tolerance;recording=true;return true;
 }
 GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance,
-                                      long double reject_above,GeometryGuidanceMemo* memo) {
+                                      long double reject_above,GeometryGuidanceMemo* memo, bool by_marker) {
   if(!std::isfinite(tolerance)||tolerance<0||std::isnan(reject_above)||reject_above<0)
     throw std::invalid_argument("Invalid native3D fitting-guidance threshold.");
   auto parameters=base_geometry.PrivateParameters(patch);const auto& geometry=parameters?*parameters:base_geometry;
@@ -3479,6 +3480,7 @@ GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference
   for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
   GeometryGuidance result;
   for(const auto& f:patch.surface) {
+    const double allowed = by_marker ? FaceTolerance(geometry, f.facet, tolerance) : tolerance;
     const std::array<Point,3> p{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};
     std::array<SU2NativeGeometry::SurfaceBinding,3> binding;bool bound_points=reusable;
     if(reusable)for(unsigned k=0;k<3;++k){const auto* point=geometry.Parameter(p[k]);
@@ -3495,20 +3497,24 @@ GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference
     using SU2NativeGeometry::SurfaceQueryNeed;
     auto need=SurfaceQueryNeed::Magnitude();
     if(geometry.EntityGeometry()&&std::isfinite(reject_above)) {
-      const long double cutoff=static_cast<long double>(tolerance)+std::sqrt(std::max(0.L,reject_above-result.excess));
+      const long double cutoff=static_cast<long double>(allowed)+std::sqrt(std::max(0.L,reject_above-result.excess));
       double rounded=std::nextafter(static_cast<double>(cutoff),INFINITY);
-      if(geometry.EntityGeometry())rounded=std::max(rounded,geometry.Parameters()->GeometryTolerance());
+      const double gate = by_marker ? FaceTolerance(geometry, f.facet, geometry.Parameters()->GeometryTolerance())
+                                    : geometry.Parameters()->GeometryTolerance();
+      rounded=std::max(rounded,gate);
       if(std::isfinite(rounded))need=SurfaceQueryNeed::Limit(rounded);
-      if(reject_above==0&&(!geometry.EntityGeometry()||tolerance==geometry.Parameters()->GeometryTolerance()))
+      if(reject_above==0&&allowed==gate)
         need=SurfaceQueryNeed::Classify();
     }
+    if (by_marker) need = need.ForMarker();
     double bound=retained?retained->bound:geometry.SurfaceDeviation(f.facet,p,need,true);
     if(!std::isfinite(bound))throw std::invalid_argument("Unresolved native3D fitting-guidance face.");
-    auto squared_excess=[&](double value){const long double error=std::max(0.L,static_cast<long double>(value)-tolerance);return error*error;};
+    auto squared_excess=[&](double value){const long double error=std::max(0.L,static_cast<long double>(value)-allowed);return error*error;};
     const bool partial=!retained&&need.kind!=SurfaceQueryNeed::Kind::Magnitude&&
-        bound>(need.kind==SurfaceQueryNeed::Kind::Classify?tolerance:need.stop_above);
+        bound>(need.kind==SurfaceQueryNeed::Kind::Classify?allowed:need.stop_above);
     if(partial&&!(result.excess+squared_excess(bound)>reject_above))
-      bound=geometry.SurfaceDeviation(f.facet,p,SurfaceQueryNeed::Magnitude(),true);
+      bound=geometry.SurfaceDeviation(f.facet,p,by_marker ? SurfaceQueryNeed::Magnitude().ForMarker()
+                                                         : SurfaceQueryNeed::Magnitude(),true);
     else if(partial) {
       result.excess+=squared_excess(bound);++result.evaluated_faces;
       result.complete=false;return result;

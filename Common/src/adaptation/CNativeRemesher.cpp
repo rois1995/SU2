@@ -32,6 +32,8 @@ CNativeRemesher::CNativeRemesher(std::shared_ptr<ReferenceState> retainedReferen
 }
 
 void CNativeRemesher::CheckSupport(const CConfig& config, const CGeometry& geometry) {
+  if (!config.GetAdap_MarkerHausd().empty())
+    SU2_MPI::Error("ADAP_HAUSD per marker is available for the 3D native remesher only.", CURRENT_FUNCTION);
   CLocalFailure failure;
   if(config.GetAdap_Native_MemoryLimit())
     failure.Set(1,0,"ADAP_NATIVE_MEMORY_LIMIT currently requires native3D.");

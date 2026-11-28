@@ -379,4 +379,8 @@ EngineResult Coarsen(World& world, const Owned& accepted, const std::vector<Dono
  * final success still requires all strict frozen target gates. */
 EngineResult Repair(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
+/*! Certify the physical faces of a private projected patch. */
+std::pair<size_t, size_t> GeometryCounts(const Patch& patch, const PlanarReference& geometry,
+                                         double strict_tolerance, SU2NativeGeometry::AtlasBudget& atlas_budget,
+                                         uint64_t& measured_faces, std::set<Edge>* failed_edges = nullptr);
 }  // namespace SU2Native3D

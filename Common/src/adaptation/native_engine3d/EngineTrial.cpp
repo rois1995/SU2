@@ -533,40 +533,8 @@ std::pair<size_t, size_t> TrialChecks::GeometryCounts(const Patch& patch, std::s
   auto& geometry = context.geometry;
   auto& stats = context.control.result->stats;
   Timer timer(stats.geometry_guidance_seconds, options.timings, SU2NativeTiming3D::Operation::GeometryBound);
-  auto parameters = geometry.PrivateParameters(patch);
-  const auto& reference = parameters ? *parameters : geometry;
-  std::map<Face, Id> facets;
-  for (const auto& face : patch.surface) facets.emplace(Key(face.v), face.facet);
-  std::pair<size_t, size_t> counts{};
-  for (const auto& cell : patch.cells) {
-    atlas_budget.CheckTime();
-    bool bad = false;
-    for (const auto& face : Faces(cell)) {
-      const auto found = facets.find(Key(face));
-      if (found == facets.end()) continue;
-      std::array<Point, 3> triangle;
-      for (unsigned k = 0; k < 3; ++k)
-        for (auto n : cell.v)
-          if (n.id == face[k]) triangle[k] = n.p;
-      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit,
-                                             commit_cert::active && !failed_edges);
-      const auto error =
-          reference.SurfaceDeviation(found->second, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify());
-      ++stats.geometry_guidance_faces;
-      if (!std::isfinite(error)) throw std::runtime_error("Native3D coupled repair lacks a complete face certificate.");
-      if (error <= options.surface_tolerance) continue;
-      bad = true;
-      ++counts.second;
-      if (failed_edges)
-        for (unsigned k = 0; k < 3; ++k) {
-          Edge edge{face[k], face[(k + 1) % 3]};
-          std::sort(edge.begin(), edge.end());
-          failed_edges->insert(edge);
-        }
-    }
-    counts.first += bad;
-  }
-  return counts;
+  return SU2Native3D::GeometryCounts(patch, geometry, options.surface_tolerance, atlas_budget,
+                                     stats.geometry_guidance_faces, failed_edges);
 }
 
 // Maximum number of cells per private donor batch, before the other existing bounds.

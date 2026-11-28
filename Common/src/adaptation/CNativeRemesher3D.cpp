@@ -8,6 +8,7 @@
 #include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CNativeRemesher3D.hpp"
 #include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+#include "../../include/adaptation/CNativeMarkerTolerance3D.hpp"
 #include "../../include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../include/adaptation/CNativeMetricTransport3D.hpp"
 #include "../../include/adaptation/CNativeAffineReference.hpp"
@@ -66,15 +67,37 @@ size_t NativeMemoryCeiling(const CConfig& config,const CGeometry& geometry,size_
 }
 }  // namespace SU2Native3D
 namespace {
+void PrepareMarkerTolerance(const CConfig& config, const ReferenceState& state, size_t ceiling, size_t caller,
+                            std::optional<MarkerTolerance3D>& table) {
+  const auto& configured = config.GetAdap_MarkerHausd();
+  if (configured.empty() || table) return;
+  if (!state.original || !state.original->Mapped() || state.original->Parameters()->Geometry().Curves().empty())
+    throw std::invalid_argument("ADAP_HAUSD per marker needs a mapped curved native reference.");
+  const auto bytes = MarkerTolerance3D::ConstructionBytes(state.marker_names, configured.size());
+  if (transfer_memory::Add(caller, state.original->ResidentBytes(), bytes) > ceiling)
+    throw std::length_error("Native marker tolerance table exceeds working-storage admission.");
+  double maximum = 0;
+  const auto include = [&](Point p) { maximum = std::max({maximum, std::abs(p.x), std::abs(p.y), std::abs(p.z)}); };
+  for (const auto& item : state.original->Facets())
+    for (const auto& node : item.second.v) include(node.p);
+  for (const auto& item : state.original->Parameters()->Geometry().Curves())
+    for (const auto& point : item.second) include(point);
+  table.emplace(configured, state.marker_names, maximum);
+}
+
 // Configuration prepares mobility explicitly; loading an old sidecar never changes its semantics.
-void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,size_t caller) {
+void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,size_t caller,
+                     const MarkerTolerance3D* tolerances = nullptr) {
   SU2NativeTiming3D::Scope mobility_timer(SU2NativeTiming3D::Operation::MobilityPolicy);
   if(!state.original || !state.original->Mapped())return;
   const auto* accepted=state.original->Parameters();const auto& authority=accepted->Geometry();
   if(authority.Curves().empty())return;
   std::map<int,int> roles;
-  for(size_t m=0;m<state.marker_names.size();++m)
-    roles.emplace(int(m),config.GetMarker_CfgFile_KindBC(state.marker_names[m])==SYMMETRY_PLANE?0:2);
+  for (size_t m = 0; m < state.marker_names.size(); ++m) {
+    const int kind = config.GetMarker_CfgFile_KindBC(state.marker_names[m]) == SYMMETRY_PLANE ? 0 : 2;
+    // Preserve the role kind in the low two bits for scalar and equal-list policies.
+    roles.emplace(int(m), kind + (tolerances ? 4 * tolerances->Class(int(m)) : 0));
+  }
   const double angle=SU2_TYPE::GetValue(config.GetAdap_Angle());
   if(accepted->Mobility().identity) {
     if(accepted->Mobility().angle!=angle || accepted->Mobility().roles!=roles)
@@ -115,7 +138,10 @@ void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& 
     try {
       pending.first_height_tol=SU2NativeFirstHeight::AdoptRecorded(pending.first_height_tol,
           SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol()));
-      PrepareMobility(config,pending,ceiling,options.caller_bytes);
+      std::optional<MarkerTolerance3D> table;
+      PrepareMarkerTolerance(config, pending, ceiling, options.caller_bytes, table);
+      PrepareMobility(config, pending, ceiling, transfer_memory::Add(options.caller_bytes, table ? table->Bytes() : 0),
+                      table ? &*table : nullptr);
     }
     catch(const std::exception& e){failure.Set(2,0,e.what());}
     CollectiveFailure(failure,CURRENT_FUNCTION);*reference=std::move(pending);return;
@@ -139,7 +165,12 @@ void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& 
   if(!SU2Native3D::ImportGeometry(config,geometry,nullptr,pending,imported,reason,importedStats,
                                 ceiling,held)) failure.Set(2,0,reason);
   CollectiveFailure(failure,CURRENT_FUNCTION);
-  try{PrepareMobility(config,pending,ceiling,held);}
+  try {
+    std::optional<MarkerTolerance3D> table;
+    PrepareMarkerTolerance(config, pending, ceiling, held, table);
+    PrepareMobility(config, pending, ceiling, transfer_memory::Add(held, table ? table->Bytes() : 0),
+                    table ? &*table : nullptr);
+  }
   catch(const std::exception& e){failure.Set(2,0,e.what());}
   CollectiveFailure(failure,CURRENT_FUNCTION);
   *reference=std::move(pending);
@@ -214,6 +245,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   control.timings = options.timings || config.GetWrt_Performance();
   using Probe = SU2NativeLocal3D::CollapseProbe;
   namespace cert = geometry_certificates;
+  cert::ScopedValue<const MarkerTolerance3D*> tolerance_scope(active_marker_tolerance, nullptr);
   const bool surface_mode = config.GetAdap_Native_Local_Core() && config.GetAdap_Native_Local_Surface() &&
                             !config.GetnAdap_BL() && !construction;
   const auto probe = surface_mode ? SU2NativeLocal3D::FP3Probe() : Probe::None;

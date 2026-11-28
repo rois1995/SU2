@@ -3350,7 +3350,9 @@ void CConfig::SetConfig_Options() {
   /*!\brief ADAP_HGRAD \n DESCRIPTION: Size gradation of the remesher (ratio of neighbouring edge lengths, default 1.6) \ingroup Config */
   addDoubleOption("ADAP_HGRAD", Adap_Hgrad, 1.6);
   /*!\brief ADAP_HAUSD \n DESCRIPTION: MMG boundary approximation tolerance, scalar or (marker, value, ...).
-   * Native remeshing uses one absolute geometry tolerance (scalar only). \ingroup Config */
+   * Native 3D checks absolute geometry error against the scalar or each listed marker's value.
+   * Every boundary with faces must be listed. Seams between different values keep their input points and edges.
+   * \ingroup Config */
   all_options.emplace("ADAP_HAUSD", true);
   option_map.emplace("ADAP_HAUSD", new COptionAdapHausd(Adap_Hausd, Adap_MarkerHausd));
   /*!\brief ADAP_ANGLE \n DESCRIPTION: Sharp angle detection threshold of the remesher, in degrees \ingroup Config */
@@ -6528,8 +6530,15 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     SU2_MPI::Error("ADAP_HGRAD must be a finite value > 1.", CURRENT_FUNCTION);
   }
   if (!Adap_MarkerHausd.empty() && Kind_Adap_Remesher == ADAP_REMESHER::NATIVE_CAVITY) {
-    SU2_MPI::Error("ADAP_HAUSD per marker is available only with ADAP_REMESHER= MMG; the native remesher uses one value.",
-                   CURRENT_FUNCTION);
+    if (nAdap_BL_Marker)
+      SU2_MPI::Error("ADAP_HAUSD per marker is not available with the native boundary layer yet.", CURRENT_FUNCTION);
+    double strict = std::numeric_limits<double>::max();
+    for (const auto& entry : Adap_MarkerHausd) {
+      if (entry.second > 1e100)
+        SU2_MPI::Error("ADAP_HAUSD: " + entry.first + " value is above 1e100.", CURRENT_FUNCTION);
+      strict = std::min(strict, entry.second);
+    }
+    Adap_Hausd = strict;
   }
   if (!(Adap_Hausd > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hausd))) {
     SU2_MPI::Error("ADAP_HAUSD must be a finite value > 0.", CURRENT_FUNCTION);
@@ -7447,6 +7456,15 @@ void CConfig::SetMarkers(SU2_COMPONENT val_software) {
     for (iMarker_SobolevBC = 0; iMarker_SobolevBC < nMarker_SobolevBC; iMarker_SobolevBC++)
       if (Marker_CfgFile_TagBound[iMarker_CfgFile] == Marker_SobolevBC[iMarker_SobolevBC])
         Marker_CfgFile_SobolevBC[iMarker_CfgFile] = YES;
+  }
+
+  if (Kind_Adap_Remesher == ADAP_REMESHER::NATIVE_CAVITY && !Adap_MarkerHausd.empty()) {
+    const string* begin = Marker_CfgFile_TagBound;
+    const string* end = begin + nMarker_CfgFile;
+    for (const auto& entry : Adap_MarkerHausd) {
+      if (std::find(begin, end, entry.first) == end)
+        SU2_MPI::Error("ADAP_HAUSD: " + entry.first + " is not a boundary marker", CURRENT_FUNCTION);
+    }
   }
 
   /*--- The boundary-layer metric is for solid walls (no-slip, also Euler walls). ---*/

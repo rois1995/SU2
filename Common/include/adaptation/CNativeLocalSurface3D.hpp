@@ -40,8 +40,12 @@ class SurfaceGeometry {
  public:
   virtual ~SurfaceGeometry() = default;
   virtual double Tolerance() const = 0;
+  virtual double Tolerance(Id) const { return Tolerance(); }
   double Limit() const { return SurfaceDistanceFactor * Tolerance(); }
+  double Limit(const SurfaceFace& face) const { return SurfaceDistanceFactor * Tolerance(face.facet); }
   virtual bool Feature(const SurfaceEdge&) const = 0;
+  virtual bool FrozenSeamPoint(Id) const { return false; }
+  virtual bool FrozenSeamEdge(const SurfaceEdge&) const { return false; }
   virtual SurfaceSamples Samples(const SurfaceFace&) = 0;
   virtual std::optional<double> Chord(const std::array<Node, 2>&) = 0;
   virtual SurfacePlacement Place(const std::array<Node, 2>&, const std::array<SurfaceFace, 2>&, Id) = 0;
@@ -82,7 +86,10 @@ class StateSurfaceGeometry final : public SurfaceGeometry {
   ~StateSurfaceGeometry() override;
 
   double Tolerance() const override;
+  double Tolerance(Id facet) const override;
   bool Feature(const SurfaceEdge&) const override;
+  bool FrozenSeamPoint(Id) const override;
+  bool FrozenSeamEdge(const SurfaceEdge&) const override;
   SurfaceSamples Samples(const SurfaceFace&) override;
   std::optional<double> Chord(const std::array<Node, 2>&) override;
   SurfacePlacement Place(const std::array<Node, 2>&, const std::array<SurfaceFace, 2>&, Id) override;

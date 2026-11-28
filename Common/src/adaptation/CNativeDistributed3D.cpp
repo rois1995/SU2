@@ -1488,6 +1488,9 @@ bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::v
   if(!Vote(failure,reason))return false;
   std::vector<BoundaryFaceChange> local_faces;
   try {
+    if (SU2NativeGeometry::MixedRoleClasses(parameters->Mobility()))
+      for (const auto& row : added) for (const auto& point : row.cell.v)
+        parameters->CheckFrozenSeamPoint(point);
     std::map<std::pair<Id,Face>,int> difference;
     auto collect=[&](const std::vector<OwnedCell>& cells,int sign) {
       for(const auto& row:cells) {

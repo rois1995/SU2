@@ -272,7 +272,9 @@ TEST_CASE("DEF1 fatal configuration and marker subprocess", "[.][def1_fatal]") {
       {"negative", "ADAP_HAUSD= (WALL,-0.02)\n"},
       {"nonfinite", "ADAP_HAUSD= (WALL,nan)\n"},
       {"duplicate", "ADAP_HAUSD= (WALL,0.02,WALL,0.03)\n"},
-      {"native", "ADAP_REMESHER= NATIVE_CAVITY\nADAP_HAUSD= (WALL,0.02)\n"},
+      {"native", "ADAP_REMESHER= NATIVE_CAVITY\nADAP_HAUSD= (NOT_DECLARED,0.02)\n"},
+      {"native_above", "ADAP_REMESHER= NATIVE_CAVITY\nADAP_HAUSD= (x_minus,1.001e100)\n"},
+      {"native_bl", "ADAP_REMESHER= NATIVE_CAVITY\nADAP_HAUSD= (x_minus,0.02)\nADAP_BL_MARKER= (x_minus)\n"},
   };
   const auto input = inputs.find(which);
   if (input != inputs.end()) {
@@ -289,4 +291,28 @@ TEST_CASE("DEF1 fatal configuration and marker subprocess", "[.][def1_fatal]") {
 #endif
   }
   FAIL("The requested DEF1 error returned instead of aborting.");
+}
+
+TEST_CASE("TOL1 native list uses the smallest configured value after marker setup", "[.][TOL1]") {
+  const std::string native = "ADAP_REMESHER= NATIVE_CAVITY\n";
+  const std::string list = "ADAP_HAUSD= (x_plus, 1e100, x_minus, 1e-4)\n";
+  const auto config = Config(native + list);
+  REQUIRE(config->GetAdap_MarkerHausd().size() == 2);
+  CHECK(config->GetAdap_MarkerHausd().at("x_plus") == 1e100);
+  CHECK(SU2_TYPE::GetValue(config->GetAdap_Hausd()) == 1e-4);
+  CHECK(SU2_TYPE::GetValue(Config(list)->GetAdap_Hausd()) == 0.01);
+  CHECK(SU2_TYPE::GetValue(Config(native + "ADAP_HAUSD= (0.0002)\n")->GetAdap_Hausd()) == 0.0002);
+  {
+    ZoneConfigFile overlay("ADAP_HAUSD= 0.0003\n");
+    CConfig child(config.get(), overlay.name, SU2_COMPONENT::SU2_CFD, 0, 1, false);
+    CHECK(child.GetAdap_MarkerHausd().empty());
+    CHECK(SU2_TYPE::GetValue(child.GetAdap_Hausd()) == 0.0003);
+  }
+  {
+    const auto parent = Config(native + "ADAP_HAUSD= 0.0003\n");
+    ZoneConfigFile overlay(list);
+    CConfig child(parent.get(), overlay.name, SU2_COMPONENT::SU2_CFD, 0, 1, false);
+    CHECK(child.GetAdap_MarkerHausd() == config->GetAdap_MarkerHausd());
+    CHECK(SU2_TYPE::GetValue(child.GetAdap_Hausd()) == 1e-4);
+  }
 }

@@ -10,6 +10,7 @@
 #include "../../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../../include/adaptation/CNativeCurvedReference.hpp"
 #include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+#include "../../../include/adaptation/CNativeMarkerTolerance3D.hpp"
 #include "../../../include/adaptation/CNativeTimerTree3D.hpp"
 #include <algorithm>
 #include <cmath>
@@ -661,6 +662,9 @@ StateSurfaceGeometry::StateSurfaceGeometry(std::shared_ptr<const PlanarReference
 StateSurfaceGeometry::~StateSurfaceGeometry() = default;
 
 double StateSurfaceGeometry::Tolerance() const { return impl_->state.GeometryTolerance(); }
+double StateSurfaceGeometry::Tolerance(Id facet) const {
+  return SU2Native3D::FaceTolerance(impl_->state.Geometry().Reference(), facet, Tolerance());
+}
 bool StateSurfaceGeometry::Feature(const SurfaceEdge& edge) const { return FindTrace(edge) != nullptr; }
 const BoundaryPoint* StateSurfaceGeometry::Find(Id id) const { return impl_->Find(id); }
 const EdgeTrace* StateSurfaceGeometry::FindTrace(const SurfaceEdge& edge) const { return impl_->Trace(edge); }
@@ -702,10 +706,33 @@ std::optional<double> StateSurfaceGeometry::Chord(const std::array<Node, 2>& end
 SurfacePlacement StateSurfaceGeometry::Place(const std::array<Node, 2>& ends,
                                                const std::array<SurfaceFace, 2>& parents, Id id) {
   Scope timing(Operation::GeometryBound);
+  const auto edge = EdgeKey(ends[0].id, ends[1].id);
+  if (FrozenSeamEdge(edge)) {
+    SU2NativeGeometry::CountFrozenSeamRefusal();
+    return Refused(SurfaceRefusal::Feature, SU2NativeGeometry::FrozenSeamChanged);
+  }
   impl_->BeginQuery();
   const QueryPeak query_peak(impl_->budget);
-  const auto* trace = impl_->Trace(EdgeKey(ends[0].id, ends[1].id));
-  return trace ? impl_->PlaceOnFeature(ends, parents, id, *trace) : impl_->PlaceOnSheet(ends, parents, id);
+  const auto* trace = impl_->Trace(edge);
+  auto placement = trace ? impl_->PlaceOnFeature(ends, parents, id, *trace) : impl_->PlaceOnSheet(ends, parents, id);
+  if (placement.Accepted() &&
+      impl_->state.Geometry().FrozenSeamPoint(placement.point.binding, impl_->state.Mobility())) {
+    SU2NativeGeometry::CountFrozenSeamRefusal();
+    return Refused(SurfaceRefusal::Feature, SU2NativeGeometry::FrozenSeamChanged);
+  }
+  return placement;
+}
+
+bool StateSurfaceGeometry::FrozenSeamPoint(Id id) const {
+  const auto& state = impl_->state;
+  return SU2NativeGeometry::MixedRoleClasses(state.Mobility()) &&
+         state.Geometry().FrozenSeamPoint(impl_->At(id).binding, state.Mobility());
+}
+
+bool StateSurfaceGeometry::FrozenSeamEdge(const SurfaceEdge& edge) const {
+  const auto& state = impl_->state;
+  return SU2NativeGeometry::MixedRoleClasses(state.Mobility()) &&
+         state.Geometry().FrozenSeamEdge(impl_->At(edge[0]).binding, impl_->At(edge[1]).binding, state.Mobility());
 }
 
 bool StateSurfaceGeometry::OnEntity(const SurfaceFace& face, const BoundaryPoint& middle) {
@@ -714,6 +741,9 @@ bool StateSurfaceGeometry::OnEntity(const SurfaceFace& face, const BoundaryPoint
 
 void StateSurfaceGeometry::Accept(SurfacePlacement&& placement) {
   auto& geometry = *impl_;
+  if (placement.Accepted() &&
+      (geometry.state.Geometry().FrozenSeamPoint(placement.point.binding, geometry.state.Mobility()) ||
+       (placement.parent && FrozenSeamEdge(*placement.parent)))) SU2NativeGeometry::RejectFrozenSeam();
   if (!placement.Accepted() || geometry.removed.count(placement.point.node.id) || geometry.Duplicate(placement.point) ||
       !geometry.created.emplace(placement.point.node.id, placement.point).second)
     throw std::invalid_argument("Native local surface attempted a duplicate or refused publication.");
@@ -741,6 +771,7 @@ void StateSurfaceGeometry::Remove(Id id) {
   const auto created = g.created.find(id);
   if (created == g.created.end() && !g.state.Find(id))
     throw std::invalid_argument("Native local surface removed point has no persistent association.");
+  if (FrozenSeamPoint(id)) SU2NativeGeometry::RejectFrozenSeam();
   const auto pending = std::find(g.pending_points.begin(), g.pending_points.end(), id);
   if (pending != g.pending_points.end()) {
     const auto& point = g.created.at(id);
@@ -775,15 +806,16 @@ bool StateSurfaceGeometry::WithinTolerance(const SurfaceFace& face) {
     points[k] = corners[k].node.p;
   }
   const auto bound = state.EntityFaceError(facet, bindings, points, &impl_->budget,
-                                         SU2NativeGeometry::SurfaceQueryNeed::Classify());
+                                         SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker());
   impl_->CheckBudget();
+  const auto allowed = Tolerance(facet);
   namespace cert = SU2Native3D::geometry_certificates;
-  if (auto* event = cert::active; event && event->SameStage(state) && cert::Qualified(bound, state.GeometryTolerance())) {
+  if (auto* event = cert::active; event && event->SameStage(state) && cert::Qualified(bound, allowed)) {
     Scope staging(Operation::Topology);
     event->Push(event->core, {cert::FaceKey(state, facet, bindings, points), cert::Origin::StepC},
                 Add(impl_->budget.caller_bytes, event->core_live_extra), impl_->budget.maximum_bytes);
   }
-  return bound <= state.GeometryTolerance();
+  return bound <= allowed;
 }
 
 void StateSurfaceGeometry::Exchange(World& world, MemoryBudget& budget, size_t caller) {
@@ -936,6 +968,8 @@ SurfaceStateResult BuildSurfaceState(const StateSurfaceGeometry& geometry, const
     throw std::length_error("Native surface state rebuild exceeds storage admission.");
   auto reservation = SU2Native3D::BoundaryAtlasBudget(SU2Native3D::BoundaryAtlasBytes(edits.coverage, state.Mobility()),
                                                       ceiling, bound);
+  // The rebuild admission above covers the temporary set of oriented seam sides (at most three per face).
+  state.CheckFrozenSeam(edits.points, edits.faces);
   SurfaceStateResult result;
   result.state = std::make_shared<SU2Native3D::BoundaryParameterState>(
       state.Authority(), edits.points, edits.faces, state.Revision() + 1, ceiling, live, edits.coverage,

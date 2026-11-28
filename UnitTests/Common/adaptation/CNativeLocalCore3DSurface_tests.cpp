@@ -1075,3 +1075,209 @@ TEST_CASE("Native local V rounds run quality once when empty and respect the sur
 #include "native_local_distance_fixtures.inc"
 #include "native_local_contact_fixtures.inc"
 #include "native_local_contact_mpi_fixtures.inc"
+
+#include "../../../Common/include/adaptation/CNativeGeometryBackend3D.hpp"
+#include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
+
+TEST_CASE("A subdivided curved marker seam survives private and shared native edits", "[.][TOL1][TOL1Seam]") {
+  using SU2NativeGeometry::FrozenSeamChanged;
+  using SU2NativeGeometry::MappedFacetReference;
+  using SU2NativeGeometry::MobilityPolicy;
+  using SU2NativeGeometry::NativeMappedGeometryBackend3D;
+  using SU2NativeGeometry::RoleClass;
+  using SU2NativeGeometry::RoleKind;
+  const std::vector<Point> corners{{0,0,0}, {1,0,0}, {0,1,0}, {0,0,1}};
+  const auto original = BoundMesh(corners, {{0,1,2,3}}, 1);
+  std::vector<Facet> facets;
+  std::map<Face, Id> original_faces;
+  std::map<Id, double> errors;
+  MappedFacetReference::CurvedNets curves;
+  const unsigned powers[10][3]{{3,0,0}, {0,3,0}, {0,0,3}, {2,1,0}, {1,2,0},
+                               {0,2,1}, {0,1,2}, {1,0,2}, {2,0,1}, {1,1,1}};
+  for (const auto& face : Surface(original)) {
+    const int marker = Key(face.v) == Face{0,1,2} ? 1 : 0;
+    facets.push_back({face.facet, marker, {{{face.v[0], corners[face.v[0]]},
+        {face.v[1], corners[face.v[1]]}, {face.v[2], corners[face.v[2]]}}}});
+    original_faces.emplace(Key(face.v), face.facet);
+    errors.emplace(face.facet, 1e-12);
+    auto& net = curves[face.facet];
+    for (unsigned k = 0; k < 10; ++k) {
+      std::array<unsigned,4> weights{};
+      for (unsigned j = 0; j < 3; ++j) weights[face.v[j]] = powers[k][j];
+      net[k] = {weights[1] / 3., weights[2] / 3., weights[3] / 3.};
+      if (weights[0] * weights[1] && weights[0] + weights[1] == 3) {
+        net[k].y -= .03125;
+        net[k].z -= .03125;
+      }
+    }
+    if (marker == 1) net[9].z -= .03125;
+  }
+  auto definition = std::make_shared<PlanarReference>(facets);
+  auto mapped = std::make_shared<MappedFacetReference>(definition, errors, 73, ExchangeCeiling, false, curves);
+  auto budget = AtlasBudget();
+  std::string reason;
+  MobilityPolicy scalar, equal, mixed;
+  REQUIRE(mapped->BuildMobilityPolicy(45, {{0,0}, {1,2}}, scalar, budget, reason));
+  REQUIRE(mapped->BuildMobilityPolicy(45, {{0,0 + 4*0}, {1,2 + 4*0}}, equal, budget, reason));
+  REQUIRE(mapped->BuildMobilityPolicy(45, {{0,0}, {1,2 + 4}}, mixed, budget, reason));
+  CHECK(EncodeBoundaryAtlas({}, scalar) == EncodeBoundaryAtlas({}, equal));
+  CHECK(scalar.identity == equal.identity);
+  CHECK(mixed.identity != scalar.identity);
+  CHECK(RoleKind(mixed.roles.at(0)) == 0);
+  CHECK(RoleKind(mixed.roles.at(1)) == 2);
+  CHECK(RoleClass(mixed.roles.at(0)) == 0);
+  CHECK(RoleClass(mixed.roles.at(1)) == 1);
+
+  constexpr Edge reference_edge{0,1}, seam_child{0,4};
+  const auto middle = mapped->EdgePoint(reference_edge, .5);
+  REQUIRE(middle.feature == 0);  // The old corner lookup would mistakenly use original vertex 0.
+  const auto midpoint = mapped->Realize(middle);
+  REQUIRE(midpoint.z != 0);
+  auto points = corners;
+  points.push_back(midpoint);
+  auto owned = BoundMesh(points, {{0,4,2,3}, {4,1,2,3}}, 1);
+  for (auto& row : owned) for (unsigned k = 0; k < 4; ++k) if (row.second.physical[k].present) {
+    auto face = FaceAt(row.second.cell, k);
+    if (Holds(face, 4)) *std::find(face.begin(), face.end(), 4) = Holds(face, 0) ? 1 : 0;
+    row.second.physical[k].facet = original_faces.at(Key(face));
+  }
+  const auto faces = Surface(owned);
+  BoundaryPoints associations;
+  for (Id id = 0; id < corners.size(); ++id) associations.emplace(id, BoundaryPoint{{id, corners[id]}, mapped->Vertex(id)});
+  associations.emplace(4, BoundaryPoint{{4, midpoint}, middle});
+  const BoundaryParameterState initial(mapped, associations, faces, 1, ExchangeCeiling, 0, {}, mixed, &budget);
+  auto state = initial.WithEntityGeometry(1e-4, budget, ExchangeCeiling);
+  const auto reference = PlanarReference::WithParameters(definition, state);
+  CHECK(state->FrozenSeamCounts() == std::make_pair(size_t(4), size_t(4)));
+  for (Id id : {0,1,2,4}) CHECK(mapped->MobilityDimension(associations.at(id).binding, mixed) == 0);
+  CHECK(mapped->MobilityDimension(middle, equal) == 1);
+  CHECK_FALSE(state->FrozenSeamPoint(3));
+
+  NativeMappedGeometryBackend3D backend(mapped, mixed);
+  bool allowed = true;
+  REQUIRE(backend.ContractionAllowed(mapped->Vertex(0), mapped->Vertex(3), allowed, budget, reason));
+  CHECK_FALSE(allowed);
+  REQUIRE(backend.ContractionAllowed(mapped->EdgePoint({0,3}, .5), middle, allowed, budget, reason));
+  CHECK_FALSE(allowed);
+
+  const auto private_reference = reference->PrivateParameters({}, &budget);
+  const auto parents = Parents(owned, seam_child);
+  CHECK_THROWS_WITH(private_reference->BindNewPoint({5, midpoint}, {parents[0].facet, parents[1].facet}, &seam_child),
+                    FrozenSeamChanged);
+  CHECK_THROWS_WITH(private_reference->BindMovedPoint(4, {5, midpoint}, {parents[0].facet, parents[1].facet}),
+                    FrozenSeamChanged);
+  local::StateSurfaceGeometry local_geometry(reference, AtlasBudget());
+  const auto placement = local_geometry.Place({associations.at(0).node, associations.at(4).node}, parents, 5);
+  CHECK_FALSE(placement.Accepted());
+  CHECK(placement.reason == FrozenSeamChanged);
+
+  auto changed = associations.at(4);
+  changed.node.p.y += .001;
+  const auto remove = state->Prepare({{associations.at(4), state->Revision(), false}}, {}, reason);
+  CHECK_FALSE(remove.valid);
+  CHECK(reason == FrozenSeamChanged);
+  local::SurfaceEdits edits{associations, faces, state->Coverage()};
+  edits.points.at(4) = changed;
+  CHECK_THROWS_WITH(local::BuildSurfaceState(local_geometry, edits, ExchangeCeiling, 0, false), FrozenSeamChanged);
+  edits.points.at(4) = associations.at(4);
+
+  const auto* old_face = state->IncidentFace(seam_child);
+  REQUIRE(old_face != nullptr);
+  Point chart[3];
+  for (unsigned k = 0; k < 3; ++k)
+    chart[k] = mapped->SurfaceCoordinates(old_face->facet, associations.at(old_face->v[k]).binding);
+  const auto new_binding = mapped->FacetPoint(old_face->facet,
+      (chart[0].y + chart[1].y + 2*chart[2].y) / 4, (chart[0].z + chart[1].z + 2*chart[2].z) / 4);
+  const BoundaryPoint inserted{{5, mapped->Realize(new_binding)}, new_binding};
+  std::vector<BoundaryFaceChange> fan{{old_face->v, old_face->facet, false}};
+  for (unsigned k = 0; k < 3; ++k) fan.push_back({{old_face->v[k], old_face->v[(k+1)%3], 5}, old_face->facet, true});
+  const auto retained = state->Prepare({{inserted, state->Revision(), true}}, fan, reason, ExchangeCeiling, 0, {}, &budget);
+  INFO(reason);
+  REQUIRE(retained.valid);
+
+  const auto installation = local::BuildSurfaceState(local_geometry, edits, ExchangeCeiling, 0, false);
+  const auto encoded_policy = EncodeBoundaryAtlas({}, mixed);
+  CHECK(EncodeBoundaryAtlas({}, installation.state->Mobility()) == encoded_policy);
+  const auto payload = state->Payload();
+  const auto worker = BoundaryParameterState::FromPayload(mapped, payload, ExchangeCeiling);
+  CHECK(worker->Payload() == payload);
+  const auto sidecar = EncodeReference({reference, facets, {"symmetry", "curved"}}, ExchangeCeiling);
+  const auto decoded = DecodeReference(sidecar, ExchangeCeiling);
+  CHECK(EncodeBoundaryAtlas({}, decoded.original->Parameters()->Mobility()) == encoded_policy);
+  CHECK(EncodeReference(decoded, ExchangeCeiling) == sidecar);
+  CHECK_THROWS_WITH(state->WithMobilityPolicy(45, equal.roles, budget, ExchangeCeiling),
+                    "Accepted boundary mobility policy differs from requested configuration.");
+
+  World world;
+  std::vector<Dependency> removals;
+  std::vector<OwnedCell> replacements;
+  if (world.rank == 0) for (const auto& row : owned) {
+    removals.push_back({row.first, row.second.version, 0});
+    auto& copy = replacements.emplace_back(row.second);
+    ++copy.version;
+    for (auto& node : copy.cell.v) if (node.id == 4) node = changed.node;
+  }
+  if (world.rank != 0) owned.clear();
+  Directory directory(world, false, state.get());
+  REQUIRE(directory.Build(owned, reason, ExchangeCeiling));
+  const auto before = Bytes(owned);
+  CHECK_FALSE(directory.Publish(owned, removals, replacements, true, reason, ExchangeCeiling));
+  CHECK(reason.find(FrozenSeamChanged) != std::string::npos);
+  CHECK(Bytes(owned) == before);
+  CHECK(state->Payload() == payload);
+}
+
+namespace {
+class MarkerDistanceFixture final : public FlatGeometry {
+ public:
+  using FlatGeometry::Tolerance;
+  MarkerDistanceFixture(const Owned& owned, Id facet, double value, bool centroid)
+      : FlatGeometry(owned), facet_(facet), value_(value), centroid_(centroid) {}
+
+  double Tolerance() const override { return 1e-4; }
+  double Tolerance(Id facet) const override { return facet == facet_ ? value_ : Tolerance(); }
+  local::SurfaceSamples Samples(const SurfaceFace& face) override {
+    local::SurfaceSamples samples{};
+    if (Key(face.v) == AskingFace) samples.distances[centroid_ ? 0 : 1] = .005;
+    return samples;
+  }
+
+ private:
+  Id facet_;
+  double value_;
+  bool centroid_;
+};
+}  // namespace
+
+TEST_CASE("TOL1 step D honors the marker limit for midpoint and centroid triggers", "[.][TOL1]") {
+  const bool centroid = GENERATE(false, true);
+  const auto rows = SkewedBox(false);
+  const auto surface = Surface(rows);
+  const auto asking = std::find_if(surface.begin(), surface.end(), [](const auto& face) {
+    return Key(face.v) == AskingFace;
+  });
+  REQUIRE(asking != surface.end());
+  local::CoreOptions options;
+  options.distance_error_cut = true;
+  for (const double value : {1e-4, .02}) {
+    CAPTURE(value, centroid);
+    MarkerDistanceFixture geometry(rows, asking->facet, value, centroid);
+    local::Mesh mesh(rows, false, options);
+    local::IdSequence ids(7);
+    local::PassStats report;
+    const auto before = Snapshot(mesh);
+    local::SurfaceFixtureAccess::DistanceWork(mesh, geometry, ids, report);
+    REQUIRE_NOTHROW(mesh.Check());
+    if (value == geometry.Tolerance()) {
+      CHECK((report.surface.d_error_edges > 0) == !centroid);
+      CHECK((report.surface.d_centroid_only > 0) == centroid);
+      CHECK(report.surface.sweeps_distance > 0);
+    } else {
+      CHECK(report.surface.d_error_edges == 0);
+      CHECK(report.surface.d_centroid_only == 0);
+      CHECK(report.surface.sweeps_distance == 0);
+      CHECK(report.surface.splits_distance == 0);
+      CHECK(Snapshot(mesh) == before);
+    }
+  }
+}

@@ -473,8 +473,9 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
     const double first = clock();
     const bool sampled = std::all_of(children.begin(), children.end(), [&](const auto& face) {
       const auto samples = geometry.Samples(face);
+      const auto allowed = geometry.Limit(face);
       return std::all_of(samples.distances.begin(), samples.distances.end(), [&](double distance) {
-        return std::isfinite(distance) && distance <= geometry.Limit();
+        return std::isfinite(distance) && distance <= allowed;
       });
     });
     if (report) counters.seconds_c_samples += clock() - first;

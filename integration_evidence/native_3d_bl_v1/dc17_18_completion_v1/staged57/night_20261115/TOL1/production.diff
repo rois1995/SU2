@@ -1,0 +1,2760 @@
+diff --git a/Common/include/CConfig.hpp b/Common/include/CConfig.hpp
+index d7d28412d5..9188df6ffb 100644
+--- a/Common/include/CConfig.hpp
++++ b/Common/include/CConfig.hpp
+@@ -1458,7 +1458,7 @@ private:
+    class of COptionBase that turns the string into a value) ---*/
+ 
+   map<string, COptionBase*> option_map;
+-  map<string, double> Adap_MarkerHausd;  /*!< \brief MMG-only boundary tolerance overrides by marker name. */
++  map<string, double> Adap_MarkerHausd;  /*!< \brief Boundary tolerance overrides by marker name. */
+ 
+ 
+   // All of the addXxxOptions take in the name of the option, and a reference to the field of that option
+diff --git a/Common/include/adaptation/CNativeAffineReference.hpp b/Common/include/adaptation/CNativeAffineReference.hpp
+index c07dcc1573..e3493b23bc 100644
+--- a/Common/include/adaptation/CNativeAffineReference.hpp
++++ b/Common/include/adaptation/CNativeAffineReference.hpp
+@@ -13,6 +13,7 @@
+ #include <memory>
+ #include <mutex>
+ #include <set>
++#include <stdexcept>
+ #include <unordered_map>
+ #include <vector>
+ 
+@@ -29,10 +30,18 @@ struct ProofShare {
+ struct SurfaceQueryNeed {
+   enum class Kind { Classify, Limit, Magnitude };
+   Kind kind;
++  bool marker_tolerance;
+   double stop_above;
+-  static SurfaceQueryNeed Classify(){return {Kind::Classify,0};}
+-  static SurfaceQueryNeed Limit(double cutoff){return {Kind::Limit,cutoff};}
+-  static SurfaceQueryNeed Magnitude(){return {Kind::Magnitude,0};}
++  static SurfaceQueryNeed Classify(){return {Kind::Classify,false,0};}
++  static SurfaceQueryNeed Limit(double cutoff){return {Kind::Limit,false,cutoff};}
++  static SurfaceQueryNeed Magnitude(){return {Kind::Magnitude,false,0};}
++  SurfaceQueryNeed ForMarker() const { return {kind, true, stop_above}; }
++};
++/*! Admission uses limit. Tessellation and magnitude convergence use accuracy. */
++struct SurfaceQueryTolerance {
++  double limit, accuracy;
++  constexpr SurfaceQueryTolerance(double value) : limit(value), accuracy(value) {}
++  constexpr SurfaceQueryTolerance(double limit, double accuracy) : limit(limit), accuracy(accuracy) {}
+ };
+ /*! Immutable definition; identity/version belong in every dependent cache key.
+  * Distance is a physical error contract, never a tolerance for volume predicates.
+@@ -92,7 +101,7 @@ struct MappedSurfaceAudit {
+   double maximum_mapping_error=0;
+ };
+ /*! Geometry policy, independent of whether a BL metric is requested. Edge keys use original IDs.
+- * roles: 0 reflective carrier, 2 other physical boundary; marker interfaces remain protected.
++ * Roles encode the boundary kind (0 reflective carrier, 2 other physical boundary) plus four times the tolerance class.
+  * Unresolved whole-edge normal comparisons are protected, never classified from samples. */
+ struct MobilityPolicy {
+   double angle=0;
+@@ -102,6 +111,21 @@ struct MobilityPolicy {
+   std::set<Id> corners;
+   std::map<Id,Id> bodies,sheets;          // Original facet -> edge-connected root.
+ };
++inline int RoleKind(int role) { return role % 4; }
++inline int RoleClass(int role) { return role / 4; }
++inline bool MixedRoleClasses(const MobilityPolicy& policy) {
++  if (policy.roles.empty()) return false;
++  const int first = RoleClass(policy.roles.begin()->second);
++  for (const auto& row : policy.roles) if (RoleClass(row.second) != first) return true;
++  return false;
++}
++inline constexpr char FrozenSeamChanged[] = "Native 3D adaptation changed a frozen marker seam.";
++inline thread_local size_t* frozen_seam_refusals = nullptr;
++inline void CountFrozenSeamRefusal() { if (frozen_seam_refusals) ++*frozen_seam_refusals; }
++[[noreturn]] inline void RejectFrozenSeam() {
++  CountFrozenSeamRefusal();
++  throw std::invalid_argument(FrozenSeamChanged);
++}
+ struct RegionSegment {Id facet=0;ExactBary first,last;};
+ /*! Explicit numerical mapping contract on immutable finite triangles.
+  * Facet-local policy protects original edges. Reference-component policy releases only
+@@ -202,16 +226,16 @@ class MappedFacetReference {
+    * No face correspondence is assumed. A successful query certifies the tolerance or supplies an outside witness.
+    * Topology, feature incidence and body separation require independent admission. */
+   SurfaceUnionBounds BoundSurfaceUnion(const std::vector<Id>& model_facets,
+-      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
++      const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerance,AtlasBudget&)const;
+   /*! Model enclosure for source tubes; does not certify the reverse distance or final tolerance. */
+   SurfaceUnionBounds BoundModelSurface(const std::vector<Id>& model_facets,
+-      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
++      const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerance,AtlasBudget&)const;
+   enum class SurfaceBoundPurpose { Classification, ErrorMagnitude, ErrorLimit };
+   /*! One-sided bound; ErrorMagnitude certifies a gap no larger than the prescribed tolerance.
+    * ErrorLimit may instead return a certified lower bound above stop_above; never use it as a magnitude.
+    * Omitted supports only weaken admission. No purpose certifies the reverse distance. */
+   double BoundPhysicalSurface(const std::vector<Id>& model_facets,
+-      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&,
++      const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerance,AtlasBudget&,
+       SurfaceBoundPurpose purpose=SurfaceBoundPurpose::Classification,double stop_above=std::numeric_limits<double>::infinity())const;
+   /*! Convex hull of an immutable curved patch and current source face, including realization error. */
+   class SourcePatch {
+@@ -274,6 +298,8 @@ class MappedFacetReference {
+                            AtlasBudget&,std::string& reason)const;
+   bool ChargeMobilityPolicy(size_t work, AtlasBudget&, std::string& reason) const;
+   unsigned MobilityDimension(const SurfaceBinding&,const MobilityPolicy&)const;
++  bool FrozenSeamPoint(const SurfaceBinding&, const MobilityPolicy&) const;
++  bool FrozenSeamEdge(const SurfaceBinding&, const SurfaceBinding&, const MobilityPolicy&) const;
+   /*! Physical displacement from the original flat facet, including realization error. */
+   double EnvelopeError(Id facet)const;
+   /*! Outward bound between a flat realized child and its curved parameter patch. */
+@@ -318,10 +344,10 @@ class MappedFacetReference {
+   uint64_t Version()const{return version;}
+  private:
+   SurfaceUnionBounds QuerySurfaceUnion(const std::vector<Id>&,
+-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false,
++      const std::vector<std::array<Point,3>>&,SurfaceQueryTolerance,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false,
+       double stop_above=std::numeric_limits<double>::infinity())const;
+   SurfaceUnionBounds QuerySurfaceUnionAtResolution(const std::vector<Id>&,
+-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude,
++      const std::vector<std::array<Point,3>>&,SurfaceQueryTolerance,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude,
+       double stop_above)const;
+ 
+   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
+@@ -349,6 +375,7 @@ class MappedFacetReference {
+                              const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats)const;
+   void CheckBinding(const SurfaceBinding& binding)const;
+   Id EdgeIdentity(SU2Native3D::Edge edge)const;
++  bool IsFrozenReferenceEdge(Id edge, const MobilityPolicy&) const;
+   SU2Native3D::ParametricPoint FacetParameters(Id facet,const SurfaceBinding& binding)const;
+   std::array<Point,2> CurvedBounds(const SurfaceBinding& binding)const;
+ };
+diff --git a/Common/include/adaptation/CNativeBoundary3D.hpp b/Common/include/adaptation/CNativeBoundary3D.hpp
+index 583fde268a..d46e4ce522 100644
+--- a/Common/include/adaptation/CNativeBoundary3D.hpp
++++ b/Common/include/adaptation/CNativeBoundary3D.hpp
+@@ -167,7 +167,7 @@ class GeometryGuidanceMemo;
+  * it must not be used as a complete score or as evidence of geometric progress. */
+ GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& geometry,double tolerance,
+                                       long double reject_above=std::numeric_limits<long double>::infinity(),
+-                                      GeometryGuidanceMemo* memo=nullptr);
++                                      GeometryGuidanceMemo* memo=nullptr, bool by_marker=false);
+ /*! Scoped entity-face numeric guidance, never an association or publication certificate.
+  * Prepare admits bounded storage; caller includes ResidentBytes in its retained reservation.
+  * First evaluation records bounds; later evaluations reuse only exact unchanged contracts. */
+@@ -188,7 +188,7 @@ class GeometryGuidanceMemo {
+   uint64_t revision=0;
+   double tolerance=0;
+   bool recording=false;
+-  friend GeometryGuidance GeometryGuidanceExcess(const Patch&,const PlanarReference&,double,long double,GeometryGuidanceMemo*);
++  friend GeometryGuidance GeometryGuidanceExcess(const Patch&,const PlanarReference&,double,long double,GeometryGuidanceMemo*,bool);
+ };
+ struct GeometrySplitPrediction {
+   long double before=0,after=0;
+diff --git a/Common/include/adaptation/CNativeBoundaryParameters3D.hpp b/Common/include/adaptation/CNativeBoundaryParameters3D.hpp
+index 4d6ef3177a..b62846c001 100644
+--- a/Common/include/adaptation/CNativeBoundaryParameters3D.hpp
++++ b/Common/include/adaptation/CNativeBoundaryParameters3D.hpp
+@@ -101,13 +101,14 @@ class BoundaryParameterState {
+   double EntityFaceError(Id facet,const std::array<SU2NativeGeometry::SurfaceBinding,3>&,
+       const std::array<Point,3>&,SU2NativeGeometry::AtlasBudget*,SU2NativeGeometry::SurfaceQueryNeed need,double minimum_error=0)const;
+   const Certificates&
+-      GeometryCertificates(SU2NativeGeometry::AtlasBudget&,bool complete=false,const std::vector<double>* reverse_bounds=nullptr)const;
++      GeometryCertificates(SU2NativeGeometry::AtlasBudget&,bool complete=false,const std::vector<double>* reverse_bounds=nullptr,
++                           Certificates* complete_proof=nullptr)const;
+   bool ReverseProofComplete(const std::vector<double>& reverse_bounds) const;
+   std::vector<ModelShareBound> ModelProofShare(SU2NativeGeometry::AtlasBudget&,
+                                              const std::vector<double>& reverse_bounds,
+                                              SU2NativeGeometry::ProofShare) const;
+   const Certificates& AdoptModelProof(const std::vector<double>& reverse_bounds,
+-                                      const std::vector<ModelShareBound>& joined) const;
++                                      const std::vector<ModelShareBound>& joined, Certificates* complete_proof = nullptr) const;
+   /*! Mesh-to-model bounds for the given owned faces, in canonical entity-key order. */
+   std::vector<double> OwnedFaceReverseBounds(const std::vector<SurfaceFace>&,SU2NativeGeometry::AtlasBudget&)const;
+   const Entries& Records()const{return records;}
+@@ -125,6 +126,11 @@ class BoundaryParameterState {
+   FacetFaceRange FacesOnVertex(Id vertex)const;
+   const BoundaryPoint* Find(Id id)const;
+   const BoundaryPoint* Find(Point point)const;
++  bool FrozenSeamPoint(Id id) const;
++  bool FrozenSeamEdge(Edge edge) const;
++  void CheckFrozenSeamPoint(Node staged) const;
++  void CheckFrozenSeam(const BoundaryPoints& points, const std::vector<SurfaceFace>& faces) const;
++  std::pair<size_t, size_t> FrozenSeamCounts() const;
+   const SU2NativeGeometry::MappedFacetReference& Geometry()const{return *geometry;}
+   uint64_t Revision()const{return revision;}
+   std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> Authority()const{return geometry;}
+diff --git a/Common/include/adaptation/CNativeEngine3D.hpp b/Common/include/adaptation/CNativeEngine3D.hpp
+index 11e97af665..c6580921cc 100644
+--- a/Common/include/adaptation/CNativeEngine3D.hpp
++++ b/Common/include/adaptation/CNativeEngine3D.hpp
+@@ -379,4 +379,8 @@ EngineResult Coarsen(World& world, const Owned& accepted, const std::vector<Dono
+  * final success still requires all strict frozen target gates. */
+ EngineResult Repair(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
++/*! Certify the physical faces of a private projected patch. */
++std::pair<size_t, size_t> GeometryCounts(const Patch& patch, const PlanarReference& geometry,
++                                         double strict_tolerance, SU2NativeGeometry::AtlasBudget& atlas_budget,
++                                         uint64_t& measured_faces, std::set<Edge>* failed_edges = nullptr);
+ }  // namespace SU2Native3D
+diff --git a/Common/include/adaptation/CNativeGeometryBackend3D.hpp b/Common/include/adaptation/CNativeGeometryBackend3D.hpp
+index 028117b359..45de97738c 100644
+--- a/Common/include/adaptation/CNativeGeometryBackend3D.hpp
++++ b/Common/include/adaptation/CNativeGeometryBackend3D.hpp
+@@ -58,7 +58,7 @@ class GeometryBackend3D {
+   virtual bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const=0;
+   /*! Complete physical mesh of one semantic model body/sheet/marker, without face partitions.
+    * ModelToMesh supplies source enclosure only; within_tolerance requires Both. */
+-  virtual bool PatchErrorBounds(const GeometrySupport&,const std::vector<std::array<Point,3>>&,double tolerance,
++  virtual bool PatchErrorBounds(const GeometrySupport&,const std::vector<std::array<Point,3>>&,SurfaceQueryTolerance tolerance,
+       MappedFacetReference::SurfaceUnionBounds&,AtlasBudget&,std::string&,GeometryErrorDirection=GeometryErrorDirection::Both,
+       ProofShare share = {})const=0;
+ };
+@@ -75,7 +75,7 @@ class NativeMappedGeometryBackend3D final:public GeometryBackend3D {
+   bool ContractionAllowed(const SurfaceBinding&,const SurfaceBinding&,bool&,AtlasBudget&,std::string&)const override;
+   bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&,GeometryProjectionFailure* =nullptr)const override;
+   bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const override;
+-  bool PatchErrorBounds(const GeometrySupport&,const std::vector<std::array<Point,3>>&,double,
++  bool PatchErrorBounds(const GeometrySupport&,const std::vector<std::array<Point,3>>&,SurfaceQueryTolerance,
+       MappedFacetReference::SurfaceUnionBounds&,AtlasBudget&,std::string&,GeometryErrorDirection=GeometryErrorDirection::Both,
+       ProofShare share = {})const override;
+  private:
+diff --git a/Common/include/adaptation/CNativeGeometryCertificates3D.hpp b/Common/include/adaptation/CNativeGeometryCertificates3D.hpp
+index 379bfb4a38..b99a771c2a 100644
+--- a/Common/include/adaptation/CNativeGeometryCertificates3D.hpp
++++ b/Common/include/adaptation/CNativeGeometryCertificates3D.hpp
+@@ -7,6 +7,7 @@
+ 
+ #include "CNativeBoundaryParameters3D.hpp"
+ #include "CNativeDistributed3D.hpp"
++#include "CNativeMarkerTolerance3D.hpp"
+ #include "CNativeTimerTree3D.hpp"
+ #include "CTransferMemory.hpp"
+ #include <chrono>
+@@ -53,7 +54,8 @@ inline Key FaceKey(const BoundaryParameterState& state, Id facet, const std::arr
+                    const std::array<Point, 3>& points) {
+   const auto [body, sheet, marker] = state.Entity(facet);
+   Key key;
+-  key.face = {state.Geometry().Canonical(facet), facet, body, sheet, uint64_t(marker), Bits(state.GeometryTolerance())};
++  key.face = {state.Geometry().Canonical(facet), facet, body, sheet, uint64_t(marker),
++              Bits(MarkerTolerance(marker, state.GeometryTolerance()))};
+   for (size_t i = 0; i < points.size(); ++i) {
+     const auto& p = points[i];
+     const auto& b = bindings[i];
+diff --git a/Common/include/adaptation/CNativeLocalCore3D.hpp b/Common/include/adaptation/CNativeLocalCore3D.hpp
+index 7573a8cfcb..e92d36389a 100644
+--- a/Common/include/adaptation/CNativeLocalCore3D.hpp
++++ b/Common/include/adaptation/CNativeLocalCore3D.hpp
+@@ -409,6 +409,7 @@ class Mesh {
+                                   const SurfaceEdgeSet& refused,
+                                   const SurfaceEdgeSet& border, const SurfaceErrors& errors, double floor,
+                                   size_t face_count, bool check_first, PassStats& stats) const;
++  double SurfaceChordLimit(Edge edge, Slot seed, const SurfaceGeometry& geometry, double strict) const;
+   DistanceChoice ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
+                                     const SurfaceChords& chords, const SurfaceEdgeSet& refused,
+                                     const SurfaceEdgeSet& border, const SurfaceErrors& errors, size_t face_count,
+diff --git a/Common/include/adaptation/CNativeLocalSurface3D.hpp b/Common/include/adaptation/CNativeLocalSurface3D.hpp
+index f4f3f85787..3093b9be08 100644
+--- a/Common/include/adaptation/CNativeLocalSurface3D.hpp
++++ b/Common/include/adaptation/CNativeLocalSurface3D.hpp
+@@ -40,8 +40,12 @@ class SurfaceGeometry {
+  public:
+   virtual ~SurfaceGeometry() = default;
+   virtual double Tolerance() const = 0;
++  virtual double Tolerance(Id) const { return Tolerance(); }
+   double Limit() const { return SurfaceDistanceFactor * Tolerance(); }
++  double Limit(const SurfaceFace& face) const { return SurfaceDistanceFactor * Tolerance(face.facet); }
+   virtual bool Feature(const SurfaceEdge&) const = 0;
++  virtual bool FrozenSeamPoint(Id) const { return false; }
++  virtual bool FrozenSeamEdge(const SurfaceEdge&) const { return false; }
+   virtual SurfaceSamples Samples(const SurfaceFace&) = 0;
+   virtual std::optional<double> Chord(const std::array<Node, 2>&) = 0;
+   virtual SurfacePlacement Place(const std::array<Node, 2>&, const std::array<SurfaceFace, 2>&, Id) = 0;
+@@ -82,7 +86,10 @@ class StateSurfaceGeometry final : public SurfaceGeometry {
+   ~StateSurfaceGeometry() override;
+ 
+   double Tolerance() const override;
++  double Tolerance(Id facet) const override;
+   bool Feature(const SurfaceEdge&) const override;
++  bool FrozenSeamPoint(Id) const override;
++  bool FrozenSeamEdge(const SurfaceEdge&) const override;
+   SurfaceSamples Samples(const SurfaceFace&) override;
+   std::optional<double> Chord(const std::array<Node, 2>&) override;
+   SurfacePlacement Place(const std::array<Node, 2>&, const std::array<SurfaceFace, 2>&, Id) override;
+diff --git a/Common/include/adaptation/CNativeMarkerTolerance3D.hpp b/Common/include/adaptation/CNativeMarkerTolerance3D.hpp
+new file mode 100644
+index 0000000000..11b12abdbd
+--- /dev/null
++++ b/Common/include/adaptation/CNativeMarkerTolerance3D.hpp
+@@ -0,0 +1,115 @@
++/*!
++ * \file CNativeMarkerTolerance3D.hpp
++ * \brief Event-local native geometry tolerances indexed by reference marker.
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++#pragma once
++
++#include "CTransferMemory.hpp"
++#include <algorithm>
++#include <cmath>
++#include <cstdint>
++#include <cstring>
++#include <iomanip>
++#include <limits>
++#include <map>
++#include <sstream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace SU2Native3D {
++
++class MarkerTolerance3D {
++  struct Row {
++    std::string name;
++    double value;
++    int index_class;
++  };
++  std::vector<Row> rows;
++  double strict;
++
++ public:
++  using Configured = std::map<std::string, double>;
++
++  static size_t ConstructionBytes(const std::vector<std::string>& markers, size_t configured) {
++    auto bytes = transfer_memory::Add(sizeof(MarkerTolerance3D), transfer_memory::Mul(markers.size(), sizeof(Row)),
++                                      transfer_memory::Mul(configured, sizeof(double)));
++    for (const auto& name : markers) bytes = transfer_memory::Add(bytes, name.size() + 1);
++    return bytes;
++  }
++
++  MarkerTolerance3D(const Configured& configured, const std::vector<std::string>& marker_names, double max_coordinate) {
++    if (configured.empty()) throw std::invalid_argument("Native marker tolerance table requires a list.");
++    for (const auto& name : marker_names)
++      if (!configured.count(name))
++        throw std::invalid_argument("ADAP_HAUSD: with ADAP_REMESHER= NATIVE_CAVITY every boundary marker needs a value; missing: " + name);
++    std::vector<double> classes;
++    classes.reserve(configured.size());
++    for (const auto& entry : configured) classes.push_back(entry.second);
++    std::sort(classes.begin(), classes.end());
++    classes.erase(std::unique(classes.begin(), classes.end()), classes.end());
++    strict = classes.front();
++    const auto floor = std::max(1e-12 * max_coordinate,
++        16 * std::nextafter(std::numeric_limits<double>::min(), std::numeric_limits<double>::infinity()));
++    if (strict < floor) {
++      std::ostringstream message;
++      message << "ADAP_HAUSD: the smallest value is below the native floor " << std::setprecision(17) << floor << '.';
++      throw std::invalid_argument(message.str());
++    }
++    rows.reserve(marker_names.size());
++    for (const auto& marker : marker_names) {
++      const auto& entry = *configured.find(marker);
++      const auto offset = std::lower_bound(classes.begin(), classes.end(), entry.second) - classes.begin();
++      if (offset > std::numeric_limits<int>::max() / 4)
++        throw std::length_error("Native tolerance role is outside the integer domain.");
++      rows.push_back({entry.first, entry.second, static_cast<int>(offset)});
++    }
++  }
++
++  size_t Bytes() const {
++    auto bytes = transfer_memory::Add(sizeof(*this), transfer_memory::Bytes(rows));
++    for (const auto& row : rows) bytes = transfer_memory::Add(bytes, transfer_memory::Bytes(row.name));
++    return bytes;
++  }
++  double Strict() const { return strict; }
++  double Marker(int marker) const { return rows.at(marker).value; }
++  int Class(int marker) const { return rows.at(marker).index_class; }
++
++  void WriteMarkers(std::ostream& stream) const {
++    for (size_t i = 0; i < rows.size(); ++i) {
++      const auto& row = rows[i];
++      if (i) stream << ',';
++      stream << row.name << ':' << i << ':' << row.value << ':' << row.index_class;
++    }
++  }
++
++  // Configured is sorted by name. Include the field terminator and all value bits.
++  static uint64_t Identity(const Configured& configured) {
++    if (configured.empty()) return 0;
++    uint64_t word = 14695981039346656037ULL;
++    const auto add = [&](unsigned char byte) { word = (word ^ byte) * 1099511628211ULL; };
++    for (const auto& entry : configured) {
++      for (unsigned char byte : entry.first) add(byte);
++      add(0);
++      uint64_t value;
++      static_assert(sizeof(value) == sizeof(entry.second));
++      std::memcpy(&value, &entry.second, sizeof(value));
++      for (unsigned byte = 0; byte < sizeof(value); ++byte) add((value >> (8 * byte)) & 255);
++    }
++    return word ? word : 1;
++  }
++};
++
++inline thread_local const MarkerTolerance3D* active_marker_tolerance = nullptr;
++
++inline double MarkerTolerance(int marker, double scalar) {
++  return active_marker_tolerance ? active_marker_tolerance->Marker(marker) : scalar;
++}
++
++template <class Reference>
++double FaceTolerance(const Reference& geometry, uint64_t facet, double scalar) {
++  return active_marker_tolerance ? active_marker_tolerance->Marker(geometry.Get(facet).marker) : scalar;
++}
++
++}  // namespace SU2Native3D
+diff --git a/Common/src/CConfig.cpp b/Common/src/CConfig.cpp
+index dbdb5a9d0e..263ef44fd9 100644
+--- a/Common/src/CConfig.cpp
++++ b/Common/src/CConfig.cpp
+@@ -3350,7 +3350,9 @@ void CConfig::SetConfig_Options() {
+   /*!\brief ADAP_HGRAD \n DESCRIPTION: Size gradation of the remesher (ratio of neighbouring edge lengths, default 1.6) \ingroup Config */
+   addDoubleOption("ADAP_HGRAD", Adap_Hgrad, 1.6);
+   /*!\brief ADAP_HAUSD \n DESCRIPTION: MMG boundary approximation tolerance, scalar or (marker, value, ...).
+-   * Native remeshing uses one absolute geometry tolerance (scalar only). \ingroup Config */
++   * Native 3D checks absolute geometry error against the scalar or each listed marker's value.
++   * Every boundary with faces must be listed. Seams between different values keep their input points and edges.
++   * \ingroup Config */
+   all_options.emplace("ADAP_HAUSD", true);
+   option_map.emplace("ADAP_HAUSD", new COptionAdapHausd(Adap_Hausd, Adap_MarkerHausd));
+   /*!\brief ADAP_ANGLE \n DESCRIPTION: Sharp angle detection threshold of the remesher, in degrees \ingroup Config */
+@@ -6528,8 +6530,15 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
+     SU2_MPI::Error("ADAP_HGRAD must be a finite value > 1.", CURRENT_FUNCTION);
+   }
+   if (!Adap_MarkerHausd.empty() && Kind_Adap_Remesher == ADAP_REMESHER::NATIVE_CAVITY) {
+-    SU2_MPI::Error("ADAP_HAUSD per marker is available only with ADAP_REMESHER= MMG; the native remesher uses one value.",
+-                   CURRENT_FUNCTION);
++    if (nAdap_BL_Marker)
++      SU2_MPI::Error("ADAP_HAUSD per marker is not available with the native boundary layer yet.", CURRENT_FUNCTION);
++    double strict = std::numeric_limits<double>::max();
++    for (const auto& entry : Adap_MarkerHausd) {
++      if (entry.second > 1e100)
++        SU2_MPI::Error("ADAP_HAUSD: " + entry.first + " value is above 1e100.", CURRENT_FUNCTION);
++      strict = std::min(strict, entry.second);
++    }
++    Adap_Hausd = strict;
+   }
+   if (!(Adap_Hausd > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hausd))) {
+     SU2_MPI::Error("ADAP_HAUSD must be a finite value > 0.", CURRENT_FUNCTION);
+@@ -7449,6 +7458,15 @@ void CConfig::SetMarkers(SU2_COMPONENT val_software) {
+         Marker_CfgFile_SobolevBC[iMarker_CfgFile] = YES;
+   }
+ 
++  if (Kind_Adap_Remesher == ADAP_REMESHER::NATIVE_CAVITY && !Adap_MarkerHausd.empty()) {
++    const string* begin = Marker_CfgFile_TagBound;
++    const string* end = begin + nMarker_CfgFile;
++    for (const auto& entry : Adap_MarkerHausd) {
++      if (std::find(begin, end, entry.first) == end)
++        SU2_MPI::Error("ADAP_HAUSD: " + entry.first + " is not a boundary marker", CURRENT_FUNCTION);
++    }
++  }
++
+   /*--- The boundary-layer metric is for solid walls (no-slip, also Euler walls). ---*/
+   for (const auto& layer : Adap_BL) {
+     unsigned short kind = 0;
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index 04ed94ccd4..b9cd28ab10 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -2090,7 +2090,9 @@ bool MappedFacetReference::BuildMobilityPolicy(double angle,const std::map<int,i
+     if(!(std::isfinite(angle)&&angle>=0&&angle<=180))throw std::invalid_argument("Invalid geometry feature angle.");
+     MobilityPolicy policy;policy.angle=angle;policy.roles=roles;policy.bodies=body_roots;
+     for(const auto& f:reference->Facets()) {
+-      const auto role=roles.find(f.second.marker);if(role==roles.end()||(role->second!=0&&role->second!=2))throw std::invalid_argument("Incomplete/invalid geometry marker roles.");
++      const auto role=roles.find(f.second.marker);
++      if(role==roles.end()||role->second<0||(RoleKind(role->second)!=0&&RoleKind(role->second)!=2))
++        throw std::invalid_argument("Incomplete/invalid geometry marker roles.");
+       policy.sheets.emplace(f.first,f.first);
+     }
+     const auto cosine=CosineDegrees(angle);
+@@ -2125,8 +2127,11 @@ bool MappedFacetReference::BuildMobilityPolicy(double angle,const std::map<int,i
+       return Difference(Exact(curve->second[controls[k][forward?0:1]]),Exact(nodes.at(vertex)));
+     };
+     auto signature=[&](size_t index){std::vector<std::pair<int,int>> labels;for(Id f:edge_facets[index]){const int m=reference->Get(f).marker;labels.push_back({m,roles.at(m)});}std::sort(labels.begin(),labels.end());return labels;};
++    const bool mixed_classes = MixedRoleClasses(policy);
+     for(const auto& vertex:feature_vertices) {
+       op.Work();bool corner=vertex.second.size()!=2;
++      if (!corner && mixed_classes)
++        for (Id edge : vertex.second) if (IsFrozenReferenceEdge(edge, policy)) corner = true;
+       if(!corner) {
+         const auto a=vertex.second[0],b=vertex.second[1];auto incoming=tangent(a,vertex.first);for(auto& d:incoming)d={-d.hi,-d.lo};
+         corner=signature(a)!=signature(b)||!NormalAngleBound(incoming,tangent(b,vertex.first),cosine);
+@@ -2168,7 +2173,10 @@ unsigned MappedFacetReference::MobilityDimension(const SurfaceBinding& binding,c
+   CheckBinding(binding);if(!policy.identity)return binding.dimension;
+   if(policy.version!=1)throw std::invalid_argument("Unsupported geometry mobility policy.");
+   if(binding.dimension==2)return 2;
+-  if(binding.dimension==1)return policy.features.count(edges.at(binding.feature))?1:2;
++  if(binding.dimension==1) {
++    if (!policy.features.count(edges.at(binding.feature))) return 2;
++    return IsFrozenReferenceEdge(binding.feature, policy) ? 0 : 1;
++  }
+   if(policy.corners.count(binding.feature))return 0;
+   for(Id id:vertex_facets.at(binding.feature)) {
+     const auto& f=reference->Get(id);for(unsigned k=0;k<3;++k) {
+@@ -2178,6 +2186,44 @@ unsigned MappedFacetReference::MobilityDimension(const SurfaceBinding& binding,c
+   }
+   return 2;
+ }
++bool MappedFacetReference::IsFrozenReferenceEdge(Id edge, const MobilityPolicy& policy) const {
++  const auto& incident = edge_facets.at(edge);
++  if (incident.size() != 2) return false;
++  const int a = reference->Get(incident[0]).marker, b = reference->Get(incident[1]).marker;
++  return a != b && RoleClass(policy.roles.at(a)) != RoleClass(policy.roles.at(b));
++}
++bool MappedFacetReference::FrozenSeamPoint(const SurfaceBinding& binding, const MobilityPolicy& policy) const {
++  if (!policy.identity || binding.dimension >= 2 || !MixedRoleClasses(policy)) return false;
++  CheckBinding(binding);
++  if (binding.dimension == 1) return IsFrozenReferenceEdge(binding.feature, policy);
++  if (!policy.corners.count(binding.feature)) return false;
++  for (Id side : vertex_facets.at(binding.feature)) {
++    const auto& face = reference->Get(side);
++    for (unsigned k = 0; k < 3; ++k) {
++      SU2Native3D::Edge edge{face.v[k].id, face.v[(k+1)%3].id};
++      if (edge[0] != binding.feature && edge[1] != binding.feature) continue;
++      std::sort(edge.begin(), edge.end());
++      if (IsFrozenReferenceEdge(EdgeIdentity(edge), policy)) return true;
++    }
++  }
++  return false;
++}
++bool MappedFacetReference::FrozenSeamEdge(const SurfaceBinding& a, const SurfaceBinding& b,
++                                         const MobilityPolicy& policy) const {
++  if (!policy.identity || a.dimension >= 2 || b.dimension >= 2 || !MixedRoleClasses(policy)) return false;
++  CheckBinding(a); CheckBinding(b);
++  if (a.dimension == 1 && b.dimension == 1)
++    return a.feature == b.feature && IsFrozenReferenceEdge(a.feature, policy);
++  if (a.dimension == 1 || b.dimension == 1) {
++    const auto& on_edge = a.dimension == 1 ? a : b;
++    const auto& on_vertex = a.dimension == 0 ? a : b;
++    const auto& edge = edges.at(on_edge.feature);
++    return (edge[0] == on_vertex.feature || edge[1] == on_vertex.feature) && IsFrozenReferenceEdge(on_edge.feature, policy);
++  }
++  SU2Native3D::Edge edge{std::min(a.feature, b.feature), std::max(a.feature, b.feature)};
++  const auto found = std::lower_bound(edges.begin(), edges.end(), edge);
++  return found != edges.end() && *found == edge && IsFrozenReferenceEdge(found - edges.begin(), policy);
++}
+ double MappedFacetReference::ComponentPointError(const SurfaceBinding& binding,Point p)const {
+   const auto model=Ideal(binding);const double original=PointModelError(model,p);double maximum=original;
+   ForFacets(binding,[&](Id id){const auto plane=reference->Affine().find(Canonical(id));if(plane==reference->Affine().end())return;
+@@ -2674,13 +2720,13 @@ MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(Id fa
+ }
+ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundSurfaceUnion(
+     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+-    double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,true);}
++    SurfaceQueryTolerance tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,true);}
+ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundModelSurface(
+     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+-    double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
++    SurfaceQueryTolerance tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
+ 
+ // M27 hashes the existing query identity without its answer kind or cutoff.
+-static uint64_t UnionFaceWord(const std::vector<Id>& facets, double tolerance,
++static uint64_t UnionFaceWord(const std::vector<Id>& facets, SurfaceQueryTolerance tolerance,
+                               const std::vector<std::array<Point, 3>>& triangles) noexcept {
+   uint64_t hash = 14695981039346656037ULL;
+   auto append_word = [&](uint64_t word) {
+@@ -2697,7 +2743,11 @@ static uint64_t UnionFaceWord(const std::vector<Id>& facets, double tolerance,
+   append_word(facets.size());
+   for (Id facet : facets) append_word(facet);
+   append_word(triangles.size());
+-  append_bits(tolerance);
++  append_bits(tolerance.limit);
++  if (tolerance.limit != tolerance.accuracy) {
++    append_word(UINT64_MAX);
++    append_bits(tolerance.accuracy);
++  }
+   for (const auto& triangle : triangles)
+     for (const auto point : triangle)
+       for (const auto coordinate : Values(point)) append_bits(coordinate);
+@@ -2705,9 +2755,11 @@ static uint64_t UnionFaceWord(const std::vector<Id>& facets, double tolerance,
+ }
+ 
+ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
+-    const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget,SurfaceBoundPurpose purpose,double stop_above)const {
++    const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerances,AtlasBudget& budget,SurfaceBoundPurpose purpose,double stop_above)const {
+   ConformingWitness();
+   SU2NativeTiming3D::Scope timer(SU2NativeTiming3D::Operation::GeometryBound);
++  const double tolerance = tolerances.limit;
++  const size_t extra_words = tolerance != tolerances.accuracy ? 2 : 0;
+   const bool limited=purpose==SurfaceBoundPurpose::ErrorLimit;
+   const bool magnitude=purpose==SurfaceBoundPurpose::ErrorMagnitude||limited;
+   if(limited&&(!std::isfinite(stop_above)||stop_above<tolerance))
+@@ -2722,6 +2774,7 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
+         static_cast<const void*>(this),static_cast<const void*>(&budget),trace_start,
+         static_cast<unsigned long long>(bits(tolerance)));
+     for(Id facet:facets)std::fprintf(stderr,"%llu,",static_cast<unsigned long long>(facet));
++    if (extra_words) std::fprintf(stderr," accuracy=%016llx",static_cast<unsigned long long>(bits(tolerances.accuracy)));
+     std::fprintf(stderr," triangles=");
+     for(const auto& triangle:physical) {
+       for(auto p:triangle)for(double x:Values(p))std::fprintf(stderr,"%016llx,",static_cast<unsigned long long>(bits(x)));
+@@ -2740,7 +2793,7 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
+   if (transfer_memory::Add(budget.caller_bytes, canonical_bytes) > budget.maximum_bytes) {
+     SU2NativeD9::ObserveUnionBypass();
+     return traced_result(
+-        QuerySurfaceUnion(facets, physical, tolerance, budget, false, true, magnitude, stop_above).mesh_to_model,
++        QuerySurfaceUnion(facets, physical, tolerances, budget, false, true, magnitude, stop_above).mesh_to_model,
+         "bypass");
+   }
+   AtlasOps op{budget,__func__};
+@@ -2756,25 +2809,31 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
+     });
+   }
+   const auto& query=canonical.empty()?physical:canonical;
+-  const auto face_word = SU2NativeD9::ObservingUnion() ? UnionFaceWord(facets, tolerance, query) : uint64_t{};
+-  const auto words=transfer_memory::Add(limited?5:(magnitude?4:3),facets.size(),transfer_memory::Mul(physical.size(),9));
++  const auto face_word = SU2NativeD9::ObservingUnion() ? UnionFaceWord(facets, tolerances, query) : uint64_t{};
++  const auto words=transfer_memory::Add(extra_words, limited?5:(magnitude?4:3),facets.size(),
++                                        transfer_memory::Mul(physical.size(),9));
+   const auto temporary=transfer_memory::GrowthBound(words,sizeof(uint64_t));
+   if (!face_memo || FaceMemo::UnionBytes(words) > face_memo->Capacity() ||
+       transfer_memory::Add(budget.caller_bytes, temporary) > budget.maximum_bytes) {
+     SU2NativeD9::ObserveUnionBypass();
+     return traced_result(
+-        QuerySurfaceUnion(facets, query, tolerance, budget, false, true, magnitude, stop_above).mesh_to_model,
++        QuerySurfaceUnion(facets, query, tolerances, budget, false, true, magnitude, stop_above).mesh_to_model,
+         "bypass");
+   }
+   using SU2NativeD9::Answer;
+   const auto wanted = magnitude ? Answer::Magnitude : Answer::Classified;
+   op.Work(words);op.Storage(temporary);
+   FaceMemo::UnionKey key;key.reserve(words);
++  // An impossible facet count separates split-limit keys from the legacy scalar layout.
++  if (extra_words) {
++    key.push_back(UINT64_MAX);
++    key.push_back(bits(tolerances.accuracy));
++  }
+   key.push_back(facets.size());key.insert(key.end(),facets.begin(),facets.end());
+   key.push_back(physical.size());key.push_back(bits(tolerance));
+   if(magnitude)key.push_back(1);
+   // Try a complete magnitude before the separate lower-only cutoff key.
+-  const auto purpose_word=facets.size()+3;
++  const auto purpose_word=facets.size()+3+extra_words;
+   for(const auto& triangle:query)for(auto p:triangle)for(auto x:Values(p))key.push_back(bits(x));
+   budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(key.capacity(),sizeof(uint64_t)));
+   {std::lock_guard<std::mutex> guard(face_memo->lock);double cached=0;
+@@ -2790,7 +2849,7 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
+       return traced_result(cached,"hit");}}
+   const auto before = budget.work;
+   const auto union_start = SU2NativeD9::ObservingUnion() ? SU2NativeD9::Clock::now() : SU2NativeD9::Clock::time_point{};
+-  const auto receipt = QuerySurfaceUnion(facets, query, tolerance, budget, false, true, magnitude, stop_above);
++  const auto receipt = QuerySurfaceUnion(facets, query, tolerances, budget, false, true, magnitude, stop_above);
+   const auto result=receipt.mesh_to_model;
+   if (SU2NativeD9::ObservingUnion()) {
+     const auto given = !limited || result <= stop_above ? wanted : Answer::CutOff;
+@@ -2862,7 +2921,8 @@ MappedFacetReference::FacetStructure MappedFacetReference::StructuralEstimate(Id
+ }
+ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion(
+     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+-    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,bool magnitude,double stop_above)const {
++    SurfaceQueryTolerance tolerances,AtlasBudget& budget,bool include_model,bool include_mesh,bool magnitude,double stop_above)const {
++  const double tolerance = tolerances.limit;
+   ConformingWitness();
+   const auto start=std::chrono::steady_clock::now();const auto initial_work=budget.work;const bool upper=!include_model&&include_mesh;
+   auto record=[&](bool failed,bool refusal){const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+@@ -2873,10 +2933,10 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
+       else if(magnitude){++x.magnitude_calls;x.magnitude_work+=work;}
+       else {++x.classification_calls;x.classification_work+=work;}}
+     else {++x.full_calls;x.full_seconds+=seconds;x.full_work+=budget.work-initial_work;}x.union_exceptions+=failed;};
+-  try {double resolution=tolerance;
++  try {double resolution=tolerances.accuracy;
+     for(;;) {
+       budget.CheckTime();
+-      try{auto result=QuerySurfaceUnionAtResolution(facets,physical,tolerance,budget,include_model,include_mesh,resolution,magnitude,stop_above);
++      try{auto result=QuerySurfaceUnionAtResolution(facets,physical,tolerances,budget,include_model,include_mesh,resolution,magnitude,stop_above);
+         record(false,upper&&result.mesh_to_model>tolerance);return result;}
+       catch(const RefineSurfaceTarget&) {
+         if(upper){std::lock_guard<std::mutex> lock(geometry_stats->mutex);++geometry_stats->value.upper_refinements;}
+@@ -2890,12 +2950,17 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
+ }
+ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnionAtResolution(
+     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+-    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,double resolution,bool magnitude,double stop_above)const {
++    SurfaceQueryTolerance tolerances,AtlasBudget& budget,bool include_model,bool include_mesh,double resolution,bool magnitude,double stop_above)const {
++  const double tolerance = tolerances.limit;
+   AtlasOps op{budget,__func__};
+   static std::atomic<size_t> refinement_records{0};
+   struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+   if(facets.empty()||physical.empty()||!std::isfinite(tolerance)||tolerance<std::numeric_limits<double>::min())
+     throw std::invalid_argument("Invalid surface-union geometry/tolerance.");
++  if (tolerances.accuracy != tolerance &&
++      (!std::isfinite(tolerances.accuracy) || tolerances.accuracy < std::numeric_limits<double>::min() ||
++       tolerances.accuracy > tolerance))
++    throw std::invalid_argument("Invalid surface-union accuracy.");
+   if(AtlasOps::Trace() && physical.size()==1 && facets.size()<=64) {
+     std::fprintf(stderr,"NATIVE_SURFACE_QUERY tolerance=%.17g model=%d mesh=%d facets=",tolerance,int(include_model),int(include_mesh));
+     for(Id id:facets)std::fprintf(stderr,"%llu,",static_cast<unsigned long long>(id));
+@@ -3148,7 +3213,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
+       }
+       const double covering_upper=std::max(finished,queue.front().upper);
+       if(!from_model&&lower>stop_above)return std::make_tuple(lower,leaves,true);
+-      if(magnitude&&(long double)covering_upper-lower<=tolerance)
++      if(magnitude&&(long double)covering_upper-lower<=tolerances.accuracy)
+         return std::make_tuple(covering_upper,leaves,lower>tolerance);
+       if(!magnitude&&lower>tolerance)return std::make_tuple(initial_upper,leaves,true);
+       std::pop_heap(queue.begin(),queue.end(),compare);const auto node=queue.back();queue.pop_back();
+diff --git a/Common/src/adaptation/CNativeBoundary3D.cpp b/Common/src/adaptation/CNativeBoundary3D.cpp
+index 54e505b1ac..33ef650311 100644
+--- a/Common/src/adaptation/CNativeBoundary3D.cpp
++++ b/Common/src/adaptation/CNativeBoundary3D.cpp
+@@ -8,6 +8,7 @@
+ #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
+ #include "../../include/adaptation/CTransferMemory.hpp"
+ #include "../../include/adaptation/CNativeMetric3D.hpp"
++#include "../../include/adaptation/CNativeMarkerTolerance3D.hpp"
+ #include "../../include/adaptation/CConvexClipping.hpp"
+ #include "../../include/adt/CADTElemClass.hpp"
+ #include "../../include/option_structure.hpp"
+@@ -3464,7 +3465,7 @@ bool GeometryGuidanceMemo::Prepare(const Patch& patch,const PlanarReference& geo
+   epoch=state;definition=geometry.DefinitionHandle();revision=state->Revision();tolerance=requested_tolerance;recording=true;return true;
+ }
+ GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance,
+-                                      long double reject_above,GeometryGuidanceMemo* memo) {
++                                      long double reject_above,GeometryGuidanceMemo* memo, bool by_marker) {
+   if(!std::isfinite(tolerance)||tolerance<0||std::isnan(reject_above)||reject_above<0)
+     throw std::invalid_argument("Invalid native3D fitting-guidance threshold.");
+   auto parameters=base_geometry.PrivateParameters(patch);const auto& geometry=parameters?*parameters:base_geometry;
+@@ -3479,6 +3480,7 @@ GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference
+   for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
+   GeometryGuidance result;
+   for(const auto& f:patch.surface) {
++    const double allowed = by_marker ? FaceTolerance(geometry, f.facet, tolerance) : tolerance;
+     const std::array<Point,3> p{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};
+     std::array<SU2NativeGeometry::SurfaceBinding,3> binding;bool bound_points=reusable;
+     if(reusable)for(unsigned k=0;k<3;++k){const auto* point=geometry.Parameter(p[k]);
+@@ -3495,20 +3497,24 @@ GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference
+     using SU2NativeGeometry::SurfaceQueryNeed;
+     auto need=SurfaceQueryNeed::Magnitude();
+     if(geometry.EntityGeometry()&&std::isfinite(reject_above)) {
+-      const long double cutoff=static_cast<long double>(tolerance)+std::sqrt(std::max(0.L,reject_above-result.excess));
++      const long double cutoff=static_cast<long double>(allowed)+std::sqrt(std::max(0.L,reject_above-result.excess));
+       double rounded=std::nextafter(static_cast<double>(cutoff),INFINITY);
+-      if(geometry.EntityGeometry())rounded=std::max(rounded,geometry.Parameters()->GeometryTolerance());
++      const double gate = by_marker ? FaceTolerance(geometry, f.facet, geometry.Parameters()->GeometryTolerance())
++                                    : geometry.Parameters()->GeometryTolerance();
++      rounded=std::max(rounded,gate);
+       if(std::isfinite(rounded))need=SurfaceQueryNeed::Limit(rounded);
+-      if(reject_above==0&&(!geometry.EntityGeometry()||tolerance==geometry.Parameters()->GeometryTolerance()))
++      if(reject_above==0&&allowed==gate)
+         need=SurfaceQueryNeed::Classify();
+     }
++    if (by_marker) need = need.ForMarker();
+     double bound=retained?retained->bound:geometry.SurfaceDeviation(f.facet,p,need,true);
+     if(!std::isfinite(bound))throw std::invalid_argument("Unresolved native3D fitting-guidance face.");
+-    auto squared_excess=[&](double value){const long double error=std::max(0.L,static_cast<long double>(value)-tolerance);return error*error;};
++    auto squared_excess=[&](double value){const long double error=std::max(0.L,static_cast<long double>(value)-allowed);return error*error;};
+     const bool partial=!retained&&need.kind!=SurfaceQueryNeed::Kind::Magnitude&&
+-        bound>(need.kind==SurfaceQueryNeed::Kind::Classify?tolerance:need.stop_above);
++        bound>(need.kind==SurfaceQueryNeed::Kind::Classify?allowed:need.stop_above);
+     if(partial&&!(result.excess+squared_excess(bound)>reject_above))
+-      bound=geometry.SurfaceDeviation(f.facet,p,SurfaceQueryNeed::Magnitude(),true);
++      bound=geometry.SurfaceDeviation(f.facet,p,by_marker ? SurfaceQueryNeed::Magnitude().ForMarker()
++                                                         : SurfaceQueryNeed::Magnitude(),true);
+     else if(partial) {
+       result.excess+=squared_excess(bound);++result.evaluated_faces;
+       result.complete=false;return result;
+diff --git a/Common/src/adaptation/CNativeBoundaryParameters3D.cpp b/Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+index 006d34db14..a93f47575b 100644
+--- a/Common/src/adaptation/CNativeBoundaryParameters3D.cpp
++++ b/Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+@@ -215,7 +215,11 @@ void DecodeBoundaryAtlas(const std::vector<char>& bytes,BoundaryCoverage& covera
+       transfer_memory::Add(nr,nf,nc,nb,ns,nt,np)>bytes.size()/8)
+     throw std::invalid_argument("Invalid atlas schema/policy/counts.");
+   auto budget=BoundaryAtlasBudget(bytes.size(),ceiling,need);
+-  for(uint64_t i=0;i<nr;++i){int marker,role;in(marker,role);if(marker<0||(role!=0&&role!=2)||!p.roles.emplace(marker,role).second)throw std::invalid_argument("Invalid atlas marker role.");}
++  for(uint64_t i=0;i<nr;++i) {
++    int marker, role; in(marker,role);
++    if(marker<0 || role<0 || (RoleKind(role)!=0 && RoleKind(role)!=2) || !p.roles.emplace(marker,role).second)
++      throw std::invalid_argument("Invalid atlas marker role.");
++  }
+   for(uint64_t i=0;i<nf;++i){Edge edge;Id chain;in(edge,chain);if(edge[0]>=edge[1]||!p.features.emplace(edge,chain).second)throw std::invalid_argument("Invalid atlas feature edge.");}
+   for(uint64_t i=0;i<nc;++i){Id id;in(id);if(!p.corners.insert(id).second)throw std::invalid_argument("Duplicate atlas corner.");}
+   for(auto* map:{&p.bodies,&p.sheets}){const auto n=map==&p.bodies?nb:ns;for(uint64_t i=0;i<n;++i){Id id,root;in(id,root);if(!map->emplace(id,root).second)throw std::invalid_argument("Duplicate atlas policy facet.");}}
+@@ -500,23 +504,26 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
+   if(!EntityGeometry())throw std::invalid_argument("Entity face error requires an absolute geometry tolerance.");
+   if(budget)budget->CheckTime();
+   const auto& state=*this;const auto& g=*geometry;
++  const double accuracy = state.GeometryTolerance();
++  const double limit = need.marker_tolerance && active_marker_tolerance ?
++      active_marker_tolerance->Marker(g.Reference().Get(facet).marker) : accuracy;
+   if(need.kind==SurfaceQueryNeed::Kind::Limit&&
+-      (!std::isfinite(need.stop_above)||need.stop_above<state.GeometryTolerance()))
++      (!std::isfinite(need.stop_above)||need.stop_above<limit))
+     throw std::invalid_argument("Invalid entity face error cutoff.");
+   auto query=[&](const std::vector<Id>& support) {
+     const auto classification=MappedFacetReference::SurfaceBoundPurpose::Classification;
+-    const double upper=g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,classification);
+-    if(need.kind==SurfaceQueryNeed::Kind::Classify||upper<=state.GeometryTolerance())return upper;
++    const double upper=g.BoundPhysicalSurface(support,{p},{limit, accuracy},*budget,classification);
++    if(need.kind==SurfaceQueryNeed::Kind::Classify||upper<=limit)return upper;
+     const auto purpose=need.kind==SurfaceQueryNeed::Kind::Limit ? MappedFacetReference::SurfaceBoundPurpose::ErrorLimit :
+         MappedFacetReference::SurfaceBoundPurpose::ErrorMagnitude;
+-    return std::min(upper,g.BoundPhysicalSurface(support,{p},state.GeometryTolerance(),*budget,purpose,need.stop_above));
++    return std::min(upper,g.BoundPhysicalSurface(support,{p},{limit, accuracy},*budget,purpose,need.stop_above));
+   };
+   bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);
+   if(direct){const auto start=std::chrono::steady_clock::now();double result;
+     try{result=std::max(maximum,g.SurfaceError(facet,binding,p));}
+     catch(...){g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,true);throw;}
+     g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,false);
+-    if(result>state.GeometryTolerance()&&maximum<=state.GeometryTolerance()&&budget) {
++    if(result>limit&&maximum<=limit&&budget) {
+       // A failed correspondence upper bound need not imply a distance violation.
+       const auto scratch=transfer_memory::Add(budget->caller_bytes,256,2*sizeof(Id),2*sizeof(std::array<Point,3>));
+       AtlasStorage storage(budget,scratch,budget->maximum_bytes);
+@@ -530,7 +537,7 @@ double BoundaryParameterState::EntityFaceError(Id facet,const std::array<Surface
+   Point lo=p[0],hi=p[0];const auto model=g.Realize(binding[0]);double radius=0;
+   for(auto q:p){lo={std::min(lo.x,q.x),std::min(lo.y,q.y),std::min(lo.z,q.z)};hi={std::max(hi.x,q.x),std::max(hi.y,q.y),std::max(hi.z,q.z)};
+     radius=std::max(radius,std::hypot(q.x-model.x,q.y-model.y,q.z-model.z));}
+-  radius=std::nextafter(radius+state.GeometryTolerance(),INFINITY);
++  radius=std::nextafter(radius+limit,INFINITY);
+   lo={std::nextafter(lo.x-radius,-INFINITY),std::nextafter(lo.y-radius,-INFINITY),std::nextafter(lo.z-radius,-INFINITY)};
+   hi={std::nextafter(hi.x+radius,INFINITY),std::nextafter(hi.y+radius,INFINITY),std::nextafter(hi.z+radius,INFINITY)};
+   auto candidates=g.NearbySurfaceFacets(facet,{lo,hi},budget);const auto entity=state.Entity(facet);
+@@ -566,9 +573,11 @@ std::vector<double> BoundaryParameterState::OwnedFaceReverseBounds(const std::ve
+     budget.CheckTime();
+     // Use the accepted canonical ordering so partitioning cannot change query inputs.
+     const auto& face = surface.at(FaceKey(owned.v));
+-    if (Entity(face.facet) != Entity(owned.facet)) throw std::invalid_argument("Owned face entity differs from state.");
+-    auto& reverse = bounds.at(Entity(face.facet));
+-    if (geometry->ReferenceComponents() || reverse > geometry_tolerance) continue;
++    const auto entity = Entity(face.facet);
++    if (entity != Entity(owned.facet)) throw std::invalid_argument("Owned face entity differs from state.");
++    auto& reverse = bounds.at(entity);
++    const double limit = MarkerTolerance(std::get<2>(entity), geometry_tolerance);
++    if (geometry->ReferenceComponents() || reverse > limit) continue;
+     std::array<Point, 3> points;
+     std::array<SurfaceBinding, 3> bindings;
+     for (unsigned k = 0; k < 3; ++k) {
+@@ -576,8 +585,8 @@ std::vector<double> BoundaryParameterState::OwnedFaceReverseBounds(const std::ve
+       points[k] = point.node.p;
+       bindings[k] = point.binding;
+     }
+-    const double bound = EntityFaceError(face.facet, bindings, points, &budget, SurfaceQueryNeed::Magnitude());
+-    if (certificates && cert::Qualified(bound, geometry_tolerance)) {
++    const double bound = EntityFaceError(face.facet, bindings, points, &budget, SurfaceQueryNeed::Magnitude().ForMarker());
++    if (certificates && cert::Qualified(bound, limit)) {
+       const auto key = cert::FaceKey(*this, face.facet, bindings, points);
+       const auto* first = certificates->Find(key);
+       certificates->proof.push_back({key, first ? first->origin : cert::Origin::Proof});
+@@ -623,10 +632,12 @@ BoundaryParameterState::CertificateSurfaces(AtlasBudget& budget, bool complete,
+       points[k] = point.node.p;
+       binding[k] = point.binding;
+     }
+-    auto& entity = physical.at(Entity(row.second.facet));
++    const auto key = Entity(row.second.facet);
++    auto& entity = physical.at(key);
+     entity.faces.push_back(points);
+-    if (facewise && !reverse_bounds && entity.reverse <= geometry_tolerance) {
+-      const double bound = EntityFaceError(row.second.facet, binding, points, &budget, SurfaceQueryNeed::Magnitude());
++    if (facewise && !reverse_bounds && entity.reverse <= MarkerTolerance(std::get<2>(key), geometry_tolerance)) {
++      const double bound = EntityFaceError(row.second.facet, binding, points, &budget,
++                                         SurfaceQueryNeed::Magnitude().ForMarker());
+       entity.reverse = std::isfinite(bound) && bound >= 0 ? std::max(entity.reverse, bound) : INFINITY;
+     }
+   }
+@@ -635,7 +646,7 @@ BoundaryParameterState::CertificateSurfaces(AtlasBudget& budget, bool complete,
+ 
+ namespace {
+ MappedFacetReference::SurfaceUnionBounds QueryEntityCertificate(const NativeMappedGeometryBackend3D& backend,
+-    const State::EntityKey& entity, const std::vector<std::array<Point, 3>>& faces, double tolerance,
++    const State::EntityKey& entity, const std::vector<std::array<Point, 3>>& faces, SurfaceQueryTolerance tolerance,
+     AtlasBudget& budget, GeometryErrorDirection direction, ProofShare share = {}) {
+   GeometrySupport scope;
+   std::tie(scope.body, scope.sheet, scope.marker) = entity;
+@@ -656,10 +667,13 @@ void CompleteEntityCertificate(MappedFacetReference::SurfaceUnionBounds& result,
+ }  // namespace
+ 
+ const BoundaryParameterState::Certificates& BoundaryParameterState::GeometryCertificates(
+-    AtlasBudget& budget, bool complete, const std::vector<double>* reverse_bounds) const {
++    AtlasBudget& budget, bool complete, const std::vector<double>* reverse_bounds, Certificates* complete_proof) const {
+   SU2NativeTiming3D::Scope certificate_timer(SU2NativeTiming3D::Operation::Certification);
+   budget.CheckTime();
+   if (!EntityGeometry()) throw std::invalid_argument("Entity geometry certificate requested from a legacy face partition.");
++  // List-mode complete proof uses separate storage and never replaces the strict donor enclosure.
++  if (complete && active_marker_tolerance && !complete_proof)
++    throw std::invalid_argument("List-mode geometry proof requires separate result storage.");
+   // A source enclosure alone never substitutes for both directed proofs.
+   if (!complete && certificate_revision == revision) return geometry_certificates;
+   AtlasStorage storage(&budget, CertificateLiveBytes(budget), budget.maximum_bytes);
+@@ -669,12 +683,17 @@ const BoundaryParameterState::Certificates& BoundaryParameterState::GeometryCert
+   Certificates fresh;
+   for (const auto& row : physical) {
+     const auto& entity = row.second;
+-    const bool reverse_known = facewise && entity.reverse <= geometry_tolerance;
++    const double limit = complete ? MarkerTolerance(std::get<2>(row.first), geometry_tolerance) : geometry_tolerance;
++    const bool reverse_known = facewise && entity.reverse <= limit;
+     const auto direction = complete && !reverse_known ? GeometryErrorDirection::Both : GeometryErrorDirection::ModelToMesh;
+-    auto result = QueryEntityCertificate(backend, row.first, entity.faces, geometry_tolerance, budget, direction);
+-    if (reverse_known) CompleteEntityCertificate(result, entity.reverse, entity.faces.size(), geometry_tolerance);
++    auto result = QueryEntityCertificate(backend, row.first, entity.faces, {limit, geometry_tolerance}, budget, direction);
++    if (reverse_known) CompleteEntityCertificate(result, entity.reverse, entity.faces.size(), limit);
+     fresh.emplace(row.first, result);
+   }
++  if (complete && complete_proof) {
++    *complete_proof = std::move(fresh);
++    return *complete_proof;
++  }
+   geometry_certificates = std::move(fresh);
+   certificate_revision = revision;
+   return geometry_certificates;
+@@ -682,11 +701,21 @@ const BoundaryParameterState::Certificates& BoundaryParameterState::GeometryCert
+ 
+ bool BoundaryParameterState::ReverseProofComplete(const std::vector<double>& reverse_bounds) const {
+   if (!EntityGeometry() || geometry->ReferenceComponents()) return false;
+-  for (const auto bound : reverse_bounds)
+-    if (!std::isfinite(bound) || bound < 0 || bound > geometry_tolerance) return false;
++  if (!active_marker_tolerance)
++    for (const auto bound : reverse_bounds)
++      if (!std::isfinite(bound) || bound < 0 || bound > geometry_tolerance) return false;
+   std::set<EntityKey> entities;
+   for (const auto& row : geometry->Reference().Facets()) entities.insert(Entity(row.first));
+-  return reverse_bounds.size() == entities.size();
++  if (reverse_bounds.size() != entities.size()) return false;
++  if (active_marker_tolerance) {
++    size_t i = 0;
++    for (const auto& entity : entities) {
++      const double bound = reverse_bounds[i++];
++      if (!std::isfinite(bound) || bound < 0 || bound > MarkerTolerance(std::get<2>(entity), geometry_tolerance))
++        return false;
++    }
++  }
++  return true;
+ }
+ 
+ std::vector<ModelShareBound> BoundaryParameterState::ModelProofShare(
+@@ -701,7 +730,8 @@ std::vector<ModelShareBound> BoundaryParameterState::ModelProofShare(
+   result.reserve(physical.size());
+   for (const auto& row : physical) {
+     const auto& entity = row.second;
+-    const auto bound = QueryEntityCertificate(backend, row.first, entity.faces, geometry_tolerance, budget,
++    const double limit = MarkerTolerance(std::get<2>(row.first), geometry_tolerance);
++    const auto bound = QueryEntityCertificate(backend, row.first, entity.faces, {limit, geometry_tolerance}, budget,
+                                               GeometryErrorDirection::ModelToMesh, share);
+     const size_t kept = share.part < entity.roots ? 1 + (entity.roots - 1 - share.part) / share.parts : 0;
+     result.push_back({bound.model_to_mesh, bound.outside_tolerance, kept});
+@@ -710,7 +740,10 @@ std::vector<ModelShareBound> BoundaryParameterState::ModelProofShare(
+ }
+ 
+ const BoundaryParameterState::Certificates& BoundaryParameterState::AdoptModelProof(
+-    const std::vector<double>& reverse_bounds, const std::vector<ModelShareBound>& joined) const {
++    const std::vector<double>& reverse_bounds, const std::vector<ModelShareBound>& joined,
++    Certificates* complete_proof) const {
++  if (active_marker_tolerance && !complete_proof)
++    throw std::invalid_argument("List-mode geometry proof requires separate result storage.");
+   Certificates fresh;
+   for (const auto& row : geometry->Reference().Facets()) fresh.try_emplace(Entity(row.first));
+   if (joined.size() != fresh.size() || reverse_bounds.size() != fresh.size())
+@@ -721,9 +754,14 @@ const BoundaryParameterState::Certificates& BoundaryParameterState::AdoptModelPr
+     auto& result = row.second;
+     result.model_to_mesh = joined[i].model_to_mesh;
+     result.outside_tolerance = joined[i].outside;
+-    CompleteEntityCertificate(result, reverse_bounds[i], result.physical_pieces, geometry_tolerance);
++    CompleteEntityCertificate(result, reverse_bounds[i], result.physical_pieces,
++                              MarkerTolerance(std::get<2>(row.first), geometry_tolerance));
+     ++i;
+   }
++  if (complete_proof) {
++    *complete_proof = std::move(fresh);
++    return *complete_proof;
++  }
+   geometry_certificates = std::move(fresh);
+   certificate_revision = revision;
+   return geometry_certificates;
+@@ -817,6 +855,55 @@ BoundaryParameterState::FacetFaceRange BoundaryParameterState::FacesOnOriginalFa
+       facet_faces.upper_bound({facet,Face{UINT64_MAX,UINT64_MAX,UINT64_MAX}})};
+ }
+ const BoundaryPoint* BoundaryParameterState::Find(Id id)const {const auto p=records.find(id);return p==records.end()?nullptr:&p->second.point;}
++bool BoundaryParameterState::FrozenSeamPoint(Id id) const {
++  if (!MixedRoleClasses(mobility)) return false;
++  const auto* point = Find(id);
++  return point && geometry->FrozenSeamPoint(point->binding, mobility);
++}
++bool BoundaryParameterState::FrozenSeamEdge(Edge edge) const {
++  if (!MixedRoleClasses(mobility)) return false;
++  std::sort(edge.begin(), edge.end());
++  if (!edge_counts.count(edge)) return false;
++  return geometry->FrozenSeamEdge(records.at(edge[0]).point.binding, records.at(edge[1]).point.binding, mobility);
++}
++void BoundaryParameterState::CheckFrozenSeamPoint(Node staged) const {
++  if (!FrozenSeamPoint(staged.id)) return;
++  const auto p = records.at(staged.id).point.node.p;
++  if (!EqualDouble(p.x, staged.p.x) || !EqualDouble(p.y, staged.p.y) || !EqualDouble(p.z, staged.p.z))
++    RejectFrozenSeam();
++}
++void BoundaryParameterState::CheckFrozenSeam(const BoundaryPoints& points, const std::vector<SurfaceFace>& faces) const {
++  if (!MixedRoleClasses(mobility)) return;
++  for (const auto& row : records) {
++    if (!geometry->FrozenSeamPoint(row.second.point.binding, mobility)) continue;
++    const auto point = points.find(row.first);
++    if (point == points.end() || !Equal(row.second.point, point->second)) RejectFrozenSeam();
++  }
++  for (const auto& row : points)
++    if (geometry->FrozenSeamPoint(row.second.binding, mobility) && !FrozenSeamPoint(row.first))
++      RejectFrozenSeam();
++  std::set<Edge> sides;
++  for (const auto& face : faces) for (unsigned k = 0; k < 3; ++k) {
++    const Id a = face.v[k], b = face.v[(k+1)%3];
++    if (!geometry->FrozenSeamEdge(points.at(a).binding, points.at(b).binding, mobility)) continue;
++    const Edge edge{std::min(a,b), std::max(a,b)};
++    bool same_side = false;
++    for (const auto* previous : IncidentFaces(edge)) if (previous)
++      for (unsigned i = 0; i < 3; ++i)
++        if (a == previous->v[i] && b == previous->v[(i+1)%3])
++          same_side = Entity(previous->facet) == Entity(face.facet);
++    if (!same_side || !sides.insert({a,b}).second) RejectFrozenSeam();
++  }
++  for (const auto& row : edge_counts) if (FrozenSeamEdge(row.first) &&
++      (!sides.count(row.first) || !sides.count({row.first[1], row.first[0]}))) RejectFrozenSeam();
++}
++std::pair<size_t, size_t> BoundaryParameterState::FrozenSeamCounts() const {
++  std::pair<size_t, size_t> counts{};
++  if (!MixedRoleClasses(mobility)) return counts;
++  for (const auto& row : records) if (FrozenSeamPoint(row.first)) ++counts.first;
++  for (const auto& row : edge_counts) if (FrozenSeamEdge(row.first)) ++counts.second;
++  return counts;
++}
+ const BoundaryPoint* BoundaryParameterState::Find(Point point)const {
+   for(auto x:PointKey(point))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite boundary parameter lookup.");
+   const auto p=coordinates.find(PointKey(point));return p==coordinates.end()?nullptr:Find(p->second);
+@@ -921,8 +1008,12 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
+     size_t new_retained_features=0;
+     if(EntityGeometry())for(const auto& row:delta.traces)
+       new_retained_features+=edge_counts.count(row.first)&&!coverage.traces.count(row.first);
++    using SeamSide = std::tuple<Edge, EntityKey, bool>;
++    const bool mixed_classes = MixedRoleClasses(mobility);
++    const auto seam_bytes = mixed_classes ? transfer_memory::Mul(transfer_memory::Mul(3, faces.size()),
++        sizeof(std::pair<const SeamSide, int64_t>) + 4 * sizeof(void*)) : 0;
+     const size_t bound=transfer_memory::Add(caller,ResidentBytes(),transfer_memory::Mul(inherited_bytes,4),transfer_memory::Mul(edits.size(),2048),transfer_memory::Mul(faces.size(),8192),transfer_memory::Mul(BoundaryCoverageBytes(delta),8),index_bytes,
+-        transfer_memory::Mul(new_retained_features,1024));
++        transfer_memory::Mul(new_retained_features,1024),seam_bytes);
+     if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter publication exceeds storage admission.");
+     AtlasStorage reservation_storage(reservation,bound,ceiling);
+     if(edits.empty() && faces.empty() && delta.faces.empty() && delta.traces.empty()){staged.valid=true;reason.clear();return staged;}
+@@ -931,6 +1022,8 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
+     for(const auto& edit:edits) {
+       const auto& p=edit.point;const auto old=records.find(p.node.id);
+       if(edit.revision!=revision || !changed.insert(p.node.id).second)throw std::invalid_argument("Stale/duplicate boundary parameter edit.");
++      if (mixed_classes && ((old != records.end() && geometry->FrozenSeamPoint(old->second.point.binding, mobility)) ||
++          (edit.insert && geometry->FrozenSeamPoint(p.binding, mobility)))) RejectFrozenSeam();
+       if(edit.insert) {
+         if(old!=records.end() || !geometry->Admissible(p.binding,p.node.p))throw std::invalid_argument("Boundary parameter insertion conflicts with its identity/geometry.");
+         if(!staged.added.emplace(p.node.id,Entry{p,0}).second)throw std::invalid_argument("Duplicate boundary parameter insertion.");
+@@ -954,6 +1047,20 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
+       if(old==surface.end() || old->second.facet!=change.facet || old->second.v!=FaceOrder(change.nodes) || !staged.surface_removed.insert(key).second)
+         throw std::invalid_argument("Retired physical face differs from accepted parameter topology.");
+     }
++    auto point=[&](Id id,bool added)->const BoundaryPoint& {
++      if(added){const auto p=staged.added.find(id);if(p!=staged.added.end())return p->second.point;
++        if(staged.removed.count(id))throw std::invalid_argument("New physical face retains an erased boundary point.");}
++      const auto p=Find(id);if(!p)throw std::invalid_argument("Physical face has no boundary parameter binding.");return *p;
++    };
++    if (mixed_classes) {
++      std::map<SeamSide, int64_t> seam_changes;
++      for (const auto& face : faces) for (unsigned k = 0; k < 3; ++k) {
++        const Id a = face.nodes[k], b = face.nodes[(k+1)%3];
++        if (geometry->FrozenSeamEdge(point(a, face.insert).binding, point(b, face.insert).binding, mobility))
++          seam_changes[{{std::min(a,b), std::max(a,b)}, Entity(face.facet), a < b}] += face.insert ? 1 : -1;
++      }
++      for (const auto& row : seam_changes) if (row.second != 0) RejectFrozenSeam();
++    }
+     for(const auto& change:faces)if(change.insert) {
+       const auto key=FaceKey(change.nodes);const auto retained=surface.find(key);
+       if(retained!=surface.end()&&retained->second.v==FaceOrder(change.nodes)&&retained->second.facet!=change.facet&&
+@@ -961,11 +1068,6 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
+       if((surface.count(key)&&!staged.surface_removed.count(key)) || !staged.surface_added.emplace(key,SurfaceFace{FaceOrder(change.nodes),change.facet}).second)
+         throw std::invalid_argument("New parameter topology repeats an accepted face.");
+     }
+-    auto point=[&](Id id,bool added)->const BoundaryPoint& {
+-      if(added){const auto p=staged.added.find(id);if(p!=staged.added.end())return p->second.point;
+-        if(staged.removed.count(id))throw std::invalid_argument("New physical face retains an erased boundary point.");}
+-      const auto p=Find(id);if(!p)throw std::invalid_argument("Physical face has no boundary parameter binding.");return *p;
+-    };
+     std::map<Id,int64_t> degree;
+     const bool atlas=!EntityGeometry()&&(AtlasActive(*this)||!delta.faces.empty()||!delta.traces.empty());
+     if(EntityGeometry()) {
+@@ -1681,7 +1783,11 @@ Node PlanarReference::BindNewPoint(Node point,const std::set<Id>& incident,const
+     auto find=[&](Id id)->const BoundaryPoint& {const auto local=parameter_view->local.find(id);if(local!=parameter_view->local.end())return local->second;
+       const auto* old=state.Find(id);if(!old)throw std::invalid_argument("Entity edge lost an endpoint association.");return *old;};
+     const EdgeTrace* curve=nullptr;Edge key{};
+-    if(edge){key=*edge;std::sort(key.begin(),key.end());const auto local=parameter_view->coverage.traces.find(key);const auto accepted=state.Coverage().traces.find(key);
++    if(edge){key=*edge;std::sort(key.begin(),key.end());
++      if (MixedRoleClasses(state.Mobility()) &&
++          state.Geometry().FrozenSeamEdge(find(key[0]).binding, find(key[1]).binding, state.Mobility()))
++        RejectFrozenSeam();
++      const auto local=parameter_view->coverage.traces.find(key);const auto accepted=state.Coverage().traces.find(key);
+       curve=local!=parameter_view->coverage.traces.end()?&local->second:accepted!=state.Coverage().traces.end()?&accepted->second:nullptr;}
+     if(curve) {
+       if(!ProposeFeaturePoint(state.Geometry(),state.Mobility(),{*curve},find(key[0]).node.p,find(key[1]).node.p,point,projected,budget,reason))throw std::invalid_argument(reason);
+@@ -1697,6 +1803,7 @@ Node PlanarReference::BindNewPoint(Node point,const std::set<Id>& incident,const
+       const auto previous=state.Geometry().FacetPoint(hint,.25,.25);
+       const auto projection=ProjectEntitySurface(state,point.p,previous,hint,budget);projected={{point.id,projection.evaluation.point},projection.binding};
+     }
++    if (state.Geometry().FrozenSeamPoint(projected.binding, state.Mobility())) RejectFrozenSeam();
+     parameter_view->Insert(projected);return projected.node;
+   }
+   const auto binding=ProposedBinding(point.p,incident);point.p=parameter_view->accepted->Geometry().Realize(binding);
+@@ -1708,6 +1815,7 @@ Node PlanarReference::BindMovedPoint(Id old,Node point,const std::set<Id>& incid
+   if(EntityGeometry()) {
+     if(!parameter_view->private_view||!parameter_view->reservation)throw std::invalid_argument("Entity movement lacks a private geometry scope.");
+     const auto& state=*parameter_view->accepted;auto& budget=*parameter_view->reservation;
++    if (state.Geometry().FrozenSeamPoint(previous->binding, state.Mobility())) RejectFrozenSeam();
+     const auto dimension=state.Geometry().MobilityDimension(previous->binding,state.Mobility());BoundaryPoint projected;std::string reason;
+     if(!dimension)throw std::invalid_argument("Genuine geometry corners cannot move off their prescribed vertex.");
+     if(dimension==1) {
+@@ -1725,6 +1833,7 @@ Node PlanarReference::BindMovedPoint(Id old,Node point,const std::set<Id>& incid
+       if(hint==UINT64_MAX)throw std::invalid_argument("Smooth movement lost its physical geometry entity.");
+       const auto projection=ProjectEntitySurface(state,point.p,previous->binding,hint,budget);projected={{point.id,projection.evaluation.point},projection.binding};
+     }
++    if (state.Geometry().FrozenSeamPoint(projected.binding, state.Mobility())) RejectFrozenSeam();
+     parameter_view->Insert(projected);return projected.node;
+   }
+   const auto binding=ProposedBinding(point.p,incident,&previous->binding);point.p=parameter_view->accepted->Geometry().Realize(binding);
+@@ -1816,7 +1925,8 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p,Sur
+     const auto legacy = [&] { return state.EntityFaceError(facet, binding, p, budget, need, maximum); };
+     if (!certificates || !certificates->eligible) return legacy();
+     if (cert::reader_tolerance) {
+-      const double tolerance = *cert::reader_tolerance;
++      const double tolerance = need.marker_tolerance && active_marker_tolerance ?
++          active_marker_tolerance->Marker(Get(facet).marker) : *cert::reader_tolerance;
+       const auto key = cert::FaceKey(state, facet, binding, p);
+       const auto* hit = certificates->SameStage(state) && cert::Bits(tolerance) == key.face[5]
+           ? certificates->Find(key) : nullptr;
+@@ -1846,11 +1956,14 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p,Sur
+       return value;
+     }
+     const auto value = legacy();
+-    if (cert::collect_commit && budget && certificates->SameStage(state) &&
+-        cert::Qualified(value, state.GeometryTolerance()))
+-      certificates->Push(certificates->trial, {cert::FaceKey(state, facet, binding, p), cert::Origin::Commit},
+-                         transfer_memory::Add(budget->caller_bytes, certificates->Bytes() - certificates->atlas_charged_bytes),
+-                         budget->maximum_bytes);
++    if (cert::collect_commit && budget && certificates->SameStage(state)) {
++      const double limit = active_marker_tolerance ? active_marker_tolerance->Marker(Get(facet).marker) :
++                                                     state.GeometryTolerance();
++      if ((need.marker_tolerance || limit == state.GeometryTolerance()) && cert::Qualified(value, limit))
++        certificates->Push(certificates->trial, {cert::FaceKey(state, facet, binding, p), cert::Origin::Commit},
++                           transfer_memory::Add(budget->caller_bytes, certificates->Bytes() - certificates->atlas_charged_bytes),
++                           budget->maximum_bytes);
++    }
+     return value;
+   }
+   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return std::max(maximum,g.SurfaceError(facet,binding,p));
+diff --git a/Common/src/adaptation/CNativeCurvedAtlas3D.cpp b/Common/src/adaptation/CNativeCurvedAtlas3D.cpp
+index f7b30b7bd2..50bd71414b 100644
+--- a/Common/src/adaptation/CNativeCurvedAtlas3D.cpp
++++ b/Common/src/adaptation/CNativeCurvedAtlas3D.cpp
+@@ -296,8 +296,12 @@ bool PrepareCurvedAtlas(const SU2Native3D::Patch& accepted,const SU2Native3D::Pl
+       if(!point || point->node.id!=id)throw std::invalid_argument("Atlas source lacks an actual forward endpoint.");
+       op.Check(data->backend->AssociationValid(point->binding,point->node.p,op.reason));
+       op.Sync(sizeof(BoundaryPoints::value_type)+4*sizeof(void*));data->parameters.emplace(id,*point);}
+-    if(moving && (!data->parameters.count(*moving)||!geometry.MobilityDimension(data->parameters.at(*moving).binding,policy)))
+-      throw std::invalid_argument("Atlas cannot move an absent point or genuine corner/branch.");
++    if (moving) {
++      const auto point = data->parameters.find(*moving);
++      if (point != data->parameters.end() && geometry.FrozenSeamPoint(point->second.binding, policy)) RejectFrozenSeam();
++      if (point == data->parameters.end() || !geometry.MobilityDimension(point->second.binding, policy))
++        throw std::invalid_argument("Atlas cannot move an absent point or genuine corner/branch.");
++    }
+     for(const auto& face:accepted.surface){op.Work();const auto sheet_id=policy.sheets.find(face.facet),body=policy.bodies.find(face.facet);
+       if(sheet_id==policy.sheets.end()||body==policy.bodies.end())throw std::invalid_argument("Atlas source lacks a sheet/body policy.");
+       auto& cover=working;cover={};op.Sync();op.Check(reference.ResolveCoverage(face,cover,budget,op.reason));
+@@ -430,6 +434,8 @@ SurfaceBinding Quantize(const MappedFacetReference& geometry,Id facet,const Exac
+ void Movement(const CurvedAtlas::Data& d,Id old,const SurfaceBinding& binding,Ops& op) {
+   const auto& geometry=d.reference->Parameters()->Geometry();const auto& policy=d.reference->Parameters()->Mobility();
+   const auto original=d.parameters.find(old);if(original==d.parameters.end())throw std::invalid_argument("Atlas move lacks its accepted endpoint.");
++  if (geometry.FrozenSeamPoint(original->second.binding, policy) || geometry.FrozenSeamPoint(binding, policy))
++    RejectFrozenSeam();
+   const auto dimension=geometry.MobilityDimension(original->second.binding,policy);
+   if(!dimension||geometry.MobilityDimension(binding,policy)!=dimension)throw std::invalid_argument("Atlas move changes physical feature dimension.");
+   const auto key=op.BindingKey(geometry,binding);size_t incident=0;
+diff --git a/Common/src/adaptation/CNativeDistributed3D.cpp b/Common/src/adaptation/CNativeDistributed3D.cpp
+index bea54d977f..4c555a36f2 100644
+--- a/Common/src/adaptation/CNativeDistributed3D.cpp
++++ b/Common/src/adaptation/CNativeDistributed3D.cpp
+@@ -1488,6 +1488,9 @@ bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::v
+   if(!Vote(failure,reason))return false;
+   std::vector<BoundaryFaceChange> local_faces;
+   try {
++    if (SU2NativeGeometry::MixedRoleClasses(parameters->Mobility()))
++      for (const auto& row : added) for (const auto& point : row.cell.v)
++        parameters->CheckFrozenSeamPoint(point);
+     std::map<std::pair<Id,Face>,int> difference;
+     auto collect=[&](const std::vector<OwnedCell>& cells,int sign) {
+       for(const auto& row:cells) {
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 05d314deef..51d31fd3bb 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -22,6 +22,7 @@
+ #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
+ #include "../../include/adaptation/CNativeLocalCore3D.hpp"
+ #include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
++#include "../../include/adaptation/CNativeMarkerTolerance3D.hpp"
+ #include "native_engine3d/EngineQualityStall.hpp"
+ #include <cassert>
+ #include <chrono>
+@@ -109,7 +110,8 @@ struct FinalProofReport {
+ };
+ 
+ const BoundaryParameterState::Certificates& ProveSharedModel(World& world, const BoundaryParameterState& state,
+-    SU2NativeGeometry::AtlasBudget& budget, const std::vector<double>& bounds, FinalProofReport* report) {
++    SU2NativeGeometry::AtlasBudget& budget, const std::vector<double>& bounds, FinalProofReport* report,
++    BoundaryParameterState::Certificates* complete_proof) {
+   std::vector<ModelShareBound> share;
+   CLocalFailure failure;
+   const auto start = report ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point{};
+@@ -130,7 +132,12 @@ const BoundaryParameterState::Certificates& ProveSharedModel(World& world, const
+     entity.model_to_mesh = world.reduce(entity.model_to_mesh, CPassiveComm::Op::MAX);
+     entity.outside = world.reduce(int(entity.outside), CPassiveComm::Op::MAX) != 0;
+   }
+-  return state.AdoptModelProof(bounds, share);
++  return state.AdoptModelProof(bounds, share, complete_proof);
++}
++
++const BoundaryParameterState::Certificates& ProveSharedModel(World& world, const BoundaryParameterState& state,
++    SU2NativeGeometry::AtlasBudget& budget, const std::vector<double>& bounds, FinalProofReport* report) {
++  return ProveSharedModel(world, state, budget, bounds, report, nullptr);
+ }
+ 
+ namespace {
+@@ -220,11 +227,17 @@ struct D9QueryScope {
+   }
+ };
+ 
++GeometryGuidance EngineGeometryGuidance(
++    const Patch& patch, const PlanarReference& geometry, double tolerance,
++    long double reject_above = std::numeric_limits<long double>::infinity(), GeometryGuidanceMemo* memo = nullptr) {
++  return GeometryGuidanceExcess(patch, geometry, tolerance, reject_above, memo, true);
++}
++
+ // M27 attributes the existing exact checks to the patch being measured.
+ template <class... Arguments>
+ GeometryGuidance GuidanceOf(SU2NativeD9::Part part, Arguments&&... arguments) {
+   SU2NativeD9::PartScope scope(part);
+-  return GeometryGuidanceExcess(std::forward<Arguments>(arguments)...);
++  return EngineGeometryGuidance(std::forward<Arguments>(arguments)...);
+ }
+ 
+ // A successful separation is only a necessary geometry-error rejection, never admission.
+@@ -367,6 +380,8 @@ std::vector<double> ProveOwnedFaceReverse(World& world, const Owned& working, co
+   return bounds;
+ }
+ 
++void PrintFinalProof(const FinalProofReport& report, int rank, double tolerance);
++
+ FinalProofReport ProveOwnedSurface(World& world, const Owned& working, const PlanarReference& geometry,
+     SU2NativeGeometry::AtlasBudget& budget, EngineStats& stats, bool timings) {
+   using Clock = std::chrono::steady_clock;
+@@ -382,21 +397,44 @@ FinalProofReport ProveOwnedSurface(World& world, const Owned& working, const Pla
+     report.reference_facets = state.Geometry().Reference().Facets().size();
+     report.reverse_seconds = std::chrono::duration<double>(Clock::now() - start).count();
+   }
++  std::optional<ProofStorage> complete_storage;
++  std::optional<BoundaryParameterState::Certificates> complete_proof;
++  if (active_marker_tolerance) {
++    CLocalFailure failure;
++    try {
++      using Certificate = BoundaryParameterState::Certificates::value_type;
++      complete_storage.emplace(budget, transfer_memory::Mul(state.Geometry().Reference().Facets().size(),
++                                                            sizeof(Certificate) + 4 * sizeof(void*)));
++      complete_proof.emplace();
++    } catch (const std::exception& error) {
++      failure.Set(2, 0, error.what());
++    }
++    const auto elected = world.elect(failure);
++    if (elected.any) throw std::runtime_error(elected.message);
++  }
++  auto* proof = complete_proof ? &*complete_proof : nullptr;
+   const auto forward = timings && !shared ? Clock::now() : Clock::time_point{};
+   const size_t work = timings && !shared ? budget.work : 0;
+-  const auto& certificates = shared ? ProveSharedModel(world, state, budget, bounds, timings ? &report : nullptr)
+-                                    : state.GeometryCertificates(budget, true, &bounds);
+-  for (const auto& row : certificates)
+-    if (!row.second.within_tolerance)
+-      throw std::runtime_error("Complete working surface does not meet the prescribed two-sided geometry tolerance.");
+-  if (timings) {
++  const auto& certificates = shared ? ProveSharedModel(world, state, budget, bounds, timings ? &report : nullptr, proof)
++                                    : state.GeometryCertificates(budget, true, &bounds, proof);
++  auto finish_report = [&] {
+     report.certificates = &certificates;
+     if (!shared) {
+       report.own_roots = report.reference_facets;
+       report.share_seconds = std::chrono::duration<double>(Clock::now() - forward).count();
+       report.share_work = budget.work - work;
+     }
++  };
++  if (timings && proof) {
++    // Preserve completed entity bounds even when the subsequent geometry vote rejects the candidate.
++    finish_report();
++    PrintFinalProof(report, world.rank, state.GeometryTolerance());
++    report.certificates = nullptr;
+   }
++  for (const auto& row : certificates)
++    if (!row.second.within_tolerance)
++      throw std::runtime_error("Complete working surface does not meet the prescribed two-sided geometry tolerance.");
++  if (timings && !proof) finish_report();
+   return report;
+ }
+ 
+@@ -413,7 +451,8 @@ void PrintFinalProof(const FinalProofReport& report, int rank, double tolerance)
+                          " tolerance=%.17g within=%d\n",
+                  static_cast<unsigned long long>(std::get<0>(row.first)),
+                  static_cast<unsigned long long>(std::get<1>(row.first)), std::get<2>(row.first), bound.physical_pieces,
+-                 bound.mesh_to_model, bound.model_to_mesh, tolerance, int(bound.within_tolerance));
++                 bound.mesh_to_model, bound.model_to_mesh, MarkerTolerance(std::get<2>(row.first), tolerance),
++                 int(bound.within_tolerance));
+   }
+ }
+ /*! Report the ownership spike with live payload sizes; this is not a memory admission model. */
+@@ -766,6 +805,45 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   return EngineRun{context, atlas_budget, no_coverage}.Run();
+ }
+ }  // namespace
++
++std::pair<size_t, size_t> GeometryCounts(const Patch& patch, const PlanarReference& geometry,
++                                         double strict_tolerance, SU2NativeGeometry::AtlasBudget& atlas_budget,
++                                         uint64_t& measured_faces, std::set<Edge>* failed_edges) {
++  auto parameters = geometry.PrivateParameters(patch);
++  const auto& reference = parameters ? *parameters : geometry;
++  std::map<Face, Id> facets;
++  for (const auto& face : patch.surface) facets.emplace(Key(face.v), face.facet);
++  std::pair<size_t, size_t> counts{};
++  for (const auto& cell : patch.cells) {
++    atlas_budget.CheckTime();
++    bool bad = false;
++    for (const auto& face : Faces(cell)) {
++      const auto found = facets.find(Key(face));
++      if (found == facets.end()) continue;
++      std::array<Point, 3> triangle;
++      for (unsigned k = 0; k < 3; ++k)
++        for (auto n : cell.v)
++          if (n.id == face[k]) triangle[k] = n.p;
++      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit,
++                                             commit_cert::active && !failed_edges);
++      const auto error =
++          reference.SurfaceDeviation(found->second, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker());
++      ++measured_faces;
++      if (!std::isfinite(error)) throw std::runtime_error("Native3D coupled repair lacks a complete face certificate.");
++      if (error <= FaceTolerance(reference, found->second, strict_tolerance)) continue;
++      bad = true;
++      ++counts.second;
++      if (failed_edges)
++        for (unsigned k = 0; k < 3; ++k) {
++          Edge edge{face[k], face[(k + 1) % 3]};
++          std::sort(edge.begin(), edge.end());
++          failed_edges->insert(edge);
++        }
++    }
++    counts.first += bad;
++  }
++  return counts;
++}
+ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,const PlanarReference& geometry,
+                                 double tolerance,const WallHeights& heights) {
+   if(heights.empty() && geometry.ExtensionComponents().empty())return false;
+@@ -793,7 +871,9 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
+     }
+     // Remapped faces need complete-cavity admission, not a global enclosure inside a selection shortcut.
+     if(direct && geometry.Declared(geometry.Canonical(face.facet)) &&
+-        geometry.SurfaceDeviation(face.facet,points,SU2NativeGeometry::SurfaceQueryNeed::Classify())>tolerance)return true;
++        geometry.SurfaceDeviation(face.facet, points, SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker()) >
++            FaceTolerance(geometry, face.facet, tolerance))
++      return true;
+   }
+   FirstHeightReport report;std::string reason;
+   if(heights.empty() || CheckFirstHeight(patch,heights,geometry,report,reason))return false;
+diff --git a/Common/src/adaptation/CNativeGeometryBackend3D.cpp b/Common/src/adaptation/CNativeGeometryBackend3D.cpp
+index 06211c39f9..10b976ad74 100644
+--- a/Common/src/adaptation/CNativeGeometryBackend3D.cpp
++++ b/Common/src/adaptation/CNativeGeometryBackend3D.cpp
+@@ -97,6 +97,12 @@ bool NativeMappedGeometryBackend3D::ContractionAllowed(const SurfaceBinding& rem
+       if(from.mobility==2){admissible=admissible||from.sheet==to.sheet;return;}
+       if(to.mobility==1){admissible=admissible||from.feature==to.feature;return;}
+       if(to.mobility!=0)return;
++      if (retained.dimension == 1) {
++        const auto edge = policy.features.find(authority->OriginalEdge(retained.feature));
++        admissible = admissible || (edge != policy.features.end() && edge->second == from.feature);
++        return;
++      }
++      if (retained.dimension != 0) return;
+       const auto& facet=authority->Reference().Get(f);
+       for(unsigned k=0;k<3;++k){Use(budget);SU2Native3D::Edge edge{facet.v[k].id,facet.v[(k+1)%3].id};
+         if(edge[0]!=retained.feature&&edge[1]!=retained.feature)continue;
+@@ -104,6 +110,9 @@ bool NativeMappedGeometryBackend3D::ContractionAllowed(const SurfaceBinding& rem
+         admissible=admissible||(found!=policy.features.end()&&found->second==from.feature);
+       }
+     });
++    if (!admissible && frozen_seam_refusals &&
++        (authority->FrozenSeamPoint(removed, policy) || authority->FrozenSeamPoint(retained, policy)))
++      CountFrozenSeamRefusal();
+     allowed=admissible;reason.clear();return true;
+   }catch(const std::exception& e){reason=e.what();return false;}
+ }
+@@ -247,7 +256,7 @@ bool NativeMappedGeometryBackend3D::RegionErrorBounds(const FaceCoverage& covera
+   }catch(const std::exception& e){reason=e.what();return false;}
+ }
+ bool NativeMappedGeometryBackend3D::PatchErrorBounds(const GeometrySupport& scope,
+-    const std::vector<std::array<Point,3>>& physical,double tolerance,
++    const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerance,
+     MappedFacetReference::SurfaceUnionBounds& result,AtlasBudget& budget,std::string& reason,
+     GeometryErrorDirection direction, ProofShare share)const {
+   if (share.parts == 0 || share.part >= share.parts) throw std::invalid_argument("Invalid surface proof share.");
+diff --git a/Common/src/adaptation/CNativeRemesher.cpp b/Common/src/adaptation/CNativeRemesher.cpp
+index 7c87ee509a..6f9f7d5969 100644
+--- a/Common/src/adaptation/CNativeRemesher.cpp
++++ b/Common/src/adaptation/CNativeRemesher.cpp
+@@ -32,6 +32,8 @@ CNativeRemesher::CNativeRemesher(std::shared_ptr<ReferenceState> retainedReferen
+ }
+ 
+ void CNativeRemesher::CheckSupport(const CConfig& config, const CGeometry& geometry) {
++  if (!config.GetAdap_MarkerHausd().empty())
++    SU2_MPI::Error("ADAP_HAUSD per marker is available for the 3D native remesher only.", CURRENT_FUNCTION);
+   CLocalFailure failure;
+   if(config.GetAdap_Native_MemoryLimit())
+     failure.Set(1,0,"ADAP_NATIVE_MEMORY_LIMIT currently requires native3D.");
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index 1fc675aa5d..f6dfb29261 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -8,6 +8,7 @@
+ #include "../../include/adaptation/CNativeTimerTree3D.hpp"
+ #include "../../include/adaptation/CNativeRemesher3D.hpp"
+ #include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
++#include "../../include/adaptation/CNativeMarkerTolerance3D.hpp"
+ #include "../../include/adaptation/CNativeLocalCore3D.hpp"
+ #include "../../include/adaptation/CNativeMetricTransport3D.hpp"
+ #include "../../include/adaptation/CNativeAffineReference.hpp"
+@@ -66,15 +67,37 @@ size_t NativeMemoryCeiling(const CConfig& config,const CGeometry& geometry,size_
+ }
+ }  // namespace SU2Native3D
+ namespace {
++void PrepareMarkerTolerance(const CConfig& config, const ReferenceState& state, size_t ceiling, size_t caller,
++                            std::optional<MarkerTolerance3D>& table) {
++  const auto& configured = config.GetAdap_MarkerHausd();
++  if (configured.empty() || table) return;
++  if (!state.original || !state.original->Mapped() || state.original->Parameters()->Geometry().Curves().empty())
++    throw std::invalid_argument("ADAP_HAUSD per marker needs a mapped curved native reference.");
++  const auto bytes = MarkerTolerance3D::ConstructionBytes(state.marker_names, configured.size());
++  if (transfer_memory::Add(caller, state.original->ResidentBytes(), bytes) > ceiling)
++    throw std::length_error("Native marker tolerance table exceeds working-storage admission.");
++  double maximum = 0;
++  const auto include = [&](Point p) { maximum = std::max({maximum, std::abs(p.x), std::abs(p.y), std::abs(p.z)}); };
++  for (const auto& item : state.original->Facets())
++    for (const auto& node : item.second.v) include(node.p);
++  for (const auto& item : state.original->Parameters()->Geometry().Curves())
++    for (const auto& point : item.second) include(point);
++  table.emplace(configured, state.marker_names, maximum);
++}
++
+ // Configuration prepares mobility explicitly; loading an old sidecar never changes its semantics.
+-void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,size_t caller) {
++void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,size_t caller,
++                     const MarkerTolerance3D* tolerances = nullptr) {
+   SU2NativeTiming3D::Scope mobility_timer(SU2NativeTiming3D::Operation::MobilityPolicy);
+   if(!state.original || !state.original->Mapped())return;
+   const auto* accepted=state.original->Parameters();const auto& authority=accepted->Geometry();
+   if(authority.Curves().empty())return;
+   std::map<int,int> roles;
+-  for(size_t m=0;m<state.marker_names.size();++m)
+-    roles.emplace(int(m),config.GetMarker_CfgFile_KindBC(state.marker_names[m])==SYMMETRY_PLANE?0:2);
++  for (size_t m = 0; m < state.marker_names.size(); ++m) {
++    const int kind = config.GetMarker_CfgFile_KindBC(state.marker_names[m]) == SYMMETRY_PLANE ? 0 : 2;
++    // Preserve the role kind in the low two bits for scalar and equal-list policies.
++    roles.emplace(int(m), kind + (tolerances ? 4 * tolerances->Class(int(m)) : 0));
++  }
+   const double angle=SU2_TYPE::GetValue(config.GetAdap_Angle());
+   if(accepted->Mobility().identity) {
+     if(accepted->Mobility().angle!=angle || accepted->Mobility().roles!=roles)
+@@ -115,7 +138,10 @@ void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry&
+     try {
+       pending.first_height_tol=SU2NativeFirstHeight::AdoptRecorded(pending.first_height_tol,
+           SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol()));
+-      PrepareMobility(config,pending,ceiling,options.caller_bytes);
++      std::optional<MarkerTolerance3D> table;
++      PrepareMarkerTolerance(config, pending, ceiling, options.caller_bytes, table);
++      PrepareMobility(config, pending, ceiling, transfer_memory::Add(options.caller_bytes, table ? table->Bytes() : 0),
++                      table ? &*table : nullptr);
+     }
+     catch(const std::exception& e){failure.Set(2,0,e.what());}
+     CollectiveFailure(failure,CURRENT_FUNCTION);*reference=std::move(pending);return;
+@@ -139,7 +165,12 @@ void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry&
+   if(!SU2Native3D::ImportGeometry(config,geometry,nullptr,pending,imported,reason,importedStats,
+                                 ceiling,held)) failure.Set(2,0,reason);
+   CollectiveFailure(failure,CURRENT_FUNCTION);
+-  try{PrepareMobility(config,pending,ceiling,held);}
++  try {
++    std::optional<MarkerTolerance3D> table;
++    PrepareMarkerTolerance(config, pending, ceiling, held, table);
++    PrepareMobility(config, pending, ceiling, transfer_memory::Add(held, table ? table->Bytes() : 0),
++                    table ? &*table : nullptr);
++  }
+   catch(const std::exception& e){failure.Set(2,0,e.what());}
+   CollectiveFailure(failure,CURRENT_FUNCTION);
+   *reference=std::move(pending);
+@@ -214,6 +245,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+   control.timings = options.timings || config.GetWrt_Performance();
+   using Probe = SU2NativeLocal3D::CollapseProbe;
+   namespace cert = geometry_certificates;
++  cert::ScopedValue<const MarkerTolerance3D*> tolerance_scope(active_marker_tolerance, nullptr);
+   const bool surface_mode = config.GetAdap_Native_Local_Core() && config.GetAdap_Native_Local_Surface() &&
+                             !config.GetnAdap_BL() && !construction;
+   const auto probe = surface_mode ? SU2NativeLocal3D::FP3Probe() : Probe::None;
+diff --git a/Common/src/adaptation/native_engine3d/EngineControl.cpp b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+index 3b1319e7f3..b3d8c7fb33 100644
+--- a/Common/src/adaptation/native_engine3d/EngineControl.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+@@ -38,7 +38,7 @@ void EngineControl::ProveEntitySurface(EngineContext& context, Owned& working,
+     if (!context.exchange.Vote(context, geometryFailure)) {
+       result.valid = result.surface_prepared = false;
+       stats.stop = EngineStop::Failure;
+-    } else if (options.timings) {
++    } else if (options.timings && !active_marker_tolerance) {
+       proof_scope.reset();
+       proof_phase.reset();
+       PrintFinalProof(proof, world.rank, geometry.Parameters()->GeometryTolerance());
+@@ -68,8 +68,8 @@ void EngineControl::ProvePreparedSurface(EngineContext& context, Owned& working)
+           for (unsigned k = 0; k < 3; ++k)
+             for (const auto& node : row.second.cell.v)
+               if (node.id == face.v[k]) triangle[k] = node.p;
+-          if (geometry.SurfaceDeviation(face.facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify()) >
+-              options.surface_tolerance)
++          if (geometry.SurfaceDeviation(face.facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker()) >
++              FaceTolerance(geometry, face.facet, options.surface_tolerance))
+             geometryFailure.Set(1, face.facet, "Prepared surface does not meet the prescribed geometry tolerance.");
+         }
+       }
+diff --git a/Common/src/adaptation/native_engine3d/EngineSelectionCensus.cpp b/Common/src/adaptation/native_engine3d/EngineSelectionCensus.cpp
+index 2fd1d11c5e..e07030485a 100644
+--- a/Common/src/adaptation/native_engine3d/EngineSelectionCensus.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineSelectionCensus.cpp
+@@ -531,8 +531,8 @@ void Selection::MeasureGeometryFace(const OwnedCell& owned, const Face& face, si
+     for (auto n : cell.v)
+       if (n.id == face[i]) triangle[i] = n.p;
+   const double error =
+-      geometry.SurfaceDeviation(owned.physical[slot].facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
+-  const auto allowed = tolerance;
++      geometry.SurfaceDeviation(owned.physical[slot].facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Magnitude().ForMarker());
++  const auto allowed = FaceTolerance(geometry, owned.physical[slot].facet, tolerance);
+   if (surface_planning && wall_counters)
+     wall_counters->ObserveMeasuredFace(face, owned.physical[slot].facet, error, tolerance);
+   if (std::isfinite(error)) {
+diff --git a/Common/src/adaptation/native_engine3d/EngineSetup.cpp b/Common/src/adaptation/native_engine3d/EngineSetup.cpp
+index a4d8150f21..1e8a092e59 100644
+--- a/Common/src/adaptation/native_engine3d/EngineSetup.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineSetup.cpp
+@@ -692,7 +692,7 @@ void EngineSetup::EvaluateRegionTarget(EngineContext& context, size_t region_cel
+   auto& stats = result.stats;
+   auto& coarsening = *context.control.coarsening;
+   // BEGIN_SOURCE_BODY
+-  bool already_valid = GeometryGuidanceExcess(old, geometry, options.surface_tolerance).excess == 0;
++  bool already_valid = EngineGeometryGuidance(old, geometry, options.surface_tolerance).excess == 0;
+   bool short_edges = false;
+   if (already_valid)
+     for (const auto& c : old.cells) {
+diff --git a/Common/src/adaptation/native_engine3d/EngineTrial.cpp b/Common/src/adaptation/native_engine3d/EngineTrial.cpp
+index ee242bc944..ffe4fb2bf3 100644
+--- a/Common/src/adaptation/native_engine3d/EngineTrial.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineTrial.cpp
+@@ -533,40 +533,8 @@ std::pair<size_t, size_t> TrialChecks::GeometryCounts(const Patch& patch, std::s
+   auto& geometry = context.geometry;
+   auto& stats = context.control.result->stats;
+   Timer timer(stats.geometry_guidance_seconds, options.timings, SU2NativeTiming3D::Operation::GeometryBound);
+-  auto parameters = geometry.PrivateParameters(patch);
+-  const auto& reference = parameters ? *parameters : geometry;
+-  std::map<Face, Id> facets;
+-  for (const auto& face : patch.surface) facets.emplace(Key(face.v), face.facet);
+-  std::pair<size_t, size_t> counts{};
+-  for (const auto& cell : patch.cells) {
+-    atlas_budget.CheckTime();
+-    bool bad = false;
+-    for (const auto& face : Faces(cell)) {
+-      const auto found = facets.find(Key(face));
+-      if (found == facets.end()) continue;
+-      std::array<Point, 3> triangle;
+-      for (unsigned k = 0; k < 3; ++k)
+-        for (auto n : cell.v)
+-          if (n.id == face[k]) triangle[k] = n.p;
+-      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit,
+-                                             commit_cert::active && !failed_edges);
+-      const auto error =
+-          reference.SurfaceDeviation(found->second, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify());
+-      ++stats.geometry_guidance_faces;
+-      if (!std::isfinite(error)) throw std::runtime_error("Native3D coupled repair lacks a complete face certificate.");
+-      if (error <= options.surface_tolerance) continue;
+-      bad = true;
+-      ++counts.second;
+-      if (failed_edges)
+-        for (unsigned k = 0; k < 3; ++k) {
+-          Edge edge{face[k], face[(k + 1) % 3]};
+-          std::sort(edge.begin(), edge.end());
+-          failed_edges->insert(edge);
+-        }
+-    }
+-    counts.first += bad;
+-  }
+-  return counts;
++  return SU2Native3D::GeometryCounts(patch, geometry, options.surface_tolerance, atlas_budget,
++                                     stats.geometry_guidance_faces, failed_edges);
+ }
+ 
+ // Maximum number of cells per private donor batch, before the other existing bounds.
+diff --git a/Common/src/adaptation/native_engine3d/MeshOptimizer.cpp b/Common/src/adaptation/native_engine3d/MeshOptimizer.cpp
+index 93c537860f..e4e28ef4d7 100644
+--- a/Common/src/adaptation/native_engine3d/MeshOptimizer.cpp
++++ b/Common/src/adaptation/native_engine3d/MeshOptimizer.cpp
+@@ -1188,7 +1188,11 @@ bool MeshOptimizer::BoundaryTargets(Id p, const Patch& patch, const PlanarRefere
+     const auto binding = patch.parameters.at(p).binding;
+     const auto& authority = geometry.Parameters()->Geometry();
+     const auto* mobility = geometry.Mobility();
+-    if (mobility && authority.MobilityDimension(binding, *mobility) == 0) return false;
++    if (mobility && authority.MobilityDimension(binding, *mobility) == 0) {
++      if (SU2NativeGeometry::frozen_seam_refusals && authority.FrozenSeamPoint(binding, *mobility))
++        SU2NativeGeometry::CountFrozenSeamRefusal();
++      return false;
++    }
+     if (!mobility && binding.dimension == 0 && authority.PhysicalSupport(binding)) return false;
+     if (!mobility && binding.dimension == 1 &&
+         (!authority.ReferenceComponents() || authority.PhysicalSupport(binding))) {
+@@ -2086,6 +2090,10 @@ bool MeshOptimizer::SearchInteriorSmooth(Id p, const std::vector<Id>& old, const
+ // coned to a and b, the boundary pair (a,b,r_0),(a,b,r_m) becoming (a,r_0,r_m),(b,r_0,r_m).
+ bool MeshOptimizer::BoundaryFlip(Id a, Id b) {
+   if (Limited() || options.frozen_vertices.count(a) || options.frozen_vertices.count(b)) return false;
++  if (options.geometry && options.geometry->Parameters() && options.geometry->Parameters()->FrozenSeamEdge({a,b})) {
++    SU2NativeGeometry::CountFrozenSeamRefusal();
++    return false;
++  }
+   const auto sa = star.find(a), sb = star.find(b);
+   if (sa == star.end() || sb == star.end()) return false;
+   const auto shell = Common(sa->second, sb->second);
+@@ -2529,8 +2537,8 @@ bool MeshOptimizer::ShellBoundary(Id id) {
+     if (!physical.count(key) && options.surface_tolerance > 0) {
+       const std::array<Point, 3> p{points.at(face.v[0]), points.at(face.v[1]), points.at(face.v[2])};
+       commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
+-      if (!(proposed.SurfaceDeviation(face.facet, p, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true) <=
+-            options.surface_tolerance)) {
++      if (!(proposed.SurfaceDeviation(face.facet, p, SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker(), true) <=
++            FaceTolerance(proposed, face.facet, options.surface_tolerance))) {
+         strict_geometry = false;
+       }
+     }
+@@ -2542,10 +2550,10 @@ bool MeshOptimizer::ShellBoundary(Id id) {
+       return false;
+     }
+     // As for boundary smoothing, a useful intermediate may retain non-increasing geometry debt.
+-    const auto before = GeometryGuidanceExcess(old, geometry, options.surface_tolerance);
++    const auto before = EngineGeometryGuidance(old, geometry, options.surface_tolerance);
+     const auto after = [&] {
+       commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
+-      return GeometryGuidanceExcess(fresh, proposed, options.surface_tolerance, before.excess);
++      return EngineGeometryGuidance(fresh, proposed, options.surface_tolerance, before.excess);
+     }();
+     if (!before.complete || !after.complete || !std::isfinite(after.excess) || after.excess > before.excess) {
+       ++report.rejected_interface;
+@@ -2906,10 +2914,10 @@ bool MeshOptimizer::CertifyCoupledBoundary(const std::vector<Id>& all_ids, const
+         }
+   auto final_context = geometry.PrivateParameters(candidate);
+   if (!final_context) return false;
+-  const auto old_geometry = GeometryGuidanceExcess(original, geometry, options.surface_tolerance);
++  const auto old_geometry = EngineGeometryGuidance(original, geometry, options.surface_tolerance);
+   const auto new_geometry = [&] {
+     commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
+-    return GeometryGuidanceExcess(candidate, *final_context, options.surface_tolerance, old_geometry.excess);
++    return EngineGeometryGuidance(candidate, *final_context, options.surface_tolerance, old_geometry.excess);
+   }();
+   if (!old_geometry.complete || !new_geometry.complete || !std::isfinite(new_geometry.excess) ||
+       new_geometry.excess > old_geometry.excess) {
+diff --git a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+index 732632d4fc..fac3af8408 100644
+--- a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
++++ b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+@@ -76,8 +76,41 @@ struct RemeshRun {
+   std::string reason{};
+   SU2NativeGeometry::AtlasBudget target_event_budget{};
+   bool reset_need_at_start = false;
++  std::optional<MarkerTolerance3D> tolerance_table{};
++  std::pair<size_t, size_t> seam_counts{};
++  size_t seam_refusals = 0;
+ 
+   size_t CertificateBytes() const { return certificates ? certificates->Bytes() : 0; }
++  size_t ToleranceBytes() const { return tolerance_table ? tolerance_table->Bytes() : 0; }
++
++  void PrepareTolerances(const ReferenceState& state, size_t caller_bytes) {
++    if (config.GetAdap_MarkerHausd().empty() || tolerance_table) return;
++    CLocalFailure failure;
++    try {
++      PrepareMarkerTolerance(config, state, control.memory_ceiling, caller_bytes, tolerance_table);
++    } catch (const std::exception& e) {
++      failure.Set(2, 0, e.what());
++    }
++    CollectiveFailure(failure, caller);
++    active_marker_tolerance = &*tolerance_table;
++    stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, transfer_memory::Add(
++        caller_bytes, state.original->ResidentBytes(), MarkerTolerance3D::ConstructionBytes(
++            state.marker_names, config.GetAdap_MarkerHausd().size())));
++  }
++
++  void ReportTolerance() {
++    if (config.GetAdap_MarkerHausd().empty() || !control.timings) return;
++    SU2NativeTiming3D::Scope communication(SU2NativeTiming3D::Operation::Communication);
++    const auto refusals = CPassiveComm::Allreduce(uint64_t(seam_refusals), CPassiveComm::Op::SUM, parent.comm);
++    if (parent.rank || !tolerance_table) return;
++    SU2NativeTiming3D::Scope output(SU2NativeTiming3D::Operation::Output);
++    std::ostringstream row;
++    row << std::setprecision(17) << "NATIVE3D_TOLERANCE rank=0 strict=" << tolerance_table->Strict()
++        << " seam_corners=" << seam_counts.first << " seam_edges=" << seam_counts.second
++        << " refused_seam_edits=" << refusals << " markers=";
++    tolerance_table->WriteMarkers(row);
++    std::cout << row.str() << '\n';
++  }
+ 
+   void ReleaseCertificateComm() {
+     if (!certificate_comm) return;
+@@ -139,7 +172,7 @@ struct RemeshRun {
+   // Accounts for the shared authority once while both reference states remain live.
+   size_t Held(const ReferencePreparation& preparation) {
+     return transfer_memory::Add(preparation.retained, ReferenceStorageBytes(preparation.pending->state),
+-                                PartitionBytes(), CertificateBytes());
++                                PartitionBytes(), CertificateBytes(), ToleranceBytes());
+   }
+ 
+   // Reads the same frozen deadline for the local geometry and metric queries.
+@@ -151,6 +184,8 @@ struct RemeshRun {
+ 
+   // Owns the event geometry ledger through final reporting, including failed transactions.
+   void Run() {
++    cert::ScopedValue<size_t*> refusal_counter(SU2NativeGeometry::frozen_seam_refusals,
++        control.timings && !config.GetAdap_MarkerHausd().empty() ? &seam_refusals : nullptr);
+     if (reference->original && reference->original->Parameters()) {
+       reference->original->Parameters()->Geometry().ResetGeometryNeedStats();
+       reset_need_at_start = true;
+@@ -160,11 +195,20 @@ struct RemeshRun {
+     ReleaseCertificateComm();
+     Finalize();
+     ReportRemesh(config, control, parent, stats, reason, target_event_budget);
++    ReportTolerance();
+   }
+ 
+   // Agrees event controls before making any private reference changes.
+   void TryRemesh() {
+     CNativeRemesher3D::CheckSupport(config, geometry);
++    {
++      SU2NativeTiming3D::Scope communication(SU2NativeTiming3D::Operation::Communication);
++      const auto word = MarkerTolerance3D::Identity(config.GetAdap_MarkerHausd());
++      const std::array<uint64_t, 2> local{word, ~word};
++      std::array<uint64_t, 2> agreed{};
++      CPassiveComm::Allreduce(local.data(), agreed.data(), local.size(), CPassiveComm::Op::MIN, parent.comm);
++      if (agreed[0] != ~agreed[1]) SU2_MPI::Error("ADAP_HAUSD differs between ranks.", caller);
++    }
+     Phase(0);
+     stats.job_peak_rss_bytes = JobPeakRSS3D(parent.comm);
+     if (!CheckJobMemory(stats.job_peak_rss_bytes, "Native3D whole-job peak RSS exceeds ADAP_NATIVE_JOB_MEMORY_LIMIT."))
+@@ -241,9 +285,11 @@ struct RemeshRun {
+     // Retained and pending state share the immutable authority: count its allocation once.
+     size_t retained = transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference, false));
+     ReferencePreparation preparation{failure, pending, retained};
++    if (pending->state.original)
++      PrepareTolerances(pending->state, transfer_memory::Add(retained, CertificateBytes()));
+     try {
+       PrepareMobility(config, pending->state, control.memory_ceiling,
+-                      transfer_memory::Add(retained, CertificateBytes()));
++                      transfer_memory::Add(retained, CertificateBytes(), ToleranceBytes()), active_marker_tolerance);
+     } catch (const std::exception& e) {
+       failure.Set(2, 0, e.what());
+     }
+@@ -275,17 +321,18 @@ struct RemeshRun {
+     const auto base_caller = control.caller_bytes;
+     ImportedGeometry imported;
+     bool ready = ImportGeometry(config, geometry, &sensor, pending->state, imported, reason, stats.imported,
+-                                control.memory_ceiling, transfer_memory::Add(retained, CertificateBytes()));
++                                control.memory_ceiling, transfer_memory::Add(retained, CertificateBytes(), ToleranceBytes()));
+     if (!reset_need_at_start && pending->state.original && pending->state.original->Parameters())
+       pending->state.original->Parameters()->Geometry().ResetGeometryNeedStats();
+     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, stats.imported.maximum_native_bytes);
+     Phase(2);
+     if (!ready) return;
++    const auto imported_bytes = transfer_memory::Add(retained, OwnedStorageBytes(imported.cells),
++        transfer_memory::Bytes(imported.original), CertificateBytes());
++    PrepareTolerances(pending->state, imported_bytes);
+     try {
+-      PrepareMobility(
+-          config, pending->state, control.memory_ceiling,
+-          transfer_memory::Add(retained, OwnedStorageBytes(imported.cells), transfer_memory::Bytes(imported.original),
+-                               CertificateBytes()));
++      PrepareMobility(config, pending->state, control.memory_ceiling,
++                      transfer_memory::Add(imported_bytes, ToleranceBytes()), active_marker_tolerance);
+     } catch (const std::exception& e) {
+       failure.Set(2, 0, e.what());
+     }
+@@ -296,6 +343,8 @@ struct RemeshRun {
+         return;
+       }
+     }
++    if (tolerance_table && control.timings && parent.rank == 0)
++      seam_counts = pending->state.original->Parameters()->FrozenSeamCounts();
+     if (!PromoteReference(pending)) return;
+     CreateTarget(preparation, normalizer, base_caller, imported, ready);
+   }
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
+index 0d3872e175..d8be55582d 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
+@@ -473,8 +473,9 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
+     const double first = clock();
+     const bool sampled = std::all_of(children.begin(), children.end(), [&](const auto& face) {
+       const auto samples = geometry.Samples(face);
++      const auto allowed = geometry.Limit(face);
+       return std::all_of(samples.distances.begin(), samples.distances.end(), [&](double distance) {
+-        return std::isfinite(distance) && distance <= geometry.Limit();
++        return std::isfinite(distance) && distance <= allowed;
+       });
+     });
+     if (report) counters.seconds_c_samples += clock() - first;
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
+index f33eff7d7e..699a4ab5ea 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
+@@ -7,6 +7,7 @@
+ #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
+ #include "../../../include/adaptation/CNativeLocalContact3D.hpp"
+ #include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
++#include "../../../include/adaptation/CNativeMarkerTolerance3D.hpp"
+ #include <algorithm>
+ #include <cmath>
+ #include <iomanip>
+@@ -733,6 +734,15 @@ Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const
+   }
+ }
+ 
++double Mesh::SurfaceChordLimit(Edge edge, Slot seed, const SurfaceGeometry& geometry, double strict) const {
++  if (!SU2Native3D::active_marker_tolerance) return strict;
++  const auto parents = SurfaceParents(edge, EdgeRing(edge, seed));
++  if (parents.empty()) return strict;
++  double limit = std::numeric_limits<double>::infinity();
++  for (const auto parent : parents) limit = std::min(limit, geometry.Limit(SurfaceFaceAt(parent)));
++  return limit;
++}
++
+ Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
+                                              const SurfaceChords& chords, const SurfaceEdgeSet& refused,
+                                              const SurfaceEdgeSet& border, const SurfaceErrors& errors,
+@@ -741,7 +751,7 @@ Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGe
+   const auto feature = std::find_if(edges.begin(), edges.end(), [&](Edge edge) {
+     const auto ids = Ids(points_, edge);
+     const auto chord = geometry.Feature(ids) ? chords.at(ids) : std::nullopt;
+-    return chord && *chord > limit;
++    return chord && *chord > SurfaceChordLimit(ById(edge), face.cell, geometry, limit);
+   });
+   const bool feature_chord = feature != edges.end();
+   const auto [edge, length] = feature_chord ? std::make_pair(ById(*feature), Distance(points_, *feature))
+@@ -780,8 +790,8 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
+     }
+     return it->second;
+   };
+-  const auto above = [limit](const auto& distances) {
+-    return *std::max_element(distances.begin(), distances.end()) > limit;
++  const auto above = [&](const SurfaceFace& face, const auto& distances) {
++    return *std::max_element(distances.begin(), distances.end()) > geometry.Limit(face);
+   };
+ 
+   for (unsigned sweep = 0; sweep < SurfaceDistanceLimit; ++sweep) {
+@@ -801,11 +811,12 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
+       for (const auto parent : faces) {
+         const auto face = SurfaceFaceAt(parent);
+         const auto& measured = sample(face, face.v).measured.distances;
++        const auto allowed = geometry.Limit(face);
+         for (size_t k = 0; k < face.v.size(); ++k) {
+           const double error = measured[k + 1];
+           if (!std::isfinite(error)) {
+             stats.Increment(stats.surface.d_nonfinite);
+-          } else if (error > limit) {
++          } else if (error > allowed) {
+             const auto ids = Sorted(SurfaceEdge{face.v[k], face.v[(k + 1) % face.v.size()]});
+             auto [it, inserted] = errors.try_emplace(ids, error);
+             if (!inserted) it->second = std::max(it->second, error);
+@@ -830,7 +841,8 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
+         where->second = geometry.Chord({points_[use.edge[0]].node, points_[use.edge[1]].node});
+         if (!where->second) stats.Increment(stats.surface.chord_unknown);
+       }
+-      if (where->second && *where->second > limit && !refused.count(ids) && !border.count(ids) &&
++      if (where->second && *where->second > SurfaceChordLimit(use.edge, use.cell, geometry, limit) &&
++          !refused.count(ids) && !border.count(ids) &&
+           Distance(points_, use.edge) >= floor) {
+         if (DistanceMetricTooShort(use.edge, stats)) continue;
+         std::vector<Edge> terminals;
+@@ -857,7 +869,7 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
+     for (const auto parent : faces) {
+       const auto face = SurfaceFaceAt(parent);
+       auto& row = sample(face, face.v);
+-      if (!above(row.measured.distances)) continue;
++      if (!above(face, row.measured.distances)) continue;
+       if (stats.report && options_.distance_error_cut) {
+         const auto face_edges = FaceEdges(OrientedFace(cells_[parent.cell].vertices, parent.face));
+         if (std::none_of(face_edges.begin(), face_edges.end(),
+@@ -943,7 +955,7 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
+     for (const auto parent : PhysicalFaces()) {
+       const auto face = SurfaceFaceAt(parent);
+       const auto& row = sample(face, face.v);
+-      if (!above(row.measured.distances)) continue;
++      if (!above(face, row.measured.distances)) continue;
+       ++stats.surface.left_distance;
+       switch (row.reason) {
+         case SurfaceRemaining::Limit: ++stats.surface.left_limit; break;
+@@ -1007,6 +1019,10 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
+       if (length >= options_.short_edge || !EdgeRing(use.edge, use.cell).surface) continue;
+       if (removable(use.edge[0]) || removable(use.edge[1]))
+         candidates.push_back({use, Ids(points_, use.edge), length});
++      else if (SU2NativeGeometry::frozen_seam_refusals &&
++               (geometry.FrozenSeamPoint(points_[use.edge[0]].node.id) ||
++                geometry.FrozenSeamPoint(points_[use.edge[1]].node.id)))
++        SU2NativeGeometry::CountFrozenSeamRefusal();
+     }
+     if (candidates.empty()) break;
+     stats.Increment(stats.surface.c_sweeps);
+diff --git a/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp b/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp
+index a2ce888ec5..c706f64056 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp
+@@ -10,6 +10,7 @@
+ #include "../../../include/adaptation/CNativeCurvedAtlas3D.hpp"
+ #include "../../../include/adaptation/CNativeCurvedReference.hpp"
+ #include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
++#include "../../../include/adaptation/CNativeMarkerTolerance3D.hpp"
+ #include "../../../include/adaptation/CNativeTimerTree3D.hpp"
+ #include <algorithm>
+ #include <cmath>
+@@ -661,6 +662,9 @@ StateSurfaceGeometry::StateSurfaceGeometry(std::shared_ptr<const PlanarReference
+ StateSurfaceGeometry::~StateSurfaceGeometry() = default;
+ 
+ double StateSurfaceGeometry::Tolerance() const { return impl_->state.GeometryTolerance(); }
++double StateSurfaceGeometry::Tolerance(Id facet) const {
++  return SU2Native3D::FaceTolerance(impl_->state.Geometry().Reference(), facet, Tolerance());
++}
+ bool StateSurfaceGeometry::Feature(const SurfaceEdge& edge) const { return FindTrace(edge) != nullptr; }
+ const BoundaryPoint* StateSurfaceGeometry::Find(Id id) const { return impl_->Find(id); }
+ const EdgeTrace* StateSurfaceGeometry::FindTrace(const SurfaceEdge& edge) const { return impl_->Trace(edge); }
+@@ -702,10 +706,33 @@ std::optional<double> StateSurfaceGeometry::Chord(const std::array<Node, 2>& end
+ SurfacePlacement StateSurfaceGeometry::Place(const std::array<Node, 2>& ends,
+                                                const std::array<SurfaceFace, 2>& parents, Id id) {
+   Scope timing(Operation::GeometryBound);
++  const auto edge = EdgeKey(ends[0].id, ends[1].id);
++  if (FrozenSeamEdge(edge)) {
++    SU2NativeGeometry::CountFrozenSeamRefusal();
++    return Refused(SurfaceRefusal::Feature, SU2NativeGeometry::FrozenSeamChanged);
++  }
+   impl_->BeginQuery();
+   const QueryPeak query_peak(impl_->budget);
+-  const auto* trace = impl_->Trace(EdgeKey(ends[0].id, ends[1].id));
+-  return trace ? impl_->PlaceOnFeature(ends, parents, id, *trace) : impl_->PlaceOnSheet(ends, parents, id);
++  const auto* trace = impl_->Trace(edge);
++  auto placement = trace ? impl_->PlaceOnFeature(ends, parents, id, *trace) : impl_->PlaceOnSheet(ends, parents, id);
++  if (placement.Accepted() &&
++      impl_->state.Geometry().FrozenSeamPoint(placement.point.binding, impl_->state.Mobility())) {
++    SU2NativeGeometry::CountFrozenSeamRefusal();
++    return Refused(SurfaceRefusal::Feature, SU2NativeGeometry::FrozenSeamChanged);
++  }
++  return placement;
++}
++
++bool StateSurfaceGeometry::FrozenSeamPoint(Id id) const {
++  const auto& state = impl_->state;
++  return SU2NativeGeometry::MixedRoleClasses(state.Mobility()) &&
++         state.Geometry().FrozenSeamPoint(impl_->At(id).binding, state.Mobility());
++}
++
++bool StateSurfaceGeometry::FrozenSeamEdge(const SurfaceEdge& edge) const {
++  const auto& state = impl_->state;
++  return SU2NativeGeometry::MixedRoleClasses(state.Mobility()) &&
++         state.Geometry().FrozenSeamEdge(impl_->At(edge[0]).binding, impl_->At(edge[1]).binding, state.Mobility());
+ }
+ 
+ bool StateSurfaceGeometry::OnEntity(const SurfaceFace& face, const BoundaryPoint& middle) {
+@@ -714,6 +741,9 @@ bool StateSurfaceGeometry::OnEntity(const SurfaceFace& face, const BoundaryPoint
+ 
+ void StateSurfaceGeometry::Accept(SurfacePlacement&& placement) {
+   auto& geometry = *impl_;
++  if (placement.Accepted() &&
++      (geometry.state.Geometry().FrozenSeamPoint(placement.point.binding, geometry.state.Mobility()) ||
++       (placement.parent && FrozenSeamEdge(*placement.parent)))) SU2NativeGeometry::RejectFrozenSeam();
+   if (!placement.Accepted() || geometry.removed.count(placement.point.node.id) || geometry.Duplicate(placement.point) ||
+       !geometry.created.emplace(placement.point.node.id, placement.point).second)
+     throw std::invalid_argument("Native local surface attempted a duplicate or refused publication.");
+@@ -741,6 +771,7 @@ void StateSurfaceGeometry::Remove(Id id) {
+   const auto created = g.created.find(id);
+   if (created == g.created.end() && !g.state.Find(id))
+     throw std::invalid_argument("Native local surface removed point has no persistent association.");
++  if (FrozenSeamPoint(id)) SU2NativeGeometry::RejectFrozenSeam();
+   const auto pending = std::find(g.pending_points.begin(), g.pending_points.end(), id);
+   if (pending != g.pending_points.end()) {
+     const auto& point = g.created.at(id);
+@@ -775,15 +806,16 @@ bool StateSurfaceGeometry::WithinTolerance(const SurfaceFace& face) {
+     points[k] = corners[k].node.p;
+   }
+   const auto bound = state.EntityFaceError(facet, bindings, points, &impl_->budget,
+-                                         SU2NativeGeometry::SurfaceQueryNeed::Classify());
++                                         SU2NativeGeometry::SurfaceQueryNeed::Classify().ForMarker());
+   impl_->CheckBudget();
++  const auto allowed = Tolerance(facet);
+   namespace cert = SU2Native3D::geometry_certificates;
+-  if (auto* event = cert::active; event && event->SameStage(state) && cert::Qualified(bound, state.GeometryTolerance())) {
++  if (auto* event = cert::active; event && event->SameStage(state) && cert::Qualified(bound, allowed)) {
+     Scope staging(Operation::Topology);
+     event->Push(event->core, {cert::FaceKey(state, facet, bindings, points), cert::Origin::StepC},
+                 Add(impl_->budget.caller_bytes, event->core_live_extra), impl_->budget.maximum_bytes);
+   }
+-  return bound <= state.GeometryTolerance();
++  return bound <= allowed;
+ }
+ 
+ void StateSurfaceGeometry::Exchange(World& world, MemoryBudget& budget, size_t caller) {
+@@ -936,6 +968,8 @@ SurfaceStateResult BuildSurfaceState(const StateSurfaceGeometry& geometry, const
+     throw std::length_error("Native surface state rebuild exceeds storage admission.");
+   auto reservation = SU2Native3D::BoundaryAtlasBudget(SU2Native3D::BoundaryAtlasBytes(edits.coverage, state.Mobility()),
+                                                       ceiling, bound);
++  // The rebuild admission above covers the temporary set of oriented seam sides (at most three per face).
++  state.CheckFrozenSeam(edits.points, edits.faces);
+   SurfaceStateResult result;
+   result.state = std::make_shared<SU2Native3D::BoundaryParameterState>(
+       state.Authority(), edits.points, edits.faces, state.Revision() + 1, ceiling, live, edits.coverage,
+diff --git a/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp b/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp
+index b61398b348..ecee8fa945 100644
+--- a/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp
+@@ -974,3 +974,143 @@ TEST_CASE("Entity collapse precheck defers remapped faces to the complete curved
+   }
+   CHECK(survivors==2);CHECK(budget.work==measured_work);CHECK_FALSE(budget.work_exhausted);CHECK(state->Snapshot()==snapshot);
+ }
++
++#include "../../../Common/include/adaptation/CNativeGeometryCertificates3D.hpp"
++#include "../../../Common/include/adaptation/CNativeMarkerTolerance3D.hpp"
++
++namespace {
++constexpr double MarkerTrialStrict = 1e-4, MarkerTrialLoose = .05;
++
++struct MarkerPyramidFixture {
++  explicit MarkerPyramidFixture(const MarkerTolerance3D& tolerances, AtlasBudget& budget) {
++    const RemappingFixture model(false);
++    auto facets = model.facets;
++    for (auto& facet : facets) facet.marker = facet.id < 4 ? 0 : 1;
++    definition = std::make_shared<PlanarReference>(facets);
++    authority = std::make_shared<MappedFacetReference>(
++        definition, model.geometry->Errors(), model.geometry->Version(), SIZE_MAX, false, model.geometry->Curves());
++    INFO(reason);
++    REQUIRE(authority->BuildMobilityPolicy(45, {{0, 2 + 4 * tolerances.Class(0)}, {1, 2 + 4 * tolerances.Class(1)}},
++                                           policy, budget, reason));
++
++    for (const auto& facet : facets) {
++      for (const auto node : facet.v)
++        points.emplace(node.id, BoundaryPoint{node, authority->Vertex(node.id)});
++      if (facet.id >= 4) continue;
++      std::array<Node, 4> vertices{facet.v[0], facet.v[1], facet.v[2], model.points.at(50).node};
++      if (Orientation(vertices[0].p, vertices[1].p, vertices[2].p, vertices[3].p) < 0)
++        std::swap(vertices[0], vertices[1]);
++      cavity.cells.push_back({facet.id, vertices});
++      cavity.surface.push_back(model.surface.at(facet.id));
++    }
++    skin = model.surface;
++    BoundaryParameterState initial(authority, points, skin, 1, SIZE_MAX, 0, {}, policy, &budget);
++    state = initial.WithEntityGeometry(MarkerTrialStrict, budget);
++    reference = PlanarReference::WithParameters(definition, state)->WithAtlasReservation(budget);
++    reference->ExportParameters(cavity);
++  }
++
++  std::shared_ptr<PlanarReference> definition;
++  std::shared_ptr<MappedFacetReference> authority;
++  std::shared_ptr<BoundaryParameterState> state;
++  std::shared_ptr<const PlanarReference> reference;
++  MobilityPolicy policy;
++  BoundaryPoints points;
++  std::vector<SurfaceFace> skin;
++  Patch cavity;
++  std::string reason;
++};
++}  // namespace
++
++TEST_CASE("TOL1 projected private trials honor the marker geometry classifier and final proof", "[.][TOL1]") {
++  namespace cert = geometry_certificates;
++  const bool loose = GENERATE(false, true);
++  const MarkerTolerance3D tolerances({{"BASE", loose ? MarkerTrialLoose : MarkerTrialStrict},
++                                      {"SIDES", loose ? MarkerTrialStrict : MarkerTrialLoose}},
++                                     {"BASE", "SIDES"}, 1.);
++  cert::ScopedValue<const MarkerTolerance3D*> bind(active_marker_tolerance, &tolerances);
++  auto budget = RemappingBudget();
++  MarkerPyramidFixture fixture(tolerances, budget);
++  Patch fresh;
++  const Node trial{100, {.6, .5, -.01}};
++  INFO(fixture.reason);
++  REQUIRE(MoveVertex(fixture.cavity, 0, trial, 1000, *fixture.reference, fresh, fixture.reason));
++  REQUIRE(fresh.parameters.at(trial.id).binding.dimension == 2);
++  REQUIRE(fresh.parameters.at(trial.id).node.p.z != trial.p.z);
++  const auto view = fixture.reference->PrivateParameters(fresh);
++  REQUIRE(view);
++
++  size_t refused = 0;
++  double maximum = 0;
++  for (const auto& face : fresh.surface) {
++    std::array<Point, 3> triangle;
++    for (size_t k = 0; k < triangle.size(); ++k) triangle[k] = fresh.parameters.at(face.v[k]).node.p;
++    REQUIRE(view->ContainsFace(face.facet, triangle));
++    const double error = view->SurfaceDeviation(face.facet, triangle, SurfaceQueryNeed::Classify().ForMarker());
++    REQUIRE(std::isfinite(error));
++    const double limit = FaceTolerance(*view, face.facet, MarkerTrialStrict);
++    CHECK(limit == (loose ? MarkerTrialLoose : MarkerTrialStrict));
++    refused += error > limit;
++    maximum = std::max(maximum, error);
++  }
++  CHECK(maximum > MarkerTrialStrict);
++  CHECK(maximum < MarkerTrialLoose);
++  CHECK((refused == 0) == loose);
++  uint64_t measured = 0;
++  const auto counts = GeometryCounts(fresh, *fixture.reference, MarkerTrialStrict, budget, measured);
++  CHECK(measured == fresh.surface.size());
++  CHECK(counts.second == refused);
++  CHECK((counts.first == 0) == loose);
++
++  if (loose) {
++    for (auto& face : fixture.skin)
++      for (auto& id : face.v)
++        if (id == 0) id = trial.id;
++    fixture.points.erase(0);
++    fixture.points.emplace(trial.id, fresh.parameters.at(trial.id));
++    BoundaryParameterState accepted(fixture.authority, fixture.points, fixture.skin, 2, SIZE_MAX, 0,
++                                    fixture.state->Coverage(), fixture.policy, &budget, MarkerTrialStrict);
++    const auto reverse = accepted.OwnedFaceReverseBounds(fixture.skin, budget);
++    REQUIRE(accepted.ReverseProofComplete(reverse));
++    BoundaryParameterState::Certificates proof;
++    accepted.GeometryCertificates(budget, true, &reverse, &proof);
++    size_t faces = 0;
++    for (const auto& row : proof) {
++      CHECK(row.second.within_tolerance);
++      faces += row.second.physical_pieces;
++    }
++    CHECK(faces == fixture.skin.size());
++  }
++}
++
++TEST_CASE("TOL1 direct child face between the limits survives the engine collapse filter", "[.][TOL1]") {
++  namespace cert = geometry_certificates;
++  const bool loose = GENERATE(false, true);
++  const MarkerTolerance3D tolerances({{"BASE", loose ? MarkerTrialLoose : MarkerTrialStrict},
++                                      {"SIDES", loose ? MarkerTrialStrict : MarkerTrialLoose}},
++                                     {"BASE", "SIDES"}, 1.);
++  cert::ScopedValue<const MarkerTolerance3D*> bind(active_marker_tolerance, &tolerances);
++  auto budget = RemappingBudget();
++  MarkerPyramidFixture fixture(tolerances, budget);
++  const auto& facet = fixture.definition->Get(0);
++  const Node keep = facet.v[0];
++  const Node remove{100, fixture.authority->Realize(fixture.authority->FacetPoint(0, .2, .2))};
++  OwnedCell row;
++  row.cell = fixture.cavity.cells.front();
++  const std::array<Point, 3> child{facet.v[0].p, facet.v[1].p, facet.v[2].p};
++  REQUIRE(fixture.reference->ContainsFace(facet.id, child));
++  for (const auto node : facet.v) REQUIRE(fixture.authority->Supports(facet.id, fixture.authority->Vertex(node.id)));
++  const auto bound =
++      fixture.reference->SurfaceDeviation(facet.id, child, SurfaceQueryNeed::Classify().ForMarker());
++  REQUIRE(bound > MarkerTrialStrict);
++  REQUIRE(bound < MarkerTrialLoose);
++  for (auto& node : row.cell.v)
++    if (node.id == keep.id) node = remove;
++  REQUIRE(Orientation(row.cell.v[0].p, row.cell.v[1].p, row.cell.v[2].p, row.cell.v[3].p) > 0);
++  row.physical[3] = {true, facet.id};
++
++  // A policy for the other marker engages the filter without making this face a wall face.
++  WallHeights heights;
++  heights.emplace(1, .1);
++  CHECK(CollapseConstraintViolation(row, remove.id, keep, *fixture.reference, MarkerTrialStrict, heights) == !loose);
++}
+diff --git a/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp b/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
+index 5a3d0d65e5..48ab2842c4 100644
+--- a/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
+@@ -1357,3 +1357,149 @@ TEST_CASE("T4 MPI shares join to the same entity certificates", "[.][NativeOwned
+ }
+ 
+ #include "fixtures/native_fx2_memo_tests.inc"
++
++#include "../../../Common/include/adaptation/CNativeGeometryCertificates3D.hpp"
++#include "../../../Common/include/adaptation/CNativeMarkerTolerance3D.hpp"
++
++namespace {
++struct MarkerAtlasFixture {
++  using State = SU2Native3D::BoundaryParameterState;
++  std::shared_ptr<const SU2Native3D::PlanarReference> reference;
++  std::shared_ptr<MappedFacetReference> authority;
++  std::shared_ptr<State> state;
++  std::vector<SU2Native3D::SurfaceFace> skin;
++
++  explicit MarkerAtlasFixture(double strict) {
++    using namespace SU2Native3D;
++    BackendFixture model;
++    for (auto& facet : model.facets)
++      if (facet.id == 2 || facet.id == 3) facet.marker = 1;
++
++    reference = std::make_shared<PlanarReference>(model.facets);
++    authority = std::make_shared<MappedFacetReference>(
++        reference, model.geometry->Errors(), model.geometry->Version(), SIZE_MAX, false, model.geometry->Curves());
++    auto budget = BackendBudget();
++    std::string reason;
++    MobilityPolicy policy;
++    REQUIRE(authority->BuildMobilityPolicy(60, {{0, 2}, {1, 2}}, policy, budget, reason));
++
++    BoundaryPoints points;
++    for (const auto& facet : model.facets) {
++      skin.push_back({{facet.v[0].id, facet.v[1].id, facet.v[2].id}, facet.id});
++      for (const auto& node : facet.v)
++        points.emplace(node.id, BoundaryPoint{node, authority->Vertex(node.id)});
++    }
++    State initial(authority, points, skin, 1, SIZE_MAX, 0, {}, policy, &budget);
++    state = initial.WithEntityGeometry(strict, budget);
++  }
++};
++}  // namespace
++
++TEST_CASE("TOL1 atlas crops on the marker limit and tessellates at strict accuracy", "[.][TOL1]") {
++  using namespace SU2Native3D;
++  namespace cert = geometry_certificates;
++  constexpr double strict = 1e-12, loose = .02, gap = .005;
++  MarkerAtlasFixture fixture(strict);
++  const MarkerTolerance3D tolerances({{"LOOSE", loose}, {"STRICT", strict}}, {"LOOSE", "STRICT"}, 1.);
++  cert::ScopedValue<const MarkerTolerance3D*> use_tolerances(active_marker_tolerance, &tolerances);
++
++  // The x=0 panel has two original facets. The trial includes a vertex of the adjacent
++  // facet, so it cannot use the direct single-facet correspondence bound.
++  const std::array<Id, 3> ids{4, 6, 2};
++  std::array<Point, 3> triangle;
++  std::array<SurfaceBinding, 3> bindings;
++  for (size_t k = 0; k < ids.size(); ++k) {
++    bindings[k] = fixture.authority->Vertex(ids[k]);
++    triangle[k] = fixture.authority->Realize(bindings[k]);
++    triangle[k].x -= gap;
++  }
++  REQUIRE_FALSE(fixture.authority->Supports(4, bindings.back()));
++  REQUIRE(fixture.state->Entity(4) == fixture.state->Entity(5));
++  auto strict_budget = BackendBudget(), loose_budget = BackendBudget();
++  const auto need = SurfaceQueryNeed::Classify();
++  const auto strict_bound = fixture.state->EntityFaceError(4, bindings, triangle, &strict_budget, need);
++  CHECK(strict_bound > strict);
++  const auto loose_bound = fixture.state->EntityFaceError(4, bindings, triangle, &loose_budget, need.ForMarker());
++  CHECK(loose_bound >= gap);
++  CHECK(loose_bound <= loose);
++  // A warm answer at another limit must not displace the original strict answer.
++  CHECK(cert::Bits(fixture.state->EntityFaceError(4, bindings, triangle, &strict_budget, need)) ==
++        cert::Bits(strict_bound));
++  const auto a = fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, strict, strict_budget);
++  const auto b = fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, {strict, strict}, strict_budget);
++  CHECK(cert::Bits(a) == cert::Bits(b));
++  auto stats = fixture.authority->GeometryStatsSnapshot();
++  const auto wide = fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, loose, loose_budget);
++  CHECK(wide <= loose);
++  const auto wide_stats = fixture.authority->GeometryStatsSnapshot();
++  CHECK(wide_stats.memo_union_misses == stats.memo_union_misses + 1);
++  const auto split = fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, {loose, strict}, loose_budget);
++  stats = fixture.authority->GeometryStatsSnapshot();
++  CHECK(split <= loose);
++  CHECK(fixture.authority->BoundPhysicalSurface({4, 5}, {triangle}, {loose, strict}, loose_budget) == split);
++  CHECK(fixture.authority->GeometryStatsSnapshot().memo_union_hits == stats.memo_union_hits + 1);
++
++  const auto key = cert::FaceKey(*fixture.state, 4, bindings, triangle);
++  REQUIRE(key.face[5] == cert::Bits(loose));
++  CHECK(cert::Qualified(loose_bound, loose));
++  CHECK_FALSE(cert::Qualified(loose_bound, strict));
++  const auto& strict_facet = fixture.reference->Get(2);
++  for (size_t k = 0; k < bindings.size(); ++k) {
++    bindings[k] = fixture.authority->Vertex(strict_facet.v[k].id);
++    triangle[k] = strict_facet.v[k].p;
++  }
++  const auto strict_key = cert::FaceKey(*fixture.state, strict_facet.id, bindings, triangle);
++  cert::Snapshot snapshot;
++  snapshot.records.push_back({key, cert::Origin::Proof});
++  CHECK(strict_key.face[5] == cert::Bits(strict));
++  CHECK(snapshot.Find(strict_key) == nullptr);
++}
++
++TEST_CASE("TOL1 complete entity proof keeps a separate strict donor enclosure", "[.][TOL1]") {
++  using namespace SU2Native3D;
++  namespace cert = geometry_certificates;
++  constexpr double strict = 1e-4, loose = .02;
++  MarkerAtlasFixture oracle(strict), fixture(strict);
++  auto scalar_budget = BackendBudget(), list_budget = BackendBudget();
++  const auto scalar = oracle.state->GeometryCertificates(scalar_budget);
++
++  const MarkerTolerance3D tolerances({{"LOOSE", loose}, {"STRICT", strict}}, {"LOOSE", "STRICT"}, 1.);
++  cert::ScopedValue<const MarkerTolerance3D*> use_tolerances(active_marker_tolerance, &tolerances);
++  const auto& donor = fixture.state->GeometryCertificates(list_budget);
++  REQUIRE(donor.size() == scalar.size());
++
++  const auto reverse = fixture.state->OwnedFaceReverseBounds(fixture.skin, list_budget);
++  REQUIRE(fixture.state->ReverseProofComplete(reverse));
++  BoundaryParameterState::Certificates proof;
++  REQUIRE(&fixture.state->GeometryCertificates(list_budget, true, &reverse, &proof) == &proof);
++  REQUIRE(proof.size() == donor.size());
++
++  auto joined = fixture.state->ModelProofShare(list_budget, reverse, {0, 2});
++  const auto second = fixture.state->ModelProofShare(list_budget, reverse, {1, 2});
++  REQUIRE(joined.size() == second.size());
++  for (size_t i = 0; i < joined.size(); ++i) {
++    joined[i].model_to_mesh = std::max(joined[i].model_to_mesh, second[i].model_to_mesh);
++    joined[i].outside = joined[i].outside || second[i].outside;
++  }
++  BoundaryParameterState::Certificates shared;
++  REQUIRE(&fixture.state->AdoptModelProof(reverse, joined, &shared) == &shared);
++  REQUIRE(shared.size() == proof.size());
++  REQUIRE(&fixture.state->GeometryCertificates(list_budget) == &donor);
++  for (const auto& row : donor) {
++    const auto& expected = scalar.at(row.first);
++    CHECK(cert::Bits(row.second.model_to_mesh) == cert::Bits(expected.model_to_mesh));
++    CHECK(row.second.outside_tolerance == expected.outside_tolerance);
++    CHECK_FALSE(row.second.within_tolerance);
++
++    const auto& completed = proof.at(row.first);
++    const auto limit = MarkerTolerance(std::get<2>(row.first), strict);
++    CHECK(completed.within_tolerance);
++    CHECK(completed.model_to_mesh <= limit);
++    CHECK(completed.mesh_to_model <= limit);
++
++    const auto& distributed = shared.at(row.first);
++    CHECK(distributed.within_tolerance);
++    CHECK(cert::Bits(distributed.mesh_to_model) == cert::Bits(completed.mesh_to_model));
++    CHECK(cert::Bits(distributed.model_to_mesh) == cert::Bits(completed.model_to_mesh));
++  }
++}
+diff --git a/UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp b/UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp
+index 9bbedc5374..71ea9a897b 100644
+--- a/UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp
+@@ -1075,3 +1075,209 @@ TEST_CASE("Native local V rounds run quality once when empty and respect the sur
+ #include "native_local_distance_fixtures.inc"
+ #include "native_local_contact_fixtures.inc"
+ #include "native_local_contact_mpi_fixtures.inc"
++
++#include "../../../Common/include/adaptation/CNativeGeometryBackend3D.hpp"
++#include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
++
++TEST_CASE("A subdivided curved marker seam survives private and shared native edits", "[.][TOL1][TOL1Seam]") {
++  using SU2NativeGeometry::FrozenSeamChanged;
++  using SU2NativeGeometry::MappedFacetReference;
++  using SU2NativeGeometry::MobilityPolicy;
++  using SU2NativeGeometry::NativeMappedGeometryBackend3D;
++  using SU2NativeGeometry::RoleClass;
++  using SU2NativeGeometry::RoleKind;
++  const std::vector<Point> corners{{0,0,0}, {1,0,0}, {0,1,0}, {0,0,1}};
++  const auto original = BoundMesh(corners, {{0,1,2,3}}, 1);
++  std::vector<Facet> facets;
++  std::map<Face, Id> original_faces;
++  std::map<Id, double> errors;
++  MappedFacetReference::CurvedNets curves;
++  const unsigned powers[10][3]{{3,0,0}, {0,3,0}, {0,0,3}, {2,1,0}, {1,2,0},
++                               {0,2,1}, {0,1,2}, {1,0,2}, {2,0,1}, {1,1,1}};
++  for (const auto& face : Surface(original)) {
++    const int marker = Key(face.v) == Face{0,1,2} ? 1 : 0;
++    facets.push_back({face.facet, marker, {{{face.v[0], corners[face.v[0]]},
++        {face.v[1], corners[face.v[1]]}, {face.v[2], corners[face.v[2]]}}}});
++    original_faces.emplace(Key(face.v), face.facet);
++    errors.emplace(face.facet, 1e-12);
++    auto& net = curves[face.facet];
++    for (unsigned k = 0; k < 10; ++k) {
++      std::array<unsigned,4> weights{};
++      for (unsigned j = 0; j < 3; ++j) weights[face.v[j]] = powers[k][j];
++      net[k] = {weights[1] / 3., weights[2] / 3., weights[3] / 3.};
++      if (weights[0] * weights[1] && weights[0] + weights[1] == 3) {
++        net[k].y -= .03125;
++        net[k].z -= .03125;
++      }
++    }
++    if (marker == 1) net[9].z -= .03125;
++  }
++  auto definition = std::make_shared<PlanarReference>(facets);
++  auto mapped = std::make_shared<MappedFacetReference>(definition, errors, 73, ExchangeCeiling, false, curves);
++  auto budget = AtlasBudget();
++  std::string reason;
++  MobilityPolicy scalar, equal, mixed;
++  REQUIRE(mapped->BuildMobilityPolicy(45, {{0,0}, {1,2}}, scalar, budget, reason));
++  REQUIRE(mapped->BuildMobilityPolicy(45, {{0,0 + 4*0}, {1,2 + 4*0}}, equal, budget, reason));
++  REQUIRE(mapped->BuildMobilityPolicy(45, {{0,0}, {1,2 + 4}}, mixed, budget, reason));
++  CHECK(EncodeBoundaryAtlas({}, scalar) == EncodeBoundaryAtlas({}, equal));
++  CHECK(scalar.identity == equal.identity);
++  CHECK(mixed.identity != scalar.identity);
++  CHECK(RoleKind(mixed.roles.at(0)) == 0);
++  CHECK(RoleKind(mixed.roles.at(1)) == 2);
++  CHECK(RoleClass(mixed.roles.at(0)) == 0);
++  CHECK(RoleClass(mixed.roles.at(1)) == 1);
++
++  constexpr Edge reference_edge{0,1}, seam_child{0,4};
++  const auto middle = mapped->EdgePoint(reference_edge, .5);
++  REQUIRE(middle.feature == 0);  // The old corner lookup would mistakenly use original vertex 0.
++  const auto midpoint = mapped->Realize(middle);
++  REQUIRE(midpoint.z != 0);
++  auto points = corners;
++  points.push_back(midpoint);
++  auto owned = BoundMesh(points, {{0,4,2,3}, {4,1,2,3}}, 1);
++  for (auto& row : owned) for (unsigned k = 0; k < 4; ++k) if (row.second.physical[k].present) {
++    auto face = FaceAt(row.second.cell, k);
++    if (Holds(face, 4)) *std::find(face.begin(), face.end(), 4) = Holds(face, 0) ? 1 : 0;
++    row.second.physical[k].facet = original_faces.at(Key(face));
++  }
++  const auto faces = Surface(owned);
++  BoundaryPoints associations;
++  for (Id id = 0; id < corners.size(); ++id) associations.emplace(id, BoundaryPoint{{id, corners[id]}, mapped->Vertex(id)});
++  associations.emplace(4, BoundaryPoint{{4, midpoint}, middle});
++  const BoundaryParameterState initial(mapped, associations, faces, 1, ExchangeCeiling, 0, {}, mixed, &budget);
++  auto state = initial.WithEntityGeometry(1e-4, budget, ExchangeCeiling);
++  const auto reference = PlanarReference::WithParameters(definition, state);
++  CHECK(state->FrozenSeamCounts() == std::make_pair(size_t(4), size_t(4)));
++  for (Id id : {0,1,2,4}) CHECK(mapped->MobilityDimension(associations.at(id).binding, mixed) == 0);
++  CHECK(mapped->MobilityDimension(middle, equal) == 1);
++  CHECK_FALSE(state->FrozenSeamPoint(3));
++
++  NativeMappedGeometryBackend3D backend(mapped, mixed);
++  bool allowed = true;
++  REQUIRE(backend.ContractionAllowed(mapped->Vertex(0), mapped->Vertex(3), allowed, budget, reason));
++  CHECK_FALSE(allowed);
++  REQUIRE(backend.ContractionAllowed(mapped->EdgePoint({0,3}, .5), middle, allowed, budget, reason));
++  CHECK_FALSE(allowed);
++
++  const auto private_reference = reference->PrivateParameters({}, &budget);
++  const auto parents = Parents(owned, seam_child);
++  CHECK_THROWS_WITH(private_reference->BindNewPoint({5, midpoint}, {parents[0].facet, parents[1].facet}, &seam_child),
++                    FrozenSeamChanged);
++  CHECK_THROWS_WITH(private_reference->BindMovedPoint(4, {5, midpoint}, {parents[0].facet, parents[1].facet}),
++                    FrozenSeamChanged);
++  local::StateSurfaceGeometry local_geometry(reference, AtlasBudget());
++  const auto placement = local_geometry.Place({associations.at(0).node, associations.at(4).node}, parents, 5);
++  CHECK_FALSE(placement.Accepted());
++  CHECK(placement.reason == FrozenSeamChanged);
++
++  auto changed = associations.at(4);
++  changed.node.p.y += .001;
++  const auto remove = state->Prepare({{associations.at(4), state->Revision(), false}}, {}, reason);
++  CHECK_FALSE(remove.valid);
++  CHECK(reason == FrozenSeamChanged);
++  local::SurfaceEdits edits{associations, faces, state->Coverage()};
++  edits.points.at(4) = changed;
++  CHECK_THROWS_WITH(local::BuildSurfaceState(local_geometry, edits, ExchangeCeiling, 0, false), FrozenSeamChanged);
++  edits.points.at(4) = associations.at(4);
++
++  const auto* old_face = state->IncidentFace(seam_child);
++  REQUIRE(old_face != nullptr);
++  Point chart[3];
++  for (unsigned k = 0; k < 3; ++k)
++    chart[k] = mapped->SurfaceCoordinates(old_face->facet, associations.at(old_face->v[k]).binding);
++  const auto new_binding = mapped->FacetPoint(old_face->facet,
++      (chart[0].y + chart[1].y + 2*chart[2].y) / 4, (chart[0].z + chart[1].z + 2*chart[2].z) / 4);
++  const BoundaryPoint inserted{{5, mapped->Realize(new_binding)}, new_binding};
++  std::vector<BoundaryFaceChange> fan{{old_face->v, old_face->facet, false}};
++  for (unsigned k = 0; k < 3; ++k) fan.push_back({{old_face->v[k], old_face->v[(k+1)%3], 5}, old_face->facet, true});
++  const auto retained = state->Prepare({{inserted, state->Revision(), true}}, fan, reason, ExchangeCeiling, 0, {}, &budget);
++  INFO(reason);
++  REQUIRE(retained.valid);
++
++  const auto installation = local::BuildSurfaceState(local_geometry, edits, ExchangeCeiling, 0, false);
++  const auto encoded_policy = EncodeBoundaryAtlas({}, mixed);
++  CHECK(EncodeBoundaryAtlas({}, installation.state->Mobility()) == encoded_policy);
++  const auto payload = state->Payload();
++  const auto worker = BoundaryParameterState::FromPayload(mapped, payload, ExchangeCeiling);
++  CHECK(worker->Payload() == payload);
++  const auto sidecar = EncodeReference({reference, facets, {"symmetry", "curved"}}, ExchangeCeiling);
++  const auto decoded = DecodeReference(sidecar, ExchangeCeiling);
++  CHECK(EncodeBoundaryAtlas({}, decoded.original->Parameters()->Mobility()) == encoded_policy);
++  CHECK(EncodeReference(decoded, ExchangeCeiling) == sidecar);
++  CHECK_THROWS_WITH(state->WithMobilityPolicy(45, equal.roles, budget, ExchangeCeiling),
++                    "Accepted boundary mobility policy differs from requested configuration.");
++
++  World world;
++  std::vector<Dependency> removals;
++  std::vector<OwnedCell> replacements;
++  if (world.rank == 0) for (const auto& row : owned) {
++    removals.push_back({row.first, row.second.version, 0});
++    auto& copy = replacements.emplace_back(row.second);
++    ++copy.version;
++    for (auto& node : copy.cell.v) if (node.id == 4) node = changed.node;
++  }
++  if (world.rank != 0) owned.clear();
++  Directory directory(world, false, state.get());
++  REQUIRE(directory.Build(owned, reason, ExchangeCeiling));
++  const auto before = Bytes(owned);
++  CHECK_FALSE(directory.Publish(owned, removals, replacements, true, reason, ExchangeCeiling));
++  CHECK(reason.find(FrozenSeamChanged) != std::string::npos);
++  CHECK(Bytes(owned) == before);
++  CHECK(state->Payload() == payload);
++}
++
++namespace {
++class MarkerDistanceFixture final : public FlatGeometry {
++ public:
++  using FlatGeometry::Tolerance;
++  MarkerDistanceFixture(const Owned& owned, Id facet, double value, bool centroid)
++      : FlatGeometry(owned), facet_(facet), value_(value), centroid_(centroid) {}
++
++  double Tolerance() const override { return 1e-4; }
++  double Tolerance(Id facet) const override { return facet == facet_ ? value_ : Tolerance(); }
++  local::SurfaceSamples Samples(const SurfaceFace& face) override {
++    local::SurfaceSamples samples{};
++    if (Key(face.v) == AskingFace) samples.distances[centroid_ ? 0 : 1] = .005;
++    return samples;
++  }
++
++ private:
++  Id facet_;
++  double value_;
++  bool centroid_;
++};
++}  // namespace
++
++TEST_CASE("TOL1 step D honors the marker limit for midpoint and centroid triggers", "[.][TOL1]") {
++  const bool centroid = GENERATE(false, true);
++  const auto rows = SkewedBox(false);
++  const auto surface = Surface(rows);
++  const auto asking = std::find_if(surface.begin(), surface.end(), [](const auto& face) {
++    return Key(face.v) == AskingFace;
++  });
++  REQUIRE(asking != surface.end());
++  local::CoreOptions options;
++  options.distance_error_cut = true;
++  for (const double value : {1e-4, .02}) {
++    CAPTURE(value, centroid);
++    MarkerDistanceFixture geometry(rows, asking->facet, value, centroid);
++    local::Mesh mesh(rows, false, options);
++    local::IdSequence ids(7);
++    local::PassStats report;
++    const auto before = Snapshot(mesh);
++    local::SurfaceFixtureAccess::DistanceWork(mesh, geometry, ids, report);
++    REQUIRE_NOTHROW(mesh.Check());
++    if (value == geometry.Tolerance()) {
++      CHECK((report.surface.d_error_edges > 0) == !centroid);
++      CHECK((report.surface.d_centroid_only > 0) == centroid);
++      CHECK(report.surface.sweeps_distance > 0);
++    } else {
++      CHECK(report.surface.d_error_edges == 0);
++      CHECK(report.surface.d_centroid_only == 0);
++      CHECK(report.surface.sweeps_distance == 0);
++      CHECK(report.surface.splits_distance == 0);
++      CHECK(Snapshot(mesh) == before);
++    }
++  }
++}
+diff --git a/UnitTests/Common/adaptation/DEF1Options_tests.cpp b/UnitTests/Common/adaptation/DEF1Options_tests.cpp
+index 6fae3ef834..9a76a26067 100644
+--- a/UnitTests/Common/adaptation/DEF1Options_tests.cpp
++++ b/UnitTests/Common/adaptation/DEF1Options_tests.cpp
+@@ -272,7 +272,9 @@ TEST_CASE("DEF1 fatal configuration and marker subprocess", "[.][def1_fatal]") {
+       {"negative", "ADAP_HAUSD= (WALL,-0.02)\n"},
+       {"nonfinite", "ADAP_HAUSD= (WALL,nan)\n"},
+       {"duplicate", "ADAP_HAUSD= (WALL,0.02,WALL,0.03)\n"},
+-      {"native", "ADAP_REMESHER= NATIVE_CAVITY\nADAP_HAUSD= (WALL,0.02)\n"},
++      {"native", "ADAP_REMESHER= NATIVE_CAVITY\nADAP_HAUSD= (NOT_DECLARED,0.02)\n"},
++      {"native_above", "ADAP_REMESHER= NATIVE_CAVITY\nADAP_HAUSD= (x_minus,1.001e100)\n"},
++      {"native_bl", "ADAP_REMESHER= NATIVE_CAVITY\nADAP_HAUSD= (x_minus,0.02)\nADAP_BL_MARKER= (x_minus)\n"},
+   };
+   const auto input = inputs.find(which);
+   if (input != inputs.end()) {
+@@ -290,3 +292,27 @@ TEST_CASE("DEF1 fatal configuration and marker subprocess", "[.][def1_fatal]") {
+   }
+   FAIL("The requested DEF1 error returned instead of aborting.");
+ }
++
++TEST_CASE("TOL1 native list uses the smallest configured value after marker setup", "[.][TOL1]") {
++  const std::string native = "ADAP_REMESHER= NATIVE_CAVITY\n";
++  const std::string list = "ADAP_HAUSD= (x_plus, 1e100, x_minus, 1e-4)\n";
++  const auto config = Config(native + list);
++  REQUIRE(config->GetAdap_MarkerHausd().size() == 2);
++  CHECK(config->GetAdap_MarkerHausd().at("x_plus") == 1e100);
++  CHECK(SU2_TYPE::GetValue(config->GetAdap_Hausd()) == 1e-4);
++  CHECK(SU2_TYPE::GetValue(Config(list)->GetAdap_Hausd()) == 0.01);
++  CHECK(SU2_TYPE::GetValue(Config(native + "ADAP_HAUSD= (0.0002)\n")->GetAdap_Hausd()) == 0.0002);
++  {
++    ZoneConfigFile overlay("ADAP_HAUSD= 0.0003\n");
++    CConfig child(config.get(), overlay.name, SU2_COMPONENT::SU2_CFD, 0, 1, false);
++    CHECK(child.GetAdap_MarkerHausd().empty());
++    CHECK(SU2_TYPE::GetValue(child.GetAdap_Hausd()) == 0.0003);
++  }
++  {
++    const auto parent = Config(native + "ADAP_HAUSD= 0.0003\n");
++    ZoneConfigFile overlay(list);
++    CConfig child(parent.get(), overlay.name, SU2_COMPONENT::SU2_CFD, 0, 1, false);
++    CHECK(child.GetAdap_MarkerHausd() == config->GetAdap_MarkerHausd());
++    CHECK(SU2_TYPE::GetValue(child.GetAdap_Hausd()) == 1e-4);
++  }
++}
+diff --git a/UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc b/UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc
+index 226432842e..7d715cf450 100644
+--- a/UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc
++++ b/UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc
+@@ -912,3 +912,50 @@ TEST_CASE("Step C exchanges cross-pass and local cancellations and builds with r
+     CHECK(CensusWithinTolerance(*state, face->second) == (answer.back() != 0));
+   }
+ }
++
++namespace {
++class MarkerCollapseFixture final : public FlatGeometry {
++ public:
++  using FlatGeometry::Tolerance;
++  MarkerCollapseFixture(const Owned& rows, bool loose) : FlatGeometry(rows), loose_(loose) {}
++
++  double Tolerance() const override { return 1e-4; }
++  double Tolerance(Id) const override { return loose_ ? .02 : Tolerance(); }
++  unsigned Dimension(Id) const override { return 2; }
++  local::SurfaceSamples Samples(const SurfaceFace&) override { return {{.005, 0, 0, 0}, 0}; }
++  bool OnEntityFace(const SurfaceFace&) const override { return true; }
++  bool WithinTolerance(const SurfaceFace&) override { return true; }
++  void Remove(Id id) override { removed = id; }
++
++  std::optional<Id> removed;
++
++ private:
++  bool loose_;
++};
++}  // namespace
++
++TEST_CASE("TOL1 in-range child-fan samples reach the step-C whole-face classifier", "[.][TOL1]") {
++  const auto rows = S33();
++  constexpr Edge ends{GridId(1, 1, 0), GridId(2, 1, 0)};
++  for (const bool loose : {false, true}) {
++    CAPTURE(loose);
++    local::Mesh mesh(rows);
++    MarkerCollapseFixture geometry(rows, loose);
++    const auto [edge, seed] = C2Edge(mesh, ends);
++    local::SurfaceCounters stats;
++    const auto before = Snapshot(mesh);
++    const auto result = mesh.CollapseSurface(edge, seed, geometry, 2, stats, true);
++    if (loose) {
++      REQUIRE(result == C2Refusal::None);
++      CHECK(stats.c_bound_queries == 4);
++      REQUIRE(geometry.removed);
++      CHECK(std::find(ends.begin(), ends.end(), *geometry.removed) != ends.end());
++    } else {
++      CHECK(result == C2Refusal::Distance);
++      CHECK(stats.c_bound_queries == 0);
++      CHECK_FALSE(geometry.removed);
++      CHECK(Snapshot(mesh) == before);
++    }
++    REQUIRE_NOTHROW(mesh.Check());
++  }
++}
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp
+index 6fae380f52..2efa5c3985 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp
+@@ -7,8 +7,11 @@
+ #include "TransferTestCase.hpp"
+ #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
+ #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
++#include "../../../Common/include/adaptation/CNativeRemesher.hpp"
++#include "../../../Common/include/adaptation/CNativeMarkerTolerance3D.hpp"
+ 
+ #include <algorithm>
++#include <cstdlib>
+ #include <cstring>
+ #include <iostream>
+ #include <sstream>
+@@ -248,3 +251,102 @@ TEST_CASE("Step C with zero edits closes construction collapse", "[.][FP3A]") {
+ TEST_CASE("Volume-only core leaves construction collapse available", "[.][FP3A]") {
+   CheckConstructionCollapseTrigger(false);
+ }
++
++namespace {
++const std::string nativeToleranceOptions =
++    "SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\n"
++    "ADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n";
++const std::string allNativeTolerances =
++    "ADAP_HAUSD= (x_minus, 1e-4, x_plus, 1e-4, y_minus, 1e-4, y_plus, 1e-4, "
++    "z_plus, 1e-4, z_minus_a, 1e-4, z_minus_b, 1e-4)\n";
++
++void MapToleranceReference(ReferenceState& state) {
++  using SU2NativeGeometry::MappedFacetReference;
++  MappedFacetReference::CurvedNets nets;
++  std::map<Id, double> errors;
++  constexpr unsigned powers[10][3] = {{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},
++                                      {0,2,1},{0,1,2},{2,0,1},{1,0,2},{1,1,1}};
++  for (const auto& face : state.facets) {
++    errors.emplace(face.id, 1e-12);
++    auto& net = nets[face.id];
++    for (unsigned q = 0; q < 10; ++q)
++      for (unsigned k = 0; k < 3; ++k) {
++        net[q].x += powers[q][k] * face.v[k].p.x / 3;
++        net[q].y += powers[q][k] * face.v[k].p.y / 3;
++        net[q].z += powers[q][k] * face.v[k].p.z / 3;
++      }
++  }
++  auto authority = std::make_shared<MappedFacetReference>(state.original, errors, 304, SIZE_MAX, false, nets, 0);
++  BoundaryPoints points;
++  std::vector<SurfaceFace> skin;
++  for (const auto& face : state.facets) {
++    skin.push_back({{face.v[0].id, face.v[1].id, face.v[2].id}, face.id});
++    for (const auto& node : face.v) points.emplace(node.id, BoundaryPoint{node, authority->Vertex(node.id)});
++  }
++  state.original = PlanarReference::WithParameters(
++      state.original, std::make_shared<BoundaryParameterState>(authority, points, skin, 1));
++}
++}  // namespace
++
++TEST_CASE("TOL1 projected marker inventory keeps declared absent values and canonical identity", "[.][TOL1]") {
++  const MarkerTolerance3D::Configured configured{{"z", 1.}, {"y", 1e-4}, {"absent", 1e-12}};
++  const MarkerTolerance3D table(configured, {"z", "y"}, 1.);
++  CHECK(table.Strict() == 1e-12);
++  CHECK(table.Marker(0) == 1.);
++  CHECK(table.Marker(1) == 1e-4);
++  CHECK(table.Class(0) == 2);
++  CHECK(table.Class(1) == 1);
++  CHECK(MarkerTolerance3D::Identity({}) == 0);
++  auto different = configured;
++  different["z"] = 2.;
++  CHECK(MarkerTolerance3D::Identity(configured) != MarkerTolerance3D::Identity(different));
++}
++
++TEST_CASE("TOL1 fatal native geometry and parent agreement subprocess", "[.][tol1_fatal]") {
++  const auto* name = std::getenv("SU2_TOL1_FATAL_CASE");
++  REQUIRE(name != nullptr);
++  const std::string which(name);
++  const World world;
++  if (which == "tiny_floor") {
++    try {
++      const MarkerTolerance3D table({{"x_minus", 2e-310}}, {"x_minus"}, 1e-298);
++    } catch (const std::invalid_argument& error) {
++      SU2_MPI::Error(error.what(), CURRENT_FUNCTION);
++    }
++    FAIL("The tiny-coordinate setup passed its tolerance floor.");
++  }
++  if (which == "native2d") {
++    const auto config = MakeConfig(2, nativeToleranceOptions + "ADAP_HAUSD= (left, 1e-4)\n");
++    MeshSolution donor(config.get(), BoxMesh(2, 1, false), 0);
++    CNativeRemesher::CheckSupport(*config, donor.Fine());
++    FAIL("The native 2D list passed support admission.");
++  }
++
++  auto options = allNativeTolerances;
++  if (which == "missing") options = "ADAP_HAUSD= (x_plus, 1e-4)\n";
++  if (which == "unit_floor")
++    options.replace(options.find("x_minus, 1e-4"), std::string("x_minus, 1e-4").size(),
++                    "x_minus, 9.9999999999999978e-13");
++  if (which == "mpi_value") {
++    REQUIRE(world.size == 2);
++    options.replace(options.find("x_minus, 1e-4"), std::string("x_minus, 1e-4").size(),
++                    world.rank == 0 ? "x_minus, 1" : "x_minus, 2");
++  }
++  if (which == "mpi_form") {
++    REQUIRE(world.size == 2);
++    if (world.rank == 0) options = "ADAP_HAUSD= 1E-4\n";
++  }
++  const auto config = MakeConfig(3, nativeToleranceOptions + options);
++  MeshSolution donor(config.get(), BoxMesh(3, 1, false), 0);
++  auto reference = std::make_shared<ReferenceState>();
++  CNativeRemesher3D remesher(reference);
++  if (which == "mpi_value" || which == "mpi_form") {
++    const su2activematrix sensor;
++    (void)remesher.Remesh(*config, donor.Fine(), sensor);
++  } else {
++    ImportGeometry(*config, donor.Fine(), nullptr, *reference);
++    if (which == "missing" || which == "unit_floor") MapToleranceReference(*reference);
++    remesher.PrepareReference(*config, donor.Fine());
++  }
++  FAIL("The requested native tolerance error returned instead of aborting.");
++}
+diff --git a/config_template.cfg b/config_template.cfg
+index 3e29124c93..dc652a8630 100644
+--- a/config_template.cfg
++++ b/config_template.cfg
+@@ -2902,7 +2902,8 @@ ADAP_HGRAD= 1.6
+ % First-height and validity gates remain separate. Discrete curved-reference
+ % adoption is still under development; this applies to declared curved authorities.
+ % MMG boundary approximation tolerance: scalar or pairs (MARKER, value, ...).
+-% Unlisted MMG markers use 0.01 in list form. The native remesher uses one absolute geometry tolerance.
++% Unlisted MMG markers use 0.01 in list form. Native 3D checks absolute geometry error against each marker value in list mode.
++% List every native boundary with faces. A seam between different values keeps its input points and edges.
+ ADAP_HAUSD= 0.01
+ ADAP_ANGLE= 45.0
+ %

@@ -7,6 +7,7 @@
 
 #include "CNativeBoundaryParameters3D.hpp"
 #include "CNativeDistributed3D.hpp"
+#include "CNativeMarkerTolerance3D.hpp"
 #include "CNativeTimerTree3D.hpp"
 #include "CTransferMemory.hpp"
 #include <chrono>
@@ -53,7 +54,8 @@ inline Key FaceKey(const BoundaryParameterState& state, Id facet, const std::arr
                    const std::array<Point, 3>& points) {
   const auto [body, sheet, marker] = state.Entity(facet);
   Key key;
-  key.face = {state.Geometry().Canonical(facet), facet, body, sheet, uint64_t(marker), Bits(state.GeometryTolerance())};
+  key.face = {state.Geometry().Canonical(facet), facet, body, sheet, uint64_t(marker),
+              Bits(MarkerTolerance(marker, state.GeometryTolerance()))};
   for (size_t i = 0; i < points.size(); ++i) {
     const auto& p = points[i];
     const auto& b = bindings[i];

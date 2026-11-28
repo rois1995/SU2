@@ -7,8 +7,11 @@
 #include "TransferTestCase.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
+#include "../../../Common/include/adaptation/CNativeRemesher.hpp"
+#include "../../../Common/include/adaptation/CNativeMarkerTolerance3D.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -247,4 +250,103 @@ TEST_CASE("Step C with zero edits closes construction collapse", "[.][FP3A]") {
 
 TEST_CASE("Volume-only core leaves construction collapse available", "[.][FP3A]") {
   CheckConstructionCollapseTrigger(false);
+}
+
+namespace {
+const std::string nativeToleranceOptions =
+    "SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\n"
+    "ADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n";
+const std::string allNativeTolerances =
+    "ADAP_HAUSD= (x_minus, 1e-4, x_plus, 1e-4, y_minus, 1e-4, y_plus, 1e-4, "
+    "z_plus, 1e-4, z_minus_a, 1e-4, z_minus_b, 1e-4)\n";
+
+void MapToleranceReference(ReferenceState& state) {
+  using SU2NativeGeometry::MappedFacetReference;
+  MappedFacetReference::CurvedNets nets;
+  std::map<Id, double> errors;
+  constexpr unsigned powers[10][3] = {{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},
+                                      {0,2,1},{0,1,2},{2,0,1},{1,0,2},{1,1,1}};
+  for (const auto& face : state.facets) {
+    errors.emplace(face.id, 1e-12);
+    auto& net = nets[face.id];
+    for (unsigned q = 0; q < 10; ++q)
+      for (unsigned k = 0; k < 3; ++k) {
+        net[q].x += powers[q][k] * face.v[k].p.x / 3;
+        net[q].y += powers[q][k] * face.v[k].p.y / 3;
+        net[q].z += powers[q][k] * face.v[k].p.z / 3;
+      }
+  }
+  auto authority = std::make_shared<MappedFacetReference>(state.original, errors, 304, SIZE_MAX, false, nets, 0);
+  BoundaryPoints points;
+  std::vector<SurfaceFace> skin;
+  for (const auto& face : state.facets) {
+    skin.push_back({{face.v[0].id, face.v[1].id, face.v[2].id}, face.id});
+    for (const auto& node : face.v) points.emplace(node.id, BoundaryPoint{node, authority->Vertex(node.id)});
+  }
+  state.original = PlanarReference::WithParameters(
+      state.original, std::make_shared<BoundaryParameterState>(authority, points, skin, 1));
+}
+}  // namespace
+
+TEST_CASE("TOL1 projected marker inventory keeps declared absent values and canonical identity", "[.][TOL1]") {
+  const MarkerTolerance3D::Configured configured{{"z", 1.}, {"y", 1e-4}, {"absent", 1e-12}};
+  const MarkerTolerance3D table(configured, {"z", "y"}, 1.);
+  CHECK(table.Strict() == 1e-12);
+  CHECK(table.Marker(0) == 1.);
+  CHECK(table.Marker(1) == 1e-4);
+  CHECK(table.Class(0) == 2);
+  CHECK(table.Class(1) == 1);
+  CHECK(MarkerTolerance3D::Identity({}) == 0);
+  auto different = configured;
+  different["z"] = 2.;
+  CHECK(MarkerTolerance3D::Identity(configured) != MarkerTolerance3D::Identity(different));
+}
+
+TEST_CASE("TOL1 fatal native geometry and parent agreement subprocess", "[.][tol1_fatal]") {
+  const auto* name = std::getenv("SU2_TOL1_FATAL_CASE");
+  REQUIRE(name != nullptr);
+  const std::string which(name);
+  const World world;
+  if (which == "tiny_floor") {
+    try {
+      const MarkerTolerance3D table({{"x_minus", 2e-310}}, {"x_minus"}, 1e-298);
+    } catch (const std::invalid_argument& error) {
+      SU2_MPI::Error(error.what(), CURRENT_FUNCTION);
+    }
+    FAIL("The tiny-coordinate setup passed its tolerance floor.");
+  }
+  if (which == "native2d") {
+    const auto config = MakeConfig(2, nativeToleranceOptions + "ADAP_HAUSD= (left, 1e-4)\n");
+    MeshSolution donor(config.get(), BoxMesh(2, 1, false), 0);
+    CNativeRemesher::CheckSupport(*config, donor.Fine());
+    FAIL("The native 2D list passed support admission.");
+  }
+
+  auto options = allNativeTolerances;
+  if (which == "missing") options = "ADAP_HAUSD= (x_plus, 1e-4)\n";
+  if (which == "unit_floor")
+    options.replace(options.find("x_minus, 1e-4"), std::string("x_minus, 1e-4").size(),
+                    "x_minus, 9.9999999999999978e-13");
+  if (which == "mpi_value") {
+    REQUIRE(world.size == 2);
+    options.replace(options.find("x_minus, 1e-4"), std::string("x_minus, 1e-4").size(),
+                    world.rank == 0 ? "x_minus, 1" : "x_minus, 2");
+  }
+  if (which == "mpi_form") {
+    REQUIRE(world.size == 2);
+    if (world.rank == 0) options = "ADAP_HAUSD= 1E-4\n";
+  }
+  const auto config = MakeConfig(3, nativeToleranceOptions + options);
+  MeshSolution donor(config.get(), BoxMesh(3, 1, false), 0);
+  auto reference = std::make_shared<ReferenceState>();
+  CNativeRemesher3D remesher(reference);
+  if (which == "mpi_value" || which == "mpi_form") {
+    const su2activematrix sensor;
+    (void)remesher.Remesh(*config, donor.Fine(), sensor);
+  } else {
+    ImportGeometry(*config, donor.Fine(), nullptr, *reference);
+    if (which == "missing" || which == "unit_floor") MapToleranceReference(*reference);
+    remesher.PrepareReference(*config, donor.Fine());
+  }
+  FAIL("The requested native tolerance error returned instead of aborting.");
 }

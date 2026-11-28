@@ -97,6 +97,12 @@ bool NativeMappedGeometryBackend3D::ContractionAllowed(const SurfaceBinding& rem
       if(from.mobility==2){admissible=admissible||from.sheet==to.sheet;return;}
       if(to.mobility==1){admissible=admissible||from.feature==to.feature;return;}
       if(to.mobility!=0)return;
+      if (retained.dimension == 1) {
+        const auto edge = policy.features.find(authority->OriginalEdge(retained.feature));
+        admissible = admissible || (edge != policy.features.end() && edge->second == from.feature);
+        return;
+      }
+      if (retained.dimension != 0) return;
       const auto& facet=authority->Reference().Get(f);
       for(unsigned k=0;k<3;++k){Use(budget);SU2Native3D::Edge edge{facet.v[k].id,facet.v[(k+1)%3].id};
         if(edge[0]!=retained.feature&&edge[1]!=retained.feature)continue;
@@ -104,6 +110,9 @@ bool NativeMappedGeometryBackend3D::ContractionAllowed(const SurfaceBinding& rem
         admissible=admissible||(found!=policy.features.end()&&found->second==from.feature);
       }
     });
+    if (!admissible && frozen_seam_refusals &&
+        (authority->FrozenSeamPoint(removed, policy) || authority->FrozenSeamPoint(retained, policy)))
+      CountFrozenSeamRefusal();
     allowed=admissible;reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
@@ -247,7 +256,7 @@ bool NativeMappedGeometryBackend3D::RegionErrorBounds(const FaceCoverage& covera
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool NativeMappedGeometryBackend3D::PatchErrorBounds(const GeometrySupport& scope,
-    const std::vector<std::array<Point,3>>& physical,double tolerance,
+    const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerance,
     MappedFacetReference::SurfaceUnionBounds& result,AtlasBudget& budget,std::string& reason,
     GeometryErrorDirection direction, ProofShare share)const {
   if (share.parts == 0 || share.part >= share.parts) throw std::invalid_argument("Invalid surface proof share.");

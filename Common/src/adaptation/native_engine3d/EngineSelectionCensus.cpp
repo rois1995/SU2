@@ -531,8 +531,8 @@ void Selection::MeasureGeometryFace(const OwnedCell& owned, const Face& face, si
     for (auto n : cell.v)
       if (n.id == face[i]) triangle[i] = n.p;
   const double error =
-      geometry.SurfaceDeviation(owned.physical[slot].facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Magnitude());
-  const auto allowed = tolerance;
+      geometry.SurfaceDeviation(owned.physical[slot].facet, triangle, SU2NativeGeometry::SurfaceQueryNeed::Magnitude().ForMarker());
+  const auto allowed = FaceTolerance(geometry, owned.physical[slot].facet, tolerance);
   if (surface_planning && wall_counters)
     wall_counters->ObserveMeasuredFace(face, owned.physical[slot].facet, error, tolerance);
   if (std::isfinite(error)) {

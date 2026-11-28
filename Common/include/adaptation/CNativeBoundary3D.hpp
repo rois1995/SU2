@@ -167,7 +167,7 @@ class GeometryGuidanceMemo;
  * it must not be used as a complete score or as evidence of geometric progress. */
 GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& geometry,double tolerance,
                                       long double reject_above=std::numeric_limits<long double>::infinity(),
-                                      GeometryGuidanceMemo* memo=nullptr);
+                                      GeometryGuidanceMemo* memo=nullptr, bool by_marker=false);
 /*! Scoped entity-face numeric guidance, never an association or publication certificate.
  * Prepare admits bounded storage; caller includes ResidentBytes in its retained reservation.
  * First evaluation records bounds; later evaluations reuse only exact unchanged contracts. */
@@ -188,7 +188,7 @@ class GeometryGuidanceMemo {
   uint64_t revision=0;
   double tolerance=0;
   bool recording=false;
-  friend GeometryGuidance GeometryGuidanceExcess(const Patch&,const PlanarReference&,double,long double,GeometryGuidanceMemo*);
+  friend GeometryGuidance GeometryGuidanceExcess(const Patch&,const PlanarReference&,double,long double,GeometryGuidanceMemo*,bool);
 };
 struct GeometrySplitPrediction {
   long double before=0,after=0;

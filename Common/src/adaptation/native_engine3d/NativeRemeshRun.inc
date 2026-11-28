@@ -76,8 +76,41 @@ struct RemeshRun {
   std::string reason{};
   SU2NativeGeometry::AtlasBudget target_event_budget{};
   bool reset_need_at_start = false;
+  std::optional<MarkerTolerance3D> tolerance_table{};
+  std::pair<size_t, size_t> seam_counts{};
+  size_t seam_refusals = 0;
 
   size_t CertificateBytes() const { return certificates ? certificates->Bytes() : 0; }
+  size_t ToleranceBytes() const { return tolerance_table ? tolerance_table->Bytes() : 0; }
+
+  void PrepareTolerances(const ReferenceState& state, size_t caller_bytes) {
+    if (config.GetAdap_MarkerHausd().empty() || tolerance_table) return;
+    CLocalFailure failure;
+    try {
+      PrepareMarkerTolerance(config, state, control.memory_ceiling, caller_bytes, tolerance_table);
+    } catch (const std::exception& e) {
+      failure.Set(2, 0, e.what());
+    }
+    CollectiveFailure(failure, caller);
+    active_marker_tolerance = &*tolerance_table;
+    stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, transfer_memory::Add(
+        caller_bytes, state.original->ResidentBytes(), MarkerTolerance3D::ConstructionBytes(
+            state.marker_names, config.GetAdap_MarkerHausd().size())));
+  }
+
+  void ReportTolerance() {
+    if (config.GetAdap_MarkerHausd().empty() || !control.timings) return;
+    SU2NativeTiming3D::Scope communication(SU2NativeTiming3D::Operation::Communication);
+    const auto refusals = CPassiveComm::Allreduce(uint64_t(seam_refusals), CPassiveComm::Op::SUM, parent.comm);
+    if (parent.rank || !tolerance_table) return;
+    SU2NativeTiming3D::Scope output(SU2NativeTiming3D::Operation::Output);
+    std::ostringstream row;
+    row << std::setprecision(17) << "NATIVE3D_TOLERANCE rank=0 strict=" << tolerance_table->Strict()
+        << " seam_corners=" << seam_counts.first << " seam_edges=" << seam_counts.second
+        << " refused_seam_edits=" << refusals << " markers=";
+    tolerance_table->WriteMarkers(row);
+    std::cout << row.str() << '\n';
+  }
 
   void ReleaseCertificateComm() {
     if (!certificate_comm) return;
@@ -139,7 +172,7 @@ struct RemeshRun {
   // Accounts for the shared authority once while both reference states remain live.
   size_t Held(const ReferencePreparation& preparation) {
     return transfer_memory::Add(preparation.retained, ReferenceStorageBytes(preparation.pending->state),
-                                PartitionBytes(), CertificateBytes());
+                                PartitionBytes(), CertificateBytes(), ToleranceBytes());
   }
 
   // Reads the same frozen deadline for the local geometry and metric queries.
@@ -151,6 +184,8 @@ struct RemeshRun {
 
   // Owns the event geometry ledger through final reporting, including failed transactions.
   void Run() {
+    cert::ScopedValue<size_t*> refusal_counter(SU2NativeGeometry::frozen_seam_refusals,
+        control.timings && !config.GetAdap_MarkerHausd().empty() ? &seam_refusals : nullptr);
     if (reference->original && reference->original->Parameters()) {
       reference->original->Parameters()->Geometry().ResetGeometryNeedStats();
       reset_need_at_start = true;
@@ -160,11 +195,20 @@ struct RemeshRun {
     ReleaseCertificateComm();
     Finalize();
     ReportRemesh(config, control, parent, stats, reason, target_event_budget);
+    ReportTolerance();
   }
 
   // Agrees event controls before making any private reference changes.
   void TryRemesh() {
     CNativeRemesher3D::CheckSupport(config, geometry);
+    {
+      SU2NativeTiming3D::Scope communication(SU2NativeTiming3D::Operation::Communication);
+      const auto word = MarkerTolerance3D::Identity(config.GetAdap_MarkerHausd());
+      const std::array<uint64_t, 2> local{word, ~word};
+      std::array<uint64_t, 2> agreed{};
+      CPassiveComm::Allreduce(local.data(), agreed.data(), local.size(), CPassiveComm::Op::MIN, parent.comm);
+      if (agreed[0] != ~agreed[1]) SU2_MPI::Error("ADAP_HAUSD differs between ranks.", caller);
+    }
     Phase(0);
     stats.job_peak_rss_bytes = JobPeakRSS3D(parent.comm);
     if (!CheckJobMemory(stats.job_peak_rss_bytes, "Native3D whole-job peak RSS exceeds ADAP_NATIVE_JOB_MEMORY_LIMIT."))
@@ -241,9 +285,11 @@ struct RemeshRun {
     // Retained and pending state share the immutable authority: count its allocation once.
     size_t retained = transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference, false));
     ReferencePreparation preparation{failure, pending, retained};
+    if (pending->state.original)
+      PrepareTolerances(pending->state, transfer_memory::Add(retained, CertificateBytes()));
     try {
       PrepareMobility(config, pending->state, control.memory_ceiling,
-                      transfer_memory::Add(retained, CertificateBytes()));
+                      transfer_memory::Add(retained, CertificateBytes(), ToleranceBytes()), active_marker_tolerance);
     } catch (const std::exception& e) {
       failure.Set(2, 0, e.what());
     }
@@ -275,17 +321,18 @@ struct RemeshRun {
     const auto base_caller = control.caller_bytes;
     ImportedGeometry imported;
     bool ready = ImportGeometry(config, geometry, &sensor, pending->state, imported, reason, stats.imported,
-                                control.memory_ceiling, transfer_memory::Add(retained, CertificateBytes()));
+                                control.memory_ceiling, transfer_memory::Add(retained, CertificateBytes(), ToleranceBytes()));
     if (!reset_need_at_start && pending->state.original && pending->state.original->Parameters())
       pending->state.original->Parameters()->Geometry().ResetGeometryNeedStats();
     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, stats.imported.maximum_native_bytes);
     Phase(2);
     if (!ready) return;
+    const auto imported_bytes = transfer_memory::Add(retained, OwnedStorageBytes(imported.cells),
+        transfer_memory::Bytes(imported.original), CertificateBytes());
+    PrepareTolerances(pending->state, imported_bytes);
     try {
-      PrepareMobility(
-          config, pending->state, control.memory_ceiling,
-          transfer_memory::Add(retained, OwnedStorageBytes(imported.cells), transfer_memory::Bytes(imported.original),
-                               CertificateBytes()));
+      PrepareMobility(config, pending->state, control.memory_ceiling,
+                      transfer_memory::Add(imported_bytes, ToleranceBytes()), active_marker_tolerance);
     } catch (const std::exception& e) {
       failure.Set(2, 0, e.what());
     }
@@ -296,6 +343,8 @@ struct RemeshRun {
         return;
       }
     }
+    if (tolerance_table && control.timings && parent.rank == 0)
+      seam_counts = pending->state.original->Parameters()->FrozenSeamCounts();
     if (!PromoteReference(pending)) return;
     CreateTarget(preparation, normalizer, base_caller, imported, ready);
   }

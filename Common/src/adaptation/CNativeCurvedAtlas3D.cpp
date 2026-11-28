@@ -296,8 +296,12 @@ bool PrepareCurvedAtlas(const SU2Native3D::Patch& accepted,const SU2Native3D::Pl
       if(!point || point->node.id!=id)throw std::invalid_argument("Atlas source lacks an actual forward endpoint.");
       op.Check(data->backend->AssociationValid(point->binding,point->node.p,op.reason));
       op.Sync(sizeof(BoundaryPoints::value_type)+4*sizeof(void*));data->parameters.emplace(id,*point);}
-    if(moving && (!data->parameters.count(*moving)||!geometry.MobilityDimension(data->parameters.at(*moving).binding,policy)))
-      throw std::invalid_argument("Atlas cannot move an absent point or genuine corner/branch.");
+    if (moving) {
+      const auto point = data->parameters.find(*moving);
+      if (point != data->parameters.end() && geometry.FrozenSeamPoint(point->second.binding, policy)) RejectFrozenSeam();
+      if (point == data->parameters.end() || !geometry.MobilityDimension(point->second.binding, policy))
+        throw std::invalid_argument("Atlas cannot move an absent point or genuine corner/branch.");
+    }
     for(const auto& face:accepted.surface){op.Work();const auto sheet_id=policy.sheets.find(face.facet),body=policy.bodies.find(face.facet);
       if(sheet_id==policy.sheets.end()||body==policy.bodies.end())throw std::invalid_argument("Atlas source lacks a sheet/body policy.");
       auto& cover=working;cover={};op.Sync();op.Check(reference.ResolveCoverage(face,cover,budget,op.reason));
@@ -430,6 +434,8 @@ SurfaceBinding Quantize(const MappedFacetReference& geometry,Id facet,const Exac
 void Movement(const CurvedAtlas::Data& d,Id old,const SurfaceBinding& binding,Ops& op) {
   const auto& geometry=d.reference->Parameters()->Geometry();const auto& policy=d.reference->Parameters()->Mobility();
   const auto original=d.parameters.find(old);if(original==d.parameters.end())throw std::invalid_argument("Atlas move lacks its accepted endpoint.");
+  if (geometry.FrozenSeamPoint(original->second.binding, policy) || geometry.FrozenSeamPoint(binding, policy))
+    RejectFrozenSeam();
   const auto dimension=geometry.MobilityDimension(original->second.binding,policy);
   if(!dimension||geometry.MobilityDimension(binding,policy)!=dimension)throw std::invalid_argument("Atlas move changes physical feature dimension.");
   const auto key=op.BindingKey(geometry,binding);size_t incident=0;

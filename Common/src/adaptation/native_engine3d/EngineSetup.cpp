@@ -692,7 +692,7 @@ void EngineSetup::EvaluateRegionTarget(EngineContext& context, size_t region_cel
   auto& stats = result.stats;
   auto& coarsening = *context.control.coarsening;
   // BEGIN_SOURCE_BODY
-  bool already_valid = GeometryGuidanceExcess(old, geometry, options.surface_tolerance).excess == 0;
+  bool already_valid = EngineGeometryGuidance(old, geometry, options.surface_tolerance).excess == 0;
   bool short_edges = false;
   if (already_valid)
     for (const auto& c : old.cells) {

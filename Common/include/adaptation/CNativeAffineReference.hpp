@@ -13,6 +13,7 @@
 #include <memory>
 #include <mutex>
 #include <set>
+#include <stdexcept>
 #include <unordered_map>
 #include <vector>
 
@@ -29,10 +30,18 @@ struct ProofShare {
 struct SurfaceQueryNeed {
   enum class Kind { Classify, Limit, Magnitude };
   Kind kind;
+  bool marker_tolerance;
   double stop_above;
-  static SurfaceQueryNeed Classify(){return {Kind::Classify,0};}
-  static SurfaceQueryNeed Limit(double cutoff){return {Kind::Limit,cutoff};}
-  static SurfaceQueryNeed Magnitude(){return {Kind::Magnitude,0};}
+  static SurfaceQueryNeed Classify(){return {Kind::Classify,false,0};}
+  static SurfaceQueryNeed Limit(double cutoff){return {Kind::Limit,false,cutoff};}
+  static SurfaceQueryNeed Magnitude(){return {Kind::Magnitude,false,0};}
+  SurfaceQueryNeed ForMarker() const { return {kind, true, stop_above}; }
+};
+/*! Admission uses limit. Tessellation and magnitude convergence use accuracy. */
+struct SurfaceQueryTolerance {
+  double limit, accuracy;
+  constexpr SurfaceQueryTolerance(double value) : limit(value), accuracy(value) {}
+  constexpr SurfaceQueryTolerance(double limit, double accuracy) : limit(limit), accuracy(accuracy) {}
 };
 /*! Immutable definition; identity/version belong in every dependent cache key.
  * Distance is a physical error contract, never a tolerance for volume predicates.
@@ -92,7 +101,7 @@ struct MappedSurfaceAudit {
   double maximum_mapping_error=0;
 };
 /*! Geometry policy, independent of whether a BL metric is requested. Edge keys use original IDs.
- * roles: 0 reflective carrier, 2 other physical boundary; marker interfaces remain protected.
+ * Roles encode the boundary kind (0 reflective carrier, 2 other physical boundary) plus four times the tolerance class.
  * Unresolved whole-edge normal comparisons are protected, never classified from samples. */
 struct MobilityPolicy {
   double angle=0;
@@ -102,6 +111,21 @@ struct MobilityPolicy {
   std::set<Id> corners;
   std::map<Id,Id> bodies,sheets;          // Original facet -> edge-connected root.
 };
+inline int RoleKind(int role) { return role % 4; }
+inline int RoleClass(int role) { return role / 4; }
+inline bool MixedRoleClasses(const MobilityPolicy& policy) {
+  if (policy.roles.empty()) return false;
+  const int first = RoleClass(policy.roles.begin()->second);
+  for (const auto& row : policy.roles) if (RoleClass(row.second) != first) return true;
+  return false;
+}
+inline constexpr char FrozenSeamChanged[] = "Native 3D adaptation changed a frozen marker seam.";
+inline thread_local size_t* frozen_seam_refusals = nullptr;
+inline void CountFrozenSeamRefusal() { if (frozen_seam_refusals) ++*frozen_seam_refusals; }
+[[noreturn]] inline void RejectFrozenSeam() {
+  CountFrozenSeamRefusal();
+  throw std::invalid_argument(FrozenSeamChanged);
+}
 struct RegionSegment {Id facet=0;ExactBary first,last;};
 /*! Explicit numerical mapping contract on immutable finite triangles.
  * Facet-local policy protects original edges. Reference-component policy releases only
@@ -202,16 +226,16 @@ class MappedFacetReference {
    * No face correspondence is assumed. A successful query certifies the tolerance or supplies an outside witness.
    * Topology, feature incidence and body separation require independent admission. */
   SurfaceUnionBounds BoundSurfaceUnion(const std::vector<Id>& model_facets,
-      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
+      const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerance,AtlasBudget&)const;
   /*! Model enclosure for source tubes; does not certify the reverse distance or final tolerance. */
   SurfaceUnionBounds BoundModelSurface(const std::vector<Id>& model_facets,
-      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
+      const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerance,AtlasBudget&)const;
   enum class SurfaceBoundPurpose { Classification, ErrorMagnitude, ErrorLimit };
   /*! One-sided bound; ErrorMagnitude certifies a gap no larger than the prescribed tolerance.
    * ErrorLimit may instead return a certified lower bound above stop_above; never use it as a magnitude.
    * Omitted supports only weaken admission. No purpose certifies the reverse distance. */
   double BoundPhysicalSurface(const std::vector<Id>& model_facets,
-      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&,
+      const std::vector<std::array<Point,3>>& physical,SurfaceQueryTolerance tolerance,AtlasBudget&,
       SurfaceBoundPurpose purpose=SurfaceBoundPurpose::Classification,double stop_above=std::numeric_limits<double>::infinity())const;
   /*! Convex hull of an immutable curved patch and current source face, including realization error. */
   class SourcePatch {
@@ -274,6 +298,8 @@ class MappedFacetReference {
                            AtlasBudget&,std::string& reason)const;
   bool ChargeMobilityPolicy(size_t work, AtlasBudget&, std::string& reason) const;
   unsigned MobilityDimension(const SurfaceBinding&,const MobilityPolicy&)const;
+  bool FrozenSeamPoint(const SurfaceBinding&, const MobilityPolicy&) const;
+  bool FrozenSeamEdge(const SurfaceBinding&, const SurfaceBinding&, const MobilityPolicy&) const;
   /*! Physical displacement from the original flat facet, including realization error. */
   double EnvelopeError(Id facet)const;
   /*! Outward bound between a flat realized child and its curved parameter patch. */
@@ -318,10 +344,10 @@ class MappedFacetReference {
   uint64_t Version()const{return version;}
  private:
   SurfaceUnionBounds QuerySurfaceUnion(const std::vector<Id>&,
-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false,
+      const std::vector<std::array<Point,3>>&,SurfaceQueryTolerance,AtlasBudget&,bool include_model,bool include_mesh,bool magnitude=false,
       double stop_above=std::numeric_limits<double>::infinity())const;
   SurfaceUnionBounds QuerySurfaceUnionAtResolution(const std::vector<Id>&,
-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude,
+      const std::vector<std::array<Point,3>>&,SurfaceQueryTolerance,AtlasBudget&,bool include_model,bool include_mesh,double resolution,bool magnitude,
       double stop_above)const;
 
   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
@@ -349,6 +375,7 @@ class MappedFacetReference {
                              const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats)const;
   void CheckBinding(const SurfaceBinding& binding)const;
   Id EdgeIdentity(SU2Native3D::Edge edge)const;
+  bool IsFrozenReferenceEdge(Id edge, const MobilityPolicy&) const;
   SU2Native3D::ParametricPoint FacetParameters(Id facet,const SurfaceBinding& binding)const;
   std::array<Point,2> CurvedBounds(const SurfaceBinding& binding)const;
 };

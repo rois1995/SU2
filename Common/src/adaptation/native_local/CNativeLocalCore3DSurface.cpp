@@ -7,6 +7,7 @@
 #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
 #include "../../../include/adaptation/CNativeLocalContact3D.hpp"
 #include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+#include "../../../include/adaptation/CNativeMarkerTolerance3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -733,6 +734,15 @@ Mesh::DistancePath Mesh::FollowDistancePath(Edge edge, PhysicalFace face, const 
   }
 }
 
+double Mesh::SurfaceChordLimit(Edge edge, Slot seed, const SurfaceGeometry& geometry, double strict) const {
+  if (!SU2Native3D::active_marker_tolerance) return strict;
+  const auto parents = SurfaceParents(edge, EdgeRing(edge, seed));
+  if (parents.empty()) return strict;
+  double limit = std::numeric_limits<double>::infinity();
+  for (const auto parent : parents) limit = std::min(limit, geometry.Limit(SurfaceFaceAt(parent)));
+  return limit;
+}
+
 Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGeometry& geometry, double limit,
                                              const SurfaceChords& chords, const SurfaceEdgeSet& refused,
                                              const SurfaceEdgeSet& border, const SurfaceErrors& errors,
@@ -741,7 +751,7 @@ Mesh::DistanceChoice Mesh::ChooseDistanceEdge(PhysicalFace face, const SurfaceGe
   const auto feature = std::find_if(edges.begin(), edges.end(), [&](Edge edge) {
     const auto ids = Ids(points_, edge);
     const auto chord = geometry.Feature(ids) ? chords.at(ids) : std::nullopt;
-    return chord && *chord > limit;
+    return chord && *chord > SurfaceChordLimit(ById(edge), face.cell, geometry, limit);
   });
   const bool feature_chord = feature != edges.end();
   const auto [edge, length] = feature_chord ? std::make_pair(ById(*feature), Distance(points_, *feature))
@@ -780,8 +790,8 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
     }
     return it->second;
   };
-  const auto above = [limit](const auto& distances) {
-    return *std::max_element(distances.begin(), distances.end()) > limit;
+  const auto above = [&](const SurfaceFace& face, const auto& distances) {
+    return *std::max_element(distances.begin(), distances.end()) > geometry.Limit(face);
   };
 
   for (unsigned sweep = 0; sweep < SurfaceDistanceLimit; ++sweep) {
@@ -801,11 +811,12 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
       for (const auto parent : faces) {
         const auto face = SurfaceFaceAt(parent);
         const auto& measured = sample(face, face.v).measured.distances;
+        const auto allowed = geometry.Limit(face);
         for (size_t k = 0; k < face.v.size(); ++k) {
           const double error = measured[k + 1];
           if (!std::isfinite(error)) {
             stats.Increment(stats.surface.d_nonfinite);
-          } else if (error > limit) {
+          } else if (error > allowed) {
             const auto ids = Sorted(SurfaceEdge{face.v[k], face.v[(k + 1) % face.v.size()]});
             auto [it, inserted] = errors.try_emplace(ids, error);
             if (!inserted) it->second = std::max(it->second, error);
@@ -830,7 +841,8 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
         where->second = geometry.Chord({points_[use.edge[0]].node, points_[use.edge[1]].node});
         if (!where->second) stats.Increment(stats.surface.chord_unknown);
       }
-      if (where->second && *where->second > limit && !refused.count(ids) && !border.count(ids) &&
+      if (where->second && *where->second > SurfaceChordLimit(use.edge, use.cell, geometry, limit) &&
+          !refused.count(ids) && !border.count(ids) &&
           Distance(points_, use.edge) >= floor) {
         if (DistanceMetricTooShort(use.edge, stats)) continue;
         std::vector<Edge> terminals;
@@ -857,7 +869,7 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
     for (const auto parent : faces) {
       const auto face = SurfaceFaceAt(parent);
       auto& row = sample(face, face.v);
-      if (!above(row.measured.distances)) continue;
+      if (!above(face, row.measured.distances)) continue;
       if (stats.report && options_.distance_error_cut) {
         const auto face_edges = FaceEdges(OrientedFace(cells_[parent.cell].vertices, parent.face));
         if (std::none_of(face_edges.begin(), face_edges.end(),
@@ -943,7 +955,7 @@ void Mesh::SurfaceDistance(SurfaceGeometry& geometry, IdSequence& point_ids, siz
     for (const auto parent : PhysicalFaces()) {
       const auto face = SurfaceFaceAt(parent);
       const auto& row = sample(face, face.v);
-      if (!above(row.measured.distances)) continue;
+      if (!above(face, row.measured.distances)) continue;
       ++stats.surface.left_distance;
       switch (row.reason) {
         case SurfaceRemaining::Limit: ++stats.surface.left_limit; break;
@@ -1007,6 +1019,10 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
       if (length >= options_.short_edge || !EdgeRing(use.edge, use.cell).surface) continue;
       if (removable(use.edge[0]) || removable(use.edge[1]))
         candidates.push_back({use, Ids(points_, use.edge), length});
+      else if (SU2NativeGeometry::frozen_seam_refusals &&
+               (geometry.FrozenSeamPoint(points_[use.edge[0]].node.id) ||
+                geometry.FrozenSeamPoint(points_[use.edge[1]].node.id)))
+        SU2NativeGeometry::CountFrozenSeamRefusal();
     }
     if (candidates.empty()) break;
     stats.Increment(stats.surface.c_sweeps);
