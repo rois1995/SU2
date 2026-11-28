@@ -1,0 +1,27 @@
+{
+  "name": "native",
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[def1_fatal]",
+    "-r",
+    "console"
+  ],
+  "settings": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "SU2_DEF1_FATAL_CASE": "native"
+  },
+  "returncode": 1,
+  "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build684/fixtures/910122/native/stdout",
+  "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build684/fixtures/910122/native/stderr",
+  "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build684/fixtures/910122/native/host_preflight.json",
+  "timed_out": false,
+  "expected_diagnostic": "ADAP_HAUSD: NOT_DECLARED is not a boundary marker",
+  "passed": true
+}

@@ -2012,10 +2012,10 @@ index a2ce888ec5..c706f64056 100644
    result.state = std::make_shared<SU2Native3D::BoundaryParameterState>(
        state.Authority(), edits.points, edits.faces, state.Revision() + 1, ceiling, live, edits.coverage,
 diff --git a/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp b/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp
-index b61398b348..ecee8fa945 100644
+index b61398b348..18038ec459 100644
 --- a/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp
 +++ b/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp
-@@ -974,3 +974,143 @@ TEST_CASE("Entity collapse precheck defers remapped faces to the complete curved
+@@ -974,3 +974,145 @@ TEST_CASE("Entity collapse precheck defers remapped faces to the complete curved
    }
    CHECK(survivors==2);CHECK(budget.work==measured_work);CHECK_FALSE(budget.work_exhausted);CHECK(state->Snapshot()==snapshot);
  }
@@ -2096,7 +2096,9 @@ index b61398b348..ecee8fa945 100644
 +    const double limit = FaceTolerance(*view, face.facet, MarkerTrialStrict);
 +    CHECK(limit == (loose ? MarkerTrialLoose : MarkerTrialStrict));
 +    refused += error > limit;
-+    maximum = std::max(maximum, error);
++    const auto magnitude = view->SurfaceDeviation(face.facet, triangle, SurfaceQueryNeed::Magnitude().ForMarker());
++    REQUIRE(std::isfinite(magnitude));
++    maximum = std::max(maximum, magnitude);
 +  }
 +  CHECK(maximum > MarkerTrialStrict);
 +  CHECK(maximum < MarkerTrialLoose);
@@ -2626,7 +2628,7 @@ index 226432842e..7d715cf450 100644
 +  }
 +}
 diff --git a/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp
-index 6fae380f52..2efa5c3985 100644
+index 6fae380f52..119472cf8e 100644
 --- a/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp
 +++ b/UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp
 @@ -7,8 +7,11 @@
@@ -2659,7 +2661,7 @@ index 6fae380f52..2efa5c3985 100644
 +  MappedFacetReference::CurvedNets nets;
 +  std::map<Id, double> errors;
 +  constexpr unsigned powers[10][3] = {{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},
-+                                      {0,2,1},{0,1,2},{2,0,1},{1,0,2},{1,1,1}};
++                                      {0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
 +  for (const auto& face : state.facets) {
 +    errors.emplace(face.id, 1e-12);
 +    auto& net = nets[face.id];

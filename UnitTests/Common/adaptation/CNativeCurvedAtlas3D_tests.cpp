@@ -1051,7 +1051,9 @@ TEST_CASE("TOL1 projected private trials honor the marker geometry classifier an
     const double limit = FaceTolerance(*view, face.facet, MarkerTrialStrict);
     CHECK(limit == (loose ? MarkerTrialLoose : MarkerTrialStrict));
     refused += error > limit;
-    maximum = std::max(maximum, error);
+    const auto magnitude = view->SurfaceDeviation(face.facet, triangle, SurfaceQueryNeed::Magnitude().ForMarker());
+    REQUIRE(std::isfinite(magnitude));
+    maximum = std::max(maximum, magnitude);
   }
   CHECK(maximum > MarkerTrialStrict);
   CHECK(maximum < MarkerTrialLoose);
