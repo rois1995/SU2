@@ -2894,3 +2894,5 @@ TOL1 build686 G1 passed in serial, MPI2 and MPI4 with 375 / 114 / 228 matching r
 TOL1 G1 checkpoint 95376deb42 pushed. Scalar G2 passed exact decisions, integer rows, modeled work/storage and required timer comparisons under the sealed legacy configuration. The prefix controller elapsed 280.278 s. GQ is running under the same supervisor.
 
 TOL1 scalar GQ passed exact decisions, integer and modeled-storage rows and the required timer calls with fixedstorage=4120. The prefix controller elapsed 725.977 s. Continue exact first-collapse, C492, merit481, native 2D and saved-current safeguards under the same supervisor.
+
+TOL1 first-collapse passed exact counts across six ranks with no refinements. Work 76,652,506 against 108,459,426. Peak sum 7,955,910,656 bytes and stopped at 222.198 s. Continue C492 under the scoped supervisor.
