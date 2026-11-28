@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Catch name="test_driver" filters="[TOL1]">
+  <Group name="test_driver">
+    <TestCase name="TOL1 projected marker inventory keeps declared absent values and canonical identity" tags="[!hide][.][TOL1]" filename="../../UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp" line="291">
+      <OverallResult success="true"/>
+    </TestCase>
+    <TestCase name="TOL1 in-range child-fan samples reach the step-C whole-face classifier" tags="[!hide][.][TOL1]" filename="../../UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc" line="937">
+      <OverallResult success="true"/>
+    </TestCase>
+    <TestCase name="A subdivided curved marker seam survives private and shared native edits" tags="[!hide][.][TOL1][TOL1Seam]" filename="../../UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp" line="1082">
+      <OverallResult success="true"/>
+    </TestCase>
+    <TestCase name="TOL1 step D honors the marker limit for midpoint and centroid triggers" tags="[!hide][.][TOL1]" filename="../../UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp" line="1252">
+      <OverallResult success="true"/>
+    </TestCase>
+    <TestCase name="TOL1 projected private trials honor the marker geometry classifier and final proof" tags="[!hide][.][TOL1]" filename="../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp" line="1025">
+      <OverallResult success="true"/>
+    </TestCase>
+    <TestCase name="TOL1 direct child face between the limits survives the engine collapse filter" tags="[!hide][.][TOL1]" filename="../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp" line="1091">
+      <OverallResult success="true"/>
+    </TestCase>
+    <TestCase name="TOL1 atlas crops on the marker limit and tessellates at strict accuracy" tags="[!hide][.][TOL1]" filename="../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp" line="1398">
+      <OverallResult success="true"/>
+    </TestCase>
+    <TestCase name="TOL1 complete entity proof keeps a separate strict donor enclosure" tags="[!hide][.][TOL1]" filename="../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp" line="1458">
+      <OverallResult success="true"/>
+    </TestCase>
+    <TestCase name="TOL1 native list uses the smallest configured value after marker setup" tags="[!hide][.][TOL1]" filename="../../UnitTests/Common/adaptation/DEF1Options_tests.cpp" line="296">
+      <OverallResult success="true"/>
+    </TestCase>
+    <OverallResults successes="497" failures="0" expectedFailures="0"/>
+    <OverallResultsCases successes="9" failures="0" expectedFailures="0"/>
+  </Group>
+  <OverallResults successes="497" failures="0" expectedFailures="0"/>
+  <OverallResultsCases successes="9" failures="0" expectedFailures="0"/>
+</Catch>

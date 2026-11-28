@@ -1,0 +1,30 @@
+{
+  "name": "mpi_value",
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "mpirun",
+    "-np",
+    "2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[tol1_fatal]",
+    "-r",
+    "console"
+  ],
+  "settings": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "SU2_TOL1_FATAL_CASE": "mpi_value"
+  },
+  "returncode": 1,
+  "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/mpi_value/stdout",
+  "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/mpi_value/stderr",
+  "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build686/fixtures/964139/mpi_value/host_preflight.json",
+  "timed_out": false,
+  "expected_diagnostic": "ADAP_HAUSD differs between ranks.",
+  "passed": true
+}
