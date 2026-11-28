@@ -2896,3 +2896,5 @@ TOL1 G1 checkpoint 95376deb42 pushed. Scalar G2 passed exact decisions, integer 
 TOL1 scalar GQ passed exact decisions, integer and modeled-storage rows and the required timer calls with fixedstorage=4120. The prefix controller elapsed 725.977 s. Continue exact first-collapse, C492, merit481, native 2D and saved-current safeguards under the same supervisor.
 
 TOL1 first-collapse passed exact counts across six ranks with no refinements. Work 76,652,506 against 108,459,426. Peak sum 7,955,910,656 bytes and stopped at 222.198 s. Continue C492 under the scoped supervisor.
+
+TOL1 scalar C492 exact safeguard passed with a terminal controller at 610.677 s. Next merit481, native 2D and saved-current under the same supervisor.
