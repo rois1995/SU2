@@ -2846,3 +2846,7 @@ SC1 frozen production checkpoint f00440db8c pushed. Build682 started at 02:07:57
 SC1 build682 passed with 75 build actions, no warnings and both pinned binaries linked. Solver 8977ef1375dd4a6be5b3ca87a4b549997040d79a6ba7ec041685db9ce4331d07. Start the exact step-1 legacy-scoped campaign.
 
 SC1 build682 G1 identity passed in serial, MPI2 and MPI4: 375 / 114 / 228 records. G2 started under the same scoped supervisor.
+
+SC1 G1 checkpoint 4d31551c30 pushed. G2 passed the exact decision, integer, modeled-storage and timer comparison under the legacy keys. Its prefix controller elapsed 236.507 s. GQ continues.
+
+SC1 G2 and GQ both passed with exact decisions and modeled storage and fixedstorage=4120. Launched configurations authenticate the DEF1 legacy projection. Shared first-collapse passed. Continue the remaining safeguards under the same supervisor.
