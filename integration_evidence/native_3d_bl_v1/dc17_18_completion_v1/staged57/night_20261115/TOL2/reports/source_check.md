@@ -1,0 +1,26 @@
+# TOL2 whole-item source check
+
+Base 50f19e926e. The signed input and sidecar were verified before this check and before any production edit. TOL1 acceptance c1e1c8fac5 and CL3 closure 50f19e926e are ancestors. No owned workload or reviewer unit was active.
+
+The [seam inventory](m6_reference_seam.json) verifies all 64 actual FARFIELD/SYMMETRY mesh edges from the sealed M6 input against its native v7 sidecar. The two endpoint bindings of every mesh edge are reference vertices, and the resulting edge set exactly equals the 64 FARFIELD/SYMMETRY reference edges. s12 reports three overlong edges, 49–50, 48–49 and 45–46, at metric lengths 2.136, 2.020 and 1.872. The normal size threshold remains 1.8.
+
+| Site at the base | Rule |
+| --- | --- |
+| CNativeBoundaryParameters3D.cpp BindNewPoint, lines 1785–1806 | Verify the two incident anchors have mixed marker classes. Admit feature placement only for a single reference seam interval. Any other insertion of a seam-bound point remains refused. |
+| CNativeCurvedAtlas3D.cpp ProposeFeaturePoint, lines 578–608 | The two split callers may supply the verified interval. Allow a dimension-1 result on its reference edge strictly inside its endpoints. Keep normalization, chord projection, quantization and all other callers. |
+| CNativeLocalSurfaceGeometry3D.cpp Propose/PlaceOnFeature/Place, lines 545–585 and 707–723 | Use live bindings, live traces and both parent faces. Require the children to carry the two oriented parent sides before volume publication. Keep outward, topology and entity validation. |
+| CNativeLocalSurfaceGeometry3D.cpp Accept/Remove/GatherEdits and BuildSurfaceState | Record a validated split and its live trace replacements. Preserve every split point still in the overlay bit for bit at installation. Validate the complete resulting mixed-class graph relative to the installed state. |
+| CNativeBoundaryParameters3D.cpp CheckFrozenSeam and Prepare, lines 875–899 and 1008–1063 | Share the reference-interval subdivision check. In Prepare use the completed post-change incidences on affected edges, including retained faces. Unaffected incidences are identical. Refuse edits of existing seam records, and consume every new seam record in the graph. Charge temporary comparison storage only for mixed classes. |
+| CNativeDistributed3D.cpp PrepareParameters/Publish, lines 1491–1493, 1611–1616 and 1675 | Keep early validation for existing points. After Prepare, compare every staged volume occurrence of a new seam point with the insertion record before the collective vote. Count only committed engine insertions on one worker. |
+| CNativeAffineReference.cpp MobilityDimension/FrozenSeamPoint/FrozenSeamEdge and CNativeGeometryBackend3D.cpp ContractionAllowed | A new seam point has dimension 1 and mobility 0. Movement and contraction/refusal semantics and keeper identity remain as TOL1. |
+| CNativeCurvedAtlas3D.cpp movement guards, CNativeBoundaryParameters3D.cpp BindMovedPoint, MeshOptimizer.cpp move and flip guards | Keep the existing refusals. |
+| NativeRemeshRun.inc InstallLocalSurface and ReportTolerance | Count globally installed local split points once. Keep the prior input seam fields and add current points and accepted splits. Failed proposals increment refusal observations only. |
+| EngineReports.cpp EmitStageRows and EngineSelectionCensus.cpp | Emit cached local distinct overlong edges at exit under timings for mixed marker lists. Read actual incident marker classes. Merge duplicate rank observations offline and label incomplete censuses. No metric work, limit or decision change. |
+| CConfig.cpp and config_template.cfg | Describe the split-only seam rule. Scalar and equal-list behavior and row layouts stay in force. |
+
+## Contradictions and readings used
+
+1. The signed split-site list points to CNativeLocalCore3DSurface.cpp:1022–1025. At the base it is solely the short-edge **collapse** refusal counter inside the Step C collapse sweep. Reading used: the split-only exception applies at Place/PlaceOnFeature/Accept and BindNewPoint, and the collapse counter stays.
+2. The signed order locates the local child face construction around SplitSurface:514. At the base PlaceOnFeature builds the same four oriented children before SplitSurface's independent outward, entity and volume tests. Reading used: check the live parent and those four generated children in PlaceOnFeature. The installation check remains a separate, global comparison.
+3. The current seam counters name the complete input seam point count “seam_corners.” Reading used: keep that field's existing input semantics for comparison, and report the split count and the resulting seam point count separately. The current stage edge log is a bounded top list during split exits. It cannot establish the requested final size census. Reading used: append print-only rows from the existing exit cache, with actual completeness and incident marker classes.
+4. A private engine proposal has incident facets and live endpoint bindings before publication. Its accepted store can lack a child produced in the proposal. Reading used: verify the split placement using those live inputs and enforce full post-change side incidence in Prepare. Every non-split caller of ProposeFeaturePoint retains the mobility-1 check, including chord lookahead.
