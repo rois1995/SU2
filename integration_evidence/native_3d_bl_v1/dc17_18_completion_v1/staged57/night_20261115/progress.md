@@ -2892,3 +2892,5 @@ TOL1 fixture checkpoint 745b6360e6 pushed. The sole scoped standing supervisor s
 TOL1 build686 G1 passed in serial, MPI2 and MPI4 with 375 / 114 / 228 matching records. The scalar G2 prefix is running under the same scoped supervisor.
 
 TOL1 G1 checkpoint 95376deb42 pushed. Scalar G2 passed exact decisions, integer rows, modeled work/storage and required timer comparisons under the sealed legacy configuration. The prefix controller elapsed 280.278 s. GQ is running under the same supervisor.
+
+TOL1 scalar GQ passed exact decisions, integer and modeled-storage rows and the required timer calls with fixedstorage=4120. The prefix controller elapsed 725.977 s. Continue exact first-collapse, C492, merit481, native 2D and saved-current safeguards under the same supervisor.
