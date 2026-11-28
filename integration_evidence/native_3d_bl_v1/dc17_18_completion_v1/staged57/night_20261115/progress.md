@@ -2874,3 +2874,5 @@ TOL1 candidate frozen after the R4 checkpoint 14676abcc2. The staged source and 
 TOL1 frozen source checkpoint 3428991fed pushed. Build683 started at 11:02:42 CET with four nice-19 workers under su2-tol1-build683. Actual preflight saw no competing heavy process and 35,166,864 kB available. Next verify compilation and binary pins before the focused fixtures.
 
 TOL1 build683 terminated with exit 1 after 1104.207 s. The new seam fixture used a row serializer for the ownership map. R3 correction reuses the existing OwnedBytes snapshot in the two comparisons. The earlier pins and compiler log are retained. Next build684 from the new seal, then run the fixtures.
+
+TOL1 build684 passed 39 remaining actions in 255.905 s with no compiler warnings. Solver 58cbc0d7e11a0f7b8f74ea2ec188e5dde7a1df314c8a6339c570e12701ab87f6 and normal test driver 56e96cfa8a5e57648a3a18649e5172ff3ac5c93504a53c247d3e4c53714d752c. The controller is terminal; next run hidden normal and fatal cases, including two-rank agreement.
