@@ -2910,3 +2910,9 @@ TOL1 scoped checkpoint 13d59209c9 pushed. Scalar S started at 13:01:45 CET under
 TOL1 scalar S event 1 published its mesh, native reference and restart. All three hashes match FP3-E exactly. The run remains active for event 2 and the isolated restart.
 
 TOL1 scalar S passed both events, the isolated restart and all six FP3-E payload hashes. Native maxima 441.079 / 216.631 s, rank coverage minima 97.723 / 99.308 percent, whole-job peak sums 9,304,629,248 / 9,489,555,456 bytes, proof faces 26,522 / 21,708. Scalar run logged 674 protected edges, 2 corners and zero tolerance rows. The full and restart handles are terminal. Next use the independently derived equal-list configs and same binary.
+
+TOL1 scalar S checkpoint f8c14808dc pushed. Equal-list S launched at 13:18:29 CET under su2-tol1-equal686 with no owned heavy process and 37,709,452 kB available. The full configuration uses the signed three equal values plus legacy norm and gradation. Await both events and the independent restart configuration.
+
+TOL1 equal-list S event 1 matched all three FP3-E payload hashes. Its tolerance row has three class-0 marker values at 0.0001, zero seam corners/edges and zero refusals. Mobility matches scalar at 674 protected edges and 2 corners. Event 2 and restart remain in progress.
+
+TOL1 equal-list full S completed both events with all six FP3-E hashes, two zero-seam rows and scalar mobility counts. The isolated helper stopped before writing config or starting the solver: a scalar-only assertion still ran on the inherited equal list. Both prior controllers are terminal. R3 archives the old restart and corrects the assertion by validating the scalar projection and independently exact equal-list bytes. Continue with only the isolated restart.

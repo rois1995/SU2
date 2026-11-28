@@ -1,0 +1,5 @@
+# TOL1 equal-list restart helper correction
+
+Both equal-list adaptation events passed. The six sealed payload hashes reproduce FP3-E, both tolerance rows report zero seam corners and zero seam edges, and curved mobility retained the scalar counts.
+
+The first isolated restart helper returned 1 before launching its solver. Its generated restart configuration already inherited the equal list from the completed full run. The DEF1-derived scalar byte assertion at runtime line 344 rejected those bytes, before the helper could write the restart configuration. The dependent missing terminal receipt follows that assertion. The supervisor returned a terminal wait receipt. The correction applies the scalar assertion to a reverse projection of the equal line, then keeps the exact comparison against the independently derived equal-list restart configuration. The original full-run inputs, outputs and helper pins stay authentic. Only the isolated restart is launched through the corrected helper, under the original configuration, watchdog and resource checks.
