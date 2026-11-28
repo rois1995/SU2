@@ -2886,3 +2886,7 @@ TOL1 build685 passed DEF1 and all 21 isolated fatal cases, including both correc
 TOL1 build686 passed two build actions in 470.876 s with no warnings. One slow link coincided with host I/O pressure. Solver unchanged from build684 and build685 at 58cbc0d7e11a0f7b8f74ea2ec188e5dde7a1df314c8a6339c570e12701ab87f6, normal driver af6c146a5d8d8305637c32078d5c560fb23083687531be930fd3d757dce1bbcd. Next run all focused fixtures on the frozen binary pair.
 
 TOL1 build686 focused checks passed. Nine TOL1 cases with 497 assertions, four DEF1 cases with 528 assertions and 21 expected fatal diagnostics. Both MPI disagreement jobs terminated without watchdog expiry. The projected trial passed the loose classifier and two-sided proof, and the same patch was refused under the strict marker assignment. Next the 12 scalar standing parts using the legacy pins.
+
+TOL1 fixture checkpoint 745b6360e6 pushed. The sole scoped standing supervisor su2-tol1-scoped686 started at 11:59:14 CET; G1 serial launched at 11:59:28 after actual host preflight. No owned heavy process was active, with an unrelated Lean process observed. Observe incremental receipts and stop the gated sequence on the first failed result.
+
+TOL1 build686 G1 passed in serial, MPI2 and MPI4 with 375 / 114 / 228 matching records. The scalar G2 prefix is running under the same scoped supervisor.
