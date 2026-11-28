@@ -2852,3 +2852,5 @@ SC1 G1 checkpoint 4d31551c30 pushed. G2 passed the exact decision, integer, mode
 SC1 G2 and GQ both passed with exact decisions and modeled storage and fixedstorage=4120. Launched configurations authenticate the DEF1 legacy projection. Shared first-collapse passed. Continue the remaining safeguards under the same supervisor.
 
 SC1 prefix checkpoint 94eb626cc2 pushed. All five shared groups passed on build682: exact first-collapse, exact C492, merit481, native 2D at 1/2/4 ranks and saved-current. G3 runs next, and G4 seals the pinned 2D executions.
+
+SC1 shared checkpoint 6328edfc84 pushed. Step 1 passed all 12 parts. G3 accepted 1665 splits, matched all 1592 common edits and observer-adjusted work 5113/5113, with zero upper refinements. G4 passed using the sealed native 2D executions. Full OFF and CORE are unevaluated by order. The scoped supervisor is terminal. Next the one value-6 mode S count run with the legacy settings and isolated restart.
