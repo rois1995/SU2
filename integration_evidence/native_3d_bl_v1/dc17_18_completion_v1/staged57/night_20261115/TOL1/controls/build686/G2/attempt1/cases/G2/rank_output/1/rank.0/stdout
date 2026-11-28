@@ -1,0 +1,308 @@
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 12:13:59 2026<stdout>:|    ___ _   _ ___                                                      |
+Sat Nov 28 12:13:59 2026<stdout>:|   / __| | | |_  )   Release 8.5.0 "Harrier"                           |
+Sat Nov 28 12:13:59 2026<stdout>:|   \__ \ |_| |/ /                                                      |
+Sat Nov 28 12:13:59 2026<stdout>:|   |___/\___//___|   Suite (Computational Fluid Dynamics Code)         |
+Sat Nov 28 12:13:59 2026<stdout>:|                                                                       |
+Sat Nov 28 12:13:59 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 12:13:59 2026<stdout>:| SU2 Project Website: https://su2code.github.io                        |
+Sat Nov 28 12:13:59 2026<stdout>:|                                                                       |
+Sat Nov 28 12:13:59 2026<stdout>:| The SU2 Project is maintained by the SU2 Foundation                   |
+Sat Nov 28 12:13:59 2026<stdout>:| (http://su2foundation.org)                                            |
+Sat Nov 28 12:13:59 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 12:13:59 2026<stdout>:| Copyright 2012-2026, SU2 Contributors                                 |
+Sat Nov 28 12:13:59 2026<stdout>:|                                                                       |
+Sat Nov 28 12:13:59 2026<stdout>:| SU2 is free software; you can redistribute it and/or                  |
+Sat Nov 28 12:13:59 2026<stdout>:| modify it under the terms of the GNU Lesser General Public            |
+Sat Nov 28 12:13:59 2026<stdout>:| License as published by the Free Software Foundation; either          |
+Sat Nov 28 12:13:59 2026<stdout>:| version 2.1 of the License, or (at your option) any later version.    |
+Sat Nov 28 12:13:59 2026<stdout>:|                                                                       |
+Sat Nov 28 12:13:59 2026<stdout>:| SU2 is distributed in the hope that it will be useful,                |
+Sat Nov 28 12:13:59 2026<stdout>:| but WITHOUT ANY WARRANTY; without even the implied warranty of        |
+Sat Nov 28 12:13:59 2026<stdout>:| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
+Sat Nov 28 12:13:59 2026<stdout>:| Lesser General Public License for more details.                       |
+Sat Nov 28 12:13:59 2026<stdout>:|                                                                       |
+Sat Nov 28 12:13:59 2026<stdout>:| You should have received a copy of the GNU Lesser General Public      |
+Sat Nov 28 12:13:59 2026<stdout>:| License along with SU2. If not, see <http://www.gnu.org/licenses/>.   |
+Sat Nov 28 12:13:59 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:Parsing config file for zone 0
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:----------------- Physical Case Definition ( Zone 0 ) -------------------
+Sat Nov 28 12:13:59 2026<stdout>:Compressible Euler equations.
+Sat Nov 28 12:13:59 2026<stdout>:Mach number: 0.8395.
+Sat Nov 28 12:13:59 2026<stdout>:Angle of attack (AoA): 3.06 deg, and angle of sideslip (AoS): 0 deg.
+Sat Nov 28 12:13:59 2026<stdout>:Reading and writing binary SU2 native restart files.
+Sat Nov 28 12:13:59 2026<stdout>:Read flow solution from: baseline_euler_seed.
+Sat Nov 28 12:13:59 2026<stdout>:Dimensional simulation.
+Sat Nov 28 12:13:59 2026<stdout>:The reference area is 0.7532 m^2.
+Sat Nov 28 12:13:59 2026<stdout>:The semi-span will be computed using the max y(3D) value.
+Sat Nov 28 12:13:59 2026<stdout>:The reference length is 0.64607 m.
+Sat Nov 28 12:13:59 2026<stdout>:Reference origin for moment evaluation is (0.25, 0, 0).
+Sat Nov 28 12:13:59 2026<stdout>:Surface(s) where the force coefficients are evaluated: WING3D.
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:Surface(s) plotted in the output file: WING3D.
+Sat Nov 28 12:13:59 2026<stdout>:Input mesh file name: m6.su2
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Sat Nov 28 12:13:59 2026<stdout>:Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Sat Nov 28 12:13:59 2026<stdout>:Standard Roe without low-dissipation function.
+Sat Nov 28 12:13:59 2026<stdout>:Second order integration in space, with slope limiter.
+Sat Nov 28 12:13:59 2026<stdout>:Venkatakrishnan slope-limiting method, with constant: 1.
+Sat Nov 28 12:13:59 2026<stdout>:The reference element size is: 1. 
+Sat Nov 28 12:13:59 2026<stdout>:Gradient for upwind reconstruction: Green-Gauss.
+Sat Nov 28 12:13:59 2026<stdout>:Gradient for viscous and source terms: Green-Gauss.
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Sat Nov 28 12:13:59 2026<stdout>:Local time stepping (steady state simulation).
+Sat Nov 28 12:13:59 2026<stdout>:Euler implicit method for the flow equations.
+Sat Nov 28 12:13:59 2026<stdout>:FGMRES is used for solving the linear system.
+Sat Nov 28 12:13:59 2026<stdout>:Using LU-SGS preconditioning.
+Sat Nov 28 12:13:59 2026<stdout>:Convergence criteria of the linear solver: 0.0001.
+Sat Nov 28 12:13:59 2026<stdout>:Max number of linear iterations: 5.
+Sat Nov 28 12:13:59 2026<stdout>:No CFL adaptation.
+Sat Nov 28 12:13:59 2026<stdout>:Courant-Friedrichs-Lewy number:        1
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Sat Nov 28 12:13:59 2026<stdout>:Maximum number of solver subiterations: 1.
+Sat Nov 28 12:13:59 2026<stdout>:Begin convergence monitoring at iteration 10.
+Sat Nov 28 12:13:59 2026<stdout>:Residual minimum value: 1e-10.
+Sat Nov 28 12:13:59 2026<stdout>:Cauchy series min. value: 1e-06.
+Sat Nov 28 12:13:59 2026<stdout>:Number of Cauchy elements: 100.
+Sat Nov 28 12:13:59 2026<stdout>:Begin windowed time average at iteration 0.
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:-------------------- Output Information ( Zone 0 ) ----------------------
+Sat Nov 28 12:13:59 2026<stdout>:File writing frequency: 
+Sat Nov 28 12:13:59 2026<stdout>:+------------------------------------+
+Sat Nov 28 12:13:59 2026<stdout>:|                     File| Frequency|
+Sat Nov 28 12:13:59 2026<stdout>:+------------------------------------+
+Sat Nov 28 12:13:59 2026<stdout>:|                  RESTART|         1|
+Sat Nov 28 12:13:59 2026<stdout>:+------------------------------------+
+Sat Nov 28 12:13:59 2026<stdout>:Writing the convergence history file every 1 inner iterations.
+Sat Nov 28 12:13:59 2026<stdout>:Writing the screen convergence history every 10 inner iterations.
+Sat Nov 28 12:13:59 2026<stdout>:The tabular file format is CSV (.csv).
+Sat Nov 28 12:13:59 2026<stdout>:Convergence history file name: history.
+Sat Nov 28 12:13:59 2026<stdout>:Forces breakdown file name: forces_breakdown.dat.
+Sat Nov 28 12:13:59 2026<stdout>:Surface file name: surface.
+Sat Nov 28 12:13:59 2026<stdout>:Volume file name: flow.
+Sat Nov 28 12:13:59 2026<stdout>:Restart file name: restart_flow.
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:------------- Config File Boundary Information ( Zone 0 ) ---------------
+Sat Nov 28 12:13:59 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:13:59 2026<stdout>:|                        Marker Type|                        Marker Name|
+Sat Nov 28 12:13:59 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:13:59 2026<stdout>:|                         Euler wall|                             WING3D|
+Sat Nov 28 12:13:59 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:13:59 2026<stdout>:|                          Far-field|                           FARFIELD|
+Sat Nov 28 12:13:59 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:13:59 2026<stdout>:|                     Symmetry plane|                           SYMMETRY|
+Sat Nov 28 12:13:59 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:-------------------- Output Preprocessing ( Zone 0 ) --------------------
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:Screen output fields: INNER_ITER, RMS_DENSITY, LIFT, DRAG
+Sat Nov 28 12:13:59 2026<stdout>:History output group(s): ITER, RMS_RES
+Sat Nov 28 12:13:59 2026<stdout>:Convergence field(s): RMS_DENSITY
+Sat Nov 28 12:13:59 2026<stdout>:Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Sat Nov 28 12:13:59 2026<stdout>:Volume output fields: COORDINATES, SOLUTION, PRIMITIVE, METRIC, ADAP_SENSOR
+Sat Nov 28 12:13:59 2026<stdout>:
+Sat Nov 28 12:13:59 2026<stdout>:------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Sat Nov 28 12:14:00 2026<stdout>:Three dimensional problem.
+Sat Nov 28 12:14:00 2026<stdout>:61330 grid points before partitioning.
+Sat Nov 28 12:14:00 2026<stdout>:303359 volume elements before partitioning.
+Sat Nov 28 12:14:00 2026<stdout>:3 surface markers.
+Sat Nov 28 12:14:00 2026<stdout>:2060 boundary elements in index 0 (Marker = FARFIELD).
+Sat Nov 28 12:14:00 2026<stdout>:8094 boundary elements in index 1 (Marker = SYMMETRY).
+Sat Nov 28 12:14:00 2026<stdout>:38800 boundary elements in index 2 (Marker = WING3D).
+Sat Nov 28 12:14:00 2026<stdout>:Executing the partitioning functions.
+Sat Nov 28 12:14:00 2026<stdout>:Building the graph adjacency structure.
+Sat Nov 28 12:14:00 2026<stdout>:Calling ParMETIS... graph partitioning complete (9257 edge cuts).
+Sat Nov 28 12:14:00 2026<stdout>:Distributing ParMETIS coloring.
+Sat Nov 28 12:14:01 2026<stdout>:Rebalancing vertices.
+Sat Nov 28 12:14:01 2026<stdout>:Rebalancing volume element connectivity.
+Sat Nov 28 12:14:02 2026<stdout>:Rebalancing markers and surface elements.
+Sat Nov 28 12:14:02 2026<stdout>:66760 vertices including ghost points. 
+Sat Nov 28 12:14:02 2026<stdout>:316843 interior elements including halo cells. 
+Sat Nov 28 12:14:02 2026<stdout>:316843 tetrahedra.
+Sat Nov 28 12:14:02 2026<stdout>:Establishing MPI communication patterns.
+Sat Nov 28 12:14:02 2026<stdout>:Setting point connectivity.
+Sat Nov 28 12:14:02 2026<stdout>:Renumbering points (Reverse Cuthill McKee Ordering).
+Sat Nov 28 12:14:02 2026<stdout>:Recomputing point connectivity.
+Sat Nov 28 12:14:02 2026<stdout>:Setting element connectivity.
+Sat Nov 28 12:14:03 2026<stdout>:Checking the numerical grid orientation.
+Sat Nov 28 12:14:03 2026<stdout>:All volume elements are correctly oriented.
+Sat Nov 28 12:14:03 2026<stdout>:All surface elements are correctly oriented.
+Sat Nov 28 12:14:03 2026<stdout>:Identifying edges and vertices.
+Sat Nov 28 12:14:03 2026<stdout>:Setting the control volume structure.
+Sat Nov 28 12:14:03 2026<stdout>:Volume of the computational grid: 2.08846e+06.
+Sat Nov 28 12:14:03 2026<stdout>:Searching for the closest normal neighbors to the surfaces.
+Sat Nov 28 12:14:03 2026<stdout>:Storing a mapping from global to local point index.
+Sat Nov 28 12:14:03 2026<stdout>:Compute the surface curvature.
+Sat Nov 28 12:14:03 2026<stdout>:Max K: 72103.8. Mean K: 541.635. Standard deviation K: 3508.42.
+Sat Nov 28 12:14:03 2026<stdout>:Computing mesh quality statistics for the dual control volumes.
+Sat Nov 28 12:14:03 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:|           Mesh Quality Metric|        Minimum|        Maximum|
+Sat Nov 28 12:14:03 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:|    Orthogonality Angle (deg.)|        6.83474|        84.2921|
+Sat Nov 28 12:14:03 2026<stdout>:|     CV Face Area Aspect Ratio|        1.05639|        157.983|
+Sat Nov 28 12:14:03 2026<stdout>:|           CV Sub-Volume Ratio|        1.00915|        1864.59|
+Sat Nov 28 12:14:03 2026<stdout>:|                     CV Volume|    4.23004e-13|        1347.01|
+Sat Nov 28 12:14:03 2026<stdout>:+--------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:Finding max control volume width.
+Sat Nov 28 12:14:03 2026<stdout>:Communicating number of neighbors.
+Sat Nov 28 12:14:03 2026<stdout>:NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=6 time_iter=0 total=3.464344305 other=3.3400000001293506e-06 cpu=2.7901279999999997 cpu_other=2.0000000000575113e-06 process_peak_rss=87285760 partition=0.213281261 partition_cpu=0.210095 migration=1.693460937 migration_cpu=1.3577439999999998 preprocess=1.557598767 preprocess_cpu=1.2222869999999999
+Sat Nov 28 12:14:03 2026<stdout>:NATIVE3D_STAGE stage=cfd_geometry_initial rank=1 ranks=6 time_iter=0 total=3.4784624019999999 other=3.0402999999790126e-05 cpu=3.1825099999999997 cpu_other=2.7999999999694936e-05 process_peak_rss=79519744 partition=0.23040617500000005 partition_cpu=0.202317 migration=1.7156994289999998 migration_cpu=1.508718 preprocess=1.5323263950000001 preprocess_cpu=1.4714469999999999
+Sat Nov 28 12:14:03 2026<stdout>:NATIVE3D_STAGE stage=cfd_geometry_initial rank=2 ranks=6 time_iter=0 total=3.435345678 other=2.7706000000016218e-05 cpu=2.7909949999999997 cpu_other=1.1999999999900979e-05 process_peak_rss=121077760 partition=0.18733936400000006 partition_cpu=0.16039499999999998 migration=1.7171553510000002 migration_cpu=1.3186179999999998 preprocess=1.5308232569999998 preprocess_cpu=1.3119699999999999
+Sat Nov 28 12:14:03 2026<stdout>:NATIVE3D_STAGE stage=cfd_geometry_initial rank=3 ranks=6 time_iter=0 total=3.4215743610000002 other=1.1702000000335389e-05 cpu=2.8616199999999998 cpu_other=7.0000000000902673e-06 process_peak_rss=141041664 partition=0.1718110020000001 partition_cpu=0.15819999999999998 migration=1.692325788 migration_cpu=1.5679029999999998 preprocess=1.5574258689999998 preprocess_cpu=1.13551
+Sat Nov 28 12:14:03 2026<stdout>:NATIVE3D_STAGE stage=cfd_geometry_initial rank=4 ranks=6 time_iter=0 total=3.4055168220000001 other=8.9239999998547148e-06 cpu=3.06264 cpu_other=5.000000000032756e-06 process_peak_rss=140906496 partition=0.15626035000000005 partition_cpu=0.14212900000000001 migration=1.7212516730000003 migration_cpu=1.525641 preprocess=1.5279958749999998 preprocess_cpu=1.394865
+Sat Nov 28 12:14:03 2026<stdout>:NATIVE3D_STAGE stage=cfd_geometry_initial rank=5 ranks=6 time_iter=0 total=3.4303079400000001 other=2.9420000000612845e-06 cpu=2.7400690000000001 cpu_other=2.0000000002795559e-06 process_peak_rss=138244096 partition=0.18060266199999986 partition_cpu=0.15764300000000001 migration=1.7120671379999999 migration_cpu=1.4143019999999999 preprocess=1.5376351980000003 preprocess_cpu=1.1681219999999999
+Sat Nov 28 12:14:03 2026<stdout>:CFD geometry seconds partition/migration/preprocess (maximum across ranks): 0.230396 1.72125 1.55787
+Sat Nov 28 12:14:03 2026<stdout>:Semi-span length = 1.21848 m.
+Sat Nov 28 12:14:03 2026<stdout>:Wetted area = 1.55706 m^2.
+Sat Nov 28 12:14:03 2026<stdout>:Area projection in the x-plane = 0.0743682 m^2, y-plane = 0.0181104 m^2, z-plane = 0.758905 m^2.
+Sat Nov 28 12:14:03 2026<stdout>:Max. coordinate in the x-direction = 1.14408 m, y-direction = 1.21848 m, z-direction = 0.0394304 m.
+Sat Nov 28 12:14:03 2026<stdout>:Min. coordinate in the x-direction = -6.1346e-14 m, y-direction = -1.06253e-13 m, z-direction = -0.0394304 m.
+Sat Nov 28 12:14:03 2026<stdout>:Computing wall distances.
+Sat Nov 28 12:14:03 2026<stdout>:
+Sat Nov 28 12:14:03 2026<stdout>:-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Sat Nov 28 12:14:03 2026<stdout>:Inviscid flow: Computing density based on free-stream
+Sat Nov 28 12:14:03 2026<stdout>:temperature and pressure using the ideal gas law.
+Sat Nov 28 12:14:03 2026<stdout>:Force coefficients computed using free-stream values.
+Sat Nov 28 12:14:03 2026<stdout>:
+Sat Nov 28 12:14:03 2026<stdout>:-- Models:
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:|          Viscosity Model|        Conductivity Model|              Fluid Model|
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:|                        -|                         -|             STANDARD_AIR|
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:-- Fluid properties:
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+Sat Nov 28 12:14:03 2026<stdout>:|      Spec. Heat Ratio|             -|             -|         -|           1.4|
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:-- Initial and free-stream conditions:
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:|       Static Pressure|        101325|             1|        Pa|        101325|
+Sat Nov 28 12:14:03 2026<stdout>:|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+Sat Nov 28 12:14:03 2026<stdout>:|           Temperature|        288.15|             1|         K|        288.15|
+Sat Nov 28 12:14:03 2026<stdout>:|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+Sat Nov 28 12:14:03 2026<stdout>:|            Velocity-X|       285.272|             1|       m/s|       285.272|
+Sat Nov 28 12:14:03 2026<stdout>:|            Velocity-Y|             0|             1|       m/s|             0|
+Sat Nov 28 12:14:03 2026<stdout>:|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+Sat Nov 28 12:14:03 2026<stdout>:|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:|           Mach Number|             -|             -|         -|        0.8395|
+Sat Nov 28 12:14:03 2026<stdout>:+------------------------------------------------------------------------------+
+Sat Nov 28 12:14:03 2026<stdout>:Initialize Jacobian structure (Euler). MG level: 0.
+Sat Nov 28 12:14:03 2026<stdout>:
+Sat Nov 28 12:14:03 2026<stdout>:------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+Sat Nov 28 12:14:03 2026<stdout>:
+Sat Nov 28 12:14:03 2026<stdout>:----------------- Integration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 12:14:03 2026<stdout>:
+Sat Nov 28 12:14:03 2026<stdout>:------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Sat Nov 28 12:14:03 2026<stdout>:Euler/Navier-Stokes/RANS fluid iteration.
+Sat Nov 28 12:14:03 2026<stdout>:
+Sat Nov 28 12:14:03 2026<stdout>:------------------------- Mesh Adaptation Cycle -------------------------
+Sat Nov 28 12:14:03 2026<stdout>:Cycle 0 of 2: 61330 points, at most 1 iterations, CFL 1, V multigrid cycle, restart solution.
+Sat Nov 28 12:14:03 2026<stdout>:Its metric makes the next mesh: complexity 50000, sizes 1e-06 to 100, norm 1, aspect ratio up to 1e+06.
+Sat Nov 28 12:14:03 2026<stdout>:
+Sat Nov 28 12:14:03 2026<stdout>:------------------------------ Begin Solver -----------------------------
+Sat Nov 28 12:14:03 2026<stdout>:
+Sat Nov 28 12:14:03 2026<stdout>:Simulation Run using the Single-zone Driver
+Sat Nov 28 12:14:04 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 12:14:04 2026<stdout>:|  Inner_Iter|    rms[Rho]|          CL|          CD|
+Sat Nov 28 12:14:04 2026<stdout>:+---------------------------------------------------+
+Sat Nov 28 12:14:04 2026<stdout>:|           0|   -5.735442|    0.269535|    0.013536|
+Sat Nov 28 12:14:04 2026<stdout>:
+Sat Nov 28 12:14:04 2026<stdout>:----------------------------- Compute Metric ----------------------------
+Sat Nov 28 12:14:04 2026<stdout>:Quadratic Hessian fits (owned point-sensor pairs): 39541 first ring, 21789 grown stencil, 0 WLS fallbacks.
+Sat Nov 28 12:14:04 2026<stdout>:Quadratic Hessian thin-stencil cubic/quartic corrections: 0 point-sensor fits; unsupported quartics retain cubic/quadratic fits.
+Sat Nov 28 12:14:04 2026<stdout>:Quadratic Hessian relative weighted fit residual: mean 0.140334, maximum 0.96661; 39813 fits above 0.05; minimum QR pivot ratio 0.00290566. Second-ring MPI: 4501 requested owner neighborhoods, 66136 exported samples.
+Sat Nov 28 12:14:04 2026<stdout>:WARNING: Large quadratic fit residuals remain after stencil comparison; inspect sensor noise and nonsmooth flow features. No resolved curvature was discarded.
+Sat Nov 28 12:14:04 2026<stdout>:Hessian recovery: 0.429751 s (maximum rank time).
+Sat Nov 28 12:14:44 2026<stdout>:Sensor-only donor metric statistics:
+Sat Nov 28 12:14:44 2026<stdout>:Minimum density: 0.000569991.
+Sat Nov 28 12:14:44 2026<stdout>:Maximum density: 1.5676e+08.
+Sat Nov 28 12:14:44 2026<stdout>:Maximum cell AR: 15.314.
+Sat Nov 28 12:14:44 2026<stdout>:Mesh complexity after native constraints: 50000 (ADAP_COMPLEXITY= 50000).
+Sat Nov 28 12:14:44 2026<stdout>:Sensor metric complexity before gradation: 18587.9.
+Sat Nov 28 12:14:44 2026<stdout>:Sensor-only donor complexity after gradation: 50000.
+Sat Nov 28 12:14:44 2026<stdout>:Native geometric integration: 0 points, preparation 0.0009427 s.
+Sat Nov 28 12:14:44 2026<stdout>:Native metric work: 7 complexity trials, 800 total gradation sweeps, 14153877 owned-point visits; gradation 39.1374 s, halo 1.26762 s, sweep reductions 29.669 s (maximum accumulated rank times).
+Sat Nov 28 12:14:44 2026<stdout>:Native gradation tensor updates: 9853577 of 14153877 owned-point visits.
+Sat Nov 28 12:14:44 2026<stdout>:Native sensor gradation: 118 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Sat Nov 28 12:14:44 2026<stdout>:Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+Sat Nov 28 12:14:44 2026<stdout>:Sharp wall points: 401, the isotropic corner metric (ADAP_ISO_CORNER) is applied in 2D only, the metric is not changed.
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric_build rank=0 ranks=6 time_iter=0 total=39.476564185000001 other=2.3992999999222775e-05 cpu=37.026178999999999 cpu_other=2.2999999998774001e-05 process_peak_rss=124116992 sensor_frames=0.0088053100000005102 sensor_frames_cpu=0.0088059999999999996 geometry_rule=0.00042864699999967115 geometry_rule_cpu=0.000428 complexity_gradation_audit=39.462028539000002 complexity_gradation_audit_cpu=37.011787999999996 publication=0.0037358530000020096 publication_cpu=0.0036240000000000001 halo=7.648399999737876e-05 halo_cpu=4.3999999999999999e-05 original_family=0.0014653590000008876 original_family_cpu=0.0014659999999999999 nested_gradation=39.137397338999996 nested_gradation_halo=0.8931811829999674 nested_gradation_reduction=16.232143106000095 complexity=49999.999975564395 bracketed=1 original_family_bytes=2287680 original_family_replay=0
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric_build rank=1 ranks=6 time_iter=0 total=39.476574486000004 other=2.7868000010755622e-05 cpu=37.498345 cpu_other=2.7000000002885827e-05 process_peak_rss=118054912 sensor_frames=0.0089463800000002536 sensor_frames_cpu=0.0088319999999999996 geometry_rule=0.00029497600000016888 geometry_rule_cpu=0.00011399999999999999 complexity_gradation_audit=39.462024728999999 complexity_gradation_audit_cpu=37.484096000000001 publication=0.003560817000000327 publication_cpu=0.0035559999999999997 halo=0.000205395999998359 halo_cpu=0.000205 original_family=0.0015143199999982926 original_family_cpu=0.0015149999999999999 nested_gradation=39.120960568000001 nested_gradation_halo=1.0986748370000115 nested_gradation_reduction=20.538690857999896 complexity=49999.999975564395 bracketed=1 original_family_bytes=2282240 original_family_replay=0
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric_build rank=2 ranks=6 time_iter=0 total=39.476682061000005 other=2.6693999998883555e-05 cpu=37.42698 cpu_other=2.7000000002885827e-05 process_peak_rss=123699200 sensor_frames=0.0091468200000006661 sensor_frames_cpu=0.0091190000000000004 geometry_rule=0.00020382199999957606 geometry_rule_cpu=0.00018899999999999999 complexity_gradation_audit=39.462026943000005 complexity_gradation_audit_cpu=37.412371 publication=0.0035588439999969523 publication_cpu=0.003555 halo=0.00011014900000105854 halo_cpu=0.00010999999999999999 original_family=0.0016087890000022753 original_family_cpu=0.001609 nested_gradation=39.127353284000009 nested_gradation_halo=1.0052619099999092 nested_gradation_reduction=0.68529031899993953 complexity=49999.999975564395 bracketed=1 original_family_bytes=2274832 original_family_replay=0
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric_build rank=3 ranks=6 time_iter=0 total=39.476679708000006 other=2.7542000012203971e-05 cpu=37.680647999999998 cpu_other=2.7000000002885827e-05 process_peak_rss=143663104 sensor_frames=0.0090514180000003108 sensor_frames_cpu=0.0087499999999999991 geometry_rule=0.00029626999999976533 geometry_rule_cpu=0.00029499999999999996 complexity_gradation_audit=39.462025525999998 complexity_gradation_audit_cpu=37.666568999999996 publication=0.0035604520000021012 publication_cpu=0.0033929999999999997 halo=0.00024493899999811219 halo_cpu=0.00021499999999999999 original_family=0.0014735609999974031 original_family_cpu=0.0013989999999999999 nested_gradation=39.121015067999998 nested_gradation_halo=1.2676244159998973 nested_gradation_reduction=29.66902621600007 complexity=49999.999975564395 bracketed=1 original_family_bytes=2191360 original_family_replay=0
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric_build rank=4 ranks=6 time_iter=0 total=39.476583703000003 other=2.736700000127712e-05 cpu=37.844155999999998 cpu_other=2.6999999995780399e-05 process_peak_rss=143396864 sensor_frames=0.0090438889999999716 sensor_frames_cpu=0.009044 geometry_rule=0.00020790700000006268 geometry_rule_cpu=0.00020699999999999999 complexity_gradation_audit=39.462024863000003 complexity_gradation_audit_cpu=37.829602999999999 publication=0.0035607549999951971 publication_cpu=0.0035559999999999997 halo=0.00013425699999913832 halo_cpu=0.000134 original_family=0.0015846650000028717 original_family_cpu=0.0015849999999999998 nested_gradation=39.120628069Sat Nov 28 12:14:44 2026<stdout>:999995 nested_gradation_halo=0.97926584799996874 nested_gradation_reduction=21.644983330999956 complexity=49999.999975564395 bracketed=1 original_family_bytes=2373632 original_family_replay=0
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric_build rank=5 ranks=6 time_iter=0 total=39.476688328999998 other=3.530299999709996e-05 cpu=37.349317999999997 cpu_other=3.4999999996898623e-05 process_peak_rss=140603392 sensor_frames=0.0084000130000001505 sensor_frames_cpu=0.0084010000000000005 geometry_rule=0.00094898199999970956 geometry_rule_cpu=0.00094699999999999993 complexity_gradation_audit=39.462027098 complexity_gradation_audit_cpu=37.334660999999997 publication=0.0035586489999985815 publication_cpu=0.0035559999999999997 halo=0.0002413430000061112 halo_cpu=0.00024099999999999998 original_family=0.0014769409999999539 original_family_cpu=0.001477 nested_gradation=39.121012925999999 nested_gradation_halo=1.029214790999994 nested_gradation_reduction=27.272439865000088 complexity=49999.999975564395 bracketed=1 original_family_bytes=1957936 original_family_replay=0
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric rank=0 ranks=6 time_iter=0 total=39.908903195999997 other=1.847000000054777e-06 cpu=37.453198 cpu_other=2.0000000020559128e-06 process_peak_rss=124116992 setup=2.6726999999837631e-05 setup_cpu=2.3e-05 sensors=0.0010400230000007227 sensors_cpu=0.001041 hessian=0.42860320799999929 hessian_cpu=0.42346799999999996 construction=39.479231390999999 construction_cpu=37.028663999999999
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric rank=1 ranks=6 time_iter=0 total=39.907045160999999 other=6.3169999933165855e-06 cpu=37.882475999999997 cpu_other=5.999999999062311e-06 process_peak_rss=118054912 setup=8.6630000000198493e-06 setup_cpu=7.9999999999999996e-06 sensors=0.00025347000000053299 sensors_cpu=0.00025299999999999997 hessian=0.42765741299999949 hessian_cpu=0.38131899999999996 construction=39.479119298000001 construction_cpu=37.500889999999998
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric rank=2 ranks=6 time_iter=0 total=39.908899901000005 other=3.4410000111506633e-06 cpu=37.837035999999998 cpu_other=2.0000000020559128e-06 process_peak_rss=123699200 setup=4.3827999999912493e-05 setup_cpu=3.9999999999999996e-05 sensors=0.0011989610000000539 sensors_cpu=0.0011999999999999999 hessian=0.42869638899999973 hessian_cpu=0.40654299999999999 construction=39.478957281999996 construction_cpu=37.429251000000001
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric rank=3 ranks=6 time_iter=0 total=39.909898578000004 other=3.0240000015169244e-06 cpu=38.096249 cpu_other=2.0000000020559128e-06 process_peak_rss=143663104 setup=2.7124999999905697e-05 setup_cpu=1.9999999999999998e-05 sensors=0.0011178929999999809 sensors_cpu=0.0011199999999999999 hessian=0.42978998100000076 hessian_cpu=0.41219899999999998 construction=39.478960555 construction_cpu=37.682907999999998
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric rank=4 ranks=6 time_iter=0 total=39.907214146999998 other=1.6489999978830383e-06 cpu=38.237606 cpu_other=1.0000000045806701e-06 process_peak_rss=143396864 setup=7.686000000006743e-06 setup_cpu=6.9999999999999999e-06 sensors=0.00024567600000047207 sensors_cpu=0.00024599999999999996 hessian=0.42774028799999986 hessian_cpu=0.39072599999999996 construction=39.479218848000002 construction_cpu=37.846626000000001
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_STAGE stage=metric rank=5 ranks=6 time_iter=0 total=39.909511285999997 other=2.5939999943602743e-06 cpu=37.756077999999995 cpu_other=9.9999999747524271e-07 process_peak_rss=140603392 setup=4.6452000000307692e-05 setup_cpu=4.1999999999999998e-05 sensors=0.001072270999999958 sensors_cpu=0.001073 hessian=0.42929744699999972 hessian_cpu=0.40333999999999998 construction=39.479092522000002 construction_cpu=37.351621999999999
+Sat Nov 28 12:14:44 2026<stdout>:Metric computed in 39.9094 s.
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_TIMER root=metric boundary=final rank=0 phase=metric operation=sensors calls=1 inclusive_call_seconds=0.001039152 exclusive_seconds=0.001039152
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_TIMER root=metric boundary=final rank=0 phase=metric operation=hessian calls=1 inclusive_call_seconds=0.428600382 exclusive_seconds=0.428600382
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_TIMER root=metric boundary=final rank=0 phase=metric operation=target_composition calls=1 inclusive_call_seconds=39.479228567 exclusive_seconds=39.479228567
+Sat Nov 28 12:14:44 2026<stdout>:NATIVE3D_TIMER_SUMMARY root=metric boundary=final rank=0 ranks=6 root_seconds=39.909404375000001 sumexclusive=39.909404375000001 unattributed=0.00053627399999811587 coverage=0.99998656271602149 fixedstorage=4120
+Sat Nov 28 12:14:44 2026<stdout>:
+Sat Nov 28 12:14:44 2026<stdout>:----------------------------- Solver Exit -------------------------------
+Sat Nov 28 12:14:44 2026<stdout>:
+Sat Nov 28 12:14:44 2026<stdout>:Maximum number of iterations reached (ITER = 1) before convergence.
+Sat Nov 28 12:14:44 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:14:44 2026<stdout>:|      Convergence Field     |     Value    |   Criterion  |  Converged |
+Sat Nov 28 12:14:44 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:14:44 2026<stdout>:|                    rms[Rho]|      -5.73544|         < -10|          No|
+Sat Nov 28 12:14:44 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:14:44 2026<stdout>:-------------------------------------------------------------------------
+Sat Nov 28 12:14:44 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:14:44 2026<stdout>:|        File Writing Summary       |              Filename             |
+Sat Nov 28 12:14:44 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:14:44 2026<stdout>:|SU2 binary restart                 |restart_flow_adap_00000.dat        |
+Sat Nov 28 12:14:44 2026<stdout>:|                                   |                     (1011.89 MB/s)|
+Sat Nov 28 12:14:44 2026<stdout>:+-----------------------------------------------------------------------+
+Sat Nov 28 12:14:44 2026<stdout>:Native3D configured working-storage ceiling: 12288 MiB per rank
+Sat Nov 28 12:15:29 2026<stdout>:Native3D curved mobility: protected_edges=674 corners=2 fixed_points=2 curve_points=671 surface_points=23806 setup_work=181938600
+Sat Nov 28 12:15:43 2026<stdout>:NATIVE3D_PARTITION rank=0 parts=6 uniform_routing_weights=0 cells_before=50125 cells_after=48316 metric_before=5367693 metric_after=3598948 geometry_before=13014 geometry_after=124593 geometry_positive_cells=10145 geometry_unit_cells=9148 geometry_maximum_cells=0 geometry_weight_scale=1384.5502133449886 estimate_seconds=1.2403526510003218 original_operations=53466.966159341151 original_geometry_work=10717962.750058493 original_boundary_faces=10246 original_cross_chart_faces=10246 migration_seconds=0.58277879399999222 partition_seconds=0.68002332199999671 moved_cells=139925 edgecut=7535 arcs=1164482 native_bytes=799371060
+Sat Nov 28 12:15:43 2026<stdout>:NATIVE3D_REQUIREMENTS rank=0 hmin=9.9999999999999995e-07 hmax=100 ARmax=1000000 hgrad=1.3 complexity=50000 composition_present=0 mapped=1 entity_geometry=1 curved=1 tolerance=0.0001 policy_present=1 features=674 corners=2 sheets=4 angle=60 height_tolerance=0.10000000000000001 maximum_work=19414976 maximum_seconds=5340.4762723650001 memory_ceiling=12884901888 job_memory_limit=19999490048 wall_rows=
+Sat Nov 28 12:16:17 2026<stdout>:NATIVE3D_SEED_SHORT rank=0 cells=48316 measured=48316 edges=64998 lt_1e_6=0 lt_1e_4=0 lt_1e_2=0 lt_0_1=430 e0_a=13227 e0_b=18991 e0_metric=0.055756646652443078 e0_a_xyz=0.82487041616827084,0.067125520655353502,-0.00055436974872310194 e0_b_xyz=0.82460609660994877,0.067200227631926401,-0.00058968468577736668 e1_a=4549 e1_b=8495 e1_metric=0.056612791078331412 e1_a_xyz=0.82684473769099776,0.074111522384485345,0.0005529178235968153 e1_b_xyz=0.82658113130840649,0.074186027789888725,0.0005881374766348803 e2_a=4550 e2_b=8496 e2_metric=0.057871110721358392 e2_a_xyz=0.82487041616827084,0.067125520655353502,0.00055436974872265818 e2_b_xyz=0.82460609660994877,0.067200227631926401,0.00058968468577736668 e3_a=13226 e3_b=18993 e3_metric=0.058982925790034808 e3_a_xyz=0.82307557842033707,0.060774609992506397,-0.00055568968065568649 e3_b_xyz=0.82281060835693787,0.060849500827087517,-0.00059109152860424227 e4_a=13228 e4_b=18990 e4_metric=0.059514627750830323 e4_a_xyz=0.82684473769099776,0.074111522384485345,-0.00055291782359725896 e4_b_xyz=0.82658113130840649,0.074186027789888725,-0.0005881374766348803
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_LENGTH rank=0 pass=collapse cells=46473 local_edges=62311 short_local_edges=37819 long_local_edges=3592 minimum_length=0.057871110721358392 maximum_length=5.031502461221546 size_hinge_incidence=1237.9039836908279 geometry_bad_cells=457 size_bad_cells=7865 q_measured_cells=0 j_measured_cells=0 construction_stall_handoffs=0 maximum_parallel_split_commits=0 split_accepted=0 collapse_accepted=480 atlas_work=15662380 admitted_peak_bytes=1721321740 elapsed=144.84083065300001
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=preparation operation=unattributed calls=1 inclusive_call_seconds=2.6941088360000003 exclusive_seconds=3.7800000018961555e-07
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=preparation operation=import calls=5626 inclusive_call_seconds=8.0274862160001135 exclusive_seconds=4.3192810510001216
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=preparation operation=mobility_policy calls=3 inclusive_call_seconds=56.397727710000005 exclusive_seconds=18.794075799000005
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=preparation operation=census calls=2 inclusive_call_seconds=62.301497828000002 exclusive_seconds=3.4530237690092207
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=preparation operation=geometry_bound calls=172823 inclusive_call_seconds=27.440279115990901 exclusive_seconds=27.440279115990901
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=preparation operation=geometry_preparation calls=1 inclusive_call_seconds=19.111681837000003 exclusive_seconds=19.111681837000003
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=preparation operation=communication calls=252 inclusive_call_seconds=16.127517733000008 exclusive_seconds=12.439762572000005
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=unattributed calls=1628 inclusive_call_seconds=110.49834250999992 exclusive_seconds=1.2306142639999982
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=import calls=9022 inclusive_call_seconds=0.58788204399999744 exclusive_seconds=0.22303557600000301
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=census calls=1623 inclusive_call_seconds=4.0323603030000124 exclusive_seconds=0.40673002199999952
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=geometry_bound calls=23022 inclusive_call_seconds=39.969058949999308 exclusive_seconds=20.914039195999752
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=candidate calls=4869 inclusive_call_seconds=70.921480518999999 exclusive_seconds=2.7174525050000025
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=scheduling calls=8137 inclusive_call_seconds=3.3865941520000091 exclusive_seconds=0.28880965499999978
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=topology calls=4575 inclusive_call_seconds=18.442793508000076 exclusive_seconds=4.7461828870000149
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=communication calls=333799 inclusive_call_seconds=80.047564184007186 exclusive_seconds=77.42656591000447
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=metric_normalization calls=7507 inclusive_call_seconds=0.2634690969999966 exclusive_seconds=0.1905816519999981
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER root=remesh boundary=length_collapse_exit rank=0 phase=construction operation=clearance calls=1206 inclusive_call_seconds=16.086095151999984 exclusive_seconds=2.3543308429999983
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_TIMER_SUMMARY root=remesh boundary=length_collapse_exit rank=0 ranks=6 root_seconds=204.36747678 sumexclusive=204.36747678000481 unattributed=9.5416443900003483 coverage=0.95331133632250176 fixedstorage=4120
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_STORAGE rank=0 stage=length_collapse_exit authority_plus_memo_bytes=104366104 prepared_reserved_bytes=350902272 facet_live_bytes=103420880 scope_live_bytes=175182776 private_cells_bytes=20819904 selection_bytes=39112256 directory_bytes=58832784 metric_source_bytes=52960272 parameter_bytes=45877440 caller_reservation_bytes=592059732 native_peak_bytes=1721321740
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_STAGE rank=0 stage=length_collapse_exit job_peak_rss_lower=5277532160 phase=construction cells=46473 measured=46473 cache_consistent=1 census_complete=1 shape_complete=0 geometry_complete=1 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=7865 geometry_bad=457 q_debt=0 j_debt=0 size_debt=1237.9039836908279 geometry_debt=4.195891091684763e-05 distinct_facets=13026 distinct_scope_keys=2099 prepared_facet_builds=13026 prepared_facet_mean_bytes=7939.5731613695689 associations=22915 working_faces=45826 face_pieces=0 trace_pieces=674 maximum_ratio_limbs=1 atlas_work=15662380 atlas_bytes=1721321740 global_work=7278 rounds=1627 batch_rounds=0 collapse_corrections=0 collapse_correction_cells=0 collapse_correction_work=0 collapse_correction_seconds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=480 updated_cells=4524 update_seconds=17.810804463999915 surface_measurement_skipped=0 surface_required_handoffs=0 surface_demand_required=0 surface_demand_measured=0 surface_demand_complete=0 surface_geometry_complete=0 seed_cell_classes=38982,9334,0 updated_cell_classes=3087,1437,0 geometry_trials=1190 geometry_rejected=284 guidance_trials=906 guidance_rejected=262 guidance_faces=4168 guidance_early_rejected=262 guidance_seconds=19.515134559000035 collective_calls=114332 collective_seconds=4.5585150160006691 election_calls=227393 election_seconds=68.060029991004669 direct_calls=12481 direct_exceptions=0 direct_work=0 direct_seconds=1.0506497979999947 upper_calls=3957 union_exceptions=0 upper_refusals=1267 upper_work=14060163 upper_refinements=0 upper_deferred_bounds=0 classification_calls=3498 classification_work=5961921 magnitude_calls=459 magnitude_work=8098242 limit_calls=0 limit_work=0 upper_seconds=47.004009063999995 full_calls=0 full_work=0 full_seconds=0 facet_hits=280021 facet_misses=13026 facet_resolutions=1 scope_hits=876 scope_misses=2099 scope_attempts=2099 scope_builds=2099 scope_build_work=2086403 scope_build_seconds=11.744877677999998 support_calls=2809 support_facets=439275 support_seconds=0.59500347099999917 facet_build_work=302504 facet_build_seconds=14.719299281000039 piece_selection_work=740723 piece_selection_seconds=0.34843051700000011 traversal_work=10634511 traversal_seconds=19.803894711999945 selected_pieces=396287 support_pieces=5304433 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_move_contexts=0 smooth_boundary_prepared_trials=0 smooth_boundary_guidance_reused_faces=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=5 prepared_bytes=283850384 prepared_limit=350902272 facet_bytes=103420880 scope_bytes=175182776 facet_entries=13026 scope_entries=737 cache_evictions=1357 cache_evicted_bytes=163629424 memo_direct_hits=2756 memo_direct_misses=9725 memo_union_hits=982 memo_union_misses=2975 memo_stores=12700 memo_evictions=0 memo_evicted_bytes=0 memo_retention_refusals=0 memo_maintenance_work=0 memo_bytes=6682048 memo_limit=50128648 memo_direct_entries=9725 memo_union_entries=2975 length_splits=0 length_collapses=480 split_passes=0 collapse_passes=1 quality_stages=0 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=1690 unique_long_interior=41141 unique_edge_debt=11461.310007848166 maximum_edge=9.9991926984373656 edge_census_round=1627 edge_census_current=1 edge_histogram=332118,40098,2733 child_parent_max=0 child_ratio_measured=0 elapsed=144.849361542
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_PHASE_OWNERSHIP rank=0 quality=0 evaluate=1 migrate=1 predicted_imbalance=2.4708100704510696 predicted_gain=34075947.515524618 predicted_cost=293202 demand_sum=768840.43955388432 global_cells=293202 measured=328400 attempts=6742 uncertainty_factor=2
+Sat Nov 28 12:18:08 2026<stdout>:NATIVE3D_OWNERSHIP_MEMORY rank=0 boundary=before current_rss=901926912 process_peak_rss=900526080 max_exchange_work_bytes=1692849788 bytes_sent=125210184 pending_bytes=0 outgoing_bytes=0 record_bytes=0
+Sat Nov 28 12:18:14 2026<stdout>:NATIVE3D_OWNERSHIP_MEMORY rank=0 boundary=staged current_rss=1043050496 process_peak_rss=1285226496 max_exchange_work_bytes=2244161524 bytes_sent=321591488 pending_bytes=315608520 outgoing_bytes=35782800 record_bytes=27733680
+Sat Nov 28 12:18:14 2026<stdout>:NATIVE3D_STORAGE rank=0 stage=ownership_staged authority_plus_memo_bytes=104366104 prepared_reserved_bytes=350902272 facet_live_bytes=103420880 scope_live_bytes=175182776 private_cells_bytes=20819904 selection_bytes=39048120 directory_bytes=58647864 metric_source_bytes=52960272 parameter_bytes=45877440 caller_reservation_bytes=592059732 native_peak_bytes=2223952188
+Sat Nov 28 12:18:14 2026<stdout>:NATIVE3D_STAGE rank=0 stage=ownership_staged job_peak_rss_lower=7975071744 phase=construction cells=46473 measured=46473 cache_consistent=1 census_complete=1 shape_complete=0 geometry_complete=1 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=7865 geometry_bad=457 q_debt=0 j_debt=0 size_debt=1237.9039836908279 geometry_debt=4.195891091684763e-05 distinct_facets=13026 distinct_scope_keys=2099 prepared_facet_builds=13026 prepared_facet_mean_bytes=7939.5731613695689 associations=22915 working_faces=45826 face_pieces=0 trace_pieces=674 maximum_ratio_limbs=1 atlas_work=15662380 atlas_bytes=1721321740 global_work=7278 rounds=1627 batch_rounds=0 collapse_corrections=0 collapse_correction_cells=0 collapse_correction_work=0 collapse_correction_seconds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=480 updated_cells=4524 update_seconds=17.810804463999915 surface_measurement_skipped=0 surface_required_handoffs=0 surface_demand_required=0 surface_demand_measured=0 surface_demand_complete=0 surface_geometry_complete=0 seed_cell_classes=38982,9334,0 updated_cell_classes=3087,1437,0 geometry_trials=1190 geometry_rejected=284 guidance_trials=906 guidance_rejected=262 guidance_faces=4168 guidance_early_rejected=262 guidance_seconds=19.515134559000035 collective_calls=114372 collective_seconds=5.4445102720005849 election_calls=227486 election_seconds=68.553970435004842 direct_calls=12481 direct_exceptions=0 direct_work=0 direct_seconds=1.0506497979999947 upper_calls=3957 union_exceptions=0 upper_refusals=1267 upper_work=14060163 upper_refinements=0 upper_deferred_bounds=0 classification_calls=3498 classification_work=5961921 magnitude_calls=459 magnitude_work=8098242 limit_calls=0 limit_work=0 upper_seconds=47.004009063999995 full_calls=0 full_work=0 full_seconds=0 facet_hits=280021 facet_misses=13026 facet_resolutions=1 scope_hits=876 scope_misses=2099 scope_attempts=2099 scope_builds=2099 scope_build_work=2086403 scope_build_seconds=11.744877677999998 support_calls=2809 support_facets=439275 support_seconds=0.59500347099999917 facet_build_work=302504 facet_build_seconds=14.719299281000039 piece_selection_work=740723 piece_selection_seconds=0.34843051700000011 traversal_work=10634511 traversal_seconds=19.803894711999945 selected_pieces=396287 support_pieces=5304433 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_move_contexts=0 smooth_boundary_prepared_trials=0 smooth_boundary_guidance_reused_faces=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=5 prepared_bytes=283850384 prepared_limit=350902272 facet_bytes=103420880 scope_bytes=175182776 facet_entries=13026 scope_entries=737 cache_evictions=1357 cache_evicted_bytes=163629424 memo_direct_hits=2756 memo_direct_misses=9725 memo_union_hits=982 memo_union_misses=2975 memo_stores=12700 memo_evictions=0 memo_evicted_bytes=0 memo_retention_refusals=0 memo_maintenance_work=0 memo_bytes=6682048 memo_limit=50128648 memo_direct_entries=9725 memo_union_entries=2975 length_splits=0 length_collapses=480 split_passes=0 collapse_passes=1 quality_stages=0 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_bouSat Nov 28 12:18:14 2026<stdout>:ndary_discoveries=0 unique_long_surface=1690 unique_long_interior=41141 unique_edge_debt=11461.310007848166 maximum_edge=9.9991926984373656 edge_census_round=1627 edge_census_current=1 edge_histogram=332118,40098,2733 child_parent_max=0 child_ratio_measured=0 elapsed=150.500343921
+Sat Nov 28 12:18:14 2026<stdout>:NATIVE3D_PHASE_OWNERSHIP rank=0 quality=0 committed=1 moved_cells=131040 total_seconds=5.6491486609999981 partition_seconds=1.5627079950000109 directory_build_seconds=1.1440268600000001 work_before=682579 work_after=1237293 geometry_before=114919 geometry_after=78664 quality_debt_weight_before=0 quality_debt_weight_after=0 directory_peak_bytes=2223952188 cells=44445 transition_peak_bytes=2223952188
+Sat Nov 28 12:18:14 2026<stdout>:NATIVE3D_OWNERSHIP_MEMORY rank=0 boundary=committed current_rss=1043050496 process_peak_rss=1285226496 max_exchange_work_bytes=2244161524 bytes_sent=321591488 pending_bytes=315608520 outgoing_bytes=35782800 record_bytes=27733680

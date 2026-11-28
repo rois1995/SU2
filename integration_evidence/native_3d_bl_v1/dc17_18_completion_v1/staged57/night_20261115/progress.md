@@ -2890,3 +2890,5 @@ TOL1 build686 focused checks passed. Nine TOL1 cases with 497 assertions, four D
 TOL1 fixture checkpoint 745b6360e6 pushed. The sole scoped standing supervisor su2-tol1-scoped686 started at 11:59:14 CET; G1 serial launched at 11:59:28 after actual host preflight. No owned heavy process was active, with an unrelated Lean process observed. Observe incremental receipts and stop the gated sequence on the first failed result.
 
 TOL1 build686 G1 passed in serial, MPI2 and MPI4 with 375 / 114 / 228 matching records. The scalar G2 prefix is running under the same scoped supervisor.
+
+TOL1 G1 checkpoint 95376deb42 pushed. Scalar G2 passed exact decisions, integer rows, modeled work/storage and required timer comparisons under the sealed legacy configuration. The prefix controller elapsed 280.278 s. GQ is running under the same supervisor.
