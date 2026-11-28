@@ -368,7 +368,8 @@ struct EngineRun {
     if (options.timings)
       phase_scope.emplace(phase == Phase::Improvement ? SU2NativeTiming3D::Phase::Quality
                           : surface_target            ? SU2NativeTiming3D::Phase::Surface
-                                                      : SU2NativeTiming3D::Phase::Construction);
+                                                      : SU2NativeTiming3D::Phase::Construction,
+                          SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
     if (auto prepared = RoundHead::SurfacePreparedExit(context, setup_finish)) return Done(std::move(*prepared));
     ContextValue timed_lane_lifetime(
         round_state.timed_lane,
@@ -622,6 +623,8 @@ struct EngineRun {
 
   // Visits each slot and joins the repair batch after every slot has unwound.
   RoundDecision RunSlots(RoundState& round_state, RoundAcquisition& acquisition) {
+    auto* certificates = geometry_certificates::active;
+    if (certificates) certificates->trial.clear();
     auto& repairing = *context.control.repairing;
     auto& batch_bytes = *context.control.batch_bytes;
     std::vector<Choice>& choices = *round_state.choices;
@@ -634,7 +637,9 @@ struct EngineRun {
     }
     if (repairing) {
       RepairBatchCommit batch_commit(context, round_state, atlas_budget, curved, diagnostic_rejection_limit);
-      if (!batch_commit.Run()) return Done(std::move(*batch_commit.finished));
+      const bool committed = batch_commit.Run();
+      if (certificates) certificates->trial.clear();
+      if (!committed) return Done(std::move(*batch_commit.finished));
     }
     round_state.token_base =
         transfer_memory::Add(round_state.token_base, transfer_memory::Mul(context.world.size, round_state.batch));
@@ -871,9 +876,18 @@ struct EngineRun {
     auto boundary_replacement_ready = [&] { return BoundaryReplacementReady(slot_state); };
     CandidateTrial candidate_trial(context, round_state, slot_state, trial_comm, trial_checks, reserve_dependencies,
                                    boundary_replacement_ready, observe_transaction, wall_choice, curved);
-    if (*context.control.repairing)
-      return EvaluatePrivateTrial(round_state, slot_state, candidate_trial, boundary_replacement_ready);
-    return EvaluateCollectiveSlot(round_state, slot_state, candidate_trial, reserve_dependencies, observe_transaction);
+    auto* certificates = geometry_certificates::active;
+    if (*context.control.repairing) {
+      const size_t prior = certificates ? certificates->trial.size() : 0;
+      const auto decision = EvaluatePrivateTrial(round_state, slot_state, candidate_trial, boundary_replacement_ready);
+      if (certificates && (decision != RoundDecision::Proceed || !*slot_state.approved))
+        certificates->trial.resize(prior);
+      return decision;
+    }
+    const auto decision =
+        EvaluateCollectiveSlot(round_state, slot_state, candidate_trial, reserve_dependencies, observe_transaction);
+    if (certificates) certificates->trial.clear();
+    return decision;
   }
 
   // Runs the private candidate and publishes its proposal without a collective slot commit.

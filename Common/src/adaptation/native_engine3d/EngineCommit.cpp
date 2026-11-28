@@ -4,6 +4,53 @@
 EngineCommit::EngineCommit() = default;
 EngineCommit::~EngineCommit() = default;
 
+namespace commit_cert = geometry_certificates;
+
+// The exported patch stores the actual cell coordinates and its forward bindings.
+std::optional<commit_cert::Key> CommitFaceKey(const BoundaryParameterState& state, const SurfaceFace& face,
+                                             const BoundaryPoints* patch_points) {
+  std::array<commit_cert::Binding, 3> bindings;
+  std::array<Point, 3> points;
+  for (size_t i = 0; i < face.v.size(); ++i) {
+    const BoundaryPoint* point;
+    if (patch_points) {
+      const auto found = patch_points->find(face.v[i]);
+      point = found == patch_points->end() ? nullptr : &found->second;
+    } else {
+      point = state.Find(face.v[i]);
+    }
+    if (!point) return std::nullopt;
+    points[i] = point->node.p;
+    bindings[i] = point->binding;
+  }
+  return commit_cert::FaceKey(state, face.facet, bindings, points);
+}
+
+// Retain only whole-face bounds of changed physical faces that survived publication.
+void RetainCommitCertificates(commit_cert::Event& certificates, const BoundaryParameterState& state,
+                              const Patch& old, const Patch& fresh, const commit_cert::Budget& budget) {
+  for (const auto& face : fresh.surface) {
+    const auto candidate = CommitFaceKey(state, face, &fresh.parameters);
+    if (!candidate || certificates.Find(*candidate)) continue;
+    const auto found = std::lower_bound(
+        certificates.trial.begin(), certificates.trial.end(), *candidate,
+        [](const commit_cert::Record& row, const commit_cert::Key& key) { return row.key < key; });
+    if (found == certificates.trial.end() || !(found->key == *candidate)) continue;
+    const auto published = state.Surface().find(Key(face.v));
+    if (published == state.Surface().end() || !(CommitFaceKey(state, published->second, nullptr) == candidate))
+      continue;
+    if (std::any_of(old.surface.begin(), old.surface.end(), [&](const SurfaceFace& previous) {
+          return previous.facet == face.facet && CommitFaceKey(state, previous, &old.parameters) == candidate;
+        }))
+      continue;
+    const auto live = transfer_memory::Add(budget.caller_bytes, certificates.Bytes() - certificates.atlas_charged_bytes);
+    auto& records = certificates.committed;
+    const auto index = std::lower_bound(records.begin(), records.end(), *found, commit_cert::ByKey) - records.begin();
+    certificates.Push(records, *found, live, budget.maximum_bytes);
+    std::rotate(records.begin() + index, records.end() - 1, records.end());
+  }
+}
+
 // Batch-only routing buffers are active from routing preparation through publication and census update.
 struct RepairBatchRoutes {
   std::vector<std::vector<Dependency>> removals;
@@ -664,6 +711,13 @@ bool RepairBatchCommit::UpdateSelection(CLocalFailure& failure, RepairBatchChang
     UpdateRows(changes);
     CountPublishedRepairs();
     stats.maximum_owned = std::max(stats.maximum_owned, working.size());
+    if (auto* certificates = commit_cert::active; certificates && !certificates->trial.empty()) {
+      commit_cert::SortProof(certificates->trial);
+      for (const auto& proposal : *round_state.repair_proposals)
+        if (proposal.approved)
+          RetainCommitCertificates(*certificates, *context.geometry.Parameters(), proposal.old, proposal.fresh,
+                                   atlas_budget);
+    }
   } catch (const std::exception& e) {
     failure.Set(2, 0, e.what());
   }
@@ -1422,6 +1476,12 @@ bool SlotCommit::UpdateSelection() {
         ApplyChangedRows();
         RecordAcceptedSlot();
         RecordSplitRatio();
+        if (auto* certificates = commit_cert::active;
+            certificates && *slot_state.approved && !certificates->trial.empty()) {
+          commit_cert::SortProof(certificates->trial);
+          RetainCommitCertificates(*certificates, *context.geometry.Parameters(), *slot_state.old,
+                                   *slot_state.fresh, atlas_budget);
+        }
       } catch (const std::exception& e) {
         failure.Set(2, 0, e.what());
       }

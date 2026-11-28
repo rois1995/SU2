@@ -11,6 +11,10 @@
 #include "CNativeEngine3D.hpp"
 #include "CComplexityNormalization.hpp"
 #include <utility>
+namespace SU2Native3D::geometry_certificates {
+struct Owner;
+}
+
 namespace SU2Native3D {
 /*! Shared configured/automatic storage policy for remeshing and reference persistence. */
 size_t NativeMemoryCeiling(const CConfig&,const CGeometry&,size_t base,bool print,SU2_Comm comm);
@@ -108,5 +112,6 @@ class CNativeRemesher3D final : public CRemesher {
   NormalizationFactory normalizationFactory;
   ConstructionFactory construction;
   std::function<void()> constructionAccepted;
+  std::shared_ptr<SU2Native3D::geometry_certificates::Owner> geometryCertificates;
   SU2Native3D::RemeshStats stats;
 };

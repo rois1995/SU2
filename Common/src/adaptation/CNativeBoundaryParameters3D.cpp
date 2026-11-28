@@ -7,6 +7,7 @@
 #include "../../include/adaptation/CNativeDistributed2D.hpp"
 #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../include/adaptation/CNativeGeometryBackend3D.hpp"
+#include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
 #include "../../include/adaptation/CNativeCurvedReference.hpp"
 #include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
@@ -545,6 +546,20 @@ std::vector<double> BoundaryParameterState::OwnedFaceReverseBounds(const std::ve
       &budget,
       transfer_memory::Add(budget.caller_bytes, transfer_memory::Mul(geometry->Reference().Facets().size(), 256)),
       budget.maximum_bytes);
+  namespace cert = ::SU2Native3D::geometry_certificates;
+  auto* certificates = cert::active;
+  if (certificates && (!certificates->eligible || !certificates->SameStage(*this) || geometry->ReferenceComponents()))
+    certificates = nullptr;
+  std::optional<AtlasStorage> certificate_storage;
+  if (certificates) {
+    const auto old_bytes = transfer_memory::Bytes(certificates->proof);
+    const auto count = transfer_memory::Add(certificates->proof.size(), owned_faces.size());
+    const auto live = transfer_memory::Add(budget.caller_bytes,
+        certificates->Bytes() - certificates->atlas_charged_bytes);
+    certificates->Reserve(certificates->proof, count, live, budget.maximum_bytes);
+    const auto growth = transfer_memory::Bytes(certificates->proof) - old_bytes;
+    certificate_storage.emplace(&budget, transfer_memory::Add(live, growth), budget.maximum_bytes);
+  }
   std::map<EntityKey, double> bounds;
   for (const auto& row : geometry->Reference().Facets()) bounds.emplace(Entity(row.first), 0);
   for (const auto& owned : owned_faces) {
@@ -562,6 +577,11 @@ std::vector<double> BoundaryParameterState::OwnedFaceReverseBounds(const std::ve
       bindings[k] = point.binding;
     }
     const double bound = EntityFaceError(face.facet, bindings, points, &budget, SurfaceQueryNeed::Magnitude());
+    if (certificates && cert::Qualified(bound, geometry_tolerance)) {
+      const auto key = cert::FaceKey(*this, face.facet, bindings, points);
+      const auto* first = certificates->Find(key);
+      certificates->proof.push_back({key, first ? first->origin : cert::Origin::Proof});
+    }
     reverse = std::isfinite(bound) && bound >= 0 ? std::max(reverse, bound) : INFINITY;
   }
   std::vector<double> result;
@@ -1788,7 +1808,51 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p,Sur
   double maximum=0;const auto& g=parameter_view->accepted->Geometry();std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
   for(unsigned k=0;k<3;++k){const auto b=Parameter(p[k]);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");binding[k]=b->binding;
     const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
-  if(EntityGeometry())return parameter_view->accepted->EntityFaceError(facet,binding,p,parameter_view->reservation,need,maximum);
+  if (EntityGeometry()) {
+    namespace cert = ::SU2Native3D::geometry_certificates;
+    const auto& state = *parameter_view->accepted;
+    auto* budget = parameter_view->reservation;
+    auto* certificates = cert::active;
+    const auto legacy = [&] { return state.EntityFaceError(facet, binding, p, budget, need, maximum); };
+    if (!certificates || !certificates->eligible) return legacy();
+    if (cert::reader_tolerance) {
+      const double tolerance = *cert::reader_tolerance;
+      const auto key = cert::FaceKey(state, facet, binding, p);
+      const auto* hit = certificates->SameStage(state) && cert::Bits(tolerance) == key.face[5]
+          ? certificates->Find(key) : nullptr;
+      const bool may_skip = hit && std::isfinite(maximum) && maximum <= tolerance;
+      if (certificates->timings) {
+        ++certificates->counts.calls;
+        if (hit) {
+          ++certificates->counts.hit;
+          ++certificates->counts.origins.at(size_t(hit->origin));
+        } else {
+          ++certificates->counts.miss;
+        }
+      }
+      if (may_skip && certificates->probe == 0) {
+        if (budget) budget->CheckTime();
+        return maximum;
+      }
+      const bool time_skip = may_skip && certificates->timings;
+      const auto start = time_skip ? cert::Clock::now() : cert::Clock::time_point{};
+      const auto value = legacy();
+      if (time_skip) {
+        certificates->counts.skip_seconds += std::chrono::duration<double>(cert::Clock::now() - start).count();
+        ++certificates->counts.skips;
+      }
+      if (hit && certificates->probe == 6 && certificates->timings && !(std::isfinite(value) && value <= tolerance))
+        certificates->Disagree(key, value, hit->origin);
+      return value;
+    }
+    const auto value = legacy();
+    if (cert::collect_commit && budget && certificates->SameStage(state) &&
+        cert::Qualified(value, state.GeometryTolerance()))
+      certificates->Push(certificates->trial, {cert::FaceKey(state, facet, binding, p), cert::Origin::Commit},
+                         transfer_memory::Add(budget->caller_bytes, certificates->Bytes() - certificates->atlas_charged_bytes),
+                         budget->maximum_bytes);
+    return value;
+  }
   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return std::max(maximum,g.SurfaceError(facet,binding,p));
   SurfaceFace face;face.facet=facet;bool transient=false;
   for(unsigned k=0;k<3;++k){const auto* point=Parameter(p[k]);face.v[k]=point->node.id;

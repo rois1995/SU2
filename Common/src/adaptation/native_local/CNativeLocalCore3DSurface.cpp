@@ -6,6 +6,7 @@
  */
 #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
 #include "../../../include/adaptation/CNativeLocalContact3D.hpp"
+#include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -972,6 +973,9 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
   // The distance step has released its tables. Reuse the surface reservation for
   // the edge list, candidate/refusal tables and the temporary collapse plans.
   const auto begin = ReportClock(stats.report);
+  if (auto* event = SU2Native3D::geometry_certificates::active)
+    event->core_live_extra = transfer_memory::Add(ArrayBytes(cells_.capacity()),
+                                                 SurfaceArrayBytes(cells_.capacity(), false));
   std::optional<LocalContactIndex> index;
   std::optional<ContactContext> contact;
   if (options_.outward_collapses) {

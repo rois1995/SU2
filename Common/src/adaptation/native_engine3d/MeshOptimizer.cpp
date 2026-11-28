@@ -1450,6 +1450,7 @@ MeshOptimizer::BoundaryDecision MeshOptimizer::BoundaryGuidance(BoundarySmoothSe
   ++report.boundary_guidance_calls;
   if (SU2NativeD9::ObservingUnion()) ++d9_chain.checked;
   const auto guidance = SU2NativeD9::Measure(SU2NativeD9::Work::Guidance, [&] {
+    commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
     return GuidanceOf(SU2NativeD9::Part::SmoothCandidate, candidate, candidate_geometry, options.surface_tolerance,
                       geometric_before, guidance_memo_ready ? &guidance_memo : nullptr);
   });
@@ -2527,6 +2528,7 @@ bool MeshOptimizer::ShellBoundary(Id id) {
     const auto key = Key(face.v);
     if (!physical.count(key) && options.surface_tolerance > 0) {
       const std::array<Point, 3> p{points.at(face.v[0]), points.at(face.v[1]), points.at(face.v[2])};
+      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
       if (!(proposed.SurfaceDeviation(face.facet, p, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true) <=
             options.surface_tolerance)) {
         strict_geometry = false;
@@ -2541,7 +2543,10 @@ bool MeshOptimizer::ShellBoundary(Id id) {
     }
     // As for boundary smoothing, a useful intermediate may retain non-increasing geometry debt.
     const auto before = GeometryGuidanceExcess(old, geometry, options.surface_tolerance);
-    const auto after = GeometryGuidanceExcess(fresh, proposed, options.surface_tolerance, before.excess);
+    const auto after = [&] {
+      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
+      return GeometryGuidanceExcess(fresh, proposed, options.surface_tolerance, before.excess);
+    }();
     if (!before.complete || !after.complete || !std::isfinite(after.excess) || after.excess > before.excess) {
       ++report.rejected_interface;
       return false;
@@ -2902,8 +2907,10 @@ bool MeshOptimizer::CertifyCoupledBoundary(const std::vector<Id>& all_ids, const
   auto final_context = geometry.PrivateParameters(candidate);
   if (!final_context) return false;
   const auto old_geometry = GeometryGuidanceExcess(original, geometry, options.surface_tolerance);
-  const auto new_geometry =
-      GeometryGuidanceExcess(candidate, *final_context, options.surface_tolerance, old_geometry.excess);
+  const auto new_geometry = [&] {
+    commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
+    return GeometryGuidanceExcess(candidate, *final_context, options.surface_tolerance, old_geometry.excess);
+  }();
   if (!old_geometry.complete || !new_geometry.complete || !std::isfinite(new_geometry.excess) ||
       new_geometry.excess > old_geometry.excess) {
     ++report.rejected_interface;

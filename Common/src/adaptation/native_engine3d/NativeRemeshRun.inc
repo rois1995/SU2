@@ -5,6 +5,7 @@
 
 // Remesh owns the timer and public transaction. These stages borrow its controls and live inputs.
 namespace {
+namespace cert = SU2Native3D::geometry_certificates;
 struct Publication {
   ReferenceState state;
   bool published = false;
@@ -67,9 +68,24 @@ struct RemeshRun {
   double& now;
   std::chrono::steady_clock::time_point deadline_start;
   const char* caller;
+  std::shared_ptr<cert::Owner>& certificate_owner;
+  cert::Event* certificates;
+  bool surface_mode;
+  int probe;
+  std::optional<SU2_Comm> certificate_comm{};
   std::string reason{};
   SU2NativeGeometry::AtlasBudget target_event_budget{};
   bool reset_need_at_start = false;
+
+  size_t CertificateBytes() const { return certificates ? certificates->Bytes() : 0; }
+
+  void ReleaseCertificateComm() {
+    if (!certificate_comm) return;
+#ifdef HAVE_MPI
+    MPI_Comm_free(&*certificate_comm);
+#endif
+    certificate_comm.reset();
+  }
 
   // Agrees the remaining parent-event time from the original deadline origin.
   double RemainingTime() {
@@ -123,7 +139,7 @@ struct RemeshRun {
   // Accounts for the shared authority once while both reference states remain live.
   size_t Held(const ReferencePreparation& preparation) {
     return transfer_memory::Add(preparation.retained, ReferenceStorageBytes(preparation.pending->state),
-                                PartitionBytes());
+                                PartitionBytes(), CertificateBytes());
   }
 
   // Reads the same frozen deadline for the local geometry and metric queries.
@@ -141,6 +157,7 @@ struct RemeshRun {
     }
 
     TryRemesh();
+    ReleaseCertificateComm();
     Finalize();
     ReportRemesh(config, control, parent, stats, reason, target_event_budget);
   }
@@ -176,6 +193,11 @@ struct RemeshRun {
                   CPassiveComm::Allreduce(int(bool(normalizationFactory)), CPassiveComm::Op::MAX, parent.comm);
     if (normalizer_low != normalizer_high) failure.Set(1, 0, "Native3D normalization factory differs across ranks.");
     CollectiveFailure(failure, caller);
+    if (surface_mode) {
+      const int probe_lo = CPassiveComm::Allreduce(probe, CPassiveComm::Op::MIN, parent.comm),
+                probe_hi = CPassiveComm::Allreduce(probe, CPassiveComm::Op::MAX, parent.comm);
+      if (!Vote(probe_lo == probe_hi, "Native3D surface probes differ across ranks.")) return;
+    }
     const int bl_low = CPassiveComm::Allreduce(int(config.GetnAdap_BL()), CPassiveComm::Op::MIN, parent.comm),
               bl_high = CPassiveComm::Allreduce(int(config.GetnAdap_BL()), CPassiveComm::Op::MAX, parent.comm);
     if (!Vote(bl_low == bl_high, "Native3D geometric policy differs across CFD ranks.")) return;
@@ -186,7 +208,7 @@ struct RemeshRun {
   void PrepareReference(CLocalFailure& failure) {
     // Admit retained/publication state first; sidecar loading admits its actual byte and construction demand.
     const size_t reference_setup = transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference),
-                                                        ReferenceStorageBytes(*reference, false));
+                                                        ReferenceStorageBytes(*reference, false), CertificateBytes());
     if (!Admit(reference_setup)) {
       Phase(1);
       return;
@@ -220,7 +242,8 @@ struct RemeshRun {
     size_t retained = transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference, false));
     ReferencePreparation preparation{failure, pending, retained};
     try {
-      PrepareMobility(config, pending->state, control.memory_ceiling, retained);
+      PrepareMobility(config, pending->state, control.memory_ceiling,
+                      transfer_memory::Add(retained, CertificateBytes()));
     } catch (const std::exception& e) {
       failure.Set(2, 0, e.what());
     }
@@ -252,7 +275,7 @@ struct RemeshRun {
     const auto base_caller = control.caller_bytes;
     ImportedGeometry imported;
     bool ready = ImportGeometry(config, geometry, &sensor, pending->state, imported, reason, stats.imported,
-                                control.memory_ceiling, retained);
+                                control.memory_ceiling, transfer_memory::Add(retained, CertificateBytes()));
     if (!reset_need_at_start && pending->state.original && pending->state.original->Parameters())
       pending->state.original->Parameters()->Geometry().ResetGeometryNeedStats();
     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, stats.imported.maximum_native_bytes);
@@ -261,7 +284,8 @@ struct RemeshRun {
     try {
       PrepareMobility(
           config, pending->state, control.memory_ceiling,
-          transfer_memory::Add(retained, OwnedStorageBytes(imported.cells), transfer_memory::Bytes(imported.original)));
+          transfer_memory::Add(retained, OwnedStorageBytes(imported.cells), transfer_memory::Bytes(imported.original),
+                               CertificateBytes()));
     } catch (const std::exception& e) {
       failure.Set(2, 0, e.what());
     }
@@ -561,6 +585,13 @@ struct RemeshRun {
                 << " migration_seconds=" << p.migration_seconds << " partition_seconds=" << p.partition_seconds
                 << " moved_cells=" << p.moved_cells << " edgecut=" << p.edgecut << " arcs=" << p.graph_arcs
                 << " native_bytes=" << p.maximum_native_bytes << std::endl;
+      if (certificates && control.timings) {
+        SU2NativeTiming3D::Scope output(SU2NativeTiming3D::Operation::Output);
+        uint64_t digest = 14695981039346656037ULL;
+        for (const auto destination : p.destinations) cert::AddDigestWord(digest, destination);
+        std::cout << "NATIVE3D_CERTIFICATE_PARTITION rank=" << r << " site=initial cells="
+                  << p.destinations.size() << " assignments_digest=" << digest << '\n';
+      }
     }
   }
 
@@ -570,6 +601,12 @@ struct RemeshRun {
     auto& normalizer = input.normalizer;
     auto& ready = mesh.ready;
     for (unsigned stage = 0; ready && stage < 2; ++stage) {
+      if (certificates && stage) {
+        SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::Transfer);
+        SU2NativeTiming3D::Scope transfer(SU2NativeTiming3D::Operation::Import);
+        ReleaseCertificateComm();
+        certificates->DiscardStage();
+      }
       ++stats.normalization_stages;
       stats.construction_stats = {};
       stats.refine = {};
@@ -667,7 +704,12 @@ struct RemeshRun {
     }
     now = parent.seconds();
 #ifdef HAVE_MPI
-    if (comm != MPI_COMM_NULL) MPI_Comm_free(&comm);
+    if (comm != MPI_COMM_NULL) {
+      if (certificates && certificates->eligible) certificate_comm = comm;
+      else MPI_Comm_free(&comm);
+    }
+#else
+    if (certificates && certificates->eligible) certificate_comm = comm;
 #endif
   }
 
@@ -709,9 +751,41 @@ struct RemeshRun {
           eligibility = workers.maximum(local);
         }
         if (eligibility < 2) {
-          const auto outcome = RunLocalCore(mesh, trial, preparation, surface_requested && eligibility == 0);
+          const bool enable_surface = surface_requested && eligibility == 0;
+          auto* stage_certificates = enable_surface ? certificates : nullptr;
+          if (stage_certificates) {
+            CLocalFailure failure;
+            try {
+              const auto& state = *preparation.pending->state.original->Parameters();
+              stage_certificates->StartStage(
+                  state, stats.normalization_stages - 1,
+                  transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(mesh.working)), kernel.memory_ceiling);
+            } catch (const std::exception& error) {
+              failure.Set(3, 0, error.what());
+            }
+            if (const auto elected = workers.elect(failure); elected.any) throw elected;
+            kernel.caller_bytes = transfer_memory::Add(Held(preparation), transfer_memory::Bytes(imported.original),
+                worker_source == &imported.original ? 0 : transfer_memory::Bytes(*worker_source));
+          }
+          cert::ScopedValue<cert::Event*> bind_certificates(cert::active, stage_certificates);
+          const auto outcome = RunLocalCore(mesh, trial, preparation, enable_surface);
           kernel.close_construction_collapse = outcome.step_c_completed &&
               SU2NativeLocal3D::FP3Probe() != SU2NativeLocal3D::CollapseProbe::Engine;
+          if (stage_certificates) {
+            SU2NativeTiming3D::Scope topology(SU2NativeTiming3D::Operation::Topology);
+            stage_certificates->FinishCore(kernel.close_construction_collapse);
+            if (stage_certificates->eligible) {
+              CLocalFailure failure;
+              try {
+                stage_certificates->CheckStage(*preparation.pending->state.original->Parameters(),
+                    transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(mesh.working)),
+                    kernel.memory_ceiling);
+              } catch (const std::exception& error) {
+                failure.Set(3, 0, error.what());
+              }
+              if (const auto elected = workers.elect(failure); elected.any) throw elected;
+            }
+          }
           if (outcome.installed_surface)
             kernel.caller_bytes = transfer_memory::Add(
                 Held(preparation), transfer_memory::Bytes(imported.original),
@@ -731,6 +805,8 @@ struct RemeshRun {
           detail = "Native3D deadline exhausted preparing current stage metrics.";
         }
       }
+      cert::ScopedValue<cert::Event*> bind_engine(cert::active,
+          certificates && certificates->eligible ? certificates : nullptr);
       if (valid) ApplyMetric(preparation, input, mesh, trial);
     } catch (const CElectedFailure& e) {
       valid = false;
@@ -962,7 +1038,7 @@ struct RemeshRun {
     SU2NativeTiming3D::Scope topology(SU2NativeTiming3D::Operation::Topology);
     auto& workers = trial.workers;
     auto& working = mesh.working;
-    const auto& kernel = trial.kernel;
+    auto& kernel = trial.kernel;
     const auto surface = enable_surface ? BeginLocalSurface(preparation, working, trial) : nullptr;
     if (control.timings && config.GetAdap_Native_Local_Surface() && !surface)
       std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << workers.rank << " applicable=0" << std::endl;
@@ -1063,6 +1139,9 @@ struct RemeshRun {
         }
         if (surface) {
           const auto geometry_caller = options.outward_collapses ? held : kernel.caller_bytes;
+          if (auto* active = cert::active) {
+            active->core_charged_bytes = transfer_memory::Bytes(active->core);
+          }
           surface->SetCallerBytes(transfer_memory::Add(geometry_caller, OwnedStorageBytes(working),
                                                       contact_bytes, screen_bytes));
           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get(),
@@ -1070,6 +1149,12 @@ struct RemeshRun {
           if (report && pass == passes && core::FP3Probe() == core::CollapseProbe::Core)
             pass_mesh.ReportHandoverSurface(*surface, workers.rank, stage);
           remote.reset();
+          if (cert::active) {
+            const auto charged = transfer_memory::Bytes(cert::active->core);
+            kernel.caller_bytes = transfer_memory::Add(
+                kernel.caller_bytes, charged - cert::active->core_charged_bytes);
+            cert::active->core_charged_bytes = charged;
+          }
           if (options.outward_collapses)
             surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
         } else {
@@ -1314,6 +1399,8 @@ struct RemeshRun {
     const auto refine_begin = workers.seconds();
     if (kernel.shared_geometry_budget) kernel.memory_ceiling = target_event_budget.maximum_bytes;
     kernel.report_rejected_neighborhood = true;
+    if (cert::active)
+      cert::active->engine_charged_bytes = cert::active->atlas_charged_bytes = cert::active->Bytes();
     auto refined = AdaptMetric(workers, working, stage_source, *pending->state.original, composition, kernel);
     stats.refine = refined.stats;
     valid = refined.valid;
@@ -1543,6 +1630,31 @@ struct RemeshRun {
     auto& ready = mesh.ready;
     auto& working = mesh.working;
     auto& migrated = mesh.migrated;
+    if (certificates && ready) {
+      SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::FinalProof);
+      CLocalFailure failure;
+      if (certificate_comm) {
+        World workers(*certificate_comm);
+        const auto live = transfer_memory::Add(Held(preparation), OwnedStorageBytes(working),
+            transfer_memory::Bytes(imported.original), transfer_memory::Bytes(migrated),
+            return_source ? return_source->ResidentBytes() : 0);
+        const auto gather_reason = certificates->Gather(workers, *pending->state.original->Parameters(),
+                                                        live, control.memory_ceiling);
+        if (!gather_reason.empty()) failure.Set(3, 0, gather_reason);
+        else {
+          try {
+            if (!certificate_owner) certificate_owner = std::make_shared<cert::Owner>();
+          } catch (const std::exception& error) {
+            failure.Set(3, 0, error.what());
+          }
+        }
+      }
+      if (const auto elected = parent.elect(failure); elected.any) {
+        ready = false;
+        reason = elected.message;
+      }
+    }
+    ReleaseCertificateComm();
     // Nominal complexity overshoot is diagnostic; physical and resource gates still govern publication.
     if (ready && stats.complexity.estimated &&
         stats.complexity.value - stats.complexity.uncertainty > SU2_TYPE::GetValue(config.GetAdap_Complexity())) {
@@ -1581,7 +1693,8 @@ struct RemeshRun {
       result.status = CRemeshResult::Status::COMPLETE;
       result.reference_io_caller_bytes =
           transfer_memory::Add(control.caller_bytes, ReferenceStorageBytes(*reference), result.slices.ResidentBytes(),
-                               transfer_memory::Bytes(result.markers));
+                               transfer_memory::Bytes(result.markers), certificates && certificates->pending
+                                   ? certificates->pending->Bytes() + sizeof(cert::Owner) + 4 * sizeof(void*) : 0);
       result.onAccepted = [state = reference, pending, accepted = constructionAccepted]() {
         if (!pending->published) {
           std::swap(*state, pending->state);
@@ -1589,6 +1702,15 @@ struct RemeshRun {
           if (accepted) accepted();
         }
       };
+      if (certificates && certificates->pending) {
+        result.onAccepted = [publish = std::move(result.onAccepted), owner = certificate_owner,
+                             snapshot = certificates->pending] {
+          SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::Transfer);
+          SU2NativeTiming3D::Scope transfer(SU2NativeTiming3D::Operation::Import);
+          publish();
+          owner->accepted = snapshot;
+        };
+      }
       stats.final_cells = result.slices.nElemGlobal;
       stats.complete = true;
     }
@@ -1597,6 +1719,7 @@ struct RemeshRun {
   // Accounts for attempted work and applies the last whole-job memory check.
   void Finalize() {
     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, target_event_budget.peak_bytes);
+    if (certificates) stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, certificates->maximum_bytes);
     // Capture attempted import/parent/worker work even when an earlier phase rejects the event.
     stats.parent_transport_bytes = parent.bytes_sent;
     stats.parent_transport_calls = parent.collective_calls;

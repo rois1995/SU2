@@ -21,6 +21,7 @@
 #include "../../include/adaptation/CNativeLaneCensus3D.hpp"
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../include/adaptation/CNativeLocalCore3D.hpp"
+#include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
 #include "native_engine3d/EngineQualityStall.hpp"
 #include <cassert>
 #include <chrono>
@@ -262,14 +263,18 @@ class Timer {
  public:
   /*! Start both counters only when the existing timings flag permits clocks. */
   Timer(double& value, bool enabled, double* parent=nullptr,
-        SU2NativeTiming3D::Operation operation = SU2NativeTiming3D::Operation::Unattributed) : value(value), enabled(enabled), parent(parent) { if (enabled) {
+        SU2NativeTiming3D::Operation operation = SU2NativeTiming3D::Operation::Unattributed,
+        SU2NativeTiming3D::SourceSite site = {__builtin_FILE(), __builtin_LINE()})
+      : value(value), enabled(enabled), parent(parent) {
+    if (enabled) {
       start = Clock::now();
-      scope.emplace(operation);
+      scope.emplace(operation, site);
     }
   }
   /*! Label an existing legacy service that has no parent-subtraction counter. */
-  Timer(double& value, bool enabled, SU2NativeTiming3D::Operation operation)
-      : Timer(value, enabled, nullptr, operation) {}
+  Timer(double& value, bool enabled, SU2NativeTiming3D::Operation operation,
+        SU2NativeTiming3D::SourceSite site = {__builtin_FILE(), __builtin_LINE()})
+      : Timer(value, enabled, nullptr, operation, site) {}
   ~Timer() { if (enabled) {const auto elapsed=std::chrono::duration<double>(Clock::now()-start).count();value+=elapsed;if(parent)*parent-=elapsed;} }
  private:
   double& value;

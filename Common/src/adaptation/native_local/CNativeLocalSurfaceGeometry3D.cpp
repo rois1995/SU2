@@ -9,6 +9,7 @@
 #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
 #include "../../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../../include/adaptation/CNativeCurvedReference.hpp"
+#include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
 #include "../../../include/adaptation/CNativeTimerTree3D.hpp"
 #include <algorithm>
 #include <cmath>
@@ -532,7 +533,10 @@ struct StateSurfaceGeometry::Impl {
 
   void BeginQuery() {
     budget.CheckTime();
-    budget.caller_bytes = Add(caller_bytes, ResidentBytes());
+    const auto* certificates = SU2Native3D::geometry_certificates::active;
+    const auto new_bytes = certificates && certificates->SameStage(state)
+        ? transfer_memory::Bytes(certificates->core) - certificates->core_charged_bytes : 0;
+    budget.caller_bytes = Add(caller_bytes, ResidentBytes(), new_bytes);
     if (budget.caller_bytes == SIZE_MAX || budget.caller_bytes > budget.maximum_bytes)
       throw std::length_error("Native local surface overlay exceeds its working-storage ceiling.");
   }
@@ -773,6 +777,12 @@ bool StateSurfaceGeometry::WithinTolerance(const SurfaceFace& face) {
   const auto bound = state.EntityFaceError(facet, bindings, points, &impl_->budget,
                                          SU2NativeGeometry::SurfaceQueryNeed::Classify());
   impl_->CheckBudget();
+  namespace cert = SU2Native3D::geometry_certificates;
+  if (auto* event = cert::active; event && event->SameStage(state) && cert::Qualified(bound, state.GeometryTolerance())) {
+    Scope staging(Operation::Topology);
+    event->Push(event->core, {cert::FaceKey(state, facet, bindings, points), cert::Origin::StepC},
+                Add(impl_->budget.caller_bytes, event->core_live_extra), impl_->budget.maximum_bytes);
+  }
   return bound <= state.GeometryTolerance();
 }
 

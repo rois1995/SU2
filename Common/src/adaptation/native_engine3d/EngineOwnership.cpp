@@ -347,6 +347,18 @@ bool EngineOwnership::MigrateOwnership(EngineContext& context, bool quality,
                                        options.memory_ceiling, baseline, geometric, quality_weights);
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, partition.maximum_native_bytes);
   if (!partitioned || !WithinTime(context)) return false;
+  if (geometry_certificates::active && options.timings) {
+    namespace cert = geometry_certificates;
+    SU2NativeTiming3D::Scope output(SU2NativeTiming3D::Operation::Output);
+    uint64_t digest = 14695981039346656037ULL;
+    size_t slot = 0;
+    for (const auto& row : working) {
+      cert::AddDigestWord(digest, row.first);
+      cert::AddDigestWord(digest, partition.destinations.at(slot++));
+    }
+    std::cout << "NATIVE3D_CERTIFICATE_PARTITION rank=" << world.rank << " site=ownership round=" << stats.rounds
+              << " cells=" << slot << " assignments_digest=" << digest << '\n';
+  }
   return MigrateCertificates(context, quality, atlas_budget, transition_started, scratch, failure, baseline, pending,
                              pending_initial, pending_directory, pending_selection, partition);
 }

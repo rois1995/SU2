@@ -1,0 +1,1602 @@
+diff --git a/Common/include/adaptation/CNativeGeometryCertificates3D.hpp b/Common/include/adaptation/CNativeGeometryCertificates3D.hpp
+new file mode 100644
+index 0000000000..379bfb4a38
+--- /dev/null
++++ b/Common/include/adaptation/CNativeGeometryCertificates3D.hpp
+@@ -0,0 +1,329 @@
++/*!
++ * \file CNativeGeometryCertificates3D.hpp
++ * \brief Event-private surface certificates for the mode S construction census.
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++#pragma once
++
++#include "CNativeBoundaryParameters3D.hpp"
++#include "CNativeDistributed3D.hpp"
++#include "CNativeTimerTree3D.hpp"
++#include "CTransferMemory.hpp"
++#include <chrono>
++#include <cmath>
++#include <cstring>
++#include <limits>
++#include <memory>
++#include <type_traits>
++
++namespace SU2Native3D::geometry_certificates {
++
++using Binding = SU2NativeGeometry::SurfaceBinding;
++using Budget = SU2NativeGeometry::AtlasBudget;
++using Clock = std::chrono::steady_clock;
++using Operation = SU2NativeTiming3D::Operation;
++using Scope = SU2NativeTiming3D::Scope;
++enum class Origin : uint64_t { StepC, Proof, Commit };
++
++inline uint64_t Bits(double value) {
++  uint64_t bits;
++  static_assert(sizeof(bits) == sizeof(value));
++  std::memcpy(&bits, &value, sizeof(value));
++  return bits;
++}
++
++inline void AddDigestWord(uint64_t& digest, uint64_t word) {
++  for (unsigned byte = 0; byte < sizeof(word); ++byte) {
++    digest ^= (word >> (8 * byte)) & 255;
++    digest *= 1099511628211ULL;
++  }
++}
++
++using Vertex = std::array<uint64_t, 8>;
++struct Key {
++  std::array<uint64_t, 6> face{};
++  std::array<Vertex, 3> vertices{};
++  bool operator<(const Key& other) const {
++    return std::tie(face, vertices) < std::tie(other.face, other.vertices);
++  }
++  bool operator==(const Key& other) const { return face == other.face && vertices == other.vertices; }
++};
++
++inline Key FaceKey(const BoundaryParameterState& state, Id facet, const std::array<Binding, 3>& bindings,
++                   const std::array<Point, 3>& points) {
++  const auto [body, sheet, marker] = state.Entity(facet);
++  Key key;
++  key.face = {state.Geometry().Canonical(facet), facet, body, sheet, uint64_t(marker), Bits(state.GeometryTolerance())};
++  for (size_t i = 0; i < points.size(); ++i) {
++    const auto& p = points[i];
++    const auto& b = bindings[i];
++    key.vertices[i] = {Bits(p.x), Bits(p.y), Bits(p.z), b.feature, b.version, b.dimension, Bits(b.u), Bits(b.v)};
++  }
++  std::sort(key.vertices.begin(), key.vertices.end());
++  return key;
++}
++
++struct Record {
++  Key key;
++  Origin origin;
++};
++static_assert(std::is_trivially_copyable<Record>::value);
++
++inline bool ByKey(const Record& a, const Record& b) { return a.key < b.key; }
++
++inline void SortProof(std::vector<Record>& records) {
++  std::sort(records.begin(), records.end(), ByKey);
++  records.erase(std::unique(records.begin(), records.end(),
++                            [](const auto& a, const auto& b) { return a.key == b.key; }), records.end());
++}
++
++struct Snapshot {
++  std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> authority;
++  std::vector<char> policy;
++  uint64_t policy_hint = 0;
++  std::vector<Record> records;
++
++  size_t Bytes() const {
++    return transfer_memory::Add(sizeof(Snapshot) + 4 * sizeof(void*), transfer_memory::Bytes(policy),
++                                transfer_memory::Bytes(records));
++  }
++  const Record* Find(const Key& key) const {
++    const auto found = std::lower_bound(records.begin(), records.end(), key,
++                                        [](const Record& row, const Key& value) { return row.key < value; });
++    return found != records.end() && found->key == key ? &*found : nullptr;
++  }
++};
++
++struct Owner {
++  std::shared_ptr<Snapshot> accepted;
++};
++
++struct Counts {
++  std::array<uint64_t, 3> origins{};
++  uint64_t calls = 0, hit = 0, miss = 0, finite = 0, nonfinite = 0, skips = 0;
++  double skip_seconds = 0, gather_seconds = 0;
++};
++
++struct Event {
++  const int probe, rank;
++  const bool timings;
++  std::shared_ptr<Snapshot> old, pending;
++  std::vector<Record> core, trial, committed, proof;
++  Counts counts;
++  size_t stage = 0, eligible_stages = 0, maximum_bytes = 0, atlas_work_limit = 0;
++  size_t observer_bytes = 0;
++  size_t core_charged_bytes = 0, core_live_extra = 0;
++  size_t engine_charged_bytes = 0, atlas_charged_bytes = 0;
++  bool use_previous = false, eligible = false;
++  const SU2NativeGeometry::MappedFacetReference* stage_authority = nullptr;
++  uint64_t policy_hint = 0;
++  // Writer states share the immutable policy established at stage entry.
++  std::vector<char> stage_policy;
++
++  Event(int probe, int rank, bool timings) : probe(probe), rank(rank), timings(timings) {}
++
++  size_t Bytes() const {
++    return transfer_memory::Add(sizeof(Event), observer_bytes, sizeof(Owner) + 4 * sizeof(void*),
++        old ? old->Bytes() : 0, pending ? pending->Bytes() : 0,
++        transfer_memory::Bytes(core), transfer_memory::Bytes(trial), transfer_memory::Bytes(committed),
++        transfer_memory::Bytes(proof), transfer_memory::Bytes(stage_policy));
++  }
++
++  void Check(size_t bytes, size_t limit) {
++    if (bytes == SIZE_MAX || bytes > limit)
++      throw std::length_error("Native3D certificate storage exceeds working-storage admission.");
++    maximum_bytes = std::max(maximum_bytes, bytes);
++  }
++
++  // Account for both the old allocation and its replacement during vector growth.
++  void Reserve(std::vector<Record>& rows, size_t count, size_t live, size_t ceiling) {
++    if (count <= rows.capacity()) return;
++    Check(transfer_memory::Add(live, transfer_memory::Mul(count, sizeof(Record))), ceiling);
++    rows.reserve(count);
++  }
++
++  void Push(std::vector<Record>& rows, Record record, size_t live, size_t ceiling) {
++    if (rows.size() == rows.capacity()) {
++      const auto count = std::max<size_t>(8, transfer_memory::Add(rows.size(), rows.size() / 2 + 1));
++      Reserve(rows, count, live, ceiling);
++    }
++    rows.push_back(std::move(record));
++  }
++
++  bool SameStage(const BoundaryParameterState& state) const {
++    return stage_authority == &state.Geometry() && policy_hint == state.Mobility().identity;
++  }
++
++  void StartStage(const BoundaryParameterState& state, size_t number, size_t live, size_t ceiling) {
++    stage = number;
++    stage_authority = &state.Geometry();
++    policy_hint = state.Mobility().identity;
++    const auto length = BoundaryAtlasBytes({}, state.Mobility());
++    Check(transfer_memory::Add(live, length), ceiling);
++    stage_policy = EncodeBoundaryAtlas({}, state.Mobility(), ceiling, live);
++    use_previous = old && old->authority.get() == stage_authority &&
++                   old->policy_hint == policy_hint && old->policy == stage_policy;
++  }
++
++  void CheckStage(const BoundaryParameterState& state, size_t live, size_t ceiling) {
++    const auto length = BoundaryAtlasBytes({}, state.Mobility());
++    Check(transfer_memory::Add(live, length), ceiling);
++    if (!SameStage(state) || stage_policy != EncodeBoundaryAtlas({}, state.Mobility(), ceiling, live))
++      throw std::invalid_argument("Native3D certificate stage authority or policy changed.");
++  }
++
++  void FinishCore(bool closed) {
++    eligible = closed && stage_authority;
++    if (!eligible) {
++      std::vector<Record>().swap(core);
++      return;
++    }
++    ++eligible_stages;
++    SortProof(core);
++  }
++
++  void DiscardStage() {
++    std::vector<Record>().swap(core);
++    std::vector<Record>().swap(trial);
++    std::vector<Record>().swap(committed);
++    std::vector<Record>().swap(proof);
++    std::vector<char>().swap(stage_policy);
++    core_charged_bytes = core_live_extra = 0;
++    engine_charged_bytes = atlas_charged_bytes = 0;
++    use_previous = eligible = false;
++    stage_authority = nullptr;
++  }
++
++  std::string Gather(World& world, const BoundaryParameterState& state, size_t live, size_t ceiling) {
++    Scope timer(Operation::Certification);
++    const auto started = timings ? Clock::now() : Clock::time_point{};
++    CLocalFailure failure;
++    std::vector<uint64_t> lengths;
++    std::vector<size_t> offsets;
++    std::vector<int> counts, displacements;
++    size_t metadata_bytes = 0;
++    try {
++      CheckStage(state, live, ceiling);
++      metadata_bytes = transfer_memory::Mul(world.size + 1, sizeof(uint64_t) + sizeof(size_t) + 2 * sizeof(int));
++      Check(transfer_memory::Add(live, metadata_bytes), ceiling);
++      lengths.resize(world.size);
++      offsets.resize(world.size + 1);
++      counts.resize(world.size);
++      displacements.resize(world.size);
++    } catch (const std::exception& error) {
++      failure.Set(3, 0, error.what());
++    }
++    if (const auto elected = world.elect(failure); elected.any) return elected.message;
++    const uint64_t local = proof.size();
++#ifdef HAVE_MPI
++    MPI_Allgather(&local, sizeof(local), MPI_BYTE, lengths.data(), sizeof(local), MPI_BYTE, world.comm);
++#else
++    lengths[0] = local;
++#endif
++    try {
++      for (int r = 0; r < world.size; ++r)
++        offsets[r + 1] = transfer_memory::Add(offsets[r], lengths[r]);
++      Check(transfer_memory::Add(live, metadata_bytes, sizeof(Snapshot) + 4 * sizeof(void*),
++                                transfer_memory::Mul(offsets.back(), sizeof(Record))), ceiling);
++      pending = std::make_shared<Snapshot>();
++      pending->records.resize(offsets.back());
++    } catch (const std::exception& error) {
++      failure.Set(3, 0, error.what());
++    }
++    if (const auto elected = world.elect(failure); elected.any) return elected.message;
++#ifdef HAVE_MPI
++    // Receive directly into the admitted snapshot; only MPI's integer domain splits a logical gather.
++    constexpr size_t records_per_round = std::numeric_limits<int>::max() / sizeof(Record);
++    for (size_t start = 0; start < offsets.back();) {
++      const size_t end = start + std::min(records_per_round, offsets.back() - start);
++      for (int r = 0; r < world.size; ++r) {
++        const auto first = std::max(start, offsets[r]);
++        const auto last = std::min(end, offsets[r + 1]);
++        counts[r] = first < last ? int((last - first) * sizeof(Record)) : 0;
++        displacements[r] = counts[r] ? int((first - start) * sizeof(Record)) : 0;
++      }
++      const auto* source = counts[world.rank]
++          ? proof.data() + (std::max(start, offsets[world.rank]) - offsets[world.rank]) : nullptr;
++      MPI_Allgatherv(source, counts[world.rank], MPI_BYTE, pending->records.data() + start,
++                     counts.data(), displacements.data(), MPI_BYTE, world.comm);
++      start = end;
++    }
++#else
++    std::copy(proof.begin(), proof.end(), pending->records.begin());
++#endif
++    SortProof(pending->records);
++    pending->authority = state.Authority();
++    pending->policy = std::move(stage_policy);
++    pending->policy_hint = policy_hint;
++    if (timings) this->counts.gather_seconds = std::chrono::duration<double>(Clock::now() - started).count();
++    return {};
++  }
++
++  const Record* Find(const Key& key) const {
++    if (use_previous)
++      if (const auto* match = old->Find(key)) return match;
++    for (const auto* records : {&core, &committed}) {
++      const auto found = std::lower_bound(records->begin(), records->end(), key,
++                                          [](const Record& row, const Key& value) { return row.key < value; });
++      if (found != records->end() && found->key == key) return &*found;
++    }
++    return nullptr;
++  }
++
++  void Disagree(const Key& key, double value, Origin origin) {
++    if (std::isfinite(value)) ++counts.finite;
++    else ++counts.nonfinite;
++    Scope output(Operation::Output);
++    std::cout << "NATIVE3D_GEOMETRY_CERTIFICATE_DISAGREE rank=" << rank << " stage=" << stage
++              << " facet=" << key.face[1] << " entity_body=" << key.face[2] << " entity_sheet=" << key.face[3]
++              << " marker=" << key.face[4] << " kind=" << (std::isfinite(value) ? "finite" : "nonfinite")
++              << " legacy=" << std::setprecision(17) << value << " origin=" << uint64_t(origin);
++    for (size_t i = 0; i < key.vertices.size(); ++i) {
++      std::cout << " v" << i << '=';
++      for (size_t j = 0; j < key.vertices[i].size(); ++j)
++        std::cout << (j ? "," : "") << key.vertices[i][j];
++    }
++    std::cout << '\n';
++  }
++
++  void Report(int workers, size_t selected, size_t rank_eligible_stages) const {
++    if (!timings) return;
++    Scope output(Operation::Output);
++    std::cout << "NATIVE3D_GEOMETRY_CERTIFICATES rank=" << rank << " workers=" << workers
++              << " probe=" << probe << " stage=" << selected << " eligible_stages=" << rank_eligible_stages
++              << " reader_calls=" << counts.calls << " cert_hit=" << counts.hit << " cert_miss=" << counts.miss
++              << " hit_step_c=" << counts.origins[0] << " hit_proof=" << counts.origins[1]
++              << " hit_commit=" << counts.origins[2] << " records=" << (pending ? pending->records.size() : 0)
++              << " bytes=" << (pending ? pending->Bytes() : 0)
++              << " atlas_work_limit=" << atlas_work_limit
++              << " gather_seconds=" << std::setprecision(17) << counts.gather_seconds;
++    if (probe == 6)
++      std::cout << " cert_disagree=" << counts.finite + counts.nonfinite << " disagree_finite=" << counts.finite
++                << " disagree_nonfinite=" << counts.nonfinite << " skip_calls=" << counts.skips
++                << " skip_seconds=" << counts.skip_seconds;
++    std::cout << '\n' << std::flush;
++  }
++};
++
++inline thread_local Event* active = nullptr;
++inline thread_local const double* reader_tolerance = nullptr;
++inline thread_local bool collect_commit = false;
++
++template <class T>
++class ScopedValue {
++ public:
++  ScopedValue(T& slot, T value) : slot(slot), saved(slot) { slot = value; }
++  ~ScopedValue() { slot = saved; }
++  ScopedValue(const ScopedValue&) = delete;
++  ScopedValue& operator=(const ScopedValue&) = delete;
++
++ private:
++  T& slot;
++  const T saved;
++};
++
++inline bool Qualified(double bound, double tolerance) {
++  return std::isfinite(bound) && bound >= 0 && bound <= tolerance;
++}
++
++}  // namespace SU2Native3D::geometry_certificates
+diff --git a/Common/include/adaptation/CNativeLocalCore3D.hpp b/Common/include/adaptation/CNativeLocalCore3D.hpp
+index 04197064c1..7573a8cfcb 100644
+--- a/Common/include/adaptation/CNativeLocalCore3D.hpp
++++ b/Common/include/adaptation/CNativeLocalCore3D.hpp
+@@ -51,7 +51,7 @@ class StateSurfaceGeometry;
+ class RemoteSurface;
+ struct ContactContext;
+ 
+-enum class CollapseProbe { None, Core, Engine, FP3B, FP3D };
++enum class CollapseProbe { None, Core, Engine, FP3B, FP3D, SC1Off, SC1Count };
+ CollapseProbe FP3Probe();
+ double NodalMargin(const OwnedCell& row);
+ 
+diff --git a/Common/include/adaptation/CNativeRemesher3D.hpp b/Common/include/adaptation/CNativeRemesher3D.hpp
+index b9bc245b52..ad000358f2 100644
+--- a/Common/include/adaptation/CNativeRemesher3D.hpp
++++ b/Common/include/adaptation/CNativeRemesher3D.hpp
+@@ -11,6 +11,10 @@
+ #include "CNativeEngine3D.hpp"
+ #include "CComplexityNormalization.hpp"
+ #include <utility>
++namespace SU2Native3D::geometry_certificates {
++struct Owner;
++}
++
+ namespace SU2Native3D {
+ /*! Shared configured/automatic storage policy for remeshing and reference persistence. */
+ size_t NativeMemoryCeiling(const CConfig&,const CGeometry&,size_t base,bool print,SU2_Comm comm);
+@@ -108,5 +112,6 @@ class CNativeRemesher3D final : public CRemesher {
+   NormalizationFactory normalizationFactory;
+   ConstructionFactory construction;
+   std::function<void()> constructionAccepted;
++  std::shared_ptr<SU2Native3D::geometry_certificates::Owner> geometryCertificates;
+   SU2Native3D::RemeshStats stats;
+ };
+diff --git a/Common/include/adaptation/CNativeTimerTree3D.hpp b/Common/include/adaptation/CNativeTimerTree3D.hpp
+index dd978d35c0..6c8a2c2bd5 100644
+--- a/Common/include/adaptation/CNativeTimerTree3D.hpp
++++ b/Common/include/adaptation/CNativeTimerTree3D.hpp
+@@ -12,6 +12,8 @@
+ #include <cstdint>
+ #include <iomanip>
+ #include <iostream>
++#include <limits>
++#include <sstream>
+ #include <stdexcept>
+ 
+ namespace SU2NativeTiming3D {
+@@ -29,7 +31,7 @@ enum class Phase : std::size_t {
+   Count
+ };
+ 
+-/*! Named operations recorded within each phase; Unattributed records phase-only scopes. */
++/*! Named operations recorded within each phase; Unattributed includes phase-only scopes. */
+ enum class Operation : std::size_t {
+   Unattributed,
+   Import,
+@@ -62,7 +64,7 @@ struct Record {
+   std::uint64_t calls = 0;
+ };
+ 
+-/*! Snapshot of completed rows; coverage excludes root and phase-only unattributed time. */
++/*! Snapshot of completed rows; coverage excludes root-exclusive and unattributed time. */
+ struct SnapshotData {
+   std::array<std::array<Record, static_cast<std::size_t>(Operation::Count)>, static_cast<std::size_t>(Phase::Count)>
+       records{};
+@@ -164,6 +166,124 @@ inline const char* OperationName(Operation operation) {
+   return "invalid";
+ }
+ 
++/*! Lexical source of a timer transition, independent of the timer ledger. */
++struct SourceSite {
++  const char* file;
++  int line;
++};
++
++/*! Caller-owned count-mode trace of the longest gaps in the remesh coverage ledger. */
++class UnattributedSpans {
++ public:
++  /*! Install before the remesh root begins and keep alive until that root finishes. */
++  UnattributedSpans() noexcept {
++    if (current_frame == nullptr && active_ == nullptr) active_ = this;
++  }
++
++  ~UnattributedSpans() {
++    if (active_ == this) active_ = nullptr;
++  }
++
++  UnattributedSpans(const UnattributedSpans&) = delete;
++  UnattributedSpans& operator=(const UnattributedSpans&) = delete;
++
++  /*! Emit one row using the already finalized remesh snapshot and offsets from root start. */
++  void Report(const SnapshotData& snapshot, int rank, double skip_seconds) const {
++    if (!finished_) return;
++    const double attributed = snapshot.root_seconds - snapshot.unattributed_seconds;
++    const double remaining = snapshot.root_seconds - skip_seconds;
++    const double predicted = remaining > 0. ? (attributed - skip_seconds) / remaining
++                                           : std::numeric_limits<double>::quiet_NaN();
++    std::ostringstream row;
++    row << std::setprecision(17) << "NATIVE3D_UNATTRIBUTED_SPANS rank=" << rank
++        << " root_seconds=" << snapshot.root_seconds << " attributed_seconds=" << attributed
++        << " unattributed_seconds=" << snapshot.unattributed_seconds << " skip_seconds=" << skip_seconds
++        << " predicted_coverage=" << predicted;
++    for (std::size_t index = 0; index < longest_.size(); ++index) {
++      const auto phase = static_cast<Phase>(index);
++      const char* name = PhaseName(phase);
++      const auto& record = snapshot.records[index][static_cast<std::size_t>(Operation::Unattributed)];
++      const auto root_exclusive = phase == Phase::Preparation ? snapshot.root_exclusive_seconds : 0.;
++      row << ' ' << name << "_unattributed_seconds=" << record.exclusive_seconds + root_exclusive;
++      const auto& spans = longest_[index];
++      for (std::size_t i = 0; i < spans.size() && spans[i].end > spans[i].start; ++i) {
++        const auto& span = spans[i];
++        row << ' ' << name << "_span" << i + 1 << "_start=" << Seconds(span.start)
++            << ' ' << name << "_span" << i + 1 << "_end=" << Seconds(span.end)
++            << ' ' << name << "_span" << i + 1 << "_open=";
++        AppendBoundary(row, span.open);
++        row << ' ' << name << "_span" << i + 1 << "_close=";
++        AppendBoundary(row, span.close);
++      }
++    }
++    row << '\n';
++    std::cout << row.str();
++  }
++
++ private:
++  friend class Session;
++  friend class Scope;
++  using Clock = std::chrono::steady_clock;
++  using Offset = Clock::duration;
++
++  struct Boundary {
++    const char* kind;
++    SourceSite site;
++  };
++
++  struct Span {
++    Offset start;
++    Offset end;
++    Boundary open;
++    Boundary close;
++  };
++
++  static double Seconds(Offset offset) { return std::chrono::duration<double>(offset).count(); }
++
++  static void AppendBoundary(std::ostream& row, const Boundary& boundary) {
++    const char* name = boundary.site.file;
++    for (const char* c = name; *c; ++c)
++      if (*c == '/' || *c == '\\') name = c + 1;
++    row << boundary.kind << ':' << name << ':' << boundary.site.line;
++  }
++
++  void Start(Clock::time_point now, SourceSite site) noexcept {
++    start_ = now;
++    last_ = now;
++    opening_ = {"root_start", site};
++  }
++
++  void Finish(Clock::time_point now, const Frame& root, SourceSite site) noexcept {
++    Transition(now, root, {"root_finish", site});
++    finished_ = true;
++  }
++
++  /*! The outgoing top frame owns this interval even under a named ancestor. */
++  void Transition(Clock::time_point now, const Frame& outgoing, Boundary boundary) noexcept {
++    if (outgoing.parent == nullptr || outgoing.operation == Operation::Unattributed) {
++      const auto phase = outgoing.parent == nullptr ? Phase::Preparation : outgoing.phase;
++      auto& longest = longest_[static_cast<std::size_t>(phase)];
++      const Span gap{last_ - start_, now - start_, opening_, boundary};
++      const auto duration = gap.end - gap.start;
++      for (std::size_t i = 0; i < longest.size(); ++i) {
++        if (duration <= longest[i].end - longest[i].start) continue;
++        for (std::size_t j = longest.size() - 1; j > i; --j) longest[j] = longest[j - 1];
++        longest[i] = gap;
++        break;
++      }
++    }
++    last_ = now;
++    opening_ = boundary;
++  }
++
++  inline static thread_local UnattributedSpans* active_ = nullptr;
++  std::array<std::array<Span, 3>, static_cast<std::size_t>(Phase::Count)> longest_{};
++  Clock::time_point start_{};
++  Clock::time_point last_{};
++  Boundary opening_{};
++  bool finished_ = false;
++};
++
+ /*! Root ledger and local stdout report; nested sessions borrow the active root. */
+ class Session {
+  public:
+@@ -172,7 +292,8 @@ class Session {
+   static constexpr std::size_t OperationCount = static_cast<std::size_t>(Operation::Count);
+ 
+   /*! Create the only root on a thread when enabled; disabled sessions do no timing work. */
+-  Session(bool enabled, const char* root_name, int rank, int ranks, Phase initial_phase)
++  Session(bool enabled, const char* root_name, int rank, int ranks, Phase initial_phase,
++          SourceSite site = {__builtin_FILE(), __builtin_LINE()})
+       : root_name_(root_name), rank_(rank), ranks_(ranks) {
+     if (!enabled || current_frame != nullptr) return;
+     if (initial_phase == Phase::Count) throw std::invalid_argument("Invalid initial timer phase.");
+@@ -180,13 +301,14 @@ class Session {
+     root_frame_.session = this;
+     root_frame_.phase = initial_phase;
+     root_frame_.started = Clock::now();
++    if (auto* spans = UnattributedSpans::active_) spans->Start(root_frame_.started, site);
+     current_frame = &root_frame_;
+   }
+ 
+   /*! Close and locally report an owning session; borrowed and disabled sessions are silent. */
+   ~Session() {
+     if (!owns_) return;
+-    if (!finished_ && current_frame == &root_frame_) Finalize();
++    if (!finished_ && current_frame == &root_frame_) Finalize({__FILE__, __LINE__});
+     if (finished_) Report("final");
+   }
+ 
+@@ -206,10 +328,10 @@ class Session {
+   static constexpr std::size_t ReservedBytes() { return sizeof(Session); }
+ 
+   /*! Finalize only after every lexical child scope has restored the root frame. */
+-  void Finish() {
++  void Finish(SourceSite site = {__builtin_FILE(), __builtin_LINE()}) {
+     if (!owns_ || finished_) return;
+     if (current_frame != &root_frame_) throw std::logic_error("Timer session finished with open scopes.");
+-    Finalize();
++    Finalize(site);
+   }
+ 
+   /*! Emit a nonfinal cumulative snapshot at a resumable boundary without closing live scopes. */
+@@ -276,10 +398,12 @@ class Session {
+   }
+ 
+   /*! Finalize root totals and remove this session from the thread-local context. */
+-  void Finalize() {
+-    root_seconds_ = Seconds(root_frame_.started, Clock::now());
++  void Finalize(SourceSite site) {
++    const auto now = Clock::now();
++    root_seconds_ = Seconds(root_frame_.started, now);
+     const auto exclusive = root_seconds_ - root_frame_.child_seconds;
+     root_exclusive_seconds_ = exclusive > 0. ? exclusive : 0.;
++    if (auto* spans = UnattributedSpans::active_) spans->Finish(now, root_frame_, site);
+     finished_ = true;
+     current_frame = nullptr;
+   }
+@@ -322,15 +446,18 @@ class Session {
+ class Scope {
+  public:
+   /*! Start an operation in the current phase, or remain inert when no root is active. */
+-  explicit Scope(Operation operation) : Scope(operation, Phase::Count, false) {}
++  explicit Scope(Operation operation, SourceSite site = {__builtin_FILE(), __builtin_LINE()})
++      : Scope(operation, Phase::Count, false, site) {}
+ 
+   /*! Restore the prior frame and add inclusive/exclusive totals, including during unwinding. */
+   ~Scope() {
+     if (!active_) return;
+-    const auto elapsed = Session::Seconds(frame_.started, Session::Clock::now());
++    const auto now = Session::Clock::now();
++    const auto elapsed = Session::Seconds(frame_.started, now);
+     const auto exclusive = elapsed > frame_.child_seconds ? elapsed - frame_.child_seconds : 0.;
+     frame_.session->Add(frame_.phase, frame_.operation, elapsed, exclusive);
+     frame_.parent->child_seconds += elapsed;
++    if (auto* spans = UnattributedSpans::active_) spans->Transition(now, frame_, {"pop", site_});
+     current_frame = frame_.parent;
+   }
+ 
+@@ -347,7 +474,7 @@ class Scope {
+   friend class PhaseScope;
+ 
+   /*! Start an operation under an explicit phase for PhaseScope's phase-only node. */
+-  Scope(Operation operation, Phase phase, bool override_phase) {
++  Scope(Operation operation, Phase phase, bool override_phase, SourceSite site) {
+     if (operation >= Operation::Count) throw std::invalid_argument("Invalid timer operation.");
+     if (override_phase && phase >= Phase::Count) throw std::invalid_argument("Invalid timer phase.");
+     if (current_frame == nullptr) return;
+@@ -356,11 +483,16 @@ class Scope {
+     frame_.phase = override_phase ? phase : current_frame->phase;
+     frame_.operation = operation;
+     frame_.started = Session::Clock::now();
++    if (auto* spans = UnattributedSpans::active_) {
++      site_ = site;
++      spans->Transition(frame_.started, *current_frame, {"push", site});
++    }
+     current_frame = &frame_;
+     active_ = true;
+   }
+ 
+   Frame frame_{};
++  SourceSite site_;
+   bool active_ = false;
+ };
+ 
+@@ -368,7 +500,8 @@ class Scope {
+ class PhaseScope {
+  public:
+   /*! Record an unattributed phase frame and restore the previous phase on scope exit. */
+-  explicit PhaseScope(Phase phase) : scope_(Operation::Unattributed, phase, true) {}
++  explicit PhaseScope(Phase phase, SourceSite site = {__builtin_FILE(), __builtin_LINE()})
++      : scope_(Operation::Unattributed, phase, true, site) {}
+ 
+   /*! Preserve the contained scope frame's lexical lifetime and restore order. */
+   PhaseScope(const PhaseScope&) = delete;
+diff --git a/Common/src/adaptation/CNativeBoundaryParameters3D.cpp b/Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+index fceddc7247..006d34db14 100644
+--- a/Common/src/adaptation/CNativeBoundaryParameters3D.cpp
++++ b/Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+@@ -7,6 +7,7 @@
+ #include "../../include/adaptation/CNativeDistributed2D.hpp"
+ #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
+ #include "../../include/adaptation/CNativeGeometryBackend3D.hpp"
++#include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+ #include "../../include/adaptation/CNativeCurvedReference.hpp"
+ #include "../../include/adaptation/CNativeTimerTree3D.hpp"
+ #include "../../include/adaptation/CTransferMemory.hpp"
+@@ -545,6 +546,20 @@ std::vector<double> BoundaryParameterState::OwnedFaceReverseBounds(const std::ve
+       &budget,
+       transfer_memory::Add(budget.caller_bytes, transfer_memory::Mul(geometry->Reference().Facets().size(), 256)),
+       budget.maximum_bytes);
++  namespace cert = ::SU2Native3D::geometry_certificates;
++  auto* certificates = cert::active;
++  if (certificates && (!certificates->eligible || !certificates->SameStage(*this) || geometry->ReferenceComponents()))
++    certificates = nullptr;
++  std::optional<AtlasStorage> certificate_storage;
++  if (certificates) {
++    const auto old_bytes = transfer_memory::Bytes(certificates->proof);
++    const auto count = transfer_memory::Add(certificates->proof.size(), owned_faces.size());
++    const auto live = transfer_memory::Add(budget.caller_bytes,
++        certificates->Bytes() - certificates->atlas_charged_bytes);
++    certificates->Reserve(certificates->proof, count, live, budget.maximum_bytes);
++    const auto growth = transfer_memory::Bytes(certificates->proof) - old_bytes;
++    certificate_storage.emplace(&budget, transfer_memory::Add(live, growth), budget.maximum_bytes);
++  }
+   std::map<EntityKey, double> bounds;
+   for (const auto& row : geometry->Reference().Facets()) bounds.emplace(Entity(row.first), 0);
+   for (const auto& owned : owned_faces) {
+@@ -562,6 +577,11 @@ std::vector<double> BoundaryParameterState::OwnedFaceReverseBounds(const std::ve
+       bindings[k] = point.binding;
+     }
+     const double bound = EntityFaceError(face.facet, bindings, points, &budget, SurfaceQueryNeed::Magnitude());
++    if (certificates && cert::Qualified(bound, geometry_tolerance)) {
++      const auto key = cert::FaceKey(*this, face.facet, bindings, points);
++      const auto* first = certificates->Find(key);
++      certificates->proof.push_back({key, first ? first->origin : cert::Origin::Proof});
++    }
+     reverse = std::isfinite(bound) && bound >= 0 ? std::max(reverse, bound) : INFINITY;
+   }
+   std::vector<double> result;
+@@ -1788,7 +1808,51 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p,Sur
+   double maximum=0;const auto& g=parameter_view->accepted->Geometry();std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
+   for(unsigned k=0;k<3;++k){const auto b=Parameter(p[k]);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");binding[k]=b->binding;
+     const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
+-  if(EntityGeometry())return parameter_view->accepted->EntityFaceError(facet,binding,p,parameter_view->reservation,need,maximum);
++  if (EntityGeometry()) {
++    namespace cert = ::SU2Native3D::geometry_certificates;
++    const auto& state = *parameter_view->accepted;
++    auto* budget = parameter_view->reservation;
++    auto* certificates = cert::active;
++    const auto legacy = [&] { return state.EntityFaceError(facet, binding, p, budget, need, maximum); };
++    if (!certificates || !certificates->eligible) return legacy();
++    if (cert::reader_tolerance) {
++      const double tolerance = *cert::reader_tolerance;
++      const auto key = cert::FaceKey(state, facet, binding, p);
++      const auto* hit = certificates->SameStage(state) && cert::Bits(tolerance) == key.face[5]
++          ? certificates->Find(key) : nullptr;
++      const bool may_skip = hit && std::isfinite(maximum) && maximum <= tolerance;
++      if (certificates->timings) {
++        ++certificates->counts.calls;
++        if (hit) {
++          ++certificates->counts.hit;
++          ++certificates->counts.origins.at(size_t(hit->origin));
++        } else {
++          ++certificates->counts.miss;
++        }
++      }
++      if (may_skip && certificates->probe == 0) {
++        if (budget) budget->CheckTime();
++        return maximum;
++      }
++      const bool time_skip = may_skip && certificates->timings;
++      const auto start = time_skip ? cert::Clock::now() : cert::Clock::time_point{};
++      const auto value = legacy();
++      if (time_skip) {
++        certificates->counts.skip_seconds += std::chrono::duration<double>(cert::Clock::now() - start).count();
++        ++certificates->counts.skips;
++      }
++      if (hit && certificates->probe == 6 && certificates->timings && !(std::isfinite(value) && value <= tolerance))
++        certificates->Disagree(key, value, hit->origin);
++      return value;
++    }
++    const auto value = legacy();
++    if (cert::collect_commit && budget && certificates->SameStage(state) &&
++        cert::Qualified(value, state.GeometryTolerance()))
++      certificates->Push(certificates->trial, {cert::FaceKey(state, facet, binding, p), cert::Origin::Commit},
++                         transfer_memory::Add(budget->caller_bytes, certificates->Bytes() - certificates->atlas_charged_bytes),
++                         budget->maximum_bytes);
++    return value;
++  }
+   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return std::max(maximum,g.SurfaceError(facet,binding,p));
+   SurfaceFace face;face.facet=facet;bool transient=false;
+   for(unsigned k=0;k<3;++k){const auto* point=Parameter(p[k]);face.v[k]=point->node.id;
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index ab3ff82af1..05d314deef 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -21,6 +21,7 @@
+ #include "../../include/adaptation/CNativeLaneCensus3D.hpp"
+ #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
+ #include "../../include/adaptation/CNativeLocalCore3D.hpp"
++#include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+ #include "native_engine3d/EngineQualityStall.hpp"
+ #include <cassert>
+ #include <chrono>
+@@ -262,14 +263,18 @@ class Timer {
+  public:
+   /*! Start both counters only when the existing timings flag permits clocks. */
+   Timer(double& value, bool enabled, double* parent=nullptr,
+-        SU2NativeTiming3D::Operation operation = SU2NativeTiming3D::Operation::Unattributed) : value(value), enabled(enabled), parent(parent) { if (enabled) {
++        SU2NativeTiming3D::Operation operation = SU2NativeTiming3D::Operation::Unattributed,
++        SU2NativeTiming3D::SourceSite site = {__builtin_FILE(), __builtin_LINE()})
++      : value(value), enabled(enabled), parent(parent) {
++    if (enabled) {
+       start = Clock::now();
+-      scope.emplace(operation);
++      scope.emplace(operation, site);
+     }
+   }
+   /*! Label an existing legacy service that has no parent-subtraction counter. */
+-  Timer(double& value, bool enabled, SU2NativeTiming3D::Operation operation)
+-      : Timer(value, enabled, nullptr, operation) {}
++  Timer(double& value, bool enabled, SU2NativeTiming3D::Operation operation,
++        SU2NativeTiming3D::SourceSite site = {__builtin_FILE(), __builtin_LINE()})
++      : Timer(value, enabled, nullptr, operation, site) {}
+   ~Timer() { if (enabled) {const auto elapsed=std::chrono::duration<double>(Clock::now()-start).count();value+=elapsed;if(parent)*parent-=elapsed;} }
+  private:
+   double& value;
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index a659ed87be..1fc675aa5d 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -7,6 +7,8 @@
+ 
+ #include "../../include/adaptation/CNativeTimerTree3D.hpp"
+ #include "../../include/adaptation/CNativeRemesher3D.hpp"
++#include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
++#include "../../include/adaptation/CNativeLocalCore3D.hpp"
+ #include "../../include/adaptation/CNativeMetricTransport3D.hpp"
+ #include "../../include/adaptation/CNativeAffineReference.hpp"
+ #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
+@@ -210,6 +212,24 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+   stats.workers = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : parent.size;
+   auto control = options;
+   control.timings = options.timings || config.GetWrt_Performance();
++  using Probe = SU2NativeLocal3D::CollapseProbe;
++  namespace cert = geometry_certificates;
++  const bool surface_mode = config.GetAdap_Native_Local_Core() && config.GetAdap_Native_Local_Surface() &&
++                            !config.GetnAdap_BL() && !construction;
++  const auto probe = surface_mode ? SU2NativeLocal3D::FP3Probe() : Probe::None;
++  std::optional<cert::Event> certificates;
++  std::optional<SU2NativeTiming3D::UnattributedSpans> spans;
++  if (surface_mode && (probe == Probe::None || probe == Probe::SC1Count)) {
++    certificates.emplace(probe == Probe::SC1Count ? 6 : 0, parent.rank, control.timings);
++    if (geometryCertificates && geometryCertificates->accepted && reference->original && reference->original->Parameters() &&
++        geometryCertificates->accepted->authority.get() == &reference->original->Parameters()->Geometry())
++      certificates->old = std::move(geometryCertificates->accepted);
++    if (probe == Probe::SC1Count && control.timings) {
++      spans.emplace();
++      certificates->observer_bytes = sizeof(*spans);
++    }
++  }
++  if (geometryCertificates) geometryCertificates->accepted.reset();
+   SU2NativeTiming3D::Session timer_tree(control.timings, "remesh", parent.rank, parent.size,
+                                         SU2NativeTiming3D::Phase::Preparation);
+   if (timer_tree.Owns()) control.caller_bytes = transfer_memory::Add(control.caller_bytes, timer_tree.ReservedBytes());
+@@ -247,7 +267,19 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+                 cpu,
+                 now,
+                 deadline_start,
+-                CURRENT_FUNCTION};
++                CURRENT_FUNCTION,
++                geometryCertificates,
++                certificates ? &*certificates : nullptr,
++                surface_mode,
++                int(probe)};
+   run.Run();
++  if (certificates) {
++    certificates->Report(stats.workers, stats.normalization_stages ? stats.normalization_stages - 1 : 0,
++                         certificates->eligible_stages);
++    if (spans) {
++      timer_tree.Finish();
++      spans->Report(timer_tree.Snapshot(), parent.rank, certificates->counts.skip_seconds);
++    }
++  }
+   return result;
+ }
+diff --git a/Common/src/adaptation/native_engine3d/EngineAdapt.cpp b/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
+index c66768dc15..745771d1e8 100644
+--- a/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineAdapt.cpp
+@@ -368,7 +368,8 @@ struct EngineRun {
+     if (options.timings)
+       phase_scope.emplace(phase == Phase::Improvement ? SU2NativeTiming3D::Phase::Quality
+                           : surface_target            ? SU2NativeTiming3D::Phase::Surface
+-                                                      : SU2NativeTiming3D::Phase::Construction);
++                                                      : SU2NativeTiming3D::Phase::Construction,
++                          SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
+     if (auto prepared = RoundHead::SurfacePreparedExit(context, setup_finish)) return Done(std::move(*prepared));
+     ContextValue timed_lane_lifetime(
+         round_state.timed_lane,
+@@ -622,6 +623,8 @@ struct EngineRun {
+ 
+   // Visits each slot and joins the repair batch after every slot has unwound.
+   RoundDecision RunSlots(RoundState& round_state, RoundAcquisition& acquisition) {
++    auto* certificates = geometry_certificates::active;
++    if (certificates) certificates->trial.clear();
+     auto& repairing = *context.control.repairing;
+     auto& batch_bytes = *context.control.batch_bytes;
+     std::vector<Choice>& choices = *round_state.choices;
+@@ -634,7 +637,9 @@ struct EngineRun {
+     }
+     if (repairing) {
+       RepairBatchCommit batch_commit(context, round_state, atlas_budget, curved, diagnostic_rejection_limit);
+-      if (!batch_commit.Run()) return Done(std::move(*batch_commit.finished));
++      const bool committed = batch_commit.Run();
++      if (certificates) certificates->trial.clear();
++      if (!committed) return Done(std::move(*batch_commit.finished));
+     }
+     round_state.token_base =
+         transfer_memory::Add(round_state.token_base, transfer_memory::Mul(context.world.size, round_state.batch));
+@@ -871,9 +876,18 @@ struct EngineRun {
+     auto boundary_replacement_ready = [&] { return BoundaryReplacementReady(slot_state); };
+     CandidateTrial candidate_trial(context, round_state, slot_state, trial_comm, trial_checks, reserve_dependencies,
+                                    boundary_replacement_ready, observe_transaction, wall_choice, curved);
+-    if (*context.control.repairing)
+-      return EvaluatePrivateTrial(round_state, slot_state, candidate_trial, boundary_replacement_ready);
+-    return EvaluateCollectiveSlot(round_state, slot_state, candidate_trial, reserve_dependencies, observe_transaction);
++    auto* certificates = geometry_certificates::active;
++    if (*context.control.repairing) {
++      const size_t prior = certificates ? certificates->trial.size() : 0;
++      const auto decision = EvaluatePrivateTrial(round_state, slot_state, candidate_trial, boundary_replacement_ready);
++      if (certificates && (decision != RoundDecision::Proceed || !*slot_state.approved))
++        certificates->trial.resize(prior);
++      return decision;
++    }
++    const auto decision =
++        EvaluateCollectiveSlot(round_state, slot_state, candidate_trial, reserve_dependencies, observe_transaction);
++    if (certificates) certificates->trial.clear();
++    return decision;
+   }
+ 
+   // Runs the private candidate and publishes its proposal without a collective slot commit.
+diff --git a/Common/src/adaptation/native_engine3d/EngineCensus.cpp b/Common/src/adaptation/native_engine3d/EngineCensus.cpp
+index 8001f2c38b..35cb0a804a 100644
+--- a/Common/src/adaptation/native_engine3d/EngineCensus.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineCensus.cpp
+@@ -248,9 +248,13 @@ void EngineCensus::MeasureCell(EngineContext& context, Id id, bool seed, FrozenF
+   if (phase == Phase::Improvement && selection.census.cells.count(id))
+     selection.RefreshQuality(working.at(id), metric, strict, quality_valid,
+                              !options.wall_heights.empty() ? &height : nullptr, height_valid, field_identity);
+-  else
++  else {
++    namespace cert = geometry_certificates;
++    const bool read = phase == Phase::Construction && cert::active && cert::active->eligible;
++    cert::ScopedValue<const double*> certificate_reader(cert::reader_tolerance, read ? &options.surface_tolerance : nullptr);
+     selection.Add(working.at(id), metric, strict, quality_valid, reason,
+                   phase == Phase::Improvement && !options.wall_heights.empty() ? &height : nullptr, height_valid);
++  }
+   for (const auto& edge : metric.edges) reuse.insert_or_assign(edge.first, edge.second);
+   stats.edge_evaluations += counted.edge_evaluations;
+   stats.edge_reused += counted.edge_reused;
+@@ -373,7 +377,8 @@ bool EngineCensus::Measure(EngineContext& context, const std::vector<Id>& reques
+   auto& working = *context.ownership.working;
+   auto& stats = context.control.result->stats;
+   std::optional<SU2NativeTiming3D::Scope> census_scope;
+-  if (options.timings) census_scope.emplace(SU2NativeTiming3D::Operation::Census);
++  if (options.timings)
++    census_scope.emplace(SU2NativeTiming3D::Operation::Census, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
+   std::vector<Id> demand;
+   const auto demand_bytes = surface_target ? transfer_memory::GrowthBound(requested_ids.size(), sizeof(Id)) : 0;
+   const auto plan_scratch = transfer_memory::Add(
+diff --git a/Common/src/adaptation/native_engine3d/EngineCommit.cpp b/Common/src/adaptation/native_engine3d/EngineCommit.cpp
+index 171e422f40..6527fd4688 100644
+--- a/Common/src/adaptation/native_engine3d/EngineCommit.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineCommit.cpp
+@@ -4,6 +4,53 @@
+ EngineCommit::EngineCommit() = default;
+ EngineCommit::~EngineCommit() = default;
+ 
++namespace commit_cert = geometry_certificates;
++
++// The exported patch stores the actual cell coordinates and its forward bindings.
++std::optional<commit_cert::Key> CommitFaceKey(const BoundaryParameterState& state, const SurfaceFace& face,
++                                             const BoundaryPoints* patch_points) {
++  std::array<commit_cert::Binding, 3> bindings;
++  std::array<Point, 3> points;
++  for (size_t i = 0; i < face.v.size(); ++i) {
++    const BoundaryPoint* point;
++    if (patch_points) {
++      const auto found = patch_points->find(face.v[i]);
++      point = found == patch_points->end() ? nullptr : &found->second;
++    } else {
++      point = state.Find(face.v[i]);
++    }
++    if (!point) return std::nullopt;
++    points[i] = point->node.p;
++    bindings[i] = point->binding;
++  }
++  return commit_cert::FaceKey(state, face.facet, bindings, points);
++}
++
++// Retain only whole-face bounds of changed physical faces that survived publication.
++void RetainCommitCertificates(commit_cert::Event& certificates, const BoundaryParameterState& state,
++                              const Patch& old, const Patch& fresh, const commit_cert::Budget& budget) {
++  for (const auto& face : fresh.surface) {
++    const auto candidate = CommitFaceKey(state, face, &fresh.parameters);
++    if (!candidate || certificates.Find(*candidate)) continue;
++    const auto found = std::lower_bound(
++        certificates.trial.begin(), certificates.trial.end(), *candidate,
++        [](const commit_cert::Record& row, const commit_cert::Key& key) { return row.key < key; });
++    if (found == certificates.trial.end() || !(found->key == *candidate)) continue;
++    const auto published = state.Surface().find(Key(face.v));
++    if (published == state.Surface().end() || !(CommitFaceKey(state, published->second, nullptr) == candidate))
++      continue;
++    if (std::any_of(old.surface.begin(), old.surface.end(), [&](const SurfaceFace& previous) {
++          return previous.facet == face.facet && CommitFaceKey(state, previous, &old.parameters) == candidate;
++        }))
++      continue;
++    const auto live = transfer_memory::Add(budget.caller_bytes, certificates.Bytes() - certificates.atlas_charged_bytes);
++    auto& records = certificates.committed;
++    const auto index = std::lower_bound(records.begin(), records.end(), *found, commit_cert::ByKey) - records.begin();
++    certificates.Push(records, *found, live, budget.maximum_bytes);
++    std::rotate(records.begin() + index, records.end() - 1, records.end());
++  }
++}
++
+ // Batch-only routing buffers are active from routing preparation through publication and census update.
+ struct RepairBatchRoutes {
+   std::vector<std::vector<Dependency>> removals;
+@@ -664,6 +711,13 @@ bool RepairBatchCommit::UpdateSelection(CLocalFailure& failure, RepairBatchChang
+     UpdateRows(changes);
+     CountPublishedRepairs();
+     stats.maximum_owned = std::max(stats.maximum_owned, working.size());
++    if (auto* certificates = commit_cert::active; certificates && !certificates->trial.empty()) {
++      commit_cert::SortProof(certificates->trial);
++      for (const auto& proposal : *round_state.repair_proposals)
++        if (proposal.approved)
++          RetainCommitCertificates(*certificates, *context.geometry.Parameters(), proposal.old, proposal.fresh,
++                                   atlas_budget);
++    }
+   } catch (const std::exception& e) {
+     failure.Set(2, 0, e.what());
+   }
+@@ -1422,6 +1476,12 @@ bool SlotCommit::UpdateSelection() {
+         ApplyChangedRows();
+         RecordAcceptedSlot();
+         RecordSplitRatio();
++        if (auto* certificates = commit_cert::active;
++            certificates && *slot_state.approved && !certificates->trial.empty()) {
++          commit_cert::SortProof(certificates->trial);
++          RetainCommitCertificates(*certificates, *context.geometry.Parameters(), *slot_state.old,
++                                   *slot_state.fresh, atlas_budget);
++        }
+       } catch (const std::exception& e) {
+         failure.Set(2, 0, e.what());
+       }
+diff --git a/Common/src/adaptation/native_engine3d/EngineControl.cpp b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+index 9636324a7d..3b1319e7f3 100644
+--- a/Common/src/adaptation/native_engine3d/EngineControl.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineControl.cpp
+@@ -24,8 +24,8 @@ void EngineControl::ProveEntitySurface(EngineContext& context, Owned& working,
+     std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
+     std::optional<SU2NativeTiming3D::Scope> proof_scope;
+     if (options.timings) {
+-      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
+-      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
++      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
++      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
+     }
+     CLocalFailure geometryFailure;
+     FinalProofReport proof;
+@@ -56,8 +56,8 @@ void EngineControl::ProvePreparedSurface(EngineContext& context, Owned& working)
+     std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
+     std::optional<SU2NativeTiming3D::Scope> proof_scope;
+     if (options.timings) {
+-      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
+-      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
++      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
++      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
+     }
+     CLocalFailure geometryFailure;
+     try {
+@@ -94,8 +94,8 @@ void EngineControl::ProveFinalHeights(EngineContext& context, Owned& working) {
+     std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
+     std::optional<SU2NativeTiming3D::Scope> proof_scope;
+     if (options.timings) {
+-      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
+-      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
++      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
++      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
+     }
+     CLocalFailure heightFailure;
+     for (const auto& row : working) {
+diff --git a/Common/src/adaptation/native_engine3d/EngineExchange.cpp b/Common/src/adaptation/native_engine3d/EngineExchange.cpp
+index 6dc6ec1571..c58177f145 100644
+--- a/Common/src/adaptation/native_engine3d/EngineExchange.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineExchange.cpp
+@@ -103,8 +103,11 @@ size_t EngineExchange::Bytes(EngineContext& context) {
+   auto& field_identity = *context.census.field_identity;
+   auto& inactive_blocked_edges = *context.queues.inactive_blocked_edges;
+   auto& inactive_blocked_links = *context.queues.inactive_blocked_links;
++  const auto* certificates = geometry_certificates::active;
++  const auto certificate_growth = certificates ? certificates->Bytes() - certificates->engine_charged_bytes : 0;
+   return transfer_memory::Add(
+-      options.caller_bytes, MapBytes(options.wall_heights), MapBytes(options.region_walls), accepted_bytes, batch_bytes,
++      options.caller_bytes, certificate_growth, MapBytes(options.wall_heights), MapBytes(options.region_walls),
++      accepted_bytes, batch_bytes,
+       diagnostic_bytes, MapBytes(working), checkpoint.Bytes(), transfer_memory::Bytes(batch_changed),
+       MapBytes(batch_touched), MapBytes(batch_supports), transfer_memory::Bytes(original),
+       transfer_memory::Bytes(initial), transfer_memory::Bytes(eligible_extensions),
+@@ -139,6 +142,8 @@ bool EngineExchange::Admit(EngineContext& context, size_t extra) {
+   if (admitted && atlas_geometry) {
+     atlas_budget.caller_bytes = peak - atlas_scratch;
+     atlas_budget.maximum_bytes = options.memory_ceiling;
++    if (auto* certificates = geometry_certificates::active)
++      certificates->atlas_charged_bytes = certificates->Bytes();
+   }
+   return admitted;
+ }
+diff --git a/Common/src/adaptation/native_engine3d/EngineOwnership.cpp b/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
+index a5bae12002..7bdc8f0d0a 100644
+--- a/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineOwnership.cpp
+@@ -347,6 +347,18 @@ bool EngineOwnership::MigrateOwnership(EngineContext& context, bool quality,
+                                        options.memory_ceiling, baseline, geometric, quality_weights);
+   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, partition.maximum_native_bytes);
+   if (!partitioned || !WithinTime(context)) return false;
++  if (geometry_certificates::active && options.timings) {
++    namespace cert = geometry_certificates;
++    SU2NativeTiming3D::Scope output(SU2NativeTiming3D::Operation::Output);
++    uint64_t digest = 14695981039346656037ULL;
++    size_t slot = 0;
++    for (const auto& row : working) {
++      cert::AddDigestWord(digest, row.first);
++      cert::AddDigestWord(digest, partition.destinations.at(slot++));
++    }
++    std::cout << "NATIVE3D_CERTIFICATE_PARTITION rank=" << world.rank << " site=ownership round=" << stats.rounds
++              << " cells=" << slot << " assignments_digest=" << digest << '\n';
++  }
+   return MigrateCertificates(context, quality, atlas_budget, transition_started, scratch, failure, baseline, pending,
+                              pending_initial, pending_directory, pending_selection, partition);
+ }
+diff --git a/Common/src/adaptation/native_engine3d/EngineSetup.cpp b/Common/src/adaptation/native_engine3d/EngineSetup.cpp
+index 7d2ee2c6cb..a4d8150f21 100644
+--- a/Common/src/adaptation/native_engine3d/EngineSetup.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineSetup.cpp
+@@ -58,6 +58,8 @@ void EngineSetup::CheckInitialNumericPolicies(EngineContext& context, bool curve
+           options.shared_geometry_budget
+               ? std::min(atlas_budget.maximum_work, transfer_memory::Add(atlas_budget.work, allowance))
+               : allowance;
++    if (auto* certificates = geometry_certificates::active; certificates && options.timings)
++      certificates->atlas_work_limit = atlas_budget.maximum_work;
+   }
+   const auto lease_low =
+       TimedAllreduce(unsigned(bool(options.geometry_reservation)), CPassiveComm::Op::MIN, world.comm);
+diff --git a/Common/src/adaptation/native_engine3d/EngineTrial.cpp b/Common/src/adaptation/native_engine3d/EngineTrial.cpp
+index 4c8a07314a..ee242bc944 100644
+--- a/Common/src/adaptation/native_engine3d/EngineTrial.cpp
++++ b/Common/src/adaptation/native_engine3d/EngineTrial.cpp
+@@ -2,6 +2,9 @@
+ #include "EngineTrial.hpp"
+ #include "EngineLegacyWall.hpp"
+ 
++// Lets the private optimizer record only its fresh-surface distance evaluations.
++thread_local bool collect_optimizer_commit = false;
++
+ bool EngineTrial::HeightCheck(EngineContext& context, const Patch& patch, std::string& reason, bool provisional,
+                               FirstHeightReport* measured) {
+   auto& options = context.options;
+@@ -295,11 +298,15 @@ bool TrialChecks::GeometricChange(BoundaryReady& boundary_replacement_ready, Obs
+   wall_counters.GuidanceTrial(choice.geometric);
+   Timer guidance_timer(stats.geometry_guidance_seconds, options.timings, SU2NativeTiming3D::Operation::GeometryBound);
+   try {
++    const auto fresh_guidance = [&](long double ceiling) {
++      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, commit_cert::active != nullptr);
++      return GuidanceOf(SU2NativeD9::Part::GuidanceFresh, fresh, geometry, options.surface_tolerance, ceiling);
++    };
+     long double before, after;
+     bool complete_guidance = true;
+     if (kind == MetricChange::Coarsen) {
+       // A coarsening trial needs zero new excess; rejected trials need no old-surface score.
+-      const auto guidance = GuidanceOf(SU2NativeD9::Part::GuidanceFresh, fresh, geometry, options.surface_tolerance, 0);
++      const auto guidance = fresh_guidance(0);
+       stats.geometry_guidance_faces += guidance.evaluated_faces;
+       stats.geometry_guidance_early_rejections += !guidance.complete;
+       after = guidance.excess;
+@@ -321,8 +328,7 @@ bool TrialChecks::GeometricChange(BoundaryReady& boundary_replacement_ready, Obs
+       before = old_guidance.excess;
+       const bool allow_increase =
+           kind == MetricChange::GeometryRepair && phase == Phase::Improvement && !selection.geometry_repairs;
+-      const auto guidance = GuidanceOf(SU2NativeD9::Part::GuidanceFresh, fresh, geometry, options.surface_tolerance,
+-                                       allow_increase ? std::numeric_limits<long double>::infinity() : before);
++      const auto guidance = fresh_guidance(allow_increase ? std::numeric_limits<long double>::infinity() : before);
+       stats.geometry_guidance_faces += guidance.evaluated_faces;
+       stats.geometry_guidance_early_rejections += !guidance.complete;
+       after = guidance.excess;
+@@ -464,6 +470,7 @@ bool TrialChecks::OptimizePatch(const Patch& candidate, const RegionMetric& targ
+   repair_work += reserved;
+   ++stats.repair_proposals;
+   ++stats.optimization_trials;
++  commit_cert::ScopedValue<bool> collect(collect_optimizer_commit, commit_cert::active != nullptr);
+   const bool changed = OptimizedRepairPatch(
+       candidate, maximum_cell + 1 + offset, first_node, target, fresh, result.reason, used, preserve_vertices,
+       fine_placement, geometry, options.wall_heights, options.surface_tolerance, repair_optimization, remaining);
+@@ -541,6 +548,8 @@ std::pair<size_t, size_t> TrialChecks::GeometryCounts(const Patch& patch, std::s
+       for (unsigned k = 0; k < 3; ++k)
+         for (auto n : cell.v)
+           if (n.id == face[k]) triangle[k] = n.p;
++      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit,
++                                             commit_cert::active && !failed_edges);
+       const auto error =
+           reference.SurfaceDeviation(found->second, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify());
+       ++stats.geometry_guidance_faces;
+diff --git a/Common/src/adaptation/native_engine3d/MeshOptimizer.cpp b/Common/src/adaptation/native_engine3d/MeshOptimizer.cpp
+index a3eac9ac66..93c537860f 100644
+--- a/Common/src/adaptation/native_engine3d/MeshOptimizer.cpp
++++ b/Common/src/adaptation/native_engine3d/MeshOptimizer.cpp
+@@ -1450,6 +1450,7 @@ MeshOptimizer::BoundaryDecision MeshOptimizer::BoundaryGuidance(BoundarySmoothSe
+   ++report.boundary_guidance_calls;
+   if (SU2NativeD9::ObservingUnion()) ++d9_chain.checked;
+   const auto guidance = SU2NativeD9::Measure(SU2NativeD9::Work::Guidance, [&] {
++    commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
+     return GuidanceOf(SU2NativeD9::Part::SmoothCandidate, candidate, candidate_geometry, options.surface_tolerance,
+                       geometric_before, guidance_memo_ready ? &guidance_memo : nullptr);
+   });
+@@ -2527,6 +2528,7 @@ bool MeshOptimizer::ShellBoundary(Id id) {
+     const auto key = Key(face.v);
+     if (!physical.count(key) && options.surface_tolerance > 0) {
+       const std::array<Point, 3> p{points.at(face.v[0]), points.at(face.v[1]), points.at(face.v[2])};
++      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
+       if (!(proposed.SurfaceDeviation(face.facet, p, SU2NativeGeometry::SurfaceQueryNeed::Classify(), true) <=
+             options.surface_tolerance)) {
+         strict_geometry = false;
+@@ -2541,7 +2543,10 @@ bool MeshOptimizer::ShellBoundary(Id id) {
+     }
+     // As for boundary smoothing, a useful intermediate may retain non-increasing geometry debt.
+     const auto before = GeometryGuidanceExcess(old, geometry, options.surface_tolerance);
+-    const auto after = GeometryGuidanceExcess(fresh, proposed, options.surface_tolerance, before.excess);
++    const auto after = [&] {
++      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
++      return GeometryGuidanceExcess(fresh, proposed, options.surface_tolerance, before.excess);
++    }();
+     if (!before.complete || !after.complete || !std::isfinite(after.excess) || after.excess > before.excess) {
+       ++report.rejected_interface;
+       return false;
+@@ -2902,8 +2907,10 @@ bool MeshOptimizer::CertifyCoupledBoundary(const std::vector<Id>& all_ids, const
+   auto final_context = geometry.PrivateParameters(candidate);
+   if (!final_context) return false;
+   const auto old_geometry = GeometryGuidanceExcess(original, geometry, options.surface_tolerance);
+-  const auto new_geometry =
+-      GeometryGuidanceExcess(candidate, *final_context, options.surface_tolerance, old_geometry.excess);
++  const auto new_geometry = [&] {
++    commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, collect_optimizer_commit);
++    return GeometryGuidanceExcess(candidate, *final_context, options.surface_tolerance, old_geometry.excess);
++  }();
+   if (!old_geometry.complete || !new_geometry.complete || !std::isfinite(new_geometry.excess) ||
+       new_geometry.excess > old_geometry.excess) {
+     ++report.rejected_interface;
+diff --git a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+index 742196da07..732632d4fc 100644
+--- a/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
++++ b/Common/src/adaptation/native_engine3d/NativeRemeshRun.inc
+@@ -5,6 +5,7 @@
+ 
+ // Remesh owns the timer and public transaction. These stages borrow its controls and live inputs.
+ namespace {
++namespace cert = SU2Native3D::geometry_certificates;
+ struct Publication {
+   ReferenceState state;
+   bool published = false;
+@@ -67,10 +68,25 @@ struct RemeshRun {
+   double& now;
+   std::chrono::steady_clock::time_point deadline_start;
+   const char* caller;
++  std::shared_ptr<cert::Owner>& certificate_owner;
++  cert::Event* certificates;
++  bool surface_mode;
++  int probe;
++  std::optional<SU2_Comm> certificate_comm{};
+   std::string reason{};
+   SU2NativeGeometry::AtlasBudget target_event_budget{};
+   bool reset_need_at_start = false;
+ 
++  size_t CertificateBytes() const { return certificates ? certificates->Bytes() : 0; }
++
++  void ReleaseCertificateComm() {
++    if (!certificate_comm) return;
++#ifdef HAVE_MPI
++    MPI_Comm_free(&*certificate_comm);
++#endif
++    certificate_comm.reset();
++  }
++
+   // Agrees the remaining parent-event time from the original deadline origin.
+   double RemainingTime() {
+     const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - deadline_start).count();
+@@ -123,7 +139,7 @@ struct RemeshRun {
+   // Accounts for the shared authority once while both reference states remain live.
+   size_t Held(const ReferencePreparation& preparation) {
+     return transfer_memory::Add(preparation.retained, ReferenceStorageBytes(preparation.pending->state),
+-                                PartitionBytes());
++                                PartitionBytes(), CertificateBytes());
+   }
+ 
+   // Reads the same frozen deadline for the local geometry and metric queries.
+@@ -141,6 +157,7 @@ struct RemeshRun {
+     }
+ 
+     TryRemesh();
++    ReleaseCertificateComm();
+     Finalize();
+     ReportRemesh(config, control, parent, stats, reason, target_event_budget);
+   }
+@@ -176,6 +193,11 @@ struct RemeshRun {
+                   CPassiveComm::Allreduce(int(bool(normalizationFactory)), CPassiveComm::Op::MAX, parent.comm);
+     if (normalizer_low != normalizer_high) failure.Set(1, 0, "Native3D normalization factory differs across ranks.");
+     CollectiveFailure(failure, caller);
++    if (surface_mode) {
++      const int probe_lo = CPassiveComm::Allreduce(probe, CPassiveComm::Op::MIN, parent.comm),
++                probe_hi = CPassiveComm::Allreduce(probe, CPassiveComm::Op::MAX, parent.comm);
++      if (!Vote(probe_lo == probe_hi, "Native3D surface probes differ across ranks.")) return;
++    }
+     const int bl_low = CPassiveComm::Allreduce(int(config.GetnAdap_BL()), CPassiveComm::Op::MIN, parent.comm),
+               bl_high = CPassiveComm::Allreduce(int(config.GetnAdap_BL()), CPassiveComm::Op::MAX, parent.comm);
+     if (!Vote(bl_low == bl_high, "Native3D geometric policy differs across CFD ranks.")) return;
+@@ -186,7 +208,7 @@ struct RemeshRun {
+   void PrepareReference(CLocalFailure& failure) {
+     // Admit retained/publication state first; sidecar loading admits its actual byte and construction demand.
+     const size_t reference_setup = transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference),
+-                                                        ReferenceStorageBytes(*reference, false));
++                                                        ReferenceStorageBytes(*reference, false), CertificateBytes());
+     if (!Admit(reference_setup)) {
+       Phase(1);
+       return;
+@@ -220,7 +242,8 @@ struct RemeshRun {
+     size_t retained = transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference, false));
+     ReferencePreparation preparation{failure, pending, retained};
+     try {
+-      PrepareMobility(config, pending->state, control.memory_ceiling, retained);
++      PrepareMobility(config, pending->state, control.memory_ceiling,
++                      transfer_memory::Add(retained, CertificateBytes()));
+     } catch (const std::exception& e) {
+       failure.Set(2, 0, e.what());
+     }
+@@ -252,7 +275,7 @@ struct RemeshRun {
+     const auto base_caller = control.caller_bytes;
+     ImportedGeometry imported;
+     bool ready = ImportGeometry(config, geometry, &sensor, pending->state, imported, reason, stats.imported,
+-                                control.memory_ceiling, retained);
++                                control.memory_ceiling, transfer_memory::Add(retained, CertificateBytes()));
+     if (!reset_need_at_start && pending->state.original && pending->state.original->Parameters())
+       pending->state.original->Parameters()->Geometry().ResetGeometryNeedStats();
+     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, stats.imported.maximum_native_bytes);
+@@ -261,7 +284,8 @@ struct RemeshRun {
+     try {
+       PrepareMobility(
+           config, pending->state, control.memory_ceiling,
+-          transfer_memory::Add(retained, OwnedStorageBytes(imported.cells), transfer_memory::Bytes(imported.original)));
++          transfer_memory::Add(retained, OwnedStorageBytes(imported.cells), transfer_memory::Bytes(imported.original),
++                               CertificateBytes()));
+     } catch (const std::exception& e) {
+       failure.Set(2, 0, e.what());
+     }
+@@ -561,6 +585,13 @@ struct RemeshRun {
+                 << " migration_seconds=" << p.migration_seconds << " partition_seconds=" << p.partition_seconds
+                 << " moved_cells=" << p.moved_cells << " edgecut=" << p.edgecut << " arcs=" << p.graph_arcs
+                 << " native_bytes=" << p.maximum_native_bytes << std::endl;
++      if (certificates && control.timings) {
++        SU2NativeTiming3D::Scope output(SU2NativeTiming3D::Operation::Output);
++        uint64_t digest = 14695981039346656037ULL;
++        for (const auto destination : p.destinations) cert::AddDigestWord(digest, destination);
++        std::cout << "NATIVE3D_CERTIFICATE_PARTITION rank=" << r << " site=initial cells="
++                  << p.destinations.size() << " assignments_digest=" << digest << '\n';
++      }
+     }
+   }
+ 
+@@ -570,6 +601,12 @@ struct RemeshRun {
+     auto& normalizer = input.normalizer;
+     auto& ready = mesh.ready;
+     for (unsigned stage = 0; ready && stage < 2; ++stage) {
++      if (certificates && stage) {
++        SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::Transfer);
++        SU2NativeTiming3D::Scope transfer(SU2NativeTiming3D::Operation::Import);
++        ReleaseCertificateComm();
++        certificates->DiscardStage();
++      }
+       ++stats.normalization_stages;
+       stats.construction_stats = {};
+       stats.refine = {};
+@@ -667,7 +704,12 @@ struct RemeshRun {
+     }
+     now = parent.seconds();
+ #ifdef HAVE_MPI
+-    if (comm != MPI_COMM_NULL) MPI_Comm_free(&comm);
++    if (comm != MPI_COMM_NULL) {
++      if (certificates && certificates->eligible) certificate_comm = comm;
++      else MPI_Comm_free(&comm);
++    }
++#else
++    if (certificates && certificates->eligible) certificate_comm = comm;
+ #endif
+   }
+ 
+@@ -709,9 +751,41 @@ struct RemeshRun {
+           eligibility = workers.maximum(local);
+         }
+         if (eligibility < 2) {
+-          const auto outcome = RunLocalCore(mesh, trial, preparation, surface_requested && eligibility == 0);
++          const bool enable_surface = surface_requested && eligibility == 0;
++          auto* stage_certificates = enable_surface ? certificates : nullptr;
++          if (stage_certificates) {
++            CLocalFailure failure;
++            try {
++              const auto& state = *preparation.pending->state.original->Parameters();
++              stage_certificates->StartStage(
++                  state, stats.normalization_stages - 1,
++                  transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(mesh.working)), kernel.memory_ceiling);
++            } catch (const std::exception& error) {
++              failure.Set(3, 0, error.what());
++            }
++            if (const auto elected = workers.elect(failure); elected.any) throw elected;
++            kernel.caller_bytes = transfer_memory::Add(Held(preparation), transfer_memory::Bytes(imported.original),
++                worker_source == &imported.original ? 0 : transfer_memory::Bytes(*worker_source));
++          }
++          cert::ScopedValue<cert::Event*> bind_certificates(cert::active, stage_certificates);
++          const auto outcome = RunLocalCore(mesh, trial, preparation, enable_surface);
+           kernel.close_construction_collapse = outcome.step_c_completed &&
+               SU2NativeLocal3D::FP3Probe() != SU2NativeLocal3D::CollapseProbe::Engine;
++          if (stage_certificates) {
++            SU2NativeTiming3D::Scope topology(SU2NativeTiming3D::Operation::Topology);
++            stage_certificates->FinishCore(kernel.close_construction_collapse);
++            if (stage_certificates->eligible) {
++              CLocalFailure failure;
++              try {
++                stage_certificates->CheckStage(*preparation.pending->state.original->Parameters(),
++                    transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(mesh.working)),
++                    kernel.memory_ceiling);
++              } catch (const std::exception& error) {
++                failure.Set(3, 0, error.what());
++              }
++              if (const auto elected = workers.elect(failure); elected.any) throw elected;
++            }
++          }
+           if (outcome.installed_surface)
+             kernel.caller_bytes = transfer_memory::Add(
+                 Held(preparation), transfer_memory::Bytes(imported.original),
+@@ -731,6 +805,8 @@ struct RemeshRun {
+           detail = "Native3D deadline exhausted preparing current stage metrics.";
+         }
+       }
++      cert::ScopedValue<cert::Event*> bind_engine(cert::active,
++          certificates && certificates->eligible ? certificates : nullptr);
+       if (valid) ApplyMetric(preparation, input, mesh, trial);
+     } catch (const CElectedFailure& e) {
+       valid = false;
+@@ -962,7 +1038,7 @@ struct RemeshRun {
+     SU2NativeTiming3D::Scope topology(SU2NativeTiming3D::Operation::Topology);
+     auto& workers = trial.workers;
+     auto& working = mesh.working;
+-    const auto& kernel = trial.kernel;
++    auto& kernel = trial.kernel;
+     const auto surface = enable_surface ? BeginLocalSurface(preparation, working, trial) : nullptr;
+     if (control.timings && config.GetAdap_Native_Local_Surface() && !surface)
+       std::cout << "NATIVE3D_LOCAL_SURFACE rank=" << workers.rank << " applicable=0" << std::endl;
+@@ -1063,6 +1139,9 @@ struct RemeshRun {
+         }
+         if (surface) {
+           const auto geometry_caller = options.outward_collapses ? held : kernel.caller_bytes;
++          if (auto* active = cert::active) {
++            active->core_charged_bytes = transfer_memory::Bytes(active->core);
++          }
+           surface->SetCallerBytes(transfer_memory::Add(geometry_caller, OwnedStorageBytes(working),
+                                                       contact_bytes, screen_bytes));
+           counts = pass_mesh.RunPass(point_ids, cell_limit, std::move(counts), options, surface.get(),
+@@ -1070,6 +1149,12 @@ struct RemeshRun {
+           if (report && pass == passes && core::FP3Probe() == core::CollapseProbe::Core)
+             pass_mesh.ReportHandoverSurface(*surface, workers.rank, stage);
+           remote.reset();
++          if (cert::active) {
++            const auto charged = transfer_memory::Bytes(cert::active->core);
++            kernel.caller_bytes = transfer_memory::Add(
++                kernel.caller_bytes, charged - cert::active->core_charged_bytes);
++            cert::active->core_charged_bytes = charged;
++          }
+           if (options.outward_collapses)
+             surface->SetCallerBytes(transfer_memory::Add(kernel.caller_bytes, OwnedStorageBytes(working)));
+         } else {
+@@ -1314,6 +1399,8 @@ struct RemeshRun {
+     const auto refine_begin = workers.seconds();
+     if (kernel.shared_geometry_budget) kernel.memory_ceiling = target_event_budget.maximum_bytes;
+     kernel.report_rejected_neighborhood = true;
++    if (cert::active)
++      cert::active->engine_charged_bytes = cert::active->atlas_charged_bytes = cert::active->Bytes();
+     auto refined = AdaptMetric(workers, working, stage_source, *pending->state.original, composition, kernel);
+     stats.refine = refined.stats;
+     valid = refined.valid;
+@@ -1543,6 +1630,31 @@ struct RemeshRun {
+     auto& ready = mesh.ready;
+     auto& working = mesh.working;
+     auto& migrated = mesh.migrated;
++    if (certificates && ready) {
++      SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::FinalProof);
++      CLocalFailure failure;
++      if (certificate_comm) {
++        World workers(*certificate_comm);
++        const auto live = transfer_memory::Add(Held(preparation), OwnedStorageBytes(working),
++            transfer_memory::Bytes(imported.original), transfer_memory::Bytes(migrated),
++            return_source ? return_source->ResidentBytes() : 0);
++        const auto gather_reason = certificates->Gather(workers, *pending->state.original->Parameters(),
++                                                        live, control.memory_ceiling);
++        if (!gather_reason.empty()) failure.Set(3, 0, gather_reason);
++        else {
++          try {
++            if (!certificate_owner) certificate_owner = std::make_shared<cert::Owner>();
++          } catch (const std::exception& error) {
++            failure.Set(3, 0, error.what());
++          }
++        }
++      }
++      if (const auto elected = parent.elect(failure); elected.any) {
++        ready = false;
++        reason = elected.message;
++      }
++    }
++    ReleaseCertificateComm();
+     // Nominal complexity overshoot is diagnostic; physical and resource gates still govern publication.
+     if (ready && stats.complexity.estimated &&
+         stats.complexity.value - stats.complexity.uncertainty > SU2_TYPE::GetValue(config.GetAdap_Complexity())) {
+@@ -1581,7 +1693,8 @@ struct RemeshRun {
+       result.status = CRemeshResult::Status::COMPLETE;
+       result.reference_io_caller_bytes =
+           transfer_memory::Add(control.caller_bytes, ReferenceStorageBytes(*reference), result.slices.ResidentBytes(),
+-                               transfer_memory::Bytes(result.markers));
++                               transfer_memory::Bytes(result.markers), certificates && certificates->pending
++                                   ? certificates->pending->Bytes() + sizeof(cert::Owner) + 4 * sizeof(void*) : 0);
+       result.onAccepted = [state = reference, pending, accepted = constructionAccepted]() {
+         if (!pending->published) {
+           std::swap(*state, pending->state);
+@@ -1589,6 +1702,15 @@ struct RemeshRun {
+           if (accepted) accepted();
+         }
+       };
++      if (certificates && certificates->pending) {
++        result.onAccepted = [publish = std::move(result.onAccepted), owner = certificate_owner,
++                             snapshot = certificates->pending] {
++          SU2NativeTiming3D::PhaseScope phase(SU2NativeTiming3D::Phase::Transfer);
++          SU2NativeTiming3D::Scope transfer(SU2NativeTiming3D::Operation::Import);
++          publish();
++          owner->accepted = snapshot;
++        };
++      }
+       stats.final_cells = result.slices.nElemGlobal;
+       stats.complete = true;
+     }
+@@ -1597,6 +1719,7 @@ struct RemeshRun {
+   // Accounts for attempted work and applies the last whole-job memory check.
+   void Finalize() {
+     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, target_event_budget.peak_bytes);
++    if (certificates) stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, certificates->maximum_bytes);
+     // Capture attempted import/parent/worker work even when an earlier phase rejects the event.
+     stats.parent_transport_bytes = parent.bytes_sent;
+     stats.parent_transport_calls = parent.collective_calls;
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
+index 7a51bddb2b..0d3872e175 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp
+@@ -7,6 +7,7 @@
+ #include "../../../include/adaptation/CNativeLocalContact3D.hpp"
+ #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
+ #include "../../../include/adaptation/CNativeCurvedReference.hpp"
++#include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+ #include <algorithm>
+ #include <cmath>
+ #include <limits>
+@@ -498,8 +499,11 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
+   for (unsigned i : {first, 1 - first}) {
+     auto& trial = trials[i];
+     if (trial.refusal != Reason::None) continue;
++    auto* certificates = SU2Native3D::geometry_certificates::active;
++    const auto certificate_start = certificates ? certificates->core.size() : 0;
+     const auto reason = test_geometry(trial);
+     if (reason != Reason::None) {
++      if (certificates) certificates->core.resize(certificate_start);
+       count(reason);
+       trial.refusal = reason;
+       trial.failure_order = FailureOrder(reason, options_.outward_collapses);
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
+index a6942ede26..df6e53e64f 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp
+@@ -210,6 +210,8 @@ CollapseProbe FP3Probe() {
+     if (value[0] == '2') return CollapseProbe::Engine;
+     if (value[0] == '3') return CollapseProbe::FP3B;
+     if (value[0] == '4') return CollapseProbe::FP3D;
++    if (value[0] == '5') return CollapseProbe::SC1Off;
++    if (value[0] == '6') return CollapseProbe::SC1Count;
+     return CollapseProbe::None;
+   }();
+   return probe;
+diff --git a/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp b/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
+index 2b571df768..f33eff7d7e 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp
+@@ -6,6 +6,7 @@
+  */
+ #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
+ #include "../../../include/adaptation/CNativeLocalContact3D.hpp"
++#include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+ #include <algorithm>
+ #include <cmath>
+ #include <iomanip>
+@@ -972,6 +973,9 @@ void Mesh::SurfaceCollapseWork(SurfaceGeometry& geometry, PassStats& stats, Remo
+   // The distance step has released its tables. Reuse the surface reservation for
+   // the edge list, candidate/refusal tables and the temporary collapse plans.
+   const auto begin = ReportClock(stats.report);
++  if (auto* event = SU2Native3D::geometry_certificates::active)
++    event->core_live_extra = transfer_memory::Add(ArrayBytes(cells_.capacity()),
++                                                 SurfaceArrayBytes(cells_.capacity(), false));
+   std::optional<LocalContactIndex> index;
+   std::optional<ContactContext> contact;
+   if (options_.outward_collapses) {
+diff --git a/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp b/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp
+index b3315fbda2..a2ce888ec5 100644
+--- a/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp
++++ b/Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp
+@@ -9,6 +9,7 @@
+ #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
+ #include "../../../include/adaptation/CNativeCurvedAtlas3D.hpp"
+ #include "../../../include/adaptation/CNativeCurvedReference.hpp"
++#include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+ #include "../../../include/adaptation/CNativeTimerTree3D.hpp"
+ #include <algorithm>
+ #include <cmath>
+@@ -532,7 +533,10 @@ struct StateSurfaceGeometry::Impl {
+ 
+   void BeginQuery() {
+     budget.CheckTime();
+-    budget.caller_bytes = Add(caller_bytes, ResidentBytes());
++    const auto* certificates = SU2Native3D::geometry_certificates::active;
++    const auto new_bytes = certificates && certificates->SameStage(state)
++        ? transfer_memory::Bytes(certificates->core) - certificates->core_charged_bytes : 0;
++    budget.caller_bytes = Add(caller_bytes, ResidentBytes(), new_bytes);
+     if (budget.caller_bytes == SIZE_MAX || budget.caller_bytes > budget.maximum_bytes)
+       throw std::length_error("Native local surface overlay exceeds its working-storage ceiling.");
+   }
+@@ -773,6 +777,12 @@ bool StateSurfaceGeometry::WithinTolerance(const SurfaceFace& face) {
+   const auto bound = state.EntityFaceError(facet, bindings, points, &impl_->budget,
+                                          SU2NativeGeometry::SurfaceQueryNeed::Classify());
+   impl_->CheckBudget();
++  namespace cert = SU2Native3D::geometry_certificates;
++  if (auto* event = cert::active; event && event->SameStage(state) && cert::Qualified(bound, state.GeometryTolerance())) {
++    Scope staging(Operation::Topology);
++    event->Push(event->core, {cert::FaceKey(state, facet, bindings, points), cert::Origin::StepC},
++                Add(impl_->budget.caller_bytes, event->core_live_extra), impl_->budget.maximum_bytes);
++  }
+   return bound <= state.GeometryTolerance();
+ }
+ 

@@ -24,8 +24,8 @@ void EngineControl::ProveEntitySurface(EngineContext& context, Owned& working,
     std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
     std::optional<SU2NativeTiming3D::Scope> proof_scope;
     if (options.timings) {
-      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
-      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
+      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
+      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
     }
     CLocalFailure geometryFailure;
     FinalProofReport proof;
@@ -56,8 +56,8 @@ void EngineControl::ProvePreparedSurface(EngineContext& context, Owned& working)
     std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
     std::optional<SU2NativeTiming3D::Scope> proof_scope;
     if (options.timings) {
-      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
-      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
+      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
+      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
     }
     CLocalFailure geometryFailure;
     try {
@@ -94,8 +94,8 @@ void EngineControl::ProveFinalHeights(EngineContext& context, Owned& working) {
     std::optional<SU2NativeTiming3D::PhaseScope> proof_phase;
     std::optional<SU2NativeTiming3D::Scope> proof_scope;
     if (options.timings) {
-      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof);
-      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification);
+      proof_phase.emplace(SU2NativeTiming3D::Phase::FinalProof, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
+      proof_scope.emplace(SU2NativeTiming3D::Operation::Certification, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
     }
     CLocalFailure heightFailure;
     for (const auto& row : working) {

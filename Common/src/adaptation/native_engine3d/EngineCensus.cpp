@@ -248,9 +248,13 @@ void EngineCensus::MeasureCell(EngineContext& context, Id id, bool seed, FrozenF
   if (phase == Phase::Improvement && selection.census.cells.count(id))
     selection.RefreshQuality(working.at(id), metric, strict, quality_valid,
                              !options.wall_heights.empty() ? &height : nullptr, height_valid, field_identity);
-  else
+  else {
+    namespace cert = geometry_certificates;
+    const bool read = phase == Phase::Construction && cert::active && cert::active->eligible;
+    cert::ScopedValue<const double*> certificate_reader(cert::reader_tolerance, read ? &options.surface_tolerance : nullptr);
     selection.Add(working.at(id), metric, strict, quality_valid, reason,
                   phase == Phase::Improvement && !options.wall_heights.empty() ? &height : nullptr, height_valid);
+  }
   for (const auto& edge : metric.edges) reuse.insert_or_assign(edge.first, edge.second);
   stats.edge_evaluations += counted.edge_evaluations;
   stats.edge_reused += counted.edge_reused;
@@ -373,7 +377,8 @@ bool EngineCensus::Measure(EngineContext& context, const std::vector<Id>& reques
   auto& working = *context.ownership.working;
   auto& stats = context.control.result->stats;
   std::optional<SU2NativeTiming3D::Scope> census_scope;
-  if (options.timings) census_scope.emplace(SU2NativeTiming3D::Operation::Census);
+  if (options.timings)
+    census_scope.emplace(SU2NativeTiming3D::Operation::Census, SU2NativeTiming3D::SourceSite{__FILE__, __LINE__});
   std::vector<Id> demand;
   const auto demand_bytes = surface_target ? transfer_memory::GrowthBound(requested_ids.size(), sizeof(Id)) : 0;
   const auto plan_scratch = transfer_memory::Add(

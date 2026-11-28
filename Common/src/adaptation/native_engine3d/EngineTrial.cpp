@@ -2,6 +2,9 @@
 #include "EngineTrial.hpp"
 #include "EngineLegacyWall.hpp"
 
+// Lets the private optimizer record only its fresh-surface distance evaluations.
+thread_local bool collect_optimizer_commit = false;
+
 bool EngineTrial::HeightCheck(EngineContext& context, const Patch& patch, std::string& reason, bool provisional,
                               FirstHeightReport* measured) {
   auto& options = context.options;
@@ -295,11 +298,15 @@ bool TrialChecks::GeometricChange(BoundaryReady& boundary_replacement_ready, Obs
   wall_counters.GuidanceTrial(choice.geometric);
   Timer guidance_timer(stats.geometry_guidance_seconds, options.timings, SU2NativeTiming3D::Operation::GeometryBound);
   try {
+    const auto fresh_guidance = [&](long double ceiling) {
+      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit, commit_cert::active != nullptr);
+      return GuidanceOf(SU2NativeD9::Part::GuidanceFresh, fresh, geometry, options.surface_tolerance, ceiling);
+    };
     long double before, after;
     bool complete_guidance = true;
     if (kind == MetricChange::Coarsen) {
       // A coarsening trial needs zero new excess; rejected trials need no old-surface score.
-      const auto guidance = GuidanceOf(SU2NativeD9::Part::GuidanceFresh, fresh, geometry, options.surface_tolerance, 0);
+      const auto guidance = fresh_guidance(0);
       stats.geometry_guidance_faces += guidance.evaluated_faces;
       stats.geometry_guidance_early_rejections += !guidance.complete;
       after = guidance.excess;
@@ -321,8 +328,7 @@ bool TrialChecks::GeometricChange(BoundaryReady& boundary_replacement_ready, Obs
       before = old_guidance.excess;
       const bool allow_increase =
           kind == MetricChange::GeometryRepair && phase == Phase::Improvement && !selection.geometry_repairs;
-      const auto guidance = GuidanceOf(SU2NativeD9::Part::GuidanceFresh, fresh, geometry, options.surface_tolerance,
-                                       allow_increase ? std::numeric_limits<long double>::infinity() : before);
+      const auto guidance = fresh_guidance(allow_increase ? std::numeric_limits<long double>::infinity() : before);
       stats.geometry_guidance_faces += guidance.evaluated_faces;
       stats.geometry_guidance_early_rejections += !guidance.complete;
       after = guidance.excess;
@@ -464,6 +470,7 @@ bool TrialChecks::OptimizePatch(const Patch& candidate, const RegionMetric& targ
   repair_work += reserved;
   ++stats.repair_proposals;
   ++stats.optimization_trials;
+  commit_cert::ScopedValue<bool> collect(collect_optimizer_commit, commit_cert::active != nullptr);
   const bool changed = OptimizedRepairPatch(
       candidate, maximum_cell + 1 + offset, first_node, target, fresh, result.reason, used, preserve_vertices,
       fine_placement, geometry, options.wall_heights, options.surface_tolerance, repair_optimization, remaining);
@@ -541,6 +548,8 @@ std::pair<size_t, size_t> TrialChecks::GeometryCounts(const Patch& patch, std::s
       for (unsigned k = 0; k < 3; ++k)
         for (auto n : cell.v)
           if (n.id == face[k]) triangle[k] = n.p;
+      commit_cert::ScopedValue<bool> collect(commit_cert::collect_commit,
+                                             commit_cert::active && !failed_edges);
       const auto error =
           reference.SurfaceDeviation(found->second, triangle, SU2NativeGeometry::SurfaceQueryNeed::Classify());
       ++stats.geometry_guidance_faces;

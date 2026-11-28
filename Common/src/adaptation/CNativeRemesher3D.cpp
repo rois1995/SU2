@@ -7,6 +7,8 @@
 
 #include "../../include/adaptation/CNativeTimerTree3D.hpp"
 #include "../../include/adaptation/CNativeRemesher3D.hpp"
+#include "../../include/adaptation/CNativeGeometryCertificates3D.hpp"
+#include "../../include/adaptation/CNativeLocalCore3D.hpp"
 #include "../../include/adaptation/CNativeMetricTransport3D.hpp"
 #include "../../include/adaptation/CNativeAffineReference.hpp"
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
@@ -210,6 +212,24 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   stats.workers = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : parent.size;
   auto control = options;
   control.timings = options.timings || config.GetWrt_Performance();
+  using Probe = SU2NativeLocal3D::CollapseProbe;
+  namespace cert = geometry_certificates;
+  const bool surface_mode = config.GetAdap_Native_Local_Core() && config.GetAdap_Native_Local_Surface() &&
+                            !config.GetnAdap_BL() && !construction;
+  const auto probe = surface_mode ? SU2NativeLocal3D::FP3Probe() : Probe::None;
+  std::optional<cert::Event> certificates;
+  std::optional<SU2NativeTiming3D::UnattributedSpans> spans;
+  if (surface_mode && (probe == Probe::None || probe == Probe::SC1Count)) {
+    certificates.emplace(probe == Probe::SC1Count ? 6 : 0, parent.rank, control.timings);
+    if (geometryCertificates && geometryCertificates->accepted && reference->original && reference->original->Parameters() &&
+        geometryCertificates->accepted->authority.get() == &reference->original->Parameters()->Geometry())
+      certificates->old = std::move(geometryCertificates->accepted);
+    if (probe == Probe::SC1Count && control.timings) {
+      spans.emplace();
+      certificates->observer_bytes = sizeof(*spans);
+    }
+  }
+  if (geometryCertificates) geometryCertificates->accepted.reset();
   SU2NativeTiming3D::Session timer_tree(control.timings, "remesh", parent.rank, parent.size,
                                         SU2NativeTiming3D::Phase::Preparation);
   if (timer_tree.Owns()) control.caller_bytes = transfer_memory::Add(control.caller_bytes, timer_tree.ReservedBytes());
@@ -247,7 +267,19 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
                 cpu,
                 now,
                 deadline_start,
-                CURRENT_FUNCTION};
+                CURRENT_FUNCTION,
+                geometryCertificates,
+                certificates ? &*certificates : nullptr,
+                surface_mode,
+                int(probe)};
   run.Run();
+  if (certificates) {
+    certificates->Report(stats.workers, stats.normalization_stages ? stats.normalization_stages - 1 : 0,
+                         certificates->eligible_stages);
+    if (spans) {
+      timer_tree.Finish();
+      spans->Report(timer_tree.Snapshot(), parent.rank, certificates->counts.skip_seconds);
+    }
+  }
   return result;
 }

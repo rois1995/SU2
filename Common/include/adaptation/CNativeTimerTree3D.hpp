@@ -12,6 +12,8 @@
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
+#include <limits>
+#include <sstream>
 #include <stdexcept>
 
 namespace SU2NativeTiming3D {
@@ -29,7 +31,7 @@ enum class Phase : std::size_t {
   Count
 };
 
-/*! Named operations recorded within each phase; Unattributed records phase-only scopes. */
+/*! Named operations recorded within each phase; Unattributed includes phase-only scopes. */
 enum class Operation : std::size_t {
   Unattributed,
   Import,
@@ -62,7 +64,7 @@ struct Record {
   std::uint64_t calls = 0;
 };
 
-/*! Snapshot of completed rows; coverage excludes root and phase-only unattributed time. */
+/*! Snapshot of completed rows; coverage excludes root-exclusive and unattributed time. */
 struct SnapshotData {
   std::array<std::array<Record, static_cast<std::size_t>(Operation::Count)>, static_cast<std::size_t>(Phase::Count)>
       records{};
@@ -164,6 +166,124 @@ inline const char* OperationName(Operation operation) {
   return "invalid";
 }
 
+/*! Lexical source of a timer transition, independent of the timer ledger. */
+struct SourceSite {
+  const char* file;
+  int line;
+};
+
+/*! Caller-owned count-mode trace of the longest gaps in the remesh coverage ledger. */
+class UnattributedSpans {
+ public:
+  /*! Install before the remesh root begins and keep alive until that root finishes. */
+  UnattributedSpans() noexcept {
+    if (current_frame == nullptr && active_ == nullptr) active_ = this;
+  }
+
+  ~UnattributedSpans() {
+    if (active_ == this) active_ = nullptr;
+  }
+
+  UnattributedSpans(const UnattributedSpans&) = delete;
+  UnattributedSpans& operator=(const UnattributedSpans&) = delete;
+
+  /*! Emit one row using the already finalized remesh snapshot and offsets from root start. */
+  void Report(const SnapshotData& snapshot, int rank, double skip_seconds) const {
+    if (!finished_) return;
+    const double attributed = snapshot.root_seconds - snapshot.unattributed_seconds;
+    const double remaining = snapshot.root_seconds - skip_seconds;
+    const double predicted = remaining > 0. ? (attributed - skip_seconds) / remaining
+                                           : std::numeric_limits<double>::quiet_NaN();
+    std::ostringstream row;
+    row << std::setprecision(17) << "NATIVE3D_UNATTRIBUTED_SPANS rank=" << rank
+        << " root_seconds=" << snapshot.root_seconds << " attributed_seconds=" << attributed
+        << " unattributed_seconds=" << snapshot.unattributed_seconds << " skip_seconds=" << skip_seconds
+        << " predicted_coverage=" << predicted;
+    for (std::size_t index = 0; index < longest_.size(); ++index) {
+      const auto phase = static_cast<Phase>(index);
+      const char* name = PhaseName(phase);
+      const auto& record = snapshot.records[index][static_cast<std::size_t>(Operation::Unattributed)];
+      const auto root_exclusive = phase == Phase::Preparation ? snapshot.root_exclusive_seconds : 0.;
+      row << ' ' << name << "_unattributed_seconds=" << record.exclusive_seconds + root_exclusive;
+      const auto& spans = longest_[index];
+      for (std::size_t i = 0; i < spans.size() && spans[i].end > spans[i].start; ++i) {
+        const auto& span = spans[i];
+        row << ' ' << name << "_span" << i + 1 << "_start=" << Seconds(span.start)
+            << ' ' << name << "_span" << i + 1 << "_end=" << Seconds(span.end)
+            << ' ' << name << "_span" << i + 1 << "_open=";
+        AppendBoundary(row, span.open);
+        row << ' ' << name << "_span" << i + 1 << "_close=";
+        AppendBoundary(row, span.close);
+      }
+    }
+    row << '\n';
+    std::cout << row.str();
+  }
+
+ private:
+  friend class Session;
+  friend class Scope;
+  using Clock = std::chrono::steady_clock;
+  using Offset = Clock::duration;
+
+  struct Boundary {
+    const char* kind;
+    SourceSite site;
+  };
+
+  struct Span {
+    Offset start;
+    Offset end;
+    Boundary open;
+    Boundary close;
+  };
+
+  static double Seconds(Offset offset) { return std::chrono::duration<double>(offset).count(); }
+
+  static void AppendBoundary(std::ostream& row, const Boundary& boundary) {
+    const char* name = boundary.site.file;
+    for (const char* c = name; *c; ++c)
+      if (*c == '/' || *c == '\\') name = c + 1;
+    row << boundary.kind << ':' << name << ':' << boundary.site.line;
+  }
+
+  void Start(Clock::time_point now, SourceSite site) noexcept {
+    start_ = now;
+    last_ = now;
+    opening_ = {"root_start", site};
+  }
+
+  void Finish(Clock::time_point now, const Frame& root, SourceSite site) noexcept {
+    Transition(now, root, {"root_finish", site});
+    finished_ = true;
+  }
+
+  /*! The outgoing top frame owns this interval even under a named ancestor. */
+  void Transition(Clock::time_point now, const Frame& outgoing, Boundary boundary) noexcept {
+    if (outgoing.parent == nullptr || outgoing.operation == Operation::Unattributed) {
+      const auto phase = outgoing.parent == nullptr ? Phase::Preparation : outgoing.phase;
+      auto& longest = longest_[static_cast<std::size_t>(phase)];
+      const Span gap{last_ - start_, now - start_, opening_, boundary};
+      const auto duration = gap.end - gap.start;
+      for (std::size_t i = 0; i < longest.size(); ++i) {
+        if (duration <= longest[i].end - longest[i].start) continue;
+        for (std::size_t j = longest.size() - 1; j > i; --j) longest[j] = longest[j - 1];
+        longest[i] = gap;
+        break;
+      }
+    }
+    last_ = now;
+    opening_ = boundary;
+  }
+
+  inline static thread_local UnattributedSpans* active_ = nullptr;
+  std::array<std::array<Span, 3>, static_cast<std::size_t>(Phase::Count)> longest_{};
+  Clock::time_point start_{};
+  Clock::time_point last_{};
+  Boundary opening_{};
+  bool finished_ = false;
+};
+
 /*! Root ledger and local stdout report; nested sessions borrow the active root. */
 class Session {
  public:
@@ -172,7 +292,8 @@ class Session {
   static constexpr std::size_t OperationCount = static_cast<std::size_t>(Operation::Count);
 
   /*! Create the only root on a thread when enabled; disabled sessions do no timing work. */
-  Session(bool enabled, const char* root_name, int rank, int ranks, Phase initial_phase)
+  Session(bool enabled, const char* root_name, int rank, int ranks, Phase initial_phase,
+          SourceSite site = {__builtin_FILE(), __builtin_LINE()})
       : root_name_(root_name), rank_(rank), ranks_(ranks) {
     if (!enabled || current_frame != nullptr) return;
     if (initial_phase == Phase::Count) throw std::invalid_argument("Invalid initial timer phase.");
@@ -180,13 +301,14 @@ class Session {
     root_frame_.session = this;
     root_frame_.phase = initial_phase;
     root_frame_.started = Clock::now();
+    if (auto* spans = UnattributedSpans::active_) spans->Start(root_frame_.started, site);
     current_frame = &root_frame_;
   }
 
   /*! Close and locally report an owning session; borrowed and disabled sessions are silent. */
   ~Session() {
     if (!owns_) return;
-    if (!finished_ && current_frame == &root_frame_) Finalize();
+    if (!finished_ && current_frame == &root_frame_) Finalize({__FILE__, __LINE__});
     if (finished_) Report("final");
   }
 
@@ -206,10 +328,10 @@ class Session {
   static constexpr std::size_t ReservedBytes() { return sizeof(Session); }
 
   /*! Finalize only after every lexical child scope has restored the root frame. */
-  void Finish() {
+  void Finish(SourceSite site = {__builtin_FILE(), __builtin_LINE()}) {
     if (!owns_ || finished_) return;
     if (current_frame != &root_frame_) throw std::logic_error("Timer session finished with open scopes.");
-    Finalize();
+    Finalize(site);
   }
 
   /*! Emit a nonfinal cumulative snapshot at a resumable boundary without closing live scopes. */
@@ -276,10 +398,12 @@ class Session {
   }
 
   /*! Finalize root totals and remove this session from the thread-local context. */
-  void Finalize() {
-    root_seconds_ = Seconds(root_frame_.started, Clock::now());
+  void Finalize(SourceSite site) {
+    const auto now = Clock::now();
+    root_seconds_ = Seconds(root_frame_.started, now);
     const auto exclusive = root_seconds_ - root_frame_.child_seconds;
     root_exclusive_seconds_ = exclusive > 0. ? exclusive : 0.;
+    if (auto* spans = UnattributedSpans::active_) spans->Finish(now, root_frame_, site);
     finished_ = true;
     current_frame = nullptr;
   }
@@ -322,15 +446,18 @@ class Session {
 class Scope {
  public:
   /*! Start an operation in the current phase, or remain inert when no root is active. */
-  explicit Scope(Operation operation) : Scope(operation, Phase::Count, false) {}
+  explicit Scope(Operation operation, SourceSite site = {__builtin_FILE(), __builtin_LINE()})
+      : Scope(operation, Phase::Count, false, site) {}
 
   /*! Restore the prior frame and add inclusive/exclusive totals, including during unwinding. */
   ~Scope() {
     if (!active_) return;
-    const auto elapsed = Session::Seconds(frame_.started, Session::Clock::now());
+    const auto now = Session::Clock::now();
+    const auto elapsed = Session::Seconds(frame_.started, now);
     const auto exclusive = elapsed > frame_.child_seconds ? elapsed - frame_.child_seconds : 0.;
     frame_.session->Add(frame_.phase, frame_.operation, elapsed, exclusive);
     frame_.parent->child_seconds += elapsed;
+    if (auto* spans = UnattributedSpans::active_) spans->Transition(now, frame_, {"pop", site_});
     current_frame = frame_.parent;
   }
 
@@ -347,7 +474,7 @@ class Scope {
   friend class PhaseScope;
 
   /*! Start an operation under an explicit phase for PhaseScope's phase-only node. */
-  Scope(Operation operation, Phase phase, bool override_phase) {
+  Scope(Operation operation, Phase phase, bool override_phase, SourceSite site) {
     if (operation >= Operation::Count) throw std::invalid_argument("Invalid timer operation.");
     if (override_phase && phase >= Phase::Count) throw std::invalid_argument("Invalid timer phase.");
     if (current_frame == nullptr) return;
@@ -356,11 +483,16 @@ class Scope {
     frame_.phase = override_phase ? phase : current_frame->phase;
     frame_.operation = operation;
     frame_.started = Session::Clock::now();
+    if (auto* spans = UnattributedSpans::active_) {
+      site_ = site;
+      spans->Transition(frame_.started, *current_frame, {"push", site});
+    }
     current_frame = &frame_;
     active_ = true;
   }
 
   Frame frame_{};
+  SourceSite site_;
   bool active_ = false;
 };
 
@@ -368,7 +500,8 @@ class Scope {
 class PhaseScope {
  public:
   /*! Record an unattributed phase frame and restore the previous phase on scope exit. */
-  explicit PhaseScope(Phase phase) : scope_(Operation::Unattributed, phase, true) {}
+  explicit PhaseScope(Phase phase, SourceSite site = {__builtin_FILE(), __builtin_LINE()})
+      : scope_(Operation::Unattributed, phase, true, site) {}
 
   /*! Preserve the contained scope frame's lexical lifetime and restore order. */
   PhaseScope(const PhaseScope&) = delete;

@@ -58,6 +58,8 @@ void EngineSetup::CheckInitialNumericPolicies(EngineContext& context, bool curve
           options.shared_geometry_budget
               ? std::min(atlas_budget.maximum_work, transfer_memory::Add(atlas_budget.work, allowance))
               : allowance;
+    if (auto* certificates = geometry_certificates::active; certificates && options.timings)
+      certificates->atlas_work_limit = atlas_budget.maximum_work;
   }
   const auto lease_low =
       TimedAllreduce(unsigned(bool(options.geometry_reservation)), CPassiveComm::Op::MIN, world.comm);

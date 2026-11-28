@@ -103,8 +103,11 @@ size_t EngineExchange::Bytes(EngineContext& context) {
   auto& field_identity = *context.census.field_identity;
   auto& inactive_blocked_edges = *context.queues.inactive_blocked_edges;
   auto& inactive_blocked_links = *context.queues.inactive_blocked_links;
+  const auto* certificates = geometry_certificates::active;
+  const auto certificate_growth = certificates ? certificates->Bytes() - certificates->engine_charged_bytes : 0;
   return transfer_memory::Add(
-      options.caller_bytes, MapBytes(options.wall_heights), MapBytes(options.region_walls), accepted_bytes, batch_bytes,
+      options.caller_bytes, certificate_growth, MapBytes(options.wall_heights), MapBytes(options.region_walls),
+      accepted_bytes, batch_bytes,
       diagnostic_bytes, MapBytes(working), checkpoint.Bytes(), transfer_memory::Bytes(batch_changed),
       MapBytes(batch_touched), MapBytes(batch_supports), transfer_memory::Bytes(original),
       transfer_memory::Bytes(initial), transfer_memory::Bytes(eligible_extensions),
@@ -139,6 +142,8 @@ bool EngineExchange::Admit(EngineContext& context, size_t extra) {
   if (admitted && atlas_geometry) {
     atlas_budget.caller_bytes = peak - atlas_scratch;
     atlas_budget.maximum_bytes = options.memory_ceiling;
+    if (auto* certificates = geometry_certificates::active)
+      certificates->atlas_charged_bytes = certificates->Bytes();
   }
   return admitted;
 }

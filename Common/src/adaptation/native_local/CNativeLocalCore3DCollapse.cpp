@@ -7,6 +7,7 @@
 #include "../../../include/adaptation/CNativeLocalContact3D.hpp"
 #include "../../../include/adaptation/CNativeLocalSurface3D.hpp"
 #include "../../../include/adaptation/CNativeCurvedReference.hpp"
+#include "../../../include/adaptation/CNativeGeometryCertificates3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -498,8 +499,11 @@ SurfaceCollapseRefusal Mesh::CollapseSurface(Edge edge, Slot seed, SurfaceGeomet
   for (unsigned i : {first, 1 - first}) {
     auto& trial = trials[i];
     if (trial.refusal != Reason::None) continue;
+    auto* certificates = SU2Native3D::geometry_certificates::active;
+    const auto certificate_start = certificates ? certificates->core.size() : 0;
     const auto reason = test_geometry(trial);
     if (reason != Reason::None) {
+      if (certificates) certificates->core.resize(certificate_start);
       count(reason);
       trial.refusal = reason;
       trial.failure_order = FailureOrder(reason, options_.outward_collapses);
