@@ -2850,3 +2850,5 @@ SC1 build682 G1 identity passed in serial, MPI2 and MPI4: 375 / 114 / 228 record
 SC1 G1 checkpoint 4d31551c30 pushed. G2 passed the exact decision, integer, modeled-storage and timer comparison under the legacy keys. Its prefix controller elapsed 236.507 s. GQ continues.
 
 SC1 G2 and GQ both passed with exact decisions and modeled storage and fixedstorage=4120. Launched configurations authenticate the DEF1 legacy projection. Shared first-collapse passed. Continue the remaining safeguards under the same supervisor.
+
+SC1 prefix checkpoint 94eb626cc2 pushed. All five shared groups passed on build682: exact first-collapse, exact C492, merit481, native 2D at 1/2/4 ranks and saved-current. G3 runs next, and G4 seals the pinned 2D executions.

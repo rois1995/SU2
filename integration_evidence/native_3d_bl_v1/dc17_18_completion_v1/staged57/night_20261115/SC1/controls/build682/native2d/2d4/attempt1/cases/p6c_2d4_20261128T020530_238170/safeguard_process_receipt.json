@@ -1,0 +1,105 @@
+{
+  "state": "terminal",
+  "host": {
+    "hostname": "pc-rausa",
+    "boot_id": "c2e658c2-00e7-4daf-8942-349c59218707",
+    "procfs_pid1": true,
+    "loadavg": "2.46 2.75 4.09 1/3690 238331",
+    "mem_available_kib": 38276972,
+    "mem_available_mib": 37379
+  },
+  "root": {
+    "pid": 238265,
+    "state": "R",
+    "ppid": 238170,
+    "start_ticks": 132383872,
+    "name": "time"
+  },
+  "observed_processes": [],
+  "peak_sampled_tree_rss_bytes": 180760576,
+  "peak_hwm_by_pid_start_ticks": {
+    "238265:132383872": 1527808,
+    "238266:132383872": 2146304,
+    "238272:132383875": 40124416,
+    "238273:132383875": 40271872,
+    "238267:132383872": 15572992,
+    "238270:132383875": 40693760,
+    "238271:132383875": 40423424
+  },
+  "exit_code": 0,
+  "seconds": 3.301393508911133,
+  "actual_host_proc": true,
+  "identities": [
+    {
+      "pid": 238265,
+      "state": "S",
+      "ppid": 238170,
+      "start_ticks": 132383872,
+      "name": "time",
+      "VmHWM": 1527808,
+      "VmRSS": 1527808,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 238266,
+      "state": "S",
+      "ppid": 238265,
+      "start_ticks": 132383872,
+      "name": "timeout",
+      "VmHWM": 2146304,
+      "VmRSS": 2146304,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 238272,
+      "state": "R",
+      "ppid": 238267,
+      "start_ticks": 132383875,
+      "name": "test_driver",
+      "VmHWM": 40124416,
+      "VmRSS": 40124416,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 238273,
+      "state": "R",
+      "ppid": 238267,
+      "start_ticks": 132383875,
+      "name": "test_driver",
+      "VmHWM": 40271872,
+      "VmRSS": 40271872,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 238267,
+      "state": "S",
+      "ppid": 238266,
+      "start_ticks": 132383872,
+      "name": "mpirun",
+      "VmHWM": 15572992,
+      "VmRSS": 15572992,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 238270,
+      "state": "R",
+      "ppid": 238267,
+      "start_ticks": 132383875,
+      "name": "test_driver",
+      "VmHWM": 40693760,
+      "VmRSS": 40693760,
+      "alive_at_terminal": false
+    },
+    {
+      "pid": 238271,
+      "state": "R",
+      "ppid": 238267,
+      "start_ticks": 132383875,
+      "name": "test_driver",
+      "VmHWM": 40423424,
+      "VmRSS": 40423424,
+      "alive_at_terminal": false
+    }
+  ],
+  "live_owned_descendants": []
+}
