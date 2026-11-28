@@ -2840,3 +2840,7 @@ MMG2 checkpoint 38252f5752 pushed. DEF1 final disposition ACCEPTED, build681. Se
 SC1 start after accepted DEF1 862717ac8f and verified terminal handles. Verified the order SHA256 10280d0d70d04ed4bb7d4721d295055035bdceb2b8a3fe4149be1847704e5eb2 and preserved its copy and sidecar. Completed the one R4 source check in SC1/reports/source_check.md before any production edit. Next implement the S-only certificate sidecar, phase-specific reader and telemetry.
 
 SC1 production written after R4. Only eligible mode S uses the exact-bit face table. The count path keeps the legacy distance call, records separate unattributed spans and preserves the original timer row size. The selected worker stage gathers once before return and publishes only via accepted mesh replacement. Offline timer, launch binding and validator self-checks passed. Freeze the candidate and build682 before step 1.
+
+SC1 frozen production checkpoint f00440db8c pushed. Build682 started at 02:07:57 CET under su2-sc1-build682 with four nice-19 workers. Wait for the terminal compiler and pin seal before the scoped step-1 controls.
+
+SC1 build682 passed with 75 build actions, no warnings and both pinned binaries linked. Solver 8977ef1375dd4a6be5b3ca87a4b549997040d79a6ba7ec041685db9ce4331d07. Start the exact step-1 legacy-scoped campaign.

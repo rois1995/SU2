@@ -1,0 +1,58 @@
+{
+  "state": "terminal",
+  "passed": true,
+  "build": 682,
+  "exit_code": 0,
+  "base": "862717ac8f",
+  "baseline_build": 681,
+  "source_commit": "f00440db8cb38fbdc8c2aafaa8fdacbc62bd353d",
+  "pins_verified": true,
+  "changed": [
+    "Common/include/adaptation/CNativeGeometryCertificates3D.hpp",
+    "Common/include/adaptation/CNativeLocalCore3D.hpp",
+    "Common/include/adaptation/CNativeRemesher3D.hpp",
+    "Common/include/adaptation/CNativeTimerTree3D.hpp",
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativeRemesher3D.cpp",
+    "Common/src/adaptation/native_engine3d/EngineAdapt.cpp",
+    "Common/src/adaptation/native_engine3d/EngineCensus.cpp",
+    "Common/src/adaptation/native_engine3d/EngineCommit.cpp",
+    "Common/src/adaptation/native_engine3d/EngineControl.cpp",
+    "Common/src/adaptation/native_engine3d/EngineExchange.cpp",
+    "Common/src/adaptation/native_engine3d/EngineOwnership.cpp",
+    "Common/src/adaptation/native_engine3d/EngineSetup.cpp",
+    "Common/src/adaptation/native_engine3d/EngineTrial.cpp",
+    "Common/src/adaptation/native_engine3d/MeshOptimizer.cpp",
+    "Common/src/adaptation/native_engine3d/NativeRemeshRun.inc",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DMeasures.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp"
+  ],
+  "source_pins_sha256": "62d80ca5a635a391ac4290c445472d66b7d4c00efdbc9b8d6ebbd0b6bef051b1",
+  "production_diff_sha256": "92f7ef37a41143740bf8221db96c74e49006ee24986dd5ab4ff414c9de5cc713",
+  "graph_before": {
+    "build.ninja": "58eba870aa83b4d8fbcabae3a2f09ebaa11e6a5605a9b2ebe217da7f507b6d3a",
+    "compile_commands.json": "c9182e951dd6e19fddda1a7d18c184a132f5b3a022248d07a884a50f62961929"
+  },
+  "graph_after": {
+    "build.ninja": "58eba870aa83b4d8fbcabae3a2f09ebaa11e6a5605a9b2ebe217da7f507b6d3a",
+    "compile_commands.json": "c9182e951dd6e19fddda1a7d18c184a132f5b3a022248d07a884a50f62961929"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "8977ef1375dd4a6be5b3ca87a4b549997040d79a6ba7ec041685db9ce4331d07",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "d0f777550290b894603d4a86f1906757dce4b9a0d3e6c43bc48db92d399309c1",
+  "warnings": [],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 173140,
+      "start_ticks": 132038384
+    },
+    "returncode": 0,
+    "elapsed_seconds": 629.7062950134277,
+    "terminal": true
+  }
+}
