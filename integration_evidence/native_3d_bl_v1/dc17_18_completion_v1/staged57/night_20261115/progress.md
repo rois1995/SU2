@@ -2902,3 +2902,5 @@ TOL1 scalar C492 exact safeguard passed with a terminal controller at 610.677 s.
 TOL1 C492 checkpoint 30afffc5b5 pushed. Merits 481 safeguard passed. The scoped supervisor continues native 2D at 1, 2 and 4 ranks and then saved-current.
 
 TOL1 merit481, native 2D BL and no-BL at 1/2/4 ranks, and saved-current passed. The five shared groups are complete. G3 is the final live scoped case, followed by the G4 seal from the authenticated native 2D runs.
+
+TOL1 scalar scoped campaign passed all 12 parts on build686. G3 accepted 1,612 splits against the minimum 336 and matched all 1,592 common edits and observer-adjusted work 5,113/5,113. Zero upper refinements and all physical/resource checks passed. G4 sealed the executed 2D cases. The scoped supervisor is terminal. Next one scalar mode S workflow and isolated restart.
