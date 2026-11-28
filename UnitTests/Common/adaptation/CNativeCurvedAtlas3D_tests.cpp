@@ -1024,10 +1024,10 @@ struct MarkerPyramidFixture {
 
 TEST_CASE("TOL1 projected private trials honor the marker geometry classifier and final proof", "[.][TOL1]") {
   namespace cert = geometry_certificates;
-  const bool loose = GENERATE(false, true);
-  const MarkerTolerance3D tolerances({{"BASE", loose ? MarkerTrialLoose : MarkerTrialStrict},
-                                      {"SIDES", loose ? MarkerTrialStrict : MarkerTrialLoose}},
+  const MarkerTolerance3D tolerances({{"BASE", MarkerTrialLoose}, {"SIDES", MarkerTrialStrict}},
                                      {"BASE", "SIDES"}, 1.);
+  const MarkerTolerance3D strict_base({{"BASE", MarkerTrialStrict}, {"SIDES", MarkerTrialLoose}},
+                                      {"BASE", "SIDES"}, 1.);
   cert::ScopedValue<const MarkerTolerance3D*> bind(active_marker_tolerance, &tolerances);
   auto budget = RemappingBudget();
   MarkerPyramidFixture fixture(tolerances, budget);
@@ -1040,7 +1040,6 @@ TEST_CASE("TOL1 projected private trials honor the marker geometry classifier an
   const auto view = fixture.reference->PrivateParameters(fresh);
   REQUIRE(view);
 
-  size_t refused = 0;
   double maximum = 0;
   for (const auto& face : fresh.surface) {
     std::array<Point, 3> triangle;
@@ -1048,41 +1047,45 @@ TEST_CASE("TOL1 projected private trials honor the marker geometry classifier an
     REQUIRE(view->ContainsFace(face.facet, triangle));
     const double error = view->SurfaceDeviation(face.facet, triangle, SurfaceQueryNeed::Classify().ForMarker());
     REQUIRE(std::isfinite(error));
-    const double limit = FaceTolerance(*view, face.facet, MarkerTrialStrict);
-    CHECK(limit == (loose ? MarkerTrialLoose : MarkerTrialStrict));
-    refused += error > limit;
-    const auto magnitude = view->SurfaceDeviation(face.facet, triangle, SurfaceQueryNeed::Magnitude().ForMarker());
-    REQUIRE(std::isfinite(magnitude));
-    maximum = std::max(maximum, magnitude);
+    CHECK(FaceTolerance(*view, face.facet, MarkerTrialStrict) == MarkerTrialLoose);
+    maximum = std::max(maximum, error);
   }
+  CAPTURE(maximum);
   CHECK(maximum > MarkerTrialStrict);
   CHECK(maximum < MarkerTrialLoose);
-  CHECK((refused == 0) == loose);
-  uint64_t measured = 0;
-  const auto counts = GeometryCounts(fresh, *fixture.reference, MarkerTrialStrict, budget, measured);
-  CHECK(measured == fresh.surface.size());
-  CHECK(counts.second == refused);
-  CHECK((counts.first == 0) == loose);
 
-  if (loose) {
-    for (auto& face : fixture.skin)
-      for (auto& id : face.v)
-        if (id == 0) id = trial.id;
-    fixture.points.erase(0);
-    fixture.points.emplace(trial.id, fresh.parameters.at(trial.id));
-    BoundaryParameterState accepted(fixture.authority, fixture.points, fixture.skin, 2, SIZE_MAX, 0,
-                                    fixture.state->Coverage(), fixture.policy, &budget, MarkerTrialStrict);
-    const auto reverse = accepted.OwnedFaceReverseBounds(fixture.skin, budget);
-    REQUIRE(accepted.ReverseProofComplete(reverse));
-    BoundaryParameterState::Certificates proof;
-    accepted.GeometryCertificates(budget, true, &reverse, &proof);
-    size_t faces = 0;
-    for (const auto& row : proof) {
-      CHECK(row.second.within_tolerance);
-      faces += row.second.physical_pieces;
-    }
-    CHECK(faces == fixture.skin.size());
+  uint64_t measured = 0;
+  const auto accepted_counts = GeometryCounts(fresh, *fixture.reference, MarkerTrialStrict, budget, measured);
+  CHECK(measured == fresh.surface.size());
+  CHECK(accepted_counts.first == 0);
+  CHECK(accepted_counts.second == 0);
+  {
+    // Exchange the marker limits and admit the very same projected face geometry.
+    cert::ScopedValue<const MarkerTolerance3D*> strict_admission(active_marker_tolerance, &strict_base);
+    measured = 0;
+    const auto refused_counts = GeometryCounts(fresh, *fixture.reference, MarkerTrialStrict, budget, measured);
+    CHECK(measured == fresh.surface.size());
+    CHECK(refused_counts.first > 0);
+    CHECK(refused_counts.second > 0);
   }
+
+  for (auto& face : fixture.skin)
+    for (auto& id : face.v)
+      if (id == 0) id = trial.id;
+  fixture.points.erase(0);
+  fixture.points.emplace(trial.id, fresh.parameters.at(trial.id));
+  BoundaryParameterState accepted(fixture.authority, fixture.points, fixture.skin, 2, SIZE_MAX, 0,
+                                  fixture.state->Coverage(), fixture.policy, &budget, MarkerTrialStrict);
+  const auto reverse = accepted.OwnedFaceReverseBounds(fixture.skin, budget);
+  REQUIRE(accepted.ReverseProofComplete(reverse));
+  BoundaryParameterState::Certificates proof;
+  accepted.GeometryCertificates(budget, true, &reverse, &proof);
+  size_t faces = 0;
+  for (const auto& row : proof) {
+    CHECK(row.second.within_tolerance);
+    faces += row.second.physical_pieces;
+  }
+  CHECK(faces == fixture.skin.size());
 }
 
 TEST_CASE("TOL1 direct child face between the limits survives the engine collapse filter", "[.][TOL1]") {

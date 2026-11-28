@@ -1,0 +1,33 @@
+{
+  "name": "TOL1",
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+    "[TOL1]",
+    "-r",
+    "xml"
+  ],
+  "settings": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "returncode": -15,
+  "stdout": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build685/fixtures/929449/TOL1/stdout",
+  "stderr": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build685/fixtures/929449/TOL1/stderr",
+  "host_preflight": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/TOL1/build685/fixtures/929449/TOL1/host_preflight.json",
+  "timed_out": false,
+  "selected_tests": [
+    "TOL1 projected marker inventory keeps declared absent values and canonical identity",
+    "TOL1 in-range child-fan samples reach the step-C whole-face classifier",
+    "A subdivided curved marker seam survives private and shared native edits",
+    "TOL1 step D honors the marker limit for midpoint and centroid triggers",
+    "TOL1 projected private trials honor the marker geometry classifier and final proof"
+  ],
+  "expected": 9,
+  "passed": false
+}

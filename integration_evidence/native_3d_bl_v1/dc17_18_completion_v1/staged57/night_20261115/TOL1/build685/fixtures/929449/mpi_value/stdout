@@ -1,0 +1,30 @@
+[1;33mFilters: [tol1_fatal]
+[1;33mFilters: [tol1_fatal]
+[0m
+
+Error in "virtual CRemeshResult CNativeRemesher3D::Remesh(const CConfig&, const CGeometry&, const su2activematrix&)": 
+-------------------------------------------------------------------------
+ADAP_HAUSD differs between ranks.
+------------------------------ Error Exit -------------------------------
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0;37mtest_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+[0m-------------------------------------------------------------------------------
+[0mTOL1 fatal native geometry and parent agreement subprocess
+[0m-------------------------------------------------------------------------------
+[0;37m../../UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp:305
+...............................................................................
+
+[0m[0;37m../../UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp:305: [0m[1;31mFAILED:
+[0m[0;36m  {Unknown expression after the reported line}
+[0mdue to a fatal error condition:
+  SIGTERM - Termination request signal
+
+[1;31m===============================================================================[0m[1;33m[0m[0;32m[0m
+test cases: 1[0;37m | [0m[1;31m1 failed[0m
+assertions: 3[0;37m | [0m[0;32m2 passed[0m[0;37m | [0m[1;31m1 failed[0m
+

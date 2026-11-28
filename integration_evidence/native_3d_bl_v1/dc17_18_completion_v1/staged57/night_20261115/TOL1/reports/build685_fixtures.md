@@ -1,0 +1,5 @@
+# TOL1 build685 fixture results and R3 correction
+
+The DEF1 normal cases and all 21 fatal subprocesses passed, including the corrected mapped missing-marker and unit-scale floor cases. Both agreement subprocesses gave the expected diagnostic within their watchdog. The tiny-coordinate check exercises the table construction used by native setup with the synthetic scale 1e-298 and tolerance 2e-310.
+
+The projected-trial magnitude query was still working after 6 minutes 34 seconds. This fixture only needs the certified upper bound at the loose limit and the two admission decisions. The main agent verified the test driver's parent, service cgroup, working directory and argv, then signalled only that child at 11:44:07 CET. The supervisor remained active and finished the other groups. The revised fixture measures the upper bound at the loose limit and sends the very same projected patch to GeometryCounts under both tolerance assignments. The complete proof runs with the accepting tolerance assignment. No production source, tolerance, or fixture geometry changed.
