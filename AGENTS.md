@@ -178,6 +178,11 @@ R13. Questions (user order, 2026-11-17). When you have a question about an
   record stays for OFF, CORE, G2, GQ, G3 and `saved_current`; its S entry stays the reference of the lab value `2`;
   the S entry of FP3-B is the reference of the lab value `3`; the S entry of FP3-D is the reference of the lab value `4`.
 
+- Since DEF1 the defaults are `ADAP_NORM= 2` (GOAL: 1) and `ADAP_HGRAD= 1.6`, also for serial MMG;
+  `ADAP_HAUSD` takes a marker list for MMG; every NEWLY EXECUTED standing-gate and reference configuration that omits
+  a key gets `ADAP_NORM= 1.0` / `ADAP_HGRAD= 1.3` inserted (existing explicit values and sealed inputs unchanged);
+  the references do not change.
+
 ## 3. State (history; do not repeat a passed check)
 
 Items N1 to N18 and the cut (N4 phases A to D, N6): see the table of work order 2 in your evidence and the handbooks.

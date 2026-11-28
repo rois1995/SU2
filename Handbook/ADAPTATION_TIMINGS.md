@@ -1,5 +1,16 @@
 # Adaptation timings and computational work
 
+## DEF1 pinned standing and capability runs, build681
+
+G5 mode S with legacy-pinned settings took 417.996 and 258.351 native seconds, with phase maxima of 180.195 and 85.858 s in construction, 124.314 and 21.966 s in quality, and 40.409 and 48.974 s in final proof. Minimum rank timer coverage was 97.84% and 99.46%. The isolated restart took 63.165 s. All six output hashes matched FP3-E. [DEF1 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/reports/DEF1_681.md)
+
+| Capability run | Whole solver s | Adaptation event 1 / 2 / 3 / 4 s | Terminal rank peak sum MiB |
+| --- | ---: | --- | ---: |
+| CL2 | 4437.311 | 360.633 native s for event 1. Events 2–4 rejected. | 8071.8 |
+| MMG2 | 6338.030 | 151.304 / 213.412 / 261.513 / 288.669 whole remesh s | 4820.0 |
+
+CL2 combines norm 2, gradation 1.6 and the 0.003 size floor. After the event 2 quality rejection, events 2–4 kept the event 1 mesh. MMG2 reached 148,915 points and 828,864 cells. Cycle 3 converged at 1,844 iterations. Cycles 1, 2 and 4 reached their 2,000-iteration caps. The native times cover the native engine. MMG times include extraction and distribution. The reports give component times, exact process peaks and the measured host load. [CL2 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL2/reports/CL2_681.md) · [MMG2 report](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/reports/MMG2_681.md)
+
 ## Fast path stage 3
 
 ### FP3-E mode S quality debt hand-off, build680

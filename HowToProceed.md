@@ -1,5 +1,7 @@
 # Work order status
 
+DEF1 is accepted on build681. For new executions of standing gates and reference checks, insert the legacy norm 1.0 and gradation 1.3 only where the keys are omitted. Preserve existing values and sealed inputs. For the capability runs, CL2 verified the new defaults and its first quality rejection was event 2. MMG2 passed the four-cycle workflow with the new defaults and per-marker Hausdorff values. No new reference was adopted. [DEF1 report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/reports/DEF1_681.md)
+
 FP3-E build680 is accepted and closed. Its matching S runs supply the ordinary S reference. Use FP2-P3 for OFF, CORE, G2, GQ, G3 and saved-current, its S entry for lab control 2, FP3-B S for lab control 3, and FP3-D S for lab control 4. The full CORE and OFF workflows were unevaluated. [FP3-E report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/reports/FP3_E_680.md) · [Accepted S reference](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json)
 
 FP3-D build678 is accepted and closed. Its S pair supplies the reference for lab control 4. [FP3-D report](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/reports/FP3_D_678.md) · [Accepted S reference](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_D/accepted_reference.json)

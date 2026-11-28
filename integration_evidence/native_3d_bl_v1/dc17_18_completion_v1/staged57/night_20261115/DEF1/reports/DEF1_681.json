@@ -1,0 +1,1802 @@
+{
+  "label": "DEF1: defaults norm 2 and gradation 1.6; standing checks passed",
+  "status": "accepted",
+  "build": 681,
+  "source_commit": "782387b1314173bb64f48e9196b5cb17787b4a20",
+  "binary_sha256": "15e3710f376155c76c69b5845e7ec0f004af0423923865831093e1829e245025",
+  "section3": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/build681/section3.json",
+    "sha256": "ffdcebb2eff1d6f2924af14aab07b0b1333b4095bf3c8e514872343a84e03739"
+  },
+  "revert": null,
+  "reverted_candidate": null,
+  "diagnoses": [
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/reports/normal_lab_setup.md",
+      "sha256": "e2c69376f4aacd486d3739b4a0037d3be31cbe7cb21cc24edb091a7851081d9a"
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/reports/reverse_ad_setup.md",
+      "sha256": "3f10aca56f3048400c1b575c9556e4165d092b5f16fb7567a8a014571d8c50fe"
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/reports/g5_setup.md",
+      "sha256": "90c0f46d3890c0663a9aa44e3d5873016708f1a1be89623340c929c6fcb85d77"
+    }
+  ],
+  "source_check": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/reports/source_check.md",
+    "sha256": "fb8a7c19f502ac8b3f1a114903843c94d7d217420aeae14ebf6b876b54e56d68"
+  },
+  "touched_files_receipt": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/reports/touched_files.txt",
+    "sha256": "1c8d071b5d22eee884e94a3191f7d9d0e8ca668070aaa565828fc809c59326ec"
+  },
+  "touched_files": [
+    "Common/include/CConfig.hpp",
+    "Common/include/adaptation/CAdaptationOptions.hpp",
+    "Common/include/adaptation/CMMGInterface.hpp",
+    "Common/src/CConfig.cpp",
+    "Common/src/adaptation/CMMGInterface.cpp",
+    "TestCases/adaptation/capability/common.cfg",
+    "TestCases/adaptation/custom_sensors/euler_jst.cfg",
+    "TestCases/adaptation/custom_sensors/euler_no_muscl.cfg",
+    "TestCases/adaptation/custom_sensors/fixed_point.cfg",
+    "TestCases/adaptation/custom_sensors/fixed_point_nonlinear.cfg",
+    "TestCases/adaptation/custom_sensors/naca_legacy.cfg",
+    "TestCases/adaptation/custom_sensors/ns_plate.cfg",
+    "TestCases/adaptation/custom_sensors/predict.cfg",
+    "TestCases/adaptation/custom_sensors/predict_nonlinear.cfg",
+    "TestCases/adaptation/custom_sensors/rans_sa.cfg",
+    "TestCases/adaptation/custom_sensors/rans_sst.cfg",
+    "TestCases/adaptation/custom_sensors/window_average.cfg",
+    "TestCases/adaptation/custom_sensors/window_average_nonlinear.cfg",
+    "TestCases/aeroelastic/aeroelastic_NACA64A010.cfg",
+    "TestCases/axisymmetric_rans/air_nozzle/air_nozzle_restart.cfg",
+    "TestCases/axisymmetric_rans/air_nozzle/air_nozzle_species.cfg",
+    "TestCases/backscatter/backward_step/backwardStep.cfg",
+    "TestCases/cgns_writer/config.cfg",
+    "TestCases/cont_adj_euler/naca0012/inv_NACA0012.cfg",
+    "TestCases/cont_adj_euler/naca0012/inv_NACA0012_FD.cfg",
+    "TestCases/cont_adj_euler/naca0012/inv_NACA0012_discadj.cfg",
+    "TestCases/cont_adj_euler/naca0012/inv_NACA0012_discadj_multizone.cfg",
+    "TestCases/cont_adj_euler/oneram6/inv_ONERAM6.cfg",
+    "TestCases/cont_adj_euler/wedge/inv_wedge_ROE.cfg",
+    "TestCases/cont_adj_euler/wedge/inv_wedge_ROE_multiobj.cfg",
+    "TestCases/cont_adj_navierstokes/cylinder/lam_cylinder.cfg",
+    "TestCases/cont_adj_navierstokes/naca0012_sub/lam_NACA0012.cfg",
+    "TestCases/cont_adj_navierstokes/naca0012_trans/lam_NACA0012.cfg",
+    "TestCases/cont_adj_rans/naca0012/turb_nasa.cfg",
+    "TestCases/cont_adj_rans/naca0012/turb_nasa_binary.cfg",
+    "TestCases/cont_adj_rans/oneram6/turb_ONERAM6.cfg",
+    "TestCases/cont_adj_rans/rae2822/turb_SA_RAE2822.cfg",
+    "TestCases/control_surface/inv_ONERAM6_moving.cfg",
+    "TestCases/control_surface/inv_ONERAM6_setting.cfg",
+    "TestCases/coupled_cht/comp_2d/cht_2d_3cylinders.cfg",
+    "TestCases/coupled_cht/comp_2d/flow_cylinder.cfg",
+    "TestCases/coupled_cht/comp_2d/solid_cylinder1.cfg",
+    "TestCases/coupled_cht/comp_2d/solid_cylinder2.cfg",
+    "TestCases/coupled_cht/comp_2d/solid_cylinder3.cfg",
+    "TestCases/coupled_cht/disc_adj_incomp_2d/cht_2d_3cylinders.cfg",
+    "TestCases/coupled_cht/disc_adj_incomp_2d/flow_cylinder.cfg",
+    "TestCases/coupled_cht/disc_adj_incomp_2d/solid_cylinder1.cfg",
+    "TestCases/coupled_cht/disc_adj_incomp_2d/solid_cylinder2.cfg",
+    "TestCases/coupled_cht/disc_adj_incomp_2d/solid_cylinder3.cfg",
+    "TestCases/coupled_cht/disc_adj_unsteadyCHT_cylinder/chtMaster.cfg",
+    "TestCases/coupled_cht/disc_adj_unsteadyCHT_cylinder/fluid.cfg",
+    "TestCases/coupled_cht/disc_adj_unsteadyCHT_cylinder/solid.cfg",
+    "TestCases/coupled_cht/incomp_2d/cht_2d_3cylinders.cfg",
+    "TestCases/coupled_cht/incomp_2d/flow_cylinder.cfg",
+    "TestCases/coupled_cht/incomp_2d/solid_cylinder1.cfg",
+    "TestCases/coupled_cht/incomp_2d/solid_cylinder2.cfg",
+    "TestCases/coupled_cht/incomp_2d/solid_cylinder3.cfg",
+    "TestCases/coupled_cht/incomp_2d_unsteady/cht_2d_3cylinders.cfg",
+    "TestCases/coupled_cht/incomp_2d_unsteady/flow_cylinder.cfg",
+    "TestCases/coupled_cht/incomp_2d_unsteady/solid_cylinder1.cfg",
+    "TestCases/coupled_cht/incomp_2d_unsteady/solid_cylinder2.cfg",
+    "TestCases/coupled_cht/incomp_2d_unsteady/solid_cylinder3.cfg",
+    "TestCases/ddes/flatplate/ddes_flatplate.cfg",
+    "TestCases/deformation/brick_hex/def_brick_hex.cfg",
+    "TestCases/deformation/brick_hex_rans/def_brick_hex_rans.cfg",
+    "TestCases/deformation/brick_prism/def_brick_prism.cfg",
+    "TestCases/deformation/brick_prism_rans/def_brick_prism_rans.cfg",
+    "TestCases/deformation/brick_pyra/def_brick_pyra.cfg",
+    "TestCases/deformation/brick_tets/def_brick_tets.cfg",
+    "TestCases/deformation/cst/naca0012.cfg",
+    "TestCases/deformation/cylindrical_ffd/def_cylindrical.cfg",
+    "TestCases/deformation/intersection_prevention/def_intersect.cfg",
+    "TestCases/deformation/naca0012/def_NACA0012.cfg",
+    "TestCases/deformation/naca0012/def_NACA0012_camber.cfg",
+    "TestCases/deformation/naca0012/def_NACA0012_rbf.cfg",
+    "TestCases/deformation/naca0012/surface_file_NACA0012.cfg",
+    "TestCases/deformation/naca4412/def_NACA4412.cfg",
+    "TestCases/deformation/rae2822/def_RAE2822.cfg",
+    "TestCases/deformation/spherical_ffd/def_spherical.cfg",
+    "TestCases/deformation/spherical_ffd/def_spherical_bspline.cfg",
+    "TestCases/disc_adj_euler/arina2k/Arina2KRS.cfg",
+    "TestCases/disc_adj_euler/cylinder3D/inv_cylinder3D.cfg",
+    "TestCases/disc_adj_euler/naca0012_pitching/inv_NACA0012_pitching.cfg",
+    "TestCases/disc_adj_euler/naca0012_pitching_def/inv_NACA0012_pitching_deform.cfg",
+    "TestCases/disc_adj_euler/naca0012_pitching_def/inv_NACA0012_pitching_deform_ad.cfg",
+    "TestCases/disc_adj_euler/oneram6/inv_ONERAM6.cfg",
+    "TestCases/disc_adj_fea/configAD_fem.cfg",
+    "TestCases/disc_adj_ffi/mixing_plane/circles.cfg",
+    "TestCases/disc_adj_ffi/mixing_plane/zone_1.cfg",
+    "TestCases/disc_adj_ffi/mixing_plane/zone_2.cfg",
+    "TestCases/disc_adj_ffi/sliding_interface/circles.cfg",
+    "TestCases/disc_adj_fsi/Airfoil_2d/config.cfg",
+    "TestCases/disc_adj_fsi/Airfoil_2d/configFEA.cfg",
+    "TestCases/disc_adj_fsi/Airfoil_2d/configFlow.cfg",
+    "TestCases/disc_adj_fsi/config.cfg",
+    "TestCases/disc_adj_fsi/configFEA.cfg",
+    "TestCases/disc_adj_fsi/configFlow.cfg",
+    "TestCases/disc_adj_fsi/dyn_fsi/config.cfg",
+    "TestCases/disc_adj_fsi/dyn_fsi/configFEA.cfg",
+    "TestCases/disc_adj_fsi/dyn_fsi/configFlow.cfg",
+    "TestCases/disc_adj_heat/disc_adj_heat.cfg",
+    "TestCases/disc_adj_heat/primal.cfg",
+    "TestCases/disc_adj_incomp_euler/naca0012/incomp_NACA0012_disc.cfg",
+    "TestCases/disc_adj_incomp_navierstokes/cylinder/heated_cylinder.cfg",
+    "TestCases/disc_adj_incomp_rans/naca0012/turb_naca0012_sa.cfg",
+    "TestCases/disc_adj_incomp_rans/naca0012/turb_naca0012_sst.cfg",
+    "TestCases/disc_adj_rans/cylinder/cylinder.cfg",
+    "TestCases/disc_adj_rans/cylinder/cylinder_Windowing.cfg",
+    "TestCases/disc_adj_rans/cylinder/cylinder_Windowing_AD.cfg",
+    "TestCases/disc_adj_rans/cylinder_DT_1ST/cylinder.cfg",
+    "TestCases/disc_adj_rans/naca0012/naca0012.cfg",
+    "TestCases/disc_adj_rans/naca0012/turb_NACA0012_sa.cfg",
+    "TestCases/disc_adj_rans/naca0012/turb_NACA0012_sst.cfg",
+    "TestCases/disc_adj_turbomachinery/axial_stage_2D/Axial_stage2D.cfg",
+    "TestCases/disc_adj_turbomachinery/axial_stage_2D/zone_1.cfg",
+    "TestCases/disc_adj_turbomachinery/axial_stage_2D/zone_2.cfg",
+    "TestCases/disc_adj_turbomachinery/transonic_stator_2D/transonic_stator.cfg",
+    "TestCases/euler/CRM/inv_CRM_JST.cfg",
+    "TestCases/euler/biparabolic/BIPARABOLIC.cfg",
+    "TestCases/euler/bluntbody/blunt.cfg",
+    "TestCases/euler/channel/inv_channel.cfg",
+    "TestCases/euler/channel/inv_channel_RK.cfg",
+    "TestCases/euler/naca0012/inv_NACA0012.cfg",
+    "TestCases/euler/naca0012/inv_NACA0012_Roe.cfg",
+    "TestCases/euler/naca0012/mesh_su2_to_su2bin.cfg",
+    "TestCases/euler/oneram6/inv_ONERAM6.cfg",
+    "TestCases/euler/ramp/inv_ramp.cfg",
+    "TestCases/euler/ramp/inv_ramp_msw.cfg",
+    "TestCases/euler/turbofan_MFR_coupling/MFR_coupling.cfg",
+    "TestCases/euler/wedge/inv_wedge_HLLC.cfg",
+    "TestCases/fea_fsi/Airfoil_RBF/config.cfg",
+    "TestCases/fea_fsi/Airfoil_RBF/configFEA.cfg",
+    "TestCases/fea_fsi/Airfoil_RBF/configFlow.cfg",
+    "TestCases/fea_fsi/DynBeam_2d/configBeam_2d.cfg",
+    "TestCases/fea_fsi/MixElemsKnowles/config.cfg",
+    "TestCases/fea_fsi/SquareCyl_Beam/config.cfg",
+    "TestCases/fea_fsi/StatBeam_3d/configBeam_3d.cfg",
+    "TestCases/fea_fsi/ThermalBeam_3d/configBeamNonlinear_3d.cfg",
+    "TestCases/fea_fsi/ThermalBeam_3d/configBeamNonlinear_3d_ad.cfg",
+    "TestCases/fea_fsi/ThermalBeam_3d/configBeam_3d.cfg",
+    "TestCases/fea_fsi/VonMissesVerif/linear_plane_strain_2d.cfg",
+    "TestCases/fea_fsi/VonMissesVerif/nonlinear_plane_stress_2d.cfg",
+    "TestCases/fea_fsi/WallChannel_2d/configFEA.cfg",
+    "TestCases/fea_fsi/WallChannel_2d/configFSI.cfg",
+    "TestCases/fea_fsi/WallChannel_2d/configFlow.cfg",
+    "TestCases/fea_fsi/dyn_fsi/config.cfg",
+    "TestCases/fea_fsi/dyn_fsi/configFEA.cfg",
+    "TestCases/fea_fsi/dyn_fsi/configFlow.cfg",
+    "TestCases/fea_fsi/rotating_cylinder/config.cfg",
+    "TestCases/fea_fsi/stat_fsi/config.cfg",
+    "TestCases/fea_fsi/stat_fsi/configFEA.cfg",
+    "TestCases/fea_fsi/stat_fsi/configFlow.cfg",
+    "TestCases/fea_fsi/stat_fsi/config_restart.cfg",
+    "TestCases/fea_topology/config.cfg",
+    "TestCases/fea_topology/quick_start/settings.cfg",
+    "TestCases/fea_topology/quick_start/settings_compliance.cfg",
+    "TestCases/fea_topology/quick_start/settings_volfrac.cfg",
+    "TestCases/fixed_cl/naca0012/inv_NACA0012.cfg",
+    "TestCases/fixed_cl/naca0012/inv_NACA0012_ContAdj.cfg",
+    "TestCases/flamelet/01_laminar_premixed_ch4_flame_cfd/lam_prem_ch4_cfd.cfg",
+    "TestCases/flamelet/02_laminar_premixed_ch4_flame_hx_ad/lam_prem_ch4_hx_ad.cfg",
+    "TestCases/flamelet/02_laminar_premixed_ch4_flame_hx_ad/lam_prem_ch4_hx_dot.cfg",
+    "TestCases/flamelet/03_laminar_premixed_ch4_flame_cht_cfd/lam_prem_ch4_cht_cfd_fluid.cfg",
+    "TestCases/flamelet/03_laminar_premixed_ch4_flame_cht_cfd/lam_prem_ch4_cht_cfd_master.cfg",
+    "TestCases/flamelet/03_laminar_premixed_ch4_flame_cht_cfd/lam_prem_ch4_cht_cfd_solid.cfg",
+    "TestCases/flamelet/04_laminar_premixed_ch4_flame_cht_ad/lam_prem_ch4_cht_ad_fluid.cfg",
+    "TestCases/flamelet/04_laminar_premixed_ch4_flame_cht_ad/lam_prem_ch4_cht_ad_master.cfg",
+    "TestCases/flamelet/04_laminar_premixed_ch4_flame_cht_ad/lam_prem_ch4_cht_ad_solid.cfg",
+    "TestCases/flamelet/04_laminar_premixed_ch4_flame_cht_ad/lam_prem_ch4_cht_dot_master.cfg",
+    "TestCases/flamelet/05_laminar_premixed_ch4_flame_cfd_axi/lam_prem_ch4_cfd_axi.cfg",
+    "TestCases/flamelet/06_laminar_partial_premixed_ch4_flame_cfd/lam_partial_prem_ch4_cfd.cfg",
+    "TestCases/flamelet/07_laminar_premixed_h2_flame_cfd/laminar_premixed_h2_flame_cfd.cfg",
+    "TestCases/flamelet/09_laminar_premixed_ch4_flame_unsteady/lam_prem_ch4_unsteady.cfg",
+    "TestCases/grad_smooth/naca0012/inv_NACA0012_gradsmooth.cfg",
+    "TestCases/grad_smooth/oneram6/ONERAM6_gradsmooth.cfg",
+    "TestCases/gust/cosine_gust_zdir.cfg",
+    "TestCases/gust/gust_with_mesh_deformation.cfg",
+    "TestCases/gust/inv_gust_NACA0012.cfg",
+    "TestCases/harmonic_balance/HB.cfg",
+    "TestCases/harmonic_balance/hb_rans_preconditioning/davis.cfg",
+    "TestCases/hom_euler/InviscidVortex/2D/Quad32X32_nPoly4/InviscidVortex.cfg",
+    "TestCases/hom_euler/InviscidVortex/3D/nPoly2_Tets/InviscidVortex.cfg",
+    "TestCases/hom_euler/InviscidVortex/3D/nPoly4_Tets/InviscidVortex.cfg",
+    "TestCases/hom_euler/NACA0012_3D_Hybrid_4thOrder/fem_NACA0012.cfg",
+    "TestCases/hom_euler/NACA0012_5thOrder/fem_NACA0012.cfg",
+    "TestCases/hom_euler/NACA0012_5thOrder/fem_NACA0012_reg.cfg",
+    "TestCases/hom_euler/Ringleb/Quad100X50_nPoly3/Ringleb.cfg",
+    "TestCases/hom_euler/Ringleb/Quad100X50_nPoly3/Ringleb_WallBC.cfg",
+    "TestCases/hom_euler/Ringleb/Quad100X50_nPoly4/Ringleb.cfg",
+    "TestCases/hom_euler/Ringleb/Quad100X50_nPoly4/Ringleb_WallBC.cfg",
+    "TestCases/hom_euler/Ringleb/Quad200X100_nPoly4/Ringleb.cfg",
+    "TestCases/hom_euler/Ringleb/Quad200X100_nPoly4/Ringleb_WallBC.cfg",
+    "TestCases/hom_euler/Ringleb/Quad50X50_HalfGeom_nPoly4/Ringleb.cfg",
+    "TestCases/hom_euler/Ringleb/Quad50X50_HalfGeom_nPoly4/Ringleb_WallBC.cfg",
+    "TestCases/hom_euler/Ringleb/QuadDominantUnstr100X100_HalfGeom_nPoly4/Ringleb.cfg",
+    "TestCases/hom_euler/Ringleb/QuadDominantUnstr100X100_HalfGeom_nPoly4/Ringleb_WallBC.cfg",
+    "TestCases/hom_euler/Ringleb/Triangle50X50_HalfGeom_nPoly4/Ringleb.cfg",
+    "TestCases/hom_euler/Ringleb/Triangle50X50_HalfGeom_nPoly4/Ringleb_WallBC.cfg",
+    "TestCases/hom_euler/Sphere_4thOrder_Hexa/fem_Sphere.cfg",
+    "TestCases/hom_euler/Sphere_4thOrder_Tet/fem_Sphere.cfg",
+    "TestCases/hom_euler/SubsonicChannel/nPoly1/fem_SubsonicChannel.cfg",
+    "TestCases/hom_euler/SubsonicChannel/nPoly1/fem_SubsonicChannel_Farfield.cfg",
+    "TestCases/hom_euler/SubsonicChannel/nPoly2/fem_SubsonicChannel.cfg",
+    "TestCases/hom_euler/SubsonicChannel/nPoly2/fem_SubsonicChannel_Farfield.cfg",
+    "TestCases/hom_euler/SubsonicChannel/nPoly4/fem_SubsonicChannel.cfg",
+    "TestCases/hom_euler/SubsonicChannel/nPoly4/fem_SubsonicChannel_Farfield.cfg",
+    "TestCases/hom_navierstokes/CylinderViscous/nPoly3/fem_Cylinder_reg.cfg",
+    "TestCases/hom_navierstokes/FlatPlate/nPoly4/lam_flatplate_reg.cfg",
+    "TestCases/hom_navierstokes/SphereViscous/nPoly3_QuadDominant/fem_Sphere_reg.cfg",
+    "TestCases/hom_navierstokes/SphereViscous/nPoly3_QuadDominant/fem_Sphere_reg_ADER.cfg",
+    "TestCases/hom_navierstokes/UnsteadyCylinder/nPoly4/fem_unst_cylinder.cfg",
+    "TestCases/hom_navierstokes/UnsteadyCylinder/nPoly4/fem_unst_cylinder_ADER.cfg",
+    "TestCases/incomp_euler/naca0012/incomp_NACA0012.cfg",
+    "TestCases/incomp_euler/naca0012/incomp_pb_NACA0012.cfg",
+    "TestCases/incomp_euler/nozzle/inv_nozzle.cfg",
+    "TestCases/incomp_navierstokes/bend/lam_bend.cfg",
+    "TestCases/incomp_navierstokes/bend/pb_lam_bend.cfg",
+    "TestCases/incomp_navierstokes/buoyancy_cavity/lam_buoyancy_cavity.cfg",
+    "TestCases/incomp_navierstokes/cylinder/incomp_cylinder.cfg",
+    "TestCases/incomp_navierstokes/cylinder/incomp_pb_cylinder.cfg",
+    "TestCases/incomp_navierstokes/cylinder/pb_poly_cylinder.cfg",
+    "TestCases/incomp_navierstokes/cylinder/poly_cylinder.cfg",
+    "TestCases/incomp_navierstokes/cylinder_split/cylinder_split.cfg",
+    "TestCases/incomp_navierstokes/sphere/pb_sphere.cfg",
+    "TestCases/incomp_navierstokes/sphere/pb_sphere_urf.cfg",
+    "TestCases/incomp_navierstokes/sphere/sphere.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/chtPinArray_2d/BC_HeatTransfer.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/chtPinArray_2d/DA_configMaster.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/chtPinArray_2d/FD_configMaster.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/chtPinArray_2d/configFluid.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/chtPinArray_2d/configMaster.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/chtPinArray_2d/configSolid.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/chtPinArray_3d/configFluid.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/chtPinArray_3d/configMaster.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/chtPinArray_3d/configSolid.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/dp-adjoint_chtPinArray_2d/configFluid.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/dp-adjoint_chtPinArray_2d/configMaster.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/dp-adjoint_chtPinArray_2d/configSolid.cfg",
+    "TestCases/incomp_navierstokes/streamwise_periodic/pipeSlice_3d/sp_pipeSlice_3d_dp_hf_tp.cfg",
+    "TestCases/incomp_rans/AhmedBody/turb_ahmed.cfg",
+    "TestCases/incomp_rans/naca0012/naca0012.cfg",
+    "TestCases/incomp_rans/naca0012/naca0012_SST_SUST.cfg",
+    "TestCases/incomp_rans/rough_flatplate/pb_rough_flatplate_incomp.cfg",
+    "TestCases/incomp_rans/rough_flatplate/rough_flatplate_incomp.cfg",
+    "TestCases/mms/dg_navierstokes/lam_mms_dg.cfg",
+    "TestCases/mms/dg_navierstokes_3d/lam_mms_dg_3d.cfg",
+    "TestCases/mms/dg_ringleb/ringleb_dg.cfg",
+    "TestCases/mms/fvm_euler/inv_mms_vortex.cfg",
+    "TestCases/mms/fvm_incomp_euler/inv_mms_jst.cfg",
+    "TestCases/mms/fvm_incomp_navierstokes/lam_mms_fds.cfg",
+    "TestCases/mms/fvm_navierstokes/lam_mms_roe.cfg",
+    "TestCases/moving_wall/cavity/lam_cavity.cfg",
+    "TestCases/moving_wall/spinning_cylinder/spinning_cylinder.cfg",
+    "TestCases/multiple_ffd/naca0012/inv_NACA0012_ffd.cfg",
+    "TestCases/navierstokes/cylinder/cylinder_lowmach.cfg",
+    "TestCases/navierstokes/cylinder/lam_cylinder.cfg",
+    "TestCases/navierstokes/flatplate/flatplate_supersonic.cfg",
+    "TestCases/navierstokes/flatplate/lam_flatplate.cfg",
+    "TestCases/navierstokes/flatplate/lam_flatplate_unst.cfg",
+    "TestCases/navierstokes/naca0012/lam_NACA0012.cfg",
+    "TestCases/navierstokes/periodic2D/config.cfg",
+    "TestCases/navierstokes/poiseuille/lam_poiseuille.cfg",
+    "TestCases/navierstokes/poiseuille/profile_poiseuille.cfg",
+    "TestCases/nicf/LS89/turb_SA_PR.cfg",
+    "TestCases/nicf/LS89/turb_SST_PR.cfg",
+    "TestCases/nicf/coolprop/fluidModel.cfg",
+    "TestCases/nicf/coolprop/transportModel.cfg",
+    "TestCases/nicf/datadriven/datadriven_nozzle.cfg",
+    "TestCases/nicf/edge/edge_PPR.cfg",
+    "TestCases/nicf/edge/edge_VW.cfg",
+    "TestCases/nonequilibrium/invwedge/invwedge_am.cfg",
+    "TestCases/nonequilibrium/invwedge/invwedge_ausm.cfg",
+    "TestCases/nonequilibrium/invwedge/invwedge_ausmplusup2.cfg",
+    "TestCases/nonequilibrium/invwedge/invwedge_lax.cfg",
+    "TestCases/nonequilibrium/invwedge/invwedge_msw.cfg",
+    "TestCases/nonequilibrium/invwedge/invwedge_roe.cfg",
+    "TestCases/nonequilibrium/invwedge/invwedge_ss_inlet.cfg",
+    "TestCases/nonequilibrium/thermalbath/finitechemistry/thermalbath.cfg",
+    "TestCases/nonequilibrium/thermalbath/finitechemistry/weakly_ionized.cfg",
+    "TestCases/nonequilibrium/thermalbath/frozen/thermalbath_frozen.cfg",
+    "TestCases/nonequilibrium/visc_cylinder/cyl_ion_gy.cfg",
+    "TestCases/nonequilibrium/visc_wedge/axi_visccone.cfg",
+    "TestCases/nonequilibrium/visc_wedge/partial_cat.cfg",
+    "TestCases/nonequilibrium/visc_wedge/super_cat.cfg",
+    "TestCases/nonequilibrium/viscwedge_mpp/viscwedge_mpp.cfg",
+    "TestCases/optimization_euler/equivalentarea_naca64206/NACA64206.cfg",
+    "TestCases/optimization_euler/multiobjective_wedge/inv_wedge_ROE_2surf_1obj.cfg",
+    "TestCases/optimization_euler/multiobjective_wedge/inv_wedge_ROE_multiobj.cfg",
+    "TestCases/optimization_euler/multiobjective_wedge/inv_wedge_ROE_multiobj_1surf.cfg",
+    "TestCases/optimization_euler/multiobjective_wedge/inv_wedge_ROE_multiobj_combo.cfg",
+    "TestCases/optimization_euler/multipoint_naca0012/inv_NACA0012_multipoint.cfg",
+    "TestCases/optimization_euler/pitching_naca64a010/pitching_NACA64A010.cfg",
+    "TestCases/optimization_euler/pitching_oneram6/pitching_ONERAM6.cfg",
+    "TestCases/optimization_euler/rotating_naca0012/rotating_NACA0012.cfg",
+    "TestCases/optimization_euler/steady_inverse_design/inv_NACA0012.cfg",
+    "TestCases/optimization_euler/steady_naca0012/inv_NACA0012_adv.cfg",
+    "TestCases/optimization_euler/steady_naca0012/inv_NACA0012_basic.cfg",
+    "TestCases/optimization_euler/steady_oneram6/inv_ONERAM6_adv.cfg",
+    "TestCases/optimization_euler/steady_oneram6/inv_ONERAM6_basic.cfg",
+    "TestCases/optimization_rans/naca0012/naca0012.cfg",
+    "TestCases/optimization_rans/pitching_naca64a010/turb_NACA64A010.cfg",
+    "TestCases/optimization_rans/pitching_oneram6/turb_ONERAM6.cfg",
+    "TestCases/optimization_rans/steady_oneram6/turb_ONERAM6.cfg",
+    "TestCases/optimization_rans/steady_rae2822/turb_SA_RAE2822.cfg",
+    "TestCases/output_writers/ascii_output.cfg",
+    "TestCases/output_writers/cgns_mesh_readback.cfg",
+    "TestCases/output_writers/cgns_mesh_readback_bend.cfg",
+    "TestCases/output_writers/cgns_output.cfg",
+    "TestCases/output_writers/cgns_output_bend.cfg",
+    "TestCases/pastix_support/config.cfg",
+    "TestCases/polar/naca0012/inv_NACA0012.cfg",
+    "TestCases/py_wrapper/custom_inlet/lam_flatplate.cfg",
+    "TestCases/py_wrapper/custom_load_fea/config.cfg",
+    "TestCases/py_wrapper/custom_source_buoyancy/lam_buoyancy_cavity.cfg",
+    "TestCases/py_wrapper/deforming_bump_in_channel/config.cfg",
+    "TestCases/py_wrapper/disc_adj_fea/flow_load_sens/configAD_fem.cfg",
+    "TestCases/py_wrapper/disc_adj_flow/mesh_disp_sens/configAD_flow.cfg",
+    "TestCases/py_wrapper/dyn_fsi/config.cfg",
+    "TestCases/py_wrapper/dyn_fsi/configFEA.cfg",
+    "TestCases/py_wrapper/dyn_fsi/configFlow.cfg",
+    "TestCases/py_wrapper/flatPlate_rigidMotion/flatPlate_rigidMotion_Conf.cfg",
+    "TestCases/py_wrapper/flatPlate_unsteady_CHT/unsteady_CHT_FlatPlate_Conf.cfg",
+    "TestCases/py_wrapper/rotating_cylinder/spinning_cylinder.cfg",
+    "TestCases/py_wrapper/translating_NACA0012/config.cfg",
+    "TestCases/py_wrapper/turbulent_premixed_psi/psi.cfg",
+    "TestCases/py_wrapper/updated_moving_frame_NACA12/config.cfg",
+    "TestCases/radiation/p1adjoint/configp1adjoint.cfg",
+    "TestCases/radiation/p1model/configp1.cfg",
+    "TestCases/rans/actuatordisk_bem/actuatordisk_bem.cfg",
+    "TestCases/rans/actuatordisk_variable_load/propeller_variable_load.cfg",
+    "TestCases/rans/flatplate/roughness/bc_aupoix/turb_SST_flatplate_roughBCAupoix.cfg",
+    "TestCases/rans/flatplate/roughness/bc_knopp/turb_SST_flatplate_roughBCKnopp.cfg",
+    "TestCases/rans/flatplate/roughness/bc_wilcox2006/turb_SST_flatplate_roughBCWilcox2006.cfg",
+    "TestCases/rans/flatplate/turb_SA_flatplate.cfg",
+    "TestCases/rans/flatplate/turb_SA_flatplate_species.cfg",
+    "TestCases/rans/flatplate/turb_SST_flatplate.cfg",
+    "TestCases/rans/flatplate/turb_SST_flatplate_compressibility_Sarkar.cfg",
+    "TestCases/rans/flatplate/turb_SST_flatplate_compressibility_Wilcox.cfg",
+    "TestCases/rans/naca0012/turb_NACA0012_sa.cfg",
+    "TestCases/rans/naca0012/turb_NACA0012_sst.cfg",
+    "TestCases/rans/naca0012/turb_NACA0012_sst_1994-KLm.cfg",
+    "TestCases/rans/naca0012/turb_NACA0012_sst_2003-Vm.cfg",
+    "TestCases/rans/naca0012/turb_NACA0012_sst_2003m.cfg",
+    "TestCases/rans/naca0012/turb_NACA0012_sst_expliciteuler.cfg",
+    "TestCases/rans/naca0012/turb_NACA0012_sst_fixedvalues.cfg",
+    "TestCases/rans/naca0012/turb_NACA0012_sst_multigrid_restart.cfg",
+    "TestCases/rans/naca0012/turb_NACA0012_sst_sust.cfg",
+    "TestCases/rans/oneram6/turb_ONERAM6.cfg",
+    "TestCases/rans/oneram6/turb_ONERAM6_nk.cfg",
+    "TestCases/rans/oneram6/turb_ONERAM6_vc.cfg",
+    "TestCases/rans/propeller/propeller.cfg",
+    "TestCases/rans/rae2822/turb_SA_RAE2822.cfg",
+    "TestCases/rans/rae2822/turb_SST_RAE2822.cfg",
+    "TestCases/rans/rae2822/turb_SST_SUST_RAE2822.cfg",
+    "TestCases/rans/restart_directdiff_naca/naca0012.cfg",
+    "TestCases/rans/s809/trans_s809.cfg",
+    "TestCases/rans/s809/turb_S809.cfg",
+    "TestCases/rans/vki_turbine/turb_vki.cfg",
+    "TestCases/rans_uq/naca0012/turb_NACA0012_uq.cfg",
+    "TestCases/rans_uq/naca0012/turb_NACA0012_uq_1c.cfg",
+    "TestCases/rans_uq/naca0012/turb_NACA0012_uq_2c.cfg",
+    "TestCases/rans_uq/naca0012/turb_NACA0012_uq_3c.cfg",
+    "TestCases/rans_uq/naca0012/turb_NACA0012_uq_p1c1.cfg",
+    "TestCases/rans_uq/naca0012/turb_NACA0012_uq_p1c2.cfg",
+    "TestCases/rotating/caradonna_tung/rot_caradonna_tung.cfg",
+    "TestCases/rotating/naca0012/rot_NACA0012.cfg",
+    "TestCases/sliding_interface/bars_SST_2D/bars.cfg",
+    "TestCases/sliding_interface/bars_SST_2D/zone_1.cfg",
+    "TestCases/sliding_interface/bars_SST_2D/zone_2.cfg",
+    "TestCases/sliding_interface/bars_SST_2D/zone_3.cfg",
+    "TestCases/sliding_interface/channel_2D/channel_2D_NN.cfg",
+    "TestCases/sliding_interface/channel_2D/channel_2D_WA.cfg",
+    "TestCases/sliding_interface/channel_2D/mesh_su2_to_su2bin.cfg",
+    "TestCases/sliding_interface/channel_2D/zone_1.cfg",
+    "TestCases/sliding_interface/channel_2D/zone_2.cfg",
+    "TestCases/sliding_interface/channel_2D/zone_3.cfg",
+    "TestCases/sliding_interface/channel_3D/channel_3D_NN.cfg",
+    "TestCases/sliding_interface/channel_3D/channel_3D_WA.cfg",
+    "TestCases/sliding_interface/channel_3D/zone_1.cfg",
+    "TestCases/sliding_interface/channel_3D/zone_2.cfg",
+    "TestCases/sliding_interface/channel_3D/zone_3.cfg",
+    "TestCases/sliding_interface/incompressible_steady/config.cfg",
+    "TestCases/sliding_interface/incompressible_steady/configCircle.cfg",
+    "TestCases/sliding_interface/incompressible_steady/configOut.cfg",
+    "TestCases/sliding_interface/incompressible_unsteady/config.cfg",
+    "TestCases/sliding_interface/incompressible_unsteady/configCircle.cfg",
+    "TestCases/sliding_interface/incompressible_unsteady/configOut.cfg",
+    "TestCases/sliding_interface/pipe/pipe_NN.cfg",
+    "TestCases/sliding_interface/pipe/pipe_WA.cfg",
+    "TestCases/sliding_interface/pipe/zone_1.cfg",
+    "TestCases/sliding_interface/pipe/zone_2.cfg",
+    "TestCases/sliding_interface/pipe/zone_3.cfg",
+    "TestCases/sliding_interface/pipe/zone_4.cfg",
+    "TestCases/sliding_interface/pipe/zone_5.cfg",
+    "TestCases/sliding_interface/rotating_cylinders/rot_cylinders_NN.cfg",
+    "TestCases/sliding_interface/rotating_cylinders/rot_cylinders_WA.cfg",
+    "TestCases/sliding_interface/rotating_cylinders/zone_1.cfg",
+    "TestCases/sliding_interface/rotating_cylinders/zone_2.cfg",
+    "TestCases/sliding_interface/rotating_cylinders/zone_3.cfg",
+    "TestCases/sliding_interface/single_stage/single_stage_NN.cfg",
+    "TestCases/sliding_interface/single_stage/single_stage_WA.cfg",
+    "TestCases/sliding_interface/single_stage/zone_1.cfg",
+    "TestCases/sliding_interface/single_stage/zone_2.cfg",
+    "TestCases/sliding_interface/supersonic_vortex_shedding/sup_vor_shed_NN.cfg",
+    "TestCases/sliding_interface/supersonic_vortex_shedding/sup_vor_shed_WA.cfg",
+    "TestCases/sliding_interface/supersonic_vortex_shedding/zone_1.cfg",
+    "TestCases/sliding_interface/supersonic_vortex_shedding/zone_2.cfg",
+    "TestCases/sliding_interface/uniform_flow/uniform_NN.cfg",
+    "TestCases/sliding_interface/uniform_flow/uniform_WA.cfg",
+    "TestCases/sliding_interface/uniform_flow/zone_1.cfg",
+    "TestCases/sliding_interface/uniform_flow/zone_2.cfg",
+    "TestCases/solid_heat_conduction/periodic_pins/configSolid.cfg",
+    "TestCases/species_transport/multizone/configMaster.cfg",
+    "TestCases/species_transport/multizone/zone1.cfg",
+    "TestCases/species_transport/multizone/zone2.cfg",
+    "TestCases/species_transport/passive_transport_validation/active_species_transport_temp_limits.cfg",
+    "TestCases/species_transport/passive_transport_validation/passive_transport.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_JST.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_Lax_Friedrich.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_boundedscalar.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_mixingmodel.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_mixingmodel_TURBULENT_MARKERS.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_mixingmodel_boundedscalar.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_mixingmodel_heatcapacity_H2.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_mixingmodel_heatcapacity_H2_ND.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_mixingmodel_viscosity.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species2_primitiveVenturi_operatingpressure.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species3_primitiveVenturi_flux_value.cfg",
+    "TestCases/species_transport/venturi_primitive_3species/species3_primitiveVenturi_inletFile.cfg",
+    "TestCases/transition/E387_Airfoil/transitional_BC_model_ConfigFile.cfg",
+    "TestCases/transition/Schubauer_Klebanoff/transitional_BC_model_ConfigFile.cfg",
+    "TestCases/transition/T3A_FlatPlate/transitional_BC_model_ConfigFile.cfg",
+    "TestCases/turbomachinery/APU_turbocharger/Jones_restart.cfg",
+    "TestCases/turbomachinery/APU_turbocharger/rotor.cfg",
+    "TestCases/turbomachinery/APU_turbocharger/rotor_restart.cfg",
+    "TestCases/turbomachinery/APU_turbocharger/stator.cfg",
+    "TestCases/turbomachinery/Aachen_turbine/aachen_3D_MP_restart.cfg",
+    "TestCases/turbomachinery/Aachen_turbine/rotor.cfg",
+    "TestCases/turbomachinery/Aachen_turbine/stator1.cfg",
+    "TestCases/turbomachinery/Aachen_turbine/stator2.cfg",
+    "TestCases/turbomachinery/axial_stage_2D/Axial_stage2D.cfg",
+    "TestCases/turbomachinery/axial_stage_2D/zone_1.cfg",
+    "TestCases/turbomachinery/axial_stage_2D/zone_2.cfg",
+    "TestCases/turbomachinery/centrifugal_blade/centrifugal_blade.cfg",
+    "TestCases/turbomachinery/centrifugal_stage/centrifugal_stage.cfg",
+    "TestCases/turbomachinery/multi_interface/multi_interface_rst.cfg",
+    "TestCases/turbomachinery/multi_interface/zone_1.cfg",
+    "TestCases/turbomachinery/multi_interface/zone_2.cfg",
+    "TestCases/turbomachinery/multi_interface/zone_3.cfg",
+    "TestCases/turbomachinery/transonic_stator_2D/transonic_stator_restart.cfg",
+    "TestCases/turbulence_models/sa/rae2822/turb_SA_BSL_RAE2822.cfg",
+    "TestCases/turbulence_models/sa/rae2822/turb_SA_COMP_EDW_RAE2822.cfg",
+    "TestCases/turbulence_models/sa/rae2822/turb_SA_COMP_RAE2822.cfg",
+    "TestCases/turbulence_models/sa/rae2822/turb_SA_EDW_RAE2822.cfg",
+    "TestCases/turbulence_models/sa/rae2822/turb_SA_NEG_RAE2822.cfg",
+    "TestCases/turbulence_models/sa/rae2822/turb_SA_QCR_RAE2822.cfg",
+    "TestCases/unsteady/pitching_naca0015_rans_inc/config_incomp_turb_sa.cfg",
+    "TestCases/unsteady/pitching_naca64a010_euler/pitching_NACA64A010.cfg",
+    "TestCases/unsteady/pitching_naca64a010_rans/turb_NACA64A010.cfg",
+    "TestCases/unsteady/plunging_naca0012/plunging_NACA0012.cfg",
+    "TestCases/unsteady/square_cylinder/turb_square.cfg",
+    "TestCases/user_defined_functions/lam_flatplate.cfg",
+    "TestCases/user_defined_functions/test_11_probes.cfg",
+    "TestCases/vandv/rans/30p30n/config.cfg",
+    "TestCases/vandv/rans/30p30n/config_ad.cfg",
+    "TestCases/vandv/rans/bump_in_channel/turb_bump_sst.cfg",
+    "TestCases/vandv/rans/dsma661/dsma661_sa_config.cfg",
+    "TestCases/vandv/rans/dsma661/dsma661_sst_config.cfg",
+    "TestCases/vandv/rans/flatplate/turb_flatplate_sst.cfg",
+    "TestCases/vandv/rans/swbli/config_sa.cfg",
+    "TestCases/vandv/rans/swbli/config_sst.cfg",
+    "TestCases/vandv/species_transport/sandia_jet/validation.cfg",
+    "TestCases/wallfunctions/flatplate/compressible_SA/turb_SA_flatplate.cfg",
+    "TestCases/wallfunctions/flatplate/compressible_SST/turb_SST_flatplate.cfg",
+    "TestCases/wallfunctions/flatplate/incompressible_SA/turb_SA_flatplate.cfg",
+    "TestCases/wallfunctions/flatplate/incompressible_SST/turb_SST_flatplate.cfg",
+    "UnitTests/Common/CConfig_tests.cpp",
+    "UnitTests/Common/adaptation/AdaptationLoopOptions_tests.cpp",
+    "UnitTests/Common/adaptation/CMMGInterface_tests.cpp",
+    "UnitTests/Common/adaptation/DEF1Options_tests.cpp",
+    "UnitTests/Common/adaptation/LegacyMetricConfig.hpp",
+    "UnitTests/Common/geometry/CMemoryMeshReaderFVM_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/AdaptationMPI_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/AdjointTransfer_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerTwoPass_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CMetricPredictor_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeBL2D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeCGNS2D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeFastPathStage0_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeLocalCoreLab_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeSupport2D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CornerMetric_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/GoalMetric_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_cavity_planning.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_bl_surface_cavities.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_cavity_correction_mpi.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_actual_cavity_height_continuation.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_curved_rans_runtime.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc14.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc7.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc9.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_fp0_exit_refine.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_junction_replay.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_layer_2dway.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_m6b_projection_tests.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_region_core_fields.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_saved_metric_probe.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_sphere_bl_runtime.inc",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_target_checkpoint.inc",
+    "UnitTests/SU2_CFD/drivers/CDiscAdjSinglezoneDriver_tests.cpp",
+    "UnitTests/SU2_CFD/drivers/CDriver_tests.cpp",
+    "UnitTests/SU2_CFD/drivers/CSinglezoneDriver_tests.cpp",
+    "UnitTests/SU2_CFD/fluid/CFluidModel_tests.cpp",
+    "UnitTests/SU2_CFD/fluid/CFluidModel_tests_AD.cpp",
+    "UnitTests/SU2_CFD/gradients.cpp",
+    "UnitTests/SU2_CFD/nemo_viscous_assembly.cpp",
+    "UnitTests/SU2_CFD/numerics/CNumerics_tests.cpp",
+    "UnitTests/SU2_CFD/output/CMeshOutput_tests.cpp",
+    "UnitTests/SU2_CFD/output/CNEMOCompOutput_tests.cpp",
+    "UnitTests/SU2_CFD/output/COutput_convergence_tests.cpp",
+    "UnitTests/UnitQuadTestCase.hpp",
+    "UnitTests/meson.build",
+    "config_template.cfg"
+  ],
+  "gates": {
+    "normal build": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/build681/build_status.json",
+        "sha256": "2d0e87f4e369fe05b004a73411c7dd27ee546082bfba73d80a6457d2a16eb49c"
+      },
+      "warnings": [
+        "WARNING: CMake Toolchain: Failed to determine CMake compilers state",
+        "../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.",
+        "WARNING: Deprecated features used:",
+        "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: \u2018void* __builtin_memmove(void*, const void*, long unsigned int)\u2019 writing between 9 and 9223372036854775800 bytes into a region of size 0 overflows the destination [-Wstringop-overflow=]",
+        "/usr/include/c++/13/bits/stl_algobase.h:437:30: warning: argument 1 null where non-null expected [-Wnonnull]"
+      ]
+    },
+    "reverse AD build": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/build681/build_ad_status.json",
+        "sha256": "d6b4a40377cae86b02aa8eb66fcf4f16bdb71c579d044aa8f25b902eaff17478"
+      }
+    },
+    "normal lab": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/lab/build681/normal/receipt.json",
+        "sha256": "82ceba806afc01a835c22efc0c9b346bd3f28624030e6d2553532107ff91325b"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_normal]",
+            "-r",
+            "xml"
+          ],
+          "returncode": 0,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+          },
+          "stdout": "35ff834ee2ba7919e4a9b38ac72132ee35835d7c0b62fcff4edd0d0a443927cf",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "host_preflight": "ac4421f9ae10de8ad78c413e232da4614df92041b38c911c67895024178fada3",
+          "passed": true,
+          "selected_tests": [
+            "DEF1 GOAL scalar norm decision",
+            "DEF1 direct config defaults and level norm precedence",
+            "DEF1 configuration reads and inherits both Hausdorff forms",
+            "DEF1 MMG setters combine marker Hausdorff and wall sizing"
+          ],
+          "expected_test_count": 4
+        },
+        {
+          "case": "empty_middle",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "empty_middle"
+          },
+          "stdout": "193aee369d51a2d00784e4285822e89835de74de83dd23da18451cae1ab3e01a",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "07e694485b0b18daf76c41731d0c9835638bee9f9501b00851dc2277862c4a86",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD: empty field in marker list."
+        },
+        {
+          "case": "empty_first",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "empty_first"
+          },
+          "stdout": "193aee369d51a2d00784e4285822e89835de74de83dd23da18451cae1ab3e01a",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "e291a56b0f3232a30bf4b1269da01926d64ec2122aff193ec17726ff9b55d54a",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD: empty field in marker list."
+        },
+        {
+          "case": "empty_last",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "empty_last"
+          },
+          "stdout": "193aee369d51a2d00784e4285822e89835de74de83dd23da18451cae1ab3e01a",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "857c118734d45ea8844cddb57f3184606ccdbdd8c1abee98acc5870f518e55be",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD: empty field in marker list."
+        },
+        {
+          "case": "odd",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "odd"
+          },
+          "stdout": "0d0685cf7ef391fd65eea75e1516b6cb79c15277c350b8c8807381aa5e13d734",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "8a55c93e9bbeab554eed99ef896dbe308980693314b589606902711996632662",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD: marker list must contain name/value pairs."
+        },
+        {
+          "case": "junk",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "junk"
+          },
+          "stdout": "224a3a07bab99b9f34f808f8bbfd3535635a5ad18a6a2f791c77815d9c9895f9",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "7b195e5d7c586691bc1ff3feed9c28d2e280c2bac2cc2cb1f519dce6c94f2791",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD: invalid number for marker WALL."
+        },
+        {
+          "case": "zero",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "zero"
+          },
+          "stdout": "5564921139b9864b9b9d78ef21ac3937584fd8f2cdccdc8a66ae18b72cb9addd",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "f712f9261215262d1b9fbe769f8c6b73c6eaf8d37da1218ed25180501a2ae66e",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD: value for marker WALL must be finite and > 0."
+        },
+        {
+          "case": "negative",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "negative"
+          },
+          "stdout": "5564921139b9864b9b9d78ef21ac3937584fd8f2cdccdc8a66ae18b72cb9addd",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "38a91a6ec97bd01b4b126987eefc97cc22bd47d209c878fad4f6d4d71b3214ae",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD: value for marker WALL must be finite and > 0."
+        },
+        {
+          "case": "nonfinite",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "nonfinite"
+          },
+          "stdout": "5564921139b9864b9b9d78ef21ac3937584fd8f2cdccdc8a66ae18b72cb9addd",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "4804937843311448c015ff81b1fb9f8a08f8ed741505744851f928ec1d182168",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD: value for marker WALL must be finite and > 0."
+        },
+        {
+          "case": "duplicate",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "duplicate"
+          },
+          "stdout": "d36af3bd6727e1530c59df4f311f20bbafcabfced25cd2e261b42fdb9fa33019",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "634db0e8e5677220084ee3c330a5c524ea097a1b1bbcd53dc2ee2193d0b0dc34",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD: duplicate marker WALL."
+        },
+        {
+          "case": "native",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "native"
+          },
+          "stdout": "5bd6ad9d60f75f8de1c2e90af971eaeb76534823b378608a24b2e9915af720db",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "47175210693a2d2dde0edf244a6a028af367e82bef27325333848e4c9d1e30a8",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD per marker is available only with ADAP_REMESHER= MMG; the native remesher uses one value."
+        },
+        {
+          "case": "absent",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "absent"
+          },
+          "stdout": "63ff4393a5f43cc113db8a1aeeea043bd275811b616bd3092a245526ec0b73de",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "a0f2f6516dc3ed2e5252666ec5a8c2ecef3b9fb6eac76c8cdc7d08a543e6d8b8",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD marker MISSING is absent from the gathered mesh."
+        },
+        {
+          "case": "absent_override",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+            "[def1_fatal]",
+            "-r",
+            "console"
+          ],
+          "returncode": 1,
+          "binary_sha256": "be8cf2fc458a380c0e6fa81c03c847d922c653b99f8f2fd81986796b0d573146",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+            "SU2_DEF1_FATAL_CASE": "absent_override"
+          },
+          "stdout": "63ff4393a5f43cc113db8a1aeeea043bd275811b616bd3092a245526ec0b73de",
+          "stderr": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff",
+          "host_preflight": "5de0fa3686b80b8cb3e97b0af348420a8371a2cf7eb5eb98ff6c9de5a4ec238f",
+          "passed": true,
+          "expected_diagnostic": "ADAP_HAUSD marker MISSING is absent from the gathered mesh."
+        }
+      ]
+    },
+    "reverse AD lab": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/lab/build681/ad/receipt.json",
+        "sha256": "565b81eb83941f22b325e7aa2f9281ba7446d07783388bfbf6773610c16a937b"
+      },
+      "cases": [
+        {
+          "case": "ad",
+          "argv": [
+            "nice",
+            "-n",
+            "19",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/build681/test_driver_AD",
+            "[def1_ad]",
+            "-r",
+            "xml"
+          ],
+          "returncode": 0,
+          "binary_sha256": "eff1710be85cc8db2f9257e929ac86e244747312b324aaf8471899ba55a4bb52",
+          "settings": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "SU2_NATIVE_FP3_PROBE": "0",
+            "SU2_NATIVE_GEOMETRY_WORK_TRACE": "0",
+            "OMPI_MCA_osc": "pt2pt",
+            "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+          },
+          "stdout": "c810b2e9902c9eb1f9557a33437c93eb16a075da143213b6f77138301a66f37f",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "host_preflight": "271d8233258a746521e6c0268066c41029398d2f3e5bf3f2a1b705c35f13281a",
+          "passed": true,
+          "selected_tests": [
+            "DEF1 AD GOAL config defaults and inherited scalar"
+          ],
+          "expected_test_count": 1
+        }
+      ]
+    },
+    "scoped standing checks": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/step1_scoped.json",
+        "sha256": "35029e403ba61db6491cdfe4fe772a3023dfac921220d69ce8ab2e87b764412b"
+      }
+    },
+    "standing S workflow": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/G5/build681/S1/case_summary.json",
+        "sha256": "91ea0d6fd2466bb1622bda8a1f589e1f7e6712208bbdbb55662b9667f3f40cfe"
+      },
+      "legacy_configs": {
+        "full": {
+          "sealed_config": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/full680_run1/run.cfg",
+          "sealed_sha256": "07b91a94996bf3cb48352041d8e1643ffe17a61bed07432085cfcf87b1725382",
+          "sealed_receipts": {
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json": "e234fdd223bab140a2b8a74174025184eea1d48570298d5f258c419d4847065b",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/run_receipt.json": "46f4f1be90da2880cad41b753cc6c1a00961db4568e98f5173c220570c54be84",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/full680_run1/provenance.json": "caf7f14ba824f29249f77f2274cc51e241ff6c6b9900fb713044384d21f47fb0"
+          },
+          "inserted_lines": [
+            "ADAP_NORM= 1.0"
+          ],
+          "derived_config": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/G5/build681/S1/trial1/full681_run1/run.cfg",
+          "derived_sha256": "46975f42e8cfa78e932e57a724fc9fa241879d0fcf4a0b0e9bf3ed661afc1e2b",
+          "launch_metadata": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/G5/build681/S1/trial1/full681_run1/provenance.json",
+            "sha256": "a8dcf98eb6389dba4a1aa5fc363991d2209d428b4bfcb0937b40b465b96ed315"
+          }
+        },
+        "isolated_restart": {
+          "sealed_config": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/disk_restart_full680_run1_event2/run.cfg",
+          "sealed_sha256": "c7984b6edecc090d6823a5c51493a77aaf87e62ad4b637259de35e5b3a1a44ca",
+          "sealed_receipts": {
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json": "e234fdd223bab140a2b8a74174025184eea1d48570298d5f258c419d4847065b",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/run_receipt.json": "46f4f1be90da2880cad41b753cc6c1a00961db4568e98f5173c220570c54be84",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/G5/build680/S1/trial1/disk_restart_full680_run1_event2/disk_restart_validation.json": "40ea006cd5573daede00768d7af78e5b698abbd0f5b291922c39fab0c0842fca"
+          },
+          "inserted_lines": [
+            "ADAP_NORM= 1.0"
+          ],
+          "derived_config": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/G5/build681/S1/trial1/disk_restart_full681_run1_event2/run.cfg",
+          "derived_sha256": "002e04d308e1218db41b17122bc465d8220f0f59978cf4abfbd6711e495cb6cf",
+          "launch_metadata": {
+            "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/G5/build681/S1/trial1/disk_restart_full681_run1_event2/pins.json",
+            "sha256": "0740b5649fa2d34674553c6444ce8fd06aefe29909767f4c158e1f3ac8175832"
+          }
+        }
+      }
+    },
+    "G1-serial": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G1-serial/case_summary.json",
+        "sha256": "4ebcc6ceb9ea5fdf5a64231221a1722694c198a6cda068293f76cfc2ddfb62d9"
+      }
+    },
+    "G1-mpi2": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G1-mpi2/case_summary.json",
+        "sha256": "8247b4ee9d3da78ef2c429f724261fb435417547b244e7b205d702bbe017cf3b"
+      }
+    },
+    "G1-mpi4": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G1-mpi4/case_summary.json",
+        "sha256": "a07e754dd419f84d52b1ca0b4c74d287692057351d0fbdf81d2892173ddc7916"
+      }
+    },
+    "hidden": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/hidden/case_summary.json",
+        "sha256": "8dc25e4b384cd13f64d0d8e6c1c638633eb338787c8f365486eb74cc88034ce7"
+      }
+    },
+    "G2": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G2/case_summary.json",
+        "sha256": "0381db51dfd7a27179f8f705181b57b63f2b348ad4c7a3cef0f8fdd917b98756"
+      }
+    },
+    "GQ": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/GQ/case_summary.json",
+        "sha256": "e910234faae271dfcdc9020851a1234b03f83df245a4fa4bcf63921493ac5ebb"
+      }
+    },
+    "first-collapse": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/first-collapse/case_summary.json",
+        "sha256": "2385171a0a5d6c68ca5951ba4300a59634f383a5674b99249c69c8cab04a912d"
+      }
+    },
+    "exact-c492": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/exact-c492/case_summary.json",
+        "sha256": "7f7312a6cb8503ca719036da56ff747430fa2d9e265460dc95bdb6d753ec5637"
+      }
+    },
+    "merit481": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/merit481/case_summary.json",
+        "sha256": "efa35f2de282c5fb65f3c74f0ac933cbdbe86d48597c722af1951c7934b9d1b4"
+      }
+    },
+    "native2d": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/native2d/case_summary.json",
+        "sha256": "07fa68cb7fac249da65fe99c31933696e31e90a0a94ea3d3e71e6943e2f57dbd"
+      }
+    },
+    "saved-current": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/saved-current/case_summary.json",
+        "sha256": "fc0e8adbf5d81e8405d8a4c2466ec983879884385a6a68ccbeed238ead94ad80"
+      }
+    },
+    "G3": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G3/case_summary.json",
+        "sha256": "fc9e5e01e83ffcc9c66a427fe7df767f833da1127b6d3d792f1ded59537d119c"
+      }
+    },
+    "G4": {
+      "status": "passed",
+      "receipt": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/DEF1/controls/build681/G4/case_summary.json",
+        "sha256": "a7f5331bb6a1d4da24f5202c4df7c595c18dc9e7e8022e4639a0422786ef2822"
+      }
+    }
+  },
+  "capabilities": {
+    "CL2": {
+      "status": "CL2: converged loop run FAILED at event 2, gate 1",
+      "first_finding": "Adaptation skipped: Remesher returned incomplete quality. Current mesh and solution retained.",
+      "runtime_defaults": {
+        "norm": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "expected": 2.0,
+            "observed": [
+              2.0
+            ],
+            "lines": [
+              "Its metric makes the next mesh: complexity 50000, sizes 0.003 to 100, norm 2, aspect ratio up to 1e+06."
+            ]
+          }
+        },
+        "hgrad": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "expected": 1.6,
+            "rows": [
+              {
+                "file_rank": 0,
+                "rank": "0",
+                "hgrad": 1.6,
+                "line": "NATIVE3D_REQUIREMENTS rank=0 hmin=0.0030000000000000001 hmax=100 ARmax=1000000 hgrad=1.6000000000000001 complexity=50000 composition_present=0 mapped=1 entity_geometry=1 curved=1 tolerance=0.0001 policy_present=1 features=674 corners=2 sheets=4 angle=60 height_tolerance=0.10000000000000001 maximum_work=19414976 maximum_seconds=5231.9272618199993 memory_ceiling=12884901888 job_memory_limit=19999490048 wall_rows="
+              },
+              {
+                "file_rank": 1,
+                "rank": "1",
+                "hgrad": 1.6,
+                "line": "NATIVE3D_REQUIREMENTS rank=1 hmin=0.0030000000000000001 hmax=100 ARmax=1000000 hgrad=1.6000000000000001 complexity=50000 composition_present=0 mapped=1 entity_geometry=1 curved=1 tolerance=0.0001 policy_present=1 features=674 corners=2 sheets=4 angle=60 height_tolerance=0.10000000000000001 maximum_work=19414976 maximum_seconds=5231.9272618199993 memory_ceiling=12884901888 job_memory_limit=19999490048 wall_rows="
+              },
+              {
+                "file_rank": 2,
+                "rank": "2",
+                "hgrad": 1.6,
+                "line": "NATIVE3D_REQUIREMENTS rank=2 hmin=0.0030000000000000001 hmax=100 ARmax=1000000 hgrad=1.6000000000000001 complexity=50000 composition_present=0 mapped=1 entity_geometry=1 curved=1 tolerance=0.0001 policy_present=1 features=674 corners=2 sheets=4 angle=60 height_tolerance=0.10000000000000001 maximum_work=19414976 maximum_seconds=5231.9272618199993 memory_ceiling=12884901888 job_memory_limit=19999490048 wall_rows="
+              },
+              {
+                "file_rank": 3,
+                "rank": "3",
+                "hgrad": 1.6,
+                "line": "NATIVE3D_REQUIREMENTS rank=3 hmin=0.0030000000000000001 hmax=100 ARmax=1000000 hgrad=1.6000000000000001 complexity=50000 composition_present=0 mapped=1 entity_geometry=1 curved=1 tolerance=0.0001 policy_present=1 features=674 corners=2 sheets=4 angle=60 height_tolerance=0.10000000000000001 maximum_work=19414976 maximum_seconds=5231.9272618199993 memory_ceiling=12884901888 job_memory_limit=19999490048 wall_rows="
+              },
+              {
+                "file_rank": 4,
+                "rank": "4",
+                "hgrad": 1.6,
+                "line": "NATIVE3D_REQUIREMENTS rank=4 hmin=0.0030000000000000001 hmax=100 ARmax=1000000 hgrad=1.6000000000000001 complexity=50000 composition_present=0 mapped=1 entity_geometry=1 curved=1 tolerance=0.0001 policy_present=1 features=674 corners=2 sheets=4 angle=60 height_tolerance=0.10000000000000001 maximum_work=19414976 maximum_seconds=5231.9272618199993 memory_ceiling=12884901888 job_memory_limit=19999490048 wall_rows="
+              },
+              {
+                "file_rank": 5,
+                "rank": "5",
+                "hgrad": 1.6,
+                "line": "NATIVE3D_REQUIREMENTS rank=5 hmin=0.0030000000000000001 hmax=100 ARmax=1000000 hgrad=1.6000000000000001 complexity=50000 composition_present=0 mapped=1 entity_geometry=1 curved=1 tolerance=0.0001 policy_present=1 features=674 corners=2 sheets=4 angle=60 height_tolerance=0.10000000000000001 maximum_work=19414976 maximum_seconds=5231.9272618199993 memory_ceiling=12884901888 job_memory_limit=19999490048 wall_rows="
+              }
+            ]
+          }
+        },
+        "wiring_defect": false
+      },
+      "terminal": {
+        "cause": "natural",
+        "returncode": 0,
+        "interruption_signals": [],
+        "controller_error": null,
+        "elapsed_seconds": 4437.311156852171,
+        "finished_utc": "2026-11-27T22:57:38.584137+00:00",
+        "all_owned_handles_terminal": true,
+        "live_handles": [],
+        "owned_identities": [
+          {
+            "pid": 4108690,
+            "state": "R",
+            "ppid": 4108550,
+            "pgid": 4108690,
+            "start_ticks": 130812742,
+            "comm": "mpirun"
+          },
+          {
+            "pid": 4108703,
+            "state": "R",
+            "ppid": 4108696,
+            "pgid": 4108696,
+            "start_ticks": 130812750,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 4108696,
+            "state": "R",
+            "ppid": 4108690,
+            "pgid": 4108696,
+            "start_ticks": 130812746,
+            "comm": "python3"
+          },
+          {
+            "pid": 4108700,
+            "state": "R",
+            "ppid": 4108694,
+            "pgid": 4108694,
+            "start_ticks": 130812750,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 4108694,
+            "state": "R",
+            "ppid": 4108690,
+            "pgid": 4108694,
+            "start_ticks": 130812745,
+            "comm": "python3"
+          },
+          {
+            "pid": 4108705,
+            "state": "R",
+            "ppid": 4108698,
+            "pgid": 4108698,
+            "start_ticks": 130812751,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 4108698,
+            "state": "R",
+            "ppid": 4108690,
+            "pgid": 4108698,
+            "start_ticks": 130812746,
+            "comm": "python3"
+          },
+          {
+            "pid": 4108704,
+            "state": "R",
+            "ppid": 4108697,
+            "pgid": 4108697,
+            "start_ticks": 130812751,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 4108697,
+            "state": "R",
+            "ppid": 4108690,
+            "pgid": 4108697,
+            "start_ticks": 130812746,
+            "comm": "python3"
+          },
+          {
+            "pid": 4108699,
+            "state": "R",
+            "ppid": 4108693,
+            "pgid": 4108693,
+            "start_ticks": 130812750,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 4108693,
+            "state": "R",
+            "ppid": 4108690,
+            "pgid": 4108693,
+            "start_ticks": 130812745,
+            "comm": "python3"
+          },
+          {
+            "pid": 4108701,
+            "state": "R",
+            "ppid": 4108695,
+            "pgid": 4108695,
+            "start_ticks": 130812750,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 4108695,
+            "state": "R",
+            "ppid": 4108690,
+            "pgid": 4108695,
+            "start_ticks": 130812746,
+            "comm": "python3"
+          }
+        ],
+        "launcher": {
+          "pid": 4108690,
+          "state": "R",
+          "ppid": 4108550,
+          "pgid": 4108690,
+          "start_ticks": 130812742,
+          "comm": "mpirun"
+        },
+        "signals": [],
+        "rank_waits": [
+          {
+            "rank": 0,
+            "pid": 4108699,
+            "child": {
+              "pid": 4108699,
+              "state": "R",
+              "ppid": 4108693,
+              "pgid": 4108693,
+              "start_ticks": 130812750,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T21:43:41.348869+00:00",
+            "finished_utc": "2026-11-27T22:57:38.276671+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 1325625344,
+            "user_seconds": 4238.276437,
+            "system_seconds": 14.774844,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 1,
+            "pid": 4108700,
+            "child": {
+              "pid": 4108700,
+              "state": "R",
+              "ppid": 4108694,
+              "pgid": 4108694,
+              "start_ticks": 130812750,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T21:43:41.349023+00:00",
+            "finished_utc": "2026-11-27T22:57:38.304054+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 1464909824,
+            "user_seconds": 4241.5747,
+            "system_seconds": 13.977813,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 2,
+            "pid": 4108701,
+            "child": {
+              "pid": 4108701,
+              "state": "R",
+              "ppid": 4108695,
+              "pgid": 4108695,
+              "start_ticks": 130812750,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T21:43:41.349300+00:00",
+            "finished_utc": "2026-11-27T22:57:38.293505+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 1429360640,
+            "user_seconds": 4237.329915,
+            "system_seconds": 15.112417,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 3,
+            "pid": 4108703,
+            "child": {
+              "pid": 4108703,
+              "state": "R",
+              "ppid": 4108696,
+              "pgid": 4108696,
+              "start_ticks": 130812750,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T21:43:41.350510+00:00",
+            "finished_utc": "2026-11-27T22:57:38.275654+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 1400786944,
+            "user_seconds": 4241.526507,
+            "system_seconds": 15.571728,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 4,
+            "pid": 4108704,
+            "child": {
+              "pid": 4108704,
+              "state": "R",
+              "ppid": 4108697,
+              "pgid": 4108697,
+              "start_ticks": 130812751,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T21:43:41.354536+00:00",
+            "finished_utc": "2026-11-27T22:57:38.299566+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 1592872960,
+            "user_seconds": 4240.22558,
+            "system_seconds": 15.611191,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 5,
+            "pid": 4108705,
+            "child": {
+              "pid": 4108705,
+              "state": "R",
+              "ppid": 4108698,
+              "pgid": 4108698,
+              "start_ticks": 130812751,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T21:43:41.355825+00:00",
+            "finished_utc": "2026-11-27T22:57:38.273797+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 1250377728,
+            "user_seconds": 4235.367941,
+            "system_seconds": 17.390538,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          }
+        ],
+        "inputs_verified_after": {
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL2/run/run.cfg": true,
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD": true,
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL2/run/m6.su2": true,
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL2/run/m6.su2.native_ref": true,
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL2/run/baseline_euler_seed.dat": true
+        }
+      },
+      "binary_sha256": "15e3710f376155c76c69b5845e7ec0f004af0423923865831093e1829e245025",
+      "report": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL2/reports/CL2_681.md",
+        "sha256": "59cea6da4a416cbae1aab42135442e3f71ed3bce7e51dbee5394f6eaba87dadd"
+      },
+      "json_report": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/CL2/reports/CL2_681.json",
+        "sha256": "a88b57d4dd4f751a0a456fb5b661ee538fede054a577ec771b950f89b0230768"
+      }
+    },
+    "MMG2": {
+      "status": "MMG2: loop run DONE; convergence cap reached on cycles 1, 2, 4",
+      "first_finding": null,
+      "runtime_defaults": {
+        "norm": {
+          "status": "passed",
+          "reason": null,
+          "values": {
+            "expected": 2.0,
+            "observed": [
+              2.0
+            ],
+            "lines": [
+              "Its metric makes the next mesh: complexity 50000, sizes 0.003 to 100, norm 2, aspect ratio up to 1e+06."
+            ]
+          }
+        },
+        "wiring_defect": false,
+        "defects": []
+      },
+      "terminal": {
+        "cause": "natural",
+        "returncode": 0,
+        "interruption_signals": [],
+        "controller_error": null,
+        "elapsed_seconds": 6338.030264473055,
+        "finished_utc": "2026-11-28T00:45:52.037875+00:00",
+        "all_owned_handles_terminal": true,
+        "live_handles": [],
+        "owned_identities": [
+          {
+            "pid": 22507,
+            "state": "R",
+            "ppid": 22310,
+            "pgid": 22507,
+            "start_ticks": 131272016,
+            "comm": "mpirun"
+          },
+          {
+            "pid": 22525,
+            "state": "R",
+            "ppid": 22515,
+            "pgid": 22515,
+            "start_ticks": 131272026,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 22515,
+            "state": "R",
+            "ppid": 22507,
+            "pgid": 22515,
+            "start_ticks": 131272020,
+            "comm": "python3"
+          },
+          {
+            "pid": 22523,
+            "state": "R",
+            "ppid": 22513,
+            "pgid": 22513,
+            "start_ticks": 131272026,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 22513,
+            "state": "R",
+            "ppid": 22507,
+            "pgid": 22513,
+            "start_ticks": 131272020,
+            "comm": "python3"
+          },
+          {
+            "pid": 22529,
+            "state": "R",
+            "ppid": 22517,
+            "pgid": 22517,
+            "start_ticks": 131272027,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 22517,
+            "state": "R",
+            "ppid": 22507,
+            "pgid": 22517,
+            "start_ticks": 131272021,
+            "comm": "python3"
+          },
+          {
+            "pid": 22527,
+            "state": "R",
+            "ppid": 22516,
+            "pgid": 22516,
+            "start_ticks": 131272026,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 22516,
+            "state": "R",
+            "ppid": 22507,
+            "pgid": 22516,
+            "start_ticks": 131272020,
+            "comm": "python3"
+          },
+          {
+            "pid": 22524,
+            "state": "S",
+            "ppid": 22512,
+            "pgid": 22512,
+            "start_ticks": 131272026,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 22512,
+            "state": "R",
+            "ppid": 22507,
+            "pgid": 22512,
+            "start_ticks": 131272020,
+            "comm": "python3"
+          },
+          {
+            "pid": 22532,
+            "state": "R",
+            "ppid": 22514,
+            "pgid": 22514,
+            "start_ticks": 131272027,
+            "comm": "SU2_CFD"
+          },
+          {
+            "pid": 22514,
+            "state": "R",
+            "ppid": 22507,
+            "pgid": 22514,
+            "start_ticks": 131272020,
+            "comm": "python3"
+          }
+        ],
+        "launcher": {
+          "pid": 22507,
+          "state": "R",
+          "ppid": 22310,
+          "pgid": 22507,
+          "start_ticks": 131272016,
+          "comm": "mpirun"
+        },
+        "signals": [],
+        "rank_waits": [
+          {
+            "rank": 0,
+            "pid": 22524,
+            "child": {
+              "pid": 22524,
+              "state": "S",
+              "ppid": 22512,
+              "pgid": 22512,
+              "start_ticks": 131272026,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T23:00:14.108978+00:00",
+            "finished_utc": "2026-11-28T00:45:51.446202+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 1029455872,
+            "user_seconds": 6101.947597,
+            "system_seconds": 16.904806,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 1,
+            "pid": 22523,
+            "child": {
+              "pid": 22523,
+              "state": "R",
+              "ppid": 22513,
+              "pgid": 22513,
+              "start_ticks": 131272026,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T23:00:14.106492+00:00",
+            "finished_utc": "2026-11-28T00:45:51.452789+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 955031552,
+            "user_seconds": 6103.910507,
+            "system_seconds": 16.611941,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 2,
+            "pid": 22532,
+            "child": {
+              "pid": 22532,
+              "state": "R",
+              "ppid": 22514,
+              "pgid": 22514,
+              "start_ticks": 131272027,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T23:00:14.118618+00:00",
+            "finished_utc": "2026-11-28T00:45:51.449588+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 915767296,
+            "user_seconds": 6095.35255,
+            "system_seconds": 16.119695,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 3,
+            "pid": 22525,
+            "child": {
+              "pid": 22525,
+              "state": "R",
+              "ppid": 22515,
+              "pgid": 22515,
+              "start_ticks": 131272026,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T23:00:14.109881+00:00",
+            "finished_utc": "2026-11-28T00:45:51.440560+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 654282752,
+            "user_seconds": 6103.542127,
+            "system_seconds": 16.531919,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 4,
+            "pid": 22527,
+            "child": {
+              "pid": 22527,
+              "state": "R",
+              "ppid": 22516,
+              "pgid": 22516,
+              "start_ticks": 131272026,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T23:00:14.113660+00:00",
+            "finished_utc": "2026-11-28T00:45:51.446538+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 759902208,
+            "user_seconds": 6094.240614,
+            "system_seconds": 17.800808,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          },
+          {
+            "rank": 5,
+            "pid": 22529,
+            "child": {
+              "pid": 22529,
+              "state": "R",
+              "ppid": 22517,
+              "pgid": 22517,
+              "start_ticks": 131272027,
+              "comm": "SU2_CFD"
+            },
+            "start_utc": "2026-11-27T23:00:14.116304+00:00",
+            "finished_utc": "2026-11-28T00:45:51.455525+00:00",
+            "returncode": 0,
+            "wait_status": 0,
+            "peak_rss_bytes": 739667968,
+            "user_seconds": 6097.995756,
+            "system_seconds": 17.164786,
+            "forwarded_signals": [],
+            "method": "os.wait4 direct solver child; Linux ru_maxrss in KiB"
+          }
+        ],
+        "inputs_verified_after": {
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/run.cfg": true,
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD": true,
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/m6.su2": true,
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/m6.su2.native_ref": true,
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/run/baseline_euler_seed.dat": true
+        }
+      },
+      "binary_sha256": "15e3710f376155c76c69b5845e7ec0f004af0423923865831093e1829e245025",
+      "report": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/reports/MMG2_681.md",
+        "sha256": "ef276b3928d990bbcdbaf732668f3f4f8ad218a4d94cdb1953d5b4705479e7f3"
+      },
+      "json_report": {
+        "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/MMG2/reports/MMG2_681.json",
+        "sha256": "931e02c40706b79fb5b05104e544364eea830ea423cad7ca45ba7635f27067d2"
+      }
+    }
+  },
+  "not_evaluated": [
+    "full OFF workflow",
+    "full CORE workflow"
+  ],
+  "reference": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/night_20261115/FP3_E/accepted_reference.json",
+    "sha256": "e234fdd223bab140a2b8a74174025184eea1d48570298d5f258c419d4847065b"
+  },
+  "reference_changes": []
+}
