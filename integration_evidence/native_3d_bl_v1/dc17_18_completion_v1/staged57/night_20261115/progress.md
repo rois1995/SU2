@@ -2866,3 +2866,5 @@ SC1 default S1 passed with all six hashes equal to FP3-E. Native maxima 412.665 
 SC1 default S1 checkpoint 5f02a3043f pushed. S2 is active under su2-sc1-s2-682 on build682, with the same value-0 and legacy input pins.
 
 SC1 S2 passed, reproducing all six S1 and FP3-E payloads with the same binary. Native maxima 417.545 / 203.907 s, minimum coverage 97.758 / 99.324 percent, process-peak sums 9,304,137,728 / 9,497,612,288 bytes, isolated restart 63.621 s. Count and both default runs are terminal and their evidence is sealed. Final disposition ACCEPTED with identical results. No lab value 5 run was needed. Full OFF, full CORE and warm/cold equivalence are unevaluated. Updated AGENTS, handoff, next-work status and timing handbook. STOP at the final label.
+
+TOL1 opened after SC1 a94f2f0980. Signed order and SHA256 copied and verified. Whole-item R4 source check recorded in TOL1/reports/source_check.md before the first production edit. Next implement list-only tolerance and frozen seams while preserving the scalar path.
