@@ -1,0 +1,73 @@
+{
+  "state": "terminal",
+  "passed": true,
+  "build": 686,
+  "exit_code": 0,
+  "base": "a94f2f0980",
+  "baseline_build": 682,
+  "source_commit": "9de0386ca36cdabe0ba61826464aab603d97954b",
+  "pins_verified": true,
+  "changed": [
+    "Common/include/CConfig.hpp",
+    "Common/include/adaptation/CNativeAffineReference.hpp",
+    "Common/include/adaptation/CNativeBoundary3D.hpp",
+    "Common/include/adaptation/CNativeBoundaryParameters3D.hpp",
+    "Common/include/adaptation/CNativeEngine3D.hpp",
+    "Common/include/adaptation/CNativeGeometryBackend3D.hpp",
+    "Common/include/adaptation/CNativeGeometryCertificates3D.hpp",
+    "Common/include/adaptation/CNativeLocalCore3D.hpp",
+    "Common/include/adaptation/CNativeLocalSurface3D.hpp",
+    "Common/include/adaptation/CNativeMarkerTolerance3D.hpp",
+    "Common/src/CConfig.cpp",
+    "Common/src/adaptation/CNativeAffineReference.cpp",
+    "Common/src/adaptation/CNativeBoundary3D.cpp",
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+    "Common/src/adaptation/CNativeCurvedAtlas3D.cpp",
+    "Common/src/adaptation/CNativeDistributed3D.cpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativeGeometryBackend3D.cpp",
+    "Common/src/adaptation/CNativeRemesher.cpp",
+    "Common/src/adaptation/CNativeRemesher3D.cpp",
+    "Common/src/adaptation/native_engine3d/EngineControl.cpp",
+    "Common/src/adaptation/native_engine3d/EngineSelectionCensus.cpp",
+    "Common/src/adaptation/native_engine3d/EngineSetup.cpp",
+    "Common/src/adaptation/native_engine3d/EngineTrial.cpp",
+    "Common/src/adaptation/native_engine3d/MeshOptimizer.cpp",
+    "Common/src/adaptation/native_engine3d/NativeRemeshRun.inc",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DCollapse.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalCore3DSurface.cpp",
+    "Common/src/adaptation/native_local/CNativeLocalSurfaceGeometry3D.cpp",
+    "UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeLocalCore3DSurface_tests.cpp",
+    "UnitTests/Common/adaptation/DEF1Options_tests.cpp",
+    "UnitTests/Common/adaptation/native_local_surface_collapse_fixtures.inc",
+    "UnitTests/SU2_CFD/adaptation/CNativeLocalCore3DOption_tests.cpp",
+    "config_template.cfg"
+  ],
+  "source_pins_sha256": "a23109a552c7d4bcbb479c1dfaea3294d8ddf6f9cbe7ef5576b776d649e3fb8c",
+  "production_diff_sha256": "bda48e2747a240b0758921494d382cc6ce50a084fa708326dafde53f459ee3c1",
+  "graph_before": {
+    "build.ninja": "58eba870aa83b4d8fbcabae3a2f09ebaa11e6a5605a9b2ebe217da7f507b6d3a",
+    "compile_commands.json": "c9182e951dd6e19fddda1a7d18c184a132f5b3a022248d07a884a50f62961929"
+  },
+  "graph_after": {
+    "build.ninja": "58eba870aa83b4d8fbcabae3a2f09ebaa11e6a5605a9b2ebe217da7f507b6d3a",
+    "compile_commands.json": "c9182e951dd6e19fddda1a7d18c184a132f5b3a022248d07a884a50f62961929"
+  },
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "58cbc0d7e11a0f7b8f74ea2ec188e5dde7a1df314c8a6339c570e12701ab87f6",
+  "test_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-p5-20261114/UnitTests/test_driver",
+  "test_binary_sha256": "af6c146a5d8d8305637c32078d5c560fb23083687531be930fd3d757dce1bbcd",
+  "warnings": [],
+  "wait": {
+    "actual_host_proc": true,
+    "controller": {
+      "pid": 946647,
+      "start_ticks": 135509943
+    },
+    "returncode": 0,
+    "elapsed_seconds": 470.87630224227905,
+    "terminal": true
+  }
+}
